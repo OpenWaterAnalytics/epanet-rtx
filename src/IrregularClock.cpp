@@ -4,7 +4,7 @@
 //
 //  Created by the EPANET-RTX Development Team
 //  See Readme.txt and license.txt for more information
-//  https://sourceforge.net/projects/epanet-rtx/
+//  http://tinyurl.com/epanet-rtx
 
 #include <iostream>
 #include "IrregularClock.h"
