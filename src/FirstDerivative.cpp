@@ -64,9 +64,8 @@ Point::sharedPointer FirstDerivative::point(time_t time) {
       }
       time_t dt = secondPoint->time() - firstPoint->time();
       double dv = secondPoint->value() - firstPoint->value();
-      double dvdt = dv / double(dt);
-      point.reset( new Point(time, dvdt));
-      Point::sharedPointer myNewPoint = Point::convertPoint(*point, source()->units() / RTX_SECOND, this->units());
+      double dvdt = Units::convertValue(dv, source()->units() / RTX_SECOND, this->units()) / double(dt);
+      point.reset( new Point(time, dvdt) );
       insert(point);
     }
     else {
