@@ -1,0 +1,31 @@
+//
+//  Valve.h
+//  epanet-rtx
+//
+//  Created by the EPANET-RTX Development Team
+//  See Readme.txt and license.txt for more information
+//  https://sourceforge.net/projects/epanet-rtx/
+
+#ifndef epanet_rtx_Valve_h
+#define epanet_rtx_Valve_h
+
+#include "Pipe.h"
+
+namespace RTX {
+  class Valve : public Pipe {
+  public:
+    RTX_SHARED_POINTER(Valve);
+    Valve(const std::string& name, Node::sharedPointer startNode, Node::sharedPointer endNode);
+    virtual ~Valve();
+    
+    bool doesHaveSettingParameter();
+    TimeSeries::sharedPointer settingParameter();
+    void setSettingParameter(TimeSeries::sharedPointer setting);
+    
+  private:
+    TimeSeries::sharedPointer _setting;
+    bool _doesHaveSettingParameter;
+  };
+}
+
+#endif

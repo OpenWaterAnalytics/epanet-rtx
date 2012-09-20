@@ -37,16 +37,22 @@ How to Participate
 
 What Is RTX?
 ------------
-The real-time extension is a library of classes and wrappers that extend the base EPANET hydraulic & water quality simulation functionality to include data aquisition and predictive forecasting. The typical use of this toolkit would comprise building an application that would load a water utility's model and run an extended-period simulation driven by sensor measurements recorded in a scada historian. The goal of the RTX library is to make this complex task more accessible to programmers and engineers.
+RTX (the real-time extension) is the first open-source library to extend the base EPANET hydraulic & water quality simulation functionality to include scada data aquisition and predictive forecasting capabilities. The typical use of this toolkit would comprise building an application that would load a water utility's model and run an extended-period simulation driven by sensor measurements recorded in a scada historian. The goal of the RTX library is to make this complex task more accessible to programmers and engineers.
 The user of this library may incorporate as little or much of the functionality as desired. For instance, RTX could be used only to connect to a SCADA system, clean certain data streams, and provide a predictive forecast of sensor data. Or RTX could be used just as an object abstraction layer for EPANET (e.g., for GUI developement or other purposes).
  
 Prerequisites
 -------------
 Prerequisites for Epanet-RTX:
  
- - LibConfig - http://www.hyperrealm.com/libconfig/
- - GNU Scientific Library (GSL) - http://www.gnu.org/software/gsl/
- - Boost C++ Library - http://www.boost.org/
- - MySQL Connector/C++ - http://www.mysql.com/downloads/connector/cpp/
- - iODBC - http://www.iodbc.org/
- - ODBC Driver for your SCADA system, such as FreeTDS for MS-SQL providers - http://freetds.schemamania.org
+- LibConfig - http://www.hyperrealm.com/libconfig/
+- GNU Scientific Library (GSL) - http://www.gnu.org/software/gsl/
+- Boost C++ Library - http://www.boost.org/
+- MySQL Connector/C++ - http://www.mysql.com/downloads/connector/cpp/
+- iODBC - http://www.iodbc.org/
+- ODBC Driver for your SCADA system, such as FreeTDS for MS-SQL providers - http://freetds.schemamania.org
+
+Active Development
+------------------
+We are actively developing features in the following areas:
+- Time Series Forecasting
+- Water Age / Water Quality
