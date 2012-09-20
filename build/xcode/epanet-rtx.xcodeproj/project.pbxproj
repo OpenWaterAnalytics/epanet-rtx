@@ -131,7 +131,6 @@
 		221C06C716077FD200B8969C /* sampletown_realtime.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; name = sampletown_realtime.cfg; path = ../../examples/validator/sampletown_realtime.cfg; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		221C06C816077FD200B8969C /* sampletown_synthetic.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; name = sampletown_synthetic.cfg; path = ../../examples/validator/sampletown_synthetic.cfg; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		221C06C916077FD200B8969C /* sampletown.inp */ = {isa = PBXFileReference; lastKnownFileType = text; name = sampletown.inp; path = ../../examples/validator/sampletown.inp; sourceTree = "<group>"; };
-		221C06CA1607B79000B8969C /* license.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = license.txt; path = ../../license.txt; sourceTree = "<group>"; };
 		221E2EFD149A42F0000860C2 /* ModularTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ModularTimeSeries.h; path = ../../src/ModularTimeSeries.h; sourceTree = "<group>"; };
 		221E2EFF149A43A3000860C2 /* ModularTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ModularTimeSeries.cpp; path = ../../src/ModularTimeSeries.cpp; sourceTree = "<group>"; };
 		22253D8D16022FB6002F7256 /* CurveFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CurveFunction.cpp; path = ../../src/CurveFunction.cpp; sourceTree = "<group>"; };
@@ -159,8 +158,6 @@
 		222FDDD315C1BBE90065DAF6 /* FirstDerivative.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FirstDerivative.h; path = ../../src/FirstDerivative.h; sourceTree = "<group>"; };
 		222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FirstDerivative.cpp; path = ../../src/FirstDerivative.cpp; sourceTree = "<group>"; };
 		2235EA4F14965F8100D89E6A /* PersistentContainer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PersistentContainer.cpp; path = ../../src/PersistentContainer.cpp; sourceTree = "<group>"; };
-		2235EA551496B3C800D89E6A /* Doxyfile */ = {isa = PBXFileReference; lastKnownFileType = text; name = Doxyfile; path = ../../doc/Doxyfile; sourceTree = "<group>"; };
-		2235EA561496B3C800D89E6A /* objectmodel.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = objectmodel.pdf; path = ../../doc/objectmodel.pdf; sourceTree = "<group>"; };
 		223DC714148E86F000EF2B0C /* PointContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PointContainer.h; path = ../../src/PointContainer.h; sourceTree = "<group>"; };
 		2243412314E17FE100F26BFE /* IrregularClock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IrregularClock.h; path = ../../src/IrregularClock.h; sourceTree = "<group>"; };
 		2243412514E1802800F26BFE /* IrregularClock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IrregularClock.cpp; path = ../../src/IrregularClock.cpp; sourceTree = "<group>"; };
@@ -194,8 +191,6 @@
 		22B7154F14DC802300041167 /* Resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Resampler.h; path = ../../src/Resampler.h; sourceTree = "<group>"; };
 		22B7155114DC813800041167 /* Resampler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Resampler.cpp; path = ../../src/Resampler.cpp; sourceTree = "<group>"; };
 		22B8A79C1603CA6100EECAA5 /* rtx-demo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = "rtx-demo"; path = timeseries_demo; sourceTree = BUILT_PRODUCTS_DIR; };
-		22BB017A160B7C31005B196F /* mainpage.md */ = {isa = PBXFileReference; lastKnownFileType = text; name = mainpage.md; path = ../../doc/mainpage.md; sourceTree = "<group>"; };
-		22BB017B160B7C41005B196F /* pages.dox */ = {isa = PBXFileReference; lastKnownFileType = text; name = pages.dox; path = ../../doc/pages.dox; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		22BF02D215EBCABC00F66465 /* Point.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Point.cpp; path = ../../src/Point.cpp; sourceTree = "<group>"; };
 		22C62AC01439ED6300841E60 /* libepanet-rtx.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libepanet-rtx.dylib"; sourceTree = BUILT_PRODUCTS_DIR; };
 		22C62ACB1439EE0B00841E60 /* AggregatorTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AggregatorTimeSeries.cpp; path = ../../src/AggregatorTimeSeries.cpp; sourceTree = "<group>"; };
@@ -305,18 +300,6 @@
 			name = TRASH;
 			sourceTree = "<group>";
 		};
-		2235EA541496B3B000D89E6A /* doc */ = {
-			isa = PBXGroup;
-			children = (
-				22BB017A160B7C31005B196F /* mainpage.md */,
-				22BB017B160B7C41005B196F /* pages.dox */,
-				2235EA551496B3C800D89E6A /* Doxyfile */,
-				2235EA561496B3C800D89E6A /* objectmodel.pdf */,
-				221C06CA1607B79000B8969C /* license.txt */,
-			);
-			name = doc;
-			sourceTree = "<group>";
-		};
 		22535242148FD6B000C18C11 /* Point Container Classes */ = {
 			isa = PBXGroup;
 			children = (
@@ -403,7 +386,6 @@
 			isa = PBXGroup;
 			children = (
 				22B8A7971603CA1300EECAA5 /* demos */,
-				2235EA541496B3B000D89E6A /* doc */,
 				22C62AEF143A0E1600841E60 /* test application */,
 				22C678A4152A427000519E1B /* object factories */,
 				22C62B05143A196400841E60 /* include */,

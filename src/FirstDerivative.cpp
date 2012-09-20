@@ -18,6 +18,28 @@ FirstDerivative::~FirstDerivative() {
   
 }
 
+void FirstDerivative::setSource(TimeSeries::sharedPointer source) {
+  this->setUnits(RTX_DIMENSIONLESS);  // non-dimensionalize so that we can accept this source.
+  ModularTimeSeries::setSource(source);
+  
+  // get the rate of change units
+  Units rate = source->units() / RTX_SECOND;
+  
+  this->setUnits(rate);  // re-set the units.
+}
+
+void FirstDerivative::setUnits(Units newUnits) {
+  
+  // only set the units if there is no source or the source's rate is dimensionally consistent with the passed-in units.
+  if (!source() || (source()->units() / RTX_SECOND).isSameDimensionAs(newUnits) ) {
+    // just use the base-est class method for this, since we don't really care
+    // if the new units are the same as the source units.
+    TimeSeries::setUnits(newUnits);
+  }
+  else {
+    std::cerr << "units are not dimensionally consistent" << std::endl;
+  }
+}
 
 Point::sharedPointer FirstDerivative::point(time_t time) {
   
@@ -44,6 +66,7 @@ Point::sharedPointer FirstDerivative::point(time_t time) {
       double dv = secondPoint->value() - firstPoint->value();
       double dvdt = dv / double(dt);
       point.reset( new Point(time, dvdt));
+      Point::sharedPointer myNewPoint = Point::convertPoint(*point, source()->units() / RTX_SECOND, this->units());
       insert(point);
     }
     else {

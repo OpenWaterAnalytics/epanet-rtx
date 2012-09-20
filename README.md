@@ -28,6 +28,7 @@ How to Participate
  This is an open-source effort, so we invite all interested and capable parties to engage. There are various ways to do this - depending on your background and interests, these avenues for interaction are available:
  
 - See the [Project Website](https://github.com/samhatchett/epanet-rtx) and connect to the code repository.
+- View the [library API](http://samhatchett.github.com/epanet-rtx).
 - Use the [Issues Traker](https://github.com/samhatchett/epanet-rtx/issues) to:
 	+ Suggest better documentation
 	+ Communicate with the devs
