@@ -11,6 +11,9 @@
 *.la
 *.a
 
+# Doxygen output
+doxygen_out/
+
 # Mac Stuff
 .DS_Store
 *.swp

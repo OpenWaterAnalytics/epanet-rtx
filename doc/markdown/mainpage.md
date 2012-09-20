@@ -1,9 +1,9 @@
-Epanet-RTX                        {#mainpage}
+Epanet-RTX Library                        {#mainpage}
 ==========
 
 [TOC]
 
-Introduction					{#sec_intro}
+RTX Introduction					{#sec_intro}
 ============
 EPANET-RTX is the real time extension to the EPANET Hydraulic Toolkit. It provides an interoperable framework for moving data between a SCADA database, various time series analysis methods, and a hydraulic solver.
 
@@ -30,6 +30,7 @@ How to Participate				{#sec_participate}
  This is an open-source effort, so we invite all interested and capable parties to engage. There are various ways to do this - depending on your background and interests, these avenues for interaction are available:
  
 - See the [Project Website](https://github.com/samhatchett/epanet-rtx) and connect to the code repository.
+- Look over the [Coding Conventions](conventions.html)
 - Use the [Issues Traker](https://github.com/samhatchett/epanet-rtx/issues) to:
 	+ Suggest better documentation
 	+ Communicate with the devs

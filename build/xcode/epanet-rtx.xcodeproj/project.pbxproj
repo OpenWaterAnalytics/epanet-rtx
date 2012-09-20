@@ -123,7 +123,6 @@
 		220AE470145B29F7002F07B4 /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Node.cpp; path = ../../src/Node.cpp; sourceTree = "<group>"; };
 		220AE472145B2A0C002F07B4 /* Link.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Link.cpp; path = ../../src/Link.cpp; sourceTree = "<group>"; };
 		220AE474145B2A28002F07B4 /* Zone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Zone.cpp; path = ../../src/Zone.cpp; sourceTree = "<group>"; };
-		220D58E7160A498700283070 /* RtxDoxMain.dox */ = {isa = PBXFileReference; lastKnownFileType = text; name = RtxDoxMain.dox; path = ../../doc/RtxDoxMain.dox; sourceTree = "<group>"; };
 		221A19CB1579111900F0699E /* EpanetSyntheticModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EpanetSyntheticModel.h; path = ../../src/EpanetSyntheticModel.h; sourceTree = "<group>"; };
 		221A19CE1579112B00F0699E /* EpanetSyntheticModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetSyntheticModel.cpp; path = ../../src/EpanetSyntheticModel.cpp; sourceTree = "<group>"; };
 		221C06C216077FB300B8969C /* timeseries_demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = timeseries_demo.cpp; path = ../../examples/conceptual/timeseries_demo.cpp; sourceTree = "<group>"; };
@@ -195,8 +194,9 @@
 		22B7154F14DC802300041167 /* Resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Resampler.h; path = ../../src/Resampler.h; sourceTree = "<group>"; };
 		22B7155114DC813800041167 /* Resampler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Resampler.cpp; path = ../../src/Resampler.cpp; sourceTree = "<group>"; };
 		22B8A79C1603CA6100EECAA5 /* rtx-demo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = "rtx-demo"; path = timeseries_demo; sourceTree = BUILT_PRODUCTS_DIR; };
+		22BB017A160B7C31005B196F /* mainpage.md */ = {isa = PBXFileReference; lastKnownFileType = text; name = mainpage.md; path = ../../doc/mainpage.md; sourceTree = "<group>"; };
+		22BB017B160B7C41005B196F /* pages.dox */ = {isa = PBXFileReference; lastKnownFileType = text; name = pages.dox; path = ../../doc/pages.dox; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		22BF02D215EBCABC00F66465 /* Point.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Point.cpp; path = ../../src/Point.cpp; sourceTree = "<group>"; };
-		22BF02D415EBCDEA00F66465 /* Readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Readme.txt; path = ../../Readme.txt; sourceTree = "<group>"; };
 		22C62AC01439ED6300841E60 /* libepanet-rtx.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libepanet-rtx.dylib"; sourceTree = BUILT_PRODUCTS_DIR; };
 		22C62ACB1439EE0B00841E60 /* AggregatorTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AggregatorTimeSeries.cpp; path = ../../src/AggregatorTimeSeries.cpp; sourceTree = "<group>"; };
 		22C62ACC1439EE0B00841E60 /* AggregatorTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AggregatorTimeSeries.h; path = ../../src/AggregatorTimeSeries.h; sourceTree = "<group>"; };
@@ -308,10 +308,10 @@
 		2235EA541496B3B000D89E6A /* doc */ = {
 			isa = PBXGroup;
 			children = (
-				220D58E7160A498700283070 /* RtxDoxMain.dox */,
+				22BB017A160B7C31005B196F /* mainpage.md */,
+				22BB017B160B7C41005B196F /* pages.dox */,
 				2235EA551496B3C800D89E6A /* Doxyfile */,
 				2235EA561496B3C800D89E6A /* objectmodel.pdf */,
-				22BF02D415EBCDEA00F66465 /* Readme.txt */,
 				221C06CA1607B79000B8969C /* license.txt */,
 			);
 			name = doc;

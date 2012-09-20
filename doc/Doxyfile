@@ -45,14 +45,14 @@ PROJECT_BRIEF          = "Realtime extension for the Epanet toolkit"
 # exceed 55 pixels and the maximum width should not exceed 200 pixels. 
 # Doxygen will copy the logo to the output directory.
 
-PROJECT_LOGO           = /Users/sam/Documents/Software/Code_Repositories/epanet-rtx-staging/doc/img/rtx-logo.png
+PROJECT_LOGO           = img/rtx-logo.png
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) 
 # base path where the generated documentation will be put. 
 # If a relative path is entered, it will be relative to the location 
 # where doxygen was started. If left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = 
+OUTPUT_DIRECTORY       = doxygen_out
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create 
 # 4096 sub-directories (in 2 levels) under the output directory of each output 
@@ -675,8 +675,8 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = ./mainpage.md \
-                         ../src
+INPUT                  = ../src \
+                         markdown
 
 # This tag can be used to specify the character encoding of the source files 
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is 
@@ -725,7 +725,8 @@ FILE_PATTERNS          = *.c \
                          *.f \
                          *.for \
                          *.vhd \
-                         *.vhdl
+                         *.vhdl \
+                         *.md
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories 
 # should be searched for input files as well. Possible values are YES and NO. 

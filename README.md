@@ -1,4 +1,4 @@
-Epanet-RTX
+Epanet-RTX Library
 ==========
 
 Introduction
