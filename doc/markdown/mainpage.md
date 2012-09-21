@@ -29,9 +29,9 @@ How to Participate				{#sec_participate}
 ================== 
  This is an open-source effort, so we invite all interested and capable parties to engage. There are various ways to do this - depending on your background and interests, these avenues for interaction are available:
  
-- See the [Project Website](https://github.com/samhatchett/epanet-rtx) and connect to the code repository.
+- See the [Project Website](https://github.com/WaterAnalytics/epanet-rtx) and connect to the code repository.
 - Look over the [Coding Conventions](conventions.html)
-- Use the [Issues Traker](https://github.com/samhatchett/epanet-rtx/issues) to:
+- Use the [Issues Traker](https://github.com/WaterAnalytics/epanet-rtx/issues) to:
 	+ Suggest better documentation
 	+ Communicate with the devs
 	+ Make a feature request
@@ -41,8 +41,8 @@ How to Participate				{#sec_participate}
 Getting Started					{#sec_gettingstarted}
 ===============
 ## What Is RTX? ##							{#sec_whatisrtx}
-The real-time extension is a library of classes and wrappers that extend the base EPANET hydraulic & water quality simulation functionality to include data aquisition and predictive forecasting. The typical use of this toolkit would comprise building an application that would load a water utility's model and run an extended-period simulation driven by sensor measurements recorded in a scada historian. The goal of the RTX library is to make this complex task more accessible to programmers and engineers.
-The user of this library may incorporate as little or much of the functionality as desired. For instance, RTX could be used only to connect to a SCADA system, clean certain data streams, and provide a predictive forecast of sensor data. Or RTX could be used just as an object abstraction layer for EPANET (e.g., for GUI developement or other purposes).
+The real-time extension is a library of classes and wrappers that extend the base EPANET hydraulic & water quality simulation functionality to include data acquisition and predictive forecasting. The typical use of this toolkit would comprise building an application that would load a water utility's model and run an extended-period simulation driven by sensor measurements recorded in a scada historian. The goal of the RTX library is to make this complex task more accessible to programmers and engineers.
+The user of this library may incorporate as little or much of the functionality as desired. For instance, RTX could be used only to connect to a SCADA system, clean certain data streams, and provide a predictive forecast of sensor data. Or RTX could be used just as an object abstraction layer for EPANET (e.g., for GUI development or other purposes).
  
 ## Prerequisites ##							{#sec_prerequisites}
 Prerequisites for Epanet-RTX:

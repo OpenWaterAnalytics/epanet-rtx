@@ -3,8 +3,8 @@
 //  epanet-rtx
 //
 //  Created by the EPANET-RTX Development Team
-//  See Readme.txt and license.txt for more information
-//  http://tinyurl.com/epanet-rtx
+//  See README.md and license.txt for more information
+//  
 
 #include <iostream>
 #include "EpanetModel.h"
