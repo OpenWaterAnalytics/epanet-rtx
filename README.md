@@ -38,8 +38,8 @@ How to Participate
 
 What Is RTX?
 ------------
-RTX (the real-time extension) is the first open-source library to extend the base EPANET hydraulic & water quality simulation functionality to include scada data aquisition and predictive forecasting capabilities. The typical use of this toolkit would comprise building an application that would load a water utility's model and run an extended-period simulation driven by sensor measurements recorded in a scada historian. The goal of the RTX library is to make this complex task more accessible to programmers and engineers.
-The user of this library may incorporate as little or much of the functionality as desired. For instance, RTX could be used only to connect to a SCADA system, clean certain data streams, and provide a predictive forecast of sensor data. Or RTX could be used just as an object abstraction layer for EPANET (e.g., for GUI developement or other purposes).
+RTX (the real-time extension) is the first open-source library to extend the base EPANET hydraulic & water quality simulation functionality to include scada data acquisition and predictive forecasting capabilities. The typical use of this toolkit would comprise building an application that would load a water utility's model and run an extended-period simulation driven by sensor measurements recorded in a scada historian. The goal of the RTX library is to make this complex task more accessible to programmers and engineers.
+The user of this library may incorporate as little or much of the functionality as desired. For instance, RTX could be used only to connect to a SCADA system, clean certain data streams, and provide a predictive forecast of sensor data. Or RTX could be used just as an object abstraction layer for EPANET (e.g., for GUI development or other purposes).
  
 Prerequisites
 -------------
