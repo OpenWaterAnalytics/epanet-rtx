@@ -29,9 +29,9 @@ How to Participate				{#sec_participate}
 ================== 
  This is an open-source effort, so we invite all interested and capable parties to engage. There are various ways to do this - depending on your background and interests, these avenues for interaction are available:
  
-- See the [Project Website](https://github.com/WaterAnalytics/epanet-rtx) and connect to the code repository.
+- See the [Project Website](https://github.com/OpenWaterAnalytics/epanet-rtx) and connect to the code repository.
 - Look over the [Coding Conventions](conventions.html)
-- Use the [Issues Traker](https://github.com/WaterAnalytics/epanet-rtx/issues) to:
+- Use the [Issues Traker](https://github.com/OpenWaterAnalytics/epanet-rtx/issues) to:
 	+ Suggest better documentation
 	+ Communicate with the devs
 	+ Make a feature request
