@@ -32,7 +32,7 @@ How to Participate				{#sec_participate}
 - See the [Project Website](https://github.com/OpenWaterAnalytics/epanet-rtx) and connect to the code repository.
 - Use GitHub to "watch" the project -- [learn about being social](https://help.github.com/articles/be-social)
 - Look over the [Coding Conventions](conventions.html)
-- Use the [Issues Traker](https://github.com/OpenWaterAnalytics/epanet-rtx/issues) to:
+- Use the [Issues Tracker](https://github.com/OpenWaterAnalytics/epanet-rtx/issues) to:
 	+ Suggest better documentation
 	+ Communicate with the devs
 	+ Ask questions
