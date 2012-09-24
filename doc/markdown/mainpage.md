@@ -30,12 +30,20 @@ How to Participate				{#sec_participate}
  This is an open-source effort, so we invite all interested and capable parties to engage. There are various ways to do this - depending on your background and interests, these avenues for interaction are available:
  
 - See the [Project Website](https://github.com/OpenWaterAnalytics/epanet-rtx) and connect to the code repository.
+- Use GitHub to "watch" the project -- [learn about being social](https://help.github.com/articles/be-social)
 - Look over the [Coding Conventions](conventions.html)
 - Use the [Issues Traker](https://github.com/OpenWaterAnalytics/epanet-rtx/issues) to:
 	+ Suggest better documentation
 	+ Communicate with the devs
+	+ Ask questions
+	+ Talk about the rtx roadmap
 	+ Make a feature request
 	+ File a Bug
+- [Fork](https://help.github.com/articles/fork-a-repo) the project using your GitHub account
+	+ Make modifications to the code, experiment, improve it
+	+ Once you're happy with your modifications, document them and submit a [pull request](https://help.github.com/articles/using-pull-requests)
+	+ The code maintainers can merge your changes back into the official code.
+	
  
  
 Getting Started					{#sec_gettingstarted}
@@ -66,4 +74,4 @@ Try making the example application! The Model Validator is included here as an e
  
  In the example [validator application](validation_code.html), you'll notice that the executable is exceedingly short. Most of the magic is in the difference between the two configuration files. Look at [both of them together](validation_config_comparison.html) to see the differences.
  
- We hope these few examples are enough to get going on something, and act as the seed of future example applications and documentation. Please reach out on the project site if you have questions or would like to get involved.
+ We hope these few examples are enough to get going on something, and act as the seed of future example applications and documentation. Please post on the project site if you have questions or would like to get involved.
