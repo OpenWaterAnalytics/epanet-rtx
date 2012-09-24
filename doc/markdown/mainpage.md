@@ -1,11 +1,11 @@
-Epanet-RTX Library                        {#mainpage}
+EPANET-RTX Library                        {#mainpage}
 ==========
 
 [TOC]
 
 RTX Introduction					{#sec_intro}
 ============
-EPANET-RTX is the real time extension to the EPANET Hydraulic Toolkit. It provides an interoperable framework for moving data between a SCADA database, various time series analysis methods, and a hydraulic solver.
+EPANET-RTX is the real-time extension to the EPANET Hydraulic Toolkit. It provides an interoperable framework for moving data between a SCADA database, various time series analysis methods, and a hydraulic solver.
 
 This project is being developed and maintained by a multidisciplinary team with various affiliations (members listed in alphabetical order):
  
@@ -23,7 +23,7 @@ Intended Audience				{#sec_audience}
  - Programmers interested in water distribution system simulation
  - Water distribution simulation engineers interested in programming
  
- The key here is an orientation towards folks who are comfortable with code. The RTX library is not a program per se, but a set of building blocks for constructing your own realtime simulation environment. If you've ever hacked Epanet or built a Matlab script for running hydraulic simulations, this library might be for you.
+ The key here is an orientation towards folks who are comfortable with code. The RTX library is not a program per se, but a set of building blocks for constructing your own real-time simulation environment. If you've ever hacked EPANET or built a Matlab script for running hydraulic simulations, this library might be for you.
  
 How to Participate				{#sec_participate}
 ================== 
@@ -34,7 +34,7 @@ How to Participate				{#sec_participate}
 - Look over the [Coding Conventions](conventions.html)
 - Use the [Issues Tracker](https://github.com/OpenWaterAnalytics/epanet-rtx/issues) to:
 	+ Suggest better documentation
-	+ Communicate with the devs
+	+ Communicate with the developers
 	+ Ask questions
 	+ Talk about the rtx roadmap
 	+ Make a feature request
@@ -49,11 +49,11 @@ How to Participate				{#sec_participate}
 Getting Started					{#sec_gettingstarted}
 ===============
 ## What Is RTX? ##							{#sec_whatisrtx}
-The real-time extension is a library of classes and wrappers that extend the base EPANET hydraulic & water quality simulation functionality to include data acquisition and predictive forecasting. The typical use of this toolkit would comprise building an application that would load a water utility's model and run an extended-period simulation driven by sensor measurements recorded in a scada historian. The goal of the RTX library is to make this complex task more accessible to programmers and engineers.
+The real-time extension is a library of classes and wrappers that extend the base EPANET hydraulic & water quality simulation functionality to include data acquisition and predictive forecasting. The typical use of this toolkit would comprise building an application that would load a water utility's model and run an extended-period simulation driven by sensor measurements recorded in a SCADA historian. The goal of the RTX library is to make this complex task more accessible to programmers and engineers.
 The user of this library may incorporate as little or much of the functionality as desired. For instance, RTX could be used only to connect to a SCADA system, clean certain data streams, and provide a predictive forecast of sensor data. Or RTX could be used just as an object abstraction layer for EPANET (e.g., for GUI development or other purposes).
  
 ## Prerequisites ##							{#sec_prerequisites}
-Prerequisites for Epanet-RTX:
+Prerequisites for EPANET-RTX:
  
  - LibConfig - http://www.hyperrealm.com/libconfig/
  - GNU Scientific Library (GSL) - http://www.gnu.org/software/gsl/
@@ -68,9 +68,9 @@ Take a look at the [demo timeseries application](demo_ts.html) - you will find a
 You may also be interested in the [sample configuration file](sampleconfig.html) -- which is just a full explanation of the configuration options available in this version.
  
 ## Model Validation Example ##				{#sec_modelvalidation}
-Try making the example application! The Model Validator is included here as an example of what we can do with this library -- the application first causes a simple forward simulation of a "sample town" hydraulic network to be run. The results from the simulation are stored in a MySQL database that you specify. Then the application runs a "real-time" simulation using the same model - but instead of relying on model-based controls and demand patterns, the simulation proceeds by drawing information from the prior simulation. The first simulation is the "truth" -- and acts as a synthetic SCADA historian (albeit with pervasive instrumentation). The second simulation is driven by a subset of the truth data. After running the application, the two databases can be compared as a means of validating the realtime simulation against the truth simulation.
+Try making the example application! The Model Validator is included here as an example of what we can do with this library -- the application first causes a simple forward simulation of a "sample town" hydraulic network to be run. The results from the simulation are stored in a MySQL database that you specify. Then the application runs a "real-time" simulation using the same model - but instead of relying on model-based controls and demand patterns, the simulation proceeds by drawing information from the prior simulation. The first simulation is the "truth" -- and acts as a synthetic SCADA historian (albeit with pervasive instrumentation). The second simulation is driven by a subset of the truth data. After running the application, the two databases can be compared as a means of validating the real-time simulation against the truth simulation.
  
- First, [have a look at the code](validation_code.html) to familiarize yourself with the conventions and names of some of the more important classes. Open up [sampletown_synthetic.cfg](validation_config_synthetic.html) -- this file is all RTX needs to load an epanet model file and connect its hydraulic states to a MySQL database. You'll need to set the database credentials for this to work, obviously, so don't forget to do that.
+ First, [have a look at the code](validation_code.html) to familiarize yourself with the conventions and names of some of the more important classes. Open up [sampletown_synthetic.cfg](validation_config_synthetic.html) -- this file is all RTX needs to load an EPANET model file and connect its hydraulic states to a MySQL database. You'll need to set the database credentials for this to work, obviously, so don't forget to do that.
  
  In the example [validator application](validation_code.html), you'll notice that the executable is exceedingly short. Most of the magic is in the difference between the two configuration files. Look at [both of them together](validation_config_comparison.html) to see the differences.
  
