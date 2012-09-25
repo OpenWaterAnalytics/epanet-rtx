@@ -15,6 +15,7 @@
 		220AE471145B29F7002F07B4 /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE470145B29F7002F07B4 /* Node.cpp */; };
 		220AE473145B2A0D002F07B4 /* Link.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE472145B2A0C002F07B4 /* Link.cpp */; };
 		220AE475145B2A28002F07B4 /* Zone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE474145B2A28002F07B4 /* Zone.cpp */; };
+		220D3B6516125B140029A041 /* libboost_regex.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 220D3B62161259050029A041 /* libboost_regex.dylib */; };
 		221A19CC1579111A00F0699E /* EpanetSyntheticModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 221A19CB1579111900F0699E /* EpanetSyntheticModel.h */; };
 		221A19CF1579112B00F0699E /* EpanetSyntheticModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221A19CE1579112B00F0699E /* EpanetSyntheticModel.cpp */; };
 		221C06C316077FB300B8969C /* timeseries_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221C06C216077FB300B8969C /* timeseries_demo.cpp */; };
@@ -84,7 +85,7 @@
 		22E2C1E9160A061200FD0C3E /* smatrix.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41CB1511173C0012D2A5 /* smatrix.c */; };
 		22ED77CD158787B7002D67F1 /* Reservoir.h in Headers */ = {isa = PBXBuildFile; fileRef = 22ED77CC158787B7002D67F1 /* Reservoir.h */; };
 		22ED77D015878804002D67F1 /* Tank.h in Headers */ = {isa = PBXBuildFile; fileRef = 22ED77CF15878804002D67F1 /* Tank.h */; };
-		22ED77D21587884F002D67F1 /* Junction.h in Headers */ = {isa = PBXBuildFile; fileRef = 22ED77D11587884F002D67F1 /* Junction.h */; };
+		22ED77D21587884F002D67F1 /* Junction.h in Headers */ = {isa = PBXBuildFile; fileRef = 22ED77D11587884F002D67F1 /* Junction.h */; settings = {ATTRIBUTES = (); }; };
 		22ED77D4158788CC002D67F1 /* Junction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22ED77D3158788CC002D67F1 /* Junction.cpp */; };
 		22ED77D615878953002D67F1 /* Tank.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22ED77D515878953002D67F1 /* Tank.cpp */; };
 		22ED77D81587898D002D67F1 /* Reservoir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22ED77D71587898D002D67F1 /* Reservoir.cpp */; };
@@ -123,6 +124,7 @@
 		220AE470145B29F7002F07B4 /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Node.cpp; path = ../../src/Node.cpp; sourceTree = "<group>"; };
 		220AE472145B2A0C002F07B4 /* Link.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Link.cpp; path = ../../src/Link.cpp; sourceTree = "<group>"; };
 		220AE474145B2A28002F07B4 /* Zone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Zone.cpp; path = ../../src/Zone.cpp; sourceTree = "<group>"; };
+		220D3B62161259050029A041 /* libboost_regex.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_regex.dylib; path = ../../../../../../../../../usr/local/lib/libboost_regex.dylib; sourceTree = "<group>"; };
 		221A19CB1579111900F0699E /* EpanetSyntheticModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EpanetSyntheticModel.h; path = ../../src/EpanetSyntheticModel.h; sourceTree = "<group>"; };
 		221A19CE1579112B00F0699E /* EpanetSyntheticModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetSyntheticModel.cpp; path = ../../src/EpanetSyntheticModel.cpp; sourceTree = "<group>"; };
 		221C06C216077FB300B8969C /* timeseries_demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = timeseries_demo.cpp; path = ../../examples/conceptual/timeseries_demo.cpp; sourceTree = "<group>"; };
@@ -231,6 +233,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				220D3B6516125B140029A041 /* libboost_regex.dylib in Frameworks */,
 				229D1BE015FE3E45000B4C94 /* libconfig++.9.dylib in Frameworks */,
 				229D1BDE15FE3E34000B4C94 /* libmysqlcppconn.5.1.1.0.dylib in Frameworks */,
 				229D1BDC15FE3E20000B4C94 /* libboost_date_time.dylib in Frameworks */,
@@ -385,6 +388,7 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
+				220D3B62161259050029A041 /* libboost_regex.dylib */,
 				22B8A7971603CA1300EECAA5 /* demos */,
 				22C62AEF143A0E1600841E60 /* test application */,
 				22C678A4152A427000519E1B /* object factories */,
@@ -556,9 +560,9 @@
 				224643A1150BD72E005EA3BA /* Link.h in Headers */,
 				224B19A0152CA1760051F408 /* ConfigFactory.h in Headers */,
 				221A19CC1579111A00F0699E /* EpanetSyntheticModel.h in Headers */,
+				22ED77D21587884F002D67F1 /* Junction.h in Headers */,
 				22ED77CD158787B7002D67F1 /* Reservoir.h in Headers */,
 				22ED77D015878804002D67F1 /* Tank.h in Headers */,
-				22ED77D21587884F002D67F1 /* Junction.h in Headers */,
 				22804097158F827F004222DA /* Pipe.h in Headers */,
 				22804099158F82CB004222DA /* Pump.h in Headers */,
 				2280409D158F8326004222DA /* Valve.h in Headers */,
@@ -795,6 +799,7 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
+				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -808,6 +813,7 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
+				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";

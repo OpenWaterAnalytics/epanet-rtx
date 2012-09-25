@@ -106,7 +106,8 @@ int main(int argc, const char * argv[])
   // Great. Now let's say I want to persist some of this TimeSeries data. Then what?
   // I can use the MysqlPointRecord (fill in your credentials below):
   MysqlPointRecord::sharedPointer dbRecord(new MysqlPointRecord());
-  dbRecord->connect("tcp://localhost", "rtx_db_agent", "rtx_db_agent", "rtx_demo_db");
+  dbRecord->setConnectionString("HOST=tcp://localhost;UID=rtx_db_agent;PWD=rtx_db_agent;DB=rtx_demo_db");
+  dbRecord->connect();
   if (dbRecord->isConnected()) {
     // Now I can just hook this record into any of my modular TimeSeries objects...
     movingAverage->newCacheWithPointRecord(dbRecord);

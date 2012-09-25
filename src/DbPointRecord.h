@@ -27,8 +27,6 @@ namespace RTX {
     DbPointRecord() {};
     virtual ~DbPointRecord() {};
     
-    virtual bool isConnected() {return false;};
-    
     //exceptions specific to this class family
     class RtxDbConnectException : public RtxException {
     public:

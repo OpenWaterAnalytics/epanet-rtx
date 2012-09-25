@@ -15,6 +15,7 @@ using namespace RTX;
 
 PointRecord::PointRecord() {
   _nextKey = 0;
+  _connectionString = "";
 }
 
 std::ostream& RTX::operator<< (std::ostream &out, PointRecord &pr) {
@@ -22,8 +23,15 @@ std::ostream& RTX::operator<< (std::ostream &out, PointRecord &pr) {
 }
 
 std::ostream& PointRecord::toStream(std::ostream &stream) {
-  stream << "Generic Point Record" << std::endl;
+  stream << "Point Record - connection: " << this->connectionString() << std::endl;
   return stream;
+}
+
+void PointRecord::setConnectionString(const std::string& connection) {
+  _connectionString = connection;
+}
+const std::string& PointRecord::connectionString() {
+  return _connectionString;
 }
 
 

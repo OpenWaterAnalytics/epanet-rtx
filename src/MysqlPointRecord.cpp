@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include <boost/foreach.hpp>
+#include <boost/regex.hpp>
 #include <mysql_connection.h>
 #include <mysql_driver.h>
 #include <cppconn/driver.h>
@@ -40,7 +41,38 @@ MysqlPointRecord::~MysqlPointRecord() {
 
 #pragma mark - Public
 
-void MysqlPointRecord::connect(const string &host, const string &user, const string &password, const string &database) {
+void MysqlPointRecord::connect() throw(RtxException) {
+  _connectionOk = false;
+  
+  // split the tokenized string. we're expecting something like "HOST=tcp://localhost;USER=db_user;PWD=db_pass;DB=rtx_db_name"
+  std::string tokenizedString = this->connectionString();
+  if (RTX_STRINGS_ARE_EQUAL(tokenizedString, "")) {
+    return;
+  }
+  
+  std::map<std::string, std::string> kvPairs;
+  boost::regex kvReg("([^=]+)=([^;]+);?"); // key - value pair
+  boost::sregex_iterator it(tokenizedString.begin(), tokenizedString.end(), kvReg), end;
+  for ( ; it != end; ++it){
+    kvPairs[(*it)[1]] = (*it)[2];
+    //cout << "k: " << (*it)[1] << " // v: " << (*it)[2] << endl;
+  }
+  
+  // if any of the keys are missing, just return.
+  if (kvPairs.find("HOST") == kvPairs.end() ||
+      kvPairs.find("UID") == kvPairs.end() ||
+      kvPairs.find("PWD") == kvPairs.end() ||
+      kvPairs.find("DB") == kvPairs.end() )
+  {
+    return;
+    // todo -- throw something?
+  }
+  
+  const std::string& host = kvPairs["HOST"];
+  const std::string& user = kvPairs["UID"];
+  const std::string& password = kvPairs["PWD"];
+  const std::string& database = kvPairs["DB"];
+  
   bool databaseDoesExist = false;
   try {
     _driver = get_driver_instance();

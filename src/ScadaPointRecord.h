@@ -34,7 +34,7 @@ namespace RTX {
     virtual ~ScadaPointRecord();
     
     void setSyntax(const string& table, const string& dateCol, const string& tagCol, const string& valueCol, const string& qualityCol);
-    void connect(std::string initializeString) throw(RtxException);
+    virtual void connect() throw(RtxException);
     virtual bool isConnected();
     virtual std::vector<std::string> identifiers();
     virtual bool isPointAvailable(const string& identifier, time_t time);

@@ -35,9 +35,11 @@ void ScadaPointRecord::setSyntax(const string& table, const string& dateCol, con
 }
 
 
-void ScadaPointRecord::connect(std::string initializeString) throw(RtxException) {
+void ScadaPointRecord::connect() throw(RtxException) {
   _connectionOk = false;
-  _dsn = initializeString;
+  if (RTX_STRINGS_ARE_EQUAL(this->connectionString(), "")) {
+    return;
+  }
   _dataPointQuery = "SELECT " + _syntax.date + ", " + _syntax.tag + ", " + _syntax.value + ", " + _syntax.quality +
                     " FROM " + _syntax.table +
                     " WHERE (" + _syntax.date + " = ?) AND " + _syntax.tag + " = ?";
@@ -71,7 +73,7 @@ void ScadaPointRecord::connect(std::string initializeString) throw(RtxException)
     /* Connect to the DSN, checking for connectivity */
     //"Attempting to Connect to SCADA..."
     
-    SQL_CHECK(SQLDriverConnect(_SCADAdbc, NULL, (SQLCHAR*)_dsn.c_str(), SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT), "SQLDriverConnect", _SCADAdbc, SQL_HANDLE_DBC);
+    SQL_CHECK(SQLDriverConnect(_SCADAdbc, NULL, (SQLCHAR*)(this->connectionString()).c_str(), SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT), "SQLDriverConnect", _SCADAdbc, SQL_HANDLE_DBC);
     
     /* allocate the statement handles for data aquisition */
     SQL_CHECK(SQLAllocHandle(SQL_HANDLE_STMT, _SCADAdbc, &_SCADAstmt), "SQLAllocHandle", _SCADAstmt, SQL_HANDLE_STMT);

@@ -246,7 +246,8 @@ PointRecord::sharedPointer ConfigFactory::createScadaPointRecord(libconfig::Sett
   
   ScadaPointRecord::sharedPointer pointRecord( new ScadaPointRecord() );
   pointRecord->setSyntax(table, dateCol, tagCol, valueCol, qualCol);
-  pointRecord->connect(initString);
+  pointRecord->setConnectionString(initString);
+  pointRecord->connect();
   
   return pointRecord;
 }
@@ -259,7 +260,9 @@ PointRecord::sharedPointer ConfigFactory::createMySqlPointRecord(libconfig::Sett
   string password = connection["PWD"];
   string database = connection["DB"];
   MysqlPointRecord::sharedPointer record( new MysqlPointRecord() );
-  record->connect(host, user, password, database);
+  std::string initString = "HOST=" + host + ";UID=" + user + ";PWD=" + password + ";DB=" + database;
+  record->setConnectionString(initString);
+  record->connect();
   bool isGood = false;
   isGood = record->isConnected();
   return record;

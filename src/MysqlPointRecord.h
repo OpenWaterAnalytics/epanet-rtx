@@ -46,7 +46,7 @@ namespace RTX {
     MysqlPointRecord();
     virtual ~MysqlPointRecord();
     
-    virtual void connect(const string& host, const string& user, const string& password, const string& database);
+    virtual void connect() throw(RtxException);
     virtual bool isConnected();
     virtual std::string registerAndGetIdentifier(std::string recordName);
     virtual std::vector<std::string> identifiers();

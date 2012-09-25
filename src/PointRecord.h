@@ -17,6 +17,7 @@
 
 #include "Point.h"
 #include "rtxMacros.h"
+#include "rtxExceptions.h"
 
 using std::string;
 
@@ -76,6 +77,11 @@ namespace RTX {
     virtual void addPoints(const string& identifier, std::vector<Point::sharedPointer> points)=0;
     virtual void reset()=0;
     
+    void setConnectionString(const std::string& connection);
+    const std::string& connectionString();
+    virtual void connect() throw(RtxException) = 0;
+    virtual bool isConnected() = 0;
+    
   protected:
     virtual std::ostream& toStream(std::ostream &stream);
     int identifierForName(std::string recordName);
@@ -85,6 +91,7 @@ namespace RTX {
     std::map< std::string, int > _keys;
     std::map< int, std::string > _names;
     int _nextKey;
+    std::string _connectionString;
     
   };
 }
