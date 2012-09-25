@@ -13,7 +13,7 @@
 using namespace RTX;
 using namespace std;
 
-EpanetModel::EpanetModel() {
+EpanetModel::EpanetModel() : Model() {
   // nothing to do, right?
   _modelFile = "";
 }
@@ -21,7 +21,7 @@ EpanetModel::~EpanetModel() {
   
 }
 
-void EpanetModel::loadModelFromFile(string filename) throw(RtxException) {
+void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxException) {
   // set up counting variables for creating model elements.
   int nodeCount, tankCount, linkCount;
   long enTimeStep;

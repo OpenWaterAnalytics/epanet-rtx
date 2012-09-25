@@ -45,7 +45,7 @@ namespace RTX {
     RTX_SHARED_POINTER(Model);
     friend std::ostream& operator<< (std::ostream &out, Model &model);
     
-    virtual void loadModelFromFile(std::string filename) throw(RtxException) = 0;
+    virtual void loadModelFromFile(const std::string& filename) throw(RtxException) = 0;
     virtual void overrideControls() throw(RtxException);
     void runSinglePeriod(time_t time);
     void runExtendedPeriod(time_t start, time_t end);
