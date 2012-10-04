@@ -21,6 +21,8 @@ EpanetModel::~EpanetModel() {
   
 }
 
+#pragma mark - Loading
+
 void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxException) {
   // set up counting variables for creating model elements.
   int nodeCount, tankCount, linkCount;
@@ -93,8 +95,7 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxExcept
     // create nodes
     for (int iNode=1; iNode <= nodeCount; iNode++) {
       char enName[RTX_MAX_CHAR_STRING];
-      //double x,y,z;         // rtx coordinates
-      double z;
+      double x,y,z;         // rtx coordinates
       int nodeType;         // epanet node type code
       string nodeName;
       Junction::sharedPointer newJunction;
@@ -105,6 +106,7 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxExcept
       ENcheck( ENgetnodeid(iNode, enName), "ENgetnodeid" );
       ENcheck( ENgetnodevalue(iNode, EN_ELEVATION, &z), "ENgetnodevalue EN_ELEVATION");
       ENcheck( ENgetnodetype(iNode, &nodeType), "ENgetnodetype");
+      ENcheck( ENgetcoord(iNode, &x, &y), "ENgetcoord");
       
       nodeName = string(enName);
       
@@ -131,7 +133,7 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxExcept
       // newJunction is the generic (base-class) pointer to the specific object,
       // so we can use base-class methods to set some parameters.
       newJunction->setElevation(z);
-      newJunction->setCoordinates(0, 0);
+      newJunction->setCoordinates(x, y);
       
       double demand = 0;
       ENcheck( ENgetnodevalue(iNode, EN_BASEDEMAND, &demand), "ENgetnodevalue(EN_BASEDEMAND)" );
@@ -379,8 +381,9 @@ void EpanetModel::stepSimulation(time_t time) {
   long step = 0;
   ENcheck( ENsettimeparam(EN_HYDSTEP, (long)(time - currentSimulationTime())), "ENsettimeparam(EN_HYDSTEP)" );
   ENcheck( ENnextH(&step), "ENnexH()" );
-  if (step != ( time - currentSimulationTime() )) {
-    cerr << "simulation did not step correctly. model returned %i s." << endl;
+  long supposedStep = time - currentSimulationTime();
+  if (step != supposedStep) {
+    cerr << "simulation did not step correctly. model returned " << step << ", expecting " << supposedStep << endl;
   }
   setCurrentSimulationTime( currentSimulationTime() + step );
 }
