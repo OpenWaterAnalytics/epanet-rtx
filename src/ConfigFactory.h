@@ -12,7 +12,6 @@
 #define CONFIGVERSION "1.0"
 
 #include <libconfig.h++>
-#include <boost/filesystem.hpp>
 
 #include "rtxMacros.h"
 #include "TimeSeries.h"
@@ -71,6 +70,7 @@ namespace RTX {
   
   class ConfigFactory {
   public:
+    RTX_SHARED_POINTER(ConfigFactory);
     ConfigFactory();
     ~ConfigFactory();
     
@@ -123,6 +123,8 @@ namespace RTX {
     void createTimeSeriesList(Setting& timeSeriesGroup);
     void createZones(Setting& zoneGroup);
     
+    bool _doesHaveStateRecord;
+    
     Config _configuration;
     typedef PointRecord::sharedPointer (ConfigFactory::*PointRecordFunctionPointer)(Setting&);
     typedef TimeSeries::sharedPointer (ConfigFactory::*TimeSeriesFunctionPointer)(Setting&);
@@ -135,7 +137,7 @@ namespace RTX {
     map<string, Clock::sharedPointer> _clockList;
     PointRecord::sharedPointer _defaultRecord;
     Model::sharedPointer _model;
-    boost::filesystem::path _configPath;
+    std::string _configPath;
   };
   
 }

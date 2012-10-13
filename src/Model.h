@@ -45,7 +45,8 @@ namespace RTX {
     RTX_SHARED_POINTER(Model);
     friend std::ostream& operator<< (std::ostream &out, Model &model);
     
-    virtual void loadModelFromFile(const std::string& filename) throw(RtxException) = 0;
+    virtual void loadModelFromFile(const std::string& filename) throw(RtxException);
+    std::string modelFile();
     virtual void overrideControls() throw(RtxException);
     void runSinglePeriod(time_t time);
     void runExtendedPeriod(time_t start, time_t end);
@@ -77,6 +78,8 @@ namespace RTX {
     
     virtual void setQualityTimeStep(int seconds);
     int qualityTimeStep();
+    
+    virtual time_t currentSimulationTime();
     
   protected:
     Model();
@@ -119,10 +122,11 @@ namespace RTX {
     virtual int relativeError(time_t time) = 0;
     
     virtual void setCurrentSimulationTime(time_t time);
-    virtual time_t currentSimulationTime();
+    
     
     
   private:
+    std::string _modelFile;
     // master list access
     void add(Junction::sharedPointer newJunction);
     void add(Pipe::sharedPointer newPipe);

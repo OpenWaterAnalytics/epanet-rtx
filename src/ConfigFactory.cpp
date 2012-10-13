@@ -65,6 +65,8 @@ ConfigFactory::ConfigFactory() {
   // Valves
   _parameterSetter.insert(std::make_pair("setting", &ConfigFactory::configureValveSetting));
   
+  _doesHaveStateRecord = false;
+  
 }
 
 ConfigFactory::~ConfigFactory() {
@@ -79,12 +81,13 @@ ConfigFactory::~ConfigFactory() {
 
 void ConfigFactory::loadConfigFile(const std::string& path) {
   
-  _configPath = boost::filesystem::path(path);
+  _configPath = path;
+  boost::filesystem::path configPath(path);
   
   // use libconfig api to open config file
   try
   {
-    _configuration.readFile(_configPath.c_str());
+    _configuration.readFile(configPath.c_str());
   }
   catch(const FileIOException &fioex)
   {
@@ -235,7 +238,7 @@ PointRecord::sharedPointer ConfigFactory::createScadaPointRecord(libconfig::Sett
   string tdsVersion = connection["TDS_Version"];
   string port       = connection["Port"];
   
-  libconfig::Setting& syntax = setting["syntax"];
+  libconfig::Setting& syntax = setting["querySyntax"];
   string table    = syntax["Table"];
   string dateCol  = syntax["DateColumn"];
   string tagCol   = syntax["TagColumn"];
@@ -436,7 +439,8 @@ void ConfigFactory::createModel(Setting& setting) {
   
   std::string modelType = setting["type"];
   string modelFileName = setting["file"];
-  boost::filesystem::path modelPath = _configPath.parent_path();
+  boost::filesystem::path configPath(_configPath);
+  boost::filesystem::path modelPath = configPath.parent_path();
   modelPath /= modelFileName;
   
   if ( RTX_STRINGS_ARE_EQUAL(modelType, "epanet") ){
@@ -464,20 +468,25 @@ Model::sharedPointer ConfigFactory::model() {
 #pragma mark - Simulation Settings
 
 void ConfigFactory::createSimulationDefaults(Setting& setting) {
-  std::string defaultRecordName = setting["staterecord"];
-  if (_pointRecordList.find(defaultRecordName) == _pointRecordList.end()) {
-    std::cerr << "could not retrieve point record by name: " << defaultRecordName << std::endl;
+  if (setting.exists("staterecord")) {
+    _doesHaveStateRecord = true;
+    std::string defaultRecordName = setting["staterecord"];
+    if (_pointRecordList.find(defaultRecordName) == _pointRecordList.end()) {
+      std::cerr << "could not retrieve point record by name: " << defaultRecordName << std::endl;
+    }
+    _defaultRecord = _pointRecordList[defaultRecordName];
+    // provide the model object with this record
+    _model->setStorage(_defaultRecord);
   }
-  _defaultRecord = _pointRecordList[defaultRecordName];
-  // todo - error checking for all these lookups
+  else {
+    std::cout << "Warning: no state record specified. Model results will not be persisted!" << std::endl;
+  }
 
   // get other simulation settings
   Setting& timeSetting = setting["time"];
   const int hydStep = timeSetting["hydraulic"];
   const int qualStep = timeSetting["quality"];
   
-  // provide the model object with this record
-  _model->setStorage(_defaultRecord);
   // set other sim properties...
   _model->setHydraulicTimeStep(hydStep);
   _model->setQualityTimeStep(qualStep);
@@ -545,6 +554,11 @@ void ConfigFactory::configureElement(Element::sharedPointer element) {
       
       // get the type of parameter
       std::string parameterType = elementSetting["parameter"];
+      if (_parameterSetter.find(parameterType) == _parameterSetter.end()) {
+        // no such parameter type
+        std::cout << "could not find paramter type: " << parameterType << std::endl;
+        return;
+      }
       ParameterFunction fp = _parameterSetter[parameterType];
       const string tsName = elementSetting["timeseries"];
       TimeSeries::sharedPointer series = _timeSeriesList[tsName];

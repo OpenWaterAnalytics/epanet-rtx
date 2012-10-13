@@ -259,6 +259,9 @@ Point::sharedPointer ScadaPointRecord::pointBefore(const string& identifier, tim
     
     // add one second to the upper range so that we catch fractional times.
     std::deque<Point::sharedPointer> points = pointsWithStatement(identifier, _lowerBoundStatement, time - (3600 * 4), (time + 1) );
+    if (!points.size() < 1) {
+      return thePoint;
+    }
     if (points.front()->time() > time) {
       points.pop_front();
     }

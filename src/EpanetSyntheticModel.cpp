@@ -46,7 +46,7 @@ void EpanetSyntheticModel::solveSimulation(time_t time) {
    so we know what simulation periods have been solved - as in a master simulation clock?
    */
   long timestep;
-  // set the current epanet-time to zero, since we override epanet-time.
+  
   setCurrentSimulationTime( time );
   
   // don't do this. only the real-time epanetmodel does this.
@@ -64,6 +64,7 @@ time_t EpanetSyntheticModel::nextHydraulicStep(time_t time) {
   ENcheck(ENgettimeparam(EN_DURATION, &duration), "ENgettimeparam(EN_DURATION)");
   
   if (duration <= (time - _startTime) ) {
+    std::cerr << "had to adjust the sim duration to accomodate the requested step";
     ENcheck(ENsettimeparam(EN_DURATION, (duration + hydraulicTimeStep()) ), "ENsettimeparam(EN_DURATION)");
   }
   

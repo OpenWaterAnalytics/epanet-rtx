@@ -79,7 +79,7 @@ std::vector< Point::sharedPointer > TimeSeries::points(time_t start, time_t end)
   std::vector< Point::sharedPointer > points;
   
   // sanity
-  if ((start == end) || (start == 0) || (end == 0)) {
+  if ((start == end) || (start < 0) || (end < 0)) {
     return points;
   }
   // future optimization

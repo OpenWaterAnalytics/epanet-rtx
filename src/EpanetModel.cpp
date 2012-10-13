@@ -24,6 +24,10 @@ EpanetModel::~EpanetModel() {
 #pragma mark - Loading
 
 void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxException) {
+  
+  // base class invocation
+  Model::loadModelFromFile(filename);
+  
   // set up counting variables for creating model elements.
   int nodeCount, tankCount, linkCount;
   long enTimeStep;
@@ -107,6 +111,7 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxExcept
       ENcheck( ENgetnodevalue(iNode, EN_ELEVATION, &z), "ENgetnodevalue EN_ELEVATION");
       ENcheck( ENgetnodetype(iNode, &nodeType), "ENgetnodetype");
       ENcheck( ENgetcoord(iNode, &x, &y), "ENgetcoord");
+      //xstd::cout << "coord: " << iNode << " " << x << " " << y << std::endl;
       
       nodeName = string(enName);
       
@@ -134,6 +139,10 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxExcept
       // so we can use base-class methods to set some parameters.
       newJunction->setElevation(z);
       newJunction->setCoordinates(x, y);
+      
+      // set units for new element
+      newJunction->head()->setUnits(headUnits());
+      newJunction->demand()->setUnits(flowUnits());
       
       double demand = 0;
       ENcheck( ENgetnodevalue(iNode, EN_BASEDEMAND, &demand), "ENgetnodevalue(EN_BASEDEMAND)" );
@@ -208,6 +217,8 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxExcept
       // now that the pipe is created, set some basic properties.
       newPipe->setDiameter(diameter);
       newPipe->setLength(length);
+      
+      newPipe->flow()->setUnits(flowUnits());
       
       // keep track of this element index
       _linkIndex[linkName] = iLink;
@@ -371,19 +382,32 @@ time_t EpanetModel::nextHydraulicStep(time_t time) {
   // get the time of the next hydraulic event (according to the simulation)
   long stepLength = 0;
   time_t nextTime = time;
+  // re-set the epanet engine's hydstep parameter to the original value,
+  // so that the step length figurer-outerer works.
+  int actualTimeStep = hydraulicTimeStep();
+  ENcheck( ENsettimeparam(EN_REPORTSTEP, (long)actualTimeStep), "ENsettimeparam(EN_REPORTSTEP)");
+  ENcheck( ENsettimeparam(EN_HYDSTEP, (long)actualTimeStep), "ENsettimeparam(EN_HYDSTEP)");
   ENcheck( ENgettimeparam(EN_NEXTEVENT, &stepLength), "ENgettimeparam(EN_NEXTEVENT)" );
   nextTime += stepLength;
+  
+  // todo
+  //std::cout << "epanet step length: " << stepLength << std::endl;
+  //std::cout << "*** next sim time: " << nextTime << std::endl;
+  
   return nextTime;
 }
 
 // evolve tank levels
 void EpanetModel::stepSimulation(time_t time) {
-  long step = 0;
-  ENcheck( ENsettimeparam(EN_HYDSTEP, (long)(time - currentSimulationTime())), "ENsettimeparam(EN_HYDSTEP)" );
+  long step = (long)(time - currentSimulationTime());
+  
+  //std::cout << "set step to: " << step << std::endl;
+  
+  ENcheck( ENsettimeparam(EN_HYDSTEP, step), "ENsettimeparam(EN_HYDSTEP)" );
   ENcheck( ENnextH(&step), "ENnexH()" );
   long supposedStep = time - currentSimulationTime();
   if (step != supposedStep) {
-    cerr << "simulation did not step correctly. model returned " << step << ", expecting " << supposedStep << endl;
+    cerr << "model returned step: " << step << ", expecting " << supposedStep << endl;
   }
   setCurrentSimulationTime( currentSimulationTime() + step );
 }
@@ -402,8 +426,8 @@ int EpanetModel::relativeError(time_t time) {
 
 
 void EpanetModel::setHydraulicTimeStep(int seconds) {
-  ENcheck( ENsettimeparam(EN_HYDSTEP, (long)seconds), "ENsettimeparam(EN_HYDSTEP)");
   ENcheck( ENsettimeparam(EN_REPORTSTEP, (long)seconds), "ENsettimeparam(EN_REPORTSTEP)");
+  ENcheck( ENsettimeparam(EN_HYDSTEP, (long)seconds), "ENsettimeparam(EN_HYDSTEP)");
   // base class method
   Model::setHydraulicTimeStep(seconds);
 }

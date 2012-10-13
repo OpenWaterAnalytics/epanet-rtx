@@ -38,6 +38,14 @@ std::ostream& RTX::operator<< (std::ostream &out, Model &model) {
   return model.toStream(out);
 }
 
+void Model::loadModelFromFile(const std::string& filename) throw(RtxException) {
+  _modelFile = filename;
+}
+
+std::string Model::modelFile() {
+  return _modelFile;
+}
+
 #pragma mark - Units
 Units Model::flowUnits()    { return _flowUnits; }
 Units Model::headUnits()    { return _headUnits; }
@@ -251,10 +259,11 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
     nextSimulationTime = nextHydraulicStep(simulationTime);
     nextClockTime = _regularMasterClock->timeAfter(simulationTime);
     stepToTime = RTX_MIN(nextClockTime, nextSimulationTime);
+    
     // and step the simulation to that time.
     stepSimulation(stepToTime);
     simulationTime = currentSimulationTime();
-  }
+    }
   
   
 }
@@ -298,7 +307,9 @@ std::ostream& Model::toStream(std::ostream &stream) {
   stream << "\t" << _links.size() << " links (" << _pumps.size() << " pumps, " << _valves.size() << " valves)" << endl;
   stream << "Time Steps:" << endl;
   stream << "\t" << hydraulicTimeStep() << "s (hydraulic), " << qualityTimeStep() << "s (quality)" << endl;
-  stream << "State Storage:" << endl << *_record;
+  if (_record) {
+    stream << "State Storage:" << endl << *_record;
+  }
   
   return stream;
 }
@@ -415,10 +426,15 @@ void Model::saveHydraulicStates(time_t time) {
   
   // pump energy
   BOOST_FOREACH(Pump::sharedPointer pump, pumps()) {
+    double flow;
+    flow = Units::convertValue(pipeFlow(pump->name()), flowUnits(), pump->flow()->units());
+    Point::sharedPointer flowPoint( new Point(time, flow, Point::good) );
+    pump->flow()->insert(flowPoint);
+    
     double energy;
     energy = pumpEnergy(pump->name());
-    Point::sharedPointer aPoint( new Point(time, energy, Point::good) );
-    pump->energy()->insert(aPoint);
+    Point::sharedPointer energyPoint( new Point(time, energy, Point::good) );
+    pump->energy()->insert(energyPoint);
   }
   
   // save the timestep information

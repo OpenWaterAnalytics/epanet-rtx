@@ -124,7 +124,7 @@
 		220AE470145B29F7002F07B4 /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Node.cpp; path = ../../src/Node.cpp; sourceTree = "<group>"; };
 		220AE472145B2A0C002F07B4 /* Link.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Link.cpp; path = ../../src/Link.cpp; sourceTree = "<group>"; };
 		220AE474145B2A28002F07B4 /* Zone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Zone.cpp; path = ../../src/Zone.cpp; sourceTree = "<group>"; };
-		220D3B62161259050029A041 /* libboost_regex.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_regex.dylib; path = ../../../../../../../../../usr/local/lib/libboost_regex.dylib; sourceTree = "<group>"; };
+		220D3B62161259050029A041 /* libboost_regex.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_regex.dylib; path = /usr/local/lib/libboost_regex.dylib; sourceTree = "<absolute>"; };
 		221A19CB1579111900F0699E /* EpanetSyntheticModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EpanetSyntheticModel.h; path = ../../src/EpanetSyntheticModel.h; sourceTree = "<group>"; };
 		221A19CE1579112B00F0699E /* EpanetSyntheticModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetSyntheticModel.cpp; path = ../../src/EpanetSyntheticModel.cpp; sourceTree = "<group>"; };
 		221C06C216077FB300B8969C /* timeseries_demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = timeseries_demo.cpp; path = ../../examples/conceptual/timeseries_demo.cpp; sourceTree = "<group>"; };
@@ -263,6 +263,7 @@
 				229D1BDB15FE3E20000B4C94 /* libboost_date_time.dylib */,
 				229D1BD915FE3E0F000B4C94 /* libboost_system.dylib */,
 				229D1BD615FE3DFF000B4C94 /* libboost_filesystem.dylib */,
+				220D3B62161259050029A041 /* libboost_regex.dylib */,
 				22C62AED1439EEF000841E60 /* libiodbc.dylib */,
 			);
 			name = Libraries;
@@ -388,7 +389,6 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
-				220D3B62161259050029A041 /* libboost_regex.dylib */,
 				22B8A7971603CA1300EECAA5 /* demos */,
 				22C62AEF143A0E1600841E60 /* test application */,
 				22C678A4152A427000519E1B /* object factories */,

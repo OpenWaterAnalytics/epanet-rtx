@@ -770,7 +770,9 @@ void  tanktimestep(long *tstep)
       }
       else continue;
       t = (long)ROUND(v/q);                     /* Time to fill/drain  */
-      if (t > 0 && t < *tstep) *tstep = t;
+     if (t > 0 && t < *tstep) {
+       *tstep = t;
+     }
    }
 }
 
@@ -833,8 +835,10 @@ void  controltimestep(long *tstep)
          if (
               (Link[k].Type > PIPE && K[k] != Control[i].Setting) ||
               (S[k] != Control[i].Status)
-            )
-            *tstep = t;
+             ) {
+                  *tstep = t;
+                }
+        
       }
    }
 }                        /* End of timestep */

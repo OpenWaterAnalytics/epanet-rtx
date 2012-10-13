@@ -243,7 +243,7 @@ int  readdata()
 /* Get pattern & curve data from temp. lists */
    if (!errcode) errcode = getpatterns();
    if (!errcode) errcode = getcurves();
-  //if (!errcode) errcode = getcoords();  //06.02.2010 woohn
+   if (!errcode) errcode = getcoords();  //06.02.2010 woohn
    if (!errcode) errcode = getpumpparams();
 
 /* Free input buffer */
