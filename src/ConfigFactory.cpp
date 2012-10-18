@@ -53,6 +53,7 @@ ConfigFactory::ConfigFactory() {
   _parameterSetter.insert(std::make_pair("boundaryflow", &ConfigFactory::configureBoundaryFlow));
   _parameterSetter.insert(std::make_pair("headmeasure", &ConfigFactory::configureHeadMeasure));
   // Tanks, Reservoirs
+  _parameterSetter.insert(std::make_pair("levelmeasure", &ConfigFactory::configureLevelMeasure));
   _parameterSetter.insert(std::make_pair("boundaryhead", &ConfigFactory::configureBoundaryHead));
   
   // link-type configuration functions
@@ -455,7 +456,7 @@ void ConfigFactory::createModel(Setting& setting) {
   if ( RTX_STRINGS_ARE_EQUAL(modelType, "synthetic_epanet") ) {
     _model.reset( new EpanetSyntheticModel() );
     _model->loadModelFromFile(modelPath.string());
-    //configureElements(_model->elements());
+    configureElements(_model->elements());
   }
   
 
@@ -595,6 +596,14 @@ void ConfigFactory::configureHeadMeasure(Setting &setting, Element::sharedPointe
   if (thisJunction) {
     TimeSeries::sharedPointer head = _timeSeriesList[setting["timeseries"]];
     thisJunction->setHeadMeasure(head);
+  }
+}
+
+void ConfigFactory::configureLevelMeasure(Setting &setting, Element::sharedPointer tank) {
+  Tank::sharedPointer thisTank = boost::dynamic_pointer_cast<Tank>(tank);
+  if (thisTank) {
+    TimeSeries::sharedPointer level = _timeSeriesList[setting["timeseries"]];
+    thisTank->setLevelMeasure(level);
   }
 }
 

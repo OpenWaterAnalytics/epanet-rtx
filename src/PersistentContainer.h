@@ -33,13 +33,13 @@ namespace RTX {
     // extra value-added methods beyond STL-like behavior
     virtual void hintAtRange(time_t start, time_t end);
     virtual void hintAtBulkInsertion(time_t start, time_t end);
-    //virtual std::vector< Point::sharedPointer > pointsInRange(time_t start, time_t end);
+    //virtual std::vector< Point > pointsInRange(time_t start, time_t end);
     virtual bool isPointAvailable(time_t time);
-    virtual Point::sharedPointer findPoint(time_t time);
-    virtual Point::sharedPointer pointAfter(time_t time);
-    virtual Point::sharedPointer pointBefore(time_t time);
-    virtual void insertPoint(Point::sharedPointer point);
-    virtual void insertPoints(std::vector< Point::sharedPointer > points);
+    virtual Point findPoint(time_t time);
+    virtual Point pointAfter(time_t time);
+    virtual Point pointBefore(time_t time);
+    virtual void insertPoint(Point point);
+    virtual void insertPoints(std::vector< Point > points);
     
   protected:
     virtual std::ostream& toStream(std::ostream &stream);

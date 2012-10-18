@@ -50,26 +50,37 @@ std::vector< std::pair<TimeSeries::sharedPointer,double> > AggregatorTimeSeries:
 }
 
 
-Point::sharedPointer AggregatorTimeSeries::point(time_t time) {
-  Point::sharedPointer aPoint;
-  
+Point AggregatorTimeSeries::point(time_t time) {
   // call the base class method first, to see if the point is accessible via cache.
-  aPoint = TimeSeries::point(time);
+  Point aPoint = TimeSeries::point(time);
 
   // if not, we construct it.
-  if (!aPoint || aPoint->quality()==Point::missing) {
-    aPoint.reset( new Point(time, 0, Point::good) );
+  if (!aPoint.isValid() || aPoint.quality() == Point::missing) {
+    aPoint = Point(time, 0, Point::good);
     // start at zero, and sum other TS's values.
     std::vector< std::pair<TimeSeries::sharedPointer,double> >::iterator it;
     typedef std::pair< TimeSeries::sharedPointer, double > tsPair_t;
     BOOST_FOREACH(tsPair_t tsPair , _tsList) {
       double multiplier;
-      Point::sharedPointer thisPoint = Point::convertPoint(*tsPair.first->point(time), tsPair.first->units(), units());
+      Point thisPoint = Point::convertPoint(tsPair.first->point(time), tsPair.first->units(), units());
       multiplier = tsPair.second;
-      *aPoint += ( (*thisPoint) * multiplier );
+      aPoint += ( thisPoint * multiplier );
     }
     this->insert(aPoint);
   }
   
   return aPoint;
 }
+
+std::vector< Point > AggregatorTimeSeries::points(time_t start, time_t end) {
+  typedef std::pair< TimeSeries::sharedPointer, double > tsPair_t;
+  BOOST_FOREACH(tsPair_t tsPair , _tsList) {
+    // run the query, so that the source time series are ready
+    tsPair.first->points(start, end);
+  }
+  
+  return TimeSeries::points(start, end);
+}
+
+
+

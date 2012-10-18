@@ -39,15 +39,15 @@ namespace RTX {
     ~TimeSeries();
     
     // methods
-    virtual void insert(Point::sharedPointer aPoint);
-    virtual void insertPoints(std::vector<Point::sharedPointer>);  /// option to add lots of (un)ordered points all at once.
+    virtual void insert(Point aPoint);
+    virtual void insertPoints(std::vector<Point>);  /// option to add lots of (un)ordered points all at once.
     
     // getters
-    virtual Point::sharedPointer point(time_t time);
-    virtual Point::sharedPointer pointBefore(time_t time);
-    virtual Point::sharedPointer pointAfter(time_t time);
-    virtual std::vector< Point::sharedPointer > points(time_t start, time_t end); // points in range
-    virtual std::pair< Point::sharedPointer, Point::sharedPointer > adjacentPoints(time_t time); // adjacent points
+    virtual Point point(time_t time);
+    virtual Point pointBefore(time_t time);
+    virtual Point pointAfter(time_t time);
+    virtual std::vector< Point > points(time_t start, time_t end); // points in range
+    virtual std::pair< Point, Point > adjacentPoints(time_t time); // adjacent points
     virtual double value(time_t time);
     virtual Point::Qual_t quality(time_t time);
     virtual time_t period();                              //! 1/frequency (# seconds between data points)

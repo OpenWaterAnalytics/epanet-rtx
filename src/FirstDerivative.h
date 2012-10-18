@@ -19,7 +19,7 @@ namespace RTX {
     FirstDerivative();
     virtual ~FirstDerivative();
     
-    virtual Point::sharedPointer point(time_t time);
+    virtual Point point(time_t time);
     virtual void setSource(TimeSeries::sharedPointer source);
     virtual void setUnits(Units newUnits);
     

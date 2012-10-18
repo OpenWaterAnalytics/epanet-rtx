@@ -16,10 +16,10 @@ Tank::Tank(const std::string& name) : Junction(name) {
   setType(TANK);
   // initialize level time series
   _elevationOffset.reset( new ConstantSeries(elevation()) );
-  _elevationOffset->setUnits(RTX_METER);
+  _elevationOffset->setUnits(RTX_FOOT);
   
   _level.reset( new AggregatorTimeSeries() );
-  _level->setUnits(RTX_METER);
+  _level->setUnits(RTX_FOOT);
   _level->addSource(head());
   _level->addSource(_elevationOffset);
 }
@@ -33,6 +33,24 @@ void Tank::setElevation(double elevation) {
   // re-set the elevation offset for the level timeseries
   _elevationOffset->setValue(elevation);
 }
+
+void Tank::setLevelMeasure(TimeSeries::sharedPointer level) {
+  
+  std::string aggregateName("");
+  AggregatorTimeSeries::sharedPointer sumOfLevelAndElevation(new AggregatorTimeSeries());
+  sumOfLevelAndElevation->setUnits(level->units());
+  
+  aggregateName += level->name();
+  aggregateName += " + elevation";
+  sumOfLevelAndElevation->setName(aggregateName);
+  sumOfLevelAndElevation->setClock(level->clock());
+  
+  sumOfLevelAndElevation->addSource(_elevationOffset);
+  sumOfLevelAndElevation->addSource(level);
+  
+  setHeadMeasure(sumOfLevelAndElevation);
+}
+
 
 TimeSeries::sharedPointer Tank::level() {
   return _level;

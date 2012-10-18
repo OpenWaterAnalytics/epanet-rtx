@@ -31,7 +31,7 @@ namespace RTX {
    */
   
   /*! 
-   \fn virtual Point::sharedPointer PointRecord::point(const std::string &name, time_t time) 
+   \fn virtual Point PointRecord::point(const std::string &name, time_t time) 
    \brief Get a Point with a specific name at a specific time.
    \param name The name of the data source (tag name).
    \param time The requested time.
@@ -39,7 +39,7 @@ namespace RTX {
    \sa Point
    */
   /*! 
-   \fn std::vector<Point::sharedPointer> PointRecord::pointsInRange(const std::string &name, time_t startTime, time_t endTime) 
+   \fn std::vector<Point> PointRecord::pointsInRange(const std::string &name, time_t startTime, time_t endTime) 
    \brief Get a vector of Points with a specific name within a specific time range.
    \param name The name of the data source (tag name).
    \param startTime The beginning of the requested time range.
@@ -48,7 +48,7 @@ namespace RTX {
    \sa Point
    */
   /*! 
-   \fn std::vector<Point::sharedPointer> PointRecord::pointsAdjacentTo(const std::string &name, time_t time) 
+   \fn std::vector<Point> PointRecord::pointsAdjacentTo(const std::string &name, time_t time) 
    \brief Get a vector of Points with a specific name adjacent to a specified time.
    \param name The name of the data source (tag name).
    \param time The requested time.
@@ -69,12 +69,12 @@ namespace RTX {
     virtual void hintAtRange(const string& identifier, time_t start, time_t end)=0;   // prepare to retrieve range of values
     
     virtual bool isPointAvailable(const string& identifier, time_t time) { return false; };
-    virtual Point::sharedPointer point(const string& identifier, time_t time)=0;
-    virtual Point::sharedPointer pointBefore(const string& identifier, time_t time)=0;
-    virtual Point::sharedPointer pointAfter(const string& identifier, time_t time)=0;
-    virtual std::vector<Point::sharedPointer> pointsInRange(const string& identifier, time_t startTime, time_t endTime)=0;
-    virtual void addPoint(const string& identifier, Point::sharedPointer point)=0;
-    virtual void addPoints(const string& identifier, std::vector<Point::sharedPointer> points)=0;
+    virtual Point point(const string& identifier, time_t time)=0;
+    virtual Point pointBefore(const string& identifier, time_t time)=0;
+    virtual Point pointAfter(const string& identifier, time_t time)=0;
+    virtual std::vector<Point> pointsInRange(const string& identifier, time_t startTime, time_t endTime)=0;
+    virtual void addPoint(const string& identifier, Point point)=0;
+    virtual void addPoints(const string& identifier, std::vector<Point> points)=0;
     virtual void reset()=0;
     
     void setConnectionString(const std::string& connection);

@@ -20,7 +20,7 @@ namespace RTX {
     Resampler();
     virtual ~Resampler();
     
-    virtual Point::sharedPointer point(time_t time);
+    virtual Point point(time_t time);
     
   protected:
     virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);

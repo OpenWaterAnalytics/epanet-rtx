@@ -52,12 +52,12 @@ namespace RTX {
     virtual std::vector<std::string> identifiers();
     virtual void hintAtRange(const string& identifier, time_t start, time_t end);
     virtual bool isPointAvailable(const string& identifier, time_t time);
-    virtual Point::sharedPointer point(const string& identifier, time_t time);
-    virtual Point::sharedPointer pointBefore(const string& identifier, time_t time);
-    virtual Point::sharedPointer pointAfter(const string& identifier, time_t time);
-    virtual std::vector<Point::sharedPointer> pointsInRange(const string& identifier, time_t startTime, time_t endTime);
-    virtual void addPoint(const string& identifier, Point::sharedPointer point);
-    virtual void addPoints(const string& identifier, std::vector<Point::sharedPointer> points);
+    virtual Point point(const string& identifier, time_t time);
+    virtual Point pointBefore(const string& identifier, time_t time);
+    virtual Point pointAfter(const string& identifier, time_t time);
+    virtual std::vector<Point> pointsInRange(const string& identifier, time_t startTime, time_t endTime);
+    virtual void addPoint(const string& identifier, Point point);
+    virtual void addPoints(const string& identifier, std::vector<Point> points);
     virtual void reset();
     
   protected:
@@ -66,8 +66,8 @@ namespace RTX {
   private:
     bool _connectionOk;
     void insertSingle(const string& identifier, time_t time, double value);
-    Point::sharedPointer selectSingle(const string& identifier, time_t time, boost::shared_ptr<sql::PreparedStatement> statement);
-    std::vector<Point::sharedPointer>selectRange(const string& identifier, time_t start, time_t end);
+    Point selectSingle(const string& identifier, time_t time, boost::shared_ptr<sql::PreparedStatement> statement);
+    std::vector<Point>selectRange(const string& identifier, time_t start, time_t end);
     void handleException(sql::SQLException &e);
     string _name;
     sql::Driver* _driver;

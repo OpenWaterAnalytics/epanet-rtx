@@ -382,13 +382,13 @@ void Model::saveHydraulicStates(time_t time) {
   BOOST_FOREACH(Junction::sharedPointer junction, junctions()) {
     double head;
     head = Units::convertValue(junctionHead(junction->name()), headUnits(), junction->head()->units());
-    Point::sharedPointer headPoint( new Point(time, head, Point::good) );
+    Point headPoint(time, head, Point::good);
     junction->head()->insert(headPoint);
     
     // todo - more fine-grained quality data? at wq step resolution...
     double quality;
     quality = 0; // Units::convertValue(junctionQuality(junction->name()), RTX_MILLIGRAMS_PER_LITER, junction->quality()->units());
-    Point::sharedPointer qualityPoint( new Point(time, quality, Point::good) );
+    Point qualityPoint(time, quality, Point::good);
     junction->quality()->insert(qualityPoint);
   }
   
@@ -397,7 +397,7 @@ void Model::saveHydraulicStates(time_t time) {
     BOOST_FOREACH(Junction::sharedPointer junction, junctions()) {
       double demand;
       demand = Units::convertValue(junctionDemand(junction->name()), flowUnits(), junction->demand()->units());
-      Point::sharedPointer demandPoint( new Point(time, demand, Point::good) );
+      Point demandPoint(time, demand, Point::good);
       junction->demand()->insert(demandPoint);
     }
   }
@@ -405,14 +405,14 @@ void Model::saveHydraulicStates(time_t time) {
   BOOST_FOREACH(Reservoir::sharedPointer reservoir, reservoirs()) {
     double head;
     head = Units::convertValue(junctionHead(reservoir->name()), headUnits(), reservoir->head()->units());
-    Point::sharedPointer headPoint( new Point(time, head, Point::good) );
+    Point headPoint(time, head, Point::good);
     reservoir->head()->insert(headPoint);
   }
   
   BOOST_FOREACH(Tank::sharedPointer tank, tanks()) {
     double head;
     head = Units::convertValue(junctionHead(tank->name()), headUnits(), tank->head()->units());
-    Point::sharedPointer headPoint( new Point(time, head, Point::good) );
+    Point headPoint(time, head, Point::good);
     tank->head()->insert(headPoint);
   }
   
@@ -420,7 +420,7 @@ void Model::saveHydraulicStates(time_t time) {
   BOOST_FOREACH(Pipe::sharedPointer pipe, pipes()) {
     double flow;
     flow = Units::convertValue(pipeFlow(pipe->name()), flowUnits(), pipe->flow()->units());
-    Point::sharedPointer aPoint( new Point(time, flow, Point::good) );
+    Point aPoint(time, flow, Point::good);
     pipe->flow()->insert(aPoint);
   }
   
@@ -428,19 +428,19 @@ void Model::saveHydraulicStates(time_t time) {
   BOOST_FOREACH(Pump::sharedPointer pump, pumps()) {
     double flow;
     flow = Units::convertValue(pipeFlow(pump->name()), flowUnits(), pump->flow()->units());
-    Point::sharedPointer flowPoint( new Point(time, flow, Point::good) );
+    Point flowPoint(time, flow, Point::good);
     pump->flow()->insert(flowPoint);
     
     double energy;
     energy = pumpEnergy(pump->name());
-    Point::sharedPointer energyPoint( new Point(time, energy, Point::good) );
+    Point energyPoint(time, energy, Point::good);
     pump->energy()->insert(energyPoint);
   }
   
   // save the timestep information
-  Point::sharedPointer error( new Point(time, relativeError(time)) );
+  Point error(time, relativeError(time));
   _relativeError->insert(error);
-  Point::sharedPointer iterationCount( new Point(time, iterations(time)) );
+  Point iterationCount(time, iterations(time));
   _iterations->insert(iterationCount);
 
 }

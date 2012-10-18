@@ -30,25 +30,25 @@ namespace RTX {
     RTX_SHARED_POINTER(MovingAverage);
     MovingAverage();
     virtual ~MovingAverage();
-    //vector<Point::sharedPointer> sourceTimeSeries(const std::string& nameSource, PointRecord::sharedPointer source, time_t tStart, long tEnd);
+    //vector<Point> sourceTimeSeries(const std::string& nameSource, PointRecord::sharedPointer source, time_t tStart, long tEnd);
     
     // added functionality
     void setWindowSize(int numberOfPoints);   // set number of points to consider in the moving average calculation
     int windowSize();                         // return the window size (see above)
     
     // overridden methods (from derived classes)
-    virtual Point::sharedPointer point(time_t time);
-    virtual std::vector< Point::sharedPointer > points(time_t start, time_t end);
+    virtual Point point(time_t time);
+    virtual std::vector< Point > points(time_t start, time_t end);
     
   private:
     // methods
     Point movingAverageAt(time_t time);
-    double calculateAverage(vector< Point::sharedPointer > points);
+    double calculateAverage(vector< Point > points);
     // attributes
     int N;
     //array to store moving average
     double movAvg[100];
-    typedef vector<Point::sharedPointer>::const_iterator pointVectorIterator;
+    typedef vector<Point>::const_iterator pointVectorIterator;
     int k, k2, i;
     int _windowSize;
   };

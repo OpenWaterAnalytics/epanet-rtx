@@ -19,7 +19,7 @@ namespace RTX {
     ConstantSeries(double constantValue = 0);
     virtual ~ConstantSeries();
     
-    virtual Point::sharedPointer point(time_t time);
+    virtual Point point(time_t time);
     void setValue(double value);
     
   private:

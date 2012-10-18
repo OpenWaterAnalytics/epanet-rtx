@@ -35,7 +35,9 @@ namespace RTX {
     std::vector< std::pair<TimeSeries::sharedPointer,double> > sources();
     
     // reimplement the base class methods
-    virtual Point::sharedPointer point(time_t time);
+    virtual Point point(time_t time);
+    virtual std::vector< Point > points(time_t start, time_t end);
+
     
   private:
     // need to store several TimeSeries references...

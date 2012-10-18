@@ -73,7 +73,7 @@ bool ModularTimeSeries::isPointAvailable(time_t time) {
   }
 }
 
-Point::sharedPointer ModularTimeSeries::point(time_t time) {
+Point ModularTimeSeries::point(time_t time) {
   // check the base-class availability. if it's cached or stored here locally, then send it on.
   // otherwise, check the upstream availability. if it's there, store it locally and pass it on.
   
@@ -88,21 +88,21 @@ Point::sharedPointer ModularTimeSeries::point(time_t time) {
   else {
     if (source()->isPointAvailable(time)) {
       // create a new point object and convert from source units
-      Point::sharedPointer sourcePoint = source()->point(time);
-      Point::sharedPointer aPoint = Point::convertPoint(*sourcePoint, source()->units(), units());
+      Point sourcePoint = source()->point(time);
+      Point aPoint = Point::convertPoint(sourcePoint, source()->units(), units());
       insert(aPoint);
       return aPoint;
     }
     else {
       std::cerr << "check point availability first\n";
       // TODO -- throw something? reminder to check point availability first...
-      Point::sharedPointer point;
+      Point point;
       return point;
     }
   }
 }
 
-std::vector< Point::sharedPointer > ModularTimeSeries::points(time_t start, time_t end) {
+std::vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
   // call the source points method to get it to cache points...
   _source->points(start, end);
   

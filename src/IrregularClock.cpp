@@ -43,10 +43,10 @@ bool IrregularClock::isValid(time_t time) {
 
 
 time_t IrregularClock::timeAfter(time_t time) {
-  Point::sharedPointer aPoint;
+  Point aPoint;
   aPoint = _pointContainer->pointAfter(time);
-  if (aPoint) {
-    return aPoint->time();
+  if (aPoint.isValid()) {
+    return aPoint.time();
   }
   else {
     //std::cerr << "irregular clock cannot find time after " << time << std::endl;
@@ -56,10 +56,10 @@ time_t IrregularClock::timeAfter(time_t time) {
 }
 
 time_t IrregularClock::timeBefore(time_t time) {
-  Point::sharedPointer aPoint;
+  Point aPoint;
   aPoint = _pointContainer->pointBefore(time);
-  if (aPoint) {
-    return aPoint->time();
+  if (aPoint.isValid()) {
+    return aPoint.time();
   }
   else {
     //std::cerr << "previous time not found" << std::endl;

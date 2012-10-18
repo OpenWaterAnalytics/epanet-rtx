@@ -194,15 +194,15 @@ void MysqlPointRecord::hintAtRange(const string& identifier, time_t start, time_
 }
 
 bool MysqlPointRecord::isPointAvailable(const string& identifier, time_t time) {
-  Point::sharedPointer point = selectSingle(identifier, time, _singleSelect);
-  if (point) {
+  Point point = selectSingle(identifier, time, _singleSelect);
+  if (point.isValid()) {
     return true;
   }
   return false;
 }
-Point::sharedPointer MysqlPointRecord::point(const string& identifier, time_t time) {
-  Point::sharedPointer point = selectSingle(identifier, time, _singleSelect);
-  if (point) {
+Point MysqlPointRecord::point(const string& identifier, time_t time) {
+  Point point = selectSingle(identifier, time, _singleSelect);
+  if (point.isValid()) {
     return point;
   }
   else {
@@ -210,9 +210,9 @@ Point::sharedPointer MysqlPointRecord::point(const string& identifier, time_t ti
     return point;
   }
 }
-Point::sharedPointer MysqlPointRecord::pointBefore(const string& identifier, time_t time) {
-  Point::sharedPointer point = selectSingle(identifier, time, _previousSelect);
-  if (point) {
+Point MysqlPointRecord::pointBefore(const string& identifier, time_t time) {
+  Point point = selectSingle(identifier, time, _previousSelect);
+  if (point.isValid()) {
     return point;
   }
   else {
@@ -221,9 +221,9 @@ Point::sharedPointer MysqlPointRecord::pointBefore(const string& identifier, tim
     return point;
   }
 }
-Point::sharedPointer MysqlPointRecord::pointAfter(const string& identifier, time_t time) {
-  Point::sharedPointer point = selectSingle(identifier, time, _nextSelect);
-  if (point) {
+Point MysqlPointRecord::pointAfter(const string& identifier, time_t time) {
+  Point point = selectSingle(identifier, time, _nextSelect);
+  if (point.isValid()) {
     return point;
   }
   else {
@@ -232,16 +232,16 @@ Point::sharedPointer MysqlPointRecord::pointAfter(const string& identifier, time
     return point;
   }
 }
-std::vector<Point::sharedPointer> MysqlPointRecord::pointsInRange(const string& identifier, time_t startTime, time_t endTime) {
+std::vector<Point> MysqlPointRecord::pointsInRange(const string& identifier, time_t startTime, time_t endTime) {
   return selectRange(identifier, startTime, endTime);
 }
-void MysqlPointRecord::addPoint(const string& identifier, Point::sharedPointer point) {
-  time_t time = point->time();
-  double value = point->value();
+void MysqlPointRecord::addPoint(const string& identifier, Point point) {
+  time_t time = point.time();
+  double value = point.value();
   insertSingle(identifier, time, value);
 }
-void MysqlPointRecord::addPoints(const string& identifier, std::vector<Point::sharedPointer> points) {
-  BOOST_FOREACH(Point::sharedPointer point, points) {
+void MysqlPointRecord::addPoints(const string& identifier, std::vector<Point> points) {
+  BOOST_FOREACH(Point point, points) {
     addPoint(identifier, point);
   }
 }
@@ -303,23 +303,23 @@ void MysqlPointRecord::insertSingle(const string& identifier, time_t time, doubl
   _connection->commit();
 }
 
-Point::sharedPointer MysqlPointRecord::selectSingle(const string& identifier, time_t time, boost::shared_ptr<sql::PreparedStatement> statement) {
+Point MysqlPointRecord::selectSingle(const string& identifier, time_t time, boost::shared_ptr<sql::PreparedStatement> statement) {
   // "SELECT value FROM points INNER JOIN timeseries_id_keys USING (series_id) WHERE name = ? time = ?"
-  Point::sharedPointer point;
+  Point point;
   statement->setString(1, identifier);
   statement->setInt(2, (int)time);
   boost::shared_ptr<sql::ResultSet> result( statement->executeQuery() );
   if( result->next() ) {
     double rowValue = result->getDouble("value");
     time_t rowTime = result->getInt("time");
-    point.reset( new Point(rowTime, rowValue) );
+    point = Point(rowTime, rowValue);
   }
   return point;
 }
 
-std::vector<Point::sharedPointer> MysqlPointRecord::selectRange(const string& identifier, time_t start, time_t end) {
+std::vector<Point> MysqlPointRecord::selectRange(const string& identifier, time_t start, time_t end) {
   // "SELECT time, value FROM points INNER JOIN timeseries_meta USING (series_id) WHERE name = ? AND time > ? AND time <= ?";
-  std::vector<Point::sharedPointer> points;
+  std::vector<Point> points;
   _rangeSelect->setString(1, identifier);
   _rangeSelect->setInt(2, (int)start);
   _rangeSelect->setInt(3, (int)end);
@@ -327,7 +327,7 @@ std::vector<Point::sharedPointer> MysqlPointRecord::selectRange(const string& id
   while (result->next()) {
     time_t time = result->getInt("time");
     double value = result->getDouble("value");
-    Point::sharedPointer point( new Point(time, value) );
+    Point point(time, value);
     points.push_back(point);
   }
   

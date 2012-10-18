@@ -27,7 +27,7 @@ namespace RTX {
     CurveFunction();
     // overridden methods from parent class
     virtual void setSource(TimeSeries::sharedPointer source);
-    virtual Point::sharedPointer point(time_t time);
+    virtual Point point(time_t time);
     virtual void setUnits(Units newUnits);
     
     // added functionality.

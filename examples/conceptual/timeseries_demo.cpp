@@ -18,7 +18,7 @@
 using namespace RTX;
 using namespace std;
 
-void printPoints(vector<Point::sharedPointer> pointVector);
+void printPoints(vector<Point> pointVector);
 
 int main(int argc, const char * argv[])
 {
@@ -35,13 +35,13 @@ int main(int argc, const char * argv[])
    */
   time_t start = 1222873200; // unix-time 2008-10-01 15:00:00 GMT
   
-  Point::sharedPointer  p1(new Point(start, 34.5)),
-                        p2(new Point(start+100, 45.2)),
-                        p3(new Point(start+120, 45.9)),
-                        p4(new Point(start+230, 42.1));
+  Point  p1(start, 34.5),
+         p2(start+100, 45.2),
+         p3(start+120, 45.9),
+         p4(start+230, 42.1);
   
   // put these points into a vector
-  vector<Point::sharedPointer> uglyPoints;
+  vector<Point> uglyPoints;
   uglyPoints.push_back(p1);
   uglyPoints.push_back(p2);
   uglyPoints.push_back(p3);
@@ -60,8 +60,8 @@ int main(int argc, const char * argv[])
   // to retrieve a particular point, we just ask for it.
   // notice that we are asking for a point in time that the uglyTimeSeries doesn't know about.
   // the best it can do is find the point just prior to our query and return that instead.
-  Point::sharedPointer myPoint = uglyTimeSeries->point(start+110);
-  cout << "single point: " << *myPoint << endl << endl;
+  Point myPoint = uglyTimeSeries->point(start+110);
+  cout << "single point: " << myPoint << endl << endl;
   
   // if we want to retrieve the points in this time series for some range, we can do so:
   cout << "range of points:" << endl;
@@ -142,9 +142,9 @@ int main(int argc, const char * argv[])
 }
 
 
-void printPoints(vector<Point::sharedPointer> pointVector) {
-  BOOST_FOREACH(Point::sharedPointer thePoint, pointVector) {
-    cout << *thePoint << endl;
+void printPoints(vector<Point> pointVector) {
+  BOOST_FOREACH(Point thePoint, pointVector) {
+    cout << thePoint << endl;
   }
 }
 

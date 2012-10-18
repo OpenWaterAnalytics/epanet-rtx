@@ -22,7 +22,7 @@ Resampler::~Resampler() {
 
 #pragma mark - Public Methods
 
-Point::sharedPointer Resampler::point(time_t time) {
+Point Resampler::point(time_t time) {
   // check the base-class availability. if it's cached or stored here locally, then send it on.
   // otherwise, check the upstream availability. if it can be produced, store it locally and pass it on.
   if (TimeSeries::isPointAvailable(time)) {
@@ -35,25 +35,25 @@ Point::sharedPointer Resampler::point(time_t time) {
       time = clock()->timeBefore(time);
     }
     // now that that's settled, get some source points and interpolate.
-    Point::sharedPointer p0, p1, interpolatedPoint;
+    Point p0, p1, interpolatedPoint;
     
     if (source()->isPointAvailable(time)) {
       // if the source has the point, then no interpolation is needed.
-      interpolatedPoint = Point::convertPoint(*source()->point(time), source()->units(), units());
+      interpolatedPoint = Point::convertPoint(source()->point(time), source()->units(), units());
     }
     else {
-      std::pair< Point::sharedPointer, Point::sharedPointer > sourcePoints = source()->adjacentPoints(time);
+      std::pair< Point, Point > sourcePoints = source()->adjacentPoints(time);
       p0 = sourcePoints.first;
       p1 = sourcePoints.second;
       
-      if (!p0 || !p1 || p0->quality()==Point::missing || p1->quality()==Point::missing) {
+      if (!p0.isValid() || !p1.isValid() || p0.quality()==Point::missing || p1.quality()==Point::missing) {
         // get out while the gettin's good
-        interpolatedPoint.reset(new Point(time, 0, Point::missing));
+        interpolatedPoint = Point(time, 0, Point::missing);
         return interpolatedPoint;
       }
       
-      double newValue = p0->value() + (( time - p0->time() )*( p1->value() - p0->value() )) / ( p1->time() - p0->time() );
-      double newConfidence = (p0->confidence() + p1->confidence()) / 2; // TODO -- more elegant confidence estimation
+      double newValue = p0.value() + (( time - p0.time() )*( p1.value() - p0.value() )) / ( p1.time() - p0.time() );
+      double newConfidence = (p0.confidence() + p1.confidence()) / 2; // TODO -- more elegant confidence estimation
       interpolatedPoint = Point::convertPoint( Point(time, newValue, Point::interpolated, newConfidence), source()->units(), units() );
     }
     

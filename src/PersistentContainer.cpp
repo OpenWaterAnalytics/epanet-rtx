@@ -33,13 +33,10 @@ PointRecord::sharedPointer PersistentContainer::pointRecord() {
 }
 
 void PersistentContainer::hintAtRange(time_t start, time_t end) {
-  
-  
-  
   // assuming there's a cache already, find missing sections and fill them in.
-  if (PointContainer::firstPoint() && PointContainer::lastPoint()) {
-    time_t cacheStart = PointContainer::firstPoint()->time();
-    time_t cacheEnd = PointContainer::lastPoint()->time();
+  if (PointContainer::firstPoint().isValid() && PointContainer::lastPoint().isValid()) {
+    time_t cacheStart = PointContainer::firstPoint().time();
+    time_t cacheEnd = PointContainer::lastPoint().time();
     
     // fill in leading points
     if (start < cacheStart) {
@@ -63,6 +60,12 @@ bool PersistentContainer::isPointAvailable(time_t time) {
   if (PointContainer::isPointAvailable(time)) {
     return true;
   }
+  else if (PointContainer::pointBefore(time).isValid()) {
+    // we may just by trying to get something in a range
+    // in which case we don't want to go to all the trouble of querying our pointrecord.
+    // so technically, the point is "not" avaiable, but we'll expect to be asked for a nearby point pretty soon.
+    return false;
+  }
   else {
     bool isAvailable = _pointRecord->isPointAvailable(_id, time);
     if (isAvailable) {
@@ -72,7 +75,7 @@ bool PersistentContainer::isPointAvailable(time_t time) {
   }
 }
 
-Point::sharedPointer PersistentContainer::findPoint(time_t time) {
+Point PersistentContainer::findPoint(time_t time) {
   if (isPointAvailable(time)) {
     return PointContainer::findPoint(time);
   }
@@ -81,32 +84,32 @@ Point::sharedPointer PersistentContainer::findPoint(time_t time) {
   }
 }
 
-Point::sharedPointer PersistentContainer::pointAfter(time_t time) {
+Point PersistentContainer::pointAfter(time_t time) {
   
   
   
-  if (PointContainer::pointAfter(time)) {
+  if (PointContainer::pointAfter(time).isValid()) {
     return PointContainer::pointAfter(time);
   }
   else {
-    Point::sharedPointer aPoint = _pointRecord->pointAfter(_id, time);
-    if (aPoint) {
+    Point aPoint = _pointRecord->pointAfter(_id, time);
+    if (aPoint.isValid()) {
       PointContainer::insertPoint(aPoint);
     }
     return aPoint;
   }
 }
 
-Point::sharedPointer PersistentContainer::pointBefore(time_t time) {
+Point PersistentContainer::pointBefore(time_t time) {
   return _pointRecord->pointBefore(_id, time);
 }
 
-void PersistentContainer::insertPoint(Point::sharedPointer point) {
+void PersistentContainer::insertPoint(Point point) {
   PointContainer::insertPoint(point);
   _pointRecord->addPoint(_id, point);
 }
 
-void PersistentContainer::insertPoints(std::vector<Point::sharedPointer> points) {
+void PersistentContainer::insertPoints(std::vector<Point> points) {
   
 }
 

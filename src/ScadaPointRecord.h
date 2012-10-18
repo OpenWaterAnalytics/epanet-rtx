@@ -38,20 +38,20 @@ namespace RTX {
     virtual bool isConnected();
     virtual std::vector<std::string> identifiers();
     virtual bool isPointAvailable(const string& identifier, time_t time);
-    virtual Point::sharedPointer point(const string& identifier, time_t time);
-    virtual Point::sharedPointer pointBefore(const string& identifier, time_t time);
-    virtual Point::sharedPointer pointAfter(const string& identifier, time_t time);
+    virtual Point point(const string& identifier, time_t time);
+    virtual Point pointBefore(const string& identifier, time_t time);
+    virtual Point pointAfter(const string& identifier, time_t time);
     virtual void hintAtRange(const string& identifier, time_t start, time_t end);
-    virtual std::vector<Point::sharedPointer> pointsInRange(const string& identifier, time_t startTime, time_t endTime);
-    virtual void addPoint(const string& identifier, Point::sharedPointer point) {};
-    virtual void addPoints(const string& identifier, std::vector<Point::sharedPointer> points) {};
+    virtual std::vector<Point> pointsInRange(const string& identifier, time_t startTime, time_t endTime);
+    virtual void addPoint(const string& identifier, Point point) {};
+    virtual void addPoints(const string& identifier, std::vector<Point> points) {};
     virtual void reset() {};
   protected:
     virtual std::ostream& toStream(std::ostream &stream);
     
   private:
     bool _connectionOk;
-    std::deque<Point::sharedPointer> pointsWithStatement(const string& identifier, SQLHSTMT statement, time_t startTime, time_t endTime = 0);
+    std::deque<Point> pointsWithStatement(const string& identifier, SQLHSTMT statement, time_t startTime, time_t endTime = 0);
     typedef struct {
       SQLCHAR tagName[MAX_SCADA_TAG];
       SQL_TIMESTAMP_STRUCT time;
@@ -90,7 +90,7 @@ namespace RTX {
       void clear();
       std::string identifier;
       std::pair<time_t, time_t> range;
-      std::deque<Point::sharedPointer> cache;
+      std::deque<Point> cache;
     };
     Hint_t _hint;
     

@@ -14,6 +14,7 @@ using namespace RTX;
 
 PointContainer::PointContainer() {
   _cacheSize = POINTCONTAINER_CACHESIZE;
+  
 }
 
 PointContainer::~PointContainer() {
@@ -26,11 +27,6 @@ std::ostream& RTX::operator<< (std::ostream &out, PointContainer &pointContainer
 }
 
 std::ostream& PointContainer::toStream(std::ostream &stream) {
-  
-  // print all points in the map...
-  /*for (PointMap_t::iterator it = _points.begin(); it != _points.end(); ++it) {
-    stream << *((*it).second) << "\n";
-  }*/
   
   stream << "Local memory cache with " << _pairMap.size() << " records" << std::endl;
   
@@ -61,18 +57,6 @@ size_t PointContainer::size() {
 /* overrideable methods */
 
 bool PointContainer::isPointAvailable(time_t time) {
-  /*
-  PointMap_t::iterator it;
-  it = _points.find(time);
-  if (it == _points.end()) {
-    // the point does not exist
-    return false;
-  }
-  else {
-    // the point does exist
-    return true;
-  }
-   */
   PairMap_t::iterator it = _pairMap.find(time);
   if (it == _pairMap.end()) {
     return false;
@@ -82,73 +66,45 @@ bool PointContainer::isPointAvailable(time_t time) {
   }
 }
 
-Point::sharedPointer PointContainer::findPoint(time_t time) {
-  /*
-  PointMap_t::iterator it;
-  it = _points.find(time);
-  if (it == _points.end()) {
-    // TODO -- throw something? check if the point exists first!
-    return Point::sharedPointer(new Point());
-  }
-  else {
-    return (*it).second;
-  }
-   */
+Point PointContainer::findPoint(time_t time) {
   PairMap_t::iterator it = _pairMap.find(time);
   if (it == _pairMap.end()) {
     // TODO -- throw something?
-    return Point::sharedPointer();
+    return Point();
   }
   else {
     return makePoint(it);
   }
 }
 
-Point::sharedPointer PointContainer::pointAfter(time_t time) {
-  /*PointMap_t::iterator it;
-  it = _points.upper_bound(time);
-  if (it == _points.end()) {
-    return Point::sharedPointer(new Point());
-  }
-  else {
-    return (*it).second;
-  }*/
+Point PointContainer::pointAfter(time_t time) {
   PairMap_t::iterator it;
   it = _pairMap.upper_bound(time);
   if (it == _pairMap.end()) {
-    return Point::sharedPointer();
+    return Point();
   }
   else {
     return makePoint(it); 
   }
 }
 
-Point::sharedPointer PointContainer::pointBefore(time_t time) {
-  /*PointMap_t::iterator it;
-  it = _points.lower_bound(time);
-  it--;
-  if (it == _points.end()) {
-    return Point::sharedPointer(new Point());
-  }
-  else {
-    return (*it).second;
-  }*/
+Point PointContainer::pointBefore(time_t time) {
   PairMap_t::iterator it;
   it = _pairMap.lower_bound(time);
   if (it == _pairMap.end()) {
-    return Point::sharedPointer();
+    return Point();
   }
   it--;
   if (it == _pairMap.end()) {
-    return Point::sharedPointer();
+    return Point();
   }
   else {
     return makePoint(it); 
   }
 }
-Point::sharedPointer PointContainer::firstPoint() {
+Point PointContainer::firstPoint() {
   if (this->size() == 0) {
-    return Point::sharedPointer();
+    return Point();
   }
   
   PairMap_t::iterator it;
@@ -156,17 +112,9 @@ Point::sharedPointer PointContainer::firstPoint() {
   return makePoint(it);
 }
 
-Point::sharedPointer PointContainer::lastPoint() {
-  /*if (this->size() == 0) {
-    return Point::sharedPointer(new Point() );
-  }
-  
-  PointMap_t::reverse_iterator it;
-  it = _points.rbegin();
-  return (*it).second;*/
-  
+Point PointContainer::lastPoint() {
   if (this->size() == 0) {
-    return Point::sharedPointer();
+    return Point();
   }
   PairMap_t::reverse_iterator it;
   it = _pairMap.rbegin();
@@ -179,12 +127,12 @@ long int PointContainer::numberOfPoints() {
 }
 
 
-void PointContainer::insertPoint(Point::sharedPointer point) {
+void PointContainer::insertPoint(Point point) {
   double value, confidence;
   time_t time;
-  time = point->time();
-  value = point->value();
-  confidence = point->confidence();
+  time = point.time();
+  value = point.value();
+  confidence = point.confidence();
   _pairMap[time] = std::make_pair(value, confidence); // automatically replaces the value if the time slot is already filled
   
   // check cache size, drop points off if needed
@@ -210,7 +158,7 @@ void PointContainer::insertPoint(Point::sharedPointer point) {
   
 }
 
-void PointContainer::insertPoints(std::vector<Point::sharedPointer> points) {
+void PointContainer::insertPoints(std::vector<Point> points) {
   while (!points.empty()) {
     PointContainer::insertPoint(points.back());
     points.pop_back();
@@ -218,9 +166,9 @@ void PointContainer::insertPoints(std::vector<Point::sharedPointer> points) {
 }
 
 
-Point::sharedPointer PointContainer::makePoint(PairMap_t::iterator iterator) {
+Point PointContainer::makePoint(PairMap_t::iterator iterator) {
   // dense line, no? confusing, but it just provides a simpler method for extracting the right information to create a new point from an iterator.
-  Point::sharedPointer aPoint(new Point((*iterator).first, (*iterator).second.first, Point::good, (*iterator).second.second) );
+  Point aPoint((*iterator).first, (*iterator).second.first, Point::good, (*iterator).second.second);
   return aPoint;
 }
 

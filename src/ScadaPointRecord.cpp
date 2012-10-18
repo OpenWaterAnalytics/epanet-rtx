@@ -171,14 +171,14 @@ std::vector<std::string> ScadaPointRecord::identifiers() {
 #pragma mark - Retrieval
 
 bool ScadaPointRecord::isPointAvailable(const string& identifier, time_t time)  {
-  Point::sharedPointer aPoint = pointBefore(identifier, time);
-  if (!aPoint) {
+  Point aPoint = pointBefore(identifier, time);
+  if (!aPoint.isValid()) {
     return false;
   }
-  if (aPoint->time() == time) {
+  if (aPoint.time() == time) {
     return true;
   }
-  else if (pointAfter(identifier, time) && pointAfter(identifier, time)->time() == time) {
+  else if (pointAfter(identifier, time).isValid() && pointAfter(identifier, time).time() == time) {
     return true;
   }
   else {
@@ -187,14 +187,14 @@ bool ScadaPointRecord::isPointAvailable(const string& identifier, time_t time)  
 }
 
 // get a single point, rely on scada system's interpolation...
-Point::sharedPointer ScadaPointRecord::point(const string& identifier, time_t time) {
+Point ScadaPointRecord::point(const string& identifier, time_t time) {
   
-  Point::sharedPointer thePoint;
+  Point thePoint;
   
   // see if the requested point is within my cache
   if ( (time >= _hint.range.first) && (time <= _hint.range.second) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
-    BOOST_FOREACH(Point::sharedPointer point, _hint.cache) {
-      if (point->time() == time) {
+    BOOST_FOREACH(Point point, _hint.cache) {
+      if (point.time() == time) {
         thePoint = point;
       }
     }
@@ -211,10 +211,11 @@ void ScadaPointRecord::hintAtRange(const string& identifier, time_t start, time_
   // simple optimization for read-only pointrecord.
   if (start < _hint.range.first || end > _hint.range.second || !RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) {
     //std::cout << "hinting at range (" << identifier << "): " << start << " - " << end << std::endl;
-    _hint.cache = pointsWithStatement(identifier, _rangeStatement, start, end);
+    time_t margin = 120; // 2-minute margin
+    _hint.cache = pointsWithStatement(identifier, _rangeStatement, start - margin, end + margin);
     _hint.identifier = identifier;
-    _hint.range.first = start;
-    _hint.range.second = end;
+    _hint.range.first = start - margin;
+    _hint.range.second = end + margin;
   }
   else {
     //std::cout << "range has already been hinted" << std::endl;
@@ -223,8 +224,8 @@ void ScadaPointRecord::hintAtRange(const string& identifier, time_t start, time_
 }
 
 // get a range of points, native resolution
-std::vector<Point::sharedPointer> ScadaPointRecord::pointsInRange(const string& identifier, time_t startTime, time_t endTime) {
-  std::vector<Point::sharedPointer> pointVector;
+std::vector<Point> ScadaPointRecord::pointsInRange(const string& identifier, time_t startTime, time_t endTime) {
+  std::vector<Point> pointVector;
   
   // see if it's already cached.
   if ( !(_hint.range.first <= startTime && _hint.range.second >= endTime && RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
@@ -238,16 +239,16 @@ std::vector<Point::sharedPointer> ScadaPointRecord::pointsInRange(const string& 
   return pointVector;
 }
 
-Point::sharedPointer ScadaPointRecord::pointBefore(const string& identifier, time_t time) {
+Point ScadaPointRecord::pointBefore(const string& identifier, time_t time) {
   
-  Point::sharedPointer thePoint;
+  Point thePoint;
   
   // see if the requested point is within my cache
   if ( (time >= _hint.range.first) && (time <= _hint.range.second) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
     // assuming strictly ascending order...
     // todo - clean this up? cache class?
-    BOOST_FOREACH(Point::sharedPointer point, _hint.cache) {
-      if (point->time() <= time) {
+    BOOST_FOREACH(Point point, _hint.cache) {
+      if (point.time() <= time) {
         thePoint = point;
       }
     }
@@ -258,11 +259,15 @@ Point::sharedPointer ScadaPointRecord::pointBefore(const string& identifier, tim
     _hint.clear();
     
     // add one second to the upper range so that we catch fractional times.
-    std::deque<Point::sharedPointer> points = pointsWithStatement(identifier, _lowerBoundStatement, time - (3600 * 4), (time + 1) );
-    if (!points.size() < 1) {
+    std::deque<Point> points = pointsWithStatement(identifier, _lowerBoundStatement, time - (3600 * 4), (time + 1) );
+    if (points.size() == 0) {
       return thePoint;
     }
-    if (points.front()->time() > time) {
+    Point frontPoint = points.front();
+    if (!frontPoint.isValid()) {
+      return thePoint;
+    }
+    if (frontPoint.time() > time) {
       points.pop_front();
     }
     
@@ -272,15 +277,15 @@ Point::sharedPointer ScadaPointRecord::pointBefore(const string& identifier, tim
   return thePoint;
 }
 
-Point::sharedPointer ScadaPointRecord::pointAfter(const string& identifier, time_t time) {
+Point ScadaPointRecord::pointAfter(const string& identifier, time_t time) {
   
-  Point::sharedPointer thePoint;
+  Point thePoint;
 
   if ( (time >= _hint.range.first) && (time <= _hint.range.second) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
     // assuming strictly ascending order...
     // todo - clean this up? cache class?
-    BOOST_FOREACH(Point::sharedPointer point, _hint.cache) {
-      if (point->time() > time) {
+    BOOST_FOREACH(Point point, _hint.cache) {
+      if (point.time() > time) {
         thePoint = point;
         break;
       }
@@ -291,9 +296,9 @@ Point::sharedPointer ScadaPointRecord::pointAfter(const string& identifier, time
     // reset the cache, it's obviously no good.
     _hint.clear();
     
-    std::deque<Point::sharedPointer> points = pointsWithStatement(identifier, _upperBoundStatement, time, time + (3600 * 4));
-    if (points.size() > 0 && points.front()) {
-      if (points.front()->time() <= time) {
+    std::deque<Point> points = pointsWithStatement(identifier, _upperBoundStatement, time, time + (3600 * 4));
+    if (points.size() > 0 && points.front().isValid()) {
+      if (points.front().time() <= time) {
         points.pop_front();
       }
       thePoint = (points.front());
@@ -318,8 +323,8 @@ std::ostream& ScadaPointRecord::toStream(std::ostream &stream) {
 #pragma mark - Internal (private) methods
 
 
-std::deque<Point::sharedPointer> ScadaPointRecord::pointsWithStatement(const string& identifier, SQLHSTMT statement, time_t startTime, time_t endTime) {
-  std::deque< Point::sharedPointer > points;
+std::deque<Point> ScadaPointRecord::pointsWithStatement(const string& identifier, SQLHSTMT statement, time_t startTime, time_t endTime) {
+  std::deque< Point > points;
   points.clear();
   
   //std::cout << "querying scada: " << startTime << " - " << endTime << std::endl;
@@ -335,8 +340,8 @@ std::deque<Point::sharedPointer> ScadaPointRecord::pointsWithStatement(const str
       // add the point to the return vector
       // todo
       // check data quality value
-      Point::sharedPointer aPoint( new Point(unixTime(_tempRecord.time), _tempRecord.value, Point::good));
-      if(aPoint) {
+      Point aPoint( unixTime(_tempRecord.time), _tempRecord.value, Point::good);
+      if(aPoint.isValid()) {
         points.push_back(aPoint);
       }
     }

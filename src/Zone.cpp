@@ -130,15 +130,15 @@ void Zone::allocateDemandToJunctions(time_t time) {
     if (junction->doesHaveBoundaryFlow()) {
       // junction does have boundary flow...
       // just need to copy the boundary flow into the junction's demand time series
-      Point::sharedPointer demandPoint = junction->boundaryFlow()->point(time);
-      junction->demand()->insert( Point::convertPoint(*demandPoint, junction->boundaryFlow()->units(), junction->demand()->units()) );
+      Point demandPoint = junction->boundaryFlow()->point(time);
+      junction->demand()->insert( Point::convertPoint(demandPoint, junction->boundaryFlow()->units(), junction->demand()->units()) );
     }
     else {
       // junction relies on us to set its demand value...
       double baseDemand = Units::convertValue(junction->baseDemand(), modelUnits, myUnits);
       double newDemand = baseDemand * ( allocableDemand / totalBaseDemand );
-      Point::sharedPointer demandPoint( new Point(time, newDemand) );
-      junction->demand()->insert( Point::convertPoint(*demandPoint, myUnits, junction->demand()->units()) );
+      Point demandPoint(time, newDemand);
+      junction->demand()->insert( Point::convertPoint(demandPoint, myUnits, junction->demand()->units()) );
     }
   }
   

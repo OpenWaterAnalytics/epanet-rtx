@@ -44,11 +44,11 @@ std::string TimeSeries::name() {
   return _name; 
 }
 
-void TimeSeries::insert(Point::sharedPointer thisPoint) {
+void TimeSeries::insert(Point thisPoint) {
   _points->insertPoint(thisPoint);
 }
 
-void TimeSeries::insertPoints(std::vector<Point::sharedPointer> points) {
+void TimeSeries::insertPoints(std::vector<Point> points) {
   _points->insertPoints(points);
   // TODO
   // check for size of point cache, pop a member if it's too large 
@@ -59,30 +59,27 @@ bool TimeSeries::isPointAvailable(time_t time) {
   return ( _points->isPointAvailable(time) );
 }
 
-Point::sharedPointer TimeSeries::point(time_t time) {
-  Point::sharedPointer myPoint;
+Point TimeSeries::point(time_t time) {
+  Point myPoint;
   time = clock()->validTime(time);
   
   if (_points->isPointAvailable(time)) {
     myPoint = _points->findPoint(time);
-  }
-  else {
-    myPoint = Point::sharedPointer(new Point());
   }
   
   return myPoint;
 }
 
 // get a range of points from this TimeSeries' point method
-std::vector< Point::sharedPointer > TimeSeries::points(time_t start, time_t end) {
+std::vector< Point > TimeSeries::points(time_t start, time_t end) {
   // container for points in this range
-  std::vector< Point::sharedPointer > points;
+  std::vector< Point > points;
   
   // sanity
   if ((start == end) || (start < 0) || (end < 0)) {
     return points;
   }
-  // future optimization
+  // simple optimization
   _points->hintAtRange(start, end);
   
   
@@ -97,13 +94,13 @@ std::vector< Point::sharedPointer > TimeSeries::points(time_t start, time_t end)
       std::cerr << "time out of bounds. ignoring." << std::endl;
       continue;
     }
-    Point::sharedPointer aNewPoint;
-    if ( !points.empty() && points.back()->time() == time) {
+    Point aNewPoint;
+    if ( !points.empty() && points.back().time() == time) {
       std::cerr << "duplicate time detected" << std::endl;
     }
     aNewPoint = point(time);
     
-    if (!aNewPoint) {
+    if (!aNewPoint.isValid()) {
       std::cerr << "bad point" << std::endl;
     }
     else {
@@ -112,7 +109,7 @@ std::vector< Point::sharedPointer > TimeSeries::points(time_t start, time_t end)
   }
   
   /*
-  Point::sharedPointer aPoint;
+  Point aPoint;
 
   time_t queryTime;
 
@@ -133,15 +130,15 @@ std::vector< Point::sharedPointer > TimeSeries::points(time_t start, time_t end)
   return points;
 }
 
-std::pair< Point::sharedPointer, Point::sharedPointer > TimeSeries::adjacentPoints(time_t time) {
-  Point::sharedPointer previous, next;
+std::pair< Point, Point > TimeSeries::adjacentPoints(time_t time) {
+  Point previous, next;
   previous = pointBefore(time);
   next = pointAfter(time);
   return std::make_pair(previous, next);
 }
 
-Point::sharedPointer TimeSeries::pointBefore(time_t time) {
-  Point::sharedPointer myPoint;
+Point TimeSeries::pointBefore(time_t time) {
+  Point myPoint;
   
   myPoint = point(clock()->timeBefore(time));
   
@@ -155,8 +152,8 @@ Point::sharedPointer TimeSeries::pointBefore(time_t time) {
   return myPoint;
 }
 
-Point::sharedPointer TimeSeries::pointAfter(time_t time) {
-  Point::sharedPointer myPoint;
+Point TimeSeries::pointAfter(time_t time) {
+  Point myPoint;
   
   myPoint = point(clock()->timeAfter(time));
 
@@ -172,14 +169,14 @@ Point::sharedPointer TimeSeries::pointAfter(time_t time) {
 }
 
 double TimeSeries::value(time_t time) { 
-  if (this->point(time)) {
-    return this->point(time)->value();
+  if (this->point(time).isValid()) {
+    return this->point(time).value();
   }
   else return 0.;
 }
 
 Point::Qual_t TimeSeries::quality(time_t time) {
-  return this->point(time)->quality();
+  return this->point(time).quality();
 }
 
 time_t TimeSeries::period() {

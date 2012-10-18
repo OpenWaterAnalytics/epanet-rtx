@@ -14,18 +14,18 @@ using namespace RTX;
 
 ConstantSeries::ConstantSeries(double constantValue) : TimeSeries::TimeSeries() {
   _value = constantValue;
+  Clock::sharedPointer clock1second(new Clock(1));
+  setClock(clock1second);
 }
 
 ConstantSeries::~ConstantSeries() {
   
 }
 
-Point::sharedPointer ConstantSeries::point(time_t time) {
+Point ConstantSeries::point(time_t time) {
   // check the requested time for validity, and rewind if necessary.
-  time = clock()->validTime(time);
-
-  Point::sharedPointer aPoint(new Point(time, _value, RTX::Point::good));
-  return aPoint;
+  //time = clock()->validTime(time);
+  return Point(time, _value, RTX::Point::good);
 }
 
 void ConstantSeries::setValue(double value) {

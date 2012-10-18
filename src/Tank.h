@@ -20,6 +20,8 @@ namespace RTX {
     Tank(const std::string& name);
     virtual ~Tank();
     
+    void setLevelMeasure(TimeSeries::sharedPointer level);
+    
     void setElevation(double elevation);
     bool doesResetLevel();
     void setLevelResetClock(Clock::sharedPointer clock);

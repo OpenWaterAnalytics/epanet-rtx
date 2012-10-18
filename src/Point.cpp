@@ -14,6 +14,7 @@ Point::Point() {
   _time = 0;
   _value = 0;
   _qual = Point::missing;
+  _validPoint = false;
   _confidence = 0;
 }
 
@@ -23,6 +24,7 @@ Point::Point(time_t time, double value, Qual_t qual, double confidence) {
   _value = value;
   _qual = qual;
   _confidence = confidence;
+  _validPoint = true;
 }
 
 Point::~Point() {
@@ -92,6 +94,9 @@ double Point::confidence() const {
   return _confidence;
 }
 
+bool Point::isValid() const {
+  return _validPoint;
+}
 
 std::ostream& RTX::operator<< (std::ostream &out, Point &point) {
   out << "(" << point._time << "," << point._value << "," << point._qual << ")";
@@ -102,11 +107,10 @@ std::ostream& RTX::operator<< (std::ostream &out, Point &point) {
 
 #pragma mark - Class Methods
 
-Point::sharedPointer Point::convertPoint(const Point& point, const Units& fromUnits, const Units& toUnits) {
+Point Point::convertPoint(const Point& point, const Units& fromUnits, const Units& toUnits) {
   double value = Units::convertValue(point._value, fromUnits, toUnits);
   double confidence = Units::convertValue(point._confidence, fromUnits, toUnits);
-  Point::sharedPointer returnPoint(new Point(point.time(), value, Point::good, confidence));
-  return returnPoint;
+  return Point(point.time(), value, Point::good, confidence);
 }
 
 

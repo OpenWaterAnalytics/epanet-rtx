@@ -27,16 +27,7 @@ MovingAverage::MovingAverage() : ModularTimeSeries::ModularTimeSeries() {
 
 MovingAverage::~MovingAverage() {
     
-}    
-/* i don't know what this is supposed to do ... -sam 
-// create a "source" time series by specifying a source name and a point record name to connect to the source.
-vector<Point::sharedPointer> MovingAverage::sourceTimeSeries(const std::string& nameSource, PointRecord::sharedPointer pointRecord, time_t tStart, long tEnd) {
-    TimeSeries::sharedPointer myTimeSeries( new TimeSeries(nameSource) );
-    myTimeSeries->newCacheWithPointRecord(pointRecord);
-    vector< Point::sharedPointer > somePoints = myTimeSeries->points(tStart, tStart + tEnd);
-    return somePoints;
 }
-*/
 
 #pragma mark - Added Methods
 
@@ -51,7 +42,7 @@ int MovingAverage::windowSize() {
 
 #pragma mark - Public Overridden Methods
 
-Point::sharedPointer MovingAverage::point(time_t time) {
+Point MovingAverage::point(time_t time) {
   
   // check the requested time for validity...
   if ( !(clock()->isValid(time)) ) {
@@ -65,7 +56,7 @@ Point::sharedPointer MovingAverage::point(time_t time) {
   }
   
   // if not, we need to construct it and store it locally.
-  Point::sharedPointer aFilteredPoint = Point::convertPoint(this->movingAverageAt(time), source()->units(), units());
+  Point aFilteredPoint = Point::convertPoint(this->movingAverageAt(time), source()->units(), units());
   
   // add the point to the local cache, and return it.
   this->insert(aFilteredPoint);
@@ -73,13 +64,13 @@ Point::sharedPointer MovingAverage::point(time_t time) {
   return aFilteredPoint;
 }
 
-std::vector< Point::sharedPointer > MovingAverage::points(time_t start, time_t end) {
+std::vector< Point > MovingAverage::points(time_t start, time_t end) {
   // todo - better logic here...
   time_t period = this->period();
   
   // encourage the appropriate cache.
   if (!source()) {
-    std::vector< Point::sharedPointer > empty;
+    std::vector< Point > empty;
     return empty;
   }
   source()->points( start - (period * windowSize()), end + (period * windowSize()) );
@@ -97,7 +88,7 @@ Point MovingAverage::movingAverageAt(time_t time) {
   
   // get a collection of points around "time" from the source() timeseries, and send them to the calculator.
   
-  std::vector< Point::sharedPointer > somePoints;
+  std::vector< Point > somePoints;
   int halfWindow = floor(_windowSize / 2);
   
   // push in the point at the current time
@@ -105,25 +96,25 @@ Point MovingAverage::movingAverageAt(time_t time) {
   
   // push in a half-window's worth of points (to the left) from the source time series into the vector.
   time_t rewindTime = time;
-  Point::sharedPointer pointToPush;
+  Point pointToPush;
   for (int i = 0; i < halfWindow; ++i) {
     pointToPush = source()->pointBefore(rewindTime);
-    if (!pointToPush) {
+    if (!pointToPush.isValid()) {
       continue;
     }
     somePoints.push_back( pointToPush );
-    rewindTime = pointToPush->time();
+    rewindTime = pointToPush.time();
   }
   
   // and now push a half-window's worth of points from the right.
   time_t forwardTime = time;
   for (int i = 0; i < halfWindow; ++i) {
     pointToPush = source()->pointAfter(forwardTime);
-    if (!pointToPush) {
+    if (!pointToPush.isValid()) {
       continue;
     }
     somePoints.push_back( pointToPush );
-    forwardTime = pointToPush->time();
+    forwardTime = pointToPush.time();
   }
   
   
@@ -134,11 +125,11 @@ Point MovingAverage::movingAverageAt(time_t time) {
 }
 
 // average the points
-double MovingAverage::calculateAverage(vector< Point::sharedPointer > somePoints) {
+double MovingAverage::calculateAverage(vector< Point > somePoints) {
   
   accumulator_set<double, stats<tag::mean> > meanAccumulator;
-  BOOST_FOREACH(Point::sharedPointer point, somePoints) {
-    double pointValue = point->value();
+  BOOST_FOREACH(Point point, somePoints) {
+    double pointValue = point.value();
     meanAccumulator(pointValue);
   }
   

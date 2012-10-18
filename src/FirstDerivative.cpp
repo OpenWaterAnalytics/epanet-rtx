@@ -41,10 +41,10 @@ void FirstDerivative::setUnits(Units newUnits) {
   }
 }
 
-Point::sharedPointer FirstDerivative::point(time_t time) {
+Point FirstDerivative::point(time_t time) {
   
   // return obj
-  Point::sharedPointer point;
+  Point point;
 
   // check the requested time for validity...
   if ( !(clock()->isValid(time)) ) {
@@ -57,15 +57,15 @@ Point::sharedPointer FirstDerivative::point(time_t time) {
   }
   else {
     if (source()->isPointAvailable(time)) {
-      Point::sharedPointer secondPoint = source()->point(time);
-      Point::sharedPointer firstPoint = source()->point( source()->clock()->timeBefore(time) );
-      if (!firstPoint) {
-        firstPoint.reset( new Point() );
+      Point secondPoint = source()->point(time);
+      Point firstPoint = source()->point( source()->clock()->timeBefore(time) );
+      if (!firstPoint.isValid()) {
+        firstPoint = Point();
       }
-      time_t dt = secondPoint->time() - firstPoint->time();
-      double dv = secondPoint->value() - firstPoint->value();
+      time_t dt = secondPoint.time() - firstPoint.time();
+      double dv = secondPoint.value() - firstPoint.value();
       double dvdt = Units::convertValue(dv, source()->units() / RTX_SECOND, this->units()) / double(dt);
-      point.reset( new Point(time, dvdt) );
+      point = Point(time, dvdt);
       insert(point);
     }
     else {

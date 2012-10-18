@@ -24,8 +24,6 @@ namespace RTX {
     friend std::ostream& operator<< (std::ostream &out, RTX::Point &point);
     
   public:
-    RTX_SHARED_POINTER(Point);
-
     //! quality flag
     enum Qual_t { good, missing, estimated, forecasted, interpolated };
     
@@ -40,18 +38,20 @@ namespace RTX {
     Point operator+=(const Point& point);
     Point operator*(const double factor) const;
     Point operator/(const double factor) const;
-    static Point::sharedPointer convertPoint(const Point& point, const Units& fromUnits, const Units& toUnits);
+    static Point convertPoint(const Point& point, const Units& fromUnits, const Units& toUnits);
     
     time_t time() const;
     double value() const;
     Qual_t quality() const;
     double confidence() const;
+    bool isValid() const;
     
   private:
     time_t _time;
     double _value;
     Qual_t _qual;
     double _confidence;
+    bool _validPoint;
     
   };
 

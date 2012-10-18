@@ -38,21 +38,21 @@ namespace RTX {
      
     bool isEmpty();
     size_t size();
-    //Point::sharedPointer operator[](const time_t& time);
+    //Point operator[](const time_t& time);
     friend std::ostream& operator<< (std::ostream &out, PointContainer &pointContainer);
     
     virtual void hintAtRange(time_t start, time_t end) {};
     virtual void hintAtBulkInsertion(time_t start, time_t end) {};
-    //virtual std::vector< Point::sharedPointer > pointsInRange(time_t start, time_t end);
+    //virtual std::vector< Point > pointsInRange(time_t start, time_t end);
     virtual bool isPointAvailable(time_t time);
-    virtual Point::sharedPointer findPoint(time_t time);
-    virtual Point::sharedPointer pointAfter(time_t time);
-    virtual Point::sharedPointer pointBefore(time_t time);
-    virtual Point::sharedPointer firstPoint();
-    virtual Point::sharedPointer lastPoint();
+    virtual Point findPoint(time_t time);
+    virtual Point pointAfter(time_t time);
+    virtual Point pointBefore(time_t time);
+    virtual Point firstPoint();
+    virtual Point lastPoint();
     virtual long int numberOfPoints();
-    virtual void insertPoint(Point::sharedPointer point);
-    virtual void insertPoints(std::vector< Point::sharedPointer > points);
+    virtual void insertPoint(Point point);
+    virtual void insertPoints(std::vector< Point > points);
     
     virtual void setCacheSize(int size);
     int cacheSize();
@@ -63,13 +63,13 @@ namespace RTX {
     virtual std::ostream& toStream(std::ostream &stream);
     
   private:
-    //typedef std::map<time_t,Point::sharedPointer> PointMap_t;
+    //typedef std::map<time_t,Point> PointMap_t;
     //PointMap_t _points;
     typedef std::map<time_t, std::pair<double,double> > PairMap_t;
     PairMap_t _pairMap;
     int _cacheSize;
     
-    Point::sharedPointer makePoint(PairMap_t::iterator iterator);
+    Point makePoint(PairMap_t::iterator iterator);
   };
   
   
