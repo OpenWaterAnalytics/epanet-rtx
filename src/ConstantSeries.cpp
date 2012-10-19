@@ -25,7 +25,7 @@ ConstantSeries::~ConstantSeries() {
 Point ConstantSeries::point(time_t time) {
   // check the requested time for validity, and rewind if necessary.
   //time = clock()->validTime(time);
-  return Point(time, _value, RTX::Point::good);
+  return Point(time, _value, RTX::Point::constant);
 }
 
 void ConstantSeries::setValue(double value) {

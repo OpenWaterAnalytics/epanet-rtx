@@ -85,9 +85,6 @@ Point PersistentContainer::findPoint(time_t time) {
 }
 
 Point PersistentContainer::pointAfter(time_t time) {
-  
-  
-  
   if (PointContainer::pointAfter(time).isValid()) {
     return PointContainer::pointAfter(time);
   }
@@ -101,7 +98,16 @@ Point PersistentContainer::pointAfter(time_t time) {
 }
 
 Point PersistentContainer::pointBefore(time_t time) {
-  return _pointRecord->pointBefore(_id, time);
+  if (PointContainer::pointBefore(time).isValid()) {
+    return PointContainer::pointBefore(time);
+  }
+  else {
+    Point aPoint = _pointRecord->pointBefore(_id, time);
+    if (aPoint.isValid()) {
+      PointContainer::insertPoint(aPoint);
+    }
+    return aPoint;
+  }
 }
 
 void PersistentContainer::insertPoint(Point point) {

@@ -242,6 +242,10 @@ std::vector<Point> ScadaPointRecord::pointsInRange(const string& identifier, tim
 Point ScadaPointRecord::pointBefore(const string& identifier, time_t time) {
   
   Point thePoint;
+  if (time == 0) {
+    std::cerr << "time out of bounds" << std::endl;
+    return thePoint;
+  }
   
   // see if the requested point is within my cache
   if ( (time >= _hint.range.first) && (time <= _hint.range.second) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
@@ -280,6 +284,10 @@ Point ScadaPointRecord::pointBefore(const string& identifier, time_t time) {
 Point ScadaPointRecord::pointAfter(const string& identifier, time_t time) {
   
   Point thePoint;
+  if (time == 0) {
+    std::cerr << "time out of bounds" << std::endl;
+    return thePoint;
+  }
 
   if ( (time >= _hint.range.first) && (time <= _hint.range.second) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
     // assuming strictly ascending order...
@@ -407,11 +415,32 @@ time_t ScadaPointRecord::unixTime(SQL_TIMESTAMP_STRUCT sqlTime) {
   tmTimestamp.tm_min = sqlTime.minute;
   tmTimestamp.tm_sec = sqlTime.second;
   
-  myUnixTime = mktime(&tmTimestamp);
+  //myUnixTime = mktime(&tmTimestamp);
+  // todo -- figure out UTC offset thing
+  myUnixTime = time_to_epoch(&tmTimestamp, 4);
+    
   return myUnixTime;
 }
 
-
+time_t ScadaPointRecord::time_to_epoch ( const struct tm *ltm, int utcdiff ) {
+  const int mon_days [] =
+  {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  long tyears, tdays, leaps, utc_hrs;
+  int i;
+  
+  tyears = ltm->tm_year - 70; // tm->tm_year is from 1900.
+  leaps = (tyears + 2) / 4; // no of next two lines until year 2100.
+                            //i = (ltm->tm_year – 100) / 100;
+                            //leaps -= ( (i/4)*3 + i%4 );
+  tdays = 0;
+  for (i=0; i < ltm->tm_mon; i++) tdays += mon_days[i];
+  
+  tdays += ltm->tm_mday-1; // days of month passed.
+  tdays = tdays + (tyears * 365) + leaps;
+  
+  utc_hrs = ltm->tm_hour + utcdiff; // for your time zone.
+  return (tdays * 86400) + (utc_hrs * 3600) + (ltm->tm_min * 60) + ltm->tm_sec;
+}
 
 
 SQLRETURN ScadaPointRecord::SQL_CHECK(SQLRETURN retVal, std::string function, SQLHANDLE handle, SQLSMALLINT type) throw(std::string)

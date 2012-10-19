@@ -10,18 +10,17 @@
 
 #include "Tank.h"
 
+#include "OffsetTimeSeries.h"
+
 using namespace RTX;
 
 Tank::Tank(const std::string& name) : Junction(name) {
   setType(TANK);
   // initialize level time series
-  _elevationOffset.reset( new ConstantSeries(elevation()) );
-  _elevationOffset->setUnits(RTX_FOOT);
-  
-  _level.reset( new AggregatorTimeSeries() );
+  _level.reset( new OffsetTimeSeries() );
   _level->setUnits(RTX_FOOT);
-  _level->addSource(head());
-  _level->addSource(_elevationOffset);
+  _level->setSource(head());
+  _level->setOffset(-elevation());
 }
 
 Tank::~Tank() {
@@ -31,24 +30,19 @@ Tank::~Tank() {
 void Tank::setElevation(double elevation) {
   Node::setElevation(elevation);
   // re-set the elevation offset for the level timeseries
-  _elevationOffset->setValue(elevation);
+  _level->setOffset(-elevation);
 }
 
 void Tank::setLevelMeasure(TimeSeries::sharedPointer level) {
   
-  std::string aggregateName("");
-  AggregatorTimeSeries::sharedPointer sumOfLevelAndElevation(new AggregatorTimeSeries());
-  sumOfLevelAndElevation->setUnits(level->units());
+  OffsetTimeSeries::sharedPointer headMeasureTs(new OffsetTimeSeries());
+  headMeasureTs->setUnits(level->units());
+  headMeasureTs->setName(level->name() + " (head)");
+  headMeasureTs->setClock(level->clock());
+  headMeasureTs->setOffset(elevation());
+  headMeasureTs->setSource(level);
   
-  aggregateName += level->name();
-  aggregateName += " + elevation";
-  sumOfLevelAndElevation->setName(aggregateName);
-  sumOfLevelAndElevation->setClock(level->clock());
-  
-  sumOfLevelAndElevation->addSource(_elevationOffset);
-  sumOfLevelAndElevation->addSource(level);
-  
-  setHeadMeasure(sumOfLevelAndElevation);
+  setHeadMeasure(headMeasureTs);
 }
 
 

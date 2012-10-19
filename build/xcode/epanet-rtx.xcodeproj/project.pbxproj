@@ -35,6 +35,8 @@
 		22535245148FDB7D00C18C11 /* PointContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22535244148FDB7D00C18C11 /* PointContainer.cpp */; };
 		225D719F1497F96C00B90F6D /* MysqlPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */; };
 		226861C914716D2A000DDDEF /* Units.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 226861C814716D2A000DDDEF /* Units.cpp */; };
+		22707A9616309D4100FEB4DD /* OffsetTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22707A9416309D4000FEB4DD /* OffsetTimeSeries.cpp */; };
+		22707A9716309D4100FEB4DD /* OffsetTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22707A9516309D4100FEB4DD /* OffsetTimeSeries.h */; };
 		22804094158F8243004222DA /* Pipe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22804093158F8243004222DA /* Pipe.cpp */; };
 		22804097158F827F004222DA /* Pipe.h in Headers */ = {isa = PBXBuildFile; fileRef = 22804096158F827E004222DA /* Pipe.h */; };
 		22804099158F82CB004222DA /* Pump.h in Headers */ = {isa = PBXBuildFile; fileRef = 22804098158F82CA004222DA /* Pump.h */; };
@@ -170,6 +172,8 @@
 		22535244148FDB7D00C18C11 /* PointContainer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PointContainer.cpp; path = ../../src/PointContainer.cpp; sourceTree = "<group>"; };
 		225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MysqlPointRecord.cpp; path = ../../src/MysqlPointRecord.cpp; sourceTree = "<group>"; };
 		226861C814716D2A000DDDEF /* Units.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Units.cpp; path = ../../src/Units.cpp; sourceTree = "<group>"; };
+		22707A9416309D4000FEB4DD /* OffsetTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OffsetTimeSeries.cpp; path = ../../src/OffsetTimeSeries.cpp; sourceTree = "<group>"; };
+		22707A9516309D4100FEB4DD /* OffsetTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OffsetTimeSeries.h; path = ../../src/OffsetTimeSeries.h; sourceTree = "<group>"; };
 		22804093158F8243004222DA /* Pipe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Pipe.cpp; path = ../../src/Pipe.cpp; sourceTree = "<group>"; };
 		22804096158F827E004222DA /* Pipe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Pipe.h; path = ../../src/Pipe.h; sourceTree = "<group>"; };
 		22804098158F82CA004222DA /* Pump.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Pump.h; path = ../../src/Pump.h; sourceTree = "<group>"; };
@@ -426,6 +430,8 @@
 				22FC32B7150A94A300930A0A /* ConstantSeries.cpp */,
 				221E2EFD149A42F0000860C2 /* ModularTimeSeries.h */,
 				221E2EFF149A43A3000860C2 /* ModularTimeSeries.cpp */,
+				22707A9516309D4100FEB4DD /* OffsetTimeSeries.h */,
+				22707A9416309D4000FEB4DD /* OffsetTimeSeries.cpp */,
 				220AE463145AFB3C002F07B4 /* CurveFunction.h */,
 				22253D8D16022FB6002F7256 /* CurveFunction.cpp */,
 				22C62AD31439EE0B00841E60 /* MovingAverage.h */,
@@ -567,6 +573,7 @@
 				22804099158F82CB004222DA /* Pump.h in Headers */,
 				2280409D158F8326004222DA /* Valve.h in Headers */,
 				22E2962C16010A65003D378A /* Units.h in Headers */,
+				22707A9716309D4100FEB4DD /* OffsetTimeSeries.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -708,6 +715,7 @@
 				222FDDD615C1BC2F0065DAF6 /* FirstDerivative.cpp in Sources */,
 				22BF02D315EBCABC00F66465 /* Point.cpp in Sources */,
 				22253D8F16022FB6002F7256 /* CurveFunction.cpp in Sources */,
+				22707A9616309D4100FEB4DD /* OffsetTimeSeries.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

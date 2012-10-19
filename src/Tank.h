@@ -10,6 +10,7 @@
 #define epanet_rtx_tank_h
 
 #include "junction.h"
+#include "OffsetTimeSeries.h"
 
 namespace RTX {
   
@@ -31,8 +32,7 @@ namespace RTX {
     TimeSeries::sharedPointer level(); // directly related to head
     
   private:
-    AggregatorTimeSeries::sharedPointer _level;
-    ConstantSeries::sharedPointer _elevationOffset;
+    OffsetTimeSeries::sharedPointer _level;
     Clock::sharedPointer _resetLevel;
     double _minimumHead, _maximumHead;
     bool _doesResetLevel;

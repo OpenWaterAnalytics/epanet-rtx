@@ -82,9 +82,6 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
   // simple optimization
   _points->hintAtRange(start, end);
   
-  
-  
-  
   std::vector<time_t> timeList = _clock->timeValuesInRange(start, end);
   
   BOOST_FOREACH(time_t time, timeList) {
