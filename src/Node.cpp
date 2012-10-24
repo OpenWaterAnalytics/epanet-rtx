@@ -6,7 +6,7 @@
 //  See README.md and license.txt for more information
 //  
 
-#include "node.h"
+#include "Node.h"
 #include "AggregatorTimeSeries.h"
 #include "ConstantSeries.h"
 

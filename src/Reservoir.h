@@ -9,7 +9,7 @@
 #ifndef epanet_rtx_reservoir_h
 #define epanet_rtx_reservoir_h
 
-#include "junction.h"
+#include "Junction.h"
 
 namespace RTX {
   

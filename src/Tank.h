@@ -9,7 +9,7 @@
 #ifndef epanet_rtx_tank_h
 #define epanet_rtx_tank_h
 
-#include "junction.h"
+#include "Junction.h"
 #include "OffsetTimeSeries.h"
 
 namespace RTX {

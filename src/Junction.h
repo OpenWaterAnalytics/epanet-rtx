@@ -9,7 +9,7 @@
 #ifndef epanet_rtx_junction_h
 #define epanet_rtx_junction_h
 
-#include "node.h"
+#include "Node.h"
 
 namespace RTX {
   

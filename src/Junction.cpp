@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-#include "junction.h"
+#include "Junction.h"
 
 using namespace RTX;
 
