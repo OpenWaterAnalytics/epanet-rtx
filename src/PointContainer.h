@@ -65,7 +65,8 @@ namespace RTX {
   private:
     //typedef std::map<time_t,Point> PointMap_t;
     //PointMap_t _points;
-    typedef std::map<time_t, std::pair<double,double> > PairMap_t;
+    typedef std::pair<double,double> PointPair_t;
+    typedef std::map<time_t, PointPair_t > PairMap_t;
     PairMap_t _pairMap;
     int _cacheSize;
     

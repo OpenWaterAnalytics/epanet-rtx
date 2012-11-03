@@ -11,6 +11,7 @@
 #include "PointContainer.h"
 
 using namespace RTX;
+using namespace std;
 
 PointContainer::PointContainer() {
   _cacheSize = POINTCONTAINER_CACHESIZE;
@@ -133,7 +134,20 @@ void PointContainer::insertPoint(Point point) {
   time = point.time();
   value = point.value();
   confidence = point.confidence();
-  _pairMap[time] = std::make_pair(value, confidence); // automatically replaces the value if the time slot is already filled
+  
+  PointPair_t newPoint(value, confidence);
+  PairMap_t::iterator retIt;
+  
+  PairMap_t::iterator endPosition = _pairMap.end();
+  if (_pairMap.size() > 0) {
+    endPosition--;
+  }
+  
+  // amortized constant insert time if it ends up being inserted at the end (which we should expect)
+  retIt = _pairMap.insert(endPosition, pair<time_t,PointPair_t>(time,newPoint));
+
+  // log insert time makes this slow.
+  //_pairMap[time] = newPoint; // automatically replaces the value if the time slot is already filled
   
   // check cache size, drop points off if needed
   if (size() > cacheSize()) {
@@ -141,7 +155,7 @@ void PointContainer::insertPoint(Point point) {
     time_t start, end;
     start = _pairMap.begin()->first;
     end = _pairMap.rbegin()->first;
-    /* -- cache clearing -- TODO - put this back in!!!
+    /* -- cache clearing -- TODO - put this back in, but remove in batches .
     // if we inserted to the right of middle (more common)...
     if ( time > (start + end)/2 ) {
       // erase by iterator
