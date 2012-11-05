@@ -116,7 +116,8 @@ void PersistentContainer::insertPoint(Point point) {
 }
 
 void PersistentContainer::insertPoints(std::vector<Point> points) {
-  
+  PointContainer::insertPoints(points);
+  _pointRecord->addPoints(_id, points);
 }
 
 #pragma mark - Protected Methods

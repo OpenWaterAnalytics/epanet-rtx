@@ -9,12 +9,16 @@
 #include <iostream>
 
 #include "PointContainer.h"
+#include <boost/foreach.hpp>
 
 using namespace RTX;
 using namespace std;
 
+bool compareTimePointPair(const PointContainer::TimePointPair_t& lhs, const PointContainer::TimePointPair_t& rhs);
+
 PointContainer::PointContainer() {
   _cacheSize = POINTCONTAINER_CACHESIZE;
+  _buffer.set_capacity(_cacheSize);
   
 }
 
@@ -29,7 +33,7 @@ std::ostream& RTX::operator<< (std::ostream &out, PointContainer &pointContainer
 
 std::ostream& PointContainer::toStream(std::ostream &stream) {
   
-  stream << "Local memory cache with " << _pairMap.size() << " records" << std::endl;
+  stream << "Local memory cache with " << _buffer.size() << " records" << std::endl;
   
   return stream;
 }
@@ -57,74 +61,95 @@ size_t PointContainer::size() {
 
 /* overrideable methods */
 
+bool compareTimePointPair(const PointContainer::TimePointPair_t& lhs, const PointContainer::TimePointPair_t& rhs) {
+  return lhs.first < rhs.first;
+}
+
 bool PointContainer::isPointAvailable(time_t time) {
-  PairMap_t::iterator it = _pairMap.find(time);
-  if (it == _pairMap.end()) {
-    return false;
+  bool isAvailable = false;
+  TimePointPair_t finder(time, PointPair_t(0,0));
+  
+  _bufferMutex.lock();
+  PointBuffer_t::iterator it = std::lower_bound(_buffer.begin(), _buffer.end(), finder, compareTimePointPair);
+  if (it != _buffer.end() && it->first == time) {
+    isAvailable = true;
   }
-  else {
-    return true;
-  }
+  _bufferMutex.unlock();
+  return isAvailable;
 }
 
 Point PointContainer::findPoint(time_t time) {
-  PairMap_t::iterator it = _pairMap.find(time);
-  if (it == _pairMap.end()) {
-    // TODO -- throw something?
-    return Point();
+  Point foundPoint;
+  TimePointPair_t finder(time, PointPair_t(0,0));
+  
+  _bufferMutex.lock();
+  PointBuffer_t::iterator it = lower_bound(_buffer.begin(), _buffer.end(), finder, compareTimePointPair);
+  if (it != _buffer.end() && it->first == time) {
+    foundPoint = makePoint(it);
   }
-  else {
-    return makePoint(it);
-  }
+  _bufferMutex.unlock();
+  return foundPoint;
 }
 
 Point PointContainer::pointAfter(time_t time) {
-  PairMap_t::iterator it;
-  it = _pairMap.upper_bound(time);
-  if (it == _pairMap.end()) {
-    return Point();
+  Point foundPoint;
+  TimePointPair_t finder(time, PointPair_t(0,0));
+  
+  _bufferMutex.lock();
+  PointBuffer_t::iterator it = upper_bound(_buffer.begin(), _buffer.end(), finder, compareTimePointPair);
+  if (it != _buffer.end()) {
+    foundPoint = makePoint(it);
   }
-  else {
-    return makePoint(it); 
-  }
+  _bufferMutex.unlock();
+  return foundPoint;
 }
 
 Point PointContainer::pointBefore(time_t time) {
-  PairMap_t::iterator it;
-  it = _pairMap.lower_bound(time);
-  if (it == _pairMap.end()) {
-    return Point();
-  }
-  it--;
-  if (it == _pairMap.end()) {
-    return Point();
-  }
-  else {
-    return makePoint(it); 
-  }
-}
-Point PointContainer::firstPoint() {
-  if (this->size() == 0) {
-    return Point();
-  }
+  Point foundPoint;
+  TimePointPair_t finder(time, PointPair_t(0,0));
   
-  PairMap_t::iterator it;
-  it = _pairMap.begin();
-  return makePoint(it);
+  _bufferMutex.lock();
+  PointBuffer_t::iterator it  = lower_bound(_buffer.begin(), _buffer.end(), finder, compareTimePointPair);
+  if (it != _buffer.end()) {
+    it--;
+    if (it != _buffer.end()) {
+      foundPoint = makePoint(it);
+    }
+  }
+  _bufferMutex.unlock();
+  
+  return foundPoint;
+}
+
+Point PointContainer::firstPoint() {
+  Point foundPoint;
+  
+  _bufferMutex.lock();
+  if (_buffer.size() != 0) {
+    foundPoint = makePoint(_buffer.begin());
+  }
+  _bufferMutex.unlock();
+  return foundPoint;
 }
 
 Point PointContainer::lastPoint() {
-  if (this->size() == 0) {
-    return Point();
+  Point foundPoint;
+  
+  _bufferMutex.lock();
+  if (_buffer.size() != 0) {
+    PointBuffer_t::iterator it = _buffer.end();
+    it--;
+    if (it != _buffer.end()) {
+    foundPoint = makePoint(it);
+    }
   }
-  PairMap_t::reverse_iterator it;
-  it = _pairMap.rbegin();
-  time_t time = (*it).first;
-  return findPoint(time);
+  _bufferMutex.unlock();
+  
+  return foundPoint;
 }
 
 long int PointContainer::numberOfPoints() {
-  return _pairMap.size();
+  return _buffer.size();
 }
 
 
@@ -136,62 +161,41 @@ void PointContainer::insertPoint(Point point) {
   confidence = point.confidence();
   
   PointPair_t newPoint(value, confidence);
-  PairMap_t::iterator retIt;
+  PointBuffer_t::iterator retIt;
   
-  PairMap_t::iterator endPosition = _pairMap.end();
-  if (_pairMap.size() > 0) {
+  _bufferMutex.lock();
+  PointBuffer_t::iterator endPosition = _buffer.end();
+  if (_buffer.size() > 0) {
     endPosition--;
   }
-  
-  // amortized constant insert time if it ends up being inserted at the end (which we should expect)
-  retIt = _pairMap.insert(endPosition, pair<time_t,PointPair_t>(time,newPoint));
-
-  // log insert time makes this slow.
-  //_pairMap[time] = newPoint; // automatically replaces the value if the time slot is already filled
-  
-  // check cache size, drop points off if needed
-  if (size() > cacheSize()) {
-    // where did we insert?
-    time_t start, end;
-    start = _pairMap.begin()->first;
-    end = _pairMap.rbegin()->first;
-    /* -- cache clearing -- TODO - put this back in, but remove in batches .
-    // if we inserted to the right of middle (more common)...
-    if ( time > (start + end)/2 ) {
-      // erase by iterator
-      //std::cout << "removing from left side" << std::endl;
-      _pairMap.erase( _pairMap.begin() );
-    }
-    else {
-      // erase by key
-      //std::cout << "removing from right side" << std::endl;
-      _pairMap.erase( _pairMap.rbegin()->first );
-    }
-    */
-  }
-  
+  _buffer.push_back(TimePointPair_t(time,newPoint));
+  _bufferMutex.unlock();
 }
 
 void PointContainer::insertPoints(std::vector<Point> points) {
-  while (!points.empty()) {
-    PointContainer::insertPoint(points.back());
-    points.pop_back();
+  _bufferMutex.lock();
+  BOOST_FOREACH(Point thePoint, points) {
+    _buffer.push_back(TimePointPair_t(thePoint.time(), PointPair_t(thePoint.value(),thePoint.confidence()) ));
   }
+  _bufferMutex.unlock();
 }
 
-
-Point PointContainer::makePoint(PairMap_t::iterator iterator) {
-  // dense line, no? confusing, but it just provides a simpler method for extracting the right information to create a new point from an iterator.
-  Point aPoint((*iterator).first, (*iterator).second.first, Point::good, (*iterator).second.second);
-  return aPoint;
+// convenience method for making a new point from a buffer iterator
+Point PointContainer::makePoint(PointBuffer_t::iterator iterator) {
+  return Point((*iterator).first, (*iterator).second.first, Point::good, (*iterator).second.second);
 }
 
 void PointContainer::reset() {
-  _pairMap.clear();
+  _bufferMutex.lock();
+  _buffer.clear();
+  _bufferMutex.unlock();
 }
 
 void PointContainer::setCacheSize(int size) {
   _cacheSize = size;
+  _bufferMutex.lock();
+  _buffer.set_capacity(size);
+  _bufferMutex.unlock();
 }
 
 int PointContainer::cacheSize() {

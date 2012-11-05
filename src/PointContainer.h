@@ -9,9 +9,10 @@
 #ifndef epanet_rtx_PointContainer_h
 #define epanet_rtx_PointContainer_h
 
-#define POINTCONTAINER_CACHESIZE 10000;
+#define POINTCONTAINER_CACHESIZE 1000;
 
-#include <map>
+#include <boost/circular_buffer.hpp>
+#include <boost/signals2/mutex.hpp>
 #include <time.h>
 #include <vector>
 #include "Point.h"
@@ -59,18 +60,21 @@ namespace RTX {
     
     virtual void reset();
     
+    // types
+    typedef std::pair<double,double> PointPair_t;
+    typedef std::pair<time_t, PointPair_t > TimePointPair_t;
+    typedef boost::circular_buffer<TimePointPair_t> PointBuffer_t;
+    
   protected:
     virtual std::ostream& toStream(std::ostream &stream);
     
   private:
     //typedef std::map<time_t,Point> PointMap_t;
     //PointMap_t _points;
-    typedef std::pair<double,double> PointPair_t;
-    typedef std::map<time_t, PointPair_t > PairMap_t;
-    PairMap_t _pairMap;
+    PointBuffer_t _buffer;
+    boost::signals2::mutex _bufferMutex;
     int _cacheSize;
-    
-    Point makePoint(PairMap_t::iterator iterator);
+    Point makePoint(PointBuffer_t::iterator iterator);
   };
   
   
