@@ -75,6 +75,7 @@ namespace RTX {
     boost::signals2::mutex _bufferMutex;
     int _cacheSize;
     Point makePoint(PointBuffer_t::iterator iterator);
+    Point _cachedPoint;
   };
   
   

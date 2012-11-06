@@ -67,12 +67,18 @@ bool compareTimePointPair(const PointContainer::TimePointPair_t& lhs, const Poin
 
 bool PointContainer::isPointAvailable(time_t time) {
   bool isAvailable = false;
+  
+  if (time == _cachedPoint.time()) {
+    return true;
+  }
+  
   TimePointPair_t finder(time, PointPair_t(0,0));
   
   _bufferMutex.lock();
   PointBuffer_t::iterator it = std::lower_bound(_buffer.begin(), _buffer.end(), finder, compareTimePointPair);
   if (it != _buffer.end() && it->first == time) {
     isAvailable = true;
+    _cachedPoint = makePoint(it);
   }
   _bufferMutex.unlock();
   return isAvailable;
@@ -80,6 +86,11 @@ bool PointContainer::isPointAvailable(time_t time) {
 
 Point PointContainer::findPoint(time_t time) {
   Point foundPoint;
+  
+  if (time == _cachedPoint.time()) {
+    return _cachedPoint;
+  }
+  
   TimePointPair_t finder(time, PointPair_t(0,0));
   
   _bufferMutex.lock();
@@ -88,6 +99,8 @@ Point PointContainer::findPoint(time_t time) {
     foundPoint = makePoint(it);
   }
   _bufferMutex.unlock();
+  
+  _cachedPoint = foundPoint;
   return foundPoint;
 }
 
@@ -101,6 +114,7 @@ Point PointContainer::pointAfter(time_t time) {
     foundPoint = makePoint(it);
   }
   _bufferMutex.unlock();
+  _cachedPoint = foundPoint;
   return foundPoint;
 }
 
@@ -117,7 +131,7 @@ Point PointContainer::pointBefore(time_t time) {
     }
   }
   _bufferMutex.unlock();
-  
+  _cachedPoint = foundPoint;
   return foundPoint;
 }
 

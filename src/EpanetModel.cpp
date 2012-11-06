@@ -407,7 +407,8 @@ void EpanetModel::stepSimulation(time_t time) {
   ENcheck( ENnextH(&step), "ENnexH()" );
   long supposedStep = time - currentSimulationTime();
   if (step != supposedStep) {
-    cerr << "model returned step: " << step << ", expecting " << supposedStep << endl;
+    // it's an intermediate step
+    //cerr << "model returned step: " << step << ", expecting " << supposedStep << endl;
   }
   setCurrentSimulationTime( currentSimulationTime() + step );
 }
