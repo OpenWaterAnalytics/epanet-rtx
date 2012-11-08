@@ -14,6 +14,8 @@
 using namespace RTX;
 using namespace std;
 
+#define POINTCONTAINER_CACHESIZE 20000;
+
 bool compareTimePointPair(const PointContainer::TimePointPair_t& lhs, const PointContainer::TimePointPair_t& rhs);
 
 PointContainer::PointContainer() {
@@ -124,7 +126,7 @@ Point PointContainer::pointBefore(time_t time) {
   
   _bufferMutex.lock();
   PointBuffer_t::iterator it  = lower_bound(_buffer.begin(), _buffer.end(), finder, compareTimePointPair);
-  if (it != _buffer.end()) {
+  if (it != _buffer.end() && it != _buffer.begin()) {
     it--;
     if (it != _buffer.end()) {
       foundPoint = makePoint(it);

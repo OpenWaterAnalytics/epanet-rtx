@@ -9,8 +9,6 @@
 #ifndef epanet_rtx_PointContainer_h
 #define epanet_rtx_PointContainer_h
 
-#define POINTCONTAINER_CACHESIZE 1000;
-
 #include <boost/circular_buffer.hpp>
 #include <boost/signals2/mutex.hpp>
 #include <time.h>
