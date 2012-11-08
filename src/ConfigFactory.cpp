@@ -540,6 +540,9 @@ void ConfigFactory::configureElement(Element::sharedPointer element) {
   std::string name = element->name();
   
   // find the "elements" section in the configuration
+  if (! _configuration.exists("configuration.elements")) {
+    return;
+  }
   Setting& elements = _configuration.lookup("configuration.elements");
   
   // see if the elements list includes this element
