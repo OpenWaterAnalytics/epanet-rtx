@@ -40,8 +40,6 @@ namespace RTX {
     virtual Point pointBefore(time_t time);
     virtual void insertPoint(Point point);
     virtual void insertPoints(std::vector< Point > points);
-    
-  protected:
     virtual std::ostream& toStream(std::ostream &stream);
     
   private:

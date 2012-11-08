@@ -20,9 +20,7 @@ namespace RTX {
 /*!
       The point class keeps track of a piece of measurement data; time, value, and quality.
 */
-  class Point {
-    friend std::ostream& operator<< (std::ostream &out, RTX::Point &point);
-    
+  class Point {    
   public:
     //! quality flag
     enum Qual_t { good, missing, estimated, forecasted, interpolated, constant };
@@ -46,6 +44,8 @@ namespace RTX {
     double confidence() const;
     bool isValid() const;
     
+    virtual std::ostream& toStream(std::ostream& stream);
+    
   private:
     time_t _time;
     double _value;
@@ -55,8 +55,7 @@ namespace RTX {
     
   };
 
-  
-
+  std::ostream& operator<< (std::ostream &out, Point &point);
 
 }
 

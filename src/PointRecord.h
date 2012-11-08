@@ -62,7 +62,6 @@ namespace RTX {
     RTX_SHARED_POINTER(PointRecord);
     PointRecord();
     virtual ~PointRecord() {};
-    friend std::ostream& operator<< (std::ostream &out, PointRecord &pr);
     
     virtual std::string registerAndGetIdentifier(std::string recordName);    // registering record names.
     virtual std::vector<std::string> identifiers()=0;
@@ -82,8 +81,9 @@ namespace RTX {
     virtual void connect() throw(RtxException) = 0;
     virtual bool isConnected() = 0;
     
-  protected:
     virtual std::ostream& toStream(std::ostream &stream);
+
+  protected:
     int identifierForName(std::string recordName);
     string nameForIdentifier(int identifier);
     
@@ -94,6 +94,9 @@ namespace RTX {
     std::string _connectionString;
     
   };
+  
+  std::ostream& operator<< (std::ostream &out, PointRecord &pr);
+
 }
 
 #endif

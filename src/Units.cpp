@@ -86,24 +86,26 @@ bool Units::isDimensionless() {
 
 
 std::ostream& RTX::operator<< (std::ostream &out, Units &unit) {
-  
-  if (unit.isDimensionless()) {
-    out << "(dimensionless)";
-    return out;
+  return unit.toStream(out);
+}
+
+std::ostream& Units::toStream(std::ostream &stream) {
+  if (isDimensionless()) {
+    stream << "(dimensionless)";
+    return stream;
   }
   
+  stream << conversion();
   
-  out << unit.conversion();
+  if (_mass != 0)    { stream << "*kilograms^"<< _mass; }
+  if (_length != 0)  { stream << "*meters^"   << _length; }
+  if (_time != 0)    { stream << "*seconds^"  << _time; }
+  if (_current != 0) { stream << "*ampere^" << _current; }
+  if (_temperature != 0) { stream << "*kelvin^" << _temperature; }
+  if (_amount != 0) { stream << "*mole^" << _amount; }
+  if (_intensity != 0) { stream << "*candela^" << _intensity; }
   
-  if (unit._mass != 0)    { out << "*kilograms^"    << unit._mass; }
-  if (unit._length != 0)  { out << "*meters^"   << unit._length; }
-  if (unit._time != 0)    { out << "*seconds^"  << unit._time; }
-  if (unit._current != 0) { out << "*ampere^" << unit._current; }
-  if (unit._temperature != 0) { out << "*kelvin^" << unit._temperature; }
-  if (unit._amount != 0) { out << "*mole^" << unit._amount; }
-  if (unit._intensity != 0) { out << "*candela^" << unit._intensity; }
-  
-  return out;
+  return stream;
 }
 
 

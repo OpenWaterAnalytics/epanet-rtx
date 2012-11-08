@@ -46,7 +46,6 @@ namespace RTX {
     virtual void addPoint(const string& identifier, Point point) {};
     virtual void addPoints(const string& identifier, std::vector<Point> points) {};
     virtual void reset() {};
-  protected:
     virtual std::ostream& toStream(std::ostream &stream);
     
   private:
