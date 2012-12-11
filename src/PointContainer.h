@@ -40,7 +40,7 @@ namespace RTX {
     //Point operator[](const time_t& time);
     friend std::ostream& operator<< (std::ostream &out, PointContainer &pointContainer);
     
-    virtual void hintAtRange(time_t start, time_t end) {};
+    virtual void hintAtRange(time_t start, time_t end);
     virtual void hintAtBulkInsertion(time_t start, time_t end) {};
     //virtual std::vector< Point > pointsInRange(time_t start, time_t end);
     virtual bool isPointAvailable(time_t time);

@@ -14,7 +14,7 @@
 using namespace RTX;
 using namespace std;
 
-#define POINTCONTAINER_CACHESIZE 20000;
+#define POINTCONTAINER_CACHESIZE 2000;
 
 bool compareTimePointPair(const PointContainer::TimePointPair_t& lhs, const PointContainer::TimePointPair_t& rhs);
 
@@ -62,6 +62,10 @@ size_t PointContainer::size() {
 
 
 /* overrideable methods */
+
+void PointContainer::hintAtRange(time_t start, time_t end) {
+  
+}
 
 bool compareTimePointPair(const PointContainer::TimePointPair_t& lhs, const PointContainer::TimePointPair_t& rhs) {
   return lhs.first < rhs.first;

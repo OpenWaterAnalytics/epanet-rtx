@@ -77,7 +77,7 @@ Point ModularTimeSeries::point(time_t time) {
   // check the base-class availability. if it's cached or stored here locally, then send it on.
   // otherwise, check the upstream availability. if it's there, store it locally and pass it on.
   
-  // check the requested time for validity...
+  // check the requested time for validity
   // if the time is not valid, rewind until a valid time is reached.
   time = clock()->validTime(time);
 
