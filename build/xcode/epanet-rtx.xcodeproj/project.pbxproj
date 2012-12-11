@@ -384,8 +384,8 @@
 			isa = PBXGroup;
 			children = (
 				221C06C616077FD200B8969C /* sample.cfg */,
-				221C06C716077FD200B8969C /* sampletown_realtime.cfg */,
 				221C06C816077FD200B8969C /* sampletown_synthetic.cfg */,
+				221C06C716077FD200B8969C /* sampletown_realtime.cfg */,
 				221C06C916077FD200B8969C /* sampletown.inp */,
 			);
 			name = "input files";
