@@ -25,10 +25,7 @@ namespace RTX {
 
   
   //! Responsible for keeping a container of points - also adding, retrieving, and getting information about points.
-  class TimeSeries {
-    // override the ostream operator for pretty printing
-    friend std::ostream& operator<< (std::ostream &out, TimeSeries &ts);
-    
+  class TimeSeries {    
   public:
     //! \var typedef boost::shared_ptr< TimeSeries > sharedPointer
     //! \brief Type definition for a shared pointer to a TimeSeries object.
@@ -66,13 +63,12 @@ namespace RTX {
     
     // tests
     virtual bool isPointAvailable(time_t time);
-
+    
+    virtual std::ostream& toStream(std::ostream &stream);
 
   protected:
     // methods which may be needed by subclasses but shouldn't be public:
-    virtual std::ostream& toStream(std::ostream &stream);
     virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
-    
     
   private:
     PointContainer::sharedPointer _points;
@@ -86,7 +82,7 @@ namespace RTX {
   
   };
 
-
+  std::ostream& operator<< (std::ostream &out, TimeSeries &ts);
 
 }
 

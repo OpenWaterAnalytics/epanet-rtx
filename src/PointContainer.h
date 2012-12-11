@@ -29,7 +29,6 @@ namespace RTX {
   */
   
   class PointContainer {
-    //friend class PointContainerIterator;
   public:
     RTX_SHARED_POINTER(PointContainer);
     PointContainer();
@@ -37,8 +36,6 @@ namespace RTX {
      
     bool isEmpty();
     size_t size();
-    //Point operator[](const time_t& time);
-    friend std::ostream& operator<< (std::ostream &out, PointContainer &pointContainer);
     
     virtual void hintAtRange(time_t start, time_t end);
     virtual void hintAtBulkInsertion(time_t start, time_t end) {};
@@ -76,7 +73,8 @@ namespace RTX {
     Point _cachedPoint;
   };
   
-  
+  std::ostream& operator<< (std::ostream &out, PointContainer &pointContainer);
+
 }
 
 #endif

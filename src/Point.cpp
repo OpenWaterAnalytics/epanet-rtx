@@ -99,8 +99,12 @@ bool Point::isValid() const {
 }
 
 std::ostream& RTX::operator<< (std::ostream &out, Point &point) {
-  out << "(" << point._time << "," << point._value << "," << point._qual << ")";
-  return out;
+  return point.toStream(out);
+}
+
+std::ostream& Point::toStream(std::ostream &stream) {
+  stream << "(" << _time << "," << _value << "," << _qual << ")";
+  return stream;
 }
 
 

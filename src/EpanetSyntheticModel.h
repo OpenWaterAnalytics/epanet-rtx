@@ -26,8 +26,9 @@ namespace RTX {
   public:
     EpanetSyntheticModel();
     virtual void overrideControls() throw(RtxException);
-  protected:
     virtual std::ostream& toStream(std::ostream &stream);
+    
+  protected:
     virtual void solveSimulation(time_t time);
     virtual time_t nextHydraulicStep(time_t time);
   private:

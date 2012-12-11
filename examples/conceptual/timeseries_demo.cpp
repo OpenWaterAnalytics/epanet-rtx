@@ -128,14 +128,14 @@ int main(int argc, const char * argv[])
   // We just created points, pushed them into a TimeSeries, performed some operations on the TimeSeries
   // (resample, then moving average), and stored all that into a database.
   // Can we now hook a new TimeSeries (which knows nothing of the previous steps) into that database source? Sure thing.
-  
-  TimeSeries::sharedPointer dbSourceSeries(new TimeSeries());
-  dbSourceSeries->setUnits(RTX_GALLON_PER_MINUTE);
-  dbSourceSeries->setName("pretty moving average"); // the name associated with the time series that we persisted above.
-  dbSourceSeries->newCacheWithPointRecord(dbRecord); // hook it into the MysqlPointRecord that was created earlier.
-  cout << endl << "points retrieved from the db:" << endl;
-  printPoints( dbSourceSeries->points(start, start+240) );
-  
+  if (dbRecord->isConnected()) {
+    TimeSeries::sharedPointer dbSourceSeries(new TimeSeries());
+    dbSourceSeries->setUnits(RTX_GALLON_PER_MINUTE);
+    dbSourceSeries->setName("pretty moving average"); // the name associated with the time series that we persisted above.
+    dbSourceSeries->newCacheWithPointRecord(dbRecord); // hook it into the MysqlPointRecord that was created earlier.
+    cout << endl << "points retrieved from the db:" << endl;
+    printPoints( dbSourceSeries->points(start, start+240) );
+  }
   
   
   return 0;

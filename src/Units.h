@@ -86,7 +86,6 @@ namespace RTX {
   
   
   class Units {
-    friend std::ostream& operator<< (std::ostream &out, RTX::Units &unit);
   public:
     Units(double conversion = 1., int mass = 0, int length = 0, int time = 0, int current = 0, int temperature = 0, int amount = 0, int intensity = 0);
     
@@ -99,6 +98,8 @@ namespace RTX {
     static double convertValue(double value, const Units& fromUnits, const Units& toUnits);
     static Units unitOfType(const std::string& unitString);
     
+    virtual std::ostream& toStream(std::ostream &stream);
+    
   private:
     int _length;
     int _mass;
@@ -110,10 +111,8 @@ namespace RTX {
     double _conversion;
   };
   
-  
-  
-  
-  
+  std::ostream& operator<< (std::ostream &out, Units &unit);
+
 } // namespace
 
 

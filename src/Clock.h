@@ -84,7 +84,6 @@ namespace RTX {
     
   public:
     RTX_SHARED_POINTER(Clock);
-    friend std::ostream& operator<< (std::ostream &out, Clock &clock);
     Clock(int period, time_t start = 0);
     virtual ~Clock();
     
@@ -98,8 +97,6 @@ namespace RTX {
     int period();
     time_t start();
     std::vector< time_t > timeValuesInRange(time_t start, time_t end);
-    
-  protected:
     virtual std::ostream& toStream(std::ostream &stream);
     
   private:
@@ -110,6 +107,7 @@ namespace RTX {
     
   };
   
+  std::ostream& operator<< (std::ostream &out, Clock &clock);
 }
 
 #endif

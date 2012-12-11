@@ -30,8 +30,11 @@ void CurveFunction::setUnits(Units newUnits) {
   TimeSeries::setUnits(newUnits);
 }
 
+// the inputUnits are the units of the "input" values specifed by
+// addCurveCoordinate() -- not the units of the (modular) source time series
+// as one might expect.
 void CurveFunction::setInputUnits(Units inputUnits) {
-  // TODO -- check compatibility with source
+  // TODO -- check dimensional compatibility with source
   _inputUnits = inputUnits;
 }
 

@@ -55,12 +55,7 @@ namespace RTX {
     virtual Point point(time_t time);
     virtual std::vector< Point > points(time_t start, time_t end);
     virtual void setUnits(Units newUnits);
-    /*
-    virtual Point pointBefore(time_t time);
-    virtual Point pointAfter(time_t time);
-     */
     
-  protected:
     virtual std::ostream& toStream(std::ostream &stream);
     
   private:

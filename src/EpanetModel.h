@@ -34,9 +34,9 @@ namespace RTX {
     ~EpanetModel();
     void loadModelFromFile(const std::string& filename) throw(RtxException);
     virtual void overrideControls() throw(RtxException);
+    virtual std::ostream& toStream(std::ostream &stream);
 
   protected:
-    virtual std::ostream& toStream(std::ostream &stream);
     // overridden accessors
     // node elements
     double reservoirLevel(const std::string& reservoir);

@@ -44,7 +44,6 @@ namespace RTX {
   class Model {
   public:
     RTX_SHARED_POINTER(Model);
-    friend std::ostream& operator<< (std::ostream &out, Model &model);
     
     virtual void loadModelFromFile(const std::string& filename) throw(RtxException);
     std::string modelFile();
@@ -82,10 +81,11 @@ namespace RTX {
     
     virtual time_t currentSimulationTime();
     
+    virtual std::ostream& toStream(std::ostream &stream);
+
   protected:
     Model();
     virtual ~Model();
-    virtual std::ostream& toStream(std::ostream &stream);
     
     void setSimulationParameters(time_t time);
     void saveHydraulicStates(time_t time);
@@ -162,6 +162,8 @@ namespace RTX {
     
   };
   
+  std::ostream& operator<< (std::ostream &out, Model &model);
+
 }
 
 

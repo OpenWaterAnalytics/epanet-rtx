@@ -22,8 +22,6 @@ namespace RTX {
     virtual Point point(time_t time);
     virtual void setSource(TimeSeries::sharedPointer source);
     virtual void setUnits(Units newUnits);
-    
-  protected:
     virtual std::ostream& toStream(std::ostream &stream);
     
   };
