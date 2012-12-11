@@ -16,7 +16,7 @@ using namespace std;
 
 #define POINTCONTAINER_CACHESIZE 2000;
 
-bool compareTimePointPair(const PointContainer::TimePointPair_t& lhs, const PointContainer::TimePointPair_t& rhs);
+bool comparePoints(const Point& lhs, const Point& rhs);
 
 PointContainer::PointContainer() {
   _cacheSize = POINTCONTAINER_CACHESIZE;
@@ -67,8 +67,8 @@ void PointContainer::hintAtRange(time_t start, time_t end) {
   
 }
 
-bool compareTimePointPair(const PointContainer::TimePointPair_t& lhs, const PointContainer::TimePointPair_t& rhs) {
-  return lhs.first < rhs.first;
+bool comparePoints(const Point& lhs, const Point& rhs) {
+  return lhs.time() < rhs.time();
 }
 
 bool PointContainer::isPointAvailable(time_t time) {
@@ -78,11 +78,11 @@ bool PointContainer::isPointAvailable(time_t time) {
     return true;
   }
   
-  TimePointPair_t finder(time, PointPair_t(0,0));
+  Point finder(time, 0);
   
   _bufferMutex.lock();
-  PointBuffer_t::iterator it = std::lower_bound(_buffer.begin(), _buffer.end(), finder, compareTimePointPair);
-  if (it != _buffer.end() && it->first == time) {
+  PointBuffer_t::iterator it = std::lower_bound(_buffer.begin(), _buffer.end(), finder, comparePoints);
+  if (it != _buffer.end() && it->time() == time) {
     isAvailable = true;
     _cachedPoint = makePoint(it);
   }
@@ -97,11 +97,11 @@ Point PointContainer::findPoint(time_t time) {
     return _cachedPoint;
   }
   
-  TimePointPair_t finder(time, PointPair_t(0,0));
+  Point finder(time, 0);
   
   _bufferMutex.lock();
-  PointBuffer_t::iterator it = lower_bound(_buffer.begin(), _buffer.end(), finder, compareTimePointPair);
-  if (it != _buffer.end() && it->first == time) {
+  PointBuffer_t::iterator it = lower_bound(_buffer.begin(), _buffer.end(), finder, comparePoints);
+  if (it != _buffer.end() && it->time() == time) {
     foundPoint = makePoint(it);
   }
   _bufferMutex.unlock();
@@ -112,10 +112,10 @@ Point PointContainer::findPoint(time_t time) {
 
 Point PointContainer::pointAfter(time_t time) {
   Point foundPoint;
-  TimePointPair_t finder(time, PointPair_t(0,0));
+  Point finder(time, 0);
   
   _bufferMutex.lock();
-  PointBuffer_t::iterator it = upper_bound(_buffer.begin(), _buffer.end(), finder, compareTimePointPair);
+  PointBuffer_t::iterator it = upper_bound(_buffer.begin(), _buffer.end(), finder, comparePoints);
   if (it != _buffer.end()) {
     foundPoint = makePoint(it);
   }
@@ -126,10 +126,10 @@ Point PointContainer::pointAfter(time_t time) {
 
 Point PointContainer::pointBefore(time_t time) {
   Point foundPoint;
-  TimePointPair_t finder(time, PointPair_t(0,0));
+  Point finder(time, 0);
   
   _bufferMutex.lock();
-  PointBuffer_t::iterator it  = lower_bound(_buffer.begin(), _buffer.end(), finder, compareTimePointPair);
+  PointBuffer_t::iterator it  = lower_bound(_buffer.begin(), _buffer.end(), finder, comparePoints);
   if (it != _buffer.end() && it != _buffer.begin()) {
     it--;
     if (it != _buffer.end()) {
@@ -174,35 +174,32 @@ long int PointContainer::numberOfPoints() {
 
 
 void PointContainer::insertPoint(Point point) {
-  double value, confidence;
-  time_t time;
-  time = point.time();
-  value = point.value();
-  confidence = point.confidence();
-  
-  PointPair_t newPoint(value, confidence);
-  PointBuffer_t::iterator retIt;
   
   _bufferMutex.lock();
   PointBuffer_t::iterator endPosition = _buffer.end();
   if (_buffer.size() > 0) {
     endPosition--;
   }
-  _buffer.push_back(TimePointPair_t(time,newPoint));
+  _buffer.push_back(point);
   _bufferMutex.unlock();
 }
 
 void PointContainer::insertPoints(std::vector<Point> points) {
+  
+  size_t nPoints = points.size();
+  if (nPoints > _buffer.capacity()) {
+    this->setCacheSize(nPoints);
+  }
   _bufferMutex.lock();
   BOOST_FOREACH(Point thePoint, points) {
-    _buffer.push_back(TimePointPair_t(thePoint.time(), PointPair_t(thePoint.value(),thePoint.confidence()) ));
+    _buffer.push_back(thePoint);
   }
   _bufferMutex.unlock();
 }
 
 // convenience method for making a new point from a buffer iterator
 Point PointContainer::makePoint(PointBuffer_t::iterator iterator) {
-  return Point((*iterator).first, (*iterator).second.first, Point::good, (*iterator).second.second);
+  return (*iterator);
 }
 
 void PointContainer::reset() {
@@ -211,13 +208,10 @@ void PointContainer::reset() {
   _bufferMutex.unlock();
 }
 
-void PointContainer::setCacheSize(int size) {
-  _cacheSize = size;
+void PointContainer::setCacheSize(size_t size) {
+  _cacheSize = (int)size;
   _bufferMutex.lock();
   _buffer.set_capacity(size);
   _bufferMutex.unlock();
 }
 
-int PointContainer::cacheSize() {
-  return _cacheSize;
-}

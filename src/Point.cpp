@@ -24,7 +24,7 @@ Point::Point(time_t time, double value, Qual_t qual, double confidence) {
   _value = value;
   _qual = qual;
   _confidence = confidence;
-  _validPoint = true;
+  _validPoint = (_qual == missing ? false : true);
 }
 
 Point::~Point() {

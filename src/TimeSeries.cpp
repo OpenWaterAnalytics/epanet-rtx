@@ -98,7 +98,7 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
     aNewPoint = point(time);
     
     if (!aNewPoint.isValid()) {
-      std::cerr << "bad point" << std::endl;
+      //std::cerr << "bad point" << std::endl;
     }
     else {
       points.push_back(aNewPoint);

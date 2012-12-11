@@ -80,6 +80,10 @@ std::vector< Point > MovingAverage::points(time_t start, time_t end) {
   
 }
 
+bool MovingAverage::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
+  // a MA can intrinsically resample
+  return true;
+}
 
 
 #pragma mark - Private Methods

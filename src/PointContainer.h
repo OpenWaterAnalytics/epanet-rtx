@@ -35,7 +35,6 @@ namespace RTX {
     virtual ~PointContainer();
      
     bool isEmpty();
-    size_t size();
     
     virtual void hintAtRange(time_t start, time_t end);
     virtual void hintAtBulkInsertion(time_t start, time_t end) {};
@@ -50,17 +49,14 @@ namespace RTX {
     virtual void insertPoint(Point point);
     virtual void insertPoints(std::vector< Point > points);
     
-    virtual void setCacheSize(int size);
-    int cacheSize();
+    virtual void setCacheSize(size_t size);
+    size_t size();
     
     virtual void reset();
     
-    // types
-    typedef std::pair<double,double> PointPair_t;
-    typedef std::pair<time_t, PointPair_t > TimePointPair_t;
-    typedef boost::circular_buffer<TimePointPair_t> PointBuffer_t;
+    // buffer type
+    typedef boost::circular_buffer<Point> PointBuffer_t;
     
-  protected:
     virtual std::ostream& toStream(std::ostream &stream);
     
   private:
