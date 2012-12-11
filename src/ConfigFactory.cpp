@@ -228,16 +228,9 @@ PointRecord::sharedPointer ConfigFactory::createPointRecordOfType(libconfig::Set
 
 PointRecord::sharedPointer ConfigFactory::createScadaPointRecord(libconfig::Setting &setting) {
   
-  libconfig::Setting& connection = setting["connection"];
   // create the initialization string for the scada point record.
-  // as you can see, this is a DSN-less connection, which only requires that the driver be registered in odbcinst.ini
-  string driver     = connection["DRIVER"];
-  string server     = connection["SERVER"];
-  string uid        = connection["UID"];
-  string pwd        = connection["PWD"];
-  string database   = connection["DATABASE"];
-  string tdsVersion = connection["TDS_Version"];
-  string port       = connection["Port"];
+  string initString = setting["connection"];
+  string name = setting["name"];
   
   libconfig::Setting& syntax = setting["querySyntax"];
   string table    = syntax["Table"];
@@ -245,9 +238,7 @@ PointRecord::sharedPointer ConfigFactory::createScadaPointRecord(libconfig::Sett
   string tagCol   = syntax["TagColumn"];
   string valueCol = syntax["ValueColumn"];
   string qualCol  = syntax["QualityColumn"];
-  
-  string initString = "DRIVER=" + driver + ";SERVER=" + server + ";UID=" + uid + ";PWD=" + pwd + ";DATABASE=" + database + ";TDS_Version=" + tdsVersion + ";Port=" + port + ";";
-  
+    
   ScadaPointRecord::sharedPointer pointRecord( new ScadaPointRecord() );
   pointRecord->setSyntax(table, dateCol, tagCol, valueCol, qualCol);
   pointRecord->setConnectionString(initString);
@@ -258,17 +249,10 @@ PointRecord::sharedPointer ConfigFactory::createScadaPointRecord(libconfig::Sett
 
 PointRecord::sharedPointer ConfigFactory::createMySqlPointRecord(libconfig::Setting &setting) {
   string name = setting["name"];
-  libconfig::Setting& connection = setting["connection"];
-  string host = connection["HOST"];
-  string user = connection["UID"];
-  string password = connection["PWD"];
-  string database = connection["DB"];
   MysqlPointRecord::sharedPointer record( new MysqlPointRecord() );
-  std::string initString = "HOST=" + host + ";UID=" + user + ";PWD=" + password + ";DB=" + database;
-  record->setConnectionString(initString);
+  string initString = setting["connection"];  record->setConnectionString(initString);
   record->connect();
-  bool isGood = false;
-  isGood = record->isConnected();
+  
   return record;
 }
 
