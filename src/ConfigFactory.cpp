@@ -416,7 +416,6 @@ TimeSeries::sharedPointer ConfigFactory::createAggregator(libconfig::Setting &se
   
   // create a vector for this list
   vector<pair<string, double> >sourceList;
-  _timeSeriesAggregationSourceList[timeSeries->name()] = sourceList;
   
   for (int iSource = 0; iSource < sourceCount; ++iSource) {
     Setting& thisSource = sources[iSource];
@@ -428,6 +427,9 @@ TimeSeries::sharedPointer ConfigFactory::createAggregator(libconfig::Setting &se
     }
     sourceList.push_back(std::make_pair(sourceName, multiplier));
   }
+  
+  
+  _timeSeriesAggregationSourceList[timeSeries->name()] = sourceList;
   
   return timeSeries;
 }
