@@ -32,9 +32,6 @@
 		224643A1150BD72E005EA3BA /* Link.h in Headers */ = {isa = PBXBuildFile; fileRef = 224643A0150BD72E005EA3BA /* Link.h */; };
 		224B19A0152CA1760051F408 /* ConfigFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 224B199F152CA1760051F408 /* ConfigFactory.h */; };
 		224B19A2152CA7510051F408 /* ConfigFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224B19A1152CA7510051F408 /* ConfigFactory.cpp */; };
-		224D66C21678EE480069C57A /* sampletown_realtime.cfg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 221C06C716077FD200B8969C /* sampletown_realtime.cfg */; };
-		224D66C31678EE480069C57A /* sampletown_synthetic.cfg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 221C06C816077FD200B8969C /* sampletown_synthetic.cfg */; };
-		224D66C41678EE480069C57A /* sampletown.inp in CopyFiles */ = {isa = PBXBuildFile; fileRef = 221C06C916077FD200B8969C /* sampletown.inp */; };
 		22535245148FDB7D00C18C11 /* PointContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22535244148FDB7D00C18C11 /* PointContainer.cpp */; };
 		225D719F1497F96C00B90F6D /* MysqlPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */; };
 		226861C914716D2A000DDDEF /* Units.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 226861C814716D2A000DDDEF /* Units.cpp */; };
