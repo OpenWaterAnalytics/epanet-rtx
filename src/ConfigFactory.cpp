@@ -43,6 +43,7 @@ ConfigFactory::ConfigFactory() {
   _timeSeriesPointerMap.insert(std::make_pair("Resample", &ConfigFactory::createResampler));
   _timeSeriesPointerMap.insert(std::make_pair("Constant", &ConfigFactory::createConstant));
   _timeSeriesPointerMap.insert(std::make_pair("Derivative", &ConfigFactory::createDerivative));
+  _timeSeriesPointerMap.insert(std::make_pair("Offset", &ConfigFactory::createOffset));
   
   // node-type configuration functions
   // Junctions
@@ -462,6 +463,13 @@ TimeSeries::sharedPointer ConfigFactory::createDerivative(Setting &setting) {
   FirstDerivative::sharedPointer derivative( new FirstDerivative() );
   setGenericTimeSeriesProperties(derivative, setting);
   return derivative;
+}
+
+TimeSeries::sharedPointer ConfigFactory::createOffset(Setting &setting) {
+  OffsetTimeSeries::sharedPointer offset( new OffsetTimeSeries() );
+  setGenericTimeSeriesProperties(offset, setting);
+  offset->setOffset(setting["offsetValue"]);
+  return offset;
 }
 
 
