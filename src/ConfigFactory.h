@@ -139,6 +139,9 @@ namespace RTX {
     PointRecord::sharedPointer _defaultRecord;
     Model::sharedPointer _model;
     std::string _configPath;
+    
+    map<string, string> _timeSeriesSourceList;
+    map<string, std::vector< std::pair<string, double> > > _timeSeriesAggregationSourceList;
   };
   
 }

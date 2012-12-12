@@ -25,9 +25,7 @@
 
 using namespace RTX;
 using namespace libconfig;
-
-using std::vector;
-using std::string;
+using namespace std;
 
 #pragma mark Constructor/Destructor
 
@@ -292,6 +290,63 @@ void ConfigFactory::createTimeSeriesList(Setting& timeSeriesGroup) {
     }
   }
   
+  // connect single sources (ModularTimeSeries subclasses)
+  typedef std::map<string, string> stringMap_t;
+  BOOST_FOREACH(const stringMap_t::value_type& stringPair, _timeSeriesSourceList) {
+    
+    string tsName = stringPair.first;
+    string sourceName = stringPair.second;
+    
+    if (_timeSeriesList.find(tsName) == _timeSeriesList.end()) {
+      std::cerr << "cannot locate Timeseries " << tsName << std::endl;
+      continue;
+    }
+    if (_timeSeriesList.find(sourceName) == _timeSeriesList.end()) {
+      std::cerr << "cannot locate specified source Timeseries " << sourceName << std::endl;
+      std::cerr << "-- (specified by Timeseries " << tsName << ")" << std::endl;
+      continue;
+    }
+    
+    ModularTimeSeries::sharedPointer ts = boost::static_pointer_cast<ModularTimeSeries>(_timeSeriesList[tsName]);
+    TimeSeries::sharedPointer source = _timeSeriesList[sourceName];
+    
+    ts->setSource(source);
+    
+  }
+  
+  typedef map<string, std::vector< std::pair<string, double> > > aggregatorMap_t;
+  typedef vector<pair<string,double> > stringDoublePair_t;
+  
+  // go through the list of aggregator time series
+  BOOST_FOREACH(const aggregatorMap_t::value_type& aggregatorPair, _timeSeriesAggregationSourceList) {
+    
+    string tsName = aggregatorPair.first;
+    stringDoublePair_t aggregationList = aggregatorPair.second;
+    
+    if (_timeSeriesList.find(tsName) == _timeSeriesList.end()) {
+      std::cerr << "cannot locate Timeseries " << tsName << std::endl;
+      continue;
+    }
+    
+    AggregatorTimeSeries::sharedPointer ts = boost::static_pointer_cast<AggregatorTimeSeries>(_timeSeriesList[tsName]);
+    
+    // go through the list and connect sources w/ multipliers
+    BOOST_FOREACH(const stringDoublePair_t::value_type& entry, aggregationList) {
+      string sourceName = entry.first;
+      double multiplier = entry.second;
+      
+      if (_timeSeriesList.find(sourceName) == _timeSeriesList.end()) {
+        std::cerr << "cannot locate specified source Timeseries " << sourceName << std::endl;
+        std::cerr << "-- (specified by Timeseries " << tsName << ")" << std::endl;
+        continue;
+      }
+      
+      TimeSeries::sharedPointer source = _timeSeriesList[sourceName];
+      
+      ts->addSource(source, multiplier);
+    }
+  }
+  
   return;
 }
 
@@ -308,7 +363,8 @@ TimeSeries::sharedPointer ConfigFactory::createTimeSeriesOfType(libconfig::Setti
 }
 
 void ConfigFactory::setGenericTimeSeriesProperties(TimeSeries::sharedPointer timeSeries, libconfig::Setting &setting) {
-  timeSeries->setName(setting["name"]);
+  string myName = setting["name"];
+  timeSeries->setName(myName);
   
   // if a pointRecord is specified, then re-set the timeseries' cache.
   // this means that the storage for the time series is probably external (scada / mysql).
@@ -324,19 +380,11 @@ void ConfigFactory::setGenericTimeSeriesProperties(TimeSeries::sharedPointer tim
     timeSeries->setClock(clock);
   }
   
-  // set any upstream sources. they must already exist. no forward declarations allowed in the config file.
+  // set any upstream sources. forward declarations are allowed, as these will be set only after all timeseries objects have been created.
   if (setting.exists("source")) {
-    // this timeseries has an upstream source. connect it.
+    // this timeseries has an upstream source.
     string sourceName = setting["source"];
-    if (_timeSeriesList.find(sourceName) == _timeSeriesList.end()) {
-      std::cerr << "cannot locate Timeseries source for " << timeSeries->name() << std::endl;
-    }
-    else {
-      TimeSeries::sharedPointer sourceTimeSeries = _timeSeriesList[sourceName];
-      // cast to derived type so we can access extra methods
-      ModularTimeSeries::sharedPointer thisTimeSeries = boost::static_pointer_cast<ModularTimeSeries>(timeSeries);
-      thisTimeSeries->setSource(sourceTimeSeries);
-    }
+    _timeSeriesSourceList[myName] = sourceName;
   }
   
   // TODO -- units, description field
@@ -364,23 +412,22 @@ TimeSeries::sharedPointer ConfigFactory::createAggregator(libconfig::Setting &se
   // a list of sources with multipliers.
   Setting& sources = setting["sources"];
   int sourceCount = sources.getLength();
+  
+  // create a vector for this list
+  vector<pair<string, double> >sourceList;
+  _timeSeriesAggregationSourceList[timeSeries->name()] = sourceList;
+  
   for (int iSource = 0; iSource < sourceCount; ++iSource) {
     Setting& thisSource = sources[iSource];
-    TimeSeries::sharedPointer sourceTS;
     string sourceName = thisSource["source"];
     double multiplier;
     // set the multiplier if it's specified - otherwise, set to 1.
     if ( !thisSource.lookupValue("multiplier", multiplier) ) {
       multiplier = 1.;
     }
-    if (_timeSeriesList.find(sourceName) == _timeSeriesList.end()) {
-      std::cerr << "could not find source timeseries (" << sourceName << ") for " << timeSeries->name() << std::endl;
-    }
-    else {
-      sourceTS = _timeSeriesList[sourceName];
-      timeSeries->addSource(sourceTS, multiplier);
-    }
+    sourceList.push_back(std::make_pair(sourceName, multiplier));
   }
+  
   return timeSeries;
 }
 
