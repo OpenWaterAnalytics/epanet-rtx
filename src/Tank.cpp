@@ -11,19 +11,30 @@
 #include "Tank.h"
 
 #include "OffsetTimeSeries.h"
+#include "CurveFunction.h"
+#include "FirstDerivative.h"
 
 using namespace RTX;
 
 Tank::Tank(const std::string& name) : Junction(name) {
   setType(TANK);
-  // initialize level time series
-  _level.reset( new OffsetTimeSeries() );
-  _level->setUnits(RTX_FOOT);
-  _level->setSource(head());
-  _level->setOffset(-elevation());
+  // initialize time series states
   
-  _flow.reset( new TimeSeries() );
-  _flow->setName("T " + name + " flow");
+  OffsetTimeSeries::sharedPointer levelOffset( new OffsetTimeSeries() );
+  levelOffset->setUnits(RTX_FOOT);
+  levelOffset->setSource(head());
+  levelOffset->setOffset(-elevation());
+  _level = levelOffset;
+  
+  CurveFunction::sharedPointer volumeCurve( new CurveFunction() );
+  volumeCurve->setUnits(RTX_LITER);
+  volumeCurve->setSource(_level);
+  _volume = volumeCurve;
+  
+  FirstDerivative::sharedPointer flowDerivative( new FirstDerivative() );
+  flowDerivative->setUnits(RTX_LITER_PER_SECOND);
+  flowDerivative->setSource(_volume);
+  _flow = flowDerivative;
   
 }
 
@@ -37,14 +48,14 @@ void Tank::setElevation(double elevation) {
   _level->setOffset(-elevation);
 }
 
-void Tank::setLevelMeasure(TimeSeries::sharedPointer level) {
+void Tank::setLevelMeasure(TimeSeries::sharedPointer levelMeasure) {
   
   OffsetTimeSeries::sharedPointer headMeasureTs(new OffsetTimeSeries());
-  headMeasureTs->setUnits(level->units());
-  headMeasureTs->setName(level->name() + " (head)");
-  headMeasureTs->setClock(level->clock());
+  headMeasureTs->setUnits(levelMeasure->units());
+  headMeasureTs->setName(levelMeasure->name() + " (head)");
+  headMeasureTs->setClock(levelMeasure->clock());
   headMeasureTs->setOffset(elevation());
-  headMeasureTs->setSource(level);
+  headMeasureTs->setSource(levelMeasure);
   
   setHeadMeasure(headMeasureTs);
 }
@@ -53,9 +64,13 @@ void Tank::setLevelMeasure(TimeSeries::sharedPointer level) {
 TimeSeries::sharedPointer Tank::level() {
   return _level;
 }
-TimeSeries::sharedPointer Tank::flow() {
-  return _flow;
+TimeSeries::sharedPointer Tank::flowMeasure() {
+  return _flowMeasure;
 }
+TimeSeries::sharedPointer Tank::volumeMeasure() {
+  return _volumeMeasure;
+}
+
 
 bool Tank::doesResetLevel() {
   return _doesResetLevel;

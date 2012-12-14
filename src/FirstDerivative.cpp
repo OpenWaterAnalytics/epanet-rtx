@@ -36,7 +36,7 @@ void FirstDerivative::setUnits(Units newUnits) {
     // if the new units are the same as the source units.
     TimeSeries::setUnits(newUnits);
   }
-  else {
+  else if (!units().isDimensionless()) {
     std::cerr << "units are not dimensionally consistent" << std::endl;
   }
 }

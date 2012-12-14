@@ -523,6 +523,8 @@ void ConfigFactory::createSimulationDefaults(Setting& setting) {
   else {
     std::cout << "Warning: no state record specified. Model results will not be persisted!" << std::endl;
   }
+  
+  // todo -- specific storage items from config
 
   // get other simulation settings
   Setting& timeSetting = setting["time"];
@@ -539,26 +541,10 @@ void ConfigFactory::createSimulationDefaults(Setting& setting) {
 void ConfigFactory::createZones(Setting& zoneGroup) {
   // get the zone information from the config,
   // then create each zone and add it to the model.
-  if ( zoneGroup.exists("demand_areas") ) {
-    Setting& zoneList = zoneGroup["demand_areas"];
-    const int zoneCount = zoneList.getLength();
-    
-    for (int iZone = 0; iZone < zoneCount; ++iZone) {
-      // for each zone listed, create a new Zone object and populate it with the proper nodes.
-      Setting& zoneSetting = zoneList[iZone];
-      string name = zoneSetting["id"];
-      string junctionID = zoneSetting["junction"];
-      Zone::sharedPointer zone( new Zone(name) );
-      Junction::sharedPointer junction = boost::dynamic_pointer_cast<Junction>(_model->nodeWithName(junctionID));
-      zone->addJunctionTree(junction);
-      TimeSeries::sharedPointer zoneDemand;
-      std::string zoneDemandName = zoneSetting["demand"];
-      if (_timeSeriesList.find(zoneDemandName) == _timeSeriesList.end()) {
-        std::cerr << "could not find the zone demand time series \"" << zoneDemandName << "\"" << std::endl;
-      }
-      zoneDemand = _timeSeriesList[zoneDemandName];
-      zone->setDemand(zoneDemand);
-      _model->addZone(zone);
+  if ( zoneGroup.exists("use_demand_zones") ) {
+    bool useDemandZones = zoneGroup["use_demand_zones"];
+    if (useDemandZones) {
+      _model->initDemandZones();
     }
   }
   

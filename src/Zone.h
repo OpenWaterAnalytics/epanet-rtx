@@ -13,6 +13,7 @@
 #include "rtxMacros.h"
 #include "TimeSeries.h"
 #include "Junction.h"
+#include "Tank.h"
 #include "Link.h"
 #include "Pipe.h"
 #include "Units.h"
@@ -33,7 +34,7 @@ namespace RTX {
    \sa PointRecord TimeSeries
    
    
-   \fn void Zone::addJunctionTree(Junction::sharedPointer junction)
+   \fn void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction)
    \brief Add a group of junctions to a Zone.
    
    Uses graph connectivity to enumerate the junctions in a zone starting with the passed Junction pointer. The enumeration uses a depth-first search to follow Pipe elements, and stops at links which return true to the doesHaveFlowMeasure() method.
@@ -66,7 +67,7 @@ namespace RTX {
     
     // node accessors
     void addJunction(Junction::sharedPointer junction);
-    void addJunctionTree(Junction::sharedPointer junction);
+    void enumerateJunctionsWithRootNode(Junction::sharedPointer junction);
     Junction::sharedPointer find(std::string name);
     std::vector<Junction::sharedPointer> junctions();
     

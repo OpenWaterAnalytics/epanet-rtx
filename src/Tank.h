@@ -11,6 +11,7 @@
 
 #include "Junction.h"
 #include "OffsetTimeSeries.h"
+#include "CurveFunction.h"
 
 namespace RTX {
   
@@ -30,10 +31,12 @@ namespace RTX {
     
     // states
     TimeSeries::sharedPointer level(); // directly related to head
-    TimeSeries::sharedPointer flow();  // flow into the tank (computed)
+    TimeSeries::sharedPointer volumeMeasure(); // based on tank geometry
+    TimeSeries::sharedPointer flowMeasure();  // flow into the tank (computed)
     
   private:
     OffsetTimeSeries::sharedPointer _level;
+    CurveFunction::sharedPointer _volume;
     TimeSeries::sharedPointer _flow;
     Clock::sharedPointer _resetLevel;
     double _minimumHead, _maximumHead;

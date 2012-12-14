@@ -58,8 +58,8 @@ AUTHOR:     L. Rossman
 #define EN_MAXLEVEL     21
 #define EN_MIXFRACTION  22
 #define EN_TANK_KBULK   23
-#define EN_TANKVOLUME   24			/* SH added 4.2010 */
-
+#define EN_TANKVOLUME   24			// !sph
+#define EN_MAXVOLUME    25      // !sph
 
 #define EN_DIAMETER     0    /* Link parameters */
 #define EN_LENGTH       1
@@ -87,7 +87,7 @@ AUTHOR:     L. Rossman
 #define EN_STATISTIC    8
 #define EN_PERIODS      9
 #define EN_HTIME        10
-#define EN_HALTFLAG     11	/* sh 4.2010 */
+#define EN_HALTFLAG     11	// !sph
 #define EN_NEXTEVENT    12
 
 #define EN_ITERATIONS     0
@@ -231,5 +231,7 @@ AUTHOR:     L. Rossman
  int  DLLEXPORT ENsetoption(int, double);
  int  DLLEXPORT ENsetstatusreport(int);
  int  DLLEXPORT ENsetqualtype(int, char *, char *, char *);
+
+ int  DLLEXPORT ENgetcurve(int curveIndex, int* nValues, double *xValues, double *yValues); // !sph
 
  int  DLLEXPORT ENgetcoord(int , double *, double *);  // 06.02.2010 woohn

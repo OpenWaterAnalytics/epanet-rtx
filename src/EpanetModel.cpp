@@ -9,6 +9,9 @@
 #include <iostream>
 #include "EpanetModel.h"
 #include "rtxMacros.h"
+#include "CurveFunction.h"
+
+#include "epanet/src/types.h"
 
 using namespace RTX;
 using namespace std;
@@ -115,10 +118,46 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxExcept
       
       nodeName = string(enName);
       
+      CurveFunction::sharedPointer volumeCurveTs;
+      
       switch (nodeType) {
         case EN_TANK:
           newTank.reset( new Tank(nodeName) );
+          // get tank geometry from epanet and pass it along
+          // todo -- geometry
+          
           addTank(newTank);
+          newTank->level()->setUnits(headUnits());
+          newTank->flow()->setUnits(flowUnits());
+          volumeCurveTs = boost::static_pointer_cast<CurveFunction>(newTank->volume());
+          
+          
+          double volumeCurveIndex;
+          ENcheck(ENgetnodevalue(iNode, EN_VOLCURVE, &volumeCurveIndex), "ENgetnodevalue EN_VOLCURVE");
+          
+          if (volumeCurveIndex > 0) {
+            // curved tank
+            double *xVals, *yVals;
+            int nVals;
+            ENcheck(ENgetcurve(volumeCurveIndex, &nVals, xVals, yVals), "ENgetcurve");
+            for (int iPoint = 0; iPoint < nVals; iPoint++) {
+              volumeCurveTs->addCurveCoordinate(xVals[iPoint], yVals[iPoint]);
+            }
+          }
+          else {
+            // it's a cylindrical tank
+            double minVolume, maxVolume;
+            double minLevel, maxLevel;
+            
+            ENcheck(ENgetnodevalue(iNode, EN_MAXLEVEL, &maxLevel), "EN_MAXLEVEL");
+            ENcheck(ENgetnodevalue(iNode, EN_MINLEVEL, &minLevel), "EN_MINLEVEL");
+            ENcheck(ENgetnodevalue(iNode, EN_MINVOLUME, &minVolume), "EN_MINVOLUME");
+            ENcheck(ENgetnodevalue(iNode, EN_MAXVOLUME, &maxVolume), "EN_MAXVOLUME");
+            
+            volumeCurveTs->addCurveCoordinate(minLevel, minVolume);
+            volumeCurveTs->addCurveCoordinate(maxLevel, maxVolume);
+          }
+          
           newJunction = newTank;
           break;
         case EN_RESERVOIR:

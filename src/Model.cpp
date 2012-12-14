@@ -134,11 +134,11 @@ void Model::initDemandZones() {
     nodeIt = nodeSet.begin();
     Junction::sharedPointer rootNode = *nodeIt;
     
-    string zoneName = boost::lexical_cast<string>(&iZone);
+    string zoneName = boost::lexical_cast<string>(iZone);
     Zone::sharedPointer newZone(new Zone(zoneName));
     
     // specifiy the root node and populate the tree.
-    newZone->addJunctionTree(rootNode);
+    newZone->enumerateJunctionsWithRootNode(rootNode);
     
     // get the list of junctions that were just added.
     vector<Junction::sharedPointer> addedJunctions = newZone->junctions();
@@ -157,6 +157,7 @@ void Model::initDemandZones() {
       }
     }
     
+    this->addZone(newZone);
   }
   
   

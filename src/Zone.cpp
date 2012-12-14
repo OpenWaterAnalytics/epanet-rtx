@@ -16,7 +16,7 @@ Zone::Zone(const std::string& name) : Element(name), _flowUnits(1) {
   this->setType(ZONE);
   _flowUnits = RTX_LITER_PER_SECOND;
   // set to aggregator type because that's the most likely scenario.
-  // presumably, we will use Zone::addJunctionTree to populate the aggregation.
+  // presumably, we will use Zone::enumerateJunctionsWithRootNode to populate the aggregation.
   _demand.reset(new AggregatorTimeSeries() );
   _demand->setName("Z " + name + " demand");
   _demand->setUnits(RTX_LITER_PER_SECOND);
@@ -39,7 +39,7 @@ void Zone::addJunction(Junction::sharedPointer junction) {
   _junctions[junction->name()] = junction;
 }
 
-void Zone::addJunctionTree(Junction::sharedPointer junction) {
+void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {
   
   this->followJunction(junction);
   
@@ -54,6 +54,18 @@ void Zone::followJunction(Junction::sharedPointer junction) {
   // perform dfs
   // add the junction to my list
   addJunction(junction);
+  
+  // see if the junction is a tank -- if so, add in the tank's flowrate.
+  if (junction->type() == Element::TANK) {
+    Tank::sharedPointer thisTank = boost::static_pointer_cast<Tank>(junction);
+    TimeSeries::sharedPointer flow = thisTank->flow();
+    
+    // flow is positive into the tank (out of the zone), so its sign for demand aggregation purposes should be negative.
+    AggregatorTimeSeries::sharedPointer zoneDemand = boost::static_pointer_cast<AggregatorTimeSeries>(this->demand());
+    zoneDemand->addSource(flow, -1.);
+  }
+  
+  
   // for each link connected to the junction, follow it and add its junctions
   BOOST_FOREACH(Link::sharedPointer link, junction->links()) {
     Pipe::sharedPointer pipe = boost::static_pointer_cast<Pipe>(link);

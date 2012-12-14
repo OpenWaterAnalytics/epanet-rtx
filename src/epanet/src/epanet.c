@@ -1484,7 +1484,12 @@ int DLLEXPORT ENgetnodevalue(int index, int code, double *value)
          v = 0.0;
          if ( index > Njuncs ) v = Tank[index-Njuncs].Vmin * Ucf[VOLUME];
          break;
-         
+       
+     case EN_MAXVOLUME: // !sph
+         v = 0.0;
+         if ( index > Njuncs ) v = Tank[index-Njuncs].Vmax * Ucf[VOLUME];
+         break;
+       
       case EN_VOLCURVE:
          v = 0.0;
          if ( index > Njuncs ) v = Tank[index-Njuncs].Vcurve;
@@ -1585,6 +1590,38 @@ int  DLLEXPORT ENgetlinktype(int index, int *code)
    if (index < 1 || index > Nlinks) return(204);
    *code = Link[index].Type;
    return(0);
+}
+
+
+int  DLLEXPORT ENgetcurve(int curveIndex, int *nValues, double *xValues, double *yValues) // !sph
+/*----------------------------------------------------------------
+ **  Input:   curveIndex = curve index
+ **  Output:  *nValues = number of points on curve
+ **           *xValues = values for x
+ **           *yValues = values for y
+ **  Returns: error code
+ **  Purpose: retrieves end nodes of a specific link
+ **----------------------------------------------------------------
+ */
+{
+  int err = 0;
+  
+  Scurve curve = Curve[curveIndex];
+  int nPoints = curve.Npts;
+  
+  double *pointX = calloc(nPoints, sizeof(double));
+  double *pointY = calloc(nPoints, sizeof(double));
+  
+  for (int iPoint = 0; iPoint < nPoints; iPoint++) {
+    pointX[iPoint] = curve.X[iPoint] * Ucf[LENGTH];
+    pointY[iPoint] = curve.Y[iPoint] * Ucf[VOLUME];
+  }
+  
+  *nValues = nPoints;
+  *xValues = *pointX;
+  *yValues = *pointY;
+  
+  return err;
 }
 
 

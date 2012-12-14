@@ -25,6 +25,12 @@ void AggregatorTimeSeries::addSource(TimeSeries::sharedPointer timeSeries, doubl
   
   std::pair<TimeSeries::sharedPointer,double> aggregatorItem(timeSeries, multiplier);
   _tsList.push_back(aggregatorItem);
+  
+  // set my clock to the lesser-period of any source.
+  if (this->clock()->period() < timeSeries->clock()->period()) {
+    this->setClock(timeSeries->clock());
+  }
+  
 }
 
 void AggregatorTimeSeries::removeSource(TimeSeries::sharedPointer timeSeries) {
