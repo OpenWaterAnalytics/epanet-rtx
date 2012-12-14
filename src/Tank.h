@@ -30,9 +30,11 @@ namespace RTX {
     
     // states
     TimeSeries::sharedPointer level(); // directly related to head
+    TimeSeries::sharedPointer flow();  // flow into the tank (computed)
     
   private:
     OffsetTimeSeries::sharedPointer _level;
+    TimeSeries::sharedPointer _flow;
     Clock::sharedPointer _resetLevel;
     double _minimumHead, _maximumHead;
     bool _doesResetLevel;

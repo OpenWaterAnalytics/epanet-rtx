@@ -85,7 +85,8 @@ void MysqlPointRecord::connect() throw(RtxException) {
     sql::DatabaseMetaData *meta =  _connection->getMetaData();
     boost::shared_ptr<sql::ResultSet> results( meta->getSchemas() );
     while (results->next()) {
-      if ( RTX_STRINGS_ARE_EQUAL(database, results->getString("TABLE_SCHEM")) ) {
+      std::string resultString(results->getString("TABLE_SCHEM"));
+      if ( RTX_STRINGS_ARE_EQUAL(database, resultString) ) {
         databaseDoesExist = true;
         break;
       }

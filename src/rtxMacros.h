@@ -16,7 +16,9 @@
 #define RTX_MAX(x,y) x>y?x:y
 #define RTX_MIN(x,y) x<y?x:y
 
-// silly macro for readibility
-#define RTX_STRINGS_ARE_EQUAL(x,y) (x.compare(y)==0)
+// silly macro for string comparison
+#include <boost/algorithm/string/predicate.hpp>
+#define RTX_STRINGS_ARE_EQUAL(x,y) (boost::algorithm::iequals(x,y))
+#define RTX_STRINGS_ARE_EQUAL_CS(x,y) (x.compare(y)==0)
 
 #endif

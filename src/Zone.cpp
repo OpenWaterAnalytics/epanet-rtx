@@ -10,12 +10,14 @@
 #include <boost/foreach.hpp>
 
 using namespace RTX;
+using namespace std;
 
 Zone::Zone(const std::string& name) : Element(name), _flowUnits(1) {
   this->setType(ZONE);
   _flowUnits = RTX_LITER_PER_SECOND;
-  
-  _demand.reset(new TimeSeries() );
+  // set to aggregator type because that's the most likely scenario.
+  // presumably, we will use Zone::addJunctionTree to populate the aggregation.
+  _demand.reset(new AggregatorTimeSeries() );
   _demand->setName("Z " + name + " demand");
   _demand->setUnits(RTX_LITER_PER_SECOND);
 }
@@ -38,6 +40,12 @@ void Zone::addJunction(Junction::sharedPointer junction) {
 }
 
 void Zone::addJunctionTree(Junction::sharedPointer junction) {
+  
+  this->followJunction(junction);
+  
+}
+
+void Zone::followJunction(Junction::sharedPointer junction) {
   // don't let us add the same junction twice.
   if (!junction || find(junction->name())) {
     return;
@@ -48,13 +56,37 @@ void Zone::addJunctionTree(Junction::sharedPointer junction) {
   addJunction(junction);
   // for each link connected to the junction, follow it and add its junctions
   BOOST_FOREACH(Link::sharedPointer link, junction->links()) {
-    Pipe::sharedPointer pipe = boost::dynamic_pointer_cast<Pipe>(link);
+    Pipe::sharedPointer pipe = boost::static_pointer_cast<Pipe>(link);
+    
+    // get the link direction. into the zone is positive.
+    bool directionIsOut = (junction == pipe->from());
+    
+    // sanity
+    if (!directionIsOut && junction != pipe->to()) {
+      cerr << "Could not resolve start/end node(s) for pipe: " << pipe->name() << endl;
+      continue;
+    }
+    
     // make sure we can follow this link,
     // then get this link's nodes
     if ( !(pipe->doesHaveFlowMeasure()) ) {
       // follow each of the link's nodes.
-      addJunctionTree(boost::static_pointer_cast<Junction>( pipe->from() ) );
-      addJunctionTree(boost::static_pointer_cast<Junction>( pipe->to() ) );
+      if (directionIsOut) {
+        followJunction(boost::static_pointer_cast<Junction>( pipe->to() ) );
+      }
+      else {
+        followJunction(boost::static_pointer_cast<Junction>( pipe->from() ) );
+      }
+    }
+    else {
+      // we have found a measurement.
+      // add it to the control volume calculation.
+      double direction = (directionIsOut? -1. : 1.);
+      AggregatorTimeSeries::sharedPointer zoneDemand = boost::static_pointer_cast<AggregatorTimeSeries>(this->demand());
+      if (!zoneDemand) {
+        cerr << "zone time series wrong type: " << *(this->demand()) << endl;
+      }
+      zoneDemand->addSource(pipe->flowMeasure(), direction);
     }
   }
 }

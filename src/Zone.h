@@ -79,6 +79,7 @@ namespace RTX {
     virtual void allocateDemandToJunctions(time_t time);
     
   private:
+    void followJunction(Junction::sharedPointer junction);
     std::map< std::string, Junction::sharedPointer> _junctions;
     std::vector<Pipe::sharedPointer> _boundaryPipes;
     TimeSeries::sharedPointer _demand;

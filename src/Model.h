@@ -53,6 +53,9 @@ namespace RTX {
     void setStorage(PointRecord::sharedPointer record);
     void setParameterSource(PointRecord::sharedPointer record);
     
+    // demand zones -- identified by boundary link sets (doesHaveFlowMeasure)
+    void initDemandZones();
+    
     // element accessors
     void addJunction(Junction::sharedPointer newJunction);
     void addTank(Tank::sharedPointer newTank);

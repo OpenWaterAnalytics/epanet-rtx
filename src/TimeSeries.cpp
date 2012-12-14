@@ -196,6 +196,10 @@ void TimeSeries::setCache(PointContainer::sharedPointer cache) {
   }
 }
 
+PointContainer::sharedPointer TimeSeries::cache() {
+  return _points;
+}
+
 void TimeSeries::newCacheWithPointRecord(PointRecord::sharedPointer pointRecord) {
   // create new PersistentContainer and swap it in
   PointContainer::sharedPointer myPointContainer( new PersistentContainer(this->name(), pointRecord) );

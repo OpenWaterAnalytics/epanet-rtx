@@ -21,6 +21,10 @@ Tank::Tank(const std::string& name) : Junction(name) {
   _level->setUnits(RTX_FOOT);
   _level->setSource(head());
   _level->setOffset(-elevation());
+  
+  _flow.reset( new TimeSeries() );
+  _flow->setName("T " + name + " flow");
+  
 }
 
 Tank::~Tank() {
@@ -48,6 +52,9 @@ void Tank::setLevelMeasure(TimeSeries::sharedPointer level) {
 
 TimeSeries::sharedPointer Tank::level() {
   return _level;
+}
+TimeSeries::sharedPointer Tank::flow() {
+  return _flow;
 }
 
 bool Tank::doesResetLevel() {

@@ -590,7 +590,7 @@ void ConfigFactory::configureElement(Element::sharedPointer element) {
   const int elementCount = elements.getLength();
   for (int iElement = 0; iElement < elementCount; ++iElement) {
     Setting& elementSetting = elements[iElement];
-    std::string modelID = elementSetting["modelID"];
+    std::string modelID = elementSetting["model_id"];
     if ( RTX_STRINGS_ARE_EQUAL(modelID, name) ) {
       // great, a match.
       // configure the element with the proper states/parameters.

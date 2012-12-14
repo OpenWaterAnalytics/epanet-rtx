@@ -7,7 +7,9 @@
 //  
 
 #include <iostream>
+#include <set>
 #include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
 #include "Model.h"
 #include "Units.h"
 
@@ -104,6 +106,65 @@ void Model::setParameterSource(PointRecord::sharedPointer record) {
     }
   }
 }
+
+
+#pragma mark - Demand Zones
+
+void Model::initDemandZones() {
+  
+  // load up the node set
+  std::set<Junction::sharedPointer> nodeSet;
+  BOOST_FOREACH(Junction::sharedPointer junction, _junctions) {
+    nodeSet.insert(junction);
+  }
+  BOOST_FOREACH(Tank::sharedPointer tank, _tanks) {
+    nodeSet.insert(tank);
+  }
+  BOOST_FOREACH(Junction::sharedPointer reservoir, _reservoirs) {
+    nodeSet.insert(reservoir);
+  }
+  int iZone = 0;
+  
+  // if the set is not empty, then there's work to be done:
+  while (!nodeSet.empty()) {
+    iZone++;
+    
+    // pick a random node, and build out that zone.
+    set<Junction::sharedPointer>::iterator nodeIt;
+    nodeIt = nodeSet.begin();
+    Junction::sharedPointer rootNode = *nodeIt;
+    
+    string zoneName = boost::lexical_cast<string>(&iZone);
+    Zone::sharedPointer newZone(new Zone(zoneName));
+    
+    // specifiy the root node and populate the tree.
+    newZone->addJunctionTree(rootNode);
+    
+    // get the list of junctions that were just added.
+    vector<Junction::sharedPointer> addedJunctions = newZone->junctions();
+    
+    if (addedJunctions.size() < 1) {
+      cerr << "Could not add any junctions to zone " << iZone << endl;
+      continue;
+    }
+    
+    // remove the added junctions from the nodeSet.
+    BOOST_FOREACH(Junction::sharedPointer addedJunction, addedJunctions) {
+      size_t changed = nodeSet.erase(addedJunction);
+      if (changed != 1) {
+        // whoops, something is wrong
+        cerr << "Could not find junction in set: " << addedJunction->name() << endl;
+      }
+    }
+    
+  }
+  
+  
+  
+  
+  
+}
+
 
 #pragma mark - Controls
 
