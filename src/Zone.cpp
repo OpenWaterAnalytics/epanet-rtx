@@ -58,7 +58,7 @@ void Zone::followJunction(Junction::sharedPointer junction) {
   // see if the junction is a tank -- if so, add in the tank's flowrate.
   if (junction->type() == Element::TANK) {
     Tank::sharedPointer thisTank = boost::static_pointer_cast<Tank>(junction);
-    TimeSeries::sharedPointer flow = thisTank->flow();
+    TimeSeries::sharedPointer flow = thisTank->flowMeasure();
     
     // flow is positive into the tank (out of the zone), so its sign for demand aggregation purposes should be negative.
     AggregatorTimeSeries::sharedPointer zoneDemand = boost::static_pointer_cast<AggregatorTimeSeries>(this->demand());
@@ -148,7 +148,6 @@ void Zone::allocateDemandToJunctions(time_t time) {
   
   // if the junction has a boundary flow condition, add it to the "known" demand pool.
   // otherwise, add the nominal base demand to the totalBaseDemand pool.
-  // TODO - account for tanks (maybe leave this to the client?)
   BOOST_FOREACH(JunctionMapType::value_type& junctionPair, _junctions) {
     Junction::sharedPointer junction = junctionPair.second;
     
@@ -168,6 +167,12 @@ void Zone::allocateDemandToJunctions(time_t time) {
   zoneDemand = this->demand()->value(time);
   allocableDemand = zoneDemand - meteredDemand; // the total unmetered demand
   
+  cout << "-------------------" << endl;
+  cout << "time: " << time << endl;
+  cout << "zone demand: " << zoneDemand << endl;
+  cout << "metered demand: " << meteredDemand << endl;
+  cout << "allocable demand: " << allocableDemand << endl;
+  
   // set the demand values for unmetered junctions, according to their base demands.
   BOOST_FOREACH(JunctionMapType::value_type& junctionPair, _junctions) {
     Junction::sharedPointer junction = junctionPair.second;
@@ -185,6 +190,8 @@ void Zone::allocateDemandToJunctions(time_t time) {
       junction->demand()->insert( Point::convertPoint(demandPoint, myUnits, junction->demand()->units()) );
     }
   }
+  
+  
   
 }
 

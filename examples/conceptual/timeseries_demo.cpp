@@ -12,6 +12,7 @@
 #include "TimeSeries.h"
 #include "Resampler.h"
 #include "MovingAverage.h"
+#include "FirstDerivative.h"
 
 #include "MysqlPointRecord.h"
 
@@ -34,11 +35,17 @@ int main(int argc, const char * argv[])
    
    */
   time_t start = 1222873200; // unix-time 2008-10-01 15:00:00 GMT
-  
-  Point  p1(start, 34.5),
+  /*
+  Point  p1(start,     34.5),
          p2(start+100, 45.2),
          p3(start+120, 45.9),
          p4(start+230, 42.1);
+  */
+  
+  Point   p1(start,     start),
+          p2(start+100, start+100),
+          p3(start+120, start+120),
+          p4(start+230, start+230);
   
   // put these points into a vector
   vector<Point> uglyPoints;
@@ -94,13 +101,19 @@ int main(int argc, const char * argv[])
   movingAverage->setName("pretty moving average");
   movingAverage->setWindowSize(5);
   movingAverage->setSource(resampled);
-  // changing the units -- conversion is handled automatically.
-  movingAverage->setUnits(RTX_GALLON_PER_MINUTE);
+  // changing the units 
+  movingAverage->setUnits(RTX_MILLION_GALLON_PER_DAY);
   // print info on this new timeseries:
   cout << endl << *movingAverage;
   cout << "range of smoothed points:" << endl;
   printPoints( movingAverage->points(start, start+240) );
   
+  cout << "=======================================" << endl;
+  
+  // how about a change of units? conversion is handled automatically.
+  cout << "in GPM:" << endl;
+  movingAverage->setUnits(RTX_GALLON_PER_MINUTE);
+  printPoints( movingAverage->points(start, start+240) );
   cout << "=======================================" << endl;
   
   // Great. Now let's say I want to persist some of this TimeSeries data. Then what?
@@ -109,6 +122,9 @@ int main(int argc, const char * argv[])
   dbRecord->setConnectionString("HOST=tcp://localhost;UID=rtx_db_agent;PWD=rtx_db_agent;DB=rtx_demo_db");
   dbRecord->connect();
   if (dbRecord->isConnected()) {
+    // empty out any previous data
+    dbRecord->reset();
+    
     // Now I can just hook this record into any of my modular TimeSeries objects...
     movingAverage->newCacheWithPointRecord(dbRecord);
     
@@ -136,6 +152,15 @@ int main(int argc, const char * argv[])
     cout << endl << "points retrieved from the db:" << endl;
     printPoints( dbSourceSeries->points(start, start+240) );
   }
+  
+  
+  cout << "=======================================" << endl;
+  
+  
+  FirstDerivative::sharedPointer derivative( new FirstDerivative() );
+  derivative->setSource(movingAverage);
+  
+  printPoints(derivative->points(start, start+240));
   
   
   return 0;

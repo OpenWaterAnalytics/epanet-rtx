@@ -60,16 +60,11 @@ bool PersistentContainer::isPointAvailable(time_t time) {
   if (PointContainer::isPointAvailable(time)) {
     return true;
   }
-  else if (PointContainer::pointBefore(time).isValid()) {
-    // we may just by trying to get something in a range
-    // in which case we don't want to go to all the trouble of querying our pointrecord.
-    // so technically, the point is "not" avaiable, but we'll expect to be asked for a nearby point pretty soon.
-    return false;
-  }
   else {
     bool isAvailable = _pointRecord->isPointAvailable(_id, time);
     if (isAvailable) {
-      PointContainer::insertPoint(_pointRecord->point(_id, time));
+      Point newPoint = _pointRecord->point(_id, time);
+      PointContainer::insertPoint(newPoint);
     }
     return isAvailable;
   }

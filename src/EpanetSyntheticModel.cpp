@@ -64,7 +64,7 @@ time_t EpanetSyntheticModel::nextHydraulicStep(time_t time) {
   ENcheck(ENgettimeparam(EN_DURATION, &duration), "ENgettimeparam(EN_DURATION)");
   
   if (duration <= (time - _startTime) ) {
-    std::cerr << "had to adjust the sim duration to accomodate the requested step";
+    std::cerr << "had to adjust the sim duration to accomodate the requested step" << std::endl;
     ENcheck(ENsettimeparam(EN_DURATION, (duration + hydraulicTimeStep()) ), "ENsettimeparam(EN_DURATION)");
   }
   

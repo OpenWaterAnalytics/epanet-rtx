@@ -19,45 +19,57 @@ using namespace RTX;
 Tank::Tank(const std::string& name) : Junction(name) {
   setType(TANK);
   // initialize time series states
+
+  _level.reset( new OffsetTimeSeries() );
+  _level->setSource(this->head());
+  _level->setName(name + " level (offset)");
   
-  OffsetTimeSeries::sharedPointer levelOffset( new OffsetTimeSeries() );
-  levelOffset->setUnits(RTX_FOOT);
-  levelOffset->setSource(head());
-  levelOffset->setOffset(-elevation());
-  _level = levelOffset;
+  // likely to be used.
+  _levelMeasure.reset( new OffsetTimeSeries() );
+  _levelMeasure->setUnits(RTX_METER);
+  _levelMeasure->setName(name + " level measure");
   
-  CurveFunction::sharedPointer volumeCurve( new CurveFunction() );
-  volumeCurve->setUnits(RTX_LITER);
-  volumeCurve->setSource(_level);
-  _volume = volumeCurve;
+  _volumeMeasure.reset( new CurveFunction() );
+  _volumeMeasure->setUnits(RTX_LITER);
+  _volumeMeasure->setSource(_levelMeasure);
+  _volumeMeasure->setName(name + " volume measure");
   
-  FirstDerivative::sharedPointer flowDerivative( new FirstDerivative() );
-  flowDerivative->setUnits(RTX_LITER_PER_SECOND);
-  flowDerivative->setSource(_volume);
-  _flow = flowDerivative;
-  
+  _flowMeasure.reset( new FirstDerivative() );
+  _flowMeasure->setUnits(RTX_LITER_PER_SECOND);
+  _flowMeasure->setSource(_volumeMeasure);
+  _flowMeasure->setName(name + " flow measure");
 }
 
 Tank::~Tank() {
   
 }
 
+
 void Tank::setElevation(double elevation) {
   Node::setElevation(elevation);
   // re-set the elevation offset for the level timeseries
   _level->setOffset(-elevation);
+  _levelMeasure->setOffset(-elevation);
 }
 
 void Tank::setLevelMeasure(TimeSeries::sharedPointer levelMeasure) {
+  std::cout << "oops, depricated" << std::endl;
   
-  OffsetTimeSeries::sharedPointer headMeasureTs(new OffsetTimeSeries());
-  headMeasureTs->setUnits(levelMeasure->units());
-  headMeasureTs->setName(levelMeasure->name() + " (head)");
-  headMeasureTs->setClock(levelMeasure->clock());
-  headMeasureTs->setOffset(elevation());
-  headMeasureTs->setSource(levelMeasure);
+}
+
+void Tank::setHeadMeasure(TimeSeries::sharedPointer head) {
+  // base class method first
+  Junction::setHeadMeasure(head);
   
-  setHeadMeasure(headMeasureTs);
+  // now hook it up to the "measured" level->volume->flow chain.
+  // assumption about elevation units is made here.
+  // todo -- revise elevation units handling
+  _levelMeasure->setUnits(head->units());
+  _levelMeasure->setSource(head);
+  _levelMeasure->setClock(head->clock());
+  _volumeMeasure->setClock(head->clock());
+  _flowMeasure->setClock(head->clock());
+
 }
 
 

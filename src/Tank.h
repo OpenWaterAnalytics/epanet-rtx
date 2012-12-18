@@ -12,6 +12,7 @@
 #include "Junction.h"
 #include "OffsetTimeSeries.h"
 #include "CurveFunction.h"
+#include "FirstDerivative.h"
 
 namespace RTX {
   
@@ -22,12 +23,17 @@ namespace RTX {
     Tank(const std::string& name);
     virtual ~Tank();
     
-    void setLevelMeasure(TimeSeries::sharedPointer level);
-    
+    void setGeometry(std::vector< std::pair<double,double> > levelVolumePoints, Units levelUnits, Units volumeUnits); 
     void setElevation(double elevation);
     bool doesResetLevel();
     void setLevelResetClock(Clock::sharedPointer clock);
     Clock::sharedPointer levelResetClock();
+    
+    // parameters
+    void setLevelMeasure(TimeSeries::sharedPointer level);
+    TimeSeries::sharedPointer levelMeasure();
+    // override parameters
+    virtual void setHeadMeasure(TimeSeries::sharedPointer head);
     
     // states
     TimeSeries::sharedPointer level(); // directly related to head
@@ -36,8 +42,9 @@ namespace RTX {
     
   private:
     OffsetTimeSeries::sharedPointer _level;
-    CurveFunction::sharedPointer _volume;
-    TimeSeries::sharedPointer _flow;
+    OffsetTimeSeries::sharedPointer _levelMeasure;
+    CurveFunction::sharedPointer _volumeMeasure;
+    FirstDerivative::sharedPointer _flowMeasure;
     Clock::sharedPointer _resetLevel;
     double _minimumHead, _maximumHead;
     bool _doesResetLevel;

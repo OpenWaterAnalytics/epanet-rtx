@@ -118,7 +118,7 @@ void MysqlPointRecord::connect() throw(RtxException) {
     //string rangeSelect = "SELECT time, value FROM " + tableName + " WHERE series_id = ? AND time > ? AND time <= ?";
     string preamble = "SELECT time, value FROM points INNER JOIN timeseries_meta USING (series_id) WHERE name = ? AND ";
     string singleSelect = preamble + "time = ?";
-    string rangeSelect = preamble + "time > ? AND time <= ?";
+    string rangeSelect = preamble + "time >= ? AND time <= ?";
     string nextSelect = preamble + "time > ? LIMIT 1";
     string prevSelect = preamble + "time < ? LIMIT 1";
     string singleInsert = "INSERT INTO points (time, series_id, value) SELECT ?,series_id,? FROM timeseries_meta WHERE name = ?";

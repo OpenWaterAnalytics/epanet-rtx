@@ -48,14 +48,17 @@ Point CurveFunction::point(time_t time) {
   // get the appropriate point from the source.
   // unfortunately, this is mostly copied from ModularTimeSeries:: -- but we have to modify it for the unit checking
   Point sourcePoint;
-  time = clock()->validTime(time);
+  if (clock()->isRegular()) {
+    time = clock()->validTime(time);
+  }
   if (TimeSeries::isPointAvailable(time)) {
     return TimeSeries::point(time);
   }
   else {
     if (source()->isPointAvailable(time)) {
       // create a new point object converted from source units
-      sourcePoint = Point::convertPoint(source()->point(time), source()->units(), _inputUnits);
+      Point inputPoint = source()->point(time);
+      sourcePoint = Point::convertPoint(inputPoint, source()->units(), _inputUnits);
     }
     else {
       std::cerr << "check point availability first\n";

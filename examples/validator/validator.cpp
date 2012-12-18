@@ -31,7 +31,7 @@ int main (int argc, const char * argv[])
   long duration = 60 * 60 * 24; // 1 day
   
   // test the forward synthetic simulation
-  runSimulationUsingConfig(forwardSimulationConfig, someTime, duration);
+  //runSimulationUsingConfig(forwardSimulationConfig, someTime-3600, duration+7200);
   
   // test the real-time methods
   runSimulationUsingConfig(realtimeConfig, someTime, duration);
@@ -62,6 +62,8 @@ void runSimulationUsingConfig(const string& filePath, time_t someTime, long dura
     record->reset();
   
     model->runExtendedPeriod(someTime, someTime + duration);
+    
+    cout << "... done" << endl;
     
   } catch (string err) {
     cerr << err << endl;

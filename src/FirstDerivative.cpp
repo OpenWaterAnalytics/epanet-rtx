@@ -46,32 +46,33 @@ Point FirstDerivative::point(time_t time) {
   // return obj
   Point point;
 
-  // check the requested time for validity...
+  /* check the requested time for validity...
   if ( !(clock()->isValid(time)) ) {
     // if the time is not valid, rewind until a valid time is reached.
     time = clock()->timeBefore(time);
   }
-  
+  */
   if (TimeSeries::isPointAvailable(time)) {
     return TimeSeries::point(time);
   }
   else {
+    std::pair<Point,Point> adjacent = source()->adjacentPoints(time);
+    Point secondPoint;
     if (source()->isPointAvailable(time)) {
-      Point secondPoint = source()->point(time);
-      Point firstPoint = source()->point( source()->clock()->timeBefore(time) );
-      if (!firstPoint.isValid()) {
-        firstPoint = Point();
-      }
-      time_t dt = secondPoint.time() - firstPoint.time();
-      double dv = secondPoint.value() - firstPoint.value();
-      double dvdt = Units::convertValue(dv, source()->units() / RTX_SECOND, this->units()) / double(dt);
-      point = Point(time, dvdt);
-      insert(point);
+      secondPoint = source()->point(time);
     }
     else {
-      std::cerr << "no point - check availability first\n";
-      // TODO -- throw something? reminder to check point availability first...
+      secondPoint = adjacent.second;
     }
+    Point firstPoint = adjacent.first;
+    if (!firstPoint.isValid()) {
+      firstPoint = Point();
+    }
+    time_t dt = secondPoint.time() - firstPoint.time();
+    double dv = secondPoint.value() - firstPoint.value();
+    double dvdt = Units::convertValue(dv / double(dt), source()->units() / RTX_SECOND, this->units());
+    point = Point(time, dvdt);
+    insert(point);
   }
   return point;
 }

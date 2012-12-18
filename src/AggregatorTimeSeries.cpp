@@ -68,7 +68,8 @@ Point AggregatorTimeSeries::point(time_t time) {
     typedef std::pair< TimeSeries::sharedPointer, double > tsPair_t;
     BOOST_FOREACH(tsPair_t tsPair , _tsList) {
       double multiplier;
-      Point thisPoint = Point::convertPoint(tsPair.first->point(time), tsPair.first->units(), units());
+      Point sourcePoint = tsPair.first->point(time);
+      Point thisPoint = Point::convertPoint(sourcePoint, tsPair.first->units(), units());
       multiplier = tsPair.second;
       aPoint += ( thisPoint * multiplier );
     }

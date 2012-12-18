@@ -73,7 +73,9 @@ bool comparePoints(const Point& lhs, const Point& rhs) {
 
 bool PointContainer::isPointAvailable(time_t time) {
   bool isAvailable = false;
-  
+  if (time == 0) {
+    return false;
+  }
   if (time == _cachedPoint.time()) {
     return true;
   }
@@ -81,9 +83,18 @@ bool PointContainer::isPointAvailable(time_t time) {
   Point finder(time, 0);
   
   _bufferMutex.lock();
+  
+  // debugging
+  std::cout << "Looking for " << time << " -- points in buffer: " << std::endl;
+  BOOST_FOREACH(Point aPoint, _buffer) {
+    std::cout << aPoint << endl;
+  }
+  
+  
   PointBuffer_t::iterator it = std::lower_bound(_buffer.begin(), _buffer.end(), finder, comparePoints);
   if (it != _buffer.end() && it->time() == time) {
     isAvailable = true;
+    std::cout << "*** FOUND" << std::endl;
     _cachedPoint = makePoint(it);
   }
   _bufferMutex.unlock();
@@ -174,14 +185,19 @@ long int PointContainer::numberOfPoints() {
 
 
 void PointContainer::insertPoint(Point point) {
-  
-  _bufferMutex.lock();
-  PointBuffer_t::iterator endPosition = _buffer.end();
-  if (_buffer.size() > 0) {
-    endPosition--;
+  if (point.isValid() && point.time() != 0) {
+    _bufferMutex.lock();
+    //PointBuffer_t::iterator endPosition = _buffer.end();
+    //if (_buffer.size() > 0) {
+    //  endPosition--;
+    //}
+    _buffer.push_back(point);
+    _bufferMutex.unlock();
   }
-  _buffer.push_back(point);
-  _bufferMutex.unlock();
+  else {
+    cerr << "cannot insert invalid point" << endl;
+  }
+  
 }
 
 void PointContainer::insertPoints(std::vector<Point> points) {

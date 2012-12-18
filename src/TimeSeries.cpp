@@ -220,6 +220,8 @@ Clock::sharedPointer TimeSeries::clock() {
 }
 
 void TimeSeries::setUnits(Units newUnits) {
+  // changing units means the values here are no good anymore.
+  this->resetCache();
   _units = newUnits;
 }
 

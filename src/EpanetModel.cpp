@@ -27,7 +27,7 @@ EpanetModel::~EpanetModel() {
 #pragma mark - Loading
 
 void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxException) {
-  
+  Units volumeUnits(0);
   // base class invocation
   Model::loadModelFromFile(filename);
   
@@ -94,9 +94,11 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxExcept
     
     if (isSI) {
       setHeadUnits(RTX_METER);
+      volumeUnits = RTX_LITER;
     }
     else {
       setHeadUnits(RTX_FOOT);
+      volumeUnits = RTX_GALLON;
     }
     
     // create nodes
@@ -120,6 +122,7 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxExcept
       
       CurveFunction::sharedPointer volumeCurveTs;
       
+
       switch (nodeType) {
         case EN_TANK:
           newTank.reset( new Tank(nodeName) );
@@ -128,9 +131,10 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxExcept
           
           addTank(newTank);
           newTank->level()->setUnits(headUnits());
-          newTank->flow()->setUnits(flowUnits());
-          volumeCurveTs = boost::static_pointer_cast<CurveFunction>(newTank->volume());
-          
+          newTank->flowMeasure()->setUnits(flowUnits());
+          volumeCurveTs = boost::static_pointer_cast<CurveFunction>(newTank->volumeMeasure());
+          volumeCurveTs->setInputUnits(headUnits());
+          volumeCurveTs->setUnits(volumeUnits);
           
           double volumeCurveIndex;
           ENcheck(ENgetnodevalue(iNode, EN_VOLCURVE, &volumeCurveIndex), "ENgetnodevalue EN_VOLCURVE");
