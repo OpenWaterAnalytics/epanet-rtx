@@ -10,7 +10,6 @@
 #define epanet_rtx_node_family_h
 
 #include "Element.h"
-#include "ConstantSeries.h"
 #include "AggregatorTimeSeries.h"
 
 namespace RTX {

@@ -11,12 +11,12 @@
 
 using namespace RTX;
 
-IrregularClock::IrregularClock(PointContainer::sharedPointer pointContainer) : Clock(0,0) {
-  if (pointContainer) {
-    _pointContainer = pointContainer;
+IrregularClock::IrregularClock(PointRecord::sharedPointer pointRecord, std::string name) : Clock(0,0), _name(name) {
+  if (pointRecord) {
+    _pointRecord = pointRecord;
   }
   else {
-    std::cerr << "could not construct IrregularClock object: no pointContainer provided\n";
+    std::cerr << "could not construct IrregularClock object: no Point Record provided\n";
   }
   
 }
@@ -33,7 +33,7 @@ bool IrregularClock::isCompatibleWith(Clock::sharedPointer clock) {
 }
 
 bool IrregularClock::isValid(time_t time) {
-  if (_pointContainer->isPointAvailable(time)) {
+  if (_pointRecord->isPointAvailable(_name, time)) {
     return true;
   }
   else {
@@ -44,7 +44,7 @@ bool IrregularClock::isValid(time_t time) {
 
 time_t IrregularClock::timeAfter(time_t time) {
   Point aPoint;
-  aPoint = _pointContainer->pointAfter(time);
+  aPoint = _pointRecord->pointAfter(_name, time);
   if (aPoint.isValid()) {
     return aPoint.time();
   }
@@ -57,7 +57,7 @@ time_t IrregularClock::timeAfter(time_t time) {
 
 time_t IrregularClock::timeBefore(time_t time) {
   Point aPoint;
-  aPoint = _pointContainer->pointBefore(time);
+  aPoint = _pointRecord->pointBefore(_name, time);
   if (aPoint.isValid()) {
     return aPoint.time();
   }
@@ -72,7 +72,7 @@ time_t IrregularClock::timeBefore(time_t time) {
 
 #pragma mark - Protected Methods
 std::ostream& IrregularClock::toStream(std::ostream &stream) {
-  stream << "Irregular Clock based on PointContainer:\n";
-  stream << *_pointContainer;
+  stream << "Irregular Clock based on Point Record:\n";
+  stream << *_pointRecord;
   return stream;
 }

@@ -14,7 +14,6 @@
 #include "AggregatorTimeSeries.h"
 #include "MovingAverage.h"
 #include "Resampler.h"
-#include "ConstantSeries.h"
 #include "FirstDerivative.h"
 #include "PointRecord.h"
 #include "ScadaPointRecord.h"
@@ -35,13 +34,11 @@ ConfigFactory::ConfigFactory() {
   _pointRecordPointerMap.insert(std::make_pair("MySQL", &ConfigFactory::createMySqlPointRecord));
   
   //_clockPointerMap.insert(std::make_pair("regular", &ConfigFactory::createRegularClock));
-  //_clockPointerMap.insert(std::make_pair("irregular", &ConfigFactory::createIrregularClock));
   
   _timeSeriesPointerMap.insert(std::make_pair("TimeSeries", &ConfigFactory::createTimeSeries));
   _timeSeriesPointerMap.insert(std::make_pair("MovingAverage", &ConfigFactory::createMovingAverage));
   _timeSeriesPointerMap.insert(std::make_pair("Aggregator", &ConfigFactory::createAggregator));
   _timeSeriesPointerMap.insert(std::make_pair("Resample", &ConfigFactory::createResampler));
-  _timeSeriesPointerMap.insert(std::make_pair("Constant", &ConfigFactory::createConstant));
   _timeSeriesPointerMap.insert(std::make_pair("Derivative", &ConfigFactory::createDerivative));
   _timeSeriesPointerMap.insert(std::make_pair("Offset", &ConfigFactory::createOffset));
   
@@ -367,6 +364,18 @@ void ConfigFactory::setGenericTimeSeriesProperties(TimeSeries::sharedPointer tim
   string myName = setting["name"];
   timeSeries->setName(myName);
   
+  Units theUnits(RTX_DIMENSIONLESS);
+  if (setting.exists("units")) {
+    string unitName = setting["units"];
+    theUnits = Units::unitOfType(unitName);
+  }
+  timeSeries->setUnits(theUnits);
+  
+  if (setting.exists("clock")) {
+    Clock::sharedPointer clock = _clockList[setting["clock"]];
+    timeSeries->setClock(clock);
+  }
+  
   // if a pointRecord is specified, then re-set the timeseries' cache.
   // this means that the storage for the time series is probably external (scada / mysql).
   if (setting.exists("pointRecord")) {
@@ -376,11 +385,6 @@ void ConfigFactory::setGenericTimeSeriesProperties(TimeSeries::sharedPointer tim
     timeSeries->newCacheWithPointRecord(pointRecord);
   }
   
-  if (setting.exists("clock")) {
-    Clock::sharedPointer clock = _clockList[setting["clock"]];
-    timeSeries->setClock(clock);
-  }
-  
   // set any upstream sources. forward declarations are allowed, as these will be set only after all timeseries objects have been created.
   if (setting.exists("source")) {
     // this timeseries has an upstream source.
@@ -388,14 +392,9 @@ void ConfigFactory::setGenericTimeSeriesProperties(TimeSeries::sharedPointer tim
     _timeSeriesSourceList[myName] = sourceName;
   }
   
-  // TODO -- units, description field
+  // TODO -- description field
   
-  Units theUnits(RTX_DIMENSIONLESS);
-  if (setting.exists("units")) {
-    string unitName = setting["units"];
-    theUnits = Units::unitOfType(unitName);
-  }
-  timeSeries->setUnits(theUnits);
+  
   
 }
 
@@ -451,14 +450,6 @@ TimeSeries::sharedPointer ConfigFactory::createResampler(libconfig::Setting &set
   Resampler::sharedPointer resampler( new Resampler() );
   setGenericTimeSeriesProperties(resampler, setting);
   return resampler;
-}
-
-TimeSeries::sharedPointer ConfigFactory::createConstant(libconfig::Setting &setting) {
-  ConstantSeries::sharedPointer constant( new ConstantSeries() );
-  setGenericTimeSeriesProperties(constant, setting);
-  double value = setting["value"];
-  constant->setValue(value);
-  return constant;
 }
 
 TimeSeries::sharedPointer ConfigFactory::createDerivative(Setting &setting) {

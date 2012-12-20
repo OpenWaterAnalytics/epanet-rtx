@@ -9,8 +9,6 @@
  Reading         	0           	100         	                	;
  Mills           	0           	1000        	stepdemand      	;
  Vine            	0           	50          	                	;
- Source          	0           	0           	                	;
- SimulationSource	0           	0           	                	;
 
 [RESERVOIRS]
 ;ID              	Head        	Pattern         
@@ -22,15 +20,13 @@
 
 [PIPES]
 ;ID              	Node1           	Node2           	Length      	Diameter    	Roughness   	MinorLoss   	Status
- ReservoirCheckValve	Resr            	SimulationSource	10          	4           	100         	0           	CV    	;
+ ReservoirCheckValve	Resr            	TreatmentPlant  	10          	4           	100         	0           	CV    	;
  2               	TreatmentPlant  	Montgomery      	3           	6           	100         	0           	Open  	;
  3               	Montgomery      	Tennessee       	6           	6           	100         	0           	Open  	;
  4               	Tennessee       	Reading         	12          	6           	100         	0           	Open  	;
  5               	Reading         	Mills           	24          	6           	100         	0           	Open  	;
  NewportTankPipe 	Tennessee       	NewportTank     	50          	3           	100         	0           	Open  	;
  1               	Reading         	Vine            	50          	6           	100         	0           	Open  	;
- SourcePipe      	Source          	TreatmentPlant  	10          	100         	100         	0           	Open  	;
- SimulationSourcePipe	SimulationSource	TreatmentPlant  	10          	100         	100         	0           	Closed	;
 
 [PUMPS]
 ;ID              	Node1           	Node2           	Parameters
@@ -56,11 +52,12 @@
 ;ID              	X-Value     	Y-Value
 
 [CONTROLS]
-LINK SourcePipe CLOSED AT TIME 0
-LINK SimulationSourcePipe OPEN AT TIME 0
+
+
 
 
 [RULES]
+
 
 
 [ENERGY]
@@ -135,9 +132,7 @@ LINK SimulationSourcePipe OPEN AT TIME 0
  Reading         	6352.85         	6946.20         
  Mills           	10226.04        	6943.94         
  Vine            	6356.24         	5063.29         
- Source          	-2034.36        	6202.53         
- SimulationSource	-1509.95        	7341.77         
- Resr            	-2016.27        	7830.02         
+ Resr            	-2414.20        	6923.08         
  NewportTank     	3209.76         	8318.26         
 
 [VERTICES]

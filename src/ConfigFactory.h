@@ -101,7 +101,6 @@ namespace RTX {
     TimeSeries::sharedPointer createMovingAverage(Setting& setting);
     TimeSeries::sharedPointer createAggregator(Setting& setting);
     TimeSeries::sharedPointer createResampler(Setting &setting);
-    TimeSeries::sharedPointer createConstant(Setting &setting);
     TimeSeries::sharedPointer createDerivative(Setting &setting);
     TimeSeries::sharedPointer createOffset(Setting &setting);
     

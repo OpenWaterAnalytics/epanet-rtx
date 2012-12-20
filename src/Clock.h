@@ -25,9 +25,7 @@ namespace RTX {
    Every Time Series object needs a clock. Whether the clock is based on an (offset,period) or based on a PointRecord, this clock needs to exist. By default, a TimeSeries' clock is irregular, and gets its pattern from the TS's PointRecord - the result of this is that the clock will show a valid time only for points that exist in the record. The other way to do this is to set a (offset,period) for the clock, and the result will be that the TimeSeries will only retrieve / store points on valid regular timesteps. In the first case, the PointRecord is the master synchronizer, and in the second case the Clock is the master synchronizer.
    
    A reason for structuring it this (perhaps confusing) way is that it simplifies the implementation of TimeSeries, which is already quite complex. A TimeSeries-derived class can just depend on its clock to help it retrieve points. Whether the clock is synchronized manually or by a PointRecord is transparent to the user.
-   
-   A big TODO item -- what happens when an IrregularClock runs out of PointContainer data, as at the edges? specifically, what are the return values for timeBefore and timeAfter ?
-   
+      
    */
   
   /*! 

@@ -24,15 +24,12 @@
 		221E2F00149A43A3000860C2 /* ModularTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221E2EFF149A43A3000860C2 /* ModularTimeSeries.cpp */; };
 		22253D8F16022FB6002F7256 /* CurveFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22253D8D16022FB6002F7256 /* CurveFunction.cpp */; };
 		222FDDD615C1BC2F0065DAF6 /* FirstDerivative.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */; };
-		2235EA5014965F8100D89E6A /* PersistentContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2235EA4F14965F8100D89E6A /* PersistentContainer.cpp */; };
-		223DC715148E86F000EF2B0C /* PointContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = 223DC714148E86F000EF2B0C /* PointContainer.h */; };
-		2243412414E17FE100F26BFE /* IrregularClock.h in Headers */ = {isa = PBXBuildFile; fileRef = 2243412314E17FE100F26BFE /* IrregularClock.h */; };
-		2243412614E1802800F26BFE /* IrregularClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2243412514E1802800F26BFE /* IrregularClock.cpp */; };
 		2246439E150BD6E0005EA3BA /* Node.h in Headers */ = {isa = PBXBuildFile; fileRef = 2246439D150BD6E0005EA3BA /* Node.h */; };
 		224643A1150BD72E005EA3BA /* Link.h in Headers */ = {isa = PBXBuildFile; fileRef = 224643A0150BD72E005EA3BA /* Link.h */; };
 		224B19A0152CA1760051F408 /* ConfigFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 224B199F152CA1760051F408 /* ConfigFactory.h */; };
 		224B19A2152CA7510051F408 /* ConfigFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224B19A1152CA7510051F408 /* ConfigFactory.cpp */; };
-		22535245148FDB7D00C18C11 /* PointContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22535244148FDB7D00C18C11 /* PointContainer.cpp */; };
+		2251DCA6168105AA00515EBF /* IrregularClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2251DCA4168105AA00515EBF /* IrregularClock.cpp */; };
+		2251DCA7168105AA00515EBF /* IrregularClock.h in Headers */ = {isa = PBXBuildFile; fileRef = 2251DCA5168105AA00515EBF /* IrregularClock.h */; };
 		225D719F1497F96C00B90F6D /* MysqlPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */; };
 		226861C914716D2A000DDDEF /* Units.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 226861C814716D2A000DDDEF /* Units.cpp */; };
 		22707A9616309D4100FEB4DD /* OffsetTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22707A9416309D4000FEB4DD /* OffsetTimeSeries.cpp */; };
@@ -43,7 +40,6 @@
 		2280409B158F82EF004222DA /* Pump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409A158F82EE004222DA /* Pump.cpp */; };
 		2280409D158F8326004222DA /* Valve.h in Headers */ = {isa = PBXBuildFile; fileRef = 2280409C158F8326004222DA /* Valve.h */; };
 		2280409F158F8352004222DA /* Valve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409E158F8351004222DA /* Valve.cpp */; };
-		228337C414B4CAEA006A7A34 /* PersistentContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = 228337C314B4CAEA006A7A34 /* PersistentContainer.h */; };
 		22909B3A147DDCEB00945449 /* EpanetModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 22909B39147DDCEB00945449 /* EpanetModel.h */; };
 		22909B3C147DDE2A00945449 /* EpanetModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22909B3B147DDE2A00945449 /* EpanetModel.cpp */; };
 		229D1BD715FE3DFF000B4C94 /* libboost_filesystem.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 229D1BD615FE3DFF000B4C94 /* libboost_filesystem.dylib */; };
@@ -95,8 +91,6 @@
 		22ED77D615878953002D67F1 /* Tank.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22ED77D515878953002D67F1 /* Tank.cpp */; };
 		22ED77D81587898D002D67F1 /* Reservoir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22ED77D71587898D002D67F1 /* Reservoir.cpp */; };
 		22EFA1BD1471CEC4001102E0 /* rtxMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 22EFA1BC1471CEC4001102E0 /* rtxMacros.h */; };
-		22FC32B5150A93D400930A0A /* ConstantSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FC32B4150A93D400930A0A /* ConstantSeries.h */; };
-		22FC32B8150A94A300930A0A /* ConstantSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22FC32B7150A94A300930A0A /* ConstantSeries.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -167,15 +161,12 @@
 		222A41CF1511173C0012D2A5 /* vars.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = vars.h; path = ../../src/epanet/src/vars.h; sourceTree = "<group>"; };
 		222FDDD315C1BBE90065DAF6 /* FirstDerivative.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FirstDerivative.h; path = ../../src/FirstDerivative.h; sourceTree = "<group>"; };
 		222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FirstDerivative.cpp; path = ../../src/FirstDerivative.cpp; sourceTree = "<group>"; };
-		2235EA4F14965F8100D89E6A /* PersistentContainer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PersistentContainer.cpp; path = ../../src/PersistentContainer.cpp; sourceTree = "<group>"; };
-		223DC714148E86F000EF2B0C /* PointContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PointContainer.h; path = ../../src/PointContainer.h; sourceTree = "<group>"; };
-		2243412314E17FE100F26BFE /* IrregularClock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IrregularClock.h; path = ../../src/IrregularClock.h; sourceTree = "<group>"; };
-		2243412514E1802800F26BFE /* IrregularClock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IrregularClock.cpp; path = ../../src/IrregularClock.cpp; sourceTree = "<group>"; };
 		2246439D150BD6E0005EA3BA /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../../src/Node.h; sourceTree = "<group>"; };
 		224643A0150BD72E005EA3BA /* Link.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Link.h; path = ../../src/Link.h; sourceTree = "<group>"; };
 		224B199F152CA1760051F408 /* ConfigFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConfigFactory.h; path = ../../src/ConfigFactory.h; sourceTree = "<group>"; };
 		224B19A1152CA7510051F408 /* ConfigFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConfigFactory.cpp; path = ../../src/ConfigFactory.cpp; sourceTree = "<group>"; };
-		22535244148FDB7D00C18C11 /* PointContainer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PointContainer.cpp; path = ../../src/PointContainer.cpp; sourceTree = "<group>"; };
+		2251DCA4168105AA00515EBF /* IrregularClock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IrregularClock.cpp; path = ../../src/IrregularClock.cpp; sourceTree = "<group>"; };
+		2251DCA5168105AA00515EBF /* IrregularClock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IrregularClock.h; path = ../../src/IrregularClock.h; sourceTree = "<group>"; };
 		225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MysqlPointRecord.cpp; path = ../../src/MysqlPointRecord.cpp; sourceTree = "<group>"; };
 		226861C814716D2A000DDDEF /* Units.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Units.cpp; path = ../../src/Units.cpp; sourceTree = "<group>"; };
 		22707A9416309D4000FEB4DD /* OffsetTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OffsetTimeSeries.cpp; path = ../../src/OffsetTimeSeries.cpp; sourceTree = "<group>"; };
@@ -190,7 +181,6 @@
 		2281A75D15A744E60018EC0F /* DbPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DbPointRecord.h; path = ../../src/DbPointRecord.h; sourceTree = "<group>"; };
 		2281A75E15A7451F0018EC0F /* MysqlPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MysqlPointRecord.h; path = ../../src/MysqlPointRecord.h; sourceTree = "<group>"; };
 		2281A75F15A745520018EC0F /* ScadaPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScadaPointRecord.h; path = ../../src/ScadaPointRecord.h; sourceTree = "<group>"; };
-		228337C314B4CAEA006A7A34 /* PersistentContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PersistentContainer.h; path = ../../src/PersistentContainer.h; sourceTree = "<group>"; };
 		22909B39147DDCEB00945449 /* EpanetModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EpanetModel.h; path = ../../src/EpanetModel.h; sourceTree = "<group>"; };
 		22909B3B147DDE2A00945449 /* EpanetModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetModel.cpp; path = ../../src/EpanetModel.cpp; sourceTree = "<group>"; };
 		229D1BD615FE3DFF000B4C94 /* libboost_filesystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_filesystem.dylib; path = /usr/local/lib/libboost_filesystem.dylib; sourceTree = "<absolute>"; };
@@ -226,8 +216,6 @@
 		22ED77D515878953002D67F1 /* Tank.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Tank.cpp; path = ../../src/Tank.cpp; sourceTree = "<group>"; };
 		22ED77D71587898D002D67F1 /* Reservoir.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Reservoir.cpp; path = ../../src/Reservoir.cpp; sourceTree = "<group>"; };
 		22EFA1BC1471CEC4001102E0 /* rtxMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rtxMacros.h; path = ../../src/rtxMacros.h; sourceTree = "<group>"; };
-		22FC32B4150A93D400930A0A /* ConstantSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConstantSeries.h; path = ../../src/ConstantSeries.h; sourceTree = "<group>"; };
-		22FC32B7150A94A300930A0A /* ConstantSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConstantSeries.cpp; path = ../../src/ConstantSeries.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -312,17 +300,6 @@
 			children = (
 			);
 			name = TRASH;
-			sourceTree = "<group>";
-		};
-		22535242148FD6B000C18C11 /* Point Container Classes */ = {
-			isa = PBXGroup;
-			children = (
-				223DC714148E86F000EF2B0C /* PointContainer.h */,
-				22535244148FDB7D00C18C11 /* PointContainer.cpp */,
-				228337C314B4CAEA006A7A34 /* PersistentContainer.h */,
-				2235EA4F14965F8100D89E6A /* PersistentContainer.cpp */,
-			);
-			name = "Point Container Classes";
 			sourceTree = "<group>";
 		};
 		226861C414715E53000DDDEF /* units */ = {
@@ -428,12 +405,9 @@
 			children = (
 				226861C414715E53000DDDEF /* units */,
 				22C62B08143A205B00841E60 /* points */,
-				22535242148FD6B000C18C11 /* Point Container Classes */,
 				22C62ACA1439ED9F00841E60 /* point record classes */,
 				22C62ADA1439EE0B00841E60 /* TimeSeries.h */,
 				22C62AD91439EE0B00841E60 /* TimeSeries.cpp */,
-				22FC32B4150A93D400930A0A /* ConstantSeries.h */,
-				22FC32B7150A94A300930A0A /* ConstantSeries.cpp */,
 				221E2EFD149A42F0000860C2 /* ModularTimeSeries.h */,
 				221E2EFF149A43A3000860C2 /* ModularTimeSeries.cpp */,
 				22707A9516309D4100FEB4DD /* OffsetTimeSeries.h */,
@@ -537,8 +511,8 @@
 			children = (
 				22A4B41814E1B93D006D01C3 /* Clock.h */,
 				22B7154D14DC2C2C00041167 /* Clock.cpp */,
-				2243412314E17FE100F26BFE /* IrregularClock.h */,
-				2243412514E1802800F26BFE /* IrregularClock.cpp */,
+				2251DCA5168105AA00515EBF /* IrregularClock.h */,
+				2251DCA4168105AA00515EBF /* IrregularClock.cpp */,
 			);
 			name = "time classes";
 			sourceTree = "<group>";
@@ -561,13 +535,9 @@
 				220AE466145B0A8F002F07B4 /* Zone.h in Headers */,
 				22EFA1BD1471CEC4001102E0 /* rtxMacros.h in Headers */,
 				22909B3A147DDCEB00945449 /* EpanetModel.h in Headers */,
-				223DC715148E86F000EF2B0C /* PointContainer.h in Headers */,
 				221E2EFE149A42F0000860C2 /* ModularTimeSeries.h in Headers */,
-				228337C414B4CAEA006A7A34 /* PersistentContainer.h in Headers */,
 				22B7155014DC802300041167 /* Resampler.h in Headers */,
-				2243412414E17FE100F26BFE /* IrregularClock.h in Headers */,
 				22A4B41914E1B93D006D01C3 /* Clock.h in Headers */,
-				22FC32B5150A93D400930A0A /* ConstantSeries.h in Headers */,
 				2246439E150BD6E0005EA3BA /* Node.h in Headers */,
 				224643A1150BD72E005EA3BA /* Link.h in Headers */,
 				224B19A0152CA1760051F408 /* ConfigFactory.h in Headers */,
@@ -580,6 +550,7 @@
 				2280409D158F8326004222DA /* Valve.h in Headers */,
 				22E2962C16010A65003D378A /* Units.h in Headers */,
 				22707A9716309D4100FEB4DD /* OffsetTimeSeries.h in Headers */,
+				2251DCA7168105AA00515EBF /* IrregularClock.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -701,14 +672,10 @@
 				220AE475145B2A28002F07B4 /* Zone.cpp in Sources */,
 				226861C914716D2A000DDDEF /* Units.cpp in Sources */,
 				22909B3C147DDE2A00945449 /* EpanetModel.cpp in Sources */,
-				22535245148FDB7D00C18C11 /* PointContainer.cpp in Sources */,
-				2235EA5014965F8100D89E6A /* PersistentContainer.cpp in Sources */,
 				225D719F1497F96C00B90F6D /* MysqlPointRecord.cpp in Sources */,
 				221E2F00149A43A3000860C2 /* ModularTimeSeries.cpp in Sources */,
 				22B7154E14DC2C2C00041167 /* Clock.cpp in Sources */,
 				22B7155214DC813800041167 /* Resampler.cpp in Sources */,
-				2243412614E1802800F26BFE /* IrregularClock.cpp in Sources */,
-				22FC32B8150A94A300930A0A /* ConstantSeries.cpp in Sources */,
 				224B19A2152CA7510051F408 /* ConfigFactory.cpp in Sources */,
 				22DEE91C153F5C44008F75AE /* PointRecord.cpp in Sources */,
 				221A19CF1579112B00F0699E /* EpanetSyntheticModel.cpp in Sources */,
@@ -722,6 +689,7 @@
 				22BF02D315EBCABC00F66465 /* Point.cpp in Sources */,
 				22253D8F16022FB6002F7256 /* CurveFunction.cpp in Sources */,
 				22707A9616309D4100FEB4DD /* OffsetTimeSeries.cpp in Sources */,
+				2251DCA6168105AA00515EBF /* IrregularClock.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

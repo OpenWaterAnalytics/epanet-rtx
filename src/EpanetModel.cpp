@@ -98,7 +98,7 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxExcept
     }
     else {
       setHeadUnits(RTX_FOOT);
-      volumeUnits = RTX_GALLON;
+      volumeUnits = RTX_CUBIC_FOOT;
     }
     
     // create nodes

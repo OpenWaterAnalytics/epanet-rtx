@@ -15,10 +15,8 @@
 
 #include "rtxMacros.h"
 #include "Point.h"
-#include "PointContainer.h"
 #include "PointRecord.h"
 #include "Clock.h"
-#include "IrregularClock.h"
 #include "Units.h"
 
 namespace RTX {
@@ -45,16 +43,14 @@ namespace RTX {
     virtual Point pointAfter(time_t time);
     virtual std::vector< Point > points(time_t start, time_t end); // points in range
     virtual std::pair< Point, Point > adjacentPoints(time_t time); // adjacent points
-    virtual double value(time_t time);
-    virtual Point::Qual_t quality(time_t time);
     virtual time_t period();                              //! 1/frequency (# seconds between data points)
     virtual std::string name();
     
     // setters
     virtual void setName(const std::string& name);
-    void setCache(PointContainer::sharedPointer cache);
+    void setRecord(PointRecord::sharedPointer record);
     void newCacheWithPointRecord(PointRecord::sharedPointer pointRecord);
-    PointContainer::sharedPointer cache();
+    PointRecord::sharedPointer record();
     void resetCache();
     void setClock(Clock::sharedPointer clock);
     Clock::sharedPointer clock();
@@ -71,10 +67,9 @@ namespace RTX {
     virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
     
   private:
-    PointContainer::sharedPointer _points;
+    PointRecord::sharedPointer _points;
     std::string _name;
     int _cacheSize;
-    bool _hasClock;
     Clock::sharedPointer _clock;
     //TimeSeries::sharedPointer _source;
     // TODO -- units

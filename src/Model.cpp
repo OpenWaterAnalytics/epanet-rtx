@@ -293,11 +293,13 @@ std::vector<Valve::sharedPointer> Model::valves() {
 #pragma mark - Publicly Accessible Simulation Methods
 
 void Model::runSinglePeriod(time_t time) {
+  cerr << "whoops, not implemented" << endl;
+  
   time_t lastSimulationPeriod, boundaryReset, start;
   // to run a single period, we need boundary conditions.
   // so back up to either the most recent set of results, or the most recent boundary-reset event
   // (whichever is nearer) and simulate through the requested time.
-  lastSimulationPeriod = _masterClock->validTime(time);
+  //lastSimulationPeriod = _masterClock->validTime(time);
   boundaryReset = _boundaryResetClock->validTime(time);
   start = RTX_MAX(lastSimulationPeriod, boundaryReset);
   
@@ -388,11 +390,11 @@ void Model::setSimulationParameters(time_t time) {
     BOOST_FOREACH(Junction::sharedPointer junction, this->junctions()) {
       if (junction->doesHaveBoundaryFlow()) {
         // junction is separate from the allocation scheme
-        double demandValue = Units::convertValue(junction->boundaryFlow()->value(time), junction->boundaryFlow()->units(), flowUnits());
+        double demandValue = Units::convertValue(junction->boundaryFlow()->point(time).value(), junction->boundaryFlow()->units(), flowUnits());
         setJunctionDemand(junction->name(), demandValue);
       }
       else {
-        double demandValue = Units::convertValue(junction->demand()->value(time), junction->demand()->units(), flowUnits());
+        double demandValue = Units::convertValue(junction->demand()->point(time).value(), junction->demand()->units(), flowUnits());
         setJunctionDemand(junction->name(), demandValue);
       }
     }
@@ -401,14 +403,14 @@ void Model::setSimulationParameters(time_t time) {
   BOOST_FOREACH(Reservoir::sharedPointer reservoir, this->reservoirs()) {
     if (reservoir->doesHaveBoundaryHead()) {
       // get the head measurement parameter, and pass it through as a state.
-      double headValue = Units::convertValue(reservoir->boundaryHead()->value(time), reservoir->boundaryHead()->units(), headUnits());
+      double headValue = Units::convertValue(reservoir->boundaryHead()->point(time).value(), reservoir->boundaryHead()->units(), headUnits());
       setReservoirHead( reservoir->name(), headValue );
     }
   }
   // for tanks, set the boundary head, but only if the tank reset clock has fired.
   BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
     if (tank->doesResetLevel() && tank->levelResetClock()->isValid(time) && tank->doesHaveHeadMeasure()) {
-      double levelValue = Units::convertValue(tank->level()->value(time), tank->level()->units(), headUnits());
+      double levelValue = Units::convertValue(tank->level()->point(time).value(), tank->level()->units(), headUnits());
       setTankLevel(tank->name(), levelValue);
     }
   }
@@ -416,17 +418,17 @@ void Model::setSimulationParameters(time_t time) {
   // for valves, set status and setting
   BOOST_FOREACH(Valve::sharedPointer valve, this->valves()) {
     if (valve->doesHaveStatusParameter()) {
-      setPipeStatus( valve->name(), Pipe::status_t(valve->statusParameter()->value(time)) );
+      setPipeStatus( valve->name(), Pipe::status_t(valve->statusParameter()->point(time).value()) );
     }
     if (valve->doesHaveSettingParameter()) {
-      setValveSetting( valve->name(), valve->settingParameter()->value(time) );
+      setValveSetting( valve->name(), valve->settingParameter()->point(time).value() );
     }
   }
   
   // for pumps, set status
   BOOST_FOREACH(Pump::sharedPointer pump, this->pumps()) {
     if (pump->doesHaveStatusParameter()) {
-      setPumpStatus( pump->name(), Pipe::status_t(pump->statusParameter()->value(time)) );
+      setPumpStatus( pump->name(), Pipe::status_t(pump->statusParameter()->point(time).value()) );
     }
   }
   
@@ -484,6 +486,13 @@ void Model::saveHydraulicStates(time_t time) {
     flow = Units::convertValue(pipeFlow(pipe->name()), flowUnits(), pipe->flow()->units());
     Point aPoint(time, flow, Point::good);
     pipe->flow()->insert(aPoint);
+  }
+  
+  BOOST_FOREACH(Valve::sharedPointer valve, valves()) {
+    double flow;
+    flow = Units::convertValue(pipeFlow(valve->name()), flowUnits(), valve->flow()->units());
+    Point aPoint(time, flow, Point::good);
+    valve->flow()->insert(aPoint);
   }
   
   // pump energy

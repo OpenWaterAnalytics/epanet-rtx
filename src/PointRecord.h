@@ -64,30 +64,33 @@ namespace RTX {
     virtual ~PointRecord() {};
     
     virtual std::string registerAndGetIdentifier(std::string recordName);    // registering record names.
-    virtual std::vector<std::string> identifiers()=0;
-    virtual void hintAtRange(const string& identifier, time_t start, time_t end)=0;   // prepare to retrieve range of values
+    virtual std::vector<std::string> identifiers();
+    virtual void hintAtRange(const string& identifier, time_t start, time_t end);   // prepare to retrieve range of values
     
-    virtual bool isPointAvailable(const string& identifier, time_t time) { return false; };
-    virtual Point point(const string& identifier, time_t time)=0;
-    virtual Point pointBefore(const string& identifier, time_t time)=0;
-    virtual Point pointAfter(const string& identifier, time_t time)=0;
-    virtual std::vector<Point> pointsInRange(const string& identifier, time_t startTime, time_t endTime)=0;
-    virtual void addPoint(const string& identifier, Point point)=0;
-    virtual void addPoints(const string& identifier, std::vector<Point> points)=0;
-    virtual void reset()=0;
+    virtual bool isPointAvailable(const string& identifier, time_t time);
+    virtual Point point(const string& identifier, time_t time);
+    virtual Point pointBefore(const string& identifier, time_t time);
+    virtual Point pointAfter(const string& identifier, time_t time);
+    virtual std::vector<Point> pointsInRange(const string& identifier, time_t startTime, time_t endTime);
+    virtual void addPoint(const string& identifier, Point point);
+    virtual void addPoints(const string& identifier, std::vector<Point> points);
+    virtual void reset();
     
     void setConnectionString(const std::string& connection);
     const std::string& connectionString();
-    virtual void connect() throw(RtxException) = 0;
-    virtual bool isConnected() = 0;
+    virtual void connect() throw(RtxException){};
+    virtual bool isConnected(){return true;};
     
     virtual std::ostream& toStream(std::ostream &stream);
 
   protected:
     int identifierForName(std::string recordName);
     string nameForIdentifier(int identifier);
+    typedef std::map<time_t, Point> pointMap_t;
+    typedef std::map< int, pointMap_t> keyedPointMap_t;
     
   private:
+    keyedPointMap_t _points;
     std::map< std::string, int > _keys;
     std::map< int, std::string > _names;
     int _nextKey;

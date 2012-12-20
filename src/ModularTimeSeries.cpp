@@ -11,6 +11,7 @@
 #include "ModularTimeSeries.h"
 
 using namespace RTX;
+using namespace std;
 
 ModularTimeSeries::ModularTimeSeries() : TimeSeries::TimeSeries() {
   _doesHaveSource = false;
@@ -20,7 +21,7 @@ ModularTimeSeries::~ModularTimeSeries() {
   
 }
 
-std::ostream& ModularTimeSeries::toStream(std::ostream &stream) {
+ostream& ModularTimeSeries::toStream(ostream &stream) {
   TimeSeries::toStream(stream);
   stream << "Connected to: " << *_source << "\n";
   return stream;
@@ -41,8 +42,8 @@ void ModularTimeSeries::setSource(TimeSeries::sharedPointer sourceTimeSeries) {
     }
   }
   else {
-    std::cerr << "Incompatible. Could not set source for:\n";
-    std::cerr << *this;
+    cerr << "Incompatible. Could not set source for:\n";
+    cerr << *this;
     // TODO -- throw something?
   }
 }
@@ -60,12 +61,20 @@ void ModularTimeSeries::setUnits(Units newUnits) {
     TimeSeries::setUnits(newUnits);
   }
   else {
-    std::cerr << "could not set units for time series " << name() << std::endl;
+    cerr << "could not set units for time series " << name() << endl;
   }
 }
 
 bool ModularTimeSeries::isPointAvailable(time_t time) {
-  if (TimeSeries::isPointAvailable(time) || source()->isPointAvailable(time)) {
+  bool isCacheAvailable = false, isSourceAvailable = false;
+  
+  isCacheAvailable = TimeSeries::isPointAvailable(time);
+  
+  if (!isCacheAvailable) {
+    isSourceAvailable = source()->isPointAvailable(time);
+  }
+  
+  if (isCacheAvailable || isSourceAvailable) {
     return true;
   }
   else {
@@ -94,7 +103,7 @@ Point ModularTimeSeries::point(time_t time) {
       return aPoint;
     }
     else {
-      std::cerr << "check point availability first\n";
+      cerr << "check point availability first\n";
       // TODO -- throw something? reminder to check point availability first...
       Point point;
       return point;
@@ -102,7 +111,7 @@ Point ModularTimeSeries::point(time_t time) {
   }
 }
 
-std::vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
+vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
   // call the source points method to get it to cache points...
   _source->points(start, end);
   

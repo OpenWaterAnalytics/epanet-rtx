@@ -150,7 +150,6 @@ namespace RTX {
     std::vector<Zone::sharedPointer> _zones;
     
     PointRecord::sharedPointer _record;         // default record for results
-    IrregularClock::sharedPointer _masterClock;
     Clock::sharedPointer _regularMasterClock;   // normal hydraulic timestep
     TimeSeries::sharedPointer _relativeError;
     TimeSeries::sharedPointer _iterations;

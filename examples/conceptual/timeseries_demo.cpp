@@ -35,17 +35,12 @@ int main(int argc, const char * argv[])
    
    */
   time_t start = 1222873200; // unix-time 2008-10-01 15:00:00 GMT
-  /*
+  
   Point  p1(start,     34.5),
          p2(start+100, 45.2),
          p3(start+120, 45.9),
          p4(start+230, 42.1);
-  */
-  
-  Point   p1(start,     start),
-          p2(start+100, start+100),
-          p3(start+120, start+120),
-          p4(start+230, start+230);
+
   
   // put these points into a vector
   vector<Point> uglyPoints;
@@ -75,6 +70,19 @@ int main(int argc, const char * argv[])
   printPoints( uglyTimeSeries->points(start-10, start+240) );
   
   cout << "=======================================" << endl;
+  
+  
+  
+  
+  ModularTimeSeries::sharedPointer modularSeries( new ModularTimeSeries() );
+  modularSeries->setName("modular series");
+  modularSeries->setSource(uglyTimeSeries);
+  cout << "modular time series:" << endl;
+  printPoints( modularSeries->points(start, start+240) );
+  
+  
+  
+  
   
   // This time series is, as its name would suggest, ugly.
   // It's irregular and noisy. How to clean up?

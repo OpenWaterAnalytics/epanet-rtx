@@ -171,6 +171,8 @@ std::string MysqlPointRecord::registerAndGetIdentifier(std::string recordName) {
     handleException(e);
 	}
   
+  PointRecord::registerAndGetIdentifier(recordName);
+  
   return recordName;
 }
 

@@ -69,7 +69,9 @@ Point AggregatorTimeSeries::point(time_t time) {
     BOOST_FOREACH(tsPair_t tsPair , _tsList) {
       double multiplier;
       Point sourcePoint = tsPair.first->point(time);
-      Point thisPoint = Point::convertPoint(sourcePoint, tsPair.first->units(), units());
+      Units sourceUnits = tsPair.first->units();
+      Units myUnits = units();
+      Point thisPoint = Point::convertPoint(sourcePoint, sourceUnits, myUnits);
       multiplier = tsPair.second;
       aPoint += ( thisPoint * multiplier );
     }

@@ -18,10 +18,8 @@ using namespace RTX;
 TimeSeries::TimeSeries() : _units(1) {
   _name = "";  
   _cacheSize = 1000; // default cache size
-  _hasClock = false;
-  _points.reset( new PointContainer() );
-  _clock.reset( new IrregularClock(_points) );
-  
+  _points.reset( new PointRecord() );
+  setName("Time Series");
 }
 
 TimeSeries::~TimeSeries() {
@@ -38,6 +36,8 @@ std::ostream& RTX::operator<< (std::ostream &out, TimeSeries &ts) {
 
 void TimeSeries::setName(const std::string& name) {
   _name = name;
+  _points->registerAndGetIdentifier(name);
+  _clock.reset( new IrregularClock(_points, name) );
 }
 
 std::string TimeSeries::name() {
@@ -45,26 +45,26 @@ std::string TimeSeries::name() {
 }
 
 void TimeSeries::insert(Point thisPoint) {
-  _points->insertPoint(thisPoint);
+  _points->addPoint(name(), thisPoint);
 }
 
 void TimeSeries::insertPoints(std::vector<Point> points) {
-  _points->insertPoints(points);
+  _points->addPoints(name(), points);
   // TODO
   // check for size of point cache, pop a member if it's too large 
   // (first decide which side to pop from)
 }
 
 bool TimeSeries::isPointAvailable(time_t time) {
-  return ( _points->isPointAvailable(time) );
+  return ( _points->isPointAvailable(name(), time) );
 }
 
 Point TimeSeries::point(time_t time) {
   Point myPoint;
   time = clock()->validTime(time);
   
-  if (_points->isPointAvailable(time)) {
-    myPoint = _points->findPoint(time);
+  if (_points->isPointAvailable(name(), time)) {
+    myPoint = _points->point(name(), time);
   }
   
   return myPoint;
@@ -80,9 +80,13 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
     return points;
   }
   // simple optimization
-  _points->hintAtRange(start, end);
+  _points->hintAtRange(name(), start, end);
   
-  std::vector<time_t> timeList = _clock->timeValuesInRange(start, end);
+  std::vector<time_t> timeList;
+  
+  if (_clock) {
+    timeList = _clock->timeValuesInRange(start, end);
+  }
   
   BOOST_FOREACH(time_t time, timeList) {
     // check the time
@@ -165,17 +169,6 @@ Point TimeSeries::pointAfter(time_t time) {
   return myPoint;
 }
 
-double TimeSeries::value(time_t time) { 
-  if (this->point(time).isValid()) {
-    return this->point(time).value();
-  }
-  else return 0.;
-}
-
-Point::Qual_t TimeSeries::quality(time_t time) {
-  return this->point(time).quality();
-}
-
 time_t TimeSeries::period() {
   if (_clock) {
     return _clock->period();
@@ -185,25 +178,27 @@ time_t TimeSeries::period() {
   }
 }
 
-void TimeSeries::setCache(PointContainer::sharedPointer cache) {
+void TimeSeries::setRecord(PointRecord::sharedPointer record) {
   if(_points) {
-    _points->reset();
+    //_points->reset();
   }
-  _points = cache;
+  _points = record;
+  record->registerAndGetIdentifier(name());
+  
   // if my clock is irregular, then re-set it with the current pointRecord as the master synchronizer.
   if (!_clock->isRegular()) {
-    _clock.reset( new IrregularClock(_points) );
+    _clock.reset( new IrregularClock(_points, name()) );
   }
 }
 
-PointContainer::sharedPointer TimeSeries::cache() {
+PointRecord::sharedPointer TimeSeries::record() {
   return _points;
 }
 
 void TimeSeries::newCacheWithPointRecord(PointRecord::sharedPointer pointRecord) {
   // create new PersistentContainer and swap it in
-  PointContainer::sharedPointer myPointContainer( new PersistentContainer(this->name(), pointRecord) );
-  setCache(myPointContainer);
+  //PointContainer::sharedPointer myPointContainer( new PersistentContainer(this->name(), pointRecord) );
+  setRecord(pointRecord);
 }
 
 void TimeSeries::resetCache() {
@@ -211,7 +206,7 @@ void TimeSeries::resetCache() {
 }
 
 void TimeSeries::setClock(Clock::sharedPointer clock) {
-  _hasClock = (clock ? true : false);
+  //_hasClock = (clock ? true : false);
   _clock = clock;
 }
 

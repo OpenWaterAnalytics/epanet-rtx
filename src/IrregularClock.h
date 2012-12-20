@@ -10,14 +10,14 @@
 #define epanet_rtx_IrregularClock_h
 
 #include "Clock.h"
-#include "PointContainer.h"
+#include "PointRecord.h"
 
 namespace RTX {
   
   class IrregularClock : public Clock {
   public:
     RTX_SHARED_POINTER(IrregularClock);
-    IrregularClock(PointContainer::sharedPointer pointContainer);
+    IrregularClock(PointRecord::sharedPointer pointRecord, std::string name);
     virtual ~IrregularClock();
     
     virtual bool isCompatibleWith(Clock::sharedPointer clock);
@@ -27,7 +27,8 @@ namespace RTX {
     virtual std::ostream& toStream(std::ostream &stream);
     
   private:
-    PointContainer::sharedPointer _pointContainer;
+    PointRecord::sharedPointer _pointRecord;
+    std::string _name;
   };
   
 }
