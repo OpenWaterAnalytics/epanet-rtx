@@ -232,6 +232,6 @@ AUTHOR:     L. Rossman
  int  DLLEXPORT ENsetstatusreport(int);
  int  DLLEXPORT ENsetqualtype(int, char *, char *, char *);
 
- int  DLLEXPORT ENgetcurve(int curveIndex, int* nValues, double *xValues, double *yValues); // !sph
+ int  DLLEXPORT ENgetcurve(int curveIndex, int* nValues, double **xValues, double **yValues); // !sph
 
  int  DLLEXPORT ENgetcoord(int , double *, double *);  // 06.02.2010 woohn

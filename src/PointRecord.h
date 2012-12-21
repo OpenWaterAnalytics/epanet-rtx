@@ -95,6 +95,8 @@ namespace RTX {
     std::map< int, std::string > _names;
     int _nextKey;
     std::string _connectionString;
+    std::string _cachedPointId;
+    Point _cachedPoint;
     
   };
   

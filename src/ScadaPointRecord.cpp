@@ -11,7 +11,7 @@
 #include <boost/foreach.hpp>
 
 using namespace RTX;
-using std::endl;
+using namespace std;
 
 ScadaPointRecord::ScadaPointRecord() {
   _hint.clear();

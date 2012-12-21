@@ -1593,7 +1593,7 @@ int  DLLEXPORT ENgetlinktype(int index, int *code)
 }
 
 
-int  DLLEXPORT ENgetcurve(int curveIndex, int *nValues, double *xValues, double *yValues) // !sph
+int  DLLEXPORT ENgetcurve(int curveIndex, int *nValues, double **xValues, double **yValues) // !sph
 /*----------------------------------------------------------------
  **  Input:   curveIndex = curve index
  **  Output:  *nValues = number of points on curve
@@ -1613,13 +1613,15 @@ int  DLLEXPORT ENgetcurve(int curveIndex, int *nValues, double *xValues, double 
   double *pointY = calloc(nPoints, sizeof(double));
   
   for (int iPoint = 0; iPoint < nPoints; iPoint++) {
-    pointX[iPoint] = curve.X[iPoint] * Ucf[LENGTH];
-    pointY[iPoint] = curve.Y[iPoint] * Ucf[VOLUME];
+    double x = curve.X[iPoint] * Ucf[LENGTH];
+    double y = curve.Y[iPoint] * Ucf[VOLUME];
+    pointX[iPoint] = x;
+    pointY[iPoint] = y;
   }
   
   *nValues = nPoints;
-  *xValues = *pointX;
-  *yValues = *pointY;
+  *xValues = pointX;
+  *yValues = pointY;
   
   return err;
 }

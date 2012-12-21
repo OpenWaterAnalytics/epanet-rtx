@@ -82,6 +82,10 @@ void PointRecord::hintAtRange(const string& identifier, time_t start, time_t end
 
 
 bool PointRecord::isPointAvailable(const string& identifier, time_t time) {
+  if (_cachedPoint.time() == time && RTX_STRINGS_ARE_EQUAL(_cachedPointId, identifier) ) {
+    return true;
+  }
+  
   keyedPointMap_t::iterator it = _points.find(identifierForName(identifier));
   if (it == _points.end()) {
     return false;
@@ -93,6 +97,8 @@ bool PointRecord::isPointAvailable(const string& identifier, time_t time) {
     return false;
   }
   else {
+    _cachedPointId = identifier;
+    _cachedPoint = (*pointIt).second;
     return true;
   }
   
@@ -100,6 +106,11 @@ bool PointRecord::isPointAvailable(const string& identifier, time_t time) {
 
 
 Point PointRecord::point(const string& identifier, time_t time) {
+  
+  if (_cachedPoint.time() == time && RTX_STRINGS_ARE_EQUAL(_cachedPointId, identifier) ) {
+    return _cachedPoint;
+  }
+  
   if (isPointAvailable(identifier, time)) {
     return _points[identifierForName(identifier)][time];
   }
