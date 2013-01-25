@@ -144,10 +144,6 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxExcept
             double *xVals, *yVals;
             int nVals;
             ENcheck(ENgetcurve(volumeCurveIndex, &nVals, &xVals, &yVals), "ENgetcurve");
-            
-            cout << "curve " << volumeCurveIndex << " : nPoints: " << nVals << endl;
-            
-            cout << "--- ";
             for (int iPoint = 0; iPoint < nVals; iPoint++) {
               volumeCurveTs->addCurveCoordinate(xVals[iPoint], yVals[iPoint]);
               cout << "(" << xVals[iPoint] << "," << yVals[iPoint] << ")-";
