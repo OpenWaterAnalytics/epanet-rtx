@@ -88,11 +88,13 @@ Point ModularTimeSeries::point(time_t time) {
   
   // check the requested time for validity
   // if the time is not valid, rewind until a valid time is reached.
-  time = clock()->validTime(time);
+  time_t newTime = clock()->validTime(time);
 
   // if my clock can't find it, maybe my source's clock can?
-  if (time == 0) {
+  if (newTime == 0) {
     time = source()->clock()->validTime(time);
+  } else {
+    time = newTime;
   }
   
   if (TimeSeries::isPointAvailable(time)) {
@@ -113,6 +115,22 @@ Point ModularTimeSeries::point(time_t time) {
       return point;
     }
   }
+}
+
+Point ModularTimeSeries::pointBefore(time_t time) {
+  time_t timeBefore = clock()->timeBefore(time);
+  if (timeBefore == 0) {
+    timeBefore = source()->clock()->timeBefore(time);
+  }
+  return point(timeBefore);
+}
+
+Point ModularTimeSeries::pointAfter(time_t time) {
+  time_t timeAfter = clock()->timeAfter(time);
+  if (timeAfter == 0) {
+    timeAfter = source()->clock()->timeAfter(time);
+  }
+  return point(timeAfter);
 }
 
 vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
