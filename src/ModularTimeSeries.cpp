@@ -90,6 +90,10 @@ Point ModularTimeSeries::point(time_t time) {
   // if the time is not valid, rewind until a valid time is reached.
   time = clock()->validTime(time);
 
+  // if my clock can't find it, maybe my source's clock can?
+  if (time == 0) {
+    time = source()->clock()->validTime(time);
+  }
   
   if (TimeSeries::isPointAvailable(time)) {
     return TimeSeries::point(time);
