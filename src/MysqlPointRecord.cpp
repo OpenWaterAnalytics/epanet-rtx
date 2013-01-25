@@ -220,7 +220,6 @@ Point MysqlPointRecord::pointBefore(const string& identifier, time_t time) {
   }
   else {
     // todo - throw something?
-    std::cerr << "could not find point before " << time << std::endl;
     return point;
   }
 }
