@@ -196,10 +196,9 @@ void PointRecord::addPoints(const string& identifier, std::vector<Point> points)
 
 
 void PointRecord::reset() {
-  typedef const keyedPointMap_t::value_type& keyedPointMapValue;
+  typedef keyedPointMap_t::value_type& keyedPointMapValue;
   BOOST_FOREACH(keyedPointMapValue pointMapValue, _points) {
-    pointMap_t pointMap = pointMapValue.second;
-    pointMap.clear();
+    pointMapValue.second.clear();
   }
 }
 
