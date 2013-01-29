@@ -59,9 +59,10 @@ void ScadaPointRecord::connect() throw(RtxException) {
                           " ORDER BY " + _syntax.date + " ASC";
   
   _timeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
+  // oracle _timeQuery = "select sysdate from dual";
   _query.tagNameInd = SQL_NTS;
   
-  SQLRETURN ret;
+  SQLRETURN sqlRet;
   
   try {
     /* Allocate an environment handle */
@@ -73,7 +74,11 @@ void ScadaPointRecord::connect() throw(RtxException) {
     /* Connect to the DSN, checking for connectivity */
     //"Attempting to Connect to SCADA..."
     
-    SQL_CHECK(SQLDriverConnect(_SCADAdbc, NULL, (SQLCHAR*)(this->connectionString()).c_str(), SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT), "SQLDriverConnect", _SCADAdbc, SQL_HANDLE_DBC);
+    SQLSMALLINT returnLen;
+    //SQL_CHECK(SQLDriverConnect(_SCADAdbc, NULL, (SQLCHAR*)(this->connectionString()).c_str(), SQL_NTS, NULL, 0, &returnLen, SQL_DRIVER_COMPLETE), "SQLDriverConnect", _SCADAdbc, SQL_HANDLE_DBC);
+    sqlRet = SQLDriverConnect(_SCADAdbc, NULL, (SQLCHAR*)(this->connectionString()).c_str(), SQL_NTS, NULL, 0, &returnLen, SQL_DRIVER_COMPLETE);
+
+    SQL_CHECK(sqlRet, "SQLDriverConnect", _SCADAdbc, SQL_HANDLE_DBC);
     
     /* allocate the statement handles for data aquisition */
     SQL_CHECK(SQLAllocHandle(SQL_HANDLE_STMT, _SCADAdbc, &_SCADAstmt), "SQLAllocHandle", _SCADAstmt, SQL_HANDLE_STMT);
@@ -86,8 +91,8 @@ void ScadaPointRecord::connect() throw(RtxException) {
     /* bind tempRecord members to SQL return columns */
     bindOutputColumns(_SCADAstmt, &_tempRecord);
     // bind input parameters, so we can easily change them when we want to make requests.
-    ret = SQLBindParameter(_SCADAstmt, 1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd);
-    ret = SQLBindParameter(_SCADAstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd);
+    sqlRet = SQLBindParameter(_SCADAstmt, 1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd);
+    sqlRet = SQLBindParameter(_SCADAstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd);
     
     // bindings for the range statement
     bindOutputColumns(_rangeStatement, &_tempRecord);
