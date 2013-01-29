@@ -180,7 +180,7 @@ time_t TimeSeries::period() {
 
 void TimeSeries::setRecord(PointRecord::sharedPointer record) {
   if(_points) {
-    //_points->reset();
+    _points->reset(name());
   }
   _points = record;
   record->registerAndGetIdentifier(name());
@@ -202,7 +202,8 @@ void TimeSeries::newCacheWithPointRecord(PointRecord::sharedPointer pointRecord)
 }
 
 void TimeSeries::resetCache() {
-  _points->reset();
+  _points->reset(name());
+  _points->registerAndGetIdentifier(name());
 }
 
 void TimeSeries::setClock(Clock::sharedPointer clock) {

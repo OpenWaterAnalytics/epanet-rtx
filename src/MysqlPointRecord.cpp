@@ -249,6 +249,7 @@ void MysqlPointRecord::addPoints(const string& identifier, std::vector<Point> po
 }
 
 void MysqlPointRecord::reset() {
+  PointRecord::reset();
   try {
     string truncatePoints = "TRUNCATE TABLE points";
     string truncateKeys = "TRUNCATE TABLE timeseries_meta";
@@ -260,8 +261,23 @@ void MysqlPointRecord::reset() {
     
     truncatePointsStmt->executeUpdate(truncatePoints);
     //truncateKeysStmt->executeUpdate(truncateKeys);
+    
+    _connection->commit();
   }
   catch (sql::SQLException &e) {
+    handleException(e);
+  }
+}
+
+void MysqlPointRecord::reset(const string& identifier) {
+  PointRecord::reset(identifier);
+  string removePoints = "delete p, m from points p inner join timeseries_meta m on p.series_id=m.series_id where m.name = \"" + identifier + "\"";
+  boost::shared_ptr<sql::Statement> removePointsStmt;
+  try {
+    removePointsStmt.reset( _connection->createStatement() );
+    removePointsStmt->executeUpdate(removePoints);
+    _connection->commit();
+  } catch (sql::SQLException &e) {
     handleException(e);
   }
 }
