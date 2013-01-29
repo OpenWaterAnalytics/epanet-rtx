@@ -202,5 +202,13 @@ void PointRecord::reset() {
   }
 }
 
+void PointRecord::reset(const string& identifier) {
+  keyedPointMap_t::iterator it = _points.find(identifierForName(identifier));
+  if (it == _points.end()) {
+    return;
+  }
+  it->second.clear();
+}
+
 
 
