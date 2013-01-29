@@ -69,19 +69,9 @@ namespace RTX {
     SQLHDBC _SCADAdbc;
     SQLHSTMT _SCADAstmt, _rangeStatement, _lowerBoundStatement, _upperBoundStatement, _SCADAtimestmt;
     std::string _dsn;
-    std::string _dataPointQuery, _dataRangeQuery, _dataLowerBoundQuery, _dataUpperBoundQuery, _timeQuery;
     ScadaRecord _tempRecord;
     ScadaQuery _query;
-    // convenience class for syntax
-    class ScadaSyntax_t {
-    public:
-      std::string table;
-      std::string date;
-      std::string tag;
-      std::string value;
-      std::string quality;
-    };
-    ScadaSyntax_t _syntax;
+    
     // convenience class for the range statement optmization
     class Hint_t {
     public:

@@ -27,6 +27,18 @@ namespace RTX {
     DbPointRecord() {};
     virtual ~DbPointRecord() {};
     
+    string singleSelectQuery() {return _singleSelect;};
+    string rangeSelectQuery() {return _rangeSelect;};
+    string loweBoundSelectQuery() {return _lowerBoundSelect;};
+    string upperBoundSelectQuery() {return _upperBoundSelect;};
+    string timeQuery() {return _timeQuery;};
+    
+    void setSingleSelectQuery(string query) {_singleSelect = query;};
+    void setRangeSelectQuery(string query) {_rangeSelect = query;};
+    void setLowerBoundSelectQuery(string query) {_lowerBoundSelect = query;};
+    void setUpperBoundSelectQuery(string query) {_upperBoundSelect = query;};
+    void setTimeQuery(string query) {_timeQuery = query;};
+    
     //exceptions specific to this class family
     class RtxDbConnectException : public RtxException {
     public:
@@ -37,6 +49,9 @@ namespace RTX {
       virtual const char* what() const throw()
       { return "Could not retrieve data.\n"; }
     };
+    
+  private:
+    string _singleSelect, _rangeSelect, _upperBoundSelect, _lowerBoundSelect, _timeQuery;
     
   };
 

@@ -27,11 +27,38 @@ ScadaPointRecord::~ScadaPointRecord() {
 #pragma mark Initialization
 
 void ScadaPointRecord::setSyntax(const string& table, const string& dateCol, const string& tagCol, const string& valueCol, const string& qualityCol) {
-  _syntax.table =   table;
-  _syntax.date =    dateCol;
-  _syntax.tag =     tagCol;
-  _syntax.value =   valueCol;
-  _syntax.quality = qualityCol;
+  string dataPointQuery, dataRangeQuery, dataLowerBoundQuery, dataUpperBoundQuery, dataTimeQuery;
+  
+  dataPointQuery = "SELECT " + dateCol + ", " + tagCol + ", " + valueCol + ", " + qualityCol +
+  " FROM " + table +
+  " WHERE (" + dateCol + " = ?) AND " + tagCol + " = ?";
+  
+  dataRangeQuery = "SELECT " + dateCol + ", " + tagCol + ", " + valueCol + ", " + qualityCol +
+  " FROM " + table +
+  " WHERE (" + dateCol + " >= ?) AND (" + dateCol + " <= ?) AND " + tagCol + " = ?";
+  
+  dataLowerBoundQuery =  "SELECT TOP 2 " + dateCol + ", " + tagCol + ", " + valueCol + ", " + qualityCol +
+  " FROM " + table +
+  " WHERE (" + dateCol + " > ?) AND (" + dateCol + " <= ?) AND " + tagCol + " = ?" +
+  " ORDER BY " + dateCol + " DESC";
+  
+  dataUpperBoundQuery =  "SELECT TOP 2 " + dateCol + ", " + tagCol + ", " + valueCol + ", " + qualityCol +
+  " FROM " + table +
+  " WHERE (" + dateCol + " > ?) AND (" + dateCol + " <= ?) AND " + tagCol + " = ?" +
+  " ORDER BY " + dateCol + " ASC";
+  
+  dataTimeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
+  
+  
+  _query.tagNameInd = SQL_NTS;
+  
+  
+  setSingleSelectQuery(dataPointQuery);
+  setRangeSelectQuery(dataRangeQuery);
+  setUpperBoundSelectQuery(dataUpperBoundQuery);
+  setLowerBoundSelectQuery(dataLowerBoundQuery);
+  setTimeQuery(dataTimeQuery);
+  
 }
 
 
@@ -40,27 +67,7 @@ void ScadaPointRecord::connect() throw(RtxException) {
   if (RTX_STRINGS_ARE_EQUAL(this->connectionString(), "")) {
     return;
   }
-  _dataPointQuery = "SELECT " + _syntax.date + ", " + _syntax.tag + ", " + _syntax.value + ", " + _syntax.quality +
-                    " FROM " + _syntax.table +
-                    " WHERE (" + _syntax.date + " = ?) AND " + _syntax.tag + " = ?";
   
-  _dataRangeQuery = "SELECT " + _syntax.date + ", " + _syntax.tag + ", " + _syntax.value + ", " + _syntax.quality +
-                    " FROM " + _syntax.table +
-                    " WHERE (" + _syntax.date + " >= ?) AND (" + _syntax.date + " <= ?) AND " + _syntax.tag + " = ?";
-  
-  _dataLowerBoundQuery =  "SELECT TOP 2 " + _syntax.date + ", " + _syntax.tag + ", " + _syntax.value + ", " + _syntax.quality +
-                          " FROM " + _syntax.table +
-                          " WHERE (" + _syntax.date + " > ?) AND (" + _syntax.date + " <= ?) AND " + _syntax.tag + " = ?" +
-                          " ORDER BY " + _syntax.date + " DESC";
-  
-  _dataUpperBoundQuery =  "SELECT TOP 2 " + _syntax.date + ", " + _syntax.tag + ", " + _syntax.value + ", " + _syntax.quality +
-                          " FROM " + _syntax.table +
-                          " WHERE (" + _syntax.date + " > ?) AND (" + _syntax.date + " <= ?) AND " + _syntax.tag + " = ?" +
-                          " ORDER BY " + _syntax.date + " ASC";
-  
-  _timeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
-  // oracle _timeQuery = "select sysdate from dual";
-  _query.tagNameInd = SQL_NTS;
   
   SQLRETURN sqlRet;
   
@@ -114,11 +121,11 @@ void ScadaPointRecord::connect() throw(RtxException) {
     
     
     // prepare the statements
-    SQL_CHECK(SQLPrepare(_SCADAstmt, (SQLCHAR*)_dataPointQuery.c_str(), SQL_NTS), "SQLPrepare", _SCADAstmt, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLPrepare(_rangeStatement, (SQLCHAR*)_dataRangeQuery.c_str(), SQL_NTS), "SQLPrepare", _rangeStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLPrepare(_SCADAtimestmt, (SQLCHAR*)_timeQuery.c_str(), SQL_NTS), "SQLPrepare", _SCADAtimestmt, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLPrepare(_lowerBoundStatement, (SQLCHAR*)_dataLowerBoundQuery.c_str(), SQL_NTS), "SQLPrepare", _lowerBoundStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLPrepare(_upperBoundStatement, (SQLCHAR*)_dataUpperBoundQuery.c_str(), SQL_NTS), "SQLPrepare", _upperBoundStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLPrepare(_SCADAstmt, (SQLCHAR*)singleSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _SCADAstmt, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLPrepare(_rangeStatement, (SQLCHAR*)rangeSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _rangeStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLPrepare(_SCADAtimestmt, (SQLCHAR*)timeQuery().c_str(), SQL_NTS), "SQLPrepare", _SCADAtimestmt, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLPrepare(_lowerBoundStatement, (SQLCHAR*)loweBoundSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _lowerBoundStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLPrepare(_upperBoundStatement, (SQLCHAR*)upperBoundSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _upperBoundStatement, SQL_HANDLE_STMT);
     
     // if we made it this far...
     _connectionOk = true;
