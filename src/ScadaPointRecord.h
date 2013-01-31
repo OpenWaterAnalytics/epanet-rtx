@@ -72,18 +72,6 @@ namespace RTX {
     ScadaRecord _tempRecord;
     ScadaQuery _query;
     
-    // convenience class for the range statement optmization
-    class Hint_t {
-    public:
-      Hint_t();
-      void clear();
-      std::string identifier;
-      std::pair<time_t, time_t> range;
-      std::deque<Point> cache;
-    };
-    Hint_t _hint;
-    
-    
     void bindOutputColumns(SQLHSTMT statement, ScadaRecord* record);
     SQL_TIMESTAMP_STRUCT sqlTime(time_t unixTime);
     time_t unixTime(SQL_TIMESTAMP_STRUCT sqlTime);

@@ -23,8 +23,9 @@ namespace RTX {
   
   class DbPointRecord : public PointRecord {
   public:
+    typedef enum { LOCAL, UTC } time_format_t;
     RTX_SHARED_POINTER(DbPointRecord);
-    DbPointRecord() {};
+    DbPointRecord();
     virtual ~DbPointRecord() {};
     
     string singleSelectQuery() {return _singleSelect;};
@@ -32,6 +33,9 @@ namespace RTX {
     string loweBoundSelectQuery() {return _lowerBoundSelect;};
     string upperBoundSelectQuery() {return _upperBoundSelect;};
     string timeQuery() {return _timeQuery;};
+    
+    void setTimeFormat(time_format_t timeFormat) { _timeFormat = timeFormat;};
+    time_format_t timeFormat() { return _timeFormat; };
     
     void setSingleSelectQuery(string query) {_singleSelect = query;};
     void setRangeSelectQuery(string query) {_rangeSelect = query;};
@@ -50,8 +54,21 @@ namespace RTX {
       { return "Could not retrieve data.\n"; }
     };
     
+  protected:
+    // convenience class for the range query optmization
+    class Hint_t {
+    public:
+      Hint_t();
+      void clear();
+      std::string identifier;
+      std::pair<time_t, time_t> range;
+      std::deque<Point> cache;
+    };
+    Hint_t _hint;
+    
   private:
     string _singleSelect, _rangeSelect, _upperBoundSelect, _lowerBoundSelect, _timeQuery;
+    time_format_t _timeFormat;
     
   };
 

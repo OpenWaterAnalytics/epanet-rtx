@@ -29,23 +29,25 @@ ScadaPointRecord::~ScadaPointRecord() {
 void ScadaPointRecord::setSyntax(const string& table, const string& dateCol, const string& tagCol, const string& valueCol, const string& qualityCol) {
   string dataPointQuery, dataRangeQuery, dataLowerBoundQuery, dataUpperBoundQuery, dataTimeQuery;
   
+  // defaults are good for MSSQL-style syntax. override these defaults for other schemas.
+  
   dataPointQuery = "SELECT " + dateCol + ", " + tagCol + ", " + valueCol + ", " + qualityCol +
-  " FROM " + table +
-  " WHERE (" + dateCol + " = ?) AND " + tagCol + " = ?";
+                  " FROM " + table +
+                  " WHERE (" + dateCol + " = ?) AND " + tagCol + " = ?";
   
   dataRangeQuery = "SELECT " + dateCol + ", " + tagCol + ", " + valueCol + ", " + qualityCol +
-  " FROM " + table +
-  " WHERE (" + dateCol + " >= ?) AND (" + dateCol + " <= ?) AND " + tagCol + " = ?";
+                  " FROM " + table +
+                  " WHERE (" + dateCol + " >= ?) AND (" + dateCol + " <= ?) AND " + tagCol + " = ? ORDER BY " + dateCol + " asc";
   
   dataLowerBoundQuery =  "SELECT TOP 2 " + dateCol + ", " + tagCol + ", " + valueCol + ", " + qualityCol +
-  " FROM " + table +
-  " WHERE (" + dateCol + " > ?) AND (" + dateCol + " <= ?) AND " + tagCol + " = ?" +
-  " ORDER BY " + dateCol + " DESC";
+                        " FROM " + table +
+                        " WHERE (" + dateCol + " > ?) AND (" + dateCol + " <= ?) AND " + tagCol + " = ?" +
+                        " ORDER BY " + dateCol + " DESC";
   
   dataUpperBoundQuery =  "SELECT TOP 2 " + dateCol + ", " + tagCol + ", " + valueCol + ", " + qualityCol +
-  " FROM " + table +
-  " WHERE (" + dateCol + " > ?) AND (" + dateCol + " <= ?) AND " + tagCol + " = ?" +
-  " ORDER BY " + dateCol + " ASC";
+                        " FROM " + table +
+                        " WHERE (" + dateCol + " > ?) AND (" + dateCol + " <= ?) AND " + tagCol + " = ?" +
+                        " ORDER BY " + dateCol + " ASC";
   
   dataTimeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
   
@@ -183,14 +185,22 @@ std::vector<std::string> ScadaPointRecord::identifiers() {
 #pragma mark - Retrieval
 
 bool ScadaPointRecord::isPointAvailable(const string& identifier, time_t time)  {
+  if (_cachedPoint.time() == time && _cachedPointId == identifier) {
+    return true;
+  }
+  
   Point aPoint = pointBefore(identifier, time);
+  _cachedPoint = aPoint;
+  _cachedPointId = identifier;
   if (!aPoint.isValid()) {
     return false;
   }
   if (aPoint.time() == time) {
     return true;
   }
-  else if (pointAfter(identifier, time).isValid() && pointAfter(identifier, time).time() == time) {
+  
+  aPoint = pointAfter(identifier, time);
+  if (aPoint.isValid() && aPoint.time() == time) {
     return true;
   }
   else {
@@ -200,6 +210,10 @@ bool ScadaPointRecord::isPointAvailable(const string& identifier, time_t time)  
 
 // get a single point, rely on scada system's interpolation...
 Point ScadaPointRecord::point(const string& identifier, time_t time) {
+  
+  if (time == _cachedPoint.time() && identifier == _cachedPointId) {
+    return _cachedPoint;
+  }
   
   Point thePoint;
   
@@ -381,10 +395,18 @@ void ScadaPointRecord::bindOutputColumns(SQLHSTMT statement, ScadaRecord* record
 
 
 SQL_TIMESTAMP_STRUCT ScadaPointRecord::sqlTime(time_t unixTime) {
-  SQL_TIMESTAMP_STRUCT mySQLtime;
+  SQL_TIMESTAMP_STRUCT sqlTimestamp;
   struct tm myTMstruct;
   struct tm* pTMstruct = &myTMstruct;
-  pTMstruct = localtime(&unixTime);
+  
+  // time format (local/utc)
+  if (timeFormat() == UTC) {
+    pTMstruct = gmtime(&unixTime);
+  }
+  else if (timeFormat() == LOCAL) {
+    pTMstruct = localtime(&unixTime);
+  }
+  
 	if (pTMstruct->tm_isdst == 1) {
     pTMstruct->tm_hour -= 1;
   }
@@ -392,17 +414,17 @@ SQL_TIMESTAMP_STRUCT ScadaPointRecord::sqlTime(time_t unixTime) {
   // fix any negative hour field
   mktime(pTMstruct);
 	
-	mySQLtime.year = pTMstruct->tm_year + 1900;
-	mySQLtime.month = pTMstruct->tm_mon + 1;
-	mySQLtime.day = pTMstruct->tm_mday;
-	mySQLtime.hour = pTMstruct->tm_hour;
-  mySQLtime.minute = pTMstruct->tm_min;
-	mySQLtime.second = pTMstruct->tm_sec;
-	mySQLtime.fraction = (SQLUINTEGER)0;
+	sqlTimestamp.year = pTMstruct->tm_year + 1900;
+	sqlTimestamp.month = pTMstruct->tm_mon + 1;
+	sqlTimestamp.day = pTMstruct->tm_mday;
+	sqlTimestamp.hour = pTMstruct->tm_hour;
+  sqlTimestamp.minute = pTMstruct->tm_min;
+	sqlTimestamp.second = pTMstruct->tm_sec;
+	sqlTimestamp.fraction = (SQLUINTEGER)0;
   
   
   
-  return mySQLtime;
+  return sqlTimestamp;
 }
 
 time_t ScadaPointRecord::unixTime(SQL_TIMESTAMP_STRUCT sqlTime) {
@@ -420,9 +442,16 @@ time_t ScadaPointRecord::unixTime(SQL_TIMESTAMP_STRUCT sqlTime) {
   tmTimestamp.tm_min = sqlTime.minute;
   tmTimestamp.tm_sec = sqlTime.second;
   
-  //myUnixTime = mktime(&tmTimestamp);
-  // todo -- figure out UTC offset thing
-  myUnixTime = time_to_epoch(&tmTimestamp, 4);
+  
+  myUnixTime = mktime(&tmTimestamp);
+
+  if (timeFormat() == UTC) {
+    myUnixTime += pTimestamp->tm_gmtoff;
+  }
+  
+  
+  // todo -- we can speed up mktime, but this private method is borked so fix it.
+  // myUnixTime = time_to_epoch(&tmTimestamp, localGmtOffset);
     
   return myUnixTime;
 }
@@ -493,16 +522,3 @@ std::string ScadaPointRecord::extract_error(std::string function, SQLHANDLE hand
 }
 
 
-
-
-ScadaPointRecord::Hint_t::Hint_t() {
-  clear();
-}
-
-void ScadaPointRecord::Hint_t::clear() { 
-  //std::cout << "clearing scada point cache" << std::endl;
-  identifier = ""; 
-  range.first = 0; 
-  range.second = 0; 
-  cache.clear(); 
-}

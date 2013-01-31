@@ -89,6 +89,8 @@ namespace RTX {
     string nameForIdentifier(int identifier);
     typedef std::map<time_t, Point> pointMap_t;
     typedef std::map< int, pointMap_t> keyedPointMap_t;
+    std::string _cachedPointId;
+    Point _cachedPoint;
     
   private:
     keyedPointMap_t _points;
@@ -96,8 +98,6 @@ namespace RTX {
     std::map< int, std::string > _names;
     int _nextKey;
     std::string _connectionString;
-    std::string _cachedPointId;
-    Point _cachedPoint;
     
   };
   
