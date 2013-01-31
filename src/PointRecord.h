@@ -85,10 +85,10 @@ namespace RTX {
     virtual std::ostream& toStream(std::ostream &stream);
 
   protected:
-    int identifierForName(std::string recordName);
-    string nameForIdentifier(int identifier);
     typedef std::map<time_t, Point> pointMap_t;
     typedef std::map< int, pointMap_t> keyedPointMap_t;
+    int identifierForName(std::string recordName);
+    string nameForIdentifier(int identifier);
     std::string _cachedPointId;
     Point _cachedPoint;
     

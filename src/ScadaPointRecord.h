@@ -50,7 +50,7 @@ namespace RTX {
     
   private:
     bool _connectionOk;
-    std::deque<Point> pointsWithStatement(const string& identifier, SQLHSTMT statement, time_t startTime, time_t endTime = 0);
+    std::vector<Point> pointsWithStatement(const string& identifier, SQLHSTMT statement, time_t startTime, time_t endTime = 0);
     typedef struct {
       SQLCHAR tagName[MAX_SCADA_TAG];
       SQL_TIMESTAMP_STRUCT time;

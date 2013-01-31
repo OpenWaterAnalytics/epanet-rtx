@@ -23,5 +23,4 @@ void DbPointRecord::Hint_t::clear() {
   identifier = "";
   range.first = 0;
   range.second = 0;
-  cache.clear();
 }

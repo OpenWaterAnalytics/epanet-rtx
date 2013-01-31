@@ -188,17 +188,23 @@ bool ScadaPointRecord::isPointAvailable(const string& identifier, time_t time)  
   if (_cachedPoint.time() == time && _cachedPointId == identifier) {
     return true;
   }
-  
+  if (PointRecord::isPointAvailable(identifier, time)) {
+    return true;
+  }
   Point aPoint = pointBefore(identifier, time);
-  _cachedPoint = aPoint;
-  _cachedPointId = identifier;
   if (!aPoint.isValid()) {
+    // no such point
     return false;
   }
   if (aPoint.time() == time) {
+    _cachedPoint = aPoint;
+    _cachedPointId = identifier;
     return true;
   }
   
+  return false;
+  
+  /* not needed ??
   aPoint = pointAfter(identifier, time);
   if (aPoint.isValid() && aPoint.time() == time) {
     return true;
@@ -206,6 +212,7 @@ bool ScadaPointRecord::isPointAvailable(const string& identifier, time_t time)  
   else {
     return false;
   }
+   */
 }
 
 // get a single point, rely on scada system's interpolation...
@@ -219,11 +226,7 @@ Point ScadaPointRecord::point(const string& identifier, time_t time) {
   
   // see if the requested point is within my cache
   if ( (time >= _hint.range.first) && (time <= _hint.range.second) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
-    BOOST_FOREACH(Point point, _hint.cache) {
-      if (point.time() == time) {
-        thePoint = point;
-      }
-    }
+    thePoint = PointRecord::point(identifier, time);
   }
   
   else {
@@ -235,16 +238,23 @@ Point ScadaPointRecord::point(const string& identifier, time_t time) {
 
 void ScadaPointRecord::hintAtRange(const string& identifier, time_t start, time_t end) {
   // simple optimization for read-only pointrecord.
-  if (start < _hint.range.first || end > _hint.range.second || !RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) {
-    time_t margin = 120; // 2-minute margin
-    _hint.cache = pointsWithStatement(identifier, _rangeStatement, start - margin, end + margin);
-    _hint.identifier = identifier;
-    _hint.range.first = start - margin;
-    _hint.range.second = end + margin;
-  }
+  
+  // clear out the base-class cache
+  DbPointRecord::reset(identifier);
+  _hint.clear();
+  
+  // re-populate base class with new hinted range
+  time_t margin = 120;
+  std::vector<Point> newPoints = pointsWithStatement(identifier, _rangeStatement, start - margin, end + margin);
+  _hint.identifier = identifier;
+  _hint.range.first = start - margin;
+  _hint.range.second = end + margin;
+  
+  PointRecord::addPoints(identifier, newPoints);
+
 }
 
-// get a range of points, native resolution
+// get a range of points
 std::vector<Point> ScadaPointRecord::pointsInRange(const string& identifier, time_t startTime, time_t endTime) {
   std::vector<Point> pointVector;
   
@@ -253,9 +263,7 @@ std::vector<Point> ScadaPointRecord::pointsInRange(const string& identifier, tim
     hintAtRange(identifier, startTime, endTime);
   }
   
-  for (unsigned int i = 0; i < _hint.cache.size(); i++) {
-    pointVector.push_back(_hint.cache.at(i));
-  }
+  pointVector = PointRecord::pointsInRange(identifier, startTime, endTime);
   
   return pointVector;
 }
@@ -268,35 +276,15 @@ Point ScadaPointRecord::pointBefore(const string& identifier, time_t time) {
     return thePoint;
   }
   
-  // see if the requested point is within my cache
+  // see if the requested point is within my base-class cache
   if ( (time >= _hint.range.first) && (time <= _hint.range.second) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
-    // assuming strictly ascending order...
-    // todo - clean this up? cache class?
-    BOOST_FOREACH(Point point, _hint.cache) {
-      if (point.time() <= time) {
-        thePoint = point;
-      }
-    }
+    thePoint = PointRecord::pointBefore(identifier, time);
   }
   
+  // if not, get it from the db
   else {
-    // reset the cache, it's obviously no good.
-    _hint.clear();
-    
-    // add one second to the upper range so that we catch fractional times.
-    std::deque<Point> points = pointsWithStatement(identifier, _lowerBoundStatement, time - (3600 * 4), (time + 1) );
-    if (points.size() == 0) {
-      return thePoint;
-    }
-    Point frontPoint = points.front();
-    if (!frontPoint.isValid()) {
-      return thePoint;
-    }
-    if (frontPoint.time() > time) {
-      points.pop_front();
-    }
-    
-    thePoint = (points.front());
+    hintAtRange(identifier, time - (3600 * 4), (time + 1) );
+    thePoint = PointRecord::pointBefore(identifier, time);
   }
   
   return thePoint;
@@ -309,30 +297,16 @@ Point ScadaPointRecord::pointAfter(const string& identifier, time_t time) {
     std::cerr << "time out of bounds" << std::endl;
     return thePoint;
   }
-
+  
+  // see if the requested point is within my base-class cache
   if ( (time >= _hint.range.first) && (time <= _hint.range.second) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
-    // assuming strictly ascending order...
-    // todo - clean this up? cache class?
-    BOOST_FOREACH(Point point, _hint.cache) {
-      if (point.time() > time) {
-        thePoint = point;
-        break;
-      }
-    }
+    thePoint = PointRecord::pointAfter(identifier, time);
   }
   
+  // if not, get it from the db
   else {
-    // reset the cache, it's obviously no good.
-    _hint.clear();
-    
-    std::deque<Point> points = pointsWithStatement(identifier, _upperBoundStatement, time, time + (3600 * 4));
-    if (points.size() > 0 && points.front().isValid()) {
-      if (points.front().time() <= time) {
-        points.pop_front();
-      }
-      thePoint = (points.front());
-    }
-    
+    hintAtRange(identifier, time, time + (3600 * 4));
+    thePoint = PointRecord::pointAfter(identifier, time);
   }
     
   return thePoint;
@@ -352,8 +326,8 @@ std::ostream& ScadaPointRecord::toStream(std::ostream &stream) {
 #pragma mark - Internal (private) methods
 
 
-std::deque<Point> ScadaPointRecord::pointsWithStatement(const string& identifier, SQLHSTMT statement, time_t startTime, time_t endTime) {
-  std::deque< Point > points;
+std::vector<Point> ScadaPointRecord::pointsWithStatement(const string& identifier, SQLHSTMT statement, time_t startTime, time_t endTime) {
+  std::vector< Point > points;
   points.clear();
   
   // set up query-bound variables

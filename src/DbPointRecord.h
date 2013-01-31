@@ -62,7 +62,6 @@ namespace RTX {
       void clear();
       std::string identifier;
       std::pair<time_t, time_t> range;
-      std::deque<Point> cache;
     };
     Hint_t _hint;
     

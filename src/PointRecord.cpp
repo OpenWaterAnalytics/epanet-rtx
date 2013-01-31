@@ -179,10 +179,11 @@ void PointRecord::addPoint(const string& identifier, Point point) {
   if (it == _points.end()) {
     return;
   }
-  
+  /* todo -- compile-time logging info
   if (it->second.find(point.time()) != it->second.end()) {
     cerr <<  "overwriting point in " << identifier << " :: " << point << endl;
   }
+   */
   it->second[point.time()] = point;
   
 }
@@ -190,7 +191,7 @@ void PointRecord::addPoint(const string& identifier, Point point) {
 
 void PointRecord::addPoints(const string& identifier, std::vector<Point> points) {
   BOOST_FOREACH(Point thePoint, points) {
-    addPoint(identifier, thePoint);
+    PointRecord::addPoint(identifier, thePoint);
   }
 }
 
