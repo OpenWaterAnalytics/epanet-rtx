@@ -261,7 +261,7 @@ void PointRecord::addPoints(const string& identifier, std::vector<Point> points)
 
 
 void PointRecord::reset() {
-  // depricated?
+  _keyedBufferMutex.clear();
 }
 
 void PointRecord::reset(const string& identifier) {
