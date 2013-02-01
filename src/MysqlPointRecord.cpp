@@ -192,11 +192,15 @@ std::vector<std::string> MysqlPointRecord::identifiers() {
   return ids;
 }
 
-void MysqlPointRecord::hintAtRange(const string& identifier, time_t start, time_t end) {
-  // TODO -- performance optimization - caching -- see scadapointrecord.cpp for code snippets.
-}
 
 bool MysqlPointRecord::isPointAvailable(const string& identifier, time_t time) {
+  if (_cachedPoint.time() == time && _cachedPointId == identifier) {
+    return true;
+  }
+  if (PointRecord::isPointAvailable(identifier, time)) {
+    return true;
+  }
+  
   Point point = selectSingle(identifier, time, _singleSelect);
   if (point.isValid()) {
     return true;
@@ -204,14 +208,22 @@ bool MysqlPointRecord::isPointAvailable(const string& identifier, time_t time) {
   return false;
 }
 Point MysqlPointRecord::point(const string& identifier, time_t time) {
-  Point point = selectSingle(identifier, time, _singleSelect);
-  if (point.isValid()) {
-    return point;
+  
+  if (time == _cachedPoint.time() && identifier == _cachedPointId) {
+    return _cachedPoint;
+  }
+  
+  Point thePoint;
+  
+  // see if the requested point is within my cache
+  if ( (time >= _hint.range.first) && (time <= _hint.range.second) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
+    thePoint = PointRecord::point(identifier, time);
   }
   else {
-    // todo - throw something?
-    return point;
+    thePoint = selectSingle(identifier, time, _singleSelect);
   }
+  
+  return thePoint;
 }
 Point MysqlPointRecord::pointBefore(const string& identifier, time_t time) {
   Point point = selectSingle(identifier, time, _previousSelect);
@@ -234,14 +246,13 @@ Point MysqlPointRecord::pointAfter(const string& identifier, time_t time) {
     return point;
   }
 }
-std::vector<Point> MysqlPointRecord::pointsInRange(const string& identifier, time_t startTime, time_t endTime) {
-  return selectRange(identifier, startTime, endTime);
-}
+
 void MysqlPointRecord::addPoint(const string& identifier, Point point) {
   time_t time = point.time();
   double value = point.value();
   insertSingle(identifier, time, value);
 }
+
 void MysqlPointRecord::addPoints(const string& identifier, std::vector<Point> points) {
   BOOST_FOREACH(Point point, points) {
     addPoint(identifier, point);
@@ -309,7 +320,7 @@ std::ostream& MysqlPointRecord::toStream(std::ostream &stream) {
 #pragma mark - Private
 
 void MysqlPointRecord::insertSingle(const string& identifier, time_t time, double value) {
-  // "INSERT INTO points (time, series_id, value) SELECT ?,series_id,? FROM timeseries_meta WHERE name = ?";
+  // "INSERT INTO points
   _singleInsert->setInt(1, (int)time);
   _singleInsert->setDouble(2, value);
   _singleInsert->setString(3, identifier);

@@ -28,6 +28,8 @@ namespace RTX {
     DbPointRecord();
     virtual ~DbPointRecord() {};
     
+    virtual std::vector<Point> pointsInRange(const string& identifier, time_t startTime, time_t endTime);
+    
     string singleSelectQuery() {return _singleSelect;};
     string rangeSelectQuery() {return _rangeSelect;};
     string loweBoundSelectQuery() {return _lowerBoundSelect;};
@@ -55,6 +57,9 @@ namespace RTX {
     };
     
   protected:
+    virtual std::vector<Point> selectRange(const std::string& identifier, time_t startTime, time_t endTime) {};
+    virtual void preFetchRange(const string& identifier, time_t start, time_t end);
+
     // convenience class for the range query optmization
     class Hint_t {
     public:
@@ -66,6 +71,7 @@ namespace RTX {
     Hint_t _hint;
     
   private:
+    
     string _singleSelect, _rangeSelect, _upperBoundSelect, _lowerBoundSelect, _timeQuery;
     time_format_t _timeFormat;
     

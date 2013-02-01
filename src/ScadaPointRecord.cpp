@@ -236,37 +236,7 @@ Point ScadaPointRecord::point(const string& identifier, time_t time) {
   return thePoint;
 }
 
-void ScadaPointRecord::hintAtRange(const string& identifier, time_t start, time_t end) {
-  // simple optimization for read-only pointrecord.
-  
-  // clear out the base-class cache
-  DbPointRecord::reset(identifier);
-  _hint.clear();
-  
-  // re-populate base class with new hinted range
-  time_t margin = 120;
-  std::vector<Point> newPoints = pointsWithStatement(identifier, _rangeStatement, start - margin, end + margin);
-  _hint.identifier = identifier;
-  _hint.range.first = start - margin;
-  _hint.range.second = end + margin;
-  
-  PointRecord::addPoints(identifier, newPoints);
 
-}
-
-// get a range of points
-std::vector<Point> ScadaPointRecord::pointsInRange(const string& identifier, time_t startTime, time_t endTime) {
-  std::vector<Point> pointVector;
-  
-  // see if it's already cached.
-  if ( !(_hint.range.first <= startTime && _hint.range.second >= endTime && RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
-    hintAtRange(identifier, startTime, endTime);
-  }
-  
-  pointVector = PointRecord::pointsInRange(identifier, startTime, endTime);
-  
-  return pointVector;
-}
 
 Point ScadaPointRecord::pointBefore(const string& identifier, time_t time) {
   
@@ -283,7 +253,7 @@ Point ScadaPointRecord::pointBefore(const string& identifier, time_t time) {
   
   // if not, get it from the db
   else {
-    hintAtRange(identifier, time - (3600 * 4), (time + 1) );
+    preFetchRange(identifier, time - (3600 * 4), (time + 1) );
     thePoint = PointRecord::pointBefore(identifier, time);
   }
   
@@ -305,7 +275,7 @@ Point ScadaPointRecord::pointAfter(const string& identifier, time_t time) {
   
   // if not, get it from the db
   else {
-    hintAtRange(identifier, time, time + (3600 * 4));
+    preFetchRange(identifier, time, time + (3600 * 4));
     thePoint = PointRecord::pointAfter(identifier, time);
   }
     
@@ -325,6 +295,10 @@ std::ostream& ScadaPointRecord::toStream(std::ostream &stream) {
 
 #pragma mark - Internal (private) methods
 
+
+std::vector<Point> ScadaPointRecord::selectRange(const string& identifier, time_t startTime, time_t endTime) {
+  return pointsWithStatement(identifier, _rangeStatement, startTime, endTime);
+}
 
 std::vector<Point> ScadaPointRecord::pointsWithStatement(const string& identifier, SQLHSTMT statement, time_t startTime, time_t endTime) {
   std::vector< Point > points;

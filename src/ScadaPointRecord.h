@@ -41,8 +41,6 @@ namespace RTX {
     virtual Point point(const string& identifier, time_t time);
     virtual Point pointBefore(const string& identifier, time_t time);
     virtual Point pointAfter(const string& identifier, time_t time);
-    virtual void hintAtRange(const string& identifier, time_t start, time_t end);
-    virtual std::vector<Point> pointsInRange(const string& identifier, time_t startTime, time_t endTime);
     virtual void addPoint(const string& identifier, Point point) {};
     virtual void addPoints(const string& identifier, std::vector<Point> points) {};
     virtual void reset() {};
@@ -50,6 +48,7 @@ namespace RTX {
     
   private:
     bool _connectionOk;
+    std::vector<Point> selectRange(const string& identifier, time_t startTime, time_t endTime = 0);
     std::vector<Point> pointsWithStatement(const string& identifier, SQLHSTMT statement, time_t startTime, time_t endTime = 0);
     typedef struct {
       SQLCHAR tagName[MAX_SCADA_TAG];
