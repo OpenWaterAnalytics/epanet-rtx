@@ -229,13 +229,15 @@ void PointRecord::addPoint(const string& identifier, Point point) {
     // lock the buffer
     mutex->lock();
     
-    // assuming we're adding a point to the end position
-    PointBuffer_t::iterator endPosition = (*buffer).end();
-    if ((*buffer).size() > 0) {
-      endPosition--;
+    if (time > PointRecord::lastPoint(identifier).time()) {
+      // end of the buffer
+      (*buffer).push_back(TimePointPair_t(time,newPoint));
     }
-    // insert the new point
-    (*buffer).push_back(TimePointPair_t(time,newPoint));
+    else if (time < PointRecord::firstPoint(identifier).time()) {
+      // front of the buffer
+      (*buffer).push_front(TimePointPair_t(time,newPoint));
+    }
+    
     
     // all done.
     mutex->unlock();
@@ -245,6 +247,9 @@ void PointRecord::addPoint(const string& identifier, Point point) {
 
 
 void PointRecord::addPoints(const string& identifier, std::vector<Point> points) {
+  if (points.size() == 0) {
+    return;
+  }
   // check the cache size, and upgrade if needed.
   KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
   if (it != _keyedBufferMutex.end()) {
@@ -252,9 +257,54 @@ void PointRecord::addPoints(const string& identifier, std::vector<Point> points)
     if ((*buffer).capacity() < points.size()) {
       (*buffer).set_capacity(points.size());
     }
-  
-    BOOST_FOREACH(Point thePoint, points) {
-      PointRecord::addPoint(identifier, thePoint);
+    
+    // figure out the insert order...
+    // if the set we're inserting has to be prepended to the buffer...
+    
+    Point firstCachePoint = PointRecord::firstPoint(identifier);
+    Point lastCachePoint = PointRecord::lastPoint(identifier);
+    
+    time_t firstTime = firstCachePoint.time();
+    time_t lastTime = lastCachePoint.time();
+    
+    time_t insertFirst = points.front().time();
+    time_t insertLast = points.back().time();
+    
+    if (insertFirst > insertLast) {
+      // wha!
+      cerr << "check time ordering!" << endl;
+      return;
+    }
+    
+    if (insertLast > lastTime) {
+      // insert onto end.
+      vector<Point>::const_iterator pIt = points.begin();
+      while (pIt != points.end()) {
+        
+        if (pIt->time() > lastTime) {
+          PointRecord::addPoint(identifier, *pIt);
+        }
+        
+        ++pIt;
+      }
+    }
+    else if (insertFirst < firstTime) {
+      // insert onto front (reverse iteration)
+      vector<Point>::const_reverse_iterator pIt = points.rbegin();
+      while (pIt != points.rend()) {
+        
+        // skip overlapping points.
+        if (pIt->time() < firstTime) {
+          PointRecord::addPoint(identifier, *pIt);
+        }
+        // else { /* skip */ }
+        
+        ++pIt;
+      }
+    }
+    else {
+      // some overlap?
+      cout << "fully overlapping condition" << endl;
     }
   }
 }
@@ -276,3 +326,40 @@ void PointRecord::reset(const string& identifier) {
 
 
 
+Point PointRecord::firstPoint(const string& id) {
+  Point foundPoint;
+  KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(id);
+  if (it != _keyedBufferMutex.end()) {
+    // get the constituents
+    boost::signals2::mutex *mutex = (it->second.second.get());
+    PointBuffer_t *buffer = &(it->second.first);
+    
+    if ((*buffer).empty()) {
+      return foundPoint;
+    }
+    
+    TimePointPair_t tpPair = (*buffer).front();
+    foundPoint = Point(tpPair.first, tpPair.second.first);
+    
+  }
+  return foundPoint;
+}
+
+Point PointRecord::lastPoint(const string& id) {
+  Point foundPoint;
+  KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(id);
+  if (it != _keyedBufferMutex.end()) {
+    // get the constituents
+    boost::signals2::mutex *mutex = (it->second.second.get());
+    PointBuffer_t *buffer = &(it->second.first);
+    
+    if ((*buffer).empty()) {
+      return foundPoint;
+    }
+    
+    TimePointPair_t tpPair = (*buffer).back();
+    foundPoint = Point(tpPair.first, tpPair.second.first);
+    
+  }
+  return foundPoint;
+}

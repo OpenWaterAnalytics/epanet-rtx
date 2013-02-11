@@ -185,13 +185,21 @@ std::vector<std::string> ScadaPointRecord::identifiers() {
 #pragma mark - Retrieval
 
 bool ScadaPointRecord::isPointAvailable(const string& identifier, time_t time)  {
+  Point aPoint;
+  
   if (_cachedPoint.time() == time && _cachedPointId == identifier) {
     return true;
   }
   if (PointRecord::isPointAvailable(identifier, time)) {
     return true;
   }
-  Point aPoint = pointBefore(identifier, time);
+  if (PointRecord::firstPoint(identifier).time() <= time && time <= PointRecord::lastPoint(identifier).time()) {
+    // the point is in my base cache.
+    aPoint = PointRecord::pointBefore(identifier, time);
+  }
+  else {
+    aPoint = pointBefore(identifier, time);
+  }
   if (!aPoint.isValid()) {
     // no such point
     return false;
@@ -225,7 +233,7 @@ Point ScadaPointRecord::point(const string& identifier, time_t time) {
   Point thePoint;
   
   // see if the requested point is within my cache
-  if ( (time >= _hint.range.first) && (time <= _hint.range.second) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
+  if ( (time >= PointRecord::firstPoint(identifier).time()) && (time <= PointRecord::lastPoint(identifier).time()) ) {
     thePoint = PointRecord::point(identifier, time);
   }
   
@@ -240,6 +248,8 @@ Point ScadaPointRecord::point(const string& identifier, time_t time) {
 
 Point ScadaPointRecord::pointBefore(const string& identifier, time_t time) {
   
+  time_t margin = 60*60*24*2;
+  
   Point thePoint;
   if (time == 0) {
     std::cerr << "time out of bounds" << std::endl;
@@ -253,7 +263,7 @@ Point ScadaPointRecord::pointBefore(const string& identifier, time_t time) {
   
   // if not, get it from the db
   else {
-    preFetchRange(identifier, time - (3600 * 4), (time + 1) );
+    preFetchRange(identifier, time - margin, (time + 1) );
     thePoint = PointRecord::pointBefore(identifier, time);
   }
   
@@ -262,6 +272,8 @@ Point ScadaPointRecord::pointBefore(const string& identifier, time_t time) {
 
 Point ScadaPointRecord::pointAfter(const string& identifier, time_t time) {
   
+  time_t margin = 60*60*24*2;
+  
   Point thePoint;
   if (time == 0) {
     std::cerr << "time out of bounds" << std::endl;
@@ -269,13 +281,16 @@ Point ScadaPointRecord::pointAfter(const string& identifier, time_t time) {
   }
   
   // see if the requested point is within my base-class cache
-  if ( (time >= _hint.range.first) && (time <= _hint.range.second) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
+  time_t cacheFirst = PointRecord::firstPoint(identifier).time();
+  time_t cacheLast = PointRecord::lastPoint(identifier).time();
+  
+  if ( (time >= cacheFirst) && (time <= cacheLast) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
     thePoint = PointRecord::pointAfter(identifier, time);
   }
   
   // if not, get it from the db
   else {
-    preFetchRange(identifier, time, time + (3600 * 4));
+    preFetchRange(identifier, time, time + margin);
     thePoint = PointRecord::pointAfter(identifier, time);
   }
     

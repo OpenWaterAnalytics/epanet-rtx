@@ -123,11 +123,17 @@ void MysqlPointRecord::connect() throw(RtxException) {
     string prevSelect = preamble + "time < ? LIMIT 1";
     string singleInsert = "INSERT INTO points (time, series_id, value) SELECT ?,series_id,? FROM timeseries_meta WHERE name = ?";
     
+    string firstSelectStr = "SELECT time, value FROM points INNER JOIN timeseries_meta USING (series_id) WHERE name = ? order by time asc limit 1";
+    string lastSelectStr = "SELECT time, value FROM points INNER JOIN timeseries_meta USING (series_id) WHERE name = ? order by time desc limit 1";
+    
     _rangeSelect.reset( _connection->prepareStatement(rangeSelect) );
     _singleSelect.reset( _connection->prepareStatement(singleSelect) );
     _nextSelect.reset( _connection->prepareStatement(nextSelect) );
     _previousSelect.reset( _connection->prepareStatement(prevSelect) );
     _singleInsert.reset( _connection->prepareStatement(singleInsert) );
+    
+    _firstSelect.reset( _connection->prepareStatement(firstSelectStr) );
+    _lastSelect.reset( _connection->prepareStatement(lastSelectStr) );
     
     // if we made it this far...
     _connectionOk = true;
@@ -315,6 +321,29 @@ std::ostream& MysqlPointRecord::toStream(std::ostream &stream) {
   return stream;
 }
 
+Point MysqlPointRecord::firstPoint(const string &id) {
+  Point point;
+  _firstSelect->setString(1, id);
+  boost::shared_ptr<sql::ResultSet> result( _firstSelect->executeQuery() );
+  if( result->next() ) {
+    time_t rowTime = result->getInt("time");
+    double rowValue = result->getDouble("value");
+    point = Point(rowTime, rowValue);
+  }
+  return point;
+}
+
+Point MysqlPointRecord::lastPoint(const string &id) {
+  Point point;
+  _lastSelect->setString(1, id);
+  boost::shared_ptr<sql::ResultSet> result( _lastSelect->executeQuery() );
+  if( result->next() ) {
+    time_t rowTime = result->getInt("time");
+    double rowValue = result->getDouble("value");
+    point = Point(rowTime, rowValue);
+  }
+  return point;
+}
 
 
 #pragma mark - Private
@@ -322,6 +351,7 @@ std::ostream& MysqlPointRecord::toStream(std::ostream &stream) {
 void MysqlPointRecord::insertSingle(const string& identifier, time_t time, double value) {
   // "INSERT INTO points
   _singleInsert->setInt(1, (int)time);
+  // todo -- check this: _singleInsert->setUInt64(1, (uint64_t)time);
   _singleInsert->setDouble(2, value);
   _singleInsert->setString(3, identifier);
   int affected = _singleInsert->executeUpdate();
