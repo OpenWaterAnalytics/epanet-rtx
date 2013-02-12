@@ -41,6 +41,8 @@
 		2280409B158F82EF004222DA /* Pump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409A158F82EE004222DA /* Pump.cpp */; };
 		2280409D158F8326004222DA /* Valve.h in Headers */ = {isa = PBXBuildFile; fileRef = 2280409C158F8326004222DA /* Valve.h */; };
 		2280409F158F8352004222DA /* Valve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409E158F8351004222DA /* Valve.cpp */; };
+		228B2F4A16CAEF4000FDAC47 /* libiodbc.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228B2F4916CAEF4000FDAC47 /* libiodbc.2.dylib */; };
+		228B2F4C16CAEF5500FDAC47 /* libmysqlcppconn.6.1.1.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228B2F4B16CAEF5500FDAC47 /* libmysqlcppconn.6.1.1.1.dylib */; };
 		22909B3A147DDCEB00945449 /* EpanetModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 22909B39147DDCEB00945449 /* EpanetModel.h */; };
 		22909B3C147DDE2A00945449 /* EpanetModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22909B3B147DDE2A00945449 /* EpanetModel.cpp */; };
 		229D1BD715FE3DFF000B4C94 /* libboost_filesystem.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 229D1BD615FE3DFF000B4C94 /* libboost_filesystem.dylib */; };
@@ -64,10 +66,8 @@
 		22C62AE51439EE0B00841E60 /* Point.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C62AD51439EE0B00841E60 /* Point.h */; };
 		22C62AE91439EE0B00841E60 /* TimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C62AD91439EE0B00841E60 /* TimeSeries.cpp */; };
 		22C62AEA1439EE0B00841E60 /* TimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C62ADA1439EE0B00841E60 /* TimeSeries.h */; };
-		22C62AEE1439EEF000841E60 /* libiodbc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22C62AED1439EEF000841E60 /* libiodbc.dylib */; };
 		22C62AFE143A0E3F00841E60 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22C62AC01439ED6300841E60 /* libepanet-rtx.dylib */; };
 		22C62B04143A10A500841E60 /* rtxExceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C62B03143A10A500841E60 /* rtxExceptions.h */; };
-		22CA153716694123008C69DA /* libmysqlcppconn.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22CA153616694123008C69DA /* libmysqlcppconn.dylib */; };
 		22DDAD811443684B00C1F188 /* Element.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DDAD801443684B00C1F188 /* Element.h */; };
 		22DDAD941443750600C1F188 /* Model.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DDAD931443750600C1F188 /* Model.h */; };
 		22DEE91C153F5C44008F75AE /* PointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22DEE91B153F5C44008F75AE /* PointRecord.cpp */; };
@@ -185,6 +185,8 @@
 		2281A75D15A744E60018EC0F /* DbPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DbPointRecord.h; path = ../../src/DbPointRecord.h; sourceTree = "<group>"; };
 		2281A75E15A7451F0018EC0F /* MysqlPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MysqlPointRecord.h; path = ../../src/MysqlPointRecord.h; sourceTree = "<group>"; };
 		2281A75F15A745520018EC0F /* ScadaPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScadaPointRecord.h; path = ../../src/ScadaPointRecord.h; sourceTree = "<group>"; };
+		228B2F4916CAEF4000FDAC47 /* libiodbc.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiodbc.2.dylib; path = /usr/local/lib/libiodbc.2.dylib; sourceTree = "<absolute>"; };
+		228B2F4B16CAEF5500FDAC47 /* libmysqlcppconn.6.1.1.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.6.1.1.1.dylib; path = /usr/local/lib/libmysqlcppconn.6.1.1.1.dylib; sourceTree = "<absolute>"; };
 		22909B39147DDCEB00945449 /* EpanetModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EpanetModel.h; path = ../../src/EpanetModel.h; sourceTree = "<group>"; };
 		22909B3B147DDE2A00945449 /* EpanetModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetModel.cpp; path = ../../src/EpanetModel.cpp; sourceTree = "<group>"; };
 		229D1BD615FE3DFF000B4C94 /* libboost_filesystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_filesystem.dylib; path = /usr/local/lib/libboost_filesystem.dylib; sourceTree = "<absolute>"; };
@@ -195,7 +197,7 @@
 		22B7154D14DC2C2C00041167 /* Clock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Clock.cpp; path = ../../src/Clock.cpp; sourceTree = "<group>"; };
 		22B7154F14DC802300041167 /* Resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Resampler.h; path = ../../src/Resampler.h; sourceTree = "<group>"; };
 		22B7155114DC813800041167 /* Resampler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Resampler.cpp; path = ../../src/Resampler.cpp; sourceTree = "<group>"; };
-		22B8A79C1603CA6100EECAA5 /* rtx-demo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = "rtx-demo"; path = timeseries_demo; sourceTree = BUILT_PRODUCTS_DIR; };
+		22B8A79C1603CA6100EECAA5 /* timeseries_demo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = timeseries_demo; sourceTree = BUILT_PRODUCTS_DIR; };
 		22BF02D215EBCABC00F66465 /* Point.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Point.cpp; path = ../../src/Point.cpp; sourceTree = "<group>"; };
 		22C62AC01439ED6300841E60 /* libepanet-rtx.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libepanet-rtx.dylib"; sourceTree = BUILT_PRODUCTS_DIR; };
 		22C62ACB1439EE0B00841E60 /* AggregatorTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AggregatorTimeSeries.cpp; path = ../../src/AggregatorTimeSeries.cpp; sourceTree = "<group>"; };
@@ -205,10 +207,8 @@
 		22C62AD51439EE0B00841E60 /* Point.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Point.h; path = ../../src/Point.h; sourceTree = "<group>"; };
 		22C62AD91439EE0B00841E60 /* TimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeries.cpp; path = ../../src/TimeSeries.cpp; sourceTree = "<group>"; };
 		22C62ADA1439EE0B00841E60 /* TimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeSeries.h; path = ../../src/TimeSeries.h; sourceTree = "<group>"; };
-		22C62AED1439EEF000841E60 /* libiodbc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiodbc.dylib; path = /usr/local/lib/libiodbc.dylib; sourceTree = "<absolute>"; };
-		22C62AF4143A0E3300841E60 /* rtx-test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = "rtx-test"; path = "rtx-validator"; sourceTree = BUILT_PRODUCTS_DIR; };
+		22C62AF4143A0E3300841E60 /* rtx-validator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "rtx-validator"; sourceTree = BUILT_PRODUCTS_DIR; };
 		22C62B03143A10A500841E60 /* rtxExceptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rtxExceptions.h; path = ../../src/rtxExceptions.h; sourceTree = "<group>"; };
-		22CA153616694123008C69DA /* libmysqlcppconn.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.dylib; path = ../../../../../../../../../usr/local/lib/libmysqlcppconn.dylib; sourceTree = "<group>"; };
 		22DDAD801443684B00C1F188 /* Element.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Element.h; path = ../../src/Element.h; sourceTree = "<group>"; };
 		22DDAD931443750600C1F188 /* Model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Model.h; path = ../../src/Model.h; sourceTree = "<group>"; };
 		22DEE91B153F5C44008F75AE /* PointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PointRecord.cpp; path = ../../src/PointRecord.cpp; sourceTree = "<group>"; };
@@ -237,13 +237,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				228B2F4C16CAEF5500FDAC47 /* libmysqlcppconn.6.1.1.1.dylib in Frameworks */,
+				228B2F4A16CAEF4000FDAC47 /* libiodbc.2.dylib in Frameworks */,
 				220D3B6516125B140029A041 /* libboost_regex.dylib in Frameworks */,
 				229D1BE015FE3E45000B4C94 /* libconfig++.9.dylib in Frameworks */,
 				229D1BDC15FE3E20000B4C94 /* libboost_date_time.dylib in Frameworks */,
 				229D1BDA15FE3E0F000B4C94 /* libboost_system.dylib in Frameworks */,
 				229D1BD715FE3DFF000B4C94 /* libboost_filesystem.dylib in Frameworks */,
-				22C62AEE1439EEF000841E60 /* libiodbc.dylib in Frameworks */,
-				22CA153716694123008C69DA /* libmysqlcppconn.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -262,13 +262,13 @@
 		220DFA9C15502E4100AF41D0 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				228B2F4B16CAEF5500FDAC47 /* libmysqlcppconn.6.1.1.1.dylib */,
+				228B2F4916CAEF4000FDAC47 /* libiodbc.2.dylib */,
 				229D1BDF15FE3E45000B4C94 /* libconfig++.9.dylib */,
 				229D1BDB15FE3E20000B4C94 /* libboost_date_time.dylib */,
 				229D1BD915FE3E0F000B4C94 /* libboost_system.dylib */,
 				229D1BD615FE3DFF000B4C94 /* libboost_filesystem.dylib */,
 				220D3B62161259050029A041 /* libboost_regex.dylib */,
-				22C62AED1439EEF000841E60 /* libiodbc.dylib */,
-				22CA153616694123008C69DA /* libmysqlcppconn.dylib */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -400,8 +400,8 @@
 			isa = PBXGroup;
 			children = (
 				22C62AC01439ED6300841E60 /* libepanet-rtx.dylib */,
-				22C62AF4143A0E3300841E60 /* rtx-test */,
-				22B8A79C1603CA6100EECAA5 /* rtx-demo */,
+				22C62AF4143A0E3300841E60 /* rtx-validator */,
+				22B8A79C1603CA6100EECAA5 /* timeseries_demo */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -581,7 +581,7 @@
 			);
 			name = timeseries_demo;
 			productName = "rtx-demo";
-			productReference = 22B8A79C1603CA6100EECAA5 /* rtx-demo */;
+			productReference = 22B8A79C1603CA6100EECAA5 /* timeseries_demo */;
 			productType = "com.apple.product-type.tool";
 		};
 		22C62ABF1439ED6300841E60 /* epanet-rtx */ = {
@@ -615,7 +615,7 @@
 			);
 			name = "rtx-validator";
 			productName = "rtx-test";
-			productReference = 22C62AF4143A0E3300841E60 /* rtx-test */;
+			productReference = 22C62AF4143A0E3300841E60 /* rtx-validator */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -723,6 +723,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 			};
 			name = Debug;
 		};
@@ -733,6 +734,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
@@ -803,6 +805,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
 			};
 			name = Debug;
 		};
@@ -817,6 +820,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
@@ -825,6 +829,7 @@
 			buildSettings = {
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 			};
 			name = Debug;
 		};
@@ -833,6 +838,7 @@
 			buildSettings = {
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
