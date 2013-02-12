@@ -59,16 +59,6 @@ namespace RTX {
   protected:
     virtual std::vector<Point> selectRange(const std::string& identifier, time_t startTime, time_t endTime) {};
     virtual void preFetchRange(const string& identifier, time_t start, time_t end);
-
-    // convenience class for the range query optmization
-    class Hint_t {
-    public:
-      Hint_t();
-      void clear();
-      std::string identifier;
-      std::pair<time_t, time_t> range;
-    };
-    Hint_t _hint;
     
   private:
     

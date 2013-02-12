@@ -14,7 +14,6 @@ using namespace RTX;
 using namespace std;
 
 ScadaPointRecord::ScadaPointRecord() {
-  _hint.clear();
   _connectionOk = false;
 }
 
@@ -193,7 +192,9 @@ bool ScadaPointRecord::isPointAvailable(const string& identifier, time_t time)  
   if (PointRecord::isPointAvailable(identifier, time)) {
     return true;
   }
-  if (PointRecord::firstPoint(identifier).time() <= time && time <= PointRecord::lastPoint(identifier).time()) {
+  time_t cacheFirst = PointRecord::firstPoint(identifier).time();
+  time_t cacheLast = PointRecord::lastPoint(identifier).time();
+  if (cacheFirst <= time && time <= cacheLast) {
     // the point is in my base cache.
     aPoint = PointRecord::pointBefore(identifier, time);
   }
@@ -257,7 +258,7 @@ Point ScadaPointRecord::pointBefore(const string& identifier, time_t time) {
   }
   
   // see if the requested point is within my base-class cache
-  if ( (time >= _hint.range.first) && (time <= _hint.range.second) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
+  if ( PointRecord::firstPoint(identifier).time() <= time && PointRecord::lastPoint(identifier).time() >= time ) {
     thePoint = PointRecord::pointBefore(identifier, time);
   }
   
@@ -284,7 +285,7 @@ Point ScadaPointRecord::pointAfter(const string& identifier, time_t time) {
   time_t cacheFirst = PointRecord::firstPoint(identifier).time();
   time_t cacheLast = PointRecord::lastPoint(identifier).time();
   
-  if ( (time >= cacheFirst) && (time <= cacheLast) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
+  if ( PointRecord::firstPoint(identifier).time() <= time && PointRecord::lastPoint(identifier).time() >= time ) {
     thePoint = PointRecord::pointAfter(identifier, time);
   }
   

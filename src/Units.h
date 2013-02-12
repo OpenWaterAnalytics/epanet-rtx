@@ -91,12 +91,15 @@ namespace RTX {
     
     Units operator*(const Units& unit) const;
     Units operator/(const Units& unit) const;
+    bool operator==(const Units& unit) const;
     
     bool isSameDimensionAs(const Units& unit) const;
     bool isDimensionless();
     double conversion() const;
     static double convertValue(double value, const Units& fromUnits, const Units& toUnits);
     static Units unitOfType(const std::string& unitString);
+    static std::map<std::string, Units> unitStringMap();
+    std::string unitString();
     
     virtual std::ostream& toStream(std::ostream &stream);
     

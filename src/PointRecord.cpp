@@ -254,7 +254,8 @@ void PointRecord::addPoints(const string& identifier, std::vector<Point> points)
   KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
   if (it != _keyedBufferMutex.end()) {
     PointBuffer_t *buffer = &(it->second.first);
-    if ((*buffer).capacity() < points.size()) {
+    size_t capacity = (*buffer).capacity();
+    if (capacity < points.size()) {
       (*buffer).set_capacity(points.size());
     }
     
