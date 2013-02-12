@@ -7,9 +7,11 @@
 //  
 
 #include <iostream>
+#include <map>
 #include "Units.h"
 
 using namespace RTX;
+using namespace std;
 
 
 Units::Units(double conversion, int mass, int length, int time, int current, int temperature, int amount, int intensity) {
@@ -52,6 +54,13 @@ Units Units::operator/(const Units& unit) const {
                _intensity - unit._intensity);
 }
 
+bool Units::operator==(const RTX::Units &unit) const {
+  if (_conversion == unit._conversion && this->isSameDimensionAs(unit)) {
+    return true;
+  }
+  return false;
+}
+
 
 bool Units::isSameDimensionAs(const Units& unit) const {
   
@@ -85,11 +94,11 @@ bool Units::isDimensionless() {
 }
 
 
-std::ostream& RTX::operator<< (std::ostream &out, Units &unit) {
+ostream& RTX::operator<< (ostream &out, Units &unit) {
   return unit.toStream(out);
 }
 
-std::ostream& Units::toStream(std::ostream &stream) {
+ostream& Units::toStream(ostream &stream) {
   if (isDimensionless()) {
     stream << "(dimensionless)";
     return stream;
@@ -109,63 +118,65 @@ std::ostream& Units::toStream(std::ostream &stream) {
 }
 
 
+string Units::unitString() {
+  map<string, Units> unitMap = Units::unitStringMap();
+  
+  map<string, Units>::const_iterator it = unitMap.begin();
+  
+  while (it != unitMap.end()) {
+    Units theseUnits = it->second;
+    if (theseUnits == (*this)) {
+      return it->first;
+    }
+    ++it;
+  }
+  
+  return "UNKNOWN UNITS";
+  
+}
+
+
+
 // class methods
 double Units::convertValue(double value, const Units& fromUnits, const Units& toUnits) {
   if (fromUnits.isSameDimensionAs(toUnits)) {
     return (value * fromUnits._conversion / toUnits._conversion);
   }
   else {
-    std::cerr << "Units are not dimensionally consistent" << std::endl;
+    cerr << "Units are not dimensionally consistent" << endl;
     return 0.;
   }
 }
 
+
+map<string, Units> Units::unitStringMap() {
+  map<string, Units> m;
+  
+  m["gpm"] = RTX_GALLON_PER_MINUTE;
+  m["mgd"] = RTX_MILLION_GALLON_PER_DAY;
+  m["mld"] = RTX_MILLION_LITER_PER_DAY;
+  m["cfs"] = RTX_CUBIC_FOOT_PER_SECOND;
+  m["lpm"] = RTX_LITER_PER_MINUTE;
+  m["lps"] = RTX_LITER_PER_SECOND;
+  m["m"]   = RTX_METER;
+  m["ft"]  = RTX_FOOT;
+  m["in"]  = RTX_INCH;
+  m["d"]   = RTX_DAY;
+  m["hr"]  = RTX_HOUR;
+  m["min"] = RTX_MINUTE;
+  m["s"]   = RTX_SECOND;
+  
+  return m;
+}
+
 // factory for string input
-Units Units::unitOfType(const std::string& unitString) {
-  if (RTX_STRINGS_ARE_EQUAL(unitString, "gpm")) {
-    return RTX_GALLON_PER_MINUTE;
+Units Units::unitOfType(const string& unitString) {
+  map<string, Units> unitMap = Units::unitStringMap();
+  if (unitMap.find(unitString) != unitMap.end()) {
+    return unitMap[unitString];
   }
-  else if (RTX_STRINGS_ARE_EQUAL(unitString, "mgd")) {
-    return RTX_MILLION_GALLON_PER_DAY;
-  }
-  else if (RTX_STRINGS_ARE_EQUAL(unitString, "mld")) {
-    return RTX_MILLION_LITER_PER_DAY;
-  }
-  else if (RTX_STRINGS_ARE_EQUAL(unitString, "cfs")) {
-    return RTX_CUBIC_FOOT_PER_SECOND;
-  }
-  else if (RTX_STRINGS_ARE_EQUAL(unitString, "lpm")) {
-    return RTX_LITER_PER_MINUTE;
-  }
-  else if (RTX_STRINGS_ARE_EQUAL(unitString, "lps")) {
-    return RTX_LITER_PER_SECOND;
-  }
-  
-  else if (RTX_STRINGS_ARE_EQUAL(unitString, "m")) {
-    return RTX_METER;
-  }
-  else if (RTX_STRINGS_ARE_EQUAL(unitString, "ft")) {
-    return RTX_FOOT;
-  }
-  else if (RTX_STRINGS_ARE_EQUAL(unitString, "in")) {
-    return RTX_INCH;
-  }
-  
-  else if (RTX_STRINGS_ARE_EQUAL(unitString, "d")) {
-    return RTX_DAY;
-  }
-  else if (RTX_STRINGS_ARE_EQUAL(unitString, "hr")) {
-    return RTX_HOUR;
-  }
-  else if (RTX_STRINGS_ARE_EQUAL(unitString, "min")) {
-    return RTX_MINUTE;
-  }
-  else if (RTX_STRINGS_ARE_EQUAL(unitString, "s")) {
-    return RTX_SECOND;
-  }
-  
   else {
-    std::cerr << "Units not recognized: " << unitString << std::endl;
+    cerr << "Units not recognized: " << unitString << endl;
     return RTX_DIMENSIONLESS;
   }
 }

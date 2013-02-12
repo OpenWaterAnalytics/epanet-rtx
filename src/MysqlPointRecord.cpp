@@ -222,7 +222,7 @@ Point MysqlPointRecord::point(const string& identifier, time_t time) {
   Point thePoint;
   
   // see if the requested point is within my cache
-  if ( (time >= _hint.range.first) && (time <= _hint.range.second) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
+  if ( PointRecord::firstPoint(identifier).time() <= time && PointRecord::lastPoint(identifier).time() >= time ) {
     thePoint = PointRecord::point(identifier, time);
   }
   else {
