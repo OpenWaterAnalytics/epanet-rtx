@@ -125,6 +125,9 @@ void Model::initDemandZones() {
   }
   int iZone = 0;
   
+  // TODO -- fix the bug where recursion causes a huge memory suck.
+  // flatten this out with an explicit call stack, rather than an execution call stack.
+  
   // if the set is not empty, then there's work to be done:
   while (!nodeSet.empty()) {
     iZone++;

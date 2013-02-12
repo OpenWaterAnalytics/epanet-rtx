@@ -111,7 +111,7 @@ Point ModularTimeSeries::point(time_t time) {
       return aPoint;
     }
     else {
-      cerr << "check point availability first\n";
+      cerr << "ModularTimeSeries: check point availability first\n";
       // TODO -- throw something? reminder to check point availability first...
       Point point;
       return point;
@@ -137,7 +137,31 @@ Point ModularTimeSeries::pointAfter(time_t time) {
 
 vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
   // call the source points method to get it to cache points...
-  _source->points(start, end);
+  // but only for the time range that we need (i.e., have not generated yet.)
+  // todo -- make this smarter. code below is only capable of prefetching the preceeding or succeeding subintervals.
+  
+  Point firstCachePoint = record()->firstPoint(name());
+  Point lastCachePoint = record()->lastPoint(name());
+  
+  time_t firstTime = firstCachePoint.time();
+  time_t lastTime = lastCachePoint.time();
+  
+  if (firstCachePoint.isValid() && lastCachePoint.isValid()) {
+    if (start < firstTime && end >= firstTime && end <= lastTime) {
+      // subinterval preceeding the cache
+      _source->points(start, firstTime);
+    }
+    else if (end > lastTime && start <= lastTime && start >= firstTime) {
+      // subinterval succeeding the cache
+      _source->points(lastTime, end);
+    }
+    else if ( (end < firstTime || start > lastTime) || (start < firstTime && end > lastTime)) {
+      _source->points(start, end);
+    }
+  } else {
+    _source->points(start, end);
+  }
+  
   
   // then call the base class method.
   return TimeSeries::points(start, end);

@@ -36,7 +36,12 @@ void Zone::setJunctionFlowUnits(RTX::Units units) {
 }
 
 void Zone::addJunction(Junction::sharedPointer junction) {
-  _junctions[junction->name()] = junction;
+  if (_junctions.find(junction->name()) != _junctions.end()) {
+    cerr << "err: junction already exists" << endl;
+  }
+  else {
+    _junctions[junction->name()] = junction;
+  }
 }
 
 void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {

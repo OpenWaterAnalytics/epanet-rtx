@@ -286,6 +286,9 @@ void ConfigFactory::createTimeSeriesList(Setting& timeSeriesGroup) {
     if (theTimeSeries != NULL) {
       _timeSeriesList[seriesName] = theTimeSeries;
     }
+    else {
+      cerr << "could not create time series: " << seriesName << " -- check config." << endl;
+    }
   }
   
   // connect single sources (ModularTimeSeries subclasses)

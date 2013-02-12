@@ -23,9 +23,27 @@ namespace RTX {
   
   class DbPointRecord : public PointRecord {
   public:
+    typedef enum { LOCAL, UTC } time_format_t;
     RTX_SHARED_POINTER(DbPointRecord);
-    DbPointRecord() {};
+    DbPointRecord();
     virtual ~DbPointRecord() {};
+    
+    virtual std::vector<Point> pointsInRange(const string& identifier, time_t startTime, time_t endTime);
+    
+    string singleSelectQuery() {return _singleSelect;};
+    string rangeSelectQuery() {return _rangeSelect;};
+    string loweBoundSelectQuery() {return _lowerBoundSelect;};
+    string upperBoundSelectQuery() {return _upperBoundSelect;};
+    string timeQuery() {return _timeQuery;};
+    
+    void setTimeFormat(time_format_t timeFormat) { _timeFormat = timeFormat;};
+    time_format_t timeFormat() { return _timeFormat; };
+    
+    void setSingleSelectQuery(string query) {_singleSelect = query;};
+    void setRangeSelectQuery(string query) {_rangeSelect = query;};
+    void setLowerBoundSelectQuery(string query) {_lowerBoundSelect = query;};
+    void setUpperBoundSelectQuery(string query) {_upperBoundSelect = query;};
+    void setTimeQuery(string query) {_timeQuery = query;};
     
     //exceptions specific to this class family
     class RtxDbConnectException : public RtxException {
@@ -37,6 +55,25 @@ namespace RTX {
       virtual const char* what() const throw()
       { return "Could not retrieve data.\n"; }
     };
+    
+  protected:
+    virtual std::vector<Point> selectRange(const std::string& identifier, time_t startTime, time_t endTime) {};
+    virtual void preFetchRange(const string& identifier, time_t start, time_t end);
+
+    // convenience class for the range query optmization
+    class Hint_t {
+    public:
+      Hint_t();
+      void clear();
+      std::string identifier;
+      std::pair<time_t, time_t> range;
+    };
+    Hint_t _hint;
+    
+  private:
+    
+    string _singleSelect, _rangeSelect, _upperBoundSelect, _lowerBoundSelect, _timeQuery;
+    time_format_t _timeFormat;
     
   };
 

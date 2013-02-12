@@ -9,7 +9,6 @@
 #include <boost/foreach.hpp>
 
 #include "TimeSeries.h"
-#include "PersistentContainer.h"
 #include "IrregularClock.h"
 
 using namespace RTX;
@@ -80,7 +79,7 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
     return points;
   }
   // simple optimization
-  _points->hintAtRange(name(), start, end);
+  _points->preFetchRange(name(), start, end);
   
   std::vector<time_t> timeList;
   

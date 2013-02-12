@@ -7,7 +7,6 @@
 //  
 
 #include "MovingAverage.h"
-#include "PersistentContainer.h"
 #include <boost/foreach.hpp>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>

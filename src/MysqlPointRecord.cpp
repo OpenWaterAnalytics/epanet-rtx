@@ -123,11 +123,17 @@ void MysqlPointRecord::connect() throw(RtxException) {
     string prevSelect = preamble + "time < ? LIMIT 1";
     string singleInsert = "INSERT INTO points (time, series_id, value) SELECT ?,series_id,? FROM timeseries_meta WHERE name = ?";
     
+    string firstSelectStr = "SELECT time, value FROM points INNER JOIN timeseries_meta USING (series_id) WHERE name = ? order by time asc limit 1";
+    string lastSelectStr = "SELECT time, value FROM points INNER JOIN timeseries_meta USING (series_id) WHERE name = ? order by time desc limit 1";
+    
     _rangeSelect.reset( _connection->prepareStatement(rangeSelect) );
     _singleSelect.reset( _connection->prepareStatement(singleSelect) );
     _nextSelect.reset( _connection->prepareStatement(nextSelect) );
     _previousSelect.reset( _connection->prepareStatement(prevSelect) );
     _singleInsert.reset( _connection->prepareStatement(singleInsert) );
+    
+    _firstSelect.reset( _connection->prepareStatement(firstSelectStr) );
+    _lastSelect.reset( _connection->prepareStatement(lastSelectStr) );
     
     // if we made it this far...
     _connectionOk = true;
@@ -192,11 +198,15 @@ std::vector<std::string> MysqlPointRecord::identifiers() {
   return ids;
 }
 
-void MysqlPointRecord::hintAtRange(const string& identifier, time_t start, time_t end) {
-  // TODO -- performance optimization - caching -- see scadapointrecord.cpp for code snippets.
-}
 
 bool MysqlPointRecord::isPointAvailable(const string& identifier, time_t time) {
+  if (_cachedPoint.time() == time && _cachedPointId == identifier) {
+    return true;
+  }
+  if (PointRecord::isPointAvailable(identifier, time)) {
+    return true;
+  }
+  
   Point point = selectSingle(identifier, time, _singleSelect);
   if (point.isValid()) {
     return true;
@@ -204,14 +214,22 @@ bool MysqlPointRecord::isPointAvailable(const string& identifier, time_t time) {
   return false;
 }
 Point MysqlPointRecord::point(const string& identifier, time_t time) {
-  Point point = selectSingle(identifier, time, _singleSelect);
-  if (point.isValid()) {
-    return point;
+  
+  if (time == _cachedPoint.time() && identifier == _cachedPointId) {
+    return _cachedPoint;
+  }
+  
+  Point thePoint;
+  
+  // see if the requested point is within my cache
+  if ( (time >= _hint.range.first) && (time <= _hint.range.second) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
+    thePoint = PointRecord::point(identifier, time);
   }
   else {
-    // todo - throw something?
-    return point;
+    thePoint = selectSingle(identifier, time, _singleSelect);
   }
+  
+  return thePoint;
 }
 Point MysqlPointRecord::pointBefore(const string& identifier, time_t time) {
   Point point = selectSingle(identifier, time, _previousSelect);
@@ -234,14 +252,13 @@ Point MysqlPointRecord::pointAfter(const string& identifier, time_t time) {
     return point;
   }
 }
-std::vector<Point> MysqlPointRecord::pointsInRange(const string& identifier, time_t startTime, time_t endTime) {
-  return selectRange(identifier, startTime, endTime);
-}
+
 void MysqlPointRecord::addPoint(const string& identifier, Point point) {
   time_t time = point.time();
   double value = point.value();
   insertSingle(identifier, time, value);
 }
+
 void MysqlPointRecord::addPoints(const string& identifier, std::vector<Point> points) {
   BOOST_FOREACH(Point point, points) {
     addPoint(identifier, point);
@@ -304,13 +321,37 @@ std::ostream& MysqlPointRecord::toStream(std::ostream &stream) {
   return stream;
 }
 
+Point MysqlPointRecord::firstPoint(const string &id) {
+  Point point;
+  _firstSelect->setString(1, id);
+  boost::shared_ptr<sql::ResultSet> result( _firstSelect->executeQuery() );
+  if( result->next() ) {
+    time_t rowTime = result->getInt("time");
+    double rowValue = result->getDouble("value");
+    point = Point(rowTime, rowValue);
+  }
+  return point;
+}
+
+Point MysqlPointRecord::lastPoint(const string &id) {
+  Point point;
+  _lastSelect->setString(1, id);
+  boost::shared_ptr<sql::ResultSet> result( _lastSelect->executeQuery() );
+  if( result->next() ) {
+    time_t rowTime = result->getInt("time");
+    double rowValue = result->getDouble("value");
+    point = Point(rowTime, rowValue);
+  }
+  return point;
+}
 
 
 #pragma mark - Private
 
 void MysqlPointRecord::insertSingle(const string& identifier, time_t time, double value) {
-  // "INSERT INTO points (time, series_id, value) SELECT ?,series_id,? FROM timeseries_meta WHERE name = ?";
+  // "INSERT INTO points
   _singleInsert->setInt(1, (int)time);
+  // todo -- check this: _singleInsert->setUInt64(1, (uint64_t)time);
   _singleInsert->setDouble(2, value);
   _singleInsert->setString(3, identifier);
   int affected = _singleInsert->executeUpdate();

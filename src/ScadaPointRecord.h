@@ -41,8 +41,6 @@ namespace RTX {
     virtual Point point(const string& identifier, time_t time);
     virtual Point pointBefore(const string& identifier, time_t time);
     virtual Point pointAfter(const string& identifier, time_t time);
-    virtual void hintAtRange(const string& identifier, time_t start, time_t end);
-    virtual std::vector<Point> pointsInRange(const string& identifier, time_t startTime, time_t endTime);
     virtual void addPoint(const string& identifier, Point point) {};
     virtual void addPoints(const string& identifier, std::vector<Point> points) {};
     virtual void reset() {};
@@ -50,7 +48,8 @@ namespace RTX {
     
   private:
     bool _connectionOk;
-    std::deque<Point> pointsWithStatement(const string& identifier, SQLHSTMT statement, time_t startTime, time_t endTime = 0);
+    std::vector<Point> selectRange(const string& identifier, time_t startTime, time_t endTime = 0);
+    std::vector<Point> pointsWithStatement(const string& identifier, SQLHSTMT statement, time_t startTime, time_t endTime = 0);
     typedef struct {
       SQLCHAR tagName[MAX_SCADA_TAG];
       SQL_TIMESTAMP_STRUCT time;
@@ -69,30 +68,8 @@ namespace RTX {
     SQLHDBC _SCADAdbc;
     SQLHSTMT _SCADAstmt, _rangeStatement, _lowerBoundStatement, _upperBoundStatement, _SCADAtimestmt;
     std::string _dsn;
-    std::string _dataPointQuery, _dataRangeQuery, _dataLowerBoundQuery, _dataUpperBoundQuery, _timeQuery;
     ScadaRecord _tempRecord;
     ScadaQuery _query;
-    // convenience class for syntax
-    class ScadaSyntax_t {
-    public:
-      std::string table;
-      std::string date;
-      std::string tag;
-      std::string value;
-      std::string quality;
-    };
-    ScadaSyntax_t _syntax;
-    // convenience class for the range statement optmization
-    class Hint_t {
-    public:
-      Hint_t();
-      void clear();
-      std::string identifier;
-      std::pair<time_t, time_t> range;
-      std::deque<Point> cache;
-    };
-    Hint_t _hint;
-    
     
     void bindOutputColumns(SQLHSTMT statement, ScadaRecord* record);
     SQL_TIMESTAMP_STRUCT sqlTime(time_t unixTime);

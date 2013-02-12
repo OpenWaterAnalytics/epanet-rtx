@@ -27,11 +27,40 @@ ScadaPointRecord::~ScadaPointRecord() {
 #pragma mark Initialization
 
 void ScadaPointRecord::setSyntax(const string& table, const string& dateCol, const string& tagCol, const string& valueCol, const string& qualityCol) {
-  _syntax.table =   table;
-  _syntax.date =    dateCol;
-  _syntax.tag =     tagCol;
-  _syntax.value =   valueCol;
-  _syntax.quality = qualityCol;
+  string dataPointQuery, dataRangeQuery, dataLowerBoundQuery, dataUpperBoundQuery, dataTimeQuery;
+  
+  // defaults are good for MSSQL-style syntax. override these defaults for other schemas.
+  
+  dataPointQuery = "SELECT " + dateCol + ", " + tagCol + ", " + valueCol + ", " + qualityCol +
+                  " FROM " + table +
+                  " WHERE (" + dateCol + " = ?) AND " + tagCol + " = ?";
+  
+  dataRangeQuery = "SELECT " + dateCol + ", " + tagCol + ", " + valueCol + ", " + qualityCol +
+                  " FROM " + table +
+                  " WHERE (" + dateCol + " >= ?) AND (" + dateCol + " <= ?) AND " + tagCol + " = ? ORDER BY " + dateCol + " asc";
+  
+  dataLowerBoundQuery =  "SELECT TOP 2 " + dateCol + ", " + tagCol + ", " + valueCol + ", " + qualityCol +
+                        " FROM " + table +
+                        " WHERE (" + dateCol + " > ?) AND (" + dateCol + " <= ?) AND " + tagCol + " = ?" +
+                        " ORDER BY " + dateCol + " DESC";
+  
+  dataUpperBoundQuery =  "SELECT TOP 2 " + dateCol + ", " + tagCol + ", " + valueCol + ", " + qualityCol +
+                        " FROM " + table +
+                        " WHERE (" + dateCol + " > ?) AND (" + dateCol + " <= ?) AND " + tagCol + " = ?" +
+                        " ORDER BY " + dateCol + " ASC";
+  
+  dataTimeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
+  
+  
+  _query.tagNameInd = SQL_NTS;
+  
+  
+  setSingleSelectQuery(dataPointQuery);
+  setRangeSelectQuery(dataRangeQuery);
+  setUpperBoundSelectQuery(dataUpperBoundQuery);
+  setLowerBoundSelectQuery(dataLowerBoundQuery);
+  setTimeQuery(dataTimeQuery);
+  
 }
 
 
@@ -40,27 +69,7 @@ void ScadaPointRecord::connect() throw(RtxException) {
   if (RTX_STRINGS_ARE_EQUAL(this->connectionString(), "")) {
     return;
   }
-  _dataPointQuery = "SELECT " + _syntax.date + ", " + _syntax.tag + ", " + _syntax.value + ", " + _syntax.quality +
-                    " FROM " + _syntax.table +
-                    " WHERE (" + _syntax.date + " = ?) AND " + _syntax.tag + " = ?";
   
-  _dataRangeQuery = "SELECT " + _syntax.date + ", " + _syntax.tag + ", " + _syntax.value + ", " + _syntax.quality +
-                    " FROM " + _syntax.table +
-                    " WHERE (" + _syntax.date + " >= ?) AND (" + _syntax.date + " <= ?) AND " + _syntax.tag + " = ?";
-  
-  _dataLowerBoundQuery =  "SELECT TOP 2 " + _syntax.date + ", " + _syntax.tag + ", " + _syntax.value + ", " + _syntax.quality +
-                          " FROM " + _syntax.table +
-                          " WHERE (" + _syntax.date + " > ?) AND (" + _syntax.date + " <= ?) AND " + _syntax.tag + " = ?" +
-                          " ORDER BY " + _syntax.date + " DESC";
-  
-  _dataUpperBoundQuery =  "SELECT TOP 2 " + _syntax.date + ", " + _syntax.tag + ", " + _syntax.value + ", " + _syntax.quality +
-                          " FROM " + _syntax.table +
-                          " WHERE (" + _syntax.date + " > ?) AND (" + _syntax.date + " <= ?) AND " + _syntax.tag + " = ?" +
-                          " ORDER BY " + _syntax.date + " ASC";
-  
-  _timeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
-  // oracle _timeQuery = "select sysdate from dual";
-  _query.tagNameInd = SQL_NTS;
   
   SQLRETURN sqlRet;
   
@@ -91,34 +100,34 @@ void ScadaPointRecord::connect() throw(RtxException) {
     /* bind tempRecord members to SQL return columns */
     bindOutputColumns(_SCADAstmt, &_tempRecord);
     // bind input parameters, so we can easily change them when we want to make requests.
-    sqlRet = SQLBindParameter(_SCADAstmt, 1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd);
+    sqlRet = SQLBindParameter(_SCADAstmt, 1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd);
     sqlRet = SQLBindParameter(_SCADAstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd);
     
     // bindings for the range statement
     bindOutputColumns(_rangeStatement, &_tempRecord);
-    SQL_CHECK(SQLBindParameter(_rangeStatement, 1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd), "SQLBindParameter", _rangeStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLBindParameter(_rangeStatement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TIMESTAMP, 0, 0, &_query.end, sizeof(SQL_TIMESTAMP_STRUCT), &_query.endInd), "SQLBindParameter", _rangeStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLBindParameter(_rangeStatement, 1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd), "SQLBindParameter", _rangeStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLBindParameter(_rangeStatement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.end, sizeof(SQL_TIMESTAMP_STRUCT), &_query.endInd), "SQLBindParameter", _rangeStatement, SQL_HANDLE_STMT);
     SQL_CHECK(SQLBindParameter(_rangeStatement, 3, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd), "SQLBindParameter", _rangeStatement, SQL_HANDLE_STMT);
     
     // bindings for lower bound statement
     bindOutputColumns(_lowerBoundStatement, &_tempRecord);
-    SQL_CHECK(SQLBindParameter(_lowerBoundStatement, 1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd), "SQLBindParameter", _lowerBoundStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLBindParameter(_lowerBoundStatement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TIMESTAMP, 0, 0, &_query.end, sizeof(SQL_TIMESTAMP_STRUCT), &_query.endInd), "SQLBindParameter", _lowerBoundStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLBindParameter(_lowerBoundStatement, 1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd), "SQLBindParameter", _lowerBoundStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLBindParameter(_lowerBoundStatement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.end, sizeof(SQL_TIMESTAMP_STRUCT), &_query.endInd), "SQLBindParameter", _lowerBoundStatement, SQL_HANDLE_STMT);
     SQL_CHECK(SQLBindParameter(_lowerBoundStatement, 3, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd), "SQLBindParameter", _lowerBoundStatement, SQL_HANDLE_STMT);
     
     // bindings for upper bound statement
     bindOutputColumns(_upperBoundStatement, &_tempRecord);
-    SQL_CHECK(SQLBindParameter(_upperBoundStatement, 1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd), "SQLBindParameter", _upperBoundStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLBindParameter(_upperBoundStatement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TIMESTAMP, 0, 0, &_query.end, sizeof(SQL_TIMESTAMP_STRUCT), &_query.endInd), "SQLBindParameter", _upperBoundStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLBindParameter(_upperBoundStatement, 1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd), "SQLBindParameter", _upperBoundStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLBindParameter(_upperBoundStatement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.end, sizeof(SQL_TIMESTAMP_STRUCT), &_query.endInd), "SQLBindParameter", _upperBoundStatement, SQL_HANDLE_STMT);
     SQL_CHECK(SQLBindParameter(_upperBoundStatement, 3, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd), "SQLBindParameter", _upperBoundStatement, SQL_HANDLE_STMT);
     
     
     // prepare the statements
-    SQL_CHECK(SQLPrepare(_SCADAstmt, (SQLCHAR*)_dataPointQuery.c_str(), SQL_NTS), "SQLPrepare", _SCADAstmt, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLPrepare(_rangeStatement, (SQLCHAR*)_dataRangeQuery.c_str(), SQL_NTS), "SQLPrepare", _rangeStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLPrepare(_SCADAtimestmt, (SQLCHAR*)_timeQuery.c_str(), SQL_NTS), "SQLPrepare", _SCADAtimestmt, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLPrepare(_lowerBoundStatement, (SQLCHAR*)_dataLowerBoundQuery.c_str(), SQL_NTS), "SQLPrepare", _lowerBoundStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLPrepare(_upperBoundStatement, (SQLCHAR*)_dataUpperBoundQuery.c_str(), SQL_NTS), "SQLPrepare", _upperBoundStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLPrepare(_SCADAstmt, (SQLCHAR*)singleSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _SCADAstmt, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLPrepare(_rangeStatement, (SQLCHAR*)rangeSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _rangeStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLPrepare(_SCADAtimestmt, (SQLCHAR*)timeQuery().c_str(), SQL_NTS), "SQLPrepare", _SCADAtimestmt, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLPrepare(_lowerBoundStatement, (SQLCHAR*)loweBoundSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _lowerBoundStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLPrepare(_upperBoundStatement, (SQLCHAR*)upperBoundSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _upperBoundStatement, SQL_HANDLE_STMT);
     
     // if we made it this far...
     _connectionOk = true;
@@ -176,33 +185,56 @@ std::vector<std::string> ScadaPointRecord::identifiers() {
 #pragma mark - Retrieval
 
 bool ScadaPointRecord::isPointAvailable(const string& identifier, time_t time)  {
-  Point aPoint = pointBefore(identifier, time);
+  Point aPoint;
+  
+  if (_cachedPoint.time() == time && _cachedPointId == identifier) {
+    return true;
+  }
+  if (PointRecord::isPointAvailable(identifier, time)) {
+    return true;
+  }
+  if (PointRecord::firstPoint(identifier).time() <= time && time <= PointRecord::lastPoint(identifier).time()) {
+    // the point is in my base cache.
+    aPoint = PointRecord::pointBefore(identifier, time);
+  }
+  else {
+    aPoint = pointBefore(identifier, time);
+  }
   if (!aPoint.isValid()) {
+    // no such point
     return false;
   }
   if (aPoint.time() == time) {
+    _cachedPoint = aPoint;
+    _cachedPointId = identifier;
     return true;
   }
-  else if (pointAfter(identifier, time).isValid() && pointAfter(identifier, time).time() == time) {
+  
+  return false;
+  
+  /* not needed ??
+  aPoint = pointAfter(identifier, time);
+  if (aPoint.isValid() && aPoint.time() == time) {
     return true;
   }
   else {
     return false;
   }
+   */
 }
 
 // get a single point, rely on scada system's interpolation...
 Point ScadaPointRecord::point(const string& identifier, time_t time) {
   
+  if (time == _cachedPoint.time() && identifier == _cachedPointId) {
+    return _cachedPoint;
+  }
+  
   Point thePoint;
   
   // see if the requested point is within my cache
-  if ( (time >= _hint.range.first) && (time <= _hint.range.second) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
-    BOOST_FOREACH(Point point, _hint.cache) {
-      if (point.time() == time) {
-        thePoint = point;
-      }
-    }
+  if ( (time >= PointRecord::firstPoint(identifier).time()) && (time <= PointRecord::lastPoint(identifier).time()) ) {
+    thePoint = PointRecord::point(identifier, time);
   }
   
   else {
@@ -212,39 +244,11 @@ Point ScadaPointRecord::point(const string& identifier, time_t time) {
   return thePoint;
 }
 
-void ScadaPointRecord::hintAtRange(const string& identifier, time_t start, time_t end) {
-  // simple optimization for read-only pointrecord.
-  if (start < _hint.range.first || end > _hint.range.second || !RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) {
-    //std::cout << "hinting at range (" << identifier << "): " << start << " - " << end << std::endl;
-    time_t margin = 120; // 2-minute margin
-    _hint.cache = pointsWithStatement(identifier, _rangeStatement, start - margin, end + margin);
-    _hint.identifier = identifier;
-    _hint.range.first = start - margin;
-    _hint.range.second = end + margin;
-  }
-  else {
-    //std::cout << "range has already been hinted" << std::endl;
-  }
-  
-}
 
-// get a range of points, native resolution
-std::vector<Point> ScadaPointRecord::pointsInRange(const string& identifier, time_t startTime, time_t endTime) {
-  std::vector<Point> pointVector;
-  
-  // see if it's already cached.
-  if ( !(_hint.range.first <= startTime && _hint.range.second >= endTime && RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
-    hintAtRange(identifier, startTime, endTime);
-  }
-  
-  for (unsigned int i = 0; i < _hint.cache.size(); i++) {
-    pointVector.push_back(_hint.cache.at(i));
-  }
-  
-  return pointVector;
-}
 
 Point ScadaPointRecord::pointBefore(const string& identifier, time_t time) {
+  
+  time_t margin = 60*60*24*2;
   
   Point thePoint;
   if (time == 0) {
@@ -252,35 +256,15 @@ Point ScadaPointRecord::pointBefore(const string& identifier, time_t time) {
     return thePoint;
   }
   
-  // see if the requested point is within my cache
+  // see if the requested point is within my base-class cache
   if ( (time >= _hint.range.first) && (time <= _hint.range.second) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
-    // assuming strictly ascending order...
-    // todo - clean this up? cache class?
-    BOOST_FOREACH(Point point, _hint.cache) {
-      if (point.time() <= time) {
-        thePoint = point;
-      }
-    }
+    thePoint = PointRecord::pointBefore(identifier, time);
   }
   
+  // if not, get it from the db
   else {
-    // reset the cache, it's obviously no good.
-    _hint.clear();
-    
-    // add one second to the upper range so that we catch fractional times.
-    std::deque<Point> points = pointsWithStatement(identifier, _lowerBoundStatement, time - (3600 * 4), (time + 1) );
-    if (points.size() == 0) {
-      return thePoint;
-    }
-    Point frontPoint = points.front();
-    if (!frontPoint.isValid()) {
-      return thePoint;
-    }
-    if (frontPoint.time() > time) {
-      points.pop_front();
-    }
-    
-    thePoint = (points.front());
+    preFetchRange(identifier, time - margin, (time + 1) );
+    thePoint = PointRecord::pointBefore(identifier, time);
   }
   
   return thePoint;
@@ -288,35 +272,26 @@ Point ScadaPointRecord::pointBefore(const string& identifier, time_t time) {
 
 Point ScadaPointRecord::pointAfter(const string& identifier, time_t time) {
   
+  time_t margin = 60*60*24*2;
+  
   Point thePoint;
   if (time == 0) {
     std::cerr << "time out of bounds" << std::endl;
     return thePoint;
   }
-
-  if ( (time >= _hint.range.first) && (time <= _hint.range.second) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
-    // assuming strictly ascending order...
-    // todo - clean this up? cache class?
-    BOOST_FOREACH(Point point, _hint.cache) {
-      if (point.time() > time) {
-        thePoint = point;
-        break;
-      }
-    }
+  
+  // see if the requested point is within my base-class cache
+  time_t cacheFirst = PointRecord::firstPoint(identifier).time();
+  time_t cacheLast = PointRecord::lastPoint(identifier).time();
+  
+  if ( (time >= cacheFirst) && (time <= cacheLast) && (RTX_STRINGS_ARE_EQUAL(identifier, _hint.identifier)) ) {
+    thePoint = PointRecord::pointAfter(identifier, time);
   }
   
+  // if not, get it from the db
   else {
-    // reset the cache, it's obviously no good.
-    _hint.clear();
-    
-    std::deque<Point> points = pointsWithStatement(identifier, _upperBoundStatement, time, time + (3600 * 4));
-    if (points.size() > 0 && points.front().isValid()) {
-      if (points.front().time() <= time) {
-        points.pop_front();
-      }
-      thePoint = (points.front());
-    }
-    
+    preFetchRange(identifier, time, time + margin);
+    thePoint = PointRecord::pointAfter(identifier, time);
   }
     
   return thePoint;
@@ -336,17 +311,19 @@ std::ostream& ScadaPointRecord::toStream(std::ostream &stream) {
 #pragma mark - Internal (private) methods
 
 
-std::deque<Point> ScadaPointRecord::pointsWithStatement(const string& identifier, SQLHSTMT statement, time_t startTime, time_t endTime) {
-  std::deque< Point > points;
+std::vector<Point> ScadaPointRecord::selectRange(const string& identifier, time_t startTime, time_t endTime) {
+  return pointsWithStatement(identifier, _rangeStatement, startTime, endTime);
+}
+
+std::vector<Point> ScadaPointRecord::pointsWithStatement(const string& identifier, SQLHSTMT statement, time_t startTime, time_t endTime) {
+  std::vector< Point > points;
   points.clear();
-  
-  //std::cout << "querying scada: " << startTime << " - " << endTime << std::endl;
   
   // set up query-bound variables
   _query.start = sqlTime(startTime);
   _query.end = sqlTime(endTime);
-  
   strcpy(_query.tagName, identifier.c_str());
+  
   try {
     SQL_CHECK(SQLExecute(statement), "SQLExecute", statement, SQL_HANDLE_STMT);
     while (SQL_SUCCEEDED(SQLFetch(statement))) {
@@ -381,10 +358,18 @@ void ScadaPointRecord::bindOutputColumns(SQLHSTMT statement, ScadaRecord* record
 
 
 SQL_TIMESTAMP_STRUCT ScadaPointRecord::sqlTime(time_t unixTime) {
-  SQL_TIMESTAMP_STRUCT mySQLtime;
+  SQL_TIMESTAMP_STRUCT sqlTimestamp;
   struct tm myTMstruct;
   struct tm* pTMstruct = &myTMstruct;
-  pTMstruct = localtime(&unixTime);
+  
+  // time format (local/utc)
+  if (timeFormat() == UTC) {
+    pTMstruct = gmtime(&unixTime);
+  }
+  else if (timeFormat() == LOCAL) {
+    pTMstruct = localtime(&unixTime);
+  }
+  
 	if (pTMstruct->tm_isdst == 1) {
     pTMstruct->tm_hour -= 1;
   }
@@ -392,17 +377,17 @@ SQL_TIMESTAMP_STRUCT ScadaPointRecord::sqlTime(time_t unixTime) {
   // fix any negative hour field
   mktime(pTMstruct);
 	
-	mySQLtime.year = pTMstruct->tm_year + 1900;
-	mySQLtime.month = pTMstruct->tm_mon + 1;
-	mySQLtime.day = pTMstruct->tm_mday;
-	mySQLtime.hour = pTMstruct->tm_hour;
-  mySQLtime.minute = pTMstruct->tm_min;
-	mySQLtime.second = pTMstruct->tm_sec;
-	mySQLtime.fraction = (SQLUINTEGER)0;
+	sqlTimestamp.year = pTMstruct->tm_year + 1900;
+	sqlTimestamp.month = pTMstruct->tm_mon + 1;
+	sqlTimestamp.day = pTMstruct->tm_mday;
+	sqlTimestamp.hour = pTMstruct->tm_hour;
+  sqlTimestamp.minute = pTMstruct->tm_min;
+	sqlTimestamp.second = pTMstruct->tm_sec;
+	sqlTimestamp.fraction = (SQLUINTEGER)0;
   
   
   
-  return mySQLtime;
+  return sqlTimestamp;
 }
 
 time_t ScadaPointRecord::unixTime(SQL_TIMESTAMP_STRUCT sqlTime) {
@@ -420,9 +405,16 @@ time_t ScadaPointRecord::unixTime(SQL_TIMESTAMP_STRUCT sqlTime) {
   tmTimestamp.tm_min = sqlTime.minute;
   tmTimestamp.tm_sec = sqlTime.second;
   
-  //myUnixTime = mktime(&tmTimestamp);
-  // todo -- figure out UTC offset thing
-  myUnixTime = time_to_epoch(&tmTimestamp, 4);
+  
+  myUnixTime = mktime(&tmTimestamp);
+
+  if (timeFormat() == UTC) {
+    myUnixTime += pTimestamp->tm_gmtoff;
+  }
+  
+  
+  // todo -- we can speed up mktime, but this private method is borked so fix it.
+  // myUnixTime = time_to_epoch(&tmTimestamp, localGmtOffset);
     
   return myUnixTime;
 }
@@ -493,16 +485,3 @@ std::string ScadaPointRecord::extract_error(std::string function, SQLHANDLE hand
 }
 
 
-
-
-ScadaPointRecord::Hint_t::Hint_t() {
-  clear();
-}
-
-void ScadaPointRecord::Hint_t::clear() { 
-  //std::cout << "clearing scada point cache" << std::endl;
-  identifier = ""; 
-  range.first = 0; 
-  range.second = 0; 
-  cache.clear(); 
-}

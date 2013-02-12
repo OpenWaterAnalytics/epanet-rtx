@@ -56,8 +56,9 @@ void Tank::setLevelMeasure(TimeSeries::sharedPointer levelMeasure) {
   //std::cout << "oops, depricated" << std::endl;
   
   OffsetTimeSeries::sharedPointer offsetHeadMeasure( new OffsetTimeSeries() );
+  offsetHeadMeasure->setName(this->name() + " offset");
   offsetHeadMeasure->setSource(levelMeasure);
-  offsetHeadMeasure->setOffset( -(this->elevation()) );
+  offsetHeadMeasure->setOffset( (this->elevation()) );
   
   this->setHeadMeasure(offsetHeadMeasure);
 }

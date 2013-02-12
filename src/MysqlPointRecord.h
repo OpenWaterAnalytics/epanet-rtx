@@ -50,16 +50,16 @@ namespace RTX {
     virtual bool isConnected();
     virtual std::string registerAndGetIdentifier(std::string recordName);
     virtual std::vector<std::string> identifiers();
-    virtual void hintAtRange(const string& identifier, time_t start, time_t end);
     virtual bool isPointAvailable(const string& identifier, time_t time);
     virtual Point point(const string& identifier, time_t time);
     virtual Point pointBefore(const string& identifier, time_t time);
     virtual Point pointAfter(const string& identifier, time_t time);
-    virtual std::vector<Point> pointsInRange(const string& identifier, time_t startTime, time_t endTime);
     virtual void addPoint(const string& identifier, Point point);
     virtual void addPoints(const string& identifier, std::vector<Point> points);
     virtual void reset();
     virtual void reset(const string& identifier);
+    virtual Point firstPoint(const string& id);
+    virtual Point lastPoint(const string& id);
     
     virtual std::ostream& toStream(std::ostream &stream);
     
@@ -73,11 +73,13 @@ namespace RTX {
     sql::Driver* _driver;
     boost::shared_ptr<sql::Connection> _connection;
     // prepared statements for selecting, inserting
-    boost::shared_ptr<sql::PreparedStatement> _rangeSelect;
-    boost::shared_ptr<sql::PreparedStatement> _singleSelect;
-    boost::shared_ptr<sql::PreparedStatement> _nextSelect;
-    boost::shared_ptr<sql::PreparedStatement> _previousSelect;
-    boost::shared_ptr<sql::PreparedStatement> _singleInsert;
+    boost::shared_ptr<sql::PreparedStatement>  _rangeSelect,
+                                               _singleSelect,
+                                               _nextSelect,
+                                               _previousSelect,
+                                               _singleInsert,
+                                               _firstSelect,
+                                               _lastSelect;
     
   };
 
