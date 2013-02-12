@@ -89,7 +89,7 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
   
   BOOST_FOREACH(time_t time, timeList) {
     // check the time
-    if (! (time >= start && time <= end) ) {
+    if (! (time >= start && time < end) ) {
       // skip this time
       std::cerr << "time out of bounds. ignoring." << std::endl;
       continue;
