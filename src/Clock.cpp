@@ -110,7 +110,7 @@ time_t Clock::timeAfter(time_t time) {
     return (time + 1);
   }
   if (isValid(time)) {
-    // return the previous time value
+    // return the next time value
     return ( time + period() );
   }
   else {

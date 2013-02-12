@@ -101,9 +101,11 @@ Point ModularTimeSeries::point(time_t time) {
     return TimeSeries::point(time);
   }
   else {
-    if (source()->isPointAvailable(time)) {
+    
+    Point sourcePoint = source()->point(time);
+
+    if (sourcePoint.isValid()) {
       // create a new point object and convert from source units
-      Point sourcePoint = source()->point(time);
       Point aPoint = Point::convertPoint(sourcePoint, source()->units(), units());
       insert(aPoint);
       return aPoint;
