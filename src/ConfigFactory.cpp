@@ -38,7 +38,7 @@ ConfigFactory::ConfigFactory() {
   _timeSeriesPointerMap.insert(std::make_pair("TimeSeries", &ConfigFactory::createTimeSeries));
   _timeSeriesPointerMap.insert(std::make_pair("MovingAverage", &ConfigFactory::createMovingAverage));
   _timeSeriesPointerMap.insert(std::make_pair("Aggregator", &ConfigFactory::createAggregator));
-  _timeSeriesPointerMap.insert(std::make_pair("Resample", &ConfigFactory::createResampler));
+  _timeSeriesPointerMap.insert(std::make_pair("Resampler", &ConfigFactory::createResampler));
   _timeSeriesPointerMap.insert(std::make_pair("Derivative", &ConfigFactory::createDerivative));
   _timeSeriesPointerMap.insert(std::make_pair("Offset", &ConfigFactory::createOffset));
   
