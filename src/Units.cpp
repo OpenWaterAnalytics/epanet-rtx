@@ -152,6 +152,7 @@ double Units::convertValue(double value, const Units& fromUnits, const Units& to
 map<string, Units> Units::unitStringMap() {
   map<string, Units> m;
   
+  m["none"]= RTX_DIMENSIONLESS;
   m["gpm"] = RTX_GALLON_PER_MINUTE;
   m["mgd"] = RTX_MILLION_GALLON_PER_DAY;
   m["mld"] = RTX_MILLION_LITER_PER_DAY;
@@ -165,6 +166,9 @@ map<string, Units> Units::unitStringMap() {
   m["hr"]  = RTX_HOUR;
   m["min"] = RTX_MINUTE;
   m["s"]   = RTX_SECOND;
+  m["psi"] = RTX_PSI;
+  m["pa"]  = RTX_PASCAL;
+  m["kpa"] = RTX_KILOPASCAL;
   
   return m;
 }
