@@ -114,59 +114,53 @@ void ConfigFactory::loadConfigFile(const std::string& path) {
   }
   Setting& config = root["configuration"];
   
-  
+  // get the first set - point records.
   if ( !config.exists("records") ) {
     config.add("records", Setting::TypeList);
+  } else {
+    Setting& records = config["records"];
+    createPointRecords(records);
   }
-  Setting& records = config["records"];
-  
-  
-  if ( !config.exists("clocks") ) {
-    config.add("clocks", Setting::TypeList);
-  }
-  Setting& clockGroup = config["clocks"];
-  
-  
-  if ( !config.exists("timeseries") ) {
-    config.add("timeseries", Setting::TypeList);
-  }
-  Setting& timeSeriesGroup = config["timeseries"];
-  
-  
-  if ( !config.exists("simulation") ) {
-    config.add("simulation", Setting::TypeList);
-  }
-  Setting& simulationGroup = config["simulation"];
-  
-  
-  if ( !config.exists("model") ) {
-    config.add("model", Setting::TypeList);
-  }
-  Setting& modelGroup = config["model"];
-  
-  
-  if ( !config.exists("zones") ) {
-    config.add("zones", Setting::TypeList);
-  }
-  Setting& zoneGroup = config["zones"];
-  
-  // get the first set - point records.
-  createPointRecords(records);
   
   // get clocks
-  createClocks(clockGroup);
+  if ( !config.exists("clocks") ) {
+    config.add("clocks", Setting::TypeList);
+  } else {
+    Setting& clockGroup = config["clocks"];
+    createClocks(clockGroup);
+  }
   
   // get timeseries
-  createTimeSeriesList(timeSeriesGroup);
+  if ( !config.exists("timeseries") ) {
+    config.add("timeseries", Setting::TypeList);
+  } else {
+    Setting& timeSeriesGroup = config["timeseries"];
+    createTimeSeriesList(timeSeriesGroup);
+  }
   
   // make a new model
-  createModel(modelGroup);
+  if ( !config.exists("model") ) {
+    config.add("model", Setting::TypeList);
+  } else {
+    Setting& modelGroup = config["model"];
+    createModel(modelGroup);
+  }
   
   // make zones
-  createZones(zoneGroup);
+  if ( !config.exists("zones") ) {
+    config.add("zones", Setting::TypeList);
+  } else {
+    Setting& zoneGroup = config["zones"];
+    createZones(zoneGroup);
+  }
   
   // set defaults
-  createSimulationDefaults(simulationGroup);
+  if ( !config.exists("simulation") ) {
+    config.add("simulation", Setting::TypeList);
+  } else {
+    Setting& simulationGroup = config["simulation"];
+    createSimulationDefaults(simulationGroup);
+  }
   
 }
 
@@ -238,7 +232,7 @@ PointRecord::sharedPointer ConfigFactory::createScadaPointRecord(libconfig::Sett
   ScadaPointRecord::sharedPointer pointRecord( new ScadaPointRecord() );
   pointRecord->setSyntax(table, dateCol, tagCol, valueCol, qualCol);
   pointRecord->setConnectionString(initString);
-  pointRecord->connect();
+  // pointRecord->connect(); // leaving this to application code
   
   return pointRecord;
 }
