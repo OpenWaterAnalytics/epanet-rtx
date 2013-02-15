@@ -47,8 +47,8 @@
 #define RTX_HOUR                    Units(3600,         0,0,1)
 #define RTX_DAY                     Units(86400,        0,0,1)
 // mass
-#define RTX_MILLIGRAM               Units(.000001       1,0,0)
-#define RTX_GRAM                    Units(.001          1,0,0)
+#define RTX_MILLIGRAM               Units(.000001,      1,0,0)
+#define RTX_GRAM                    Units(.001,         1,0,0)
 #define RTX_KILOGRAM                Units(1,            1,0,0)
 // concentration
 #define RTX_MILLIGRAMS_PER_LITER    Units(.001,         1,-3,0)

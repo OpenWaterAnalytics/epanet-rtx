@@ -194,7 +194,7 @@ map<string, Units> Units::unitStringMap() {
   m["mg/l"]= RTX_MILLIGRAMS_PER_LITER;
   // conductance
   m["ms/cm"]=RTX_MICROSIEMENS_PER_CM;
-  
+
   return m;
 }
 
