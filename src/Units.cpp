@@ -153,22 +153,47 @@ map<string, Units> Units::unitStringMap() {
   map<string, Units> m;
   
   m["none"]= RTX_DIMENSIONLESS;
-  m["gpm"] = RTX_GALLON_PER_MINUTE;
-  m["mgd"] = RTX_MILLION_GALLON_PER_DAY;
-  m["mld"] = RTX_MILLION_LITER_PER_DAY;
-  m["cfs"] = RTX_CUBIC_FOOT_PER_SECOND;
-  m["lpm"] = RTX_LITER_PER_MINUTE;
-  m["lps"] = RTX_LITER_PER_SECOND;
-  m["m"]   = RTX_METER;
-  m["ft"]  = RTX_FOOT;
-  m["in"]  = RTX_INCH;
-  m["d"]   = RTX_DAY;
-  m["hr"]  = RTX_HOUR;
-  m["min"] = RTX_MINUTE;
-  m["s"]   = RTX_SECOND;
+  // pressure
   m["psi"] = RTX_PSI;
   m["pa"]  = RTX_PASCAL;
   m["kpa"] = RTX_KILOPASCAL;
+  // distance
+  m["ft"]  = RTX_FOOT;
+  m["in"]  = RTX_INCH;
+  m["m"]   = RTX_METER;
+  m["cm"]  = RTX_CENTIMETER;
+  // volume
+  m["m3"]  = RTX_CUBIC_METER;
+  m["gal"] = RTX_GALLON;
+  m["mgal"]= RTX_MILLION_GALLON;
+  m["liter"]=RTX_LITER;
+  m["ft3"] = RTX_CUBIC_FOOT;
+  // flow
+  m["m3/s"]= RTX_CUBIC_METER_PER_SECOND;
+  m["cfs"] = RTX_CUBIC_FOOT_PER_SECOND;
+  m["gps"] = RTX_GALLON_PER_SECOND;
+  m["gpm"] = RTX_GALLON_PER_MINUTE;
+  m["mgd"] = RTX_MILLION_GALLON_PER_DAY;
+  m["lps"] = RTX_LITER_PER_SECOND;
+  m["lpm"] = RTX_LITER_PER_MINUTE;
+  m["mld"] = RTX_MILLION_LITER_PER_DAY;
+  m["m3/hr"]=RTX_CUBIC_METER_PER_HOUR;
+  m["m3/d"]= RTX_CUBIC_METER_PER_DAY;
+  m["acre-ft/d"]=RTX_ACRE_FOOT_PER_DAY;
+  m["imgd"]= RTX_IMPERIAL_MILLION_GALLON_PER_DAY;
+  // time
+  m["s"]   = RTX_SECOND;
+  m["min"] = RTX_MINUTE;
+  m["hr"]  = RTX_HOUR;
+  m["d"]   = RTX_DAY;
+  // mass
+  m["mg"]  = RTX_MILLIGRAM;
+  m["g"]   = RTX_GRAM;
+  m["kg"]  = RTX_KILOGRAM;
+  // concentration
+  m["mg/l"]= RTX_MILLIGRAMS_PER_LITER;
+  // conductance
+  m["ms/cm"]=RTX_MICROSIEMENS_PER_CM;
   
   return m;
 }
