@@ -94,7 +94,7 @@ namespace RTX {
     bool isRegular();
     int period();
     time_t start();
-    std::vector< time_t > timeValuesInRange(time_t start, time_t end);
+    virtual std::vector< time_t > timeValuesInRange(time_t start, time_t end);
     virtual std::ostream& toStream(std::ostream &stream);
     
   private:

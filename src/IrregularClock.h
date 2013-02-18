@@ -24,6 +24,7 @@ namespace RTX {
     virtual bool isValid(time_t time);
     virtual time_t timeAfter(time_t time);
     virtual time_t timeBefore(time_t time);
+    virtual std::vector< time_t > timeValuesInRange(time_t start, time_t end);
     virtual std::ostream& toStream(std::ostream &stream);
     
   private:
