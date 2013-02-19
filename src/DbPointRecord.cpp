@@ -34,7 +34,7 @@ vector<Point> DbPointRecord::pointsInRange(const string& identifier, time_t star
 
 void DbPointRecord::preFetchRange(const string& identifier, time_t start, time_t end) {
   
-  cout << "RTX-DB-FETCH: " << identifier << " :: " << start << " - " << end << endl;
+  
   
   
   // TODO -- performance optimization - caching -- see scadapointrecord.cpp for code snippets.
@@ -51,6 +51,9 @@ void DbPointRecord::preFetchRange(const string& identifier, time_t start, time_t
   
   // re-populate base class with new hinted range
   time_t margin = 60*60;
+  
+  cout << "RTX-DB-FETCH: " << identifier << " :: " << start << " - " << end << endl;
+  
   vector<Point> newPoints = selectRange(identifier, start - margin, end + margin);
 
   cout << "RTX-DB-FETCH: " << identifier << " :: DONE" << endl;

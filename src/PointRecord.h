@@ -19,9 +19,6 @@
 #include "rtxMacros.h"
 #include "rtxExceptions.h"
 
-#include <boost/circular_buffer.hpp>
-#include <boost/signals2/mutex.hpp>
-
 using std::string;
 
 namespace RTX {
@@ -88,24 +85,22 @@ namespace RTX {
     virtual bool isConnected(){return true;};
     
     virtual std::ostream& toStream(std::ostream &stream);
-    
-    // types
-    typedef std::pair<double,double> PointPair_t;
-    typedef std::pair<time_t, PointPair_t > TimePointPair_t;
-    typedef boost::circular_buffer<TimePointPair_t> PointBuffer_t;
-    typedef std::pair<PointBuffer_t, boost::shared_ptr<boost::signals2::mutex> > BufferMutexPair_t;
-    typedef std::map<std::string, BufferMutexPair_t> KeyedBufferMutexMap_t;
-    
-    size_t _defaultCapacity;
-    
+
   protected:
+    typedef std::map<time_t, Point> pointMap_t;
+    typedef std::map< int, pointMap_t> keyedPointMap_t;
+    int identifierForName(std::string recordName);
+    string nameForIdentifier(int identifier);
     std::string _cachedPointId;
     Point _cachedPoint;
     
   private:
-    std::map<std::string, BufferMutexPair_t > _keyedBufferMutex;
+    keyedPointMap_t _points;
+    std::map< std::string, int > _keys;
+    std::map< int, std::string > _names;
+    int _nextKey;
     std::string _connectionString;
-    Point makePoint(PointBuffer_t::const_iterator iterator);
+    
   };
   
   std::ostream& operator<< (std::ostream &out, PointRecord &pr);
