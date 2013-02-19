@@ -9,8 +9,6 @@
 #ifndef epanet_rtx_units_h
 #define epanet_rtx_units_h
 
-#include "rtxMacros.h"
-
 // convenience defines ------------ unit= conversion,   dimension (m,l,t,current,temp,amount,intensity)
 #define RTX_DIMENSIONLESS           Units(1)
 // Pressure

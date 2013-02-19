@@ -2538,7 +2538,8 @@ int   openfiles(char *f1, char *f2, char *f3)
    else Outflag = SCRATCH;                                                     //(2.00.12 - LR)
 
 /* Check that file names are not identical */
-   if (strcomp(f1,f2) || strcomp(f1,f3) || strcomp(f2,f3))
+  // bug here ( TODO ) -- if i don't want a report, then f2 === f3
+   if (strcomp(f1,f2) || strcomp(f1,f3) /*|| strcomp(f2,f3) */)
    {
       writecon(FMT04);
       return(301);

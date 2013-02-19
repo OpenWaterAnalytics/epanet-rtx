@@ -37,11 +37,11 @@ Point Resampler::point(time_t time) {
     // now that that's settled, get some source points and interpolate.
     Point p0, p1, interpolatedPoint;
     
-    if (source()->isPointAvailable(time)) {
+    /*if (source()->isPointAvailable(time)) {
       // if the source has the point, then no interpolation is needed.
       interpolatedPoint = Point::convertPoint(source()->point(time), source()->units(), units());
     }
-    else {
+    else */{
       std::pair< Point, Point > sourcePoints = source()->adjacentPoints(time);
       p0 = sourcePoints.first;
       p1 = sourcePoints.second;

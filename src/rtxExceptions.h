@@ -15,8 +15,11 @@ namespace RTX {
   
   class RtxException : public std::exception {
   public:
+    RtxException(std::string ss = "Unknown") : s(ss) {}
     virtual const char* what() const throw()
-    { return "Unknown Exception\n"; }
+    { return s.c_str(); }
+    virtual ~RtxException() throw() {}
+    std::string s;
   };
   
   class RtxIoException : public RtxException {

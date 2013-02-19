@@ -105,7 +105,7 @@ namespace RTX {
   private:
     std::map<std::string, BufferMutexPair_t > _keyedBufferMutex;
     std::string _connectionString;
-    Point makePoint(PointBuffer_t::iterator iterator);
+    Point makePoint(PointBuffer_t::const_iterator iterator);
   };
   
   std::ostream& operator<< (std::ostream &out, PointRecord &pr);

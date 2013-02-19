@@ -222,12 +222,12 @@ Point MysqlPointRecord::point(const string& identifier, time_t time) {
   Point thePoint;
   
   // see if the requested point is within my cache
-  if ( PointRecord::firstPoint(identifier).time() <= time && PointRecord::lastPoint(identifier).time() >= time ) {
-    thePoint = PointRecord::point(identifier, time);
-  }
-  else {
+  thePoint = PointRecord::point(identifier, time);
+  if (!thePoint.isValid()) {
     thePoint = selectSingle(identifier, time, _singleSelect);
+    PointRecord::addPoint(identifier, thePoint);
   }
+  
   
   return thePoint;
 }
@@ -325,7 +325,7 @@ Point MysqlPointRecord::firstPoint(const string &id) {
   Point point;
   _firstSelect->setString(1, id);
   boost::shared_ptr<sql::ResultSet> result( _firstSelect->executeQuery() );
-  if( result->next() ) {
+  if( result && result->next() ) {
     time_t rowTime = result->getInt("time");
     double rowValue = result->getDouble("value");
     point = Point(rowTime, rowValue);
@@ -363,7 +363,7 @@ void MysqlPointRecord::insertSingle(const string& identifier, time_t time, doubl
 }
 
 Point MysqlPointRecord::selectSingle(const string& identifier, time_t time, boost::shared_ptr<sql::PreparedStatement> statement) {
-  // "SELECT value FROM points INNER JOIN timeseries_id_keys USING (series_id) WHERE name = ? time = ?"
+  
   Point point;
   statement->setString(1, identifier);
   statement->setInt(2, (int)time);

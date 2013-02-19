@@ -40,7 +40,9 @@ void DbPointRecord::preFetchRange(const string& identifier, time_t start, time_t
   // TODO -- performance optimization - caching -- see scadapointrecord.cpp for code snippets.
   // get out if we've already hinted this.
 
-  if (start >= PointRecord::firstPoint(identifier).time() && end <= PointRecord::lastPoint(identifier).time()) {
+  time_t first = PointRecord::firstPoint(identifier).time();
+  time_t last = PointRecord::lastPoint(identifier).time();
+  if (first <= start && end <= last) {
     return;
   }
   
@@ -51,6 +53,7 @@ void DbPointRecord::preFetchRange(const string& identifier, time_t start, time_t
   time_t margin = 60*60;
   vector<Point> newPoints = selectRange(identifier, start - margin, end + margin);
 
+  cout << "RTX-DB-FETCH: " << identifier << " :: DONE" << endl;
   
   PointRecord::addPoints(identifier, newPoints);
 }

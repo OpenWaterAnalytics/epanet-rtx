@@ -19,6 +19,8 @@ TimeSeries::TimeSeries() : _units(1) {
   _cacheSize = 1000; // default cache size
   _points.reset( new PointRecord() );
   setName("Time Series");
+  _clock.reset( new IrregularClock(_points, "Time Series") );
+  _units = RTX_DIMENSIONLESS;
 }
 
 TimeSeries::~TimeSeries() {
@@ -36,7 +38,11 @@ std::ostream& RTX::operator<< (std::ostream &out, TimeSeries &ts) {
 void TimeSeries::setName(const std::string& name) {
   _name = name;
   _points->registerAndGetIdentifier(name);
-  _clock.reset( new IrregularClock(_points, name) );
+  if (_clock && !_clock->isRegular()) {
+    // reset the clock to point to the new record ID, but only if we start with an irregular clock.
+    _clock.reset( new IrregularClock(_points, name) );
+  }
+  
 }
 
 std::string TimeSeries::name() {
@@ -49,9 +55,6 @@ void TimeSeries::insert(Point thisPoint) {
 
 void TimeSeries::insertPoints(std::vector<Point> points) {
   _points->addPoints(name(), points);
-  // TODO
-  // check for size of point cache, pop a member if it's too large 
-  // (first decide which side to pop from)
 }
 
 bool TimeSeries::isPointAvailable(time_t time) {
@@ -78,8 +81,23 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
   if ((start == end) || (start < 0) || (end < 0)) {
     return points;
   }
-  // simple optimization
-  _points->preFetchRange(name(), start, end);
+  
+  Point firstCachePoint = record()->firstPoint(name());
+  Point lastCachePoint = record()->lastPoint(name());
+  
+  time_t firstTime = firstCachePoint.time();
+  time_t lastTime = lastCachePoint.time();
+  
+  if (firstCachePoint.isValid() && lastCachePoint.isValid()) {
+    time_t fetchBegin = (time_t)RTX_MIN(start, firstTime);
+    time_t fetchEnd = (time_t)RTX_MAX(end, lastTime);
+    _points->preFetchRange(name(), fetchBegin, fetchEnd);
+  }
+  else {
+    _points->preFetchRange(name(), start, end);
+  }
+  
+  
   
   std::vector<time_t> timeList;
   
@@ -185,7 +203,7 @@ void TimeSeries::setRecord(PointRecord::sharedPointer record) {
   record->registerAndGetIdentifier(name());
   
   // if my clock is irregular, then re-set it with the current pointRecord as the master synchronizer.
-  if (!_clock->isRegular()) {
+  if (!_clock || !_clock->isRegular()) {
     _clock.reset( new IrregularClock(_points, name()) );
   }
 }

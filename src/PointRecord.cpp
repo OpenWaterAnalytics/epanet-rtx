@@ -14,6 +14,7 @@
 using namespace RTX;
 using namespace std;
 
+bool comparePoint(const Point& l, const Point& r);
 bool compareTimePointPair(const PointRecord::TimePointPair_t& lhs, const PointRecord::TimePointPair_t& rhs);
 
 PointRecord::PointRecord() {
@@ -71,16 +72,23 @@ void PointRecord::preFetchRange(const string& identifier, time_t start, time_t e
   
 }
 
+bool comparePoint(const Point& l, const Point& r) {
+  return l.time() < r.time();
+}
+
 bool compareTimePointPair(const PointRecord::TimePointPair_t& lhs, const PointRecord::TimePointPair_t& rhs) {
   return lhs.first < rhs.first;
 }
 
 // convenience method for making a new point from a buffer iterator
-Point PointRecord::makePoint(PointBuffer_t::iterator iterator) {
+Point PointRecord::makePoint(PointBuffer_t::const_iterator iterator) {
   return Point((*iterator).first, (*iterator).second.first, Point::good, (*iterator).second.second);
 }
 
 bool PointRecord::isPointAvailable(const string& identifier, time_t time) {
+  
+  bool isAvailable = false;
+  
   // quick check for repeated calls
   if (_cachedPoint.time() == time && RTX_STRINGS_ARE_EQUAL(_cachedPointId, identifier) ) {
     return true;
@@ -94,19 +102,41 @@ bool PointRecord::isPointAvailable(const string& identifier, time_t time) {
   
   // get the constituents
   boost::signals2::mutex *mutex = (it->second.second.get());
-  PointBuffer_t *buffer = &(it->second.first);
+  PointBuffer_t& buffer = (it->second.first);
+  
+  if (buffer.empty()) {
+    return false;
+  }
   
   // lock the buffer
   mutex->lock();
   
-  // search the buffer
-  bool isAvailable = false;
-  TimePointPair_t finder(time, PointPair_t(0,0));
-  PointBuffer_t::iterator pbIt = std::lower_bound((*buffer).begin(), (*buffer).end(), finder, compareTimePointPair);
-  if (pbIt != (*buffer).end() && pbIt->first == time) {
-    isAvailable = true;
-    _cachedPoint = makePoint(pbIt);
+  TimePointPair_t tpPairFirst = buffer.front();
+  TimePointPair_t tpPairLast = buffer.back();
+  
+  if (tpPairFirst.first <= time && time <= tpPairLast.first) {
+    // search the buffer
+    TimePointPair_t finder(time, PointPair_t(0,0));
+    PointBuffer_t::const_iterator pbIt = std::lower_bound(buffer.begin(), buffer.end(), finder, compareTimePointPair);
+    if (pbIt != buffer.end() && pbIt->first == time) {
+      isAvailable = true;
+      _cachedPoint = makePoint(pbIt);
+    }
+    else {
+      //cerr << "whoops, not found" << endl;
+      
+      PointBuffer_t::const_iterator pbIt = buffer.begin();
+      while (pbIt != buffer.end()) {
+        time_t foundTime = pbIt->first;
+        if (foundTime == time) {
+          cout << "found it anyway!!" << endl;
+          _cachedPoint = makePoint(pbIt);
+        }
+        ++pbIt;
+      }
+    }
   }
+
   
   // ok, all done
   mutex->unlock();
@@ -137,13 +167,13 @@ Point PointRecord::pointBefore(const string& identifier, time_t time) {
   if (it != _keyedBufferMutex.end()) {
     // get the constituents
     boost::signals2::mutex *mutex = (it->second.second.get());
-    PointBuffer_t *buffer = &(it->second.first);
+    PointBuffer_t& buffer = (it->second.first);
     // lock the buffer
     mutex->lock();
     
-    PointBuffer_t::iterator it  = lower_bound((*buffer).begin(), (*buffer).end(), finder, compareTimePointPair);
-    if (it != (*buffer).end() && it != (*buffer).begin()) {
-      if (--it != (*buffer).end()) {
+    PointBuffer_t::const_iterator it  = lower_bound(buffer.begin(), buffer.end(), finder, compareTimePointPair);
+    if (it != buffer.end() && it != buffer.begin()) {
+      if (--it != buffer.end()) {
         foundPoint = makePoint(it);
       }
     }
@@ -165,12 +195,12 @@ Point PointRecord::pointAfter(const string& identifier, time_t time) {
   if (it != _keyedBufferMutex.end()) {
     // get the constituents
     boost::signals2::mutex *mutex = (it->second.second.get());
-    PointBuffer_t *buffer = &(it->second.first);
+    PointBuffer_t& buffer = (it->second.first);
     // lock the buffer
     mutex->lock();
     
-    PointBuffer_t::iterator it = upper_bound((*buffer).begin(), (*buffer).end(), finder, compareTimePointPair);
-    if (it != (*buffer).end()) {
+    PointBuffer_t::const_iterator it = upper_bound(buffer.begin(), buffer.end(), finder, compareTimePointPair);
+    if (it != buffer.end()) {
       foundPoint = makePoint(it);
     }
     
@@ -192,12 +222,12 @@ std::vector<Point> PointRecord::pointsInRange(const string& identifier, time_t s
   if (it != _keyedBufferMutex.end()) {
     // get the constituents
     boost::signals2::mutex *mutex = (it->second.second.get());
-    PointBuffer_t *buffer = &(it->second.first);
+    PointBuffer_t& buffer = (it->second.first);
     // lock the buffer
     mutex->lock();
     
-    PointBuffer_t::iterator it = upper_bound((*buffer).begin(), (*buffer).end(), finder, compareTimePointPair);
-    while ( (it != (*buffer).end()) && (it->first < endTime) ) {
+    PointBuffer_t::const_iterator it = upper_bound(buffer.begin(), buffer.end(), finder, compareTimePointPair);
+    while ( (it != buffer.end()) && (it->first < endTime) ) {
       Point newPoint = makePoint(it);
       pointVector.push_back(newPoint);
       it++;
@@ -213,8 +243,62 @@ std::vector<Point> PointRecord::pointsInRange(const string& identifier, time_t s
 
 void PointRecord::addPoint(const string& identifier, Point point) {
   
+  if (PointRecord::isPointAvailable(identifier, point.time())) {
+    //cout << "skipping duplicate point" << endl;
+    return;
+  }
+  
+  
+  /*
+  bool unordered = false;
+  // test for continuity
+  KeyedBufferMutexMap_t::iterator kbmmit = _keyedBufferMutex.find(identifier);
+  if (kbmmit != _keyedBufferMutex.end()) {
+    // get the constituents
+    boost::signals2::mutex *mutex = (kbmmit->second.second.get());
+    PointBuffer_t& buffer = (kbmmit->second.first);
+    // lock the buffer
+    mutex->lock();
+    
+    // check for monotonically increasing time values.
+    PointBuffer_t::const_iterator pIt = buffer.begin();
+    
+    while (pIt != buffer.end()) {
+      time_t t1 = pIt->first;
+      ++pIt;
+      if (pIt == buffer.end()) { break; }
+      time_t t2 = pIt->first;
+      
+      if (t1 >= t2) {
+        cerr << "Points unordered" << endl;
+        unordered = true;
+        break;
+      }
+    }
+    
+    if (unordered) {
+      // make sure the points are in order.
+      sort(buffer.begin(), buffer.end(), compareTimePointPair);
+    }
+    
+    mutex->unlock();
+  }
+  
+  */
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   double value, confidence;
   time_t time;
+  bool skipped = true;
   
   time = point.time();
   value = point.value();
@@ -225,22 +309,42 @@ void PointRecord::addPoint(const string& identifier, Point point) {
   if (it != _keyedBufferMutex.end()) {
     // get the constituents
     boost::signals2::mutex *mutex = (it->second.second.get());
-    PointBuffer_t *buffer = &(it->second.first);
+    PointBuffer_t& buffer = (it->second.first);
     // lock the buffer
     mutex->lock();
     
-    if (time > PointRecord::lastPoint(identifier).time()) {
+    time_t firstTime = PointRecord::firstPoint(identifier).time();
+    time_t lastTime = PointRecord::lastPoint(identifier).time();
+    
+    if (time > lastTime) {
       // end of the buffer
-      (*buffer).push_back(TimePointPair_t(time,newPoint));
+      buffer.push_back(TimePointPair_t(time,newPoint));
+      skipped = false;
     }
-    else if (time < PointRecord::firstPoint(identifier).time()) {
+    else if (time < firstTime) {
       // front of the buffer
-      (*buffer).push_front(TimePointPair_t(time,newPoint));
+      buffer.push_front(TimePointPair_t(time,newPoint));
+      skipped = false;
     }
+    
+    if (skipped) {
+      //cout << "point skipped: " << identifier;
+      buffer.push_front(TimePointPair_t(time,newPoint));
+      // make sure the points are in order.
+      sort(buffer.begin(), buffer.end(), compareTimePointPair);
+    }
+    
+    
+    
+    
     
     
     // all done.
     mutex->unlock();
+  }
+  
+  if (skipped) {
+    //cout << "(" << isPointAvailable(identifier, time) << ")" << endl;
   }
   
 }
@@ -253,10 +357,11 @@ void PointRecord::addPoints(const string& identifier, std::vector<Point> points)
   // check the cache size, and upgrade if needed.
   KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
   if (it != _keyedBufferMutex.end()) {
-    PointBuffer_t *buffer = &(it->second.first);
-    size_t capacity = (*buffer).capacity();
+    PointBuffer_t& buffer = (it->second.first);
+    size_t capacity = buffer.capacity();
     if (capacity < points.size()) {
-      (*buffer).set_capacity(points.size());
+      cout << "enlarging capacity" << endl;
+      buffer.set_capacity(points.size() + capacity);
     }
     
     // figure out the insert order...
@@ -271,16 +376,15 @@ void PointRecord::addPoints(const string& identifier, std::vector<Point> points)
     time_t insertFirst = points.front().time();
     time_t insertLast = points.back().time();
     
-    if (insertFirst > insertLast) {
-      // wha!
-      cerr << "check time ordering!" << endl;
-      return;
-    }
+    // make sure they're in order
+    std::sort(points.begin(), points.end(), comparePoint);
     
     if (insertLast > lastTime) {
       // insert onto end.
-      vector<Point>::const_iterator pIt = points.begin();
+      Point finder(lastTime, 0);
+      vector<Point>::const_iterator pIt = upper_bound(points.begin(), points.end(), finder, comparePoint);
       while (pIt != points.end()) {
+        // skip points that fall before the end of the buffer.
         
         if (pIt->time() > lastTime) {
           PointRecord::addPoint(identifier, *pIt);
@@ -289,12 +393,13 @@ void PointRecord::addPoints(const string& identifier, std::vector<Point> points)
         ++pIt;
       }
     }
-    else if (insertFirst < firstTime) {
+    if (insertFirst < firstTime) {
       // insert onto front (reverse iteration)
       vector<Point>::const_reverse_iterator pIt = points.rbegin();
       while (pIt != points.rend()) {
         
         // skip overlapping points.
+        // insert only the correct points.
         if (pIt->time() < firstTime) {
           PointRecord::addPoint(identifier, *pIt);
         }
@@ -303,10 +408,7 @@ void PointRecord::addPoints(const string& identifier, std::vector<Point> points)
         ++pIt;
       }
     }
-    else {
-      // some overlap?
-      cout << "fully overlapping condition" << endl;
-    }
+    
   }
 }
 
@@ -319,8 +421,8 @@ void PointRecord::reset(const string& identifier) {
   
   KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
   if (it != _keyedBufferMutex.end()) {
-    PointBuffer_t *buffer = &(it->second.first);
-    (*buffer).clear();
+    PointBuffer_t& buffer = (it->second.first);
+    buffer.clear();
   }
   
 }
@@ -333,13 +435,13 @@ Point PointRecord::firstPoint(const string& id) {
   if (it != _keyedBufferMutex.end()) {
     // get the constituents
     boost::signals2::mutex *mutex = (it->second.second.get());
-    PointBuffer_t *buffer = &(it->second.first);
+    PointBuffer_t& buffer = (it->second.first);
     
-    if ((*buffer).empty()) {
+    if (buffer.empty()) {
       return foundPoint;
     }
     
-    TimePointPair_t tpPair = (*buffer).front();
+    TimePointPair_t tpPair = buffer.front();
     foundPoint = Point(tpPair.first, tpPair.second.first);
     
   }
@@ -352,13 +454,13 @@ Point PointRecord::lastPoint(const string& id) {
   if (it != _keyedBufferMutex.end()) {
     // get the constituents
     boost::signals2::mutex *mutex = (it->second.second.get());
-    PointBuffer_t *buffer = &(it->second.first);
+    PointBuffer_t& buffer = (it->second.first);
     
-    if ((*buffer).empty()) {
+    if (buffer.empty()) {
       return foundPoint;
     }
     
-    TimePointPair_t tpPair = (*buffer).back();
+    TimePointPair_t tpPair = buffer.back();
     foundPoint = Point(tpPair.first, tpPair.second.first);
     
   }

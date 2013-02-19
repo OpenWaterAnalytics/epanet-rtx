@@ -40,7 +40,7 @@ std::ostream& RTX::operator<< (std::ostream &out, Model &model) {
   return model.toStream(out);
 }
 
-void Model::loadModelFromFile(const std::string& filename) throw(RtxException) {
+void Model::loadModelFromFile(const std::string& filename) throw(std::exception) {
   _modelFile = filename;
 }
 

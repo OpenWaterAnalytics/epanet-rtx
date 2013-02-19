@@ -15,6 +15,10 @@ OffsetTimeSeries::OffsetTimeSeries() {
 }
 
 Point OffsetTimeSeries::point(time_t time){
+  Point thePoint = TimeSeries::point(time);
+  if (thePoint.isValid()) {
+    return thePoint;
+  }
   
   Point sourcePoint = source()->point(time);
   Point convertedSourcePoint = Point::convertPoint(sourcePoint, source()->units(), units());

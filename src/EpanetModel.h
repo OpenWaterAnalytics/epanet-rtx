@@ -32,7 +32,7 @@ namespace RTX {
     RTX_SHARED_POINTER(EpanetModel);
     EpanetModel();
     ~EpanetModel();
-    void loadModelFromFile(const std::string& filename) throw(RtxException);
+    void loadModelFromFile(const std::string& filename) throw(std::exception);
     virtual void overrideControls() throw(RtxException);
     virtual std::ostream& toStream(std::ostream &stream);
 

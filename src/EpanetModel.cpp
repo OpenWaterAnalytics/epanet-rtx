@@ -26,7 +26,7 @@ EpanetModel::~EpanetModel() {
 
 #pragma mark - Loading
 
-void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxException) {
+void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exception) {
   Units volumeUnits(0);
   // base class invocation
   Model::loadModelFromFile(filename);
@@ -43,7 +43,7 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxExcept
   Valve::sharedPointer newValve;
   
   try {
-    ENcheck( ENopen((char*)filename.c_str(), (char*)"report.rpt", (char*)""), "ENopen" );
+    ENcheck( ENopen((char*)filename.c_str(), (char*)"", (char*)""), "ENopen" );
     ENcheck( ENgetcount(EN_NODECOUNT, &nodeCount), "ENgetcount EN_NODECOUNT" );
     ENcheck( ENgetcount(EN_TANKCOUNT, &tankCount), "ENgetcount EN_TANKCOUNT" );
     ENcheck( ENgetcount(EN_LINKCOUNT, &linkCount), "ENgetcount EN_LINKCOUNT" );
@@ -283,7 +283,7 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(RtxExcept
   }
   catch(string error) {
     std::cerr << "ERROR: " << error;
-    throw RtxException();
+    throw RtxException(error);
   }
   
 }
@@ -509,7 +509,6 @@ void EpanetModel::setLinkValue(int epanetCode, const string& link, double value)
   int linkIndex = _linkIndex[link];
   ENcheck(ENsetlinkvalue(linkIndex, epanetCode, value), "ENsetlinkvalue");
 }
-
 
 void EpanetModel::ENcheck(int errorCode, string externalFunction) throw(string) {
   if (errorCode > 10) {
