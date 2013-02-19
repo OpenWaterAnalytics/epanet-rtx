@@ -801,6 +801,7 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = /usr/local/include;
+				INSTALL_PATH = .;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = NO;
@@ -816,6 +817,7 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = /usr/local/include;
+				INSTALL_PATH = .;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = NO;
