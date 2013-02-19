@@ -41,6 +41,7 @@ ConfigFactory::ConfigFactory() {
   _timeSeriesPointerMap.insert(std::make_pair("Resampler", &ConfigFactory::createResampler));
   _timeSeriesPointerMap.insert(std::make_pair("Derivative", &ConfigFactory::createDerivative));
   _timeSeriesPointerMap.insert(std::make_pair("Offset", &ConfigFactory::createOffset));
+  _timeSeriesPointerMap.insert(std::make_pair("FirstDerivative", &ConfigFactory::createDerivative));
   
   // node-type configuration functions
   // Junctions
@@ -613,6 +614,7 @@ void ConfigFactory::configureHeadMeasure(Setting &setting, Element::sharedPointe
   Junction::sharedPointer thisJunction = boost::dynamic_pointer_cast<Junction>(junction);
   if (thisJunction) {
     TimeSeries::sharedPointer head = _timeSeriesList[setting["timeseries"]];
+    // if it's in units of PSI, then it requires a tweak. (TODO)
     thisJunction->setHeadMeasure(head);
   }
 }

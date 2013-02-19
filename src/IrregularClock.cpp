@@ -8,8 +8,10 @@
 
 #include <iostream>
 #include "IrregularClock.h"
+#include <boost/foreach.hpp>
 
 using namespace RTX;
+using namespace std;
 
 IrregularClock::IrregularClock(PointRecord::sharedPointer pointRecord, std::string name) : Clock(0,0), _name(name) {
   if (pointRecord) {
@@ -68,6 +70,23 @@ time_t IrregularClock::timeBefore(time_t time) {
   }
 }
 
+vector<time_t> IrregularClock::timeValuesInRange(time_t start, time_t end) {
+  vector<Point> points = _pointRecord->pointsInRange(_name, start, end);
+  vector<time_t> times;
+  
+  BOOST_FOREACH(Point p, points) {
+    
+    time_t t = p.time();
+    
+    if (start <= t && t <= end) {
+      times.push_back(t);
+    }
+    
+  }
+  
+  return times;
+  
+}
 
 
 #pragma mark - Protected Methods
