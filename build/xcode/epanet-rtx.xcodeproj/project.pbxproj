@@ -24,6 +24,10 @@
 		221E2F00149A43A3000860C2 /* ModularTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221E2EFF149A43A3000860C2 /* ModularTimeSeries.cpp */; };
 		22253D8F16022FB6002F7256 /* CurveFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22253D8D16022FB6002F7256 /* CurveFunction.cpp */; };
 		222FDDD615C1BC2F0065DAF6 /* FirstDerivative.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */; };
+		223F52C716D51F330086DC8F /* MapPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223F52C516D51F330086DC8F /* MapPointRecord.cpp */; };
+		223F52C816D51F330086DC8F /* MapPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 223F52C616D51F330086DC8F /* MapPointRecord.h */; };
+		223F52D516D55D090086DC8F /* DequePointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223F52D316D55D090086DC8F /* DequePointRecord.cpp */; };
+		223F52D616D55D090086DC8F /* DequePointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 223F52D416D55D090086DC8F /* DequePointRecord.h */; };
 		2246439E150BD6E0005EA3BA /* Node.h in Headers */ = {isa = PBXBuildFile; fileRef = 2246439D150BD6E0005EA3BA /* Node.h */; };
 		224643A1150BD72E005EA3BA /* Link.h in Headers */ = {isa = PBXBuildFile; fileRef = 224643A0150BD72E005EA3BA /* Link.h */; };
 		224B19A0152CA1760051F408 /* ConfigFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 224B199F152CA1760051F408 /* ConfigFactory.h */; };
@@ -166,6 +170,10 @@
 		222A41CF1511173C0012D2A5 /* vars.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = vars.h; path = ../../src/epanet/src/vars.h; sourceTree = "<group>"; };
 		222FDDD315C1BBE90065DAF6 /* FirstDerivative.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FirstDerivative.h; path = ../../src/FirstDerivative.h; sourceTree = "<group>"; };
 		222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FirstDerivative.cpp; path = ../../src/FirstDerivative.cpp; sourceTree = "<group>"; };
+		223F52C516D51F330086DC8F /* MapPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapPointRecord.cpp; path = ../../src/MapPointRecord.cpp; sourceTree = "<group>"; };
+		223F52C616D51F330086DC8F /* MapPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapPointRecord.h; path = ../../src/MapPointRecord.h; sourceTree = "<group>"; };
+		223F52D316D55D090086DC8F /* DequePointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DequePointRecord.cpp; path = ../../src/DequePointRecord.cpp; sourceTree = "<group>"; };
+		223F52D416D55D090086DC8F /* DequePointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DequePointRecord.h; path = ../../src/DequePointRecord.h; sourceTree = "<group>"; };
 		2246439D150BD6E0005EA3BA /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../../src/Node.h; sourceTree = "<group>"; };
 		224643A0150BD72E005EA3BA /* Link.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Link.h; path = ../../src/Link.h; sourceTree = "<group>"; };
 		224B199F152CA1760051F408 /* ConfigFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConfigFactory.h; path = ../../src/ConfigFactory.h; sourceTree = "<group>"; };
@@ -443,6 +451,10 @@
 			children = (
 				2281A75915A743410018EC0F /* PointRecord.h */,
 				22DEE91B153F5C44008F75AE /* PointRecord.cpp */,
+				223F52D416D55D090086DC8F /* DequePointRecord.h */,
+				223F52D316D55D090086DC8F /* DequePointRecord.cpp */,
+				223F52C616D51F330086DC8F /* MapPointRecord.h */,
+				223F52C516D51F330086DC8F /* MapPointRecord.cpp */,
 				227510E716D4231800B2BA62 /* BufferPointRecord.h */,
 				227510E616D4231800B2BA62 /* BufferPointRecord.cpp */,
 				2281A75D15A744E60018EC0F /* DbPointRecord.h */,
@@ -568,6 +580,8 @@
 				2251DCA7168105AA00515EBF /* IrregularClock.h in Headers */,
 				22F63D3816C5735100A15368 /* SineTimeSeries.h in Headers */,
 				227510E916D4231800B2BA62 /* BufferPointRecord.h in Headers */,
+				223F52C816D51F330086DC8F /* MapPointRecord.h in Headers */,
+				223F52D616D55D090086DC8F /* DequePointRecord.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -710,6 +724,8 @@
 				227CEC9F16BADD6000E8E7C8 /* DbPointRecord.cpp in Sources */,
 				22F63D3716C5735100A15368 /* SineTimeSeries.cpp in Sources */,
 				227510E816D4231800B2BA62 /* BufferPointRecord.cpp in Sources */,
+				223F52C716D51F330086DC8F /* MapPointRecord.cpp in Sources */,
+				223F52D516D55D090086DC8F /* DequePointRecord.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

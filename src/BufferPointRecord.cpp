@@ -13,7 +13,6 @@
 using namespace RTX;
 using namespace std;
 
-bool comparePoint(const Point& l, const Point& r);
 bool compareTimePointPair(const BufferPointRecord::TimePointPair_t& lhs, const BufferPointRecord::TimePointPair_t& rhs);
 
 BufferPointRecord::BufferPointRecord() {
@@ -63,10 +62,6 @@ std::vector<std::string> BufferPointRecord::identifiers() {
 
 void BufferPointRecord::preFetchRange(const string& identifier, time_t start, time_t end) {
   
-}
-
-bool comparePoint(const Point& l, const Point& r) {
-  return l.time() < r.time();
 }
 
 bool compareTimePointPair(const BufferPointRecord::TimePointPair_t& lhs, const BufferPointRecord::TimePointPair_t& rhs) {
@@ -306,6 +301,11 @@ void BufferPointRecord::addPoint(const string& identifier, Point point) {
     // lock the buffer
     mutex->lock();
     
+    if (buffer.size() == buffer.capacity()) {
+      cout << "buffer full" << endl;
+    }
+    
+    
     time_t firstTime = BufferPointRecord::firstPoint(identifier).time();
     time_t lastTime = BufferPointRecord::lastPoint(identifier).time();
     
@@ -370,12 +370,12 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
     time_t insertLast = points.back().time();
     
     // make sure they're in order
-    std::sort(points.begin(), points.end(), comparePoint);
+    std::sort(points.begin(), points.end(), &Point::comparePointTime);
     
     if (insertLast > lastTime) {
       // insert onto end.
       Point finder(lastTime, 0);
-      vector<Point>::const_iterator pIt = upper_bound(points.begin(), points.end(), finder, comparePoint);
+      vector<Point>::const_iterator pIt = upper_bound(points.begin(), points.end(), finder, &Point::comparePointTime);
       while (pIt != points.end()) {
         // skip points that fall before the end of the buffer.
         

@@ -1,13 +1,13 @@
 //
-//  PointRecord.h
+//  MapPointRecord.h
 //  epanet-rtx
 //
 //  Created by the EPANET-RTX Development Team
 //  See README.md and license.txt for more information
 //  
 
-#ifndef epanet_rtx_PointRecord_h
-#define epanet_rtx_PointRecord_h
+#ifndef epanet_rtx_MapPointRecord_h
+#define epanet_rtx_MapPointRecord_h
 
 // basics
 #include <string>
@@ -18,43 +18,18 @@
 #include "Point.h"
 #include "rtxMacros.h"
 #include "rtxExceptions.h"
+#include "PointRecord.h"
 
 using std::string;
 
 namespace RTX {
   
-  /*! 
-   \class PointRecord
-   \brief A Point Record Class for storing and retrieving Points.
-   
-   The base PointRecord class just keeps short-term records. Derive to add specific persistence implementations
-   */
-  
-  /*! 
-   \fn virtual Point PointRecord::point(const std::string &name, time_t time) 
-   \brief Get a Point with a specific name at a specific time.
-   \param name The name of the data source (tag name).
-   \param time The requested time.
-   \return The requested Point (as a shared pointer).
-   \sa Point
-   */
-  /*! 
-   \fn std::vector<Point> PointRecord::pointsInRange(const std::string &name, time_t startTime, time_t endTime) 
-   \brief Get a vector of Points with a specific name within a specific time range.
-   \param name The name of the data source (tag name).
-   \param startTime The beginning of the requested time range.
-   \param endTime The end of the requested time range.
-   \return The requested Points (as a vector of shared pointers)
-   \sa Point
-   */
-  
-  
-  class PointRecord {
+  class MapPointRecord : public PointRecord{
     
   public:
-    RTX_SHARED_POINTER(PointRecord);
-    PointRecord();
-    virtual ~PointRecord() {};
+    RTX_SHARED_POINTER(MapPointRecord);
+    MapPointRecord();
+    virtual ~MapPointRecord() {};
     
     virtual std::string registerAndGetIdentifier(std::string recordName);    // registering record names.
     virtual std::vector<std::string> identifiers();
@@ -72,24 +47,26 @@ namespace RTX {
     virtual Point firstPoint(const string& id);
     virtual Point lastPoint(const string& id);
     
-    void setConnectionString(const std::string& connection);
-    const std::string& connectionString();
-    virtual void connect() throw(RtxException){};
-    virtual bool isConnected(){return true;};
-    
     virtual std::ostream& toStream(std::ostream &stream);
 
   protected:
+    typedef std::map<time_t, Point> pointMap_t;
+    typedef std::map< int, pointMap_t> keyedPointMap_t;
+    int identifierForName(std::string recordName);
+    string nameForIdentifier(int identifier);
     std::string _cachedPointId;
     Point _cachedPoint;
     
   private:
+    keyedPointMap_t _points;
+    std::map< std::string, int > _keys;
+    std::map< int, std::string > _names;
+    int _nextKey;
     std::string _connectionString;
-    
     
   };
   
-  std::ostream& operator<< (std::ostream &out, PointRecord &pr);
+  std::ostream& operator<< (std::ostream &out, MapPointRecord &pr);
 
 }
 

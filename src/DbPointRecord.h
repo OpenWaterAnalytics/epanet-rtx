@@ -9,7 +9,9 @@
 #ifndef epanet_rtx_DbPointRecord_h
 #define epanet_rtx_DbPointRecord_h
 
-#include "PointRecord.h"
+#define DB_PR_SUPER BufferPointRecord
+
+#include "BufferPointRecord.h"
 #include "rtxExceptions.h"
 
 namespace RTX {
@@ -21,7 +23,7 @@ namespace RTX {
    
    */
   
-  class DbPointRecord : public PointRecord {
+  class DbPointRecord : public DB_PR_SUPER {
   public:
     typedef enum { LOCAL, UTC } time_format_t;
     RTX_SHARED_POINTER(DbPointRecord);

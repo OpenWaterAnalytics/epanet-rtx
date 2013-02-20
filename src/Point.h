@@ -37,6 +37,7 @@ namespace RTX {
     Point operator*(const double factor) const;
     Point operator/(const double factor) const;
     static Point convertPoint(const Point& point, const Units& fromUnits, const Units& toUnits);
+    static bool comparePointTime(const Point& left, const Point& right);
     
     time_t time() const;
     double value() const;

@@ -26,9 +26,25 @@
 using namespace RTX;
 using namespace std;
 
-#define RTX_CREATE_POINT_TABLE_STRING "CREATE TABLE IF NOT EXISTS `points` (`time` int(10) unsigned NOT NULL,`series_id` int(11) NOT NULL,`value` double NOT NULL,KEY `id` (`series_id`),KEY `time` (`time`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;"
-#define RTX_CREATE_TSKEY_TABLE_STRING "CREATE TABLE IF NOT EXISTS `timeseries_meta` (`series_id` int(11) NOT NULL AUTO_INCREMENT,`name` varchar(255) NOT NULL,PRIMARY KEY (`series_id`),UNIQUE KEY `name` (`name`)) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;"
-#define RTX_CREATE_PRETTYPRINT_STRING "CREATE VIEW `pretty_print` AS select `points`.`time` AS `time`,`timeseries_meta`.`name` AS `name`,`points`.`value` AS `value` from (`points` join `timeseries_meta` on((`points`.`series_id` = `timeseries_meta`.`series_id`))) order by `points`.`time`,`timeseries_meta`.`name`;"
+#define RTX_CREATE_POINT_TABLE_STRING "\
+    CREATE TABLE IF NOT EXISTS `points` (\
+    `time` int(11) unsigned NOT NULL,\
+    `series_id` int(11) NOT NULL,\
+    `value` double NOT NULL,\
+    KEY `id` (`series_id`),\
+    KEY `time` (`time`)\
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1;"
+
+#define RTX_CREATE_TSKEY_TABLE_STRING "\
+    CREATE TABLE IF NOT EXISTS `timeseries_meta` (\
+    `series_id` int(11) NOT NULL AUTO_INCREMENT,\
+    `name` varchar(255) NOT NULL,\
+    `units` varchar(12) NOT NULL,\
+    `regular_period` int(11) NOT NULL DEFAULT '0'\
+    `regular_offset` int(10) NOT NULL DEFAULT '0'\
+    PRIMARY KEY (`series_id`),\
+    UNIQUE KEY `name` (`name`)\
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;"
 
 
 MysqlPointRecord::MysqlPointRecord() {
@@ -106,7 +122,6 @@ void MysqlPointRecord::connect() throw(RtxException) {
       // create tables
       st->executeUpdate(RTX_CREATE_POINT_TABLE_STRING);
       st->executeUpdate(RTX_CREATE_TSKEY_TABLE_STRING);
-      st->executeUpdate(RTX_CREATE_PRETTYPRINT_STRING);
       _connection->commit();
       cout << "Created new Database: " << database << endl;
     }
@@ -177,7 +192,7 @@ std::string MysqlPointRecord::registerAndGetIdentifier(std::string recordName) {
     handleException(e);
 	}
   
-  PointRecord::registerAndGetIdentifier(recordName);
+  DB_PR_SUPER::registerAndGetIdentifier(recordName);
   
   return recordName;
 }
@@ -203,7 +218,7 @@ bool MysqlPointRecord::isPointAvailable(const string& identifier, time_t time) {
   if (_cachedPoint.time() == time && _cachedPointId == identifier) {
     return true;
   }
-  if (PointRecord::isPointAvailable(identifier, time)) {
+  if (DB_PR_SUPER::isPointAvailable(identifier, time)) {
     return true;
   }
   
@@ -222,10 +237,10 @@ Point MysqlPointRecord::point(const string& identifier, time_t time) {
   Point thePoint;
   
   // see if the requested point is within my cache
-  thePoint = PointRecord::point(identifier, time);
+  thePoint = DB_PR_SUPER::point(identifier, time);
   if (!thePoint.isValid()) {
     thePoint = selectSingle(identifier, time, _singleSelect);
-    PointRecord::addPoint(identifier, thePoint);
+    DB_PR_SUPER::addPoint(identifier, thePoint);
   }
   
   
@@ -266,7 +281,7 @@ void MysqlPointRecord::addPoints(const string& identifier, std::vector<Point> po
 }
 
 void MysqlPointRecord::reset() {
-  PointRecord::reset();
+  DB_PR_SUPER::reset();
   try {
     string truncatePoints = "TRUNCATE TABLE points";
     string truncateKeys = "TRUNCATE TABLE timeseries_meta";
@@ -287,7 +302,7 @@ void MysqlPointRecord::reset() {
 }
 
 void MysqlPointRecord::reset(const string& identifier) {
-  PointRecord::reset(identifier);
+  DB_PR_SUPER::reset(identifier);
   string removePoints = "delete p, m from points p inner join timeseries_meta m on p.series_id=m.series_id where m.name = \"" + identifier + "\"";
   boost::shared_ptr<sql::Statement> removePointsStmt;
   try {

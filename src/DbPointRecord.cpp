@@ -22,11 +22,11 @@ vector<Point> DbPointRecord::pointsInRange(const string& identifier, time_t star
   vector<Point> pointVector;
   
   // see if it's not already cached.
-  if ( !(PointRecord::firstPoint(identifier).time() <= startTime && PointRecord::lastPoint(identifier).time() >= endTime) ) {
+  if ( !(DB_PR_SUPER::firstPoint(identifier).time() <= startTime && DB_PR_SUPER::lastPoint(identifier).time() >= endTime) ) {
     preFetchRange(identifier, startTime, endTime);
   }
   
-  pointVector = PointRecord::pointsInRange(identifier, startTime, endTime);
+  pointVector = DB_PR_SUPER::pointsInRange(identifier, startTime, endTime);
   
   return pointVector;
 }
@@ -40,8 +40,8 @@ void DbPointRecord::preFetchRange(const string& identifier, time_t start, time_t
   // TODO -- performance optimization - caching -- see scadapointrecord.cpp for code snippets.
   // get out if we've already hinted this.
 
-  time_t first = PointRecord::firstPoint(identifier).time();
-  time_t last = PointRecord::lastPoint(identifier).time();
+  time_t first = DB_PR_SUPER::firstPoint(identifier).time();
+  time_t last = DB_PR_SUPER::lastPoint(identifier).time();
   if (first <= start && end <= last) {
     return;
   }
@@ -56,7 +56,7 @@ void DbPointRecord::preFetchRange(const string& identifier, time_t start, time_t
   
   vector<Point> newPoints = selectRange(identifier, start - margin, end + margin);
 
-  cout << "RTX-DB-FETCH: " << identifier << " :: DONE" << endl;
+  //cout << "RTX-DB-FETCH: " << identifier << " :: DONE" << endl;
   
-  PointRecord::addPoints(identifier, newPoints);
+  DB_PR_SUPER::addPoints(identifier, newPoints);
 }

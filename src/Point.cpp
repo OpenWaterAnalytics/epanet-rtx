@@ -73,6 +73,10 @@ Point Point::operator/(const double factor) const {
 }
 
 
+bool Point::comparePointTime(const Point& left, const Point& right) {
+  return left.time() < right.time();
+}
+
 
 
 

@@ -9,13 +9,14 @@
 #include <iostream>
 
 #include "PointRecord.h"
-#include "boost/foreach.hpp"
+#include <boost/foreach.hpp>
+#include <boost/range/adaptors.hpp>
 
 using namespace RTX;
 using namespace std;
 
+
 PointRecord::PointRecord() {
-  _nextKey = 0;
   _connectionString = "";
 }
 
@@ -37,40 +38,14 @@ const std::string& PointRecord::connectionString() {
 
 
 std::string PointRecord::registerAndGetIdentifier(std::string recordName) {
-  // register the recordName internally and generate a unique key identifier
-  
-  // check to see if it's there first
-  if (_keys.find(recordName) == _keys.end()) {
-    _keys[recordName] = _nextKey;
-    _names[_nextKey] = recordName;
-    pointMap_t emptyPointMap;
-    _points.insert(std::make_pair(_nextKey, emptyPointMap));
-    _nextKey++;
-  }
   
   return recordName;
 }
 
-int PointRecord::identifierForName(std::string recordName) {
-  if (_keys.find(recordName) != _keys.end()) {
-    return _keys[recordName];
-  }
-  else return -1;
-}
-
-string PointRecord::nameForIdentifier(int identifier) {
-  if (_names.find(identifier) != _names.end()) {
-    return _names[identifier];
-  }
-  else return string("");
-}
-
 std::vector<std::string> PointRecord::identifiers() {
-  typedef std::map< int, std::string >::value_type& nameMapValue_t;
+  
   vector<string> names;
-  BOOST_FOREACH(nameMapValue_t name, _names) {
-    names.push_back(name.second);
-  }
+  
   return names;
 }
 
@@ -82,170 +57,56 @@ void PointRecord::preFetchRange(const string& identifier, time_t start, time_t e
 
 
 bool PointRecord::isPointAvailable(const string& identifier, time_t time) {
-  if (_cachedPoint.time() == time && RTX_STRINGS_ARE_EQUAL(_cachedPointId, identifier) ) {
-    return true;
-  }
   
-  keyedPointMap_t::iterator it = _points.find(identifierForName(identifier));
-  if (it == _points.end()) {
-    return false;
-  }
-  
-  pointMap_t pointMap = (*it).second;
-  pointMap_t::iterator pointIt = pointMap.find(time);
-  if (pointIt == pointMap.end()) {
-    return false;
-  }
-  else {
-    _cachedPointId = identifier;
-    _cachedPoint = (*pointIt).second;
-    return true;
-  }
-  
+  return false;
 }
 
 
 Point PointRecord::point(const string& identifier, time_t time) {
-  
-  if (_cachedPoint.time() == time && RTX_STRINGS_ARE_EQUAL(_cachedPointId, identifier) ) {
-    return _cachedPoint;
-  }
-  
-  if (isPointAvailable(identifier, time)) {
-    return _points[identifierForName(identifier)][time];
-  }
-  else {
-    return pointBefore(identifier, time);
-  }
+  return Point();
 }
 
 
 Point PointRecord::pointBefore(const string& identifier, time_t time) {
-  keyedPointMap_t::iterator it = _points.find(identifierForName(identifier));
-  if (it == _points.end()) {
-    return Point();
-  }
-  pointMap_t pointMap = (*it).second;
-  pointMap_t::iterator pointIt = pointMap.lower_bound(time);
-  if (pointIt == pointMap.end()) {
-    return Point();
-  }
-  else {
-    pointIt--;
-    if (pointIt == pointMap.end()) {
-      return Point();
-    }
-    else {
-      return (*pointIt).second;
-    }
-  }
+  return Point();
 }
 
 
 Point PointRecord::pointAfter(const string& identifier, time_t time) {
-  int id = identifierForName(identifier);
-  keyedPointMap_t::iterator it = _points.find(id);
-  if (it == _points.end()) {
-    return Point();
-  }
-  pointMap_t pointMap = (*it).second;
-  pointMap_t::iterator pointIt = pointMap.upper_bound(time);
-  if (pointIt == pointMap.end()) {
-    return Point();
-  }
-  else {
-    return (*pointIt).second;
-  }
+  return Point();
 }
 
 
 std::vector<Point> PointRecord::pointsInRange(const string& identifier, time_t startTime, time_t endTime) {
   std::vector<Point> pointVector;
-  keyedPointMap_t::iterator it = _points.find(identifierForName(identifier));
-  if (it == _points.end()) {
-    return pointVector;
-  }
-  pointMap_t pointMap = (*it).second;
-  pointMap_t::iterator pointIt = pointMap.lower_bound(startTime);
-  while (pointIt != pointMap.end() && (*pointIt).second.time() <= endTime) {
-    pointVector.push_back((*pointIt).second);
-  }
   return pointVector;
 }
 
 Point PointRecord::firstPoint(const string &id) {
-  Point p;
-  keyedPointMap_t::iterator it = _points.find(identifierForName(id));
-  if (it == _points.end()) {
-    return p;
-  }
-  
-  pointMap_t pm = (*it).second;
-  pointMap_t::iterator rIt = pm.begin();
-  if (rIt != pm.end()) {
-    p = (*rIt).second;
-  }
-  
-  
-  
-  return p;
+  return Point();
 }
 
 Point PointRecord::lastPoint(const string &id) {
-  Point p;
-  keyedPointMap_t::iterator it = _points.find(identifierForName(id));
-  if (it == _points.end()) {
-    return p;
-  }
-  
-  pointMap_t pm = (*it).second;
-  pointMap_t::reverse_iterator rIt = pm.rbegin();
-  if (rIt != pm.rend()) {
-    p = (*rIt).second;
-  }
-  
-  
-  
-  return p;
+  return Point();
 }
 
 
 void PointRecord::addPoint(const string& identifier, Point point) {
-  keyedPointMap_t::iterator it = _points.find(identifierForName(identifier));
-  if (it == _points.end()) {
-    return;
-  }
-  /* todo -- compile-time logging info
-  if (it->second.find(point.time()) != it->second.end()) {
-    cerr <<  "overwriting point in " << identifier << " :: " << point << endl;
-  }
-   */
-  it->second[point.time()] = point;
   
 }
 
 
 void PointRecord::addPoints(const string& identifier, std::vector<Point> points) {
-  BOOST_FOREACH(Point thePoint, points) {
-    PointRecord::addPoint(identifier, thePoint);
-  }
+  
 }
 
 
 void PointRecord::reset() {
-  typedef keyedPointMap_t::value_type& keyedPointMapValue;
-  BOOST_FOREACH(keyedPointMapValue pointMapValue, _points) {
-    pointMapValue.second.clear();
-  }
+  
 }
 
 void PointRecord::reset(const string& identifier) {
-  keyedPointMap_t::iterator it = _points.find(identifierForName(identifier));
-  if (it == _points.end()) {
-    return;
-  }
-  it->second.clear();
+  
 }
-
 
 
