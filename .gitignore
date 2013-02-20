@@ -27,3 +27,5 @@ Debug/
 
 *.mode1v3
 *.mode2v3
+
+build/xcode/epanet-rtx.xcodeproj/project.pbxproj
