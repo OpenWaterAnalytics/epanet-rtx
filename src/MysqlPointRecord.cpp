@@ -40,8 +40,8 @@ using namespace std;
     `series_id` int(11) NOT NULL AUTO_INCREMENT,\
     `name` varchar(255) NOT NULL,\
     `units` varchar(12) NOT NULL,\
-    `regular_period` int(11) NOT NULL DEFAULT '0'\
-    `regular_offset` int(10) NOT NULL DEFAULT '0'\
+    `regular_period` int(11) NOT NULL DEFAULT '0',\
+    `regular_offset` int(10) NOT NULL DEFAULT '0',\
     PRIMARY KEY (`series_id`),\
     UNIQUE KEY `name` (`name`)\
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;"
@@ -214,96 +214,77 @@ std::vector<std::string> MysqlPointRecord::identifiers() {
 }
 
 
-bool MysqlPointRecord::isPointAvailable(const string& identifier, time_t time) {
-  if (_cachedPoint.time() == time && _cachedPointId == identifier) {
-    return true;
-  }
-  if (DB_PR_SUPER::isPointAvailable(identifier, time)) {
-    return true;
-  }
-  
-  Point point = selectSingle(identifier, time, _singleSelect);
-  if (point.isValid()) {
-    return true;
-  }
-  return false;
+
+
+void MysqlPointRecord::fetchRange(const std::string& id, time_t startTime, time_t endTime) {
+  DbPointRecord::fetchRange(id, startTime, endTime);
 }
-Point MysqlPointRecord::point(const string& identifier, time_t time) {
-  
-  if (time == _cachedPoint.time() && identifier == _cachedPointId) {
-    return _cachedPoint;
-  }
-  
-  Point thePoint;
-  
-  // see if the requested point is within my cache
-  thePoint = DB_PR_SUPER::point(identifier, time);
-  if (!thePoint.isValid()) {
-    thePoint = selectSingle(identifier, time, _singleSelect);
-    DB_PR_SUPER::addPoint(identifier, thePoint);
-  }
-  
-  
-  return thePoint;
+
+void MysqlPointRecord::fetchNext(const std::string& id, time_t time) {
+  DbPointRecord::fetchNext(id, time);
 }
-Point MysqlPointRecord::pointBefore(const string& identifier, time_t time) {
-  Point point = selectSingle(identifier, time, _previousSelect);
-  if (point.isValid()) {
-    return point;
-  }
-  else {
-    // todo - throw something?
-    return point;
-  }
+
+void MysqlPointRecord::fetchPrevious(const std::string& id, time_t time) {
+  DbPointRecord::fetchPrevious(id, time);
 }
-Point MysqlPointRecord::pointAfter(const string& identifier, time_t time) {
-  Point point = selectSingle(identifier, time, _nextSelect);
-  if (point.isValid()) {
-    return point;
+
+// select just returns the results (no caching)
+std::vector<Point> MysqlPointRecord::selectRange(const std::string& id, time_t start, time_t end) {
+  cout << "mysql range: " << start << " - " << end << endl;
+  
+  std::vector<Point> points;
+  _rangeSelect->setString(1, id);
+  _rangeSelect->setInt(2, (int)start);
+  _rangeSelect->setInt(3, (int)end);
+  boost::shared_ptr<sql::ResultSet> result( _rangeSelect->executeQuery() );
+  while (result->next()) {
+    time_t time = result->getInt("time");
+    double value = result->getDouble("value");
+    Point point(time, value);
+    points.push_back(point);
   }
-  else {
-    // todo - throw something?
-    //std::cerr << "could not find point after " << time << std::endl;
-    return point;
+  return points;
+  
+}
+
+
+Point MysqlPointRecord::selectNext(const std::string& id, time_t time) {
+  return selectSingle(id, time, _nextSelect);
+}
+
+
+Point MysqlPointRecord::selectPrevious(const std::string& id, time_t time) {
+  return selectSingle(id, time, _previousSelect);
+}
+
+
+
+// insertions or alterations may choose to ignore / deny
+void MysqlPointRecord::insertSingle(const std::string& id, Point point) {
+
+  _singleInsert->setInt(1, (int)point.time());
+  // todo -- check this: _singleInsert->setUInt64(1, (uint64_t)time);
+  _singleInsert->setDouble(2, point.value());
+  _singleInsert->setString(3, id);
+  int affected = _singleInsert->executeUpdate();
+  if (affected == 0) {
+    // throw something?
+    cerr << "zero rows inserted" << endl;
+  }
+  _connection->commit();
+}
+
+
+void MysqlPointRecord::insertRange(const std::string& id, std::vector<Point> points) {
+  BOOST_FOREACH(Point p, points) {
+    insertSingle(id, p);
   }
 }
 
-void MysqlPointRecord::addPoint(const string& identifier, Point point) {
-  time_t time = point.time();
-  double value = point.value();
-  insertSingle(identifier, time, value);
-}
 
-void MysqlPointRecord::addPoints(const string& identifier, std::vector<Point> points) {
-  BOOST_FOREACH(Point point, points) {
-    addPoint(identifier, point);
-  }
-}
-
-void MysqlPointRecord::reset() {
-  DB_PR_SUPER::reset();
-  try {
-    string truncatePoints = "TRUNCATE TABLE points";
-    string truncateKeys = "TRUNCATE TABLE timeseries_meta";
-    
-    boost::shared_ptr<sql::Statement> truncatePointsStmt, truncateKeysStmt;
-    
-    truncatePointsStmt.reset( _connection->createStatement() );
-    truncateKeysStmt.reset( _connection->createStatement() );
-    
-    truncatePointsStmt->executeUpdate(truncatePoints);
-    //truncateKeysStmt->executeUpdate(truncateKeys);
-    
-    _connection->commit();
-  }
-  catch (sql::SQLException &e) {
-    handleException(e);
-  }
-}
-
-void MysqlPointRecord::reset(const string& identifier) {
-  DB_PR_SUPER::reset(identifier);
-  string removePoints = "delete p, m from points p inner join timeseries_meta m on p.series_id=m.series_id where m.name = \"" + identifier + "\"";
+void MysqlPointRecord::removeRecord(const string& id) {
+  DB_PR_SUPER::reset(id);
+  string removePoints = "delete p, m from points p inner join timeseries_meta m on p.series_id=m.series_id where m.name = \"" + id + "\"";
   boost::shared_ptr<sql::Statement> removePointsStmt;
   try {
     removePointsStmt.reset( _connection->createStatement() );
@@ -314,73 +295,35 @@ void MysqlPointRecord::reset(const string& identifier) {
   }
 }
 
-#pragma mark - Protected
-
-std::ostream& MysqlPointRecord::toStream(std::ostream &stream) {
-  stream << "Mysql Point Record (" << _name << ")" << endl;
-  
-  
-  if (_connection -> isClosed()) {
-    stream << "no connection" << endl;
-    return stream;
-  }
+void MysqlPointRecord::truncate() {
+  try {
+    string truncatePoints = "TRUNCATE TABLE points";
+    string truncateKeys = "TRUNCATE TABLE timeseries_meta";
     
-  sql::DatabaseMetaData *meta = _connection->getMetaData();
-  
-	stream << "\t" << meta->getDatabaseProductName() << " " << meta->getDatabaseProductVersion() << endl;
-	stream << "\tUser: " << meta->getUserName() << endl;
-  
-	stream << "\tDriver: " << meta->getDriverName() << " v" << meta->getDriverVersion() << endl;
-  
-	stream << endl;
-  return stream;
+    boost::shared_ptr<sql::Statement> truncatePointsStmt, truncateKeysStmt;
+    
+    truncatePointsStmt.reset( _connection->createStatement() );
+    truncateKeysStmt.reset( _connection->createStatement() );
+    
+    truncatePointsStmt->executeUpdate(truncatePoints);
+    truncateKeysStmt->executeUpdate(truncateKeys);
+    
+    _connection->commit();
+  }
+  catch (sql::SQLException &e) {
+    handleException(e);
+  }
 }
 
-Point MysqlPointRecord::firstPoint(const string &id) {
-  Point point;
-  _firstSelect->setString(1, id);
-  boost::shared_ptr<sql::ResultSet> result( _firstSelect->executeQuery() );
-  if( result && result->next() ) {
-    time_t rowTime = result->getInt("time");
-    double rowValue = result->getDouble("value");
-    point = Point(rowTime, rowValue);
-  }
-  return point;
-}
 
-Point MysqlPointRecord::lastPoint(const string &id) {
-  Point point;
-  _lastSelect->setString(1, id);
-  boost::shared_ptr<sql::ResultSet> result( _lastSelect->executeQuery() );
-  if( result->next() ) {
-    time_t rowTime = result->getInt("time");
-    double rowValue = result->getDouble("value");
-    point = Point(rowTime, rowValue);
-  }
-  return point;
-}
 
 
 #pragma mark - Private
 
-void MysqlPointRecord::insertSingle(const string& identifier, time_t time, double value) {
-  // "INSERT INTO points
-  _singleInsert->setInt(1, (int)time);
-  // todo -- check this: _singleInsert->setUInt64(1, (uint64_t)time);
-  _singleInsert->setDouble(2, value);
-  _singleInsert->setString(3, identifier);
-  int affected = _singleInsert->executeUpdate();
-  if (affected == 0) {
-    // throw something?
-    cerr << "zero rows inserted" << endl;
-  }
-  _connection->commit();
-}
-
-Point MysqlPointRecord::selectSingle(const string& identifier, time_t time, boost::shared_ptr<sql::PreparedStatement> statement) {
-  
+Point MysqlPointRecord::selectSingle(const string& id, time_t time, boost::shared_ptr<sql::PreparedStatement> statement) {
+  cout << "hit MySql: " << time << endl;
   Point point;
-  statement->setString(1, identifier);
+  statement->setString(1, id);
   statement->setInt(2, (int)time);
   boost::shared_ptr<sql::ResultSet> result( statement->executeQuery() );
   if( result->next() ) {
@@ -389,23 +332,6 @@ Point MysqlPointRecord::selectSingle(const string& identifier, time_t time, boos
     point = Point(rowTime, rowValue);
   }
   return point;
-}
-
-std::vector<Point> MysqlPointRecord::selectRange(const string& identifier, time_t start, time_t end) {
-  // "SELECT time, value FROM points INNER JOIN timeseries_meta USING (series_id) WHERE name = ? AND time > ? AND time <= ?";
-  std::vector<Point> points;
-  _rangeSelect->setString(1, identifier);
-  _rangeSelect->setInt(2, (int)start);
-  _rangeSelect->setInt(3, (int)end);
-  boost::shared_ptr<sql::ResultSet> result( _rangeSelect->executeQuery() );
-  while (result->next()) {
-    time_t time = result->getInt("time");
-    double value = result->getDouble("value");
-    Point point(time, value);
-    points.push_back(point);
-  }
-  
-  return points;
 }
 
 
@@ -440,4 +366,52 @@ void MysqlPointRecord::handleException(sql::SQLException &e) {
 
 
 
+#pragma mark - Protected
 
+std::ostream& MysqlPointRecord::toStream(std::ostream &stream) {
+  stream << "Mysql Point Record (" << _name << ")" << endl;
+  
+  
+  if (_connection -> isClosed()) {
+    stream << "no connection" << endl;
+    return stream;
+  }
+    
+  sql::DatabaseMetaData *meta = _connection->getMetaData();
+  
+	stream << "\t" << meta->getDatabaseProductName() << " " << meta->getDatabaseProductVersion() << endl;
+	stream << "\tUser: " << meta->getUserName() << endl;
+  
+	stream << "\tDriver: " << meta->getDriverName() << " v" << meta->getDriverVersion() << endl;
+  
+	stream << endl;
+  return stream;
+}
+
+
+/*
+Point MysqlPointRecord::firstPoint(const string &id) {
+  Point point;
+  _firstSelect->setString(1, id);
+  boost::shared_ptr<sql::ResultSet> result( _firstSelect->executeQuery() );
+  if( result && result->next() ) {
+    time_t rowTime = result->getInt("time");
+    double rowValue = result->getDouble("value");
+    point = Point(rowTime, rowValue);
+  }
+  return point;
+}
+
+Point MysqlPointRecord::lastPoint(const string &id) {
+  Point point;
+  _lastSelect->setString(1, id);
+  boost::shared_ptr<sql::ResultSet> result( _lastSelect->executeQuery() );
+  if( result->next() ) {
+    time_t rowTime = result->getInt("time");
+    double rowValue = result->getDouble("value");
+    point = Point(rowTime, rowValue);
+  }
+  return point;
+}
+
+*/

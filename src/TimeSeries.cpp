@@ -91,10 +91,10 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
   if (firstCachePoint.isValid() && lastCachePoint.isValid()) {
     time_t fetchBegin = (time_t)RTX_MIN(start, firstTime);
     time_t fetchEnd = (time_t)RTX_MAX(end, lastTime);
-    _points->preFetchRange(name(), fetchBegin, fetchEnd);
+    //_points->preFetchRange(name(), fetchBegin, fetchEnd);
   }
   else {
-    _points->preFetchRange(name(), start, end);
+    //_points->preFetchRange(name(), start, end);
   }
   
   
@@ -158,7 +158,11 @@ std::pair< Point, Point > TimeSeries::adjacentPoints(time_t time) {
 Point TimeSeries::pointBefore(time_t time) {
   Point myPoint;
   
-  myPoint = point(clock()->timeBefore(time));
+  time_t timeBefore = clock()->timeBefore(time);
+  if (timeBefore > 0) {
+    myPoint = point(timeBefore);
+  }
+  
   
   /* / if not, we depend on the PointRecord to tell us what the previous point is.
   else {
@@ -173,8 +177,12 @@ Point TimeSeries::pointBefore(time_t time) {
 Point TimeSeries::pointAfter(time_t time) {
   Point myPoint;
   
-  myPoint = point(clock()->timeAfter(time));
+  time_t timeAfter = clock()->timeAfter(time);
+  if (timeAfter > 0) {
+    myPoint = point(timeAfter);
 
+  }
+  
   
   /* / if not, we depend on the PointRecord to tell us what the next point is.
   else {

@@ -50,11 +50,6 @@ std::vector<std::string> DequePointRecord::identifiers() {
 }
 
 
-void DequePointRecord::preFetchRange(const string& identifier, time_t start, time_t end) {
-  
-}
-
-
 
 bool DequePointRecord::isPointAvailable(const string& identifier, time_t time) {
   if (_cachedPoint.time() == time && RTX_STRINGS_ARE_EQUAL(_cachedPointId, identifier) ) {
@@ -101,17 +96,23 @@ Point DequePointRecord::point(const string& identifier, time_t time) {
 
 Point DequePointRecord::pointBefore(const string& identifier, time_t time) {
   
-  const pointQ_t& q = pointQueueWithKeyName(identifier);
+  pointQ_t& q = pointQueueWithKeyName(identifier);
   
   Point finder(time,0);
-  pointQ_t::const_iterator qIt = std::lower_bound(q.begin(), q.end(), finder, &Point::comparePointTime);
+  pointQ_t::iterator qIt = std::lower_bound(q.begin(), q.end(), finder, &Point::comparePointTime);
   
-  while (qIt != q.end() && qIt->time() > time) {
+  while (qIt != q.begin() && qIt != q.end() && (*qIt).time() >= time) {
     --qIt;
   }
   
   if (qIt->time() < time) {
-    return (*qIt);
+    Point p = (*qIt);
+    
+    if (p.time() < 0) {
+      cerr << "whoops" << endl;
+    }
+    
+    return p;
   }
   else {
     return Point();

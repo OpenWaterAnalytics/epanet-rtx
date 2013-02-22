@@ -66,7 +66,6 @@ time_t IrregularClock::timeBefore(time_t time) {
   else {
     //std::cerr << "previous time not found" << std::endl;
     return 0;
-    // TODO -- what if there's no data here?
   }
 }
 

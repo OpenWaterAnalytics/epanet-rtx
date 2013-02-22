@@ -37,7 +37,6 @@ namespace RTX {
     
     virtual std::string registerAndGetIdentifier(std::string recordName);    // registering record names.
     virtual std::vector<std::string> identifiers();
-    virtual void preFetchRange(const string& identifier, time_t start, time_t end);   // prepare to retrieve range of values
     
     virtual bool isPointAvailable(const string& identifier, time_t time);
     virtual Point point(const string& identifier, time_t time);

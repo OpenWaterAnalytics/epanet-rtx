@@ -312,6 +312,19 @@
 			name = "epanet engine";
 			sourceTree = "<group>";
 		};
+		222F51B816D7D07400C86F71 /* db */ = {
+			isa = PBXGroup;
+			children = (
+				2281A75D15A744E60018EC0F /* DbPointRecord.h */,
+				227CEC9E16BADD6000E8E7C8 /* DbPointRecord.cpp */,
+				2281A75F15A745520018EC0F /* ScadaPointRecord.h */,
+				220AE46A145B0EDC002F07B4 /* ScadaPointRecord.cpp */,
+				2281A75E15A7451F0018EC0F /* MysqlPointRecord.h */,
+				225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */,
+			);
+			name = db;
+			sourceTree = "<group>";
+		};
 		22303FB61499364800B2CE26 /* TRASH */ = {
 			isa = PBXGroup;
 			children = (
@@ -457,12 +470,7 @@
 				223F52C516D51F330086DC8F /* MapPointRecord.cpp */,
 				227510E716D4231800B2BA62 /* BufferPointRecord.h */,
 				227510E616D4231800B2BA62 /* BufferPointRecord.cpp */,
-				2281A75D15A744E60018EC0F /* DbPointRecord.h */,
-				227CEC9E16BADD6000E8E7C8 /* DbPointRecord.cpp */,
-				2281A75F15A745520018EC0F /* ScadaPointRecord.h */,
-				220AE46A145B0EDC002F07B4 /* ScadaPointRecord.cpp */,
-				2281A75E15A7451F0018EC0F /* MysqlPointRecord.h */,
-				225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */,
+				222F51B816D7D07400C86F71 /* db */,
 			);
 			name = "point record classes";
 			sourceTree = "<group>";

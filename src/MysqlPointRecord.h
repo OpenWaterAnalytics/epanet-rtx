@@ -27,13 +27,6 @@ namespace RTX {
    */
   
   /*!
-   \fn virtual void MysqlPointRecord::connect(const string& host, const string& user, const string& password, const string& database);
-   \brief Get a Point with a specific name at a specific time.
-   \param host The name, IP, or socket address of the MySQL database.
-   \param user The user name for the database.
-   \param password The password for accessing the database.
-   \param database The name of the Database you want to use.
-   \sa PointRecord
    
    The MySQL connector is based on the JDBC-API, so use the format "tcp://ipaddress.or.name.of.server" or "unix://path/to/unix_socket_file".
    If the Database name passed in does not exist, then it is created for you.
@@ -50,24 +43,31 @@ namespace RTX {
     virtual bool isConnected();
     virtual std::string registerAndGetIdentifier(std::string recordName);
     virtual std::vector<std::string> identifiers();
-    virtual bool isPointAvailable(const string& identifier, time_t time);
-    virtual Point point(const string& identifier, time_t time);
-    virtual Point pointBefore(const string& identifier, time_t time);
-    virtual Point pointAfter(const string& identifier, time_t time);
-    virtual void addPoint(const string& identifier, Point point);
-    virtual void addPoints(const string& identifier, std::vector<Point> points);
-    virtual void reset();
-    virtual void reset(const string& identifier);
-    virtual Point firstPoint(const string& id);
-    virtual Point lastPoint(const string& id);
     
     virtual std::ostream& toStream(std::ostream &stream);
     
+    
+  protected:
+    // fetch means cache the results
+    virtual void fetchRange(const std::string& id, time_t startTime, time_t endTime);
+    virtual void fetchNext(const std::string& id, time_t time);
+    virtual void fetchPrevious(const std::string& id, time_t time);
+    
+    // select just returns the results (no caching)
+    virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);
+    virtual Point selectNext(const std::string& id, time_t time);
+    virtual Point selectPrevious(const std::string& id, time_t time);
+    
+    // insertions or alterations may choose to ignore / deny
+    virtual void insertSingle(const std::string& id, Point point);
+    virtual void insertRange(const std::string& id, std::vector<Point> points);
+    virtual void removeRecord(const std::string& id);
+    virtual void truncate();
+    
   private:
     bool _connectionOk;
-    void insertSingle(const string& identifier, time_t time, double value);
-    Point selectSingle(const string& identifier, time_t time, boost::shared_ptr<sql::PreparedStatement> statement);
-    std::vector<Point>selectRange(const string& identifier, time_t start, time_t end);
+    void insertSingle(const string& id, time_t time, double value);
+    Point selectSingle(const string& id, time_t time, boost::shared_ptr<sql::PreparedStatement> statement);
     void handleException(sql::SQLException &e);
     string _name;
     sql::Driver* _driver;

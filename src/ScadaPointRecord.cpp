@@ -145,6 +145,10 @@ bool ScadaPointRecord::isConnected() {
   return _connectionOk;
 }
 
+std::string ScadaPointRecord::registerAndGetIdentifier(std::string recordName) {
+  return DB_PR_SUPER::registerAndGetIdentifier(recordName);
+}
+
 std::vector<std::string> ScadaPointRecord::identifiers() {
   std::vector<std::string> ids;
   if (!isConnected()) {
@@ -181,122 +185,97 @@ std::vector<std::string> ScadaPointRecord::identifiers() {
 
 
 
-#pragma mark - Retrieval
+#pragma mark -
 
-bool ScadaPointRecord::isPointAvailable(const string& identifier, time_t time)  {
-  Point aPoint;
-  
-  if (_cachedPoint.time() == time && _cachedPointId == identifier) {
-    return true;
-  }
-  if (PointRecord::isPointAvailable(identifier, time)) {
-    return true;
-  }
-  time_t cacheFirst = PointRecord::firstPoint(identifier).time();
-  time_t cacheLast = PointRecord::lastPoint(identifier).time();
-  if (cacheFirst <= time && time <= cacheLast) {
-    // the point is in my base cache.
-    aPoint = PointRecord::pointBefore(identifier, time);
-  }
-  else {
-    aPoint = pointBefore(identifier, time);
-  }
-  if (!aPoint.isValid()) {
-    // no such point
-    return false;
-  }
-  if (aPoint.time() == time) {
-    _cachedPoint = aPoint;
-    _cachedPointId = identifier;
-    return true;
-  }
-  
-  return false;
-  
-  /* not needed ??
-  aPoint = pointAfter(identifier, time);
-  if (aPoint.isValid() && aPoint.time() == time) {
-    return true;
-  }
-  else {
-    return false;
-  }
-   */
+
+// fetch means cache the results
+void ScadaPointRecord::fetchRange(const std::string& id, time_t startTime, time_t endTime) {
+  // just call super
+  DbPointRecord::fetchRange(id, startTime, endTime);
 }
 
-// get a single point, rely on scada system's interpolation...
-Point ScadaPointRecord::point(const string& identifier, time_t time) {
-  
-  if (time == _cachedPoint.time() && identifier == _cachedPointId) {
-    return _cachedPoint;
-  }
-  
-  Point thePoint;
-  
-  // see if the requested point is within my cache
-  if ( (time >= PointRecord::firstPoint(identifier).time()) && (time <= PointRecord::lastPoint(identifier).time()) ) {
-    thePoint = PointRecord::point(identifier, time);
-  }
-  
-  else {
-    thePoint = (pointsWithStatement(identifier, _SCADAstmt, time)).front();
-  }
-  
-  return thePoint;
+void ScadaPointRecord::fetchNext(const std::string& id, time_t time) {
+  time_t margin = 60*60*12;
+  fetchRange(id, time-1, time+margin);
+}
+
+
+void ScadaPointRecord::fetchPrevious(const std::string& id, time_t time) {
+  time_t margin = 60*60*12;
+  fetchRange(id, time-margin, time+1);
 }
 
 
 
-Point ScadaPointRecord::pointBefore(const string& identifier, time_t time) {
-  
-  time_t margin = 60*60*24*2;
-  
-  Point thePoint;
-  if (time == 0) {
-    std::cerr << "time out of bounds" << std::endl;
-    return thePoint;
-  }
-  
-  // see if the requested point is within my base-class cache
-  if ( PointRecord::firstPoint(identifier).time() <= time && PointRecord::lastPoint(identifier).time() >= time ) {
-    thePoint = PointRecord::pointBefore(identifier, time);
-  }
-  
-  // if not, get it from the db
-  else {
-    preFetchRange(identifier, time - margin, (time + 1) );
-    thePoint = PointRecord::pointBefore(identifier, time);
-  }
-  
-  return thePoint;
+// select just returns the results (no caching)
+std::vector<Point> ScadaPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
+  return pointsWithStatement(id, _rangeStatement, startTime, endTime);
 }
 
-Point ScadaPointRecord::pointAfter(const string& identifier, time_t time) {
+
+Point ScadaPointRecord::selectNext(const std::string& id, time_t time) {
+  Point p;
+  time_t margin = 60*60*12;
+  vector<Point> points = pointsWithStatement(id, _rangeStatement, time, time + margin);
   
-  time_t margin = 60*60*24*2;
-  
-  Point thePoint;
-  if (time == 0) {
-    std::cerr << "time out of bounds" << std::endl;
-    return thePoint;
+  time_t max_margin = 60*60*24*2; // 2-day lookahead max
+  time_t lookahead = time;
+  while (points.size() == 0 && lookahead < time + max_margin) {
+    cout << "scada lookahead" << endl;
+    lookahead += margin;
+    points = pointsWithStatement(id, _rangeStatement, lookahead, lookahead+margin);
   }
   
-  // see if the requested point is within my base-class cache
-  time_t cacheFirst = PointRecord::firstPoint(identifier).time();
-  time_t cacheLast = PointRecord::lastPoint(identifier).time();
-  
-  if ( PointRecord::firstPoint(identifier).time() <= time && PointRecord::lastPoint(identifier).time() >= time ) {
-    thePoint = PointRecord::pointAfter(identifier, time);
+  if (points.size() > 0) {
+    p = points.front();
   }
-  
-  // if not, get it from the db
-  else {
-    preFetchRange(identifier, time, time + margin);
-    thePoint = PointRecord::pointAfter(identifier, time);
-  }
-    
-  return thePoint;
+  return p;
 }
+
+
+Point ScadaPointRecord::selectPrevious(const std::string& id, time_t time) {
+  Point p;
+  time_t margin = 60*60*12;
+  vector<Point> points = pointsWithStatement(id, _rangeStatement, time - margin, time);
+  
+  time_t max_margin = 60*60*24*2; // 2-day lookahead max
+  time_t lookbehind = time;
+  while (points.size() == 0 && lookbehind < time + max_margin) {
+    cout << "scada lookbehind" << endl;
+    lookbehind -= margin;
+    points = pointsWithStatement(id, _rangeStatement, lookbehind-margin, lookbehind);
+  }
+  
+  if (points.size() > 0) {
+    p = points.back();
+  }
+  return p;
+}
+
+
+
+// insertions or alterations may choose to ignore / deny
+void ScadaPointRecord::insertSingle(const std::string& id, Point point) {
+  
+}
+
+
+void ScadaPointRecord::insertRange(const std::string& id, std::vector<Point> points) {
+  
+}
+
+
+void ScadaPointRecord::removeRecord(const std::string& id) {
+  
+}
+
+
+void ScadaPointRecord::truncate() {
+  
+}
+
+
+
 
 
 #pragma mark - Protected
@@ -312,18 +291,16 @@ std::ostream& ScadaPointRecord::toStream(std::ostream &stream) {
 #pragma mark - Internal (private) methods
 
 
-std::vector<Point> ScadaPointRecord::selectRange(const string& identifier, time_t startTime, time_t endTime) {
-  return pointsWithStatement(identifier, _rangeStatement, startTime, endTime);
-}
-
-std::vector<Point> ScadaPointRecord::pointsWithStatement(const string& identifier, SQLHSTMT statement, time_t startTime, time_t endTime) {
+std::vector<Point> ScadaPointRecord::pointsWithStatement(const string& id, SQLHSTMT statement, time_t startTime, time_t endTime) {
   std::vector< Point > points;
   points.clear();
+  
+  cout << "hit SCADA" << endl;
   
   // set up query-bound variables
   _query.start = sqlTime(startTime);
   _query.end = sqlTime(endTime);
-  strcpy(_query.tagName, identifier.c_str());
+  strcpy(_query.tagName, id.c_str());
   
   try {
     SQL_CHECK(SQLExecute(statement), "SQLExecute", statement, SQL_HANDLE_STMT);
@@ -342,6 +319,13 @@ std::vector<Point> ScadaPointRecord::pointsWithStatement(const string& identifie
     std::cerr << errorMessage;
     std::cerr << "Could not get data from db connection\n";
   }
+  
+  if (points.size() == 0) {
+    cerr << "no points found" << endl;
+  }
+  
+  
+  cout << "done SCADA" << endl;
   
   return points;
 }
@@ -407,16 +391,19 @@ time_t ScadaPointRecord::unixTime(SQL_TIMESTAMP_STRUCT sqlTime) {
   tmTimestamp.tm_sec = sqlTime.second;
   
   
-  myUnixTime = mktime(&tmTimestamp);
+  //myUnixTime = mktime(&tmTimestamp);
 
+  
+  
+  
+  // todo -- we can speed up mktime, but this private method is borked so fix it.
+  myUnixTime = time_to_epoch(&tmTimestamp, 0);
+  
+  
   if (timeFormat() == UTC) {
     myUnixTime += pTimestamp->tm_gmtoff;
   }
   
-  
-  // todo -- we can speed up mktime, but this private method is borked so fix it.
-  // myUnixTime = time_to_epoch(&tmTimestamp, localGmtOffset);
-    
   return myUnixTime;
 }
 

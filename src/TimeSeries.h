@@ -22,11 +22,37 @@
 namespace RTX {
 
   
-  //! Responsible for keeping a container of points - also adding, retrieving, and getting information about points.
+  /*!
+   \class TimeSeries
+   \brief An abstraction of Points ordered in time.
+   
+   The base TimeSeries class doesn't do much. Derive for added flavor.
+   */
+  
+  /*!
+   \fn virtual Point TimeSeries::point(time_t time)
+   \brief Get a Point at a specific time.
+   \param time The requested time.
+   \return The requested Point, or the Point just prior to the passed time value.
+   \sa Point
+   */
+  /*!
+   \fn virtual std::vector<Point> TimeSeries::points(time_t start, time_t end)
+   \brief Get a vector of Points within a specific time range.
+   \param start The beginning of the requested time range.
+   \param end The end of the requested time range.
+   \return The requested Points (as a vector)
+   
+   The base class provides some brute-force logic to retrieve points, by calling Point() repeatedly. For more efficient access, you may wish to override this method.
+   
+   \sa Point
+   */
+  
+  
+  
+  
   class TimeSeries {    
   public:
-    //! \var typedef boost::shared_ptr< TimeSeries > sharedPointer
-    //! \brief Type definition for a shared pointer to a TimeSeries object.
     RTX_SHARED_POINTER(TimeSeries);
     
     // ctor & dtor

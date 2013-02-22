@@ -21,12 +21,13 @@ namespace RTX {
     virtual ~Resampler();
     
     virtual Point point(time_t time);
+    virtual std::vector<Point> points(time_t start, time_t end);
     
   protected:
     virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
     
   private:
-    
+    Point interpolated(Point p1, Point p2, time_t t);
   };
   
 }

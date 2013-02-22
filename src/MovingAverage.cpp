@@ -16,7 +16,7 @@
 #include <iostream>
 
 using namespace RTX;
-using std::cout;
+using namespace std;
 using namespace boost::accumulators;
 
 
@@ -72,6 +72,7 @@ std::vector< Point > MovingAverage::points(time_t start, time_t end) {
     std::vector< Point > empty;
     return empty;
   }
+  cout << "calling source cache (" << source()->name() << ")" << endl;
   source()->points( start - (period * windowSize()), end + (period * windowSize()) );
   
   // now return just the results we care about.

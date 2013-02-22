@@ -14,6 +14,7 @@
 #include "MovingAverage.h"
 #include "FirstDerivative.h"
 
+#include "BufferPointRecord.h"
 #include "MysqlPointRecord.h"
 
 using namespace RTX;
@@ -49,11 +50,24 @@ int main(int argc, const char * argv[])
   uglyPoints.push_back(p3);
   uglyPoints.push_back(p4);
   
+  time_t t = start + 240;
+  for (int i=0; i < 10000; ++i) {
+    
+    uglyPoints.push_back(Point(t,(double)(rand()%100)));
+    
+    t += (30);
+  }
+  time_t end = t;
+  
+  
+  PointRecord::sharedPointer pr( new BufferPointRecord() );
+  
   // by default, new TimeSeries objects are created with irregular clocks.
   // this is fine, since we're feeding this guy points manually.
   TimeSeries::sharedPointer uglyTimeSeries(new TimeSeries());
   uglyTimeSeries->setName("ugly");
   uglyTimeSeries->setUnits(RTX_MILLION_GALLON_PER_DAY);
+  uglyTimeSeries->setRecord(pr);
   uglyTimeSeries->insertPoints(uglyPoints);
   
   // print out the information we have so far:
@@ -134,13 +148,13 @@ int main(int argc, const char * argv[])
     dbRecord->reset();
     
     // Now I can just hook this record into any of my modular TimeSeries objects...
-    movingAverage->newCacheWithPointRecord(dbRecord);
+    movingAverage->setRecord(dbRecord);
     
     // And when I call the point() or points() methods, the data will automatically be persisted
     // to the MySQL database instead of just RAM.
     // Really - Check your database after this call.
     cout << endl << "points are being persisted:" << endl;
-    printPoints( movingAverage->points(start, start+240) );
+    printPoints( movingAverage->points(start, end) );
   }
   else {
     cout << "whoops, db could not connect" << endl;

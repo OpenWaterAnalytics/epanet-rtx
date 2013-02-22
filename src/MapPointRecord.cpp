@@ -68,12 +68,6 @@ std::vector<std::string> MapPointRecord::identifiers() {
 }
 
 
-void MapPointRecord::preFetchRange(const string& identifier, time_t start, time_t end) {
-  
-}
-
-
-
 bool MapPointRecord::isPointAvailable(const string& identifier, time_t time) {
   if (_cachedPoint.time() == time && RTX_STRINGS_ARE_EQUAL(_cachedPointId, identifier) ) {
     return true;
@@ -162,6 +156,7 @@ std::vector<Point> MapPointRecord::pointsInRange(const string& identifier, time_
   pointMap_t::iterator pointIt = pointMap.lower_bound(startTime);
   while (pointIt != pointMap.end() && (*pointIt).second.time() <= endTime) {
     pointVector.push_back((*pointIt).second);
+    ++pointIt;
   }
   return pointVector;
 }

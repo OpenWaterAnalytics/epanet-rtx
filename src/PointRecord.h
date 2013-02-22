@@ -53,12 +53,13 @@ namespace RTX {
     
   public:
     RTX_SHARED_POINTER(PointRecord);
+    typedef std::pair<time_t, time_t> time_pair_t;
+    
     PointRecord();
     virtual ~PointRecord() {};
     
     virtual std::string registerAndGetIdentifier(std::string recordName);    // registering record names.
     virtual std::vector<std::string> identifiers();
-    virtual void preFetchRange(const string& identifier, time_t start, time_t end);   // prepare to retrieve range of values
     
     virtual bool isPointAvailable(const string& identifier, time_t time);
     virtual Point point(const string& identifier, time_t time);
@@ -71,7 +72,9 @@ namespace RTX {
     virtual void reset(const string& identifier);
     virtual Point firstPoint(const string& id);
     virtual Point lastPoint(const string& id);
+    time_pair_t range(const string& id);
     
+    // db -- todo - remove these
     void setConnectionString(const std::string& connection);
     const std::string& connectionString();
     virtual void connect() throw(RtxException){};

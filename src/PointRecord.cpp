@@ -50,12 +50,6 @@ std::vector<std::string> PointRecord::identifiers() {
 }
 
 
-void PointRecord::preFetchRange(const string& identifier, time_t start, time_t end) {
-  
-}
-
-
-
 bool PointRecord::isPointAvailable(const string& identifier, time_t time) {
   
   return false;
@@ -88,6 +82,10 @@ Point PointRecord::firstPoint(const string &id) {
 
 Point PointRecord::lastPoint(const string &id) {
   return Point();
+}
+
+PointRecord::time_pair_t PointRecord::range(const string& id) {
+  return make_pair(this->firstPoint(id).time(), this->lastPoint(id).time());
 }
 
 

@@ -36,20 +36,30 @@ namespace RTX {
     void setSyntax(const string& table, const string& dateCol, const string& tagCol, const string& valueCol, const string& qualityCol);
     virtual void connect() throw(RtxException);
     virtual bool isConnected();
+    virtual std::string registerAndGetIdentifier(std::string recordName);
     virtual std::vector<std::string> identifiers();
-    virtual bool isPointAvailable(const string& identifier, time_t time);
-    virtual Point point(const string& identifier, time_t time);
-    virtual Point pointBefore(const string& identifier, time_t time);
-    virtual Point pointAfter(const string& identifier, time_t time);
-    virtual void addPoint(const string& identifier, Point point) {};
-    virtual void addPoints(const string& identifier, std::vector<Point> points) {};
-    virtual void reset() {};
     virtual std::ostream& toStream(std::ostream &stream);
+    
+  protected:
+    // fetch means cache the results
+    virtual void fetchRange(const std::string& id, time_t startTime, time_t endTime);
+    virtual void fetchNext(const std::string& id, time_t time);
+    virtual void fetchPrevious(const std::string& id, time_t time);
+    
+    // select just returns the results (no caching)
+    virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);
+    virtual Point selectNext(const std::string& id, time_t time);
+    virtual Point selectPrevious(const std::string& id, time_t time);
+    
+    // insertions or alterations may choose to ignore / deny
+    virtual void insertSingle(const std::string& id, Point point);
+    virtual void insertRange(const std::string& id, std::vector<Point> points);
+    virtual void removeRecord(const std::string& id);
+    virtual void truncate();
     
   private:
     bool _connectionOk;
-    std::vector<Point> selectRange(const string& identifier, time_t startTime, time_t endTime = 0);
-    std::vector<Point> pointsWithStatement(const string& identifier, SQLHSTMT statement, time_t startTime, time_t endTime = 0);
+    std::vector<Point> pointsWithStatement(const string& id, SQLHSTMT statement, time_t startTime, time_t endTime = 0);
     typedef struct {
       SQLCHAR tagName[MAX_SCADA_TAG];
       SQL_TIMESTAMP_STRUCT time;

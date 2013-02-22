@@ -59,11 +59,6 @@ std::vector<std::string> BufferPointRecord::identifiers() {
   return names;
 }
 
-
-void BufferPointRecord::preFetchRange(const string& identifier, time_t start, time_t end) {
-  
-}
-
 bool compareTimePointPair(const BufferPointRecord::TimePointPair_t& lhs, const BufferPointRecord::TimePointPair_t& rhs) {
   return lhs.first < rhs.first;
 }
@@ -214,7 +209,7 @@ std::vector<Point> BufferPointRecord::pointsInRange(const string& identifier, ti
     // lock the buffer
     mutex->lock();
     
-    PointBuffer_t::const_iterator it = upper_bound(buffer.begin(), buffer.end(), finder, compareTimePointPair);
+    PointBuffer_t::const_iterator it = lower_bound(buffer.begin(), buffer.end(), finder, compareTimePointPair);
     while ( (it != buffer.end()) && (it->first < endTime) ) {
       Point newPoint = makePoint(it);
       pointVector.push_back(newPoint);
