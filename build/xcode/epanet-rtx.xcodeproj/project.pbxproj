@@ -42,7 +42,6 @@
 		2280409D158F8326004222DA /* Valve.h in Headers */ = {isa = PBXBuildFile; fileRef = 2280409C158F8326004222DA /* Valve.h */; };
 		2280409F158F8352004222DA /* Valve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409E158F8351004222DA /* Valve.cpp */; };
 		228B2F4A16CAEF4000FDAC47 /* libiodbc.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228B2F4916CAEF4000FDAC47 /* libiodbc.2.dylib */; };
-		228B2F4C16CAEF5500FDAC47 /* libmysqlcppconn.6.1.1.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228B2F4B16CAEF5500FDAC47 /* libmysqlcppconn.6.1.1.1.dylib */; };
 		22909B3A147DDCEB00945449 /* EpanetModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 22909B39147DDCEB00945449 /* EpanetModel.h */; };
 		22909B3C147DDE2A00945449 /* EpanetModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22909B3B147DDE2A00945449 /* EpanetModel.cpp */; };
 		229D1BD715FE3DFF000B4C94 /* libboost_filesystem.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 229D1BD615FE3DFF000B4C94 /* libboost_filesystem.dylib */; };
@@ -94,6 +93,7 @@
 		22EFA1BD1471CEC4001102E0 /* rtxMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 22EFA1BC1471CEC4001102E0 /* rtxMacros.h */; };
 		22F63D3716C5735100A15368 /* SineTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22F63D3516C5735100A15368 /* SineTimeSeries.cpp */; };
 		22F63D3816C5735100A15368 /* SineTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F63D3616C5735100A15368 /* SineTimeSeries.h */; };
+		4361F5C716D57FDD00481DD2 /* libmysqlcppconn.6.1.1.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4361F5C616D57FDD00481DD2 /* libmysqlcppconn.6.1.1.2.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -222,6 +222,7 @@
 		22EFA1BC1471CEC4001102E0 /* rtxMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rtxMacros.h; path = ../../src/rtxMacros.h; sourceTree = "<group>"; };
 		22F63D3516C5735100A15368 /* SineTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SineTimeSeries.cpp; path = ../../src/SineTimeSeries.cpp; sourceTree = "<group>"; };
 		22F63D3616C5735100A15368 /* SineTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SineTimeSeries.h; path = ../../src/SineTimeSeries.h; sourceTree = "<group>"; };
+		4361F5C616D57FDD00481DD2 /* libmysqlcppconn.6.1.1.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.6.1.1.2.dylib; path = "../../../../mysql/mysql-connector-c++-1.1.2-osx10.7-x86-64bit/lib/libmysqlcppconn.6.1.1.2.dylib"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -237,7 +238,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				228B2F4C16CAEF5500FDAC47 /* libmysqlcppconn.6.1.1.1.dylib in Frameworks */,
+				4361F5C716D57FDD00481DD2 /* libmysqlcppconn.6.1.1.2.dylib in Frameworks */,
 				228B2F4A16CAEF4000FDAC47 /* libiodbc.2.dylib in Frameworks */,
 				220D3B6516125B140029A041 /* libboost_regex.dylib in Frameworks */,
 				229D1BE015FE3E45000B4C94 /* libconfig++.9.dylib in Frameworks */,
@@ -263,6 +264,7 @@
 			isa = PBXGroup;
 			children = (
 				228B2F4B16CAEF5500FDAC47 /* libmysqlcppconn.6.1.1.1.dylib */,
+				4361F5C616D57FDD00481DD2 /* libmysqlcppconn.6.1.1.2.dylib */,
 				228B2F4916CAEF4000FDAC47 /* libiodbc.2.dylib */,
 				229D1BDF15FE3E45000B4C94 /* libconfig++.9.dylib */,
 				229D1BDB15FE3E20000B4C94 /* libboost_date_time.dylib */,
@@ -802,7 +804,10 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				INSTALL_PATH = .;
-				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
+					"\"$(SRCROOT)/../../../../mysql/mysql-connector-c++-1.1.2-osx10.7-x86-64bit/lib\"",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = macosx;
@@ -818,7 +823,10 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				INSTALL_PATH = .;
-				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
+					"\"$(SRCROOT)/../../../../mysql/mysql-connector-c++-1.1.2-osx10.7-x86-64bit/lib\"",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = macosx;
