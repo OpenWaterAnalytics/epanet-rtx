@@ -153,6 +153,7 @@ map<string, Units> Units::unitStringMap() {
   map<string, Units> m;
   
   m["none"]= RTX_DIMENSIONLESS;
+  m["%"]   = RTX_PERCENTAGE;
   // pressure
   m["psi"] = RTX_PSI;
   m["pa"]  = RTX_PASCAL;

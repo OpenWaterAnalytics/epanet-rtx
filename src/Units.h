@@ -13,6 +13,7 @@
 
 // convenience defines ------------ unit= conversion,   dimension (m,l,t,current,temp,amount,intensity)
 #define RTX_DIMENSIONLESS           Units(1)
+#define RTX_PERCENTAGE              Units(1)
 // Pressure
 #define RTX_PSI                     Units(0.0001450378911491,1,-1,-2)
 #define RTX_PASCAL                  Units(1,            1,-1,-2)
