@@ -21,9 +21,12 @@ doxygen_out/
 *.build/
 DerivedData/
 Debug/
+Release/
 
 *.xcodeproj/
 !*.xcodeproj/project.pbxproj
 
 *.mode1v3
 *.mode2v3
+
+build/xcode/build/Release/libepanet-rtx.dylib
