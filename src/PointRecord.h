@@ -81,7 +81,9 @@ namespace RTX {
     virtual void reset(const string& identifier);
     virtual Point firstPoint(const string& id);
     virtual Point lastPoint(const string& id);
+    virtual std::string name();
     
+    virtual void setName(const std::string& name);
     void setConnectionString(const std::string& connection);
     const std::string& connectionString();
     virtual void connect() throw(RtxException){};
@@ -105,6 +107,7 @@ namespace RTX {
   private:
     std::map<std::string, BufferMutexPair_t > _keyedBufferMutex;
     std::string _connectionString;
+    std::string _name;
     Point makePoint(PointBuffer_t::iterator iterator);
   };
   

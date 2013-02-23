@@ -17,6 +17,7 @@ using namespace std;
 bool compareTimePointPair(const PointRecord::TimePointPair_t& lhs, const PointRecord::TimePointPair_t& rhs);
 
 PointRecord::PointRecord() {
+  _name = "";
   _connectionString = "";
   _defaultCapacity = 1000;
 }
@@ -364,3 +365,12 @@ Point PointRecord::lastPoint(const string& id) {
   }
   return foundPoint;
 }
+
+std::string PointRecord::name() {
+  return _name;
+}
+
+void PointRecord::setName(const std::string& name) {
+  _name = name;
+}
+

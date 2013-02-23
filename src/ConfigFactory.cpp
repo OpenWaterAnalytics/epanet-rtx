@@ -233,6 +233,7 @@ PointRecord::sharedPointer ConfigFactory::createScadaPointRecord(libconfig::Sett
   ScadaPointRecord::sharedPointer pointRecord( new ScadaPointRecord() );
   pointRecord->setSyntax(table, dateCol, tagCol, valueCol, qualCol);
   pointRecord->setConnectionString(initString);
+  pointRecord->setName(name);
   // pointRecord->connect(); // leaving this to application code
   
   return pointRecord;
@@ -241,8 +242,10 @@ PointRecord::sharedPointer ConfigFactory::createScadaPointRecord(libconfig::Sett
 PointRecord::sharedPointer ConfigFactory::createMySqlPointRecord(libconfig::Setting &setting) {
   string name = setting["name"];
   MysqlPointRecord::sharedPointer record( new MysqlPointRecord() );
-  string initString = setting["connection"];  record->setConnectionString(initString);
-  record->connect();
+  string initString = setting["connection"];
+  record->setConnectionString(initString);
+  record->setName(name);
+  // record->connect(); // leaving this to application code
   
   return record;
 }
