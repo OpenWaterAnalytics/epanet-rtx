@@ -93,7 +93,7 @@
 		22EFA1BD1471CEC4001102E0 /* rtxMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 22EFA1BC1471CEC4001102E0 /* rtxMacros.h */; };
 		22F63D3716C5735100A15368 /* SineTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22F63D3516C5735100A15368 /* SineTimeSeries.cpp */; };
 		22F63D3816C5735100A15368 /* SineTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F63D3616C5735100A15368 /* SineTimeSeries.h */; };
-		4361F5C716D57FDD00481DD2 /* libmysqlcppconn.6.1.1.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4361F5C616D57FDD00481DD2 /* libmysqlcppconn.6.1.1.2.dylib */; };
+		38C25F0A16DAB15200F952A3 /* libmysqlcppconn.6.1.1.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228B2F4B16CAEF5500FDAC47 /* libmysqlcppconn.6.1.1.1.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -238,7 +238,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4361F5C716D57FDD00481DD2 /* libmysqlcppconn.6.1.1.2.dylib in Frameworks */,
+				38C25F0A16DAB15200F952A3 /* libmysqlcppconn.6.1.1.1.dylib in Frameworks */,
 				228B2F4A16CAEF4000FDAC47 /* libiodbc.2.dylib in Frameworks */,
 				220D3B6516125B140029A041 /* libboost_regex.dylib in Frameworks */,
 				229D1BE015FE3E45000B4C94 /* libconfig++.9.dylib in Frameworks */,
