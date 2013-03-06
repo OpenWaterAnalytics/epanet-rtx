@@ -24,7 +24,7 @@ std::ostream& RTX::operator<< (std::ostream &out, MapPointRecord &pr) {
 }
 
 std::ostream& MapPointRecord::toStream(std::ostream &stream) {
-  stream << "Map Point Record - connection: " << this->connectionString() << std::endl;
+  stream << "Map Point Record" << std::endl;
   return stream;
 }
 
@@ -67,9 +67,9 @@ std::vector<std::string> MapPointRecord::identifiers() {
   return names;
 }
 
-
+/*
 bool MapPointRecord::isPointAvailable(const string& identifier, time_t time) {
-  if (_cachedPoint.time() == time && RTX_STRINGS_ARE_EQUAL(_cachedPointId, identifier) ) {
+  if (_cachedPoint.time == time && RTX_STRINGS_ARE_EQUAL_CS(_cachedPointId, identifier) ) {
     return true;
   }
   
@@ -78,7 +78,7 @@ bool MapPointRecord::isPointAvailable(const string& identifier, time_t time) {
     return false;
   }
   
-  pointMap_t pointMap = (*it).second;
+  pointMap_t &pointMap = (*it).second;
   pointMap_t::iterator pointIt = pointMap.find(time);
   if (pointIt == pointMap.end()) {
     return false;
@@ -90,19 +90,35 @@ bool MapPointRecord::isPointAvailable(const string& identifier, time_t time) {
   }
   
 }
-
+*/
 
 Point MapPointRecord::point(const string& identifier, time_t time) {
+  Point p;
   
-  if (_cachedPoint.time() == time && RTX_STRINGS_ARE_EQUAL(_cachedPointId, identifier) ) {
+  if (_cachedPoint.time == time && RTX_STRINGS_ARE_EQUAL_CS(_cachedPointId, identifier) ) {
     return _cachedPoint;
   }
   
-  if (isPointAvailable(identifier, time)) {
-    return _points[identifierForName(identifier)][time];
+  keyedPointMap_t::iterator it = _points.find(identifierForName(identifier));
+  if (it == _points.end()) {
+    return Point();
   }
   else {
-    return pointBefore(identifier, time);
+    pointMap_t &pointMap = (*it).second;
+    pointMap_t::iterator pointIt = pointMap.find(time);
+    if (pointIt == pointMap.end()) {
+      return Point();
+    }
+    else {
+      _cachedPointId = identifier;
+      _cachedPoint = (*pointIt).second;
+      return _cachedPoint;
+    }
+  }
+  
+  if (!p.isValid) {
+    //return pointBefore(identifier, time);
+    return p;
   }
 }
 
@@ -154,7 +170,7 @@ std::vector<Point> MapPointRecord::pointsInRange(const string& identifier, time_
   }
   pointMap_t pointMap = (*it).second;
   pointMap_t::iterator pointIt = pointMap.lower_bound(startTime);
-  while (pointIt != pointMap.end() && (*pointIt).second.time() <= endTime) {
+  while (pointIt != pointMap.end() && (*pointIt).second.time <= endTime) {
     pointVector.push_back((*pointIt).second);
     ++pointIt;
   }
@@ -204,11 +220,11 @@ void MapPointRecord::addPoint(const string& identifier, Point point) {
     return;
   }
   /* todo -- compile-time logging info
-  if (it->second.find(point.time()) != it->second.end()) {
+  if (it->second.find(point.time) != it->second.end()) {
     cerr <<  "overwriting point in " << identifier << " :: " << point << endl;
   }
    */
-  it->second[point.time()] = point;
+  it->second[point.time] = point;
   
 }
 

@@ -69,8 +69,8 @@ void Model::setStorage(PointRecord::sharedPointer record) {
     zone->setRecord(_record);
   }
   
-  _relativeError->newCacheWithPointRecord(_record);
-  _iterations->newCacheWithPointRecord(_record);
+  _relativeError->setRecord(_record);
+  _iterations->setRecord(_record);
   
 }
 
@@ -78,31 +78,31 @@ void Model::setParameterSource(PointRecord::sharedPointer record) {
 
   BOOST_FOREACH(Junction::sharedPointer junction, this->junctions()) {
     if (junction->doesHaveBoundaryFlow()) {
-      junction->boundaryFlow()->newCacheWithPointRecord(record);
+      junction->boundaryFlow()->setRecord(record);
     }
     if (junction->doesHaveHeadMeasure()) {
-      junction->headMeasure()->newCacheWithPointRecord(record);
+      junction->headMeasure()->setRecord(record);
     }
   }
 
   BOOST_FOREACH(Reservoir::sharedPointer reservoir, this->reservoirs()) {
     if (reservoir->doesHaveBoundaryHead()) {
-      reservoir->boundaryHead()->newCacheWithPointRecord(record);
+      reservoir->boundaryHead()->setRecord(record);
     }
   }
 
   BOOST_FOREACH(Valve::sharedPointer valve, this->valves()) {
     if (valve->doesHaveStatusParameter()) {
-      valve->statusParameter()->newCacheWithPointRecord(record);
+      valve->statusParameter()->setRecord(record);
     }
     if (valve->doesHaveSettingParameter()) {
-      valve->settingParameter()->newCacheWithPointRecord(record);
+      valve->settingParameter()->setRecord(record);
     }
   }
   
   BOOST_FOREACH(Pump::sharedPointer pump, this->pumps()) {
     if (pump->doesHaveStatusParameter()) {
-      pump->statusParameter()->newCacheWithPointRecord(record);
+      pump->statusParameter()->setRecord(record);
     }
   }
 }
@@ -393,11 +393,11 @@ void Model::setSimulationParameters(time_t time) {
     BOOST_FOREACH(Junction::sharedPointer junction, this->junctions()) {
       if (junction->doesHaveBoundaryFlow()) {
         // junction is separate from the allocation scheme
-        double demandValue = Units::convertValue(junction->boundaryFlow()->point(time).value(), junction->boundaryFlow()->units(), flowUnits());
+        double demandValue = Units::convertValue(junction->boundaryFlow()->point(time).value, junction->boundaryFlow()->units(), flowUnits());
         setJunctionDemand(junction->name(), demandValue);
       }
       else {
-        double demandValue = Units::convertValue(junction->demand()->point(time).value(), junction->demand()->units(), flowUnits());
+        double demandValue = Units::convertValue(junction->demand()->point(time).value, junction->demand()->units(), flowUnits());
         setJunctionDemand(junction->name(), demandValue);
       }
     }
@@ -406,14 +406,14 @@ void Model::setSimulationParameters(time_t time) {
   BOOST_FOREACH(Reservoir::sharedPointer reservoir, this->reservoirs()) {
     if (reservoir->doesHaveBoundaryHead()) {
       // get the head measurement parameter, and pass it through as a state.
-      double headValue = Units::convertValue(reservoir->boundaryHead()->point(time).value(), reservoir->boundaryHead()->units(), headUnits());
+      double headValue = Units::convertValue(reservoir->boundaryHead()->point(time).value, reservoir->boundaryHead()->units(), headUnits());
       setReservoirHead( reservoir->name(), headValue );
     }
   }
   // for tanks, set the boundary head, but only if the tank reset clock has fired.
   BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
     if (tank->doesResetLevel() && tank->levelResetClock()->isValid(time) && tank->doesHaveHeadMeasure()) {
-      double levelValue = Units::convertValue(tank->level()->point(time).value(), tank->level()->units(), headUnits());
+      double levelValue = Units::convertValue(tank->level()->point(time).value, tank->level()->units(), headUnits());
       setTankLevel(tank->name(), levelValue);
     }
   }
@@ -421,17 +421,17 @@ void Model::setSimulationParameters(time_t time) {
   // for valves, set status and setting
   BOOST_FOREACH(Valve::sharedPointer valve, this->valves()) {
     if (valve->doesHaveStatusParameter()) {
-      setPipeStatus( valve->name(), Pipe::status_t(valve->statusParameter()->point(time).value()) );
+      setPipeStatus( valve->name(), Pipe::status_t(valve->statusParameter()->point(time).value) );
     }
     if (valve->doesHaveSettingParameter()) {
-      setValveSetting( valve->name(), valve->settingParameter()->point(time).value() );
+      setValveSetting( valve->name(), valve->settingParameter()->point(time).value );
     }
   }
   
   // for pumps, set status
   BOOST_FOREACH(Pump::sharedPointer pump, this->pumps()) {
     if (pump->doesHaveStatusParameter()) {
-      setPumpStatus( pump->name(), Pipe::status_t(pump->statusParameter()->point(time).value()) );
+      setPumpStatus( pump->name(), Pipe::status_t(pump->statusParameter()->point(time).value) );
     }
   }
   

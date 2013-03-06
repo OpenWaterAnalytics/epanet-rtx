@@ -16,7 +16,7 @@
 #include "Resampler.h"
 #include "FirstDerivative.h"
 #include "PointRecord.h"
-#include "ScadaPointRecord.h"
+#include "OdbcPointRecord.h"
 #include "MysqlPointRecord.h"
 #include "Zone.h"
 #include "EpanetModel.h"
@@ -30,7 +30,7 @@ using namespace std;
 
 ConfigFactory::ConfigFactory() {
   // register point record and time series types to their proper creators
-  _pointRecordPointerMap.insert(std::make_pair("SCADA", &ConfigFactory::createScadaPointRecord));
+  _pointRecordPointerMap.insert(std::make_pair("SCADA", &ConfigFactory::createOdbcPointRecord));
   _pointRecordPointerMap.insert(std::make_pair("MySQL", &ConfigFactory::createMySqlPointRecord));
   
   //_clockPointerMap.insert(std::make_pair("regular", &ConfigFactory::createRegularClock));
@@ -223,25 +223,40 @@ PointRecord::sharedPointer ConfigFactory::createPointRecordOfType(libconfig::Set
   return (this->*fp)(setting);
 }
 
-PointRecord::sharedPointer ConfigFactory::createScadaPointRecord(libconfig::Setting &setting) {
+PointRecord::sharedPointer ConfigFactory::createOdbcPointRecord(libconfig::Setting &setting) {
+  
+  OdbcPointRecord::sharedPointer r( new OdbcPointRecord() );
   
   // create the initialization string for the scada point record.
   string initString = setting["connection"];
   string name = setting["name"];
   
-  libconfig::Setting& syntax = setting["querySyntax"];
-  string table    = syntax["Table"];
-  string dateCol  = syntax["DateColumn"];
-  string tagCol   = syntax["TagColumn"];
-  string valueCol = syntax["ValueColumn"];
-  string qualCol  = syntax["QualityColumn"];
-    
-  ScadaPointRecord::sharedPointer pointRecord( new ScadaPointRecord() );
-  pointRecord->setSyntax(table, dateCol, tagCol, valueCol, qualCol);
-  pointRecord->setConnectionString(initString);
-  pointRecord->connect();
   
-  return pointRecord;
+  if (setting.exists("querySyntax")) {
+    libconfig::Setting& syntax = setting["querySyntax"];
+    string table    = syntax["Table"];
+    string dateCol  = syntax["DateColumn"];
+    string tagCol   = syntax["TagColumn"];
+    string valueCol = syntax["ValueColumn"];
+    string qualCol  = syntax["QualityColumn"];
+    r->setTableColumnNames(table, dateCol, tagCol, valueCol, qualCol);
+  }
+  
+  if (setting.exists("connectorType")) {
+    // a pre-formatted connector type. yay!
+    string type = setting["connectorType"];
+    OdbcPointRecord::Sql_Connector_t connT = OdbcPointRecord::typeForName(type);
+    if (connT != OdbcPointRecord::NO_CONNECTOR) {
+      cout << "connector type " << type << " recognized" << endl;
+      r->setConnectorType(connT);
+    }
+  }
+  
+  
+  r->setConnectionString(initString);
+  r->connect();
+  
+  return r;
 }
 
 PointRecord::sharedPointer ConfigFactory::createMySqlPointRecord(libconfig::Setting &setting) {
@@ -386,7 +401,7 @@ void ConfigFactory::setGenericTimeSeriesProperties(TimeSeries::sharedPointer tim
     // TODO - test for existence of the actual point record.
     std::string pointRecordName = setting["pointRecord"];
     PointRecord::sharedPointer pointRecord = _pointRecordList[setting["pointRecord"]];
-    timeSeries->newCacheWithPointRecord(pointRecord);
+    timeSeries->setRecord(pointRecord);
   }
   
   // set any upstream sources. forward declarations are allowed, as these will be set only after all timeseries objects have been created.

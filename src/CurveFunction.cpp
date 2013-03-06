@@ -51,14 +51,15 @@ Point CurveFunction::point(time_t time) {
   if (clock()->isRegular()) {
     time = clock()->validTime(time);
   }
-  if (TimeSeries::isPointAvailable(time)) {
-    return TimeSeries::point(time);
+  Point p = TimeSeries::point(time);
+  if (p.isValid) {
+    return p;
   }
   else {
-    if (source()->isPointAvailable(time)) {
+    p = source()->point(time);
+    if (p.isValid) {
       // create a new point object converted from source units
-      Point inputPoint = source()->point(time);
-      sourcePoint = Point::convertPoint(inputPoint, source()->units(), _inputUnits);
+      sourcePoint = Point::convertPoint(p, source()->units(), _inputUnits);
     }
     else {
       std::cerr << "check point availability first\n";
@@ -67,8 +68,8 @@ Point CurveFunction::point(time_t time) {
   }
   
   // get the value from this point
-  double sourceValue = sourcePoint.value();
-  double sourceConf = sourcePoint.confidence();
+  double sourceValue = sourcePoint.value;
+  double sourceConf = sourcePoint.confidence;
   
   // get the interpolated point from the function curve
   double  x1 = _curve.at(0).first,

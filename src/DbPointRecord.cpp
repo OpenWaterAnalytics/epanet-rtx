@@ -11,16 +11,23 @@
 using namespace RTX;
 using namespace std;
 
-DbPointRecord::DbPointRecord() : _timeFormat(UTC) {
+DbPointRecord::DbPointRecord() {
   
 }
 
+
+void DbPointRecord::setConnectionString(const std::string& connection) {
+  _connectionString = connection;
+}
+const std::string& DbPointRecord::connectionString() {
+  return _connectionString;
+}
 
 
 // trying to unify some of the cache-checking code so it's not spread out over the subclasses.
 // we only want to hit the db if we absolutely need to.
 
-
+/*
 bool DbPointRecord::isPointAvailable(const string& id, time_t time) {
   if (DB_PR_SUPER::isPointAvailable(id, time)) {
     return true;
@@ -28,20 +35,33 @@ bool DbPointRecord::isPointAvailable(const string& id, time_t time) {
   else if ( !(reqRange.first <= time && time <= reqRange.second) ) {
     // force a fetch/cache operation
     time_t margin = 60*60*12;
-    this->pointsInRange(id, time - margin, time + margin);
+    vector<Point> points = this->pointsInRange(id, time - margin, time + margin);
   }
   return DB_PR_SUPER::isPointAvailable(id, time);
 }
-
+*/
 Point DbPointRecord::point(const string& id, time_t time) {
   
   Point p = DB_PR_SUPER::point(id, time);
   
-  if (!p.isValid()) {
+  if (!p.isValid) {
     time_t margin = 60*60*12;
-    this->fetchRange(id, time - margin, time + margin);
-    p = DB_PR_SUPER::point(id, time);
+    vector<Point> pVec = this->selectRange(id, time - margin, time + margin);
+    vector<Point>::const_iterator pIt = pVec.begin();
+    while (pIt != pVec.end()) {
+      if (pIt->time == time) {
+        p = *pIt;
+      }
+      else if (pIt->time > time) {
+        break;
+      }
+      ++pIt;
+    }
+    // cache this latest result set
+    DB_PR_SUPER::addPoints(id, pVec);
   }
+  
+  
   
   return p;
 }
@@ -51,9 +71,13 @@ Point DbPointRecord::pointBefore(const string& id, time_t time) {
   
   Point p = DB_PR_SUPER::pointBefore(id, time);
   
-  if (!p.isValid()) {
-    this->fetchPrevious(id, time);
-    p = DB_PR_SUPER::pointBefore(id, time);
+  if (!p.isValid) {
+    PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
+    p = this->selectPrevious(id, time);
+    if (range.first <= time && time <= range.second) {
+      // then we know this is continuous. add the point.
+      DB_PR_SUPER::addPoint(id, p);
+    }
   }
   
   return p;
@@ -64,11 +88,15 @@ Point DbPointRecord::pointAfter(const string& id, time_t time) {
   
   Point p = DB_PR_SUPER::pointAfter(id, time);
   
-  if (!p.isValid()) {
-    this->fetchNext(id, time);
-    p = DB_PR_SUPER::pointAfter(id, time);
+  if (!p.isValid) {
+    PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
+    p = this->selectNext(id, time);
+    if (range.first <= time && time <= range.second) {
+      // then we know this is continuous. add the point.
+      DB_PR_SUPER::addPoint(id, p);
+    }
   }
-
+  
   return p;
 }
 
@@ -77,17 +105,23 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, time_t startTi
   
   PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
   
+  // if the requested range is not in memcache, then fetch it.
   if ( !(range.first <= startTime && endTime <= range.second) ) {
+    vector<Point> left;
+    vector<Point> right;
+    
     time_t qstart, qend;
     if (startTime < range.first && endTime < range.second  && endTime > range.first) {
       // left-fill query
       qstart = startTime;
       qend = range.first;
+      right = DB_PR_SUPER::pointsInRange(id, range.first, endTime);
     }
     else if (range.first < startTime && range.second < endTime && startTime < range.second ) {
       // right-fill query
       qstart = range.second;
       qend = endTime;
+      left = DB_PR_SUPER::pointsInRange(id, startTime, range.second);
     }
     else {
       // full overlap -- todo - generate two queries...
@@ -95,7 +129,19 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, time_t startTi
       qend = endTime;
     }
     // db hit
-    this->fetchRange(id, qstart, qend);
+    vector<Point> newPoints = this->selectRange(id, qstart, qend);
+    
+    
+    
+    vector<Point> merged;
+    merged.reserve(newPoints.size() + left.size() + right.size());
+    merged.insert(merged.end(), left.begin(), left.end());
+    merged.insert(merged.end(), newPoints.begin(), newPoints.end());
+    merged.insert(merged.end(), right.begin(), right.end());
+    
+    DB_PR_SUPER::addPoints(id, merged);
+    
+    return merged;
   }
   
   return DB_PR_SUPER::pointsInRange(id, startTime, endTime);
@@ -124,6 +170,8 @@ void DbPointRecord::reset() {
 void DbPointRecord::reset(const string& id) {
   DB_PR_SUPER::reset(id);
   this->removeRecord(id);
+  // wiped out the record completely, so re-initialize it.
+  this->registerAndGetIdentifier(id);
 }
 
 /*
@@ -142,7 +190,7 @@ Point DbPointRecord::lastPoint(const string& id) {
 
 
 
-
+/*
 // default virtual implementations
 void DbPointRecord::fetchRange(const std::string& id, time_t startTime, time_t endTime) {
   reqRange = make_pair(startTime, endTime);
@@ -155,7 +203,7 @@ void DbPointRecord::fetchRange(const std::string& id, time_t startTime, time_t e
 
 void DbPointRecord::fetchNext(const std::string& id, time_t time) {
   Point p = selectNext(id, time);
-  if (p.isValid()) {
+  if (p.isValid) {
     DB_PR_SUPER::addPoint(id, p);
   }
 }
@@ -163,11 +211,11 @@ void DbPointRecord::fetchNext(const std::string& id, time_t time) {
 
 void DbPointRecord::fetchPrevious(const std::string& id, time_t time) {
   Point p = selectPrevious(id, time);
-  if (p.isValid()) {
+  if (p.isValid) {
     DB_PR_SUPER::addPoint(id, p);
   }
 }
-
+*/
 
 
 
@@ -181,11 +229,11 @@ void DbPointRecord::fetchPrevious(const std::string& id, time_t time) {
 
 
 void DbPointRecord::preFetchRange(const string& id, time_t start, time_t end) {
-  // TODO -- performance optimization - caching -- see scadapointrecord.cpp for code snippets.
+  // TODO -- performance optimization - caching -- see OdbcPointRecord.cpp for code snippets.
   // get out if we've already hinted this.
 
-  time_t first = DB_PR_SUPER::firstPoint(id).time();
-  time_t last = DB_PR_SUPER::lastPoint(id).time();
+  time_t first = DB_PR_SUPER::firstPoint(id).time;
+  time_t last = DB_PR_SUPER::lastPoint(id).time;
   if (first <= start && end <= last) {
     return;
   }

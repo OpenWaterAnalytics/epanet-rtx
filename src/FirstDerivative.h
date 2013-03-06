@@ -20,10 +20,12 @@ namespace RTX {
     virtual ~FirstDerivative();
     
     virtual Point point(time_t time);
+    virtual std::vector<Point> points(time_t start, time_t end);
     virtual void setSource(TimeSeries::sharedPointer source);
     virtual void setUnits(Units newUnits);
     virtual std::ostream& toStream(std::ostream &stream);
-    
+  private:
+    Point deriv(Point p1, Point p2, time_t t);
   };
   
 }// namespace

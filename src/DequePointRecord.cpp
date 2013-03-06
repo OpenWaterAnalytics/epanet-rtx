@@ -24,7 +24,7 @@ std::ostream& RTX::operator<< (std::ostream &out, DequePointRecord &pr) {
 }
 
 std::ostream& DequePointRecord::toStream(std::ostream &stream) {
-  stream << "Deque Point Record - connection: " << this->connectionString() << std::endl;
+  stream << "Deque Point Record" << std::endl;
   return stream;
 }
 
@@ -50,10 +50,9 @@ std::vector<std::string> DequePointRecord::identifiers() {
 }
 
 
-
-bool DequePointRecord::isPointAvailable(const string& identifier, time_t time) {
-  if (_cachedPoint.time() == time && RTX_STRINGS_ARE_EQUAL(_cachedPointId, identifier) ) {
-    return true;
+Point DequePointRecord::point(const string& identifier, time_t time) {
+  if (_cachedPoint.time == time && RTX_STRINGS_ARE_EQUAL_CS(_cachedPointId, identifier) ) {
+    return _cachedPoint;
   }
   
   const pointQ_t& q = pointQueueWithKeyName(identifier);
@@ -64,7 +63,7 @@ bool DequePointRecord::isPointAvailable(const string& identifier, time_t time) {
   
   // no point found
   if (qIt == q.end()) {
-    return false;
+    return Point();
   }
   
   // found point, cache it.
@@ -72,16 +71,17 @@ bool DequePointRecord::isPointAvailable(const string& identifier, time_t time) {
   _cachedPointId = identifier;
   
   // times don't match, so NO
-  if (qIt->time() != time ) {
-    return false;
+  if (qIt->time != time ) {
+    return Point();
+    //return pointBefore(identifier, time);
   }
   else {
-    return true;
+    return _cachedPoint;
   }
   
 }
 
-
+/*
 Point DequePointRecord::point(const string& identifier, time_t time) {
   
   if (isPointAvailable(identifier, time)) {
@@ -92,7 +92,7 @@ Point DequePointRecord::point(const string& identifier, time_t time) {
     return pointBefore(identifier, time);
   }
 }
-
+*/
 
 Point DequePointRecord::pointBefore(const string& identifier, time_t time) {
   
@@ -101,14 +101,14 @@ Point DequePointRecord::pointBefore(const string& identifier, time_t time) {
   Point finder(time,0);
   pointQ_t::iterator qIt = std::lower_bound(q.begin(), q.end(), finder, &Point::comparePointTime);
   
-  while (qIt != q.begin() && qIt != q.end() && (*qIt).time() >= time) {
+  while (qIt != q.begin() && qIt != q.end() && (*qIt).time >= time) {
     --qIt;
   }
   
-  if (qIt->time() < time) {
+  if (qIt->time < time) {
     Point p = (*qIt);
     
-    if (p.time() < 0) {
+    if (p.time < 0) {
       cerr << "whoops" << endl;
     }
     
@@ -127,7 +127,7 @@ Point DequePointRecord::pointAfter(const string& identifier, time_t time) {
   Point finder(time,0);
   pointQ_t::const_iterator qIt = std::upper_bound(q.begin(), q.end(), finder, &Point::comparePointTime);
   
-  if (qIt->time() > time) {
+  if (qIt->time > time) {
     return (*qIt);
   }
   else {
@@ -144,7 +144,7 @@ std::vector<Point> DequePointRecord::pointsInRange(const string& identifier, tim
   Point finder(startTime,0);
   pointQ_t::const_iterator qIt = std::lower_bound(q.begin(), q.end(), finder, &Point::comparePointTime);
   
-  while (qIt != q.end() && qIt->time() < endTime) {
+  while (qIt != q.end() && qIt->time < endTime) {
     pointVector.push_back(*qIt);
     ++qIt;
   }

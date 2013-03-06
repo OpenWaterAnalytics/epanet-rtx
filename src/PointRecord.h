@@ -48,7 +48,7 @@ namespace RTX {
    \sa Point
    */
   
-  
+    
   class PointRecord {
     
   public:
@@ -61,7 +61,7 @@ namespace RTX {
     virtual std::string registerAndGetIdentifier(std::string recordName);    // registering record names.
     virtual std::vector<std::string> identifiers();
     
-    virtual bool isPointAvailable(const string& identifier, time_t time);
+    //virtual bool isPointAvailable(const string& identifier, time_t time);
     virtual Point point(const string& identifier, time_t time);
     virtual Point pointBefore(const string& identifier, time_t time);
     virtual Point pointAfter(const string& identifier, time_t time);
@@ -72,24 +72,14 @@ namespace RTX {
     virtual void reset(const string& identifier);
     virtual Point firstPoint(const string& id);
     virtual Point lastPoint(const string& id);
-    time_pair_t range(const string& id);
-    
-    // db -- todo - remove these
-    void setConnectionString(const std::string& connection);
-    const std::string& connectionString();
-    virtual void connect() throw(RtxException){};
-    virtual bool isConnected(){return true;};
+    virtual time_pair_t range(const string& id);
     
     virtual std::ostream& toStream(std::ostream &stream);
 
   protected:
     std::string _cachedPointId;
     Point _cachedPoint;
-    
-  private:
-    std::string _connectionString;
-    
-    
+  
   };
   
   std::ostream& operator<< (std::ostream &out, PointRecord &pr);

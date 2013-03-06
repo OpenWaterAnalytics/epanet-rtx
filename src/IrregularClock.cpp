@@ -35,7 +35,7 @@ bool IrregularClock::isCompatibleWith(Clock::sharedPointer clock) {
 }
 
 bool IrregularClock::isValid(time_t time) {
-  if (_pointRecord->isPointAvailable(_name, time)) {
+  if (_pointRecord->point(_name, time).isValid) {
     return true;
   }
   else {
@@ -47,8 +47,8 @@ bool IrregularClock::isValid(time_t time) {
 time_t IrregularClock::timeAfter(time_t time) {
   Point aPoint;
   aPoint = _pointRecord->pointAfter(_name, time);
-  if (aPoint.isValid()) {
-    return aPoint.time();
+  if (aPoint.isValid) {
+    return aPoint.time;
   }
   else {
     //std::cerr << "irregular clock cannot find time after " << time << std::endl;
@@ -60,8 +60,8 @@ time_t IrregularClock::timeAfter(time_t time) {
 time_t IrregularClock::timeBefore(time_t time) {
   Point aPoint;
   aPoint = _pointRecord->pointBefore(_name, time);
-  if (aPoint.isValid()) {
-    return aPoint.time();
+  if (aPoint.isValid) {
+    return aPoint.time;
   }
   else {
     //std::cerr << "previous time not found" << std::endl;
@@ -75,7 +75,7 @@ vector<time_t> IrregularClock::timeValuesInRange(time_t start, time_t end) {
   
   BOOST_FOREACH(Point p, points) {
     
-    time_t t = p.time();
+    time_t t = p.time;
     
     if (start <= t && t <= end) {
       times.push_back(t);

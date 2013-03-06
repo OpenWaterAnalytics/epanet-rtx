@@ -1,13 +1,13 @@
 //
-//  ScadaPointRecord.h
+//  OdbcPointRecord.h
 //  epanet-rtx
 //
 //  Created by the EPANET-RTX Development Team
 //  See README.md and license.txt for more information
 //  
 
-#ifndef epanet_rtx_ScadaPointRecord_h
-#define epanet_rtx_ScadaPointRecord_h
+#ifndef epanet_rtx_OdbcPointRecord_h
+#define epanet_rtx_OdbcPointRecord_h
 
 #define MAX_SCADA_TAG 50
 
@@ -20,31 +20,67 @@
 
 namespace RTX {
   
-  /*! \class ScadaPointRecord
+  /*! \class OdbcPointRecord
    \brief A persistence class for SCADA databases
    
    Primarily to be used for data acquisition. Polls an ODBC-based SCADA connection for data and creates Points from that data.
    
    */
   
-  class ScadaPointRecord : public DbPointRecord {
+  class OdbcPointRecord : public DbPointRecord {
   public:
-    RTX_SHARED_POINTER(ScadaPointRecord);
-    ScadaPointRecord();
-    virtual ~ScadaPointRecord();
+    // types
+    typedef enum { LOCAL, UTC } time_format_t;
     
-    void setSyntax(const string& table, const string& dateCol, const string& tagCol, const string& valueCol, const string& qualityCol);
+    typedef enum {
+      NO_CONNECTOR,
+      wonderware_mssql,
+      oracle,
+      mssql
+    } Sql_Connector_t;
+    
+    class odbc_query_t {
+    public:
+      std::string connectorName, singleSelect, rangeSelect, upperBound, lowerBound, timeQuery;
+    };
+    
+    static std::map<Sql_Connector_t, odbc_query_t> queryTypes();
+    static Sql_Connector_t typeForName(const std::string& connector);
+    
+    // shared pointer and ctor/dtor
+    RTX_SHARED_POINTER(OdbcPointRecord);
+    OdbcPointRecord();
+    virtual ~OdbcPointRecord();
+    
+    // public methods
+    void setTableColumnNames(const std::string& table, const std::string& dateCol, const std::string& tagCol, const std::string& valueCol, const std::string& qualityCol);
+    void setConnectorType(Sql_Connector_t connectorType);
     virtual void connect() throw(RtxException);
     virtual bool isConnected();
     virtual std::string registerAndGetIdentifier(std::string recordName);
     virtual std::vector<std::string> identifiers();
     virtual std::ostream& toStream(std::ostream &stream);
     
+    void setSingleSelectQuery(const std::string& query) {_singleSelect = query;};
+    void setRangeSelectQuery(const std::string& query) {_rangeSelect = query;};
+    void setLowerBoundSelectQuery(const std::string& query) {_lowerBoundSelect = query;};
+    void setUpperBoundSelectQuery(const std::string& query) {_upperBoundSelect = query;};
+    void setTimeQuery(const std::string& query) {_timeQuery = query;};
+    
+    void setTimeFormat(time_format_t timeFormat) { _timeFormat = timeFormat;};
+    time_format_t timeFormat() { return _timeFormat; };
+    
+    std::string singleSelectQuery() {return _singleSelect;};
+    std::string rangeSelectQuery() {return _rangeSelect;};
+    std::string loweBoundSelectQuery() {return _lowerBoundSelect;};
+    std::string upperBoundSelectQuery() {return _upperBoundSelect;};
+    std::string timeQuery() {return _timeQuery;};
+    
   protected:
     // fetch means cache the results
-    virtual void fetchRange(const std::string& id, time_t startTime, time_t endTime);
-    virtual void fetchNext(const std::string& id, time_t time);
-    virtual void fetchPrevious(const std::string& id, time_t time);
+    //virtual void fetchRange(const std::string& id, time_t startTime, time_t endTime);
+    //virtual void fetchNext(const std::string& id, time_t time);
+    //virtual void fetchPrevious(const std::string& id, time_t time);
     
     // select just returns the results (no caching)
     virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);
@@ -74,12 +110,16 @@ namespace RTX {
       SQLLEN startInd, endInd, tagNameInd;
     } ScadaQuery;
     
+    std::string _tableName, _dateCol, _tagCol, _valueCol, _qualityCol;
+    std::string _singleSelect, _rangeSelect, _upperBoundSelect, _lowerBoundSelect, _timeQuery;
+    time_format_t _timeFormat;
     SQLHENV _SCADAenv;
     SQLHDBC _SCADAdbc;
     SQLHSTMT _SCADAstmt, _rangeStatement, _lowerBoundStatement, _upperBoundStatement, _SCADAtimestmt;
     std::string _dsn;
     ScadaRecord _tempRecord;
     ScadaQuery _query;
+    
     
     void bindOutputColumns(SQLHSTMT statement, ScadaRecord* record);
     SQL_TIMESTAMP_STRUCT sqlTime(time_t unixTime);

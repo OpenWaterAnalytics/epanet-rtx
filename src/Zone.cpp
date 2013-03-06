@@ -27,7 +27,7 @@ Zone::~Zone() {
 
 void Zone::setRecord(PointRecord::sharedPointer record) {
   if (_demand) {
-    _demand->newCacheWithPointRecord(record);
+    _demand->setRecord(record);
   }
 }
 
@@ -164,7 +164,7 @@ void Zone::allocateDemandToJunctions(time_t time) {
     Junction::sharedPointer junction = junctionPair.second;
     
     if ( junction->doesHaveBoundaryFlow() ) {
-      double demand = Units::convertValue(junction->boundaryFlow()->point(time).value(), junction->boundaryFlow()->units(), myUnits);
+      double demand = Units::convertValue(junction->boundaryFlow()->point(time).value, junction->boundaryFlow()->units(), myUnits);
       meteredDemand += demand;
     }
     else {
@@ -176,7 +176,7 @@ void Zone::allocateDemandToJunctions(time_t time) {
   
   // now we have the total (nominal) base demand for the zone.
   // total demand for the zone (includes metered and unmetered) -- already in myUnits.
-  zoneDemand = this->demand()->point(time).value();
+  zoneDemand = this->demand()->point(time).value;
   allocableDemand = zoneDemand - meteredDemand; // the total unmetered demand
   
   cout << "-------------------" << endl;

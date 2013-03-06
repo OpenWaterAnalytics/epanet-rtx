@@ -11,6 +11,7 @@
 
 #define DB_PR_SUPER BufferPointRecord
 
+#include "MapPointRecord.h"
 #include "BufferPointRecord.h"
 #include "rtxExceptions.h"
 
@@ -25,7 +26,7 @@ namespace RTX {
   
   class DbPointRecord : public DB_PR_SUPER {
   public:
-    typedef enum { LOCAL, UTC } time_format_t;
+    
     RTX_SHARED_POINTER(DbPointRecord);
     DbPointRecord();
     virtual ~DbPointRecord() {};
@@ -33,7 +34,7 @@ namespace RTX {
     
     
     // end of the road for these guys
-    bool isPointAvailable(const string& id, time_t time);
+    //bool isPointAvailable(const string& id, time_t time);
     Point point(const string& id, time_t time);
     Point pointBefore(const string& id, time_t time);
     Point pointAfter(const string& id, time_t time);
@@ -52,31 +53,11 @@ namespace RTX {
     virtual std::vector<std::string> identifiers()=0;
     
     // db connection
-    virtual void connect() throw(RtxException)=0;
-    virtual bool isConnected()=0;
-    
-    
-    
-    // getters & setters
-    
-    void setTimeFormat(time_format_t timeFormat) { _timeFormat = timeFormat;};
-    time_format_t timeFormat() { return _timeFormat; };
-    
-    std::string singleSelectQuery() {return _singleSelect;};
-    std::string rangeSelectQuery() {return _rangeSelect;};
-    std::string loweBoundSelectQuery() {return _lowerBoundSelect;};
-    std::string upperBoundSelectQuery() {return _upperBoundSelect;};
-    std::string timeQuery() {return _timeQuery;};
-    
-    void setSingleSelectQuery(const std::string& query) {_singleSelect = query;};
-    void setRangeSelectQuery(const std::string& query) {_rangeSelect = query;};
-    void setLowerBoundSelectQuery(const std::string& query) {_lowerBoundSelect = query;};
-    void setUpperBoundSelectQuery(const std::string& query) {_upperBoundSelect = query;};
-    void setTimeQuery(const std::string& query) {_timeQuery = query;};
-    
-    
-    
-    
+    void setConnectionString(const std::string& connection);
+    const std::string& connectionString();
+    virtual void connect() throw(RtxException){};
+    virtual bool isConnected(){return true;};
+        
     
     //exceptions specific to this class family
     class RtxDbConnectException : public RtxException {
@@ -92,11 +73,11 @@ namespace RTX {
   protected:
     // fetch means cache the results
     // these have obvious default implementations, but you can override them also.
-    virtual void fetchRange(const std::string& id, time_t startTime, time_t endTime);
-    virtual void fetchNext(const std::string& id, time_t time);
-    virtual void fetchPrevious(const std::string& id, time_t time);
+    //virtual void fetchRange(const std::string& id, time_t startTime, time_t endTime);
+    //virtual void fetchNext(const std::string& id, time_t time);
+    //virtual void fetchPrevious(const std::string& id, time_t time);
     
-    // select just returns the results (no caching)
+    // select just returns the results
     virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime)=0;
     virtual Point selectNext(const std::string& id, time_t time)=0;
     virtual Point selectPrevious(const std::string& id, time_t time)=0;
@@ -110,8 +91,8 @@ namespace RTX {
     PointRecord::time_pair_t reqRange;
     
   private:
-    std::string _singleSelect, _rangeSelect, _upperBoundSelect, _lowerBoundSelect, _timeQuery;
-    time_format_t _timeFormat;
+    std::string _connectionString;
+    
     
   };
 

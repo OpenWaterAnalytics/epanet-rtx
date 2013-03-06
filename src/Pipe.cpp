@@ -25,7 +25,7 @@ Pipe::~Pipe() {
 }
 
 void Pipe::setRecord(PointRecord::sharedPointer record) {
-  _flowState->newCacheWithPointRecord(record);
+  _flowState->setRecord(record);
 }
 
 double Pipe::diameter() {

@@ -10,6 +10,7 @@
 
 #include "TimeSeries.h"
 #include "IrregularClock.h"
+#include "BufferPointRecord.h"
 
 using namespace RTX;
 
@@ -17,7 +18,7 @@ using namespace RTX;
 TimeSeries::TimeSeries() : _units(1) {
   _name = "";  
   _cacheSize = 1000; // default cache size
-  _points.reset( new PointRecord() );
+  _points.reset( new BufferPointRecord() );
   setName("Time Series");
   _clock.reset( new IrregularClock(_points, "Time Series") );
   _units = RTX_DIMENSIONLESS;
@@ -56,20 +57,18 @@ void TimeSeries::insert(Point thisPoint) {
 void TimeSeries::insertPoints(std::vector<Point> points) {
   _points->addPoints(name(), points);
 }
-
+/*
 bool TimeSeries::isPointAvailable(time_t time) {
   return ( _points->isPointAvailable(name(), time) );
 }
-
+*/
 Point TimeSeries::point(time_t time) {
-  Point myPoint;
-  time = clock()->validTime(time);
+  Point p;
+  //time = clock()->validTime(time);
   
-  if (_points->isPointAvailable(name(), time)) {
-    myPoint = _points->point(name(), time);
-  }
+  p = _points->point(name(), time);
   
-  return myPoint;
+  return p;
 }
 
 // get a range of points from this TimeSeries' point method
@@ -82,23 +81,6 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
     return points;
   }
   
-  Point firstCachePoint = record()->firstPoint(name());
-  Point lastCachePoint = record()->lastPoint(name());
-  
-  time_t firstTime = firstCachePoint.time();
-  time_t lastTime = lastCachePoint.time();
-  
-  if (firstCachePoint.isValid() && lastCachePoint.isValid()) {
-    time_t fetchBegin = (time_t)RTX_MIN(start, firstTime);
-    time_t fetchEnd = (time_t)RTX_MAX(end, lastTime);
-    //_points->preFetchRange(name(), fetchBegin, fetchEnd);
-  }
-  else {
-    //_points->preFetchRange(name(), start, end);
-  }
-  
-  
-  
   std::vector<time_t> timeList;
   
   if (_clock) {
@@ -107,18 +89,19 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
   
   BOOST_FOREACH(time_t time, timeList) {
     // check the time
-    if (! (time >= start && time < end) ) {
+    if (! (time >= start && time <= end) ) {
       // skip this time
       std::cerr << "time out of bounds. ignoring." << std::endl;
       continue;
     }
     Point aNewPoint;
-    if ( !points.empty() && points.back().time() == time) {
+    if ( !points.empty() && points.back().time == time) {
       std::cerr << "duplicate time detected" << std::endl;
+      continue;
     }
     aNewPoint = point(time);
     
-    if (!aNewPoint.isValid()) {
+    if (!aNewPoint.isValid) {
       //std::cerr << "bad point" << std::endl;
     }
     else {
@@ -141,7 +124,7 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
       break;
     }
     points.push_back(aPoint);
-    queryTime = aPoint->time();
+    queryTime = aPoint->time;
   }
    */
     
@@ -167,7 +150,7 @@ Point TimeSeries::pointBefore(time_t time) {
   /* / if not, we depend on the PointRecord to tell us what the previous point is.
   else {
     myPoint = _points->pointBefore(time);
-    myPoint = point(myPoint->time());
+    myPoint = point(myPoint->time);
   }
    */
   
@@ -187,7 +170,7 @@ Point TimeSeries::pointAfter(time_t time) {
   /* / if not, we depend on the PointRecord to tell us what the next point is.
   else {
     myPoint = _points->pointAfter(time);  
-    myPoint = point(myPoint->time());   // funny, but we have to call the point() method on the time that we discover here. this will call the most-derived point method.
+    myPoint = point(myPoint->time);   // funny, but we have to call the point() method on the time that we discover here. this will call the most-derived point method.
   }
   */
   
@@ -218,12 +201,6 @@ void TimeSeries::setRecord(PointRecord::sharedPointer record) {
 
 PointRecord::sharedPointer TimeSeries::record() {
   return _points;
-}
-
-void TimeSeries::newCacheWithPointRecord(PointRecord::sharedPointer pointRecord) {
-  // create new PersistentContainer and swap it in
-  //PointContainer::sharedPointer myPointContainer( new PersistentContainer(this->name(), pointRecord) );
-  setRecord(pointRecord);
 }
 
 void TimeSeries::resetCache() {

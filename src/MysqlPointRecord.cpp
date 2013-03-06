@@ -132,10 +132,10 @@ void MysqlPointRecord::connect() throw(RtxException) {
     // build the queries, since preparedStatements can't specify table names.
     //string rangeSelect = "SELECT time, value FROM " + tableName + " WHERE series_id = ? AND time > ? AND time <= ?";
     string preamble = "SELECT time, value FROM points INNER JOIN timeseries_meta USING (series_id) WHERE name = ? AND ";
-    string singleSelect = preamble + "time = ?";
-    string rangeSelect = preamble + "time >= ? AND time <= ?";
-    string nextSelect = preamble + "time > ? LIMIT 1";
-    string prevSelect = preamble + "time < ? LIMIT 1";
+    string singleSelect = preamble + "time = ? order by time asc";
+    string rangeSelect = preamble + "time >= ? AND time <= ? order by time asc";
+    string nextSelect = preamble + "time > ? order by time asc LIMIT 1";
+    string prevSelect = preamble + "time < ? order by time desc LIMIT 1";
     string singleInsert = "INSERT INTO points (time, series_id, value) SELECT ?,series_id,? FROM timeseries_meta WHERE name = ?";
     
     string firstSelectStr = "SELECT time, value FROM points INNER JOIN timeseries_meta USING (series_id) WHERE name = ? order by time asc limit 1";
@@ -197,6 +197,37 @@ std::string MysqlPointRecord::registerAndGetIdentifier(std::string recordName) {
   return recordName;
 }
 
+
+PointRecord::time_pair_t MysqlPointRecord::range(const string& id) {
+  
+  
+  Point first;
+  _firstSelect->setString(1, id);
+  boost::shared_ptr<sql::ResultSet> fResult( _firstSelect->executeQuery() );
+  if( fResult && fResult->next() ) {
+    time_t rowTime = fResult->getInt("time");
+    double rowValue = fResult->getDouble("value");
+    first = Point(rowTime, rowValue);
+  }
+  
+  
+  
+  Point last;
+  _lastSelect->setString(1, id);
+  boost::shared_ptr<sql::ResultSet> lResult( _lastSelect->executeQuery() );
+  if( lResult && lResult->next() ) {
+    time_t rowTime = lResult->getInt("time");
+    double rowValue = lResult->getDouble("value");
+    last = Point(rowTime, rowValue);
+  }
+  
+  return make_pair(first.time, last.time);
+}
+
+
+
+#pragma mark -
+
 std::vector<std::string> MysqlPointRecord::identifiers() {
   std::vector<std::string> ids;
   if (!isConnected()) {
@@ -215,7 +246,7 @@ std::vector<std::string> MysqlPointRecord::identifiers() {
 
 
 
-
+/*
 void MysqlPointRecord::fetchRange(const std::string& id, time_t startTime, time_t endTime) {
   DbPointRecord::fetchRange(id, startTime, endTime);
 }
@@ -227,10 +258,11 @@ void MysqlPointRecord::fetchNext(const std::string& id, time_t time) {
 void MysqlPointRecord::fetchPrevious(const std::string& id, time_t time) {
   DbPointRecord::fetchPrevious(id, time);
 }
+ */
 
 // select just returns the results (no caching)
 std::vector<Point> MysqlPointRecord::selectRange(const std::string& id, time_t start, time_t end) {
-  cout << "mysql range: " << start << " - " << end << endl;
+  //cout << "mysql range: " << start << " - " << end << endl;
   
   std::vector<Point> points;
   _rangeSelect->setString(1, id);
@@ -261,26 +293,50 @@ Point MysqlPointRecord::selectPrevious(const std::string& id, time_t time) {
 
 // insertions or alterations may choose to ignore / deny
 void MysqlPointRecord::insertSingle(const std::string& id, Point point) {
+  
+  insertSingleNoCommit(id, point);
+  _connection->commit();
+}
 
-  _singleInsert->setInt(1, (int)point.time());
+
+void MysqlPointRecord::insertRange(const std::string& id, std::vector<Point> points) {
+  
+  // first get a list of times already stored here, so that we don't have any overlaps.
+  vector<Point> existing = this->selectRange(id, points.front().time, points.back().time);
+  vector<time_t> timeList;
+  timeList.reserve(existing.size());
+  BOOST_FOREACH(Point p, existing) {
+    timeList.push_back(p.time);
+  }
+  
+  // premature optimization is the root of all evil
+  bool existingRange = (timeList.size() > 0)? true : false;
+  
+  BOOST_FOREACH(Point p, points) {
+  
+    if (existingRange && find(timeList.begin(), timeList.end(), p.time) != timeList.end()) {
+      // have it already
+      continue;
+    }
+    else {
+      insertSingleNoCommit(id, p);
+    }
+    
+  }
+  _connection->commit();
+}
+
+void MysqlPointRecord::insertSingleNoCommit(const std::string& id, Point point) {
+  _singleInsert->setInt(1, (int)point.time);
   // todo -- check this: _singleInsert->setUInt64(1, (uint64_t)time);
-  _singleInsert->setDouble(2, point.value());
+  _singleInsert->setDouble(2, point.value);
   _singleInsert->setString(3, id);
   int affected = _singleInsert->executeUpdate();
   if (affected == 0) {
     // throw something?
     cerr << "zero rows inserted" << endl;
   }
-  _connection->commit();
 }
-
-
-void MysqlPointRecord::insertRange(const std::string& id, std::vector<Point> points) {
-  BOOST_FOREACH(Point p, points) {
-    insertSingle(id, p);
-  }
-}
-
 
 void MysqlPointRecord::removeRecord(const string& id) {
   DB_PR_SUPER::reset(id);
@@ -321,7 +377,7 @@ void MysqlPointRecord::truncate() {
 #pragma mark - Private
 
 Point MysqlPointRecord::selectSingle(const string& id, time_t time, boost::shared_ptr<sql::PreparedStatement> statement) {
-  cout << "hit MySql: " << time << endl;
+  //cout << "hit MySql: " << time << endl;
   Point point;
   statement->setString(1, id);
   statement->setInt(2, (int)time);
@@ -389,29 +445,5 @@ std::ostream& MysqlPointRecord::toStream(std::ostream &stream) {
 }
 
 
-/*
-Point MysqlPointRecord::firstPoint(const string &id) {
-  Point point;
-  _firstSelect->setString(1, id);
-  boost::shared_ptr<sql::ResultSet> result( _firstSelect->executeQuery() );
-  if( result && result->next() ) {
-    time_t rowTime = result->getInt("time");
-    double rowValue = result->getDouble("value");
-    point = Point(rowTime, rowValue);
-  }
-  return point;
-}
 
-Point MysqlPointRecord::lastPoint(const string &id) {
-  Point point;
-  _lastSelect->setString(1, id);
-  boost::shared_ptr<sql::ResultSet> result( _lastSelect->executeQuery() );
-  if( result->next() ) {
-    time_t rowTime = result->getInt("time");
-    double rowValue = result->getDouble("value");
-    point = Point(rowTime, rowValue);
-  }
-  return point;
-}
 
-*/

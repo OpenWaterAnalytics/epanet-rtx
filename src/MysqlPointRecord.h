@@ -43,15 +43,15 @@ namespace RTX {
     virtual bool isConnected();
     virtual std::string registerAndGetIdentifier(std::string recordName);
     virtual std::vector<std::string> identifiers();
-    
+    virtual time_pair_t range(const string& id);
     virtual std::ostream& toStream(std::ostream &stream);
     
     
   protected:
     // fetch means cache the results
-    virtual void fetchRange(const std::string& id, time_t startTime, time_t endTime);
-    virtual void fetchNext(const std::string& id, time_t time);
-    virtual void fetchPrevious(const std::string& id, time_t time);
+    //virtual void fetchRange(const std::string& id, time_t startTime, time_t endTime);
+    //virtual void fetchNext(const std::string& id, time_t time);
+    //virtual void fetchPrevious(const std::string& id, time_t time);
     
     // select just returns the results (no caching)
     virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);
@@ -65,6 +65,7 @@ namespace RTX {
     virtual void truncate();
     
   private:
+    void insertSingleNoCommit(const std::string& id, Point point);
     bool _connectionOk;
     void insertSingle(const string& id, time_t time, double value);
     Point selectSingle(const string& id, time_t time, boost::shared_ptr<sql::PreparedStatement> statement);

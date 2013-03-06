@@ -31,28 +31,22 @@ namespace RTX {
     Point(time_t time, double value, Qual_t qual = good, double confidence = 0.);
     // dtor
     ~Point();
-    
     Point operator+(const Point& point) const;
     Point operator+=(const Point& point);
     Point operator*(const double factor) const;
     Point operator/(const double factor) const;
+    virtual std::ostream& toStream(std::ostream& stream);
+
+    // simple tuple class, so no getters/setters
+    time_t time;
+    double value;
+    Qual_t quality;
+    double confidence;
+    bool isValid;
+    
+    // static class methods
     static Point convertPoint(const Point& point, const Units& fromUnits, const Units& toUnits);
     static bool comparePointTime(const Point& left, const Point& right);
-    
-    time_t time() const;
-    double value() const;
-    Qual_t quality() const;
-    double confidence() const;
-    bool isValid() const;
-    
-    virtual std::ostream& toStream(std::ostream& stream);
-    
-  private:
-    time_t _time;
-    double _value;
-    Qual_t _qual;
-    double _confidence;
-    bool _validPoint;
     
   };
 

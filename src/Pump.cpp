@@ -24,7 +24,7 @@ Pump::~Pump() {
 }
 
 void Pump::setRecord(PointRecord::sharedPointer record) {
-  _energyState->newCacheWithPointRecord(record);
+  _energyState->setRecord(record);
   // call base method
   Pipe::setRecord(record);
 }

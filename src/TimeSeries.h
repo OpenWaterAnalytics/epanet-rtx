@@ -75,7 +75,6 @@ namespace RTX {
     // setters
     virtual void setName(const std::string& name);
     void setRecord(PointRecord::sharedPointer record);
-    void newCacheWithPointRecord(PointRecord::sharedPointer pointRecord);
     PointRecord::sharedPointer record();
     void resetCache();
     void setClock(Clock::sharedPointer clock);
@@ -84,7 +83,7 @@ namespace RTX {
     Units units();
     
     // tests
-    virtual bool isPointAvailable(time_t time);
+    //virtual bool isPointAvailable(time_t time);
     
     virtual std::ostream& toStream(std::ostream &stream);
 

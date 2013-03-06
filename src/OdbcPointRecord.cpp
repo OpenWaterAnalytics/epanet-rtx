@@ -1,5 +1,5 @@
 //
-//  ScadaPointRecord.cpp
+//  OdbcPointRecord.cpp
 //  epanet-rtx
 //
 //  Created by the EPANET-RTX Development Team
@@ -7,63 +7,125 @@
 //  
 
 
-#include "ScadaPointRecord.h"
+#include "OdbcPointRecord.h"
 #include <boost/foreach.hpp>
+#include <boost/range/adaptors.hpp>
+#include <boost/algorithm/string.hpp>
 
 using namespace RTX;
 using namespace std;
 
-ScadaPointRecord::ScadaPointRecord() {
+OdbcPointRecord::OdbcPointRecord() : _timeFormat(UTC){
   _connectionOk = false;
+  
+  _tableName = "#TABLENAME#";
+  _dateCol = "#DATECOL";
+  _tagCol = "#TAGCOL";
+  _valueCol = "#VALUECOL";
+  _qualityCol = "#QUALITYCOL#";
 }
 
 
-ScadaPointRecord::~ScadaPointRecord() {
+OdbcPointRecord::~OdbcPointRecord() {
   
 }
+
+
+///! templates for selection queries
+map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> OdbcPointRecord::queryTypes() {
+  map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> list;
+  
+  odbc_query_t wwQueries;
+  wwQueries.connectorName = "wonderware_mssql";
+  wwQueries.singleSelect = "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# = ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
+  wwQueries.rangeSelect =  "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# > ?) AND (#DATECOL# <= ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC' ORDER BY #DATECOL# asc";
+  wwQueries.lowerBound = "";
+  wwQueries.upperBound = "";
+  wwQueries.timeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
+  
+  
+  odbc_query_t oraQueries;
+  oraQueries.connectorName = "oracle";
+  oraQueries.singleSelect = "";
+  oraQueries.rangeSelect = "";
+  oraQueries.lowerBound = "";
+  oraQueries.upperBound = "";
+  oraQueries.timeQuery = "select sysdate from dual";
+  
+  
+  list[wonderware_mssql] = wwQueries;
+  list[oracle] = oraQueries;
+  
+  return list;
+}
+
+
+OdbcPointRecord::Sql_Connector_t OdbcPointRecord::typeForName(const std::string& connector) {
+  map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> list = queryTypes();
+  
+  BOOST_FOREACH(Sql_Connector_t connType, list | boost::adaptors::map_keys) {
+    if (RTX_STRINGS_ARE_EQUAL(connector, list[connType].connectorName)) {
+      return connType;
+    }
+  }
+
+  cerr << "could not resolve connector type: " << connector << endl;
+  return NO_CONNECTOR;
+}
+
 
 #pragma mark -
-#pragma mark Initialization
 
-void ScadaPointRecord::setSyntax(const string& table, const string& dateCol, const string& tagCol, const string& valueCol, const string& qualityCol) {
-  string dataPointQuery, dataRangeQuery, dataLowerBoundQuery, dataUpperBoundQuery, dataTimeQuery;
+void OdbcPointRecord::setTableColumnNames(const std::string& table, const std::string& dateCol, const std::string& tagCol, const std::string& valueCol, const std::string& qualityCol) {
   
-  // defaults are good for MSSQL-style syntax. override these defaults for other schemas.
-  
-  dataPointQuery = "SELECT " + dateCol + ", " + tagCol + ", " + valueCol + ", " + qualityCol +
-                  " FROM " + table +
-                  " WHERE (" + dateCol + " = ?) AND " + tagCol + " = ?";
-  
-  dataRangeQuery = "SELECT " + dateCol + ", " + tagCol + ", " + valueCol + ", " + qualityCol +
-                  " FROM " + table +
-                  " WHERE (" + dateCol + " >= ?) AND (" + dateCol + " <= ?) AND " + tagCol + " = ? ORDER BY " + dateCol + " asc";
-  
-  dataLowerBoundQuery =  "SELECT TOP 2 " + dateCol + ", " + tagCol + ", " + valueCol + ", " + qualityCol +
-                        " FROM " + table +
-                        " WHERE (" + dateCol + " > ?) AND (" + dateCol + " <= ?) AND " + tagCol + " = ?" +
-                        " ORDER BY " + dateCol + " DESC";
-  
-  dataUpperBoundQuery =  "SELECT TOP 2 " + dateCol + ", " + tagCol + ", " + valueCol + ", " + qualityCol +
-                        " FROM " + table +
-                        " WHERE (" + dateCol + " > ?) AND (" + dateCol + " <= ?) AND " + tagCol + " = ?" +
-                        " ORDER BY " + dateCol + " ASC";
-  
-  dataTimeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
-  
-  
-  _query.tagNameInd = SQL_NTS;
-  
-  
-  setSingleSelectQuery(dataPointQuery);
-  setRangeSelectQuery(dataRangeQuery);
-  setUpperBoundSelectQuery(dataUpperBoundQuery);
-  setLowerBoundSelectQuery(dataLowerBoundQuery);
-  setTimeQuery(dataTimeQuery);
+  _tableName = table;
+  _dateCol = dateCol;
+  _tagCol = tagCol;
+  _valueCol = valueCol;
+  _qualityCol = qualityCol;
   
 }
 
+void OdbcPointRecord::setConnectorType(Sql_Connector_t connectorType) {
+  
+  map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> qTypes = queryTypes();
+  if (qTypes.find(connectorType) == qTypes.end()) {
+    cerr << "could not find the specified connector type" << endl;
+    return;
+  }
+  
+  OdbcPointRecord::odbc_query_t queries = qTypes[connectorType];
+  
+  
+  {
+    // do some string replacement to construct the sql queries from my type's template queries.
+    vector<string*> querystrings;
+    querystrings.push_back(&queries.singleSelect);
+    querystrings.push_back(&queries.rangeSelect);
+    querystrings.push_back(&queries.upperBound);
+    querystrings.push_back(&queries.lowerBound);
+    
+    BOOST_FOREACH(string* str, querystrings) {
+      boost::replace_all(*str, "#TABLENAME#", _tableName);
+      boost::replace_all(*str, "#DATECOL#", _dateCol);
+      boost::replace_all(*str, "#TAGCOL#", _tagCol);
+      boost::replace_all(*str, "#VALUECOL#", _valueCol);
+      boost::replace_all(*str, "#QUALITYCOL#", _qualityCol);
+    }
+  }
+  
+  setSingleSelectQuery(queries.singleSelect);
+  setRangeSelectQuery(queries.rangeSelect);
+  setUpperBoundSelectQuery(queries.upperBound);  // todo
+  setLowerBoundSelectQuery(queries.lowerBound);  // todo
+  setTimeQuery(queries.timeQuery);
+  
+  _query.tagNameInd = SQL_NTS;
 
-void ScadaPointRecord::connect() throw(RtxException) {
+}
+
+
+void OdbcPointRecord::connect() throw(RtxException) {
   _connectionOk = false;
   if (RTX_STRINGS_ARE_EQUAL(this->connectionString(), "")) {
     return;
@@ -141,15 +203,15 @@ void ScadaPointRecord::connect() throw(RtxException) {
 
 }
 
-bool ScadaPointRecord::isConnected() {
+bool OdbcPointRecord::isConnected() {
   return _connectionOk;
 }
 
-std::string ScadaPointRecord::registerAndGetIdentifier(std::string recordName) {
+std::string OdbcPointRecord::registerAndGetIdentifier(std::string recordName) {
   return DB_PR_SUPER::registerAndGetIdentifier(recordName);
 }
 
-std::vector<std::string> ScadaPointRecord::identifiers() {
+std::vector<std::string> OdbcPointRecord::identifiers() {
   std::vector<std::string> ids;
   if (!isConnected()) {
     return ids;
@@ -189,36 +251,37 @@ std::vector<std::string> ScadaPointRecord::identifiers() {
 
 
 // fetch means cache the results
-void ScadaPointRecord::fetchRange(const std::string& id, time_t startTime, time_t endTime) {
+/*
+void OdbcPointRecord::fetchRange(const std::string& id, time_t startTime, time_t endTime) {
   // just call super
   DbPointRecord::fetchRange(id, startTime, endTime);
 }
 
-void ScadaPointRecord::fetchNext(const std::string& id, time_t time) {
+void OdbcPointRecord::fetchNext(const std::string& id, time_t time) {
   time_t margin = 60*60*12;
   fetchRange(id, time-1, time+margin);
 }
 
 
-void ScadaPointRecord::fetchPrevious(const std::string& id, time_t time) {
+void OdbcPointRecord::fetchPrevious(const std::string& id, time_t time) {
   time_t margin = 60*60*12;
   fetchRange(id, time-margin, time+1);
 }
-
+*/
 
 
 // select just returns the results (no caching)
-std::vector<Point> ScadaPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
+std::vector<Point> OdbcPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
   return pointsWithStatement(id, _rangeStatement, startTime, endTime);
 }
 
 
-Point ScadaPointRecord::selectNext(const std::string& id, time_t time) {
+Point OdbcPointRecord::selectNext(const std::string& id, time_t time) {
   Point p;
   time_t margin = 60*60*12;
-  vector<Point> points = pointsWithStatement(id, _rangeStatement, time, time + margin);
+  vector<Point> points = pointsWithStatement(id, _rangeStatement, time-1, time + margin);
   
-  time_t max_margin = 60*60*24*2; // 2-day lookahead max
+  time_t max_margin = 60*60*24*3; // 3-day lookahead max
   time_t lookahead = time;
   while (points.size() == 0 && lookahead < time + max_margin) {
     cout << "scada lookahead" << endl;
@@ -233,14 +296,14 @@ Point ScadaPointRecord::selectNext(const std::string& id, time_t time) {
 }
 
 
-Point ScadaPointRecord::selectPrevious(const std::string& id, time_t time) {
+Point OdbcPointRecord::selectPrevious(const std::string& id, time_t time) {
   Point p;
   time_t margin = 60*60*12;
-  vector<Point> points = pointsWithStatement(id, _rangeStatement, time - margin, time);
+  vector<Point> points = pointsWithStatement(id, _rangeStatement, time - margin, time+1);
   
-  time_t max_margin = 60*60*24*2; // 2-day lookahead max
+  time_t max_margin = 60*60*24*3; // 3-day lookbehind max
   time_t lookbehind = time;
-  while (points.size() == 0 && lookbehind < time + max_margin) {
+  while (points.size() == 0 && lookbehind > time - max_margin) {
     cout << "scada lookbehind" << endl;
     lookbehind -= margin;
     points = pointsWithStatement(id, _rangeStatement, lookbehind-margin, lookbehind);
@@ -255,22 +318,22 @@ Point ScadaPointRecord::selectPrevious(const std::string& id, time_t time) {
 
 
 // insertions or alterations may choose to ignore / deny
-void ScadaPointRecord::insertSingle(const std::string& id, Point point) {
+void OdbcPointRecord::insertSingle(const std::string& id, Point point) {
   
 }
 
 
-void ScadaPointRecord::insertRange(const std::string& id, std::vector<Point> points) {
+void OdbcPointRecord::insertRange(const std::string& id, std::vector<Point> points) {
   
 }
 
 
-void ScadaPointRecord::removeRecord(const std::string& id) {
+void OdbcPointRecord::removeRecord(const std::string& id) {
   
 }
 
 
-void ScadaPointRecord::truncate() {
+void OdbcPointRecord::truncate() {
   
 }
 
@@ -280,7 +343,7 @@ void ScadaPointRecord::truncate() {
 
 #pragma mark - Protected
 
-std::ostream& ScadaPointRecord::toStream(std::ostream &stream) {
+std::ostream& OdbcPointRecord::toStream(std::ostream &stream) {
   stream << "ODBC Scada Point Record" << endl;
   // todo - stream extra info
   return stream;
@@ -291,11 +354,9 @@ std::ostream& ScadaPointRecord::toStream(std::ostream &stream) {
 #pragma mark - Internal (private) methods
 
 
-std::vector<Point> ScadaPointRecord::pointsWithStatement(const string& id, SQLHSTMT statement, time_t startTime, time_t endTime) {
+std::vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT statement, time_t startTime, time_t endTime) {
   std::vector< Point > points;
   points.clear();
-  
-  cout << "hit SCADA" << endl;
   
   // set up query-bound variables
   _query.start = sqlTime(startTime);
@@ -303,15 +364,25 @@ std::vector<Point> ScadaPointRecord::pointsWithStatement(const string& id, SQLHS
   strcpy(_query.tagName, id.c_str());
   
   try {
+    cout << "scada: " << id << " : " << startTime << " - " << endTime << endl;
     SQL_CHECK(SQLExecute(statement), "SQLExecute", statement, SQL_HANDLE_STMT);
     while (SQL_SUCCEEDED(SQLFetch(statement))) {
-      // add the point to the return vector
-      // todo
-      // check data quality value
-      Point aPoint( unixTime(_tempRecord.time), _tempRecord.value, Point::good);
-      if(aPoint.isValid()) {
-        points.push_back(aPoint);
+      Point p;
+      time_t t = unixTime(_tempRecord.time);
+      double v = _tempRecord.value;
+      int qu = _tempRecord.quality;
+      Point::Qual_t q = Point::Qual_t::good; // todo -- map to rtx quality types
+      
+      if (_tempRecord.valueInd > 0 && qu == 0) {
+        // ok
+        p = Point(t, v, q);
+        points.push_back(p);
       }
+      else {
+        // nothing
+        cout << "skipped invalid point. quality = " << _tempRecord.quality << endl;
+      }
+      
     }
     SQL_CHECK(SQLFreeStmt(statement, SQL_CLOSE), "SQLCancel", statement, SQL_HANDLE_STMT);
   }
@@ -324,15 +395,12 @@ std::vector<Point> ScadaPointRecord::pointsWithStatement(const string& id, SQLHS
     cerr << "no points found" << endl;
   }
   
-  
-  cout << "done SCADA" << endl;
-  
   return points;
 }
 
 
 
-void ScadaPointRecord::bindOutputColumns(SQLHSTMT statement, ScadaRecord* record) {
+void OdbcPointRecord::bindOutputColumns(SQLHSTMT statement, ScadaRecord* record) {
   SQL_CHECK(SQLBindCol(statement, 1, SQL_C_TYPE_TIMESTAMP, &(record->time), NULL, &(record->timeInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
   SQL_CHECK(SQLBindCol(statement, 2, SQL_C_CHAR, record->tagName, MAX_SCADA_TAG, &(record->tagNameInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
   SQL_CHECK(SQLBindCol(statement, 3, SQL_C_DOUBLE, &(record->value), 0, &(record->valueInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
@@ -342,7 +410,7 @@ void ScadaPointRecord::bindOutputColumns(SQLHSTMT statement, ScadaRecord* record
 
 
 
-SQL_TIMESTAMP_STRUCT ScadaPointRecord::sqlTime(time_t unixTime) {
+SQL_TIMESTAMP_STRUCT OdbcPointRecord::sqlTime(time_t unixTime) {
   SQL_TIMESTAMP_STRUCT sqlTimestamp;
   struct tm myTMstruct;
   struct tm* pTMstruct = &myTMstruct;
@@ -375,7 +443,7 @@ SQL_TIMESTAMP_STRUCT ScadaPointRecord::sqlTime(time_t unixTime) {
   return sqlTimestamp;
 }
 
-time_t ScadaPointRecord::unixTime(SQL_TIMESTAMP_STRUCT sqlTime) {
+time_t OdbcPointRecord::unixTime(SQL_TIMESTAMP_STRUCT sqlTime) {
   time_t myUnixTime;
   struct tm tmTimestamp;
   tmTimestamp.tm_isdst = 0;
@@ -400,14 +468,14 @@ time_t ScadaPointRecord::unixTime(SQL_TIMESTAMP_STRUCT sqlTime) {
   myUnixTime = time_to_epoch(&tmTimestamp, 0);
   
   
-  if (timeFormat() == UTC) {
-    myUnixTime += pTimestamp->tm_gmtoff;
+  if (timeFormat() == LOCAL) {
+    myUnixTime -= pTimestamp->tm_gmtoff;
   }
   
   return myUnixTime;
 }
 
-time_t ScadaPointRecord::time_to_epoch ( const struct tm *ltm, int utcdiff ) {
+time_t OdbcPointRecord::time_to_epoch ( const struct tm *ltm, int utcdiff ) {
   const int mon_days [] =
   {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
   long tyears, tdays, leaps, utc_hrs;
@@ -428,7 +496,7 @@ time_t ScadaPointRecord::time_to_epoch ( const struct tm *ltm, int utcdiff ) {
 }
 
 
-SQLRETURN ScadaPointRecord::SQL_CHECK(SQLRETURN retVal, std::string function, SQLHANDLE handle, SQLSMALLINT type) throw(std::string)
+SQLRETURN OdbcPointRecord::SQL_CHECK(SQLRETURN retVal, std::string function, SQLHANDLE handle, SQLSMALLINT type) throw(std::string)
 {
 	if(!SQL_SUCCEEDED(retVal)) {
     std::string errorMessage;
@@ -439,7 +507,7 @@ SQLRETURN ScadaPointRecord::SQL_CHECK(SQLRETURN retVal, std::string function, SQ
 }
 
 
-std::string ScadaPointRecord::extract_error(std::string function, SQLHANDLE handle, SQLSMALLINT type)
+std::string OdbcPointRecord::extract_error(std::string function, SQLHANDLE handle, SQLSMALLINT type)
 {
   SQLINTEGER	 i = 0;
   SQLINTEGER	 native;

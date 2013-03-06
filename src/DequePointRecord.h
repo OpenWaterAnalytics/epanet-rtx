@@ -34,7 +34,7 @@ namespace RTX {
     virtual std::string registerAndGetIdentifier(std::string recordName);    // registering record names.
     virtual std::vector<std::string> identifiers();
     
-    virtual bool isPointAvailable(const string& identifier, time_t time);
+    //virtual bool isPointAvailable(const string& identifier, time_t time);
     virtual Point point(const string& identifier, time_t time);
     virtual Point pointBefore(const string& identifier, time_t time);
     virtual Point pointAfter(const string& identifier, time_t time);
@@ -51,8 +51,6 @@ namespace RTX {
   protected:
     typedef std::deque<Point> pointQ_t;
     typedef std::map< std::string, pointQ_t> keyedPointVector_t;
-    std::string _cachedPointId;
-    Point _cachedPoint;
     
   private:
     keyedPointVector_t _points;

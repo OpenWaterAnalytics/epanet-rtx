@@ -50,8 +50,9 @@ Point MovingAverage::point(time_t time) {
   }
   
   // a point is requested. see if it is available in my cache (via base class methods)
-  if (TimeSeries::isPointAvailable(time)) {
-    return TimeSeries::point(time);
+  Point p = TimeSeries::point(time);
+  if (p.isValid) {
+    return p;
   }
   
   // if not, we need to construct it and store it locally.
@@ -103,22 +104,22 @@ Point MovingAverage::movingAverageAt(time_t time) {
   Point pointToPush;
   for (int i = 0; i < halfWindow; ++i) {
     pointToPush = source()->pointBefore(rewindTime);
-    if (!pointToPush.isValid()) {
+    if (!pointToPush.isValid) {
       continue;
     }
     somePoints.push_back( pointToPush );
-    rewindTime = pointToPush.time();
+    rewindTime = pointToPush.time;
   }
   
   // and now push a half-window's worth of points from the right.
   time_t forwardTime = time;
   for (int i = 0; i < halfWindow; ++i) {
     pointToPush = source()->pointAfter(forwardTime);
-    if (!pointToPush.isValid()) {
+    if (!pointToPush.isValid) {
       continue;
     }
     somePoints.push_back( pointToPush );
-    forwardTime = pointToPush.time();
+    forwardTime = pointToPush.time;
   }
   
   
@@ -133,7 +134,7 @@ double MovingAverage::calculateAverage(vector< Point > somePoints) {
   
   accumulator_set<double, stats<tag::mean> > meanAccumulator;
   BOOST_FOREACH(Point point, somePoints) {
-    double pointValue = point.value();
+    double pointValue = point.value;
     meanAccumulator(pointValue);
   }
   

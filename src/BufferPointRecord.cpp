@@ -17,7 +17,7 @@ bool compareTimePointPair(const BufferPointRecord::TimePointPair_t& lhs, const B
 
 BufferPointRecord::BufferPointRecord() {
   
-  _defaultCapacity = 1000;
+  _defaultCapacity = 100;
 }
 
 std::ostream& RTX::operator<< (std::ostream &out, BufferPointRecord &pr) {
@@ -25,7 +25,7 @@ std::ostream& RTX::operator<< (std::ostream &out, BufferPointRecord &pr) {
 }
 
 std::ostream& BufferPointRecord::toStream(std::ostream &stream) {
-  stream << "Buffered Point Record - connection: " << this->connectionString() << std::endl;
+  stream << "Buffered Point Record" << std::endl;
   return stream;
 }
 
@@ -68,19 +68,19 @@ Point BufferPointRecord::makePoint(PointBuffer_t::const_iterator iterator) {
   return Point((*iterator).first, (*iterator).second.first, Point::good, (*iterator).second.second);
 }
 
-bool BufferPointRecord::isPointAvailable(const string& identifier, time_t time) {
+Point BufferPointRecord::point(const string& identifier, time_t time) {
   
   bool isAvailable = false;
   
   // quick check for repeated calls
-  if (_cachedPoint.time() == time && RTX_STRINGS_ARE_EQUAL(_cachedPointId, identifier) ) {
-    return true;
+  if (_cachedPoint.time == time && RTX_STRINGS_ARE_EQUAL_CS(_cachedPointId, identifier) ) {
+    return _cachedPoint;
   }
   
   KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
   if (it == _keyedBufferMutex.end()) {
     // nobody here by that name
-    return false;
+    return Point();
   }
   
   // get the constituents
@@ -88,7 +88,7 @@ bool BufferPointRecord::isPointAvailable(const string& identifier, time_t time) 
   PointBuffer_t& buffer = (it->second.first);
   
   if (buffer.empty()) {
-    return false;
+    return Point();
   }
   
   // lock the buffer
@@ -104,6 +104,7 @@ bool BufferPointRecord::isPointAvailable(const string& identifier, time_t time) 
     if (pbIt != buffer.end() && pbIt->first == time) {
       isAvailable = true;
       _cachedPoint = makePoint(pbIt);
+      _cachedPointId = identifier;
     }
     else {
       //cerr << "whoops, not found" << endl;
@@ -113,7 +114,8 @@ bool BufferPointRecord::isPointAvailable(const string& identifier, time_t time) 
         time_t foundTime = pbIt->first;
         if (foundTime == time) {
           cout << "found it anyway!!" << endl;
-          _cachedPoint = makePoint(pbIt);
+          Point aPoint = makePoint(pbIt);
+          _cachedPoint = aPoint;
         }
         ++pbIt;
       }
@@ -124,21 +126,15 @@ bool BufferPointRecord::isPointAvailable(const string& identifier, time_t time) 
   // ok, all done
   mutex->unlock();
   
-  return isAvailable;
-  
-}
-
-
-Point BufferPointRecord::point(const string& identifier, time_t time) {
-  // calling isPointAvailable pushes the point into _cachedPoint (if true)
-  if (isPointAvailable(identifier, time)) {
+  if (isAvailable) {
     return _cachedPoint;
   }
-  
   else {
-    return pointBefore(identifier, time);
+    return Point();//this->pointBefore(identifier, time);
   }
+  
 }
+
 
 
 Point BufferPointRecord::pointBefore(const string& identifier, time_t time) {
@@ -210,7 +206,7 @@ std::vector<Point> BufferPointRecord::pointsInRange(const string& identifier, ti
     mutex->lock();
     
     PointBuffer_t::const_iterator it = lower_bound(buffer.begin(), buffer.end(), finder, compareTimePointPair);
-    while ( (it != buffer.end()) && (it->first < endTime) ) {
+    while ( (it != buffer.end()) && (it->first <= endTime) ) {
       Point newPoint = makePoint(it);
       pointVector.push_back(newPoint);
       it++;
@@ -226,12 +222,17 @@ std::vector<Point> BufferPointRecord::pointsInRange(const string& identifier, ti
 
 void BufferPointRecord::addPoint(const string& identifier, Point point) {
   
-  if (BufferPointRecord::isPointAvailable(identifier, point.time())) {
+  //if (BufferPointRecord::isPointAvailable(identifier, point.time)) {
     //cout << "skipping duplicate point" << endl;
-    return;
-  }
+   // return;
+  //}
   
+  /*
+  vector<Point> single;
+  single.push_back(point);
+  BufferPointRecord::addPoints(identifier, single);
   
+  */
   /*
    bool unordered = false;
    // test for continuity
@@ -283,9 +284,9 @@ void BufferPointRecord::addPoint(const string& identifier, Point point) {
   time_t time;
   bool skipped = true;
   
-  time = point.time();
-  value = point.value();
-  confidence = point.confidence();
+  time = point.time;
+  value = point.value;
+  confidence = point.confidence;
   
   PointPair_t newPoint(value, confidence);
   KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
@@ -297,13 +298,16 @@ void BufferPointRecord::addPoint(const string& identifier, Point point) {
     mutex->lock();
     
     if (buffer.size() == buffer.capacity()) {
-      cout << "buffer full" << endl;
+      //cout << "buffer full" << endl;
     }
     
     
-    time_t firstTime = BufferPointRecord::firstPoint(identifier).time();
-    time_t lastTime = BufferPointRecord::lastPoint(identifier).time();
-    
+    time_t firstTime = BufferPointRecord::firstPoint(identifier).time;
+    time_t lastTime = BufferPointRecord::lastPoint(identifier).time;
+    if (time == lastTime || time == firstTime) {
+      // skip it
+      skipped = false;
+    }
     if (time > lastTime) {
       // end of the buffer
       buffer.push_back(TimePointPair_t(time,newPoint));
@@ -317,9 +321,15 @@ void BufferPointRecord::addPoint(const string& identifier, Point point) {
     
     if (skipped) {
       //cout << "point skipped: " << identifier;
-      buffer.push_front(TimePointPair_t(time,newPoint));
-      // make sure the points are in order.
-      sort(buffer.begin(), buffer.end(), compareTimePointPair);
+      TimePointPair_t finder(time, PointPair_t(0,0));
+      PointBuffer_t::const_iterator it = lower_bound(buffer.begin(), buffer.end(), finder, compareTimePointPair);
+      if (it->first != time) {
+        // if the time is not found here, then it's a new point.
+        buffer.push_front(TimePointPair_t(time,newPoint));
+        // make sure the points are in order.
+        sort(buffer.begin(), buffer.end(), compareTimePointPair);
+      }
+      
     }
     
     
@@ -335,6 +345,8 @@ void BufferPointRecord::addPoint(const string& identifier, Point point) {
     //cout << "(" << isPointAvailable(identifier, time) << ")" << endl;
   }
   
+  
+  
 }
 
 
@@ -348,52 +360,65 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
     PointBuffer_t& buffer = (it->second.first);
     size_t capacity = buffer.capacity();
     if (capacity < points.size()) {
-      cout << "enlarging capacity" << endl;
+      // plenty of room
       buffer.set_capacity(points.size() + capacity);
     }
     
     // figure out the insert order...
     // if the set we're inserting has to be prepended to the buffer...
     
-    Point firstCachePoint = BufferPointRecord::firstPoint(identifier);
-    Point lastCachePoint = BufferPointRecord::lastPoint(identifier);
+    time_t insertFirst = points.front().time;
+    time_t insertLast = points.back().time;
     
-    time_t firstTime = firstCachePoint.time();
-    time_t lastTime = lastCachePoint.time();
-    
-    time_t insertFirst = points.front().time();
-    time_t insertLast = points.back().time();
+    PointRecord::time_pair_t range = BufferPointRecord::range(identifier);
     
     // make sure they're in order
     std::sort(points.begin(), points.end(), &Point::comparePointTime);
     
-    if (insertLast > lastTime) {
+   
+    bool gap = true;
+    
+    if (insertFirst < range.second && range.second < insertLast) {
       // insert onto end.
-      Point finder(lastTime, 0);
+      gap = false;
+      Point finder(range.second, 0);
       vector<Point>::const_iterator pIt = upper_bound(points.begin(), points.end(), finder, &Point::comparePointTime);
       while (pIt != points.end()) {
         // skip points that fall before the end of the buffer.
         
-        if (pIt->time() > lastTime) {
+        if (pIt->time > range.second) {
           BufferPointRecord::addPoint(identifier, *pIt);
         }
-        
         ++pIt;
       }
     }
-    if (insertFirst < firstTime) {
+    if (insertFirst < range.first && range.first < insertLast) {
       // insert onto front (reverse iteration)
+      gap = false;
       vector<Point>::const_reverse_iterator pIt = points.rbegin();
       while (pIt != points.rend()) {
         
         // skip overlapping points.
-        // insert only the correct points.
-        if (pIt->time() < firstTime) {
+        if (pIt->time < range.first) {
           BufferPointRecord::addPoint(identifier, *pIt);
         }
         // else { /* skip */ }
         
         ++pIt;
+      }
+    }
+    if (range.first <= insertFirst && insertLast <= range.second) {
+      // complete overlap -- why did we even try to add these?
+      gap = false;
+    }
+    
+    if (gap) {
+      // clear the buffer first.
+      buffer.clear();
+      
+      // add new points.
+      BOOST_FOREACH(Point p, points) {
+        BufferPointRecord::addPoint(identifier, p);
       }
     }
     
@@ -453,4 +478,8 @@ Point BufferPointRecord::lastPoint(const string& id) {
     
   }
   return foundPoint;
+}
+
+PointRecord::time_pair_t BufferPointRecord::range(const string& id) {
+  return make_pair(BufferPointRecord::firstPoint(id).time, BufferPointRecord::lastPoint(id).time);
 }

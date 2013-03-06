@@ -10,14 +10,12 @@
 
 #include "PointRecord.h"
 #include <boost/foreach.hpp>
-#include <boost/range/adaptors.hpp>
 
 using namespace RTX;
 using namespace std;
 
 
 PointRecord::PointRecord() {
-  _connectionString = "";
 }
 
 std::ostream& RTX::operator<< (std::ostream &out, PointRecord &pr) {
@@ -25,15 +23,8 @@ std::ostream& RTX::operator<< (std::ostream &out, PointRecord &pr) {
 }
 
 std::ostream& PointRecord::toStream(std::ostream &stream) {
-  stream << "Point Record - connection: " << this->connectionString() << std::endl;
+  stream << "Point Record" << std::endl;
   return stream;
-}
-
-void PointRecord::setConnectionString(const std::string& connection) {
-  _connectionString = connection;
-}
-const std::string& PointRecord::connectionString() {
-  return _connectionString;
 }
 
 
@@ -49,12 +40,12 @@ std::vector<std::string> PointRecord::identifiers() {
   return names;
 }
 
-
+/*
 bool PointRecord::isPointAvailable(const string& identifier, time_t time) {
   
   return false;
 }
-
+*/
 
 Point PointRecord::point(const string& identifier, time_t time) {
   return Point();
@@ -85,7 +76,7 @@ Point PointRecord::lastPoint(const string &id) {
 }
 
 PointRecord::time_pair_t PointRecord::range(const string& id) {
-  return make_pair(this->firstPoint(id).time(), this->lastPoint(id).time());
+  return make_pair(this->firstPoint(id).time, this->lastPoint(id).time);
 }
 
 

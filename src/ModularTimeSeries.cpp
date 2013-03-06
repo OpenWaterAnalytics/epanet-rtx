@@ -64,7 +64,7 @@ void ModularTimeSeries::setUnits(Units newUnits) {
     cerr << "could not set units for time series " << name() << endl;
   }
 }
-
+/*
 bool ModularTimeSeries::isPointAvailable(time_t time) {
   bool isCacheAvailable = false, isSourceAvailable = false;
   
@@ -81,7 +81,7 @@ bool ModularTimeSeries::isPointAvailable(time_t time) {
     return false;
   }
 }
-
+*/
 Point ModularTimeSeries::point(time_t time) {
   // check the base-class availability. if it's cached or stored here locally, then send it on.
   // otherwise, check the upstream availability. if it's there, store it locally and pass it on.
@@ -97,14 +97,15 @@ Point ModularTimeSeries::point(time_t time) {
     time = newTime;
   }
   
-  if (TimeSeries::isPointAvailable(time)) {
-    return TimeSeries::point(time);
+  Point p = TimeSeries::point(time);
+  if (p.isValid) {
+    return p;
   }
   else {
     
     Point sourcePoint = source()->point(time);
 
-    if (sourcePoint.isValid()) {
+    if (sourcePoint.isValid) {
       // create a new point object and convert from source units
       Point aPoint = Point::convertPoint(sourcePoint, source()->units(), units());
       insert(aPoint);

@@ -1,5 +1,5 @@
 //
-//  reservoir.h
+//  Reservoir.h
 //  epanet-rtx
 //
 //  Created by the EPANET-RTX Development Team

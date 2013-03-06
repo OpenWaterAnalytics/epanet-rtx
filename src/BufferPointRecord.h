@@ -38,7 +38,7 @@ namespace RTX {
     virtual std::string registerAndGetIdentifier(std::string recordName);    // registering record names.
     virtual std::vector<std::string> identifiers();
     
-    virtual bool isPointAvailable(const string& identifier, time_t time);
+    //virtual bool isPointAvailable(const string& identifier, time_t time);
     virtual Point point(const string& identifier, time_t time);
     virtual Point pointBefore(const string& identifier, time_t time);
     virtual Point pointAfter(const string& identifier, time_t time);
@@ -49,6 +49,7 @@ namespace RTX {
     virtual void reset(const string& identifier);
     virtual Point firstPoint(const string& id);
     virtual Point lastPoint(const string& id);
+    virtual time_pair_t range(const string& id);
     
     virtual std::ostream& toStream(std::ostream &stream);
     
@@ -62,8 +63,6 @@ namespace RTX {
     size_t _defaultCapacity;
     
   protected:
-    std::string _cachedPointId;
-    Point _cachedPoint;
     
   private:
     std::map<std::string, BufferMutexPair_t > _keyedBufferMutex;

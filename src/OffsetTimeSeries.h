@@ -19,9 +19,11 @@ namespace RTX {
     RTX_SHARED_POINTER(OffsetTimeSeries);
     OffsetTimeSeries();
     virtual Point point(time_t time);
+    virtual std::vector<Point> points(time_t start, time_t end);
     void setOffset(double offset);
     double offset();
   private:
+    Point convertWithOffset(Point p, Units sourceU);
     double _offset;
   
   };

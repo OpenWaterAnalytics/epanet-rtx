@@ -92,7 +92,7 @@ namespace RTX {
     void createSimulationDefaults(Setting& setting);
     
     PointRecord::sharedPointer createPointRecordOfType(Setting& setting);
-    PointRecord::sharedPointer createScadaPointRecord(Setting& setting);
+    PointRecord::sharedPointer createOdbcPointRecord(Setting& setting);
     PointRecord::sharedPointer createMySqlPointRecord(Setting& setting);
     Clock::sharedPointer createRegularClock(Setting& setting);
     TimeSeries::sharedPointer createTimeSeriesOfType(Setting& setting);

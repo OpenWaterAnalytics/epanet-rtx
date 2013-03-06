@@ -51,7 +51,7 @@ namespace RTX {
     bool doesHaveSource();
     
     // overridden methods from parent class
-    virtual bool isPointAvailable(time_t time);
+    //virtual bool isPointAvailable(time_t time);
     virtual Point point(time_t time);
     virtual Point pointBefore(time_t time);
     virtual Point pointAfter(time_t time);

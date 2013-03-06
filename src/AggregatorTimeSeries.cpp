@@ -61,7 +61,7 @@ Point AggregatorTimeSeries::point(time_t time) {
   Point aPoint = TimeSeries::point(time);
 
   // if not, we construct it.
-  if (!aPoint.isValid() || aPoint.quality() == Point::missing) {
+  if (!aPoint.isValid || aPoint.quality == Point::missing) {
     aPoint = Point(time, 0, Point::good);
     // start at zero, and sum other TS's values.
     std::vector< std::pair<TimeSeries::sharedPointer,double> >::iterator it;

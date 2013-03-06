@@ -50,9 +50,9 @@ void Junction::setBaseDemand(double demand) {
 }
 
 void Junction::setRecord(PointRecord::sharedPointer record) {
-  _headState->newCacheWithPointRecord(record);
-  _qualityState->newCacheWithPointRecord(record);
-  _demandState->newCacheWithPointRecord(record);
+  _headState->setRecord(record);
+  _qualityState->setRecord(record);
+  _demandState->setRecord(record);
 }
 
 // states - these recieve simulation results from the Model containing class
