@@ -88,7 +88,15 @@ namespace RTX {
     virtual void removeRecord(const std::string& id)=0;
     virtual void truncate()=0;
     
-    PointRecord::time_pair_t reqRange;
+    class request_t {
+    public:
+      PointRecord::time_pair_t range;
+      std::string id;
+      request_t(std::string id, time_t start, time_t end);
+      bool contains(std::string id, time_t t);
+    };
+    request_t request;
+    
     
   private:
     std::string _connectionString;

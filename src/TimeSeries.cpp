@@ -96,7 +96,7 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
     }
     Point aNewPoint;
     if ( !points.empty() && points.back().time == time) {
-      std::cerr << "duplicate time detected" << std::endl;
+      //std::cerr << "duplicate time detected" << std::endl;
       continue;
     }
     aNewPoint = point(time);

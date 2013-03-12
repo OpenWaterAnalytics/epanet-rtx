@@ -35,14 +35,17 @@ Point Point::operator+(const Point& point) const {
   return result;
 }
 
-Point Point::operator+=(const Point& point) {
+Point& Point::operator+=(const Point& point) {
   if (point.time != this->time) {
     std::cerr << "point times do not match: " << (point.time - this->time) << "s gap." << std::endl;
   }
   double value = this->value + point.value;
   double confidence = (this->confidence + point.confidence) / 2.;
   
-  return Point(this->time, value, Point::good, confidence);
+  this->value = value;
+  this->confidence = confidence;
+  
+  return *this;
 }
 
 Point Point::operator*(const double factor) const {

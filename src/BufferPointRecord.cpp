@@ -111,7 +111,7 @@ Point BufferPointRecord::point(const string& identifier, time_t time) {
     }
     else {
       //cerr << "whoops, not found" << endl;
-      
+      // try brute-force (debug)
       PointBuffer_t::const_iterator pbIt = buffer.begin();
       while (pbIt != buffer.end()) {
         time_t foundTime = pbIt->time;
@@ -158,6 +158,8 @@ Point BufferPointRecord::pointBefore(const string& identifier, time_t time) {
     if (it != buffer.end() && it != buffer.begin()) {
       if (--it != buffer.end()) {
         foundPoint = *it;
+        _cachedPoint = foundPoint;
+        _cachedPointId = identifier;
       }
     }
     
@@ -186,6 +188,8 @@ Point BufferPointRecord::pointAfter(const string& identifier, time_t time) {
     PointBuffer_t::const_iterator it = upper_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
     if (it != buffer.end()) {
       foundPoint = *it;
+      _cachedPoint = foundPoint;
+      _cachedPointId = identifier;
     }
     
     // all done.

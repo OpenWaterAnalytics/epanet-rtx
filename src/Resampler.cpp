@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include "Resampler.h"
+#include <boost/foreach.hpp>
 
 using namespace RTX;
 using namespace std;
@@ -56,8 +57,7 @@ Point Resampler::point(time_t time) {
         return interpolatedPoint;
       }
       
-      Point interp = interpolated(p0, p1, time);
-      interpolatedPoint = Point::convertPoint( interp, source()->units(), units() );
+      interpolatedPoint = interpolated(p0, p1, time, source()->units());
     }
     
     insert(interpolatedPoint);
@@ -67,7 +67,6 @@ Point Resampler::point(time_t time) {
 
 vector<Point> Resampler::points(time_t start, time_t end) {
   Units sourceU = source()->units();
-  Units myU = units();
   
   // make sure the times are aligned with the clock.
   time_t newStart = (clock()->isValid(start)) ? start : clock()->timeAfter(start);
@@ -80,14 +79,30 @@ vector<Point> Resampler::points(time_t start, time_t end) {
     time_t now = newStart;
     time_t period = this->period();
     vector<Point> rpVec = record()->pointsInRange(name(), newStart, newEnd);
+    if (rpVec.size() == 0) {
+      // fully internal
+      // like this:
+      // ppppp---[--- req ---]---ppppp
+      
+      rpVec.push_back(record()->pointBefore(name(), newStart));
+      rpVec.push_back(record()->pointAfter(name(), newEnd));
+      
+    }
+    
+    
     vector<Point> stitchedPoints;
     vector<Point>::const_iterator it = rpVec.begin();
     while (it != rpVec.end()) {
-      
       Point recordPoint = *it;
+      // cout << "P: " << recordPoint << endl;
+      
       if (recordPoint.time == now) {
         stitchedPoints.push_back(recordPoint);
         now += period;
+      }
+      else if (recordPoint.time < now) {
+        ++it;
+        continue;
       }
       else {
         // aha, a gap.
@@ -97,27 +112,23 @@ vector<Point> Resampler::points(time_t start, time_t end) {
         gapStart = now;
         gapEnd = recordPoint.time;
         
-        if (gapEnd - gapStart < period) {
-          cerr << "gap is crazy" << endl;
-          ++it;
-          continue;
+        
+        time_t gapSourceStart = source()->pointBefore(gapStart).time;
+        time_t gapSourceEnd = source()->pointAfter(gapEnd).time;
+        
+        vector<Point> gapSourcePoints = source()->points(gapSourceStart, gapSourceEnd);
+        vector<Point> gapPoints = interpolatedGivenSourcePoints(gapStart, gapEnd, gapSourcePoints);
+        if (gapPoints.size() > 0) {
+          this->insertPoints(gapPoints);
+          now = gapPoints.back().time;
+          BOOST_FOREACH(Point p, gapPoints) {
+            stitchedPoints.push_back(p);
+          }
         }
-        
-        // todo -- do something more fancy with this. for now it just calls the source method to pre-fetch the points into the source's cache.
-        // this speeds up the brute-force point pecking just below.
-        vector<Point> gapPoints = source()->points(gapStart, gapEnd);
-        
-        while (now < gapEnd) {
-          // stitch in some new points
-          //cout << "stitching" << endl;
-          Point stitchPoint = Resampler::point(now);
-          if (stitchPoint.isValid) {
-            stitchedPoints.push_back(stitchPoint);
-          }
-          else {
-            cerr << "invalid interstitial point" << endl;
-          }
-          now += period;
+        else {
+          // skipping the gap.
+          now = recordPoint.time;
+          continue; // skip the ++it
         }
         
       }
@@ -147,49 +158,8 @@ vector<Point> Resampler::points(time_t start, time_t end) {
   
   // create a place for the new points
   std::vector<Point> resampled;
-  {
-    std::vector<Point>::size_type s = (newEnd - newStart) / period();
-    resampled.reserve(s);
-  }
   
-  
-  // scrub through the source Points and interpolate as we go.
-  time_t now = newStart;
-  vector<Point>::const_iterator sourceIt = sourcePoints.begin();
-  Point left, right;
-  left = *sourceIt;
-  ++sourceIt;
-  right = *sourceIt;
-  
-  // fast forward now to meet our first available source point.
-  while (left.time > now) {
-    now = clock()->timeAfter(now);
-  }
-  
-  while (sourceIt != sourcePoints.end() && now <= newEnd) {
-    
-    while (right.time < now) {
-      // increment our source point iterator
-      // if we've gone past our neighbor points.
-      left = right;
-      ++sourceIt;
-      if (sourceIt == sourcePoints.end()) {
-        break;
-      }
-      right = *sourceIt;
-    }
-    if (right.time == left.time) {
-      break;
-    }
-    // we have two neighboring points. let's interpolate.
-    Point iS = interpolated(left, right, now); // source units
-    Point iP = Point::convertPoint(iS, sourceU, myU); // my units
-    resampled.push_back(iP);
-    
-    // and it is not now anymore
-    now = clock()->timeAfter(now);
-  
-  }
+  resampled = interpolatedGivenSourcePoints(newStart, newEnd, sourcePoints);
   
   // finally, add the points to myself.
   this->insertPoints(resampled);
@@ -205,7 +175,88 @@ bool Resampler::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
   return (units().isDimensionless() || units().isSameDimensionAs(withTimeSeries->units()));
 }
 
-Point Resampler::interpolated(Point p1, Point p2, time_t t) {
+
+
+vector<Point> Resampler::interpolatedGivenSourcePoints(time_t fromTime, time_t toTime, std::vector<Point> sourcePoints) {
+  std::vector<Point> resampled;
+  Units sourceU = source()->units();
+  
+  // check the source points
+  if (sourcePoints.size() < 2) {
+    return resampled;
+  }
+    
+  // also check that there is some data in between the requested bounds
+  if ( sourcePoints.back().time < fromTime || toTime < sourcePoints.front().time ) {
+    return resampled;
+  }
+  
+  if ( fromTime < sourcePoints.front().time || sourcePoints.back().time < toTime) {
+    // source data doesn't cover my whole range...
+    cerr << "source data does not cover requested range" << endl;
+  }
+  
+  // reserve for the new points
+  {
+    std::vector<Point>::size_type s = (toTime - fromTime) / period() + 1;
+    resampled.reserve(s);
+  }
+  
+  
+  // scrub through the source Points and interpolate as we go.
+  time_t now = fromTime;
+  vector<Point>::const_iterator sourceIt = sourcePoints.begin();
+    
+  Point sourceLeft, sourceRight;
+  sourceLeft = *sourceIt;
+  ++sourceIt;
+  sourceRight = *sourceIt;
+  
+  // fast forward now to meet our first available source point.
+  while (sourceLeft.time > now && now <= toTime) {
+    // warning!
+    now = clock()->timeAfter(now);
+  }
+  
+  // start at the beginning, don't go past the end
+  while (now <= toTime && sourceIt != sourcePoints.end()) {
+    
+    // are we in the right position?
+    if (sourceLeft.time <= now && now <= sourceRight.time ) {
+      // ok, interpolate.
+      Point interp = interpolated(sourceLeft, sourceRight, now, sourceU);
+      if (interp.isValid) {
+        resampled.push_back(interp);
+      }
+      now = clock()->timeAfter(now);
+      continue;
+    }
+    
+    // if we weren't in the right position, let's try to get there.
+    else if ( now < sourceLeft.time ) {
+      // this shouldn't happen
+      cerr << "what did you do??" << endl;
+    }
+    
+    else if ( sourceRight.time < now ) {
+      sourceLeft = sourceRight;
+      ++sourceIt;
+      if (sourceIt == sourcePoints.end()) {
+        cerr << "ending resample before the requested bound" << endl;
+        break;
+      }
+      sourceRight = *sourceIt;
+    }
+    
+  }
+  
+  
+  return resampled;
+  
+}
+
+
+Point Resampler::interpolated(Point p1, Point p2, time_t t, Units fromUnits) {
   
   if (p1.time == t) {
     return p1;

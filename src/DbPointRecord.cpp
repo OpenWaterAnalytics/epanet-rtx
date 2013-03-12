@@ -11,7 +11,21 @@
 using namespace RTX;
 using namespace std;
 
-DbPointRecord::DbPointRecord() {
+
+DbPointRecord::request_t::request_t(string id, time_t start, time_t end) : id(id), range(make_pair(start, end)) {
+  
+}
+
+bool DbPointRecord::request_t::contains(std::string id, time_t t) {
+  if (this->range.first <= t && t <= this->range.second && RTX_STRINGS_ARE_EQUAL(id, this->id)) {
+    return true;
+  }
+  return false;
+}
+
+
+
+DbPointRecord::DbPointRecord() : request("",0,0) {
   
 }
 
@@ -45,8 +59,22 @@ Point DbPointRecord::point(const string& id, time_t time) {
   Point p = DB_PR_SUPER::point(id, time);
   
   if (!p.isValid) {
+    
+    // see if we just asked the db for something in this range.
+    // if so, and Super couldn't find it, then it's just not here.
+    // todo -- check staleness
+    
+    if (request.contains(id, time)) {
+      return Point();
+    }
+    
     time_t margin = 60*60*12;
-    vector<Point> pVec = this->selectRange(id, time - margin, time + margin);
+    time_t start = time - margin, end = time + margin;
+    
+    // do the request, and cache the request parameters.
+    request = request_t(id, start, end);
+    vector<Point> pVec = this->selectRange(id, start, end);
+    
     vector<Point>::const_iterator pIt = pVec.begin();
     while (pIt != pVec.end()) {
       if (pIt->time == time) {
@@ -72,11 +100,18 @@ Point DbPointRecord::pointBefore(const string& id, time_t time) {
   Point p = DB_PR_SUPER::pointBefore(id, time);
   
   if (!p.isValid) {
+    if (request.contains(id, time)) {
+      return Point();
+    }
     PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
+    request = request_t(id, time, time);
     p = this->selectPrevious(id, time);
     if (range.first <= time && time <= range.second) {
       // then we know this is continuous. add the point.
       DB_PR_SUPER::addPoint(id, p);
+    }
+    else {
+      request = request_t("",0,0);
     }
   }
   
@@ -89,11 +124,18 @@ Point DbPointRecord::pointAfter(const string& id, time_t time) {
   Point p = DB_PR_SUPER::pointAfter(id, time);
   
   if (!p.isValid) {
+    if (request.contains(id, time)) {
+      return Point();
+    }
     PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
+    request = request_t(id, time, time);
     p = this->selectNext(id, time);
     if (range.first <= time && time <= range.second) {
       // then we know this is continuous. add the point.
       DB_PR_SUPER::addPoint(id, p);
+    }
+    else {
+      request = request_t("",0,0);
     }
   }
   
@@ -130,8 +172,6 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, time_t startTi
     }
     // db hit
     vector<Point> newPoints = this->selectRange(id, qstart, qend);
-    
-    
     
     vector<Point> merged;
     merged.reserve(newPoints.size() + left.size() + right.size());

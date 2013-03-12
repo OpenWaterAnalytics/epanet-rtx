@@ -27,7 +27,8 @@ namespace RTX {
     virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
     
   private:
-    Point interpolated(Point p1, Point p2, time_t t);
+    std::vector<Point> interpolatedGivenSourcePoints(time_t fromTime, time_t toTime, std::vector<Point> sourcePoints);
+    Point interpolated(Point p1, Point p2, time_t t, Units fromUnits);
   };
   
 }

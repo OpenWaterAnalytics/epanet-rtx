@@ -38,7 +38,7 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> OdbcPointRe
   odbc_query_t wwQueries;
   wwQueries.connectorName = "wonderware_mssql";
   wwQueries.singleSelect = "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# = ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
-  wwQueries.rangeSelect =  "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# > ?) AND (#DATECOL# <= ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC' ORDER BY #DATECOL# asc";
+  wwQueries.rangeSelect =  "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# >= ?) AND (#DATECOL# <= ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC' ORDER BY #DATECOL# asc";
   wwQueries.lowerBound = "";
   wwQueries.upperBound = "";
   wwQueries.timeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
@@ -358,6 +358,15 @@ std::vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHST
   std::vector< Point > points;
   points.clear();
   
+  
+  if (startTime == 0 || endTime == 0) {
+    // something smells
+    return points;
+  }
+  
+  // make sure the request paramter cache is current. (super uses this)
+  request = request_t(id,startTime, endTime);
+  
   // set up query-bound variables
   _query.start = sqlTime(startTime);
   _query.end = sqlTime(endTime);
@@ -380,7 +389,7 @@ std::vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHST
       }
       else {
         // nothing
-        cout << "skipped invalid point. quality = " << _tempRecord.quality << endl;
+        //cout << "skipped invalid point. quality = " << _tempRecord.quality << endl;
       }
       
     }

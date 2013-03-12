@@ -32,7 +32,7 @@ namespace RTX {
     // dtor
     ~Point();
     Point operator+(const Point& point) const;
-    Point operator+=(const Point& point);
+    Point& operator+=(const Point& point);
     Point operator*(const double factor) const;
     Point operator/(const double factor) const;
     virtual std::ostream& toStream(std::ostream& stream);
