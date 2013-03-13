@@ -247,8 +247,11 @@ PointRecord::sharedPointer ConfigFactory::createOdbcPointRecord(libconfig::Setti
     string type = setting["connectorType"];
     OdbcPointRecord::Sql_Connector_t connT = OdbcPointRecord::typeForName(type);
     if (connT != OdbcPointRecord::NO_CONNECTOR) {
-      cout << "connector type " << type << " recognized" << endl;
+      //cout << "connector type " << type << " recognized" << endl;
       r->setConnectorType(connT);
+    }
+    else {
+      cerr << "connector type " << type << " not set" << endl;
     }
   }
   

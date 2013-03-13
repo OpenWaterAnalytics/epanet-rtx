@@ -308,6 +308,10 @@ Point OdbcPointRecord::selectPrevious(const std::string& id, time_t time) {
     lookbehind -= margin;
     points = pointsWithStatement(id, _rangeStatement, lookbehind-margin, lookbehind);
   }
+  // sanity
+  while (!points.empty() && points.back().time > time) {
+    points.pop_back();
+  }
   
   if (points.size() > 0) {
     p = points.back();
@@ -431,13 +435,14 @@ SQL_TIMESTAMP_STRUCT OdbcPointRecord::sqlTime(time_t unixTime) {
   else if (timeFormat() == LOCAL) {
     pTMstruct = localtime(&unixTime);
   }
-  
+  /*
 	if (pTMstruct->tm_isdst == 1) {
     pTMstruct->tm_hour -= 1;
   }
-  
+  */
   // fix any negative hour field
-  mktime(pTMstruct);
+  // not needed.
+  //mktime(pTMstruct);
 	
 	sqlTimestamp.year = pTMstruct->tm_year + 1900;
 	sqlTimestamp.month = pTMstruct->tm_mon + 1;
@@ -468,18 +473,20 @@ time_t OdbcPointRecord::unixTime(SQL_TIMESTAMP_STRUCT sqlTime) {
   tmTimestamp.tm_sec = sqlTime.second;
   
   
-  //myUnixTime = mktime(&tmTimestamp);
-
-  
-  
+  myUnixTime = mktime(&tmTimestamp);
+  // mktime sets to local time zone, but the passed-in structure should be UTC
+  if (timeFormat() == UTC) {
+    myUnixTime += pTimestamp->tm_gmtoff;
+  }
+  if (tmTimestamp.tm_isdst == 1) {
+    myUnixTime -= 3600;
+  }
   
   // todo -- we can speed up mktime, but this private method is borked so fix it.
-  myUnixTime = time_to_epoch(&tmTimestamp, 0);
+  //myUnixTime = time_to_epoch(&tmTimestamp, 0);
   
   
-  if (timeFormat() == LOCAL) {
-    myUnixTime -= pTimestamp->tm_gmtoff;
-  }
+  
   
   return myUnixTime;
 }

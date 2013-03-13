@@ -170,7 +170,7 @@ int main(int argc, const char * argv[])
     TimeSeries::sharedPointer dbSourceSeries(new TimeSeries());
     dbSourceSeries->setUnits(RTX_GALLON_PER_MINUTE);
     dbSourceSeries->setName("pretty moving average"); // the name associated with the time series that we persisted above.
-    dbSourceSeries->newCacheWithPointRecord(dbRecord); // hook it into the MysqlPointRecord that was created earlier.
+    dbSourceSeries->setRecord(dbRecord); // hook it into the MysqlPointRecord that was created earlier.
     cout << endl << "points retrieved from the db:" << endl;
     printPoints( dbSourceSeries->points(start, start+240) );
   }

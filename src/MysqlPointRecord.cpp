@@ -52,7 +52,9 @@ MysqlPointRecord::MysqlPointRecord() {
 }
 
 MysqlPointRecord::~MysqlPointRecord() {
-  
+  if (_driver) {
+    _driver->threadEnd();
+  }
 }
 
 #pragma mark - Public
@@ -66,24 +68,25 @@ void MysqlPointRecord::connect() throw(RtxException) {
     return;
   }
   
+  // de-tokenize
+  
   std::map<std::string, std::string> kvPairs;
-  boost::regex kvReg("([^=]+)=([^;]+);?"); // key - value pair
-  boost::sregex_iterator it(tokenizedString.begin(), tokenizedString.end(), kvReg), end;
-  for ( ; it != end; ++it){
-    kvPairs[(*it)[1]] = (*it)[2];
-    //cout << "k: " << (*it)[1] << " // v: " << (*it)[2] << endl;
-  }
-  
-  // if any of the keys are missing, just return.
-  if (kvPairs.find("HOST") == kvPairs.end() ||
-      kvPairs.find("UID") == kvPairs.end() ||
-      kvPairs.find("PWD") == kvPairs.end() ||
-      kvPairs.find("DB") == kvPairs.end() )
   {
-    return;
-    // todo -- throw something?
+    boost::regex kvReg("([^=]+)=([^;]+);?"); // key - value pair
+    boost::sregex_iterator it(tokenizedString.begin(), tokenizedString.end(), kvReg), end;
+    for ( ; it != end; ++it) {
+      kvPairs[(*it)[1]] = (*it)[2];
+    }
+    
+    // if any of the keys are missing, just return.
+    if (kvPairs.find("HOST") == kvPairs.end() ||
+        kvPairs.find("UID") == kvPairs.end() ||
+        kvPairs.find("PWD") == kvPairs.end() ||
+        kvPairs.find("DB") == kvPairs.end() )
+    {
+      return;
+    }
   }
-  
   const std::string& host = kvPairs["HOST"];
   const std::string& user = kvPairs["UID"];
   const std::string& password = kvPairs["PWD"];
@@ -92,6 +95,7 @@ void MysqlPointRecord::connect() throw(RtxException) {
   bool databaseDoesExist = false;
   try {
     _driver = get_driver_instance();
+    _driver->threadInit();
     _connection.reset( _driver->connect(host, user, password) );
     _connection->setAutoCommit(false);
     
@@ -302,7 +306,11 @@ void MysqlPointRecord::insertSingle(const std::string& id, Point point) {
 void MysqlPointRecord::insertRange(const std::string& id, std::vector<Point> points) {
   
   // first get a list of times already stored here, so that we don't have any overlaps.
-  vector<Point> existing = this->selectRange(id, points.front().time, points.back().time);
+  vector<Point> existing;
+  if (points.size() > 1) {
+    existing = this->selectRange(id, points.front().time, points.back().time);
+  }
+  
   vector<time_t> timeList;
   timeList.reserve(existing.size());
   BOOST_FOREACH(Point p, existing) {

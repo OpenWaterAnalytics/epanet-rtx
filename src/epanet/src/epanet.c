@@ -1601,6 +1601,7 @@ int  DLLEXPORT ENgetcurve(int curveIndex, int *nValues, double **xValues, double
  **           *yValues = values for y
  **  Returns: error code
  **  Purpose: retrieves end nodes of a specific link
+ **  WARNING: client is responsible for freeing xValues and yValues (leak potential)
  **----------------------------------------------------------------
  */
 {

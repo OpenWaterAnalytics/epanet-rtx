@@ -146,9 +146,12 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
             ENcheck(ENgetcurve(volumeCurveIndex, &nVals, &xVals, &yVals), "ENgetcurve");
             for (int iPoint = 0; iPoint < nVals; iPoint++) {
               volumeCurveTs->addCurveCoordinate(xVals[iPoint], yVals[iPoint]);
-              cout << "(" << xVals[iPoint] << "," << yVals[iPoint] << ")-";
+              //cout << "(" << xVals[iPoint] << "," << yVals[iPoint] << ")-";
             }
-            cout << endl;
+            // client must free x/y values
+            free(xVals);
+            free(yVals);
+            //cout << endl;
           }
           else {
             // it's a cylindrical tank
