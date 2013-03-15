@@ -26,7 +26,7 @@ bool DbPointRecord::request_t::contains(std::string id, time_t t) {
 
 
 DbPointRecord::DbPointRecord() : request("",0,0) {
-  
+  _searchDistance = 60*60*24*7; // 1-week
 }
 
 
@@ -37,6 +37,12 @@ const std::string& DbPointRecord::connectionString() {
   return _connectionString;
 }
 
+void DbPointRecord::setSearchDistance(time_t time) {
+  _searchDistance = time;
+}
+time_t DbPointRecord::searchDistance() {
+  return _searchDistance;
+}
 
 // trying to unify some of the cache-checking code so it's not spread out over the subclasses.
 // we only want to hit the db if we absolutely need to.

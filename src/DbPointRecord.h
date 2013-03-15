@@ -34,7 +34,6 @@ namespace RTX {
     
     
     // end of the road for these guys
-    //bool isPointAvailable(const string& id, time_t time);
     Point point(const string& id, time_t time);
     Point pointBefore(const string& id, time_t time);
     Point pointAfter(const string& id, time_t time);
@@ -57,6 +56,10 @@ namespace RTX {
     const std::string& connectionString();
     virtual void connect() throw(RtxException){};
     virtual bool isConnected(){return true;};
+    
+    // db searching prefs
+    void setSearchDistance(time_t time);
+    time_t searchDistance();
         
     
     //exceptions specific to this class family
@@ -100,6 +103,7 @@ namespace RTX {
     
   private:
     std::string _connectionString;
+    time_t _searchDistance;
     
     
   };

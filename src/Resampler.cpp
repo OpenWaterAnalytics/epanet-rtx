@@ -113,10 +113,10 @@ vector<Point> Resampler::points(time_t start, time_t end) {
         gapEnd = recordPoint.time;
         
         
-        time_t gapSourceStart = source()->pointBefore(gapStart).time;
-        time_t gapSourceEnd = source()->pointAfter(gapEnd).time;
+        Point gapSourceStart = source()->pointBefore(gapStart);
+        Point gapSourceEnd = source()->pointAfter(gapEnd);
         
-        vector<Point> gapSourcePoints = source()->points(gapSourceStart, gapSourceEnd);
+        vector<Point> gapSourcePoints = source()->points(gapSourceStart.time, gapSourceEnd.time);
         vector<Point> gapPoints = interpolatedGivenSourcePoints(gapStart, gapEnd, gapSourcePoints);
         if (gapPoints.size() > 0) {
           this->insertPoints(gapPoints);
@@ -141,16 +141,16 @@ vector<Point> Resampler::points(time_t start, time_t end) {
   
   // otherwise, construct new points.
   // get the times for the source query
-  time_t sourceStart, sourceEnd;
+  Point sourceStart, sourceEnd;
   {
-    time_t s = source()->pointBefore(newStart).time;
-    time_t e = source()->pointAfter(newEnd).time;
-    sourceStart = (s>0)? s : newStart;
-    sourceEnd = (e>0)? e : newEnd;
+    Point s = source()->pointBefore(newStart);
+    Point e = source()->pointAfter(newEnd);
+    sourceStart = (s.time>0)? s : Point(newStart,0); //newStart;
+    sourceEnd = (e.time>0)? e : Point(newEnd,0); //newEnd;
   }
    
   // get the source points
-  std::vector<Point> sourcePoints = source()->points(sourceStart, sourceEnd);
+  std::vector<Point> sourcePoints = source()->points(sourceStart.time, sourceEnd.time);
   if (sourcePoints.size() < 2) {
     vector<Point> empty;
     return empty;

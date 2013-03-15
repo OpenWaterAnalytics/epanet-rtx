@@ -11,6 +11,7 @@
 #include <boost/foreach.hpp>
 #include <boost/range/adaptors.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/date_time.hpp>
 
 using namespace RTX;
 using namespace std;
@@ -38,7 +39,8 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> OdbcPointRe
   odbc_query_t wwQueries;
   wwQueries.connectorName = "wonderware_mssql";
   wwQueries.singleSelect = "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# = ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
-  wwQueries.rangeSelect =  "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# >= ?) AND (#DATECOL# <= ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC' ORDER BY #DATECOL# asc";
+  //wwQueries.rangeSelect =  "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# >= ?) AND (#DATECOL# <= ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC' ORDER BY #DATECOL# asc"; // experimentally, ORDER BY is much slower. wonderware always returns rows ordered by DateTime ascending, so this is not really necessary.
+  wwQueries.rangeSelect =  "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# >= ?) AND (#DATECOL# <= ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
   wwQueries.lowerBound = "";
   wwQueries.upperBound = "";
   wwQueries.timeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
@@ -60,7 +62,7 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> OdbcPointRe
 }
 
 
-OdbcPointRecord::Sql_Connector_t OdbcPointRecord::typeForName(const std::string& connector) {
+OdbcPointRecord::Sql_Connector_t OdbcPointRecord::typeForName(const string& connector) {
   map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> list = queryTypes();
   
   BOOST_FOREACH(Sql_Connector_t connType, list | boost::adaptors::map_keys) {
@@ -76,7 +78,7 @@ OdbcPointRecord::Sql_Connector_t OdbcPointRecord::typeForName(const std::string&
 
 #pragma mark -
 
-void OdbcPointRecord::setTableColumnNames(const std::string& table, const std::string& dateCol, const std::string& tagCol, const std::string& valueCol, const std::string& qualityCol) {
+void OdbcPointRecord::setTableColumnNames(const string& table, const string& dateCol, const string& tagCol, const string& valueCol, const string& qualityCol) {
   
   _tableName = table;
   _dateCol = dateCol;
@@ -193,8 +195,8 @@ void OdbcPointRecord::connect() throw(RtxException) {
     // if we made it this far...
     _connectionOk = true;
     
-  } catch (std::string errorMessage) {
-    std::cerr << "Initialize failed: " << errorMessage << "\n";
+  } catch (string errorMessage) {
+    cerr << "Initialize failed: " << errorMessage << "\n";
     _connectionOk = false;
     //throw DbPointRecord::RtxDbConnectException();
   }
@@ -207,18 +209,18 @@ bool OdbcPointRecord::isConnected() {
   return _connectionOk;
 }
 
-std::string OdbcPointRecord::registerAndGetIdentifier(std::string recordName) {
+string OdbcPointRecord::registerAndGetIdentifier(string recordName) {
   return DB_PR_SUPER::registerAndGetIdentifier(recordName);
 }
 
-std::vector<std::string> OdbcPointRecord::identifiers() {
-  std::vector<std::string> ids;
+vector<string> OdbcPointRecord::identifiers() {
+  vector<string> ids;
   if (!isConnected()) {
     return ids;
   }
   
   // get tag names from db.
-  std::string tagQuery = "SELECT TagName FROM Tag ORDER BY TagName";
+  string tagQuery = "SELECT TagName FROM Tag ORDER BY TagName";
   SQLCHAR tagName[512];
   SQLHSTMT tagStmt;
   SQLRETURN retCode;
@@ -235,7 +237,7 @@ std::vector<std::string> OdbcPointRecord::identifiers() {
     }
     if (retCode == SQL_SUCCESS || retCode == SQL_SUCCESS_WITH_INFO){
       SQLGetData(tagStmt, 1, SQL_C_CHAR, tagName, 512, &tagLengthInd);
-      std::string newTag((char*)tagName);
+      string newTag((char*)tagName);
       ids.push_back(newTag);
     } else {
       break;
@@ -252,18 +254,18 @@ std::vector<std::string> OdbcPointRecord::identifiers() {
 
 // fetch means cache the results
 /*
-void OdbcPointRecord::fetchRange(const std::string& id, time_t startTime, time_t endTime) {
+void OdbcPointRecord::fetchRange(const string& id, time_t startTime, time_t endTime) {
   // just call super
   DbPointRecord::fetchRange(id, startTime, endTime);
 }
 
-void OdbcPointRecord::fetchNext(const std::string& id, time_t time) {
+void OdbcPointRecord::fetchNext(const string& id, time_t time) {
   time_t margin = 60*60*12;
   fetchRange(id, time-1, time+margin);
 }
 
 
-void OdbcPointRecord::fetchPrevious(const std::string& id, time_t time) {
+void OdbcPointRecord::fetchPrevious(const string& id, time_t time) {
   time_t margin = 60*60*12;
   fetchRange(id, time-margin, time+1);
 }
@@ -271,42 +273,50 @@ void OdbcPointRecord::fetchPrevious(const std::string& id, time_t time) {
 
 
 // select just returns the results (no caching)
-std::vector<Point> OdbcPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
+vector<Point> OdbcPointRecord::selectRange(const string& id, time_t startTime, time_t endTime) {
   return pointsWithStatement(id, _rangeStatement, startTime, endTime);
 }
 
 
-Point OdbcPointRecord::selectNext(const std::string& id, time_t time) {
+Point OdbcPointRecord::selectNext(const string& id, time_t time) {
   Point p;
   time_t margin = 60*60*12;
   vector<Point> points = pointsWithStatement(id, _rangeStatement, time-1, time + margin);
   
-  time_t max_margin = 60*60*24*3; // 3-day lookahead max
+  time_t max_margin = this->searchDistance();
   time_t lookahead = time;
   while (points.size() == 0 && lookahead < time + max_margin) {
-    cout << "scada lookahead" << endl;
+    //cout << "scada lookahead" << endl;
     lookahead += margin;
-    points = pointsWithStatement(id, _rangeStatement, lookahead, lookahead+margin);
+    points = pointsWithStatement(id, _rangeStatement, time-1, lookahead+margin);
   }
   
   if (points.size() > 0) {
     p = points.front();
+    int i = 0;
+    while (p.time <= time && i < points.size()) {
+      p = points.at(i);
+      ++i;
+    }
+  }
+  if (points.empty()) {
+    cerr << "no points found for " << id << " :: range " << time - 1 << " - " << lookahead + margin << endl;
   }
   return p;
 }
 
 
-Point OdbcPointRecord::selectPrevious(const std::string& id, time_t time) {
+Point OdbcPointRecord::selectPrevious(const string& id, time_t time) {
   Point p;
   time_t margin = 60*60*12;
   vector<Point> points = pointsWithStatement(id, _rangeStatement, time - margin, time+1);
   
-  time_t max_margin = 60*60*24*3; // 3-day lookbehind max
+  time_t max_margin = this->searchDistance();
   time_t lookbehind = time;
   while (points.size() == 0 && lookbehind > time - max_margin) {
-    cout << "scada lookbehind" << endl;
+    //cout << "scada lookbehind" << endl;
     lookbehind -= margin;
-    points = pointsWithStatement(id, _rangeStatement, lookbehind-margin, lookbehind);
+    points = pointsWithStatement(id, _rangeStatement, lookbehind-margin, time+1);
   }
   // sanity
   while (!points.empty() && points.back().time > time) {
@@ -316,23 +326,26 @@ Point OdbcPointRecord::selectPrevious(const std::string& id, time_t time) {
   if (points.size() > 0) {
     p = points.back();
   }
+  if (points.empty()) {
+    cerr << "no points found for " << id << " :: range " << lookbehind-margin << " - " << time+1 << endl;
+  }
   return p;
 }
 
 
 
 // insertions or alterations may choose to ignore / deny
-void OdbcPointRecord::insertSingle(const std::string& id, Point point) {
+void OdbcPointRecord::insertSingle(const string& id, Point point) {
   
 }
 
 
-void OdbcPointRecord::insertRange(const std::string& id, std::vector<Point> points) {
+void OdbcPointRecord::insertRange(const string& id, vector<Point> points) {
   
 }
 
 
-void OdbcPointRecord::removeRecord(const std::string& id) {
+void OdbcPointRecord::removeRecord(const string& id) {
   
 }
 
@@ -347,7 +360,7 @@ void OdbcPointRecord::truncate() {
 
 #pragma mark - Protected
 
-std::ostream& OdbcPointRecord::toStream(std::ostream &stream) {
+ostream& OdbcPointRecord::toStream(ostream &stream) {
   stream << "ODBC Scada Point Record" << endl;
   // todo - stream extra info
   return stream;
@@ -358,8 +371,8 @@ std::ostream& OdbcPointRecord::toStream(std::ostream &stream) {
 #pragma mark - Internal (private) methods
 
 
-std::vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT statement, time_t startTime, time_t endTime) {
-  std::vector< Point > points;
+vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT statement, time_t startTime, time_t endTime) {
+  vector< Point > points;
   points.clear();
   
   
@@ -372,16 +385,17 @@ std::vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHST
   request = request_t(id,startTime, endTime);
   
   // set up query-bound variables
-  _query.start = sqlTime(startTime);
-  _query.end = sqlTime(endTime);
+  _query.start = sqlTime(startTime-1);
+  _query.end = sqlTime(endTime+1); // add one second to get fractional times included
   strcpy(_query.tagName, id.c_str());
   
   try {
-    cout << "scada: " << id << " : " << startTime << " - " << endTime << endl;
+    //cout << "scada: " << id << " : " << startTime << " - " << endTime << endl;
     SQL_CHECK(SQLExecute(statement), "SQLExecute", statement, SQL_HANDLE_STMT);
     while (SQL_SUCCEEDED(SQLFetch(statement))) {
       Point p;
-      time_t t = unixTime(_tempRecord.time);
+      //time_t t = unixTime(_tempRecord.time);
+      time_t t = sql_to_tm(_tempRecord.time);
       double v = _tempRecord.value;
       int qu = _tempRecord.quality;
       Point::Qual_t q = Point::Qual_t::good; // todo -- map to rtx quality types
@@ -399,13 +413,16 @@ std::vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHST
     }
     SQL_CHECK(SQLFreeStmt(statement, SQL_CLOSE), "SQLCancel", statement, SQL_HANDLE_STMT);
   }
-  catch(std::string errorMessage) {
-    std::cerr << errorMessage;
-    std::cerr << "Could not get data from db connection\n";
+  catch(string errorMessage) {
+    cerr << errorMessage << endl;
+    cerr << "Could not get data from db connection\n";
+    cerr << "Attempting to reconnect..." << endl;
+    this->connect();
+    cerr << "Connection returned " << this->isConnected() << endl;
   }
   
   if (points.size() == 0) {
-    cerr << "no points found" << endl;
+    //cerr << "no points found" << endl;
   }
   
   return points;
@@ -491,6 +508,65 @@ time_t OdbcPointRecord::unixTime(SQL_TIMESTAMP_STRUCT sqlTime) {
   return myUnixTime;
 }
 
+time_t OdbcPointRecord::sql_to_tm( const SQL_TIMESTAMP_STRUCT& sqlTime ) {
+  
+  /*
+  const int mon_days [] =
+  {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  long tyears, tdays, leaps, utc_hrs, utc_mins, utc_secs;
+  int i;
+  
+  tyears = sqlTime.year - 1970; // = ltm->tm_year - 70; // tm->tm_year is from 1900.
+  leaps = (tyears + 2) / 4; // no of next two lines until year 2100.
+  //i = (ltm->tm_year – 100) / 100;
+  //leaps -= ( (i/4)*3 + i%4 );
+  tdays = 0;
+  for (i=0; i < sqlTime.month-1; i++) {
+    tdays += mon_days[i];
+  }
+  
+  tdays += sqlTime.day - 1; // days of month passed.
+  tdays = tdays + (tyears * 365) + leaps;
+  
+  utc_hrs = sqlTime.hour;
+  utc_mins = sqlTime.minute;
+  utc_secs = sqlTime.second;
+  time_t uTime = (tdays * 86400) + (utc_hrs * 3600) + (utc_mins * 60) + utc_secs;
+  */
+  
+  time_t uTime;
+  struct tm tmTime;
+  
+  tmTime.tm_year = sqlTime.year - 1900;
+  tmTime.tm_mon = sqlTime.month -1;
+  tmTime.tm_mday = sqlTime.day;
+  tmTime.tm_hour = sqlTime.hour;
+  tmTime.tm_min = sqlTime.minute;
+  tmTime.tm_sec = sqlTime.second;
+  
+  // Portability note: mktime is essentially universally available. timegm is rather rare. For the most portable conversion from a UTC broken-down time to a simple time, set the TZ environment variable to UTC, call mktime, then set TZ back.
+  
+  uTime = timegm(&tmTime);
+  /*
+  // back convert for a check
+  SQL_TIMESTAMP_STRUCT sqlTimeCheck = this->sqlTime(uTime);
+  if ( sqlTimeCheck.year == sqlTime.year &&
+       sqlTimeCheck.month == sqlTime.month &&
+       sqlTimeCheck.day == sqlTime.day &&
+       sqlTimeCheck.hour == sqlTime.hour &&
+       sqlTimeCheck.minute == sqlTime.minute &&
+       sqlTimeCheck.second == sqlTime.second) {
+    
+  }
+  else {
+    cerr << "time not formed correctly" << endl;
+  }
+   */
+  
+  return uTime;
+}
+
+
 time_t OdbcPointRecord::time_to_epoch ( const struct tm *ltm, int utcdiff ) {
   const int mon_days [] =
   {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -512,10 +588,10 @@ time_t OdbcPointRecord::time_to_epoch ( const struct tm *ltm, int utcdiff ) {
 }
 
 
-SQLRETURN OdbcPointRecord::SQL_CHECK(SQLRETURN retVal, std::string function, SQLHANDLE handle, SQLSMALLINT type) throw(std::string)
+SQLRETURN OdbcPointRecord::SQL_CHECK(SQLRETURN retVal, string function, SQLHANDLE handle, SQLSMALLINT type) throw(string)
 {
 	if(!SQL_SUCCEEDED(retVal)) {
-    std::string errorMessage;
+    string errorMessage;
 		errorMessage = extract_error(function, handle, type);
     throw errorMessage;
 	}
@@ -523,7 +599,7 @@ SQLRETURN OdbcPointRecord::SQL_CHECK(SQLRETURN retVal, std::string function, SQL
 }
 
 
-std::string OdbcPointRecord::extract_error(std::string function, SQLHANDLE handle, SQLSMALLINT type)
+string OdbcPointRecord::extract_error(string function, SQLHANDLE handle, SQLSMALLINT type)
 {
   SQLINTEGER	 i = 0;
   SQLINTEGER	 native;
@@ -531,7 +607,7 @@ std::string OdbcPointRecord::extract_error(std::string function, SQLHANDLE handl
   SQLCHAR	 text[256];
   SQLSMALLINT	 len;
   SQLRETURN	 ret;
-  std::string msg("");
+  string msg("");
   
   do
   {

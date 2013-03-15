@@ -57,9 +57,6 @@ void runSimulationUsingConfig(const string& filePath, time_t someTime, long dura
     cout << *model;
     
     PointRecord::sharedPointer record = config.defaultRecord();
-    
-    // erase all points in the db
-    record->reset();
   
     model->runExtendedPeriod(someTime, someTime + duration);
     
