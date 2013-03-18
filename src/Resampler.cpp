@@ -142,12 +142,11 @@ vector<Point> Resampler::points(time_t start, time_t end) {
   // otherwise, construct new points.
   // get the times for the source query
   Point sourceStart, sourceEnd;
-  {
-    Point s = source()->pointBefore(newStart);
-    Point e = source()->pointAfter(newEnd);
-    sourceStart = (s.time>0)? s : Point(newStart,0); //newStart;
-    sourceEnd = (e.time>0)? e : Point(newEnd,0); //newEnd;
-  }
+  Point s = source()->pointBefore(newStart);
+  Point e = source()->pointAfter(newEnd);
+  sourceStart = (s.time>0)? s : Point(newStart,0); //newStart;
+  sourceEnd = (e.time>0)? e : Point(newEnd,0); //newEnd;
+  
    
   // get the source points
   std::vector<Point> sourcePoints = source()->points(sourceStart.time, sourceEnd.time);

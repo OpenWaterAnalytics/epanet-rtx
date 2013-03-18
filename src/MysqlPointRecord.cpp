@@ -48,7 +48,6 @@ using namespace std;
 
 
 MysqlPointRecord::MysqlPointRecord() {
-  _connectionOk = false;
 }
 
 MysqlPointRecord::~MysqlPointRecord() {
@@ -60,7 +59,6 @@ MysqlPointRecord::~MysqlPointRecord() {
 #pragma mark - Public
 
 void MysqlPointRecord::connect() throw(RtxException) {
-  _connectionOk = false;
   
   // split the tokenized string. we're expecting something like "HOST=tcp://localhost;USER=db_user;PWD=db_pass;DB=rtx_db_name"
   std::string tokenizedString = this->connectionString();
@@ -155,7 +153,6 @@ void MysqlPointRecord::connect() throw(RtxException) {
     _lastSelect.reset( _connection->prepareStatement(lastSelectStr) );
     
     // if we made it this far...
-    _connectionOk = true;
     _name = database;
   }
   catch (sql::SQLException &e) {
@@ -164,7 +161,7 @@ void MysqlPointRecord::connect() throw(RtxException) {
 }
 
 bool MysqlPointRecord::isConnected() {
-  if (!_connection || !_connectionOk) {
+  if (!_connection || !checkConnection()) {
     return false;
   }
   boost::shared_ptr<sql::Statement> stmt;
@@ -269,18 +266,21 @@ std::vector<Point> MysqlPointRecord::selectRange(const std::string& id, time_t s
   //cout << "mysql range: " << start << " - " << end << endl;
   
   std::vector<Point> points;
-  _rangeSelect->setString(1, id);
-  _rangeSelect->setInt(2, (int)start);
-  _rangeSelect->setInt(3, (int)end);
-  boost::shared_ptr<sql::ResultSet> result( _rangeSelect->executeQuery() );
-  while (result->next()) {
-    time_t time = result->getInt("time");
-    double value = result->getDouble("value");
-    Point point(time, value);
-    points.push_back(point);
-  }
-  return points;
   
+  if (checkConnection()) {
+    _rangeSelect->setString(1, id);
+    _rangeSelect->setInt(2, (int)start);
+    _rangeSelect->setInt(3, (int)end);
+    boost::shared_ptr<sql::ResultSet> result( _rangeSelect->executeQuery() );
+    while (result->next()) {
+      time_t time = result->getInt("time");
+      double value = result->getDouble("value");
+      Point point(time, value);
+      points.push_back(point);
+    }
+  }
+  
+  return points;
 }
 
 
@@ -297,9 +297,10 @@ Point MysqlPointRecord::selectPrevious(const std::string& id, time_t time) {
 
 // insertions or alterations may choose to ignore / deny
 void MysqlPointRecord::insertSingle(const std::string& id, Point point) {
-  
-  insertSingleNoCommit(id, point);
-  _connection->commit();
+  if (checkConnection()) {
+    insertSingleNoCommit(id, point);
+    _connection->commit();
+  }
 }
 
 
@@ -307,8 +308,10 @@ void MysqlPointRecord::insertRange(const std::string& id, std::vector<Point> poi
   
   // first get a list of times already stored here, so that we don't have any overlaps.
   vector<Point> existing;
-  if (points.size() > 1) {
-    existing = this->selectRange(id, points.front().time, points.back().time);
+  if (checkConnection()) {
+    if (points.size() > 1) {
+      existing = this->selectRange(id, points.front().time, points.back().time);
+    }
   }
   
   vector<time_t> timeList;
@@ -320,18 +323,18 @@ void MysqlPointRecord::insertRange(const std::string& id, std::vector<Point> poi
   // premature optimization is the root of all evil
   bool existingRange = (timeList.size() > 0)? true : false;
   
-  BOOST_FOREACH(Point p, points) {
-  
-    if (existingRange && find(timeList.begin(), timeList.end(), p.time) != timeList.end()) {
-      // have it already
-      continue;
+  if (checkConnection()) {
+    BOOST_FOREACH(Point p, points) {
+      if (existingRange && find(timeList.begin(), timeList.end(), p.time) != timeList.end()) {
+        // have it already
+        continue;
+      }
+      else {
+        insertSingleNoCommit(id, p);
+      }
     }
-    else {
-      insertSingleNoCommit(id, p);
-    }
-    
+    _connection->commit();
   }
-  _connection->commit();
 }
 
 void MysqlPointRecord::insertSingleNoCommit(const std::string& id, Point point) {
@@ -348,14 +351,16 @@ void MysqlPointRecord::insertSingleNoCommit(const std::string& id, Point point) 
 
 void MysqlPointRecord::removeRecord(const string& id) {
   DB_PR_SUPER::reset(id);
-  string removePoints = "delete p, m from points p inner join timeseries_meta m on p.series_id=m.series_id where m.name = \"" + id + "\"";
-  boost::shared_ptr<sql::Statement> removePointsStmt;
-  try {
-    removePointsStmt.reset( _connection->createStatement() );
-    removePointsStmt->executeUpdate(removePoints);
-    _connection->commit();
-  } catch (sql::SQLException &e) {
-    handleException(e);
+  if (checkConnection()) {
+    string removePoints = "delete p, m from points p inner join timeseries_meta m on p.series_id=m.series_id where m.name = \"" + id + "\"";
+    boost::shared_ptr<sql::Statement> removePointsStmt;
+    try {
+      removePointsStmt.reset( _connection->createStatement() );
+      removePointsStmt->executeUpdate(removePoints);
+      _connection->commit();
+    } catch (sql::SQLException &e) {
+      handleException(e);
+    }
   }
 }
 
@@ -398,7 +403,18 @@ Point MysqlPointRecord::selectSingle(const string& id, time_t time, boost::share
   return point;
 }
 
-
+bool MysqlPointRecord::checkConnection() {
+  
+  if (!_connection) {
+    return false;
+  }
+  
+  if(_connection->isClosed()) {
+    cerr << "mysql connection was closed. attempting to reconnect." << endl;
+    this->connect();
+  }
+  return !(_connection->isClosed());
+}
 
 void MysqlPointRecord::handleException(sql::SQLException &e) {
   /*
@@ -421,7 +437,6 @@ void MysqlPointRecord::handleException(sql::SQLException &e) {
     cerr << "# ERR: Your server seems not to support PS at all because its MYSQL <4.1" << endl;
   }
   cerr << "not ok" << endl;
-  _connectionOk = false;
 }
 
 

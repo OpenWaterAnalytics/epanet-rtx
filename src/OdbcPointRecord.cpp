@@ -13,6 +13,9 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/date_time.hpp>
 
+#define RTX_OPC_GOOD 192
+
+
 using namespace RTX;
 using namespace std;
 
@@ -40,7 +43,7 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> OdbcPointRe
   wwQueries.connectorName = "wonderware_mssql";
   wwQueries.singleSelect = "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# = ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
   //wwQueries.rangeSelect =  "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# >= ?) AND (#DATECOL# <= ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC' ORDER BY #DATECOL# asc"; // experimentally, ORDER BY is much slower. wonderware always returns rows ordered by DateTime ascending, so this is not really necessary.
-  wwQueries.rangeSelect =  "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# >= ?) AND (#DATECOL# <= ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
+  wwQueries.rangeSelect =  "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# > ?) AND (#DATECOL# < ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
   wwQueries.lowerBound = "";
   wwQueries.upperBound = "";
   wwQueries.timeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
@@ -158,6 +161,11 @@ void OdbcPointRecord::connect() throw(RtxException) {
     SQL_CHECK(SQLAllocHandle(SQL_HANDLE_STMT, _SCADAdbc, &_lowerBoundStatement), "SQLAllocHandle", _lowerBoundStatement, SQL_HANDLE_STMT);
     SQL_CHECK(SQLAllocHandle(SQL_HANDLE_STMT, _SCADAdbc, &_upperBoundStatement), "SQLAllocHandle", _upperBoundStatement, SQL_HANDLE_STMT);
     SQL_CHECK(SQLAllocHandle(SQL_HANDLE_STMT, _SCADAdbc, &_SCADAtimestmt), "SQLAllocHandle", _SCADAtimestmt, SQL_HANDLE_STMT);
+    
+    // timeouts
+    SQLUINTEGER timeout = 30;
+    SQL_CHECK(SQLSetConnectAttr(_SCADAdbc, SQL_ATTR_CONNECTION_TIMEOUT, &timeout, 0), "SQLSetConnectAttr", _SCADAdbc, SQL_HANDLE_DBC);
+    SQL_CHECK(SQLSetStmtAttr(_rangeStatement, SQL_ATTR_QUERY_TIMEOUT, &timeout, 0), "SQLSetStmtAttr", _rangeStatement, SQL_HANDLE_STMT);
     
     // bindings for single point statement
     /* bind tempRecord members to SQL return columns */
@@ -400,7 +408,7 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
       int qu = _tempRecord.quality;
       Point::Qual_t q = Point::Qual_t::good; // todo -- map to rtx quality types
       
-      if (_tempRecord.valueInd > 0 && qu == 0) {
+      if (_tempRecord.valueInd > 0 && qu == RTX_OPC_GOOD) {
         // ok
         p = Point(t, v, q);
         points.push_back(p);
