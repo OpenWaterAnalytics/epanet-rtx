@@ -41,131 +41,37 @@ Point Resampler::point(time_t time) {
     // now that that's settled, get some source points and interpolate.
     Point p0, p1, interpolatedPoint;
     
-    Point sp = source()->point(time);
-    if (sp.isValid && sp.time == time) {
-      // if the source has the point, then no interpolation is needed.
-      interpolatedPoint = Point::convertPoint(sp, source()->units(), units());
+    std::pair< Point, Point > sourcePoints = source()->adjacentPoints(time);
+    p0 = sourcePoints.first;
+    p1 = sourcePoints.second;
+    
+    for (int i = 1; i < margin(); ++i) {
+      Point p0prime, p1prime;
+      p0prime = source()->pointBefore(p0.time);
+      //p1prime = source()->pointAfter(p1.time);
+      p0 = p0prime.isValid ? p0prime : p0;
+      //p1 = p1prime.isValid ? p1prime : p1;
     }
-    else {
-      std::pair< Point, Point > sourcePoints = source()->adjacentPoints(time);
-      p0 = sourcePoints.first;
-      p1 = sourcePoints.second;
-      
-      if (!p0.isValid || !p1.isValid || p0.quality==Point::missing || p1.quality==Point::missing) {
-        // get out while the gettin's good
-        interpolatedPoint = Point(time, 0, Point::missing);
-        return interpolatedPoint;
-      }
-      
-      interpolatedPoint = interpolated(p0, p1, time, source()->units());
+    
+    
+    if (!p0.isValid || !p1.isValid || p0.quality==Point::missing || p1.quality==Point::missing) {
+      // get out while the gettin's good
+      interpolatedPoint = Point(time, 0, Point::missing);
+      return interpolatedPoint;
     }
+    
+    pointBuffer_t buf;
+    buf.set_capacity(2);
+    buf.push_back(p0);
+    buf.push_back(p1);
+    
+    interpolatedPoint = filteredSingle(buf, time, source()->units());
+    
     
     insert(interpolatedPoint);
     return interpolatedPoint;
   }
 }
-
-vector<Point> Resampler::points(time_t start, time_t end) {
-  Units sourceU = source()->units();
-  
-  // make sure the times are aligned with the clock.
-  time_t newStart = (clock()->isValid(start)) ? start : clock()->timeAfter(start);
-  time_t newEnd = (clock()->isValid(end)) ? end : clock()->timeBefore(end);
-  
-  PointRecord::time_pair_t prRange = record()->range(name());
-  if (prRange.first <= newStart && newEnd <= prRange.second) {
-    // the record's range covers it, but
-    // the record may not be continuous -- so check it.
-    time_t now = newStart;
-    time_t period = this->period();
-    vector<Point> rpVec = record()->pointsInRange(name(), newStart, newEnd);
-    if (rpVec.size() == 0) {
-      // fully internal
-      // like this:
-      // ppppp---[--- req ---]---ppppp
-      
-      rpVec.push_back(record()->pointBefore(name(), newStart));
-      rpVec.push_back(record()->pointAfter(name(), newEnd));
-      
-    }
-    
-    
-    vector<Point> stitchedPoints;
-    vector<Point>::const_iterator it = rpVec.begin();
-    while (it != rpVec.end()) {
-      Point recordPoint = *it;
-      // cout << "P: " << recordPoint << endl;
-      
-      if (recordPoint.time == now) {
-        stitchedPoints.push_back(recordPoint);
-        now += period;
-      }
-      else if (recordPoint.time < now) {
-        ++it;
-        continue;
-      }
-      else {
-        // aha, a gap.
-        // determine the size of the gap
-        time_t gapStart, gapEnd;
-        
-        gapStart = now;
-        gapEnd = recordPoint.time;
-        
-        
-        Point gapSourceStart = source()->pointBefore(gapStart);
-        Point gapSourceEnd = source()->pointAfter(gapEnd);
-        
-        vector<Point> gapSourcePoints = source()->points(gapSourceStart.time, gapSourceEnd.time);
-        vector<Point> gapPoints = interpolatedGivenSourcePoints(gapStart, gapEnd, gapSourcePoints);
-        if (gapPoints.size() > 0) {
-          this->insertPoints(gapPoints);
-          now = gapPoints.back().time;
-          BOOST_FOREACH(Point p, gapPoints) {
-            stitchedPoints.push_back(p);
-          }
-        }
-        else {
-          // skipping the gap.
-          now = recordPoint.time;
-          continue; // skip the ++it
-        }
-        
-      }
-      
-      ++it;
-    }
-    
-    return stitchedPoints;
-  }
-  
-  // otherwise, construct new points.
-  // get the times for the source query
-  Point sourceStart, sourceEnd;
-  Point s = source()->pointBefore(newStart);
-  Point e = source()->pointAfter(newEnd);
-  sourceStart = (s.time>0)? s : Point(newStart,0); //newStart;
-  sourceEnd = (e.time>0)? e : Point(newEnd,0); //newEnd;
-  
-   
-  // get the source points
-  std::vector<Point> sourcePoints = source()->points(sourceStart.time, sourceEnd.time);
-  if (sourcePoints.size() < 2) {
-    vector<Point> empty;
-    return empty;
-  }
-  
-  // create a place for the new points
-  std::vector<Point> resampled;
-  
-  resampled = interpolatedGivenSourcePoints(newStart, newEnd, sourcePoints);
-  
-  // finally, add the points to myself.
-  this->insertPoints(resampled);
-  
-  return resampled;
-}
-
 
 #pragma mark - Protected Methods
 
@@ -176,7 +82,7 @@ bool Resampler::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
 
 
 
-vector<Point> Resampler::interpolatedGivenSourcePoints(time_t fromTime, time_t toTime, std::vector<Point> sourcePoints) {
+std::vector<Point> Resampler::filteredPoints(time_t fromTime, time_t toTime, const std::vector<Point>& sourcePoints) {
   std::vector<Point> resampled;
   Units sourceU = source()->units();
   
@@ -201,6 +107,8 @@ vector<Point> Resampler::interpolatedGivenSourcePoints(time_t fromTime, time_t t
     resampled.reserve(s);
   }
   
+  pointBuffer_t buffer;
+  buffer.set_capacity(this->margin()+1);
   
   // scrub through the source Points and interpolate as we go.
   time_t now = fromTime;
@@ -208,8 +116,11 @@ vector<Point> Resampler::interpolatedGivenSourcePoints(time_t fromTime, time_t t
     
   Point sourceLeft, sourceRight;
   sourceLeft = *sourceIt;
-  ++sourceIt;
-  sourceRight = *sourceIt;
+  sourceRight = *(++sourceIt);
+  
+  buffer.push_back(sourceLeft);
+  buffer.push_back(sourceRight);
+  
   
   // fast forward now to meet our first available source point.
   while (sourceLeft.time > now && now <= toTime) {
@@ -223,7 +134,7 @@ vector<Point> Resampler::interpolatedGivenSourcePoints(time_t fromTime, time_t t
     // are we in the right position?
     if (sourceLeft.time <= now && now <= sourceRight.time ) {
       // ok, interpolate.
-      Point interp = interpolated(sourceLeft, sourceRight, now, sourceU);
+      Point interp = filteredSingle(buffer, now, sourceU);
       if (interp.isValid) {
         resampled.push_back(interp);
       }
@@ -245,6 +156,7 @@ vector<Point> Resampler::interpolatedGivenSourcePoints(time_t fromTime, time_t t
         break;
       }
       sourceRight = *sourceIt;
+      buffer.push_back(sourceRight);
     }
     
   }
@@ -255,7 +167,14 @@ vector<Point> Resampler::interpolatedGivenSourcePoints(time_t fromTime, time_t t
 }
 
 
-Point Resampler::interpolated(Point p1, Point p2, time_t t, Units fromUnits) {
+Point Resampler::filteredSingle(const pointBuffer_t& window, time_t t, Units fromUnits) {
+  if (window.size() < 2) {
+    return Point();
+  }
+  pointBuffer_t::const_iterator it = window.begin();
+  Point p1, p2;
+  p1 = *it;
+  p2 = *(++it);
   
   if (p1.time == t) {
     return p1;

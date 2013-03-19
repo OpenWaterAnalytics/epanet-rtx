@@ -396,28 +396,12 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
   _query.start = sqlTime(startTime-1);
   _query.end = sqlTime(endTime+1); // add one second to get fractional times included
   strcpy(_query.tagName, id.c_str());
+  vector<ScadaRecord> records;
   
   try {
-    //cout << "scada: " << id << " : " << startTime << " - " << endTime << endl;
-    SQL_CHECK(SQLExecute(statement), "SQLExecute", statement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLExecute(statement), "SQLExecute", statement, SQL_HANDLE_STMT);    
     while (SQL_SUCCEEDED(SQLFetch(statement))) {
-      Point p;
-      //time_t t = unixTime(_tempRecord.time);
-      time_t t = sql_to_tm(_tempRecord.time);
-      double v = _tempRecord.value;
-      int qu = _tempRecord.quality;
-      Point::Qual_t q = Point::Qual_t::good; // todo -- map to rtx quality types
-      
-      if (_tempRecord.valueInd > 0 && qu == RTX_OPC_GOOD) {
-        // ok
-        p = Point(t, v, q);
-        points.push_back(p);
-      }
-      else {
-        // nothing
-        //cout << "skipped invalid point. quality = " << _tempRecord.quality << endl;
-      }
-      
+      records.push_back(_tempRecord);
     }
     SQL_CHECK(SQLFreeStmt(statement, SQL_CLOSE), "SQLCancel", statement, SQL_HANDLE_STMT);
   }
@@ -428,6 +412,28 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
     this->connect();
     cerr << "Connection returned " << this->isConnected() << endl;
   }
+  
+  
+  BOOST_FOREACH(const ScadaRecord& record, records) {
+    Point p;
+    //time_t t = unixTime(record.time);
+    time_t t = sql_to_tm(record.time);
+    double v = record.value;
+    int qu = record.quality;
+    Point::Qual_t q = Point::Qual_t::good; // todo -- map to rtx quality types
+    
+    if (record.valueInd > 0 && qu == RTX_OPC_GOOD) {
+      // ok
+      p = Point(t, v, q);
+      points.push_back(p);
+    }
+    else {
+      // nothing
+      //cout << "skipped invalid point. quality = " << _tempRecord.quality << endl;
+    }
+
+  }
+  
   
   if (points.size() == 0) {
     //cerr << "no points found" << endl;

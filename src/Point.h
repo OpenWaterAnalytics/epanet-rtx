@@ -23,7 +23,7 @@ namespace RTX {
   class Point {    
   public:
     //! quality flag
-    enum Qual_t { good, missing, estimated, forecasted, interpolated, constant };
+    enum Qual_t { good, missing, estimated, forecasted, interpolated, constant, averaged };
     
     //! Empty Constructor, equivalent to Point(0,0,Point::missing,0)
     Point();

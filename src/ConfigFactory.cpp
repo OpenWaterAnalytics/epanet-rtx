@@ -483,7 +483,16 @@ TimeSeries::sharedPointer ConfigFactory::createDerivative(Setting &setting) {
 TimeSeries::sharedPointer ConfigFactory::createOffset(Setting &setting) {
   OffsetTimeSeries::sharedPointer offset( new OffsetTimeSeries() );
   setGenericTimeSeriesProperties(offset, setting);
-  offset->setOffset(setting["offsetValue"]);
+  if (setting.exists("offsetValue")) {
+    double v;
+    if (!setting.lookupValue("offsetValue", v)) {
+      int iv;
+      setting.lookupValue("offsetValue", iv);
+      v = (double)iv;
+    }
+    offset->setOffset(v);
+  }
+  
   return offset;
 }
 
