@@ -184,6 +184,7 @@ bool MysqlPointRecord::isConnected() {
 
 std::string MysqlPointRecord::registerAndGetIdentifier(std::string recordName) {
   // insert the identifier, or make sure it's in the db.
+  this->checkConnection();
   try {
     boost::shared_ptr<sql::PreparedStatement> seriesNameStatement( _connection->prepareStatement("INSERT IGNORE INTO timeseries_meta (name) VALUES (?)") );
     seriesNameStatement->setString(1,recordName);
@@ -405,11 +406,7 @@ Point MysqlPointRecord::selectSingle(const string& id, time_t time, boost::share
 
 bool MysqlPointRecord::checkConnection() {
   
-  if (!_connection) {
-    return false;
-  }
-  
-  if(_connection->isClosed()) {
+  if(!_connection || _connection->isClosed()) {
     cerr << "mysql connection was closed. attempting to reconnect." << endl;
     this->connect();
   }

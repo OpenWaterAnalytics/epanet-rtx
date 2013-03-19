@@ -103,15 +103,28 @@ std::vector<Point> Resampler::filteredPoints(time_t fromTime, time_t toTime, con
   
   // reserve for the new points
   {
-    std::vector<Point>::size_type s = (toTime - fromTime) / period() + 1;
-    resampled.reserve(s);
+    if (this->clock()->isRegular()) {
+      std::vector<Point>::size_type s = (toTime - fromTime) / period() + 1;
+      resampled.reserve(s);
+    }
+    else {
+      resampled.reserve(sourcePoints.size());
+    }
+    
   }
   
   pointBuffer_t buffer;
   buffer.set_capacity(this->margin()+1);
   
   // scrub through the source Points and interpolate as we go.
-  time_t now = fromTime;
+  time_t now;
+  if (!this->clock()->isValid(fromTime)) {
+    now = this->clock()->timeAfter(fromTime);
+  }
+  else {
+    now = fromTime;
+  }
+  
   vector<Point>::const_iterator sourceIt = sourcePoints.begin();
     
   Point sourceLeft, sourceRight;
@@ -144,8 +157,14 @@ std::vector<Point> Resampler::filteredPoints(time_t fromTime, time_t toTime, con
     
     // if we weren't in the right position, let's try to get there.
     else if ( now < sourceLeft.time ) {
-      // this shouldn't happen
+      // this shouldn't happen. but if it does, now could be zero
+      if (now == 0) {
+        // that means the window is exhausted.
+        break;
+      }
+      // ok, this really shouldn't happen.
       cerr << "what did you do??" << endl;
+      break;
     }
     
     else if ( sourceRight.time < now ) {

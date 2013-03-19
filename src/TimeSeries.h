@@ -71,11 +71,11 @@ namespace RTX {
     virtual std::pair< Point, Point > adjacentPoints(time_t time); // adjacent points
     virtual time_t period();                              //! 1/frequency (# seconds between data points)
     virtual std::string name();
+    PointRecord::sharedPointer record();
     
     // setters
     virtual void setName(const std::string& name);
     void setRecord(PointRecord::sharedPointer record);
-    PointRecord::sharedPointer record();
     void resetCache();
     void setClock(Clock::sharedPointer clock);
     Clock::sharedPointer clock();

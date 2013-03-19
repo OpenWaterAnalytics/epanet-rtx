@@ -153,7 +153,7 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
     
     sStart = sStart>0 ? sStart : start;
     sEnd = sEnd>0 ? sEnd : end;
-        
+    
     vector<Point> sourcePoints = source()->points(sStart, sEnd);
     vector<Point> filtered = this->filteredPoints(start, end, sourcePoints);
     this->insertPoints(filtered);
