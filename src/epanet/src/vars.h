@@ -153,7 +153,7 @@ EXTERN STmplist *Curvelist;            /* Temporary list of curves     */
 EXTERN STmplist *Coordlist;            /* Temporary list of coordinates*/
 EXTERN Spattern *Pattern;              /* Time patterns                */
 EXTERN Scurve   *Curve;                /* Curve data                   */
-EXTERN Scoord   *Coord;                /* Coord data                   */ //06.02.2010 woohn
+EXTERN Scoord   *Coord;                /* Coordinate data              */ //06.02.2010 woohn
 EXTERN Snode    *Node;                 /* Node data                    */
 EXTERN Slink    *Link;                 /* Link data                    */
 EXTERN Stank    *Tank;                 /* Tank data                    */

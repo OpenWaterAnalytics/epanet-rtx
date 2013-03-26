@@ -21,7 +21,8 @@ EpanetModel::EpanetModel() : Model() {
   _modelFile = "";
 }
 EpanetModel::~EpanetModel() {
-  
+  ENcheck( ENcloseH(), "ENcloseH");
+  ENcheck( ENclose(), "ENclose");
 }
 
 #pragma mark - Loading

@@ -2971,7 +2971,7 @@ void  freedata()
        free(Curve);
     }
 
-/* Free memory for curves */
+/* Free memory for coordinates */
 	if (Coord != NULL)
 	{
 		for (j=0; j<=MaxNodes; j++)
