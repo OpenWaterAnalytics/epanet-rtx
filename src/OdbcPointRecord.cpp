@@ -27,11 +27,17 @@ OdbcPointRecord::OdbcPointRecord() : _timeFormat(UTC){
   _tagCol = "#TAGCOL";
   _valueCol = "#VALUECOL";
   _qualityCol = "#QUALITYCOL#";
+  _SCADAdbc = NULL;
+  _SCADAenv = NULL;
+  _rangeStatement = NULL;
 }
 
 
 OdbcPointRecord::~OdbcPointRecord() {
-  
+  // make sure handles are free
+  SQLFreeStmt(_rangeStatement, SQL_CLOSE);
+  SQLFreeHandle(SQL_HANDLE_DBC, _SCADAdbc);
+  SQLFreeHandle(SQL_HANDLE_ENV, _SCADAenv);
 }
 
 
@@ -140,6 +146,11 @@ void OdbcPointRecord::connect() throw(RtxException) {
   SQLRETURN sqlRet;
   
   try {
+    // make sure handles are free
+    sqlRet = SQLFreeStmt(_rangeStatement, SQL_CLOSE);
+    sqlRet = SQLFreeHandle(SQL_HANDLE_DBC, _SCADAdbc);
+    sqlRet = SQLFreeHandle(SQL_HANDLE_ENV, _SCADAenv);
+    
     /* Allocate an environment handle */
     SQL_CHECK(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &_SCADAenv), "SQLAllocHandle", _SCADAenv, SQL_HANDLE_ENV);
     /* We want ODBC 3 support */
@@ -148,6 +159,21 @@ void OdbcPointRecord::connect() throw(RtxException) {
     SQL_CHECK(SQLAllocHandle(SQL_HANDLE_DBC, _SCADAenv, &_SCADAdbc), "SQLAllocHandle", _SCADAenv, SQL_HANDLE_ENV);
     /* Connect to the DSN, checking for connectivity */
     //"Attempting to Connect to SCADA..."
+    
+    // readonly
+    SQLUINTEGER mode = SQL_MODE_READ_ONLY;
+    SQL_CHECK(SQLSetConnectAttr(_SCADAdbc, SQL_ATTR_ACCESS_MODE, &mode, SQL_IS_UINTEGER), "SQLSetConnectAttr", _SCADAdbc, SQL_HANDLE_DBC);
+    
+    // timeouts
+    SQLUINTEGER timeout = 5;
+    sqlRet = SQL_CHECK(SQLSetConnectAttr(_SCADAdbc, SQL_ATTR_LOGIN_TIMEOUT, &timeout, 0/*ignored*/), "SQLSetConnectAttr", _SCADAdbc, SQL_HANDLE_DBC);
+    sqlRet = SQL_CHECK(SQLSetConnectAttr(_SCADAdbc, SQL_ATTR_CONNECTION_TIMEOUT, &timeout, 0/*ignored*/), "SQLSetConnectAttr", _SCADAdbc, SQL_HANDLE_DBC);
+    //sqlRet = SQL_CHECK(SQLSetConnectAttr(_SCADAdbc, SQL_ATTR_CONNECTION_TIMEOUT, &timeout, SQL_IS_UINTEGER), "SQLSetConnectAttr", _SCADAdbc, SQL_HANDLE_DBC);
+    //SQLINTEGER confirm = 0, nBytes = 0;
+    //sqlRet = SQL_CHECK(SQLGetConnectAttr(_SCADAdbc, SQL_ATTR_CONNECTION_TIMEOUT, &confirm, 0 /* ignored */, &nBytes), "SQLGetConnectAttr", _SCADAdbc, SQL_HANDLE_DBC);
+    //if (confirm != timeout) {
+    //  cerr << "timeout not set correctly" << endl;
+    //}
     
     SQLSMALLINT returnLen;
     //SQL_CHECK(SQLDriverConnect(_SCADAdbc, NULL, (SQLCHAR*)(this->connectionString()).c_str(), SQL_NTS, NULL, 0, &returnLen, SQL_DRIVER_COMPLETE), "SQLDriverConnect", _SCADAdbc, SQL_HANDLE_DBC);
@@ -162,11 +188,6 @@ void OdbcPointRecord::connect() throw(RtxException) {
     SQL_CHECK(SQLAllocHandle(SQL_HANDLE_STMT, _SCADAdbc, &_upperBoundStatement), "SQLAllocHandle", _upperBoundStatement, SQL_HANDLE_STMT);
     SQL_CHECK(SQLAllocHandle(SQL_HANDLE_STMT, _SCADAdbc, &_SCADAtimestmt), "SQLAllocHandle", _SCADAtimestmt, SQL_HANDLE_STMT);
     
-    // timeouts
-    SQLUINTEGER timeout = 30;
-    SQL_CHECK(SQLSetConnectAttr(_SCADAdbc, SQL_ATTR_CONNECTION_TIMEOUT, &timeout, 0), "SQLSetConnectAttr", _SCADAdbc, SQL_HANDLE_DBC);
-    SQL_CHECK(SQLSetStmtAttr(_rangeStatement, SQL_ATTR_QUERY_TIMEOUT, &timeout, 0), "SQLSetStmtAttr", _rangeStatement, SQL_HANDLE_STMT);
-    
     // bindings for single point statement
     /* bind tempRecord members to SQL return columns */
     bindOutputColumns(_SCADAstmt, &_tempRecord);
@@ -179,6 +200,9 @@ void OdbcPointRecord::connect() throw(RtxException) {
     SQL_CHECK(SQLBindParameter(_rangeStatement, 1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd), "SQLBindParameter", _rangeStatement, SQL_HANDLE_STMT);
     SQL_CHECK(SQLBindParameter(_rangeStatement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.end, sizeof(SQL_TIMESTAMP_STRUCT), &_query.endInd), "SQLBindParameter", _rangeStatement, SQL_HANDLE_STMT);
     SQL_CHECK(SQLBindParameter(_rangeStatement, 3, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd), "SQLBindParameter", _rangeStatement, SQL_HANDLE_STMT);
+    
+    // query timeout
+    SQL_CHECK(SQLSetStmtAttr(_rangeStatement, SQL_ATTR_QUERY_TIMEOUT, &timeout, 0), "SQLSetStmtAttr", _rangeStatement, SQL_HANDLE_STMT);
     
     // bindings for lower bound statement
     bindOutputColumns(_lowerBoundStatement, &_tempRecord);
@@ -399,6 +423,9 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
   vector<ScadaRecord> records;
   
   try {
+    if (statement == NULL) {
+      throw string("Connection not initialized.");
+    }
     SQL_CHECK(SQLExecute(statement), "SQLExecute", statement, SQL_HANDLE_STMT);    
     while (SQL_SUCCEEDED(SQLFetch(statement))) {
       records.push_back(_tempRecord);

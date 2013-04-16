@@ -201,28 +201,27 @@ std::string MysqlPointRecord::registerAndGetIdentifier(std::string recordName) {
 
 
 PointRecord::time_pair_t MysqlPointRecord::range(const string& id) {
-  
-  
-  Point first;
-  _firstSelect->setString(1, id);
-  boost::shared_ptr<sql::ResultSet> fResult( _firstSelect->executeQuery() );
-  if( fResult && fResult->next() ) {
-    time_t rowTime = fResult->getInt("time");
-    double rowValue = fResult->getDouble("value");
-    first = Point(rowTime, rowValue);
-  }
-  
-  
-  
   Point last;
-  _lastSelect->setString(1, id);
-  boost::shared_ptr<sql::ResultSet> lResult( _lastSelect->executeQuery() );
-  if( lResult && lResult->next() ) {
-    time_t rowTime = lResult->getInt("time");
-    double rowValue = lResult->getDouble("value");
-    last = Point(rowTime, rowValue);
-  }
+  Point first;
   
+  if (checkConnection()) {
+    
+    _firstSelect->setString(1, id);
+    boost::shared_ptr<sql::ResultSet> fResult( _firstSelect->executeQuery() );
+    if( fResult && fResult->next() ) {
+      time_t rowTime = fResult->getInt("time");
+      double rowValue = fResult->getDouble("value");
+      first = Point(rowTime, rowValue);
+    }
+    
+    _lastSelect->setString(1, id);
+    boost::shared_ptr<sql::ResultSet> lResult( _lastSelect->executeQuery() );
+    if( lResult && lResult->next() ) {
+      time_t rowTime = lResult->getInt("time");
+      double rowValue = lResult->getDouble("value");
+      last = Point(rowTime, rowValue);
+    }
+  }
   return make_pair(first.time, last.time);
 }
 

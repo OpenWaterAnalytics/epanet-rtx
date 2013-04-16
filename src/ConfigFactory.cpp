@@ -251,7 +251,7 @@ PointRecord::sharedPointer ConfigFactory::createOdbcPointRecord(libconfig::Setti
   
   
   r->setConnectionString(initString);
-  r->connect();
+  //r->connect();
   
   return r;
 }
@@ -262,7 +262,7 @@ PointRecord::sharedPointer ConfigFactory::createMySqlPointRecord(libconfig::Sett
   string initString = setting["connection"];
   record->setConnectionString(initString);
   //record->setName(name);
-  record->connect(); // leaving this to application code
+  //record->connect(); // leaving this to application code
   
   return record;
 }
