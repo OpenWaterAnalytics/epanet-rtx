@@ -170,7 +170,7 @@ map<string, Units> Units::unitStringMap() {
   m["liter"]=RTX_LITER;
   m["ft3"] = RTX_CUBIC_FOOT;
   // flow
-  m["m3/s"]= RTX_CUBIC_METER_PER_SECOND;
+  m["cms"]= RTX_CUBIC_METER_PER_SECOND;
   m["cfs"] = RTX_CUBIC_FOOT_PER_SECOND;
   m["gps"] = RTX_GALLON_PER_SECOND;
   m["gpm"] = RTX_GALLON_PER_MINUTE;
@@ -194,7 +194,7 @@ map<string, Units> Units::unitStringMap() {
   // concentration
   m["mg/l"]= RTX_MILLIGRAMS_PER_LITER;
   // conductance
-  m["ms/cm"]=RTX_MICROSIEMENS_PER_CM;
+  m["us/cm"]=RTX_MICROSIEMENS_PER_CM;
 
   return m;
 }
