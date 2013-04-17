@@ -444,7 +444,10 @@ TimeSeries::sharedPointer ConfigFactory::createAggregator(libconfig::Setting &se
     string sourceName = thisSource["source"];
     double multiplier;
     // set the multiplier if it's specified - otherwise, set to 1.
-    if ( !thisSource.lookupValue("multiplier", multiplier) ) {
+    if (thisSource.exists("multiplier")) {
+      multiplier = getConfigDouble(thisSource, "multiplier");
+    }
+    else {
       multiplier = 1.;
     }
     sourceList.push_back(std::make_pair(sourceName, multiplier));
@@ -485,12 +488,7 @@ TimeSeries::sharedPointer ConfigFactory::createOffset(Setting &setting) {
   OffsetTimeSeries::sharedPointer offset( new OffsetTimeSeries() );
   setGenericTimeSeriesProperties(offset, setting);
   if (setting.exists("offsetValue")) {
-    double v;
-    if (!setting.lookupValue("offsetValue", v)) {
-      int iv;
-      setting.lookupValue("offsetValue", iv);
-      v = (double)iv;
-    }
+    double v = getConfigDouble(setting, "offsetValue");
     offset->setOffset(v);
   }
   
@@ -501,12 +499,7 @@ TimeSeries::sharedPointer ConfigFactory::createStatus(Setting &setting) {
   StatusTimeSeries::sharedPointer status( new StatusTimeSeries() );
   setGenericTimeSeriesProperties(status, setting);
   if (setting.exists("thresholdValue")) {
-    double v;
-    if (!setting.lookupValue("thresholdValue", v)) {
-      int iv;
-      setting.lookupValue("thresholdValue", iv);
-      v = (double)iv;
-    }
+    double v = getConfigDouble(setting, "thresholdValue");
     status->setThreshold(v);
   }
 
@@ -535,24 +528,24 @@ TimeSeries::sharedPointer ConfigFactory::createCurveFunction(libconfig::Setting 
     Setting& thisCoordinate = coordinates[iCoordinate];
     
     if (thisCoordinate.exists("x") && thisCoordinate.exists("y")) {
-      double x;
-      if (!thisCoordinate.lookupValue("x", x)) {
-        int ix;
-        thisCoordinate.lookupValue("x", ix);
-        x = (double)ix;
-      }
-      double y;
-      if (!thisCoordinate.lookupValue("y", y)) {
-        int iy;
-        thisCoordinate.lookupValue("y", iy);
-        y = (double)iy;
-      }
+      double x = getConfigDouble(thisCoordinate, "x");
+      double y = getConfigDouble(thisCoordinate, "y");
       timeSeries->addCurveCoordinate(x, y);
     }
 
   }
   
   return timeSeries;
+}
+
+double ConfigFactory::getConfigDouble(libconfig::Setting &config, const std::string &name) {
+  double value = 0;
+  if (!config.lookupValue(name, value)) {
+    int iv;
+    config.lookupValue(name, iv);
+    value = (double)iv;
+  }
+  return value;
 }
 
 #pragma mark - Model
