@@ -11,6 +11,7 @@
 
 // convenience defines ------------ unit= conversion,   dimension (m,l,t,current,temp,amount,intensity)
 #define RTX_DIMENSIONLESS           Units(1)
+#define RTX_PERCENTAGE              Units(1)
 // Pressure
 #define RTX_PSI                     Units(0.0001450378911491,1,-1,-2)
 #define RTX_PASCAL                  Units(1,            1,-1,-2)
@@ -45,8 +46,8 @@
 #define RTX_HOUR                    Units(3600,         0,0,1)
 #define RTX_DAY                     Units(86400,        0,0,1)
 // mass
-#define RTX_MILLIGRAM               Units(.000001       1,0,0)
-#define RTX_GRAM                    Units(.001          1,0,0)
+#define RTX_MILLIGRAM               Units(.000001,      1,0,0)
+#define RTX_GRAM                    Units(.001,         1,0,0)
 #define RTX_KILOGRAM                Units(1,            1,0,0)
 // concentration
 #define RTX_MILLIGRAMS_PER_LITER    Units(.001,         1,-3,0)

@@ -9,6 +9,7 @@
 #ifndef epanet_rtx_Resampler_h
 #define epanet_rtx_Resampler_h
 
+#include <boost/circular_buffer.hpp>
 #include "ModularTimeSeries.h"
 
 namespace RTX {
@@ -16,19 +17,19 @@ namespace RTX {
   class Resampler : public ModularTimeSeries {
     
   public:
+    typedef boost::circular_buffer<Point> pointBuffer_t;
     RTX_SHARED_POINTER(Resampler);
     Resampler();
     virtual ~Resampler();
     
     virtual Point point(time_t time);
-    virtual std::vector<Point> points(time_t start, time_t end);
     
   protected:
     virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
+    virtual std::vector<Point> filteredPoints(time_t fromTime, time_t toTime, const std::vector<Point>& sourcePoints);
     
   private:
-    std::vector<Point> interpolatedGivenSourcePoints(time_t fromTime, time_t toTime, std::vector<Point> sourcePoints);
-    Point interpolated(Point p1, Point p2, time_t t, Units fromUnits);
+    virtual Point filteredSingle(const pointBuffer_t& window, time_t t, Units fromUnits);
   };
   
 }

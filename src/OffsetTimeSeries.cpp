@@ -25,14 +25,17 @@ Point OffsetTimeSeries::point(time_t time){
   
 }
 
-vector<Point> OffsetTimeSeries::points(time_t start, time_t end) {
-  vector<Point> sourcePoints = source()->points(start, end);
+std::vector<Point> OffsetTimeSeries::filteredPoints(time_t fromTime, time_t toTime, const std::vector<Point>& sourcePoints) {
+  
   Units sourceU = source()->units();
   
   vector<Point> offsetPoints;
   offsetPoints.reserve(sourcePoints.size());
   
-  BOOST_FOREACH(Point p, sourcePoints) {
+  BOOST_FOREACH(const Point& p, sourcePoints) {
+    if (p.time < fromTime || p.time > toTime) {
+      continue;
+    }
     Point newP = this->convertWithOffset(p, sourceU);
     offsetPoints.push_back(newP);
   }

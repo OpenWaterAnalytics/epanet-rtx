@@ -103,6 +103,8 @@ namespace RTX {
     TimeSeries::sharedPointer createResampler(Setting &setting);
     TimeSeries::sharedPointer createDerivative(Setting &setting);
     TimeSeries::sharedPointer createOffset(Setting &setting);
+    TimeSeries::sharedPointer createStatus(Setting &setting);
+    TimeSeries::sharedPointer createCurveFunction(Setting &setting);
     
     void configureQualitySource(Setting &setting, Element::sharedPointer junction);
     void configureBoundaryFlow(Setting &setting, Element::sharedPointer junction);
@@ -123,7 +125,7 @@ namespace RTX {
     void createClocks(Setting& clockGroup);
     void createTimeSeriesList(Setting& timeSeriesGroup);
     void createZones(Setting& zoneGroup);
-    
+    double getConfigDouble(Setting& config, const std::string& name);
     bool _doesHaveStateRecord;
     
     Config _configuration;

@@ -112,6 +112,12 @@ Point DbPointRecord::pointBefore(const string& id, time_t time) {
     PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
     request = request_t(id, time, time);
     p = this->selectPrevious(id, time);
+    // cache it
+    if (p.isValid) {
+      _cachedPointId = id;
+      _cachedPoint = p;
+    }
+    
     if (range.first <= time && time <= range.second) {
       // then we know this is continuous. add the point.
       DB_PR_SUPER::addPoint(id, p);
@@ -136,6 +142,12 @@ Point DbPointRecord::pointAfter(const string& id, time_t time) {
     PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
     request = request_t(id, time, time);
     p = this->selectNext(id, time);
+    // cache it
+    if (p.isValid) {
+      _cachedPointId = id;
+      _cachedPoint = p;
+    }
+    
     if (range.first <= time && time <= range.second) {
       // then we know this is continuous. add the point.
       DB_PR_SUPER::addPoint(id, p);
@@ -185,6 +197,7 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, time_t startTi
     merged.insert(merged.end(), newPoints.begin(), newPoints.end());
     merged.insert(merged.end(), right.begin(), right.end());
     
+    request = request_t(id, qstart, qend);
     DB_PR_SUPER::addPoints(id, merged);
     
     return merged;

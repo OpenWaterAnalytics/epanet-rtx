@@ -13,6 +13,7 @@
 #include "Resampler.h"
 #include "MovingAverage.h"
 #include "FirstDerivative.h"
+#include "SineTimeSeries.h"
 
 #include "BufferPointRecord.h"
 #include "MysqlPointRecord.h"
@@ -183,6 +184,10 @@ int main(int argc, const char * argv[])
   derivative->setSource(movingAverage);
   
   printPoints(derivative->points(start, start+240));
+  
+  
+  
+  
   
   
   return 0;

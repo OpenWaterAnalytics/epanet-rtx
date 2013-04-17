@@ -15,6 +15,9 @@
 #include "MovingAverage.h"
 #include "Resampler.h"
 #include "FirstDerivative.h"
+#include "OffsetTimeSeries.h"
+#include "StatusTimeSeries.h"
+#include "CurveFunction.h"
 #include "PointRecord.h"
 #include "OdbcPointRecord.h"
 #include "MysqlPointRecord.h"
@@ -42,6 +45,8 @@ ConfigFactory::ConfigFactory() {
   _timeSeriesPointerMap.insert(std::make_pair("Derivative", &ConfigFactory::createDerivative));
   _timeSeriesPointerMap.insert(std::make_pair("Offset", &ConfigFactory::createOffset));
   _timeSeriesPointerMap.insert(std::make_pair("FirstDerivative", &ConfigFactory::createDerivative));
+  _timeSeriesPointerMap.insert(std::make_pair("Status", &ConfigFactory::createStatus));
+  _timeSeriesPointerMap.insert(std::make_pair("CurveFunction", &ConfigFactory::createCurveFunction));
   
   // node-type configuration functions
   // Junctions
@@ -115,59 +120,53 @@ void ConfigFactory::loadConfigFile(const std::string& path) {
   }
   Setting& config = root["configuration"];
   
-  
+  // get the first set - point records.
   if ( !config.exists("records") ) {
     config.add("records", Setting::TypeList);
+  } else {
+    Setting& records = config["records"];
+    createPointRecords(records);
   }
-  Setting& records = config["records"];
-  
-  
-  if ( !config.exists("clocks") ) {
-    config.add("clocks", Setting::TypeList);
-  }
-  Setting& clockGroup = config["clocks"];
-  
-  
-  if ( !config.exists("timeseries") ) {
-    config.add("timeseries", Setting::TypeList);
-  }
-  Setting& timeSeriesGroup = config["timeseries"];
-  
-  
-  if ( !config.exists("simulation") ) {
-    config.add("simulation", Setting::TypeList);
-  }
-  Setting& simulationGroup = config["simulation"];
-  
-  
-  if ( !config.exists("model") ) {
-    config.add("model", Setting::TypeList);
-  }
-  Setting& modelGroup = config["model"];
-  
-  
-  if ( !config.exists("zones") ) {
-    config.add("zones", Setting::TypeList);
-  }
-  Setting& zoneGroup = config["zones"];
-  
-  // get the first set - point records.
-  createPointRecords(records);
   
   // get clocks
-  createClocks(clockGroup);
+  if ( !config.exists("clocks") ) {
+    config.add("clocks", Setting::TypeList);
+  } else {
+    Setting& clockGroup = config["clocks"];
+    createClocks(clockGroup);
+  }
   
   // get timeseries
-  createTimeSeriesList(timeSeriesGroup);
+  if ( !config.exists("timeseries") ) {
+    config.add("timeseries", Setting::TypeList);
+  } else {
+    Setting& timeSeriesGroup = config["timeseries"];
+    createTimeSeriesList(timeSeriesGroup);
+  }
   
   // make a new model
-  createModel(modelGroup);
+  if ( !config.exists("model") ) {
+    config.add("model", Setting::TypeList);
+  } else {
+    Setting& modelGroup = config["model"];
+    createModel(modelGroup);
+  }
   
   // make zones
-  createZones(zoneGroup);
+  if ( !config.exists("zones") ) {
+    config.add("zones", Setting::TypeList);
+  } else {
+    Setting& zoneGroup = config["zones"];
+    createZones(zoneGroup);
+  }
   
   // set defaults
-  createSimulationDefaults(simulationGroup);
+  if ( !config.exists("simulation") ) {
+    config.add("simulation", Setting::TypeList);
+  } else {
+    Setting& simulationGroup = config["simulation"];
+    createSimulationDefaults(simulationGroup);
+  }
   
 }
 
@@ -257,7 +256,7 @@ PointRecord::sharedPointer ConfigFactory::createOdbcPointRecord(libconfig::Setti
   
   
   r->setConnectionString(initString);
-  r->connect();
+  //r->connect();
   
   return r;
 }
@@ -265,8 +264,10 @@ PointRecord::sharedPointer ConfigFactory::createOdbcPointRecord(libconfig::Setti
 PointRecord::sharedPointer ConfigFactory::createMySqlPointRecord(libconfig::Setting &setting) {
   string name = setting["name"];
   MysqlPointRecord::sharedPointer record( new MysqlPointRecord() );
-  string initString = setting["connection"];  record->setConnectionString(initString);
-  record->connect();
+  string initString = setting["connection"];
+  record->setConnectionString(initString);
+  //record->setName(name);
+  //record->connect(); // leaving this to application code
   
   return record;
 }
@@ -443,7 +444,10 @@ TimeSeries::sharedPointer ConfigFactory::createAggregator(libconfig::Setting &se
     string sourceName = thisSource["source"];
     double multiplier;
     // set the multiplier if it's specified - otherwise, set to 1.
-    if ( !thisSource.lookupValue("multiplier", multiplier) ) {
+    if (thisSource.exists("multiplier")) {
+      multiplier = getConfigDouble(thisSource, "multiplier");
+    }
+    else {
       multiplier = 1.;
     }
     sourceList.push_back(std::make_pair(sourceName, multiplier));
@@ -483,10 +487,66 @@ TimeSeries::sharedPointer ConfigFactory::createDerivative(Setting &setting) {
 TimeSeries::sharedPointer ConfigFactory::createOffset(Setting &setting) {
   OffsetTimeSeries::sharedPointer offset( new OffsetTimeSeries() );
   setGenericTimeSeriesProperties(offset, setting);
-  offset->setOffset(setting["offsetValue"]);
+  if (setting.exists("offsetValue")) {
+    double v = getConfigDouble(setting, "offsetValue");
+    offset->setOffset(v);
+  }
+  
   return offset;
 }
 
+TimeSeries::sharedPointer ConfigFactory::createStatus(Setting &setting) {
+  StatusTimeSeries::sharedPointer status( new StatusTimeSeries() );
+  setGenericTimeSeriesProperties(status, setting);
+  if (setting.exists("thresholdValue")) {
+    double v = getConfigDouble(setting, "thresholdValue");
+    status->setThreshold(v);
+  }
+
+  return status;
+}
+
+TimeSeries::sharedPointer ConfigFactory::createCurveFunction(libconfig::Setting &setting) {
+  CurveFunction::sharedPointer timeSeries( new CurveFunction() );
+  // set generic properties
+  setGenericTimeSeriesProperties(timeSeries, setting);
+  
+  // additional setters for this class...
+  // input units
+  Units theUnits(RTX_DIMENSIONLESS);
+  if (setting.exists("inputUnits")) {
+    string unitName = setting["inputUnits"];
+    theUnits = Units::unitOfType(unitName);
+  }
+  timeSeries->setInputUnits(theUnits);
+
+  // a list of (x,y) coordinates defining the curve.
+  Setting& coordinates = setting["function"];
+  int coordinateCount = coordinates.getLength();
+  
+  for (int iCoordinate = 0; iCoordinate < coordinateCount; ++iCoordinate) {
+    Setting& thisCoordinate = coordinates[iCoordinate];
+    
+    if (thisCoordinate.exists("x") && thisCoordinate.exists("y")) {
+      double x = getConfigDouble(thisCoordinate, "x");
+      double y = getConfigDouble(thisCoordinate, "y");
+      timeSeries->addCurveCoordinate(x, y);
+    }
+
+  }
+  
+  return timeSeries;
+}
+
+double ConfigFactory::getConfigDouble(libconfig::Setting &config, const std::string &name) {
+  double value = 0;
+  if (!config.lookupValue(name, value)) {
+    int iv;
+    config.lookupValue(name, iv);
+    value = (double)iv;
+  }
+  return value;
+}
 
 #pragma mark - Model
 

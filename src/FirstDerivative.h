@@ -9,23 +9,25 @@
 #ifndef epanet_rtx_FirstDerivative_h
 #define epanet_rtx_FirstDerivative_h
 
-#include "ModularTimeSeries.h"
+#include "Resampler.h"
 
 namespace RTX {
   
-  class FirstDerivative : public ModularTimeSeries {
+  class FirstDerivative : public Resampler {
   public:
     RTX_SHARED_POINTER(FirstDerivative);
     FirstDerivative();
     virtual ~FirstDerivative();
     
     virtual Point point(time_t time);
-    virtual std::vector<Point> points(time_t start, time_t end);
     virtual void setSource(TimeSeries::sharedPointer source);
     virtual void setUnits(Units newUnits);
     virtual std::ostream& toStream(std::ostream &stream);
-  private:
-    Point deriv(Point p1, Point p2, time_t t);
+    
+  protected:
+    //virtual std::vector<Point> filteredPoints(time_t fromTime, time_t toTime, const std::vector<Point>& sourcePoints);
+    virtual Point filteredSingle(const pointBuffer_t& window, time_t t, Units fromUnits);
+
   };
   
 }// namespace

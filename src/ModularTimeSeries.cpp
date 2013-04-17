@@ -7,7 +7,7 @@
 //  
 
 #include <iostream>
-
+#include <boost/foreach.hpp>
 #include "ModularTimeSeries.h"
 
 using namespace RTX;
@@ -137,11 +137,155 @@ Point ModularTimeSeries::pointAfter(time_t time) {
 }
 
 vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
-  // call the source points method to get it to cache points...
-  cout << "calling source cache (" << source()->name() << ")" << endl;
-  time_t margin = 60*60;
-  _source->points(start - margin, end + margin);
   
-  // then call the base class method.
-  return TimeSeries::points(start, end);
+  if (!clock()->isRegular()) {
+    // if the clock is irregular, there's no easy way around this.
+    // call the source points method to get it to cache points...
+    //cout << "calling source cache (" << source()->name() << ")" << endl;
+    time_t sStart = start;
+    time_t sEnd = end;
+    
+    // widen the source window
+    for (int i = 0; i < margin(); ++i) {
+      sStart = source()->clock()->timeBefore(sStart);
+      sEnd = source()->clock()->timeAfter(sEnd);
+    }
+    
+    sStart = sStart>0 ? sStart : start;
+    sEnd = sEnd>0 ? sEnd : end;
+    
+    vector<Point> sourcePoints = source()->points(sStart, sEnd);
+    vector<Point> filtered = this->filteredPoints(start, end, sourcePoints);
+    this->insertPoints(filtered);
+    return filtered;
+  }
+  
+  
+  // otherwise, the clock is regular.
+  // we can do some important optimizations here.
+  
+  // make sure the times are aligned with the clock.
+  time_t newStart = (clock()->isValid(start)) ? start : clock()->timeAfter(start);
+  time_t newEnd = (clock()->isValid(end)) ? end : clock()->timeBefore(end);
+  
+  PointRecord::time_pair_t prRange = record()->range(name());
+  if (prRange.first <= newStart && newEnd <= prRange.second) {
+    // the record's range covers it, but
+    // the record may not be continuous -- so check it.
+    time_t now = newStart;
+    vector<Point> rpVec = record()->pointsInRange(name(), newStart, newEnd);
+    if (rpVec.size() == 0) {
+      // fully internal
+      // like this:
+      // ppppp---[--- req ---]---ppppp
+      
+      rpVec.push_back(record()->pointBefore(name(), newStart));
+      rpVec.push_back(record()->pointAfter(name(), newEnd));
+      
+    }
+    
+    
+    vector<Point> stitchedPoints;
+    vector<Point>::const_iterator it = rpVec.begin();
+    while (it != rpVec.end()) {
+      Point recordPoint = *it;
+      // cout << "P: " << recordPoint << endl;
+      
+      if (recordPoint.time == now) {
+        stitchedPoints.push_back(recordPoint);
+        now = clock()->timeAfter(now);
+      }
+      else if (recordPoint.time < now) {
+        ++it;
+        continue;
+      }
+      else {
+        // aha, a gap.
+        // determine the size of the gap
+        time_t gapStart, gapEnd;
+        
+        gapStart = now;
+        gapEnd = recordPoint.time;
+        
+        Point gapSourceStart = Point(gapStart, 0);
+        Point gapSourceEnd = recordPoint;
+        
+        for (int i = 0; i < margin(); ++i) {
+          gapSourceStart = source()->pointBefore(gapSourceStart.time);
+          gapSourceEnd = source()->pointAfter(gapSourceEnd.time);
+        }
+        
+        
+        vector<Point> gapSourcePoints = source()->points(gapSourceStart.time, gapSourceEnd.time);
+        vector<Point> gapPoints = filteredPoints(gapStart, gapEnd, gapSourcePoints);
+        if (gapPoints.size() > 0) {
+          this->insertPoints(gapPoints);
+          now = gapPoints.back().time;
+          BOOST_FOREACH(Point p, gapPoints) {
+            stitchedPoints.push_back(p);
+          }
+        }
+        else {
+          // skipping the gap.
+          now = recordPoint.time;
+          continue; // skip the ++it
+        }
+        
+      }
+      
+      ++it;
+    }
+    
+    return stitchedPoints;
+  }
+  
+  // otherwise, construct new points.
+  // get the times for the source query
+  Point sourceStart, sourceEnd;
+  Point s = source()->pointBefore(newStart);
+  Point e = source()->pointAfter(newEnd);
+  sourceStart = (s.isValid)? s : Point(newStart,0); //newStart;
+  sourceEnd = (e.isValid>0)? e : Point(newEnd,0); //newEnd;
+  
+  
+  // get the source points
+  std::vector<Point> sourcePoints = source()->points(sourceStart.time, sourceEnd.time);
+  if (sourcePoints.size() < 2) {
+    vector<Point> empty;
+    return empty;
+  }
+  
+  // create a place for the new points
+  std::vector<Point> filtered;
+  
+  filtered = filteredPoints(newStart, newEnd, sourcePoints);
+  
+  // finally, add the points to myself.
+  this->insertPoints(filtered);
+  
+  return filtered;
+  
+}
+
+
+int ModularTimeSeries::margin() {
+  return 1;
+}
+
+
+vector<Point> ModularTimeSeries::filteredPoints(time_t fromTime, time_t toTime, const vector<Point>& sourcePoints) {
+  Units sourceUnits = source()->units();
+  Units myUnits = units();
+  vector<Point> filtered;
+  
+  BOOST_FOREACH(const Point& p, sourcePoints) {
+    if (p.time < fromTime || p.time > toTime) {
+      // skip the points we didn't ask for.
+      continue;
+    }
+    Point aPoint = Point::convertPoint(p, sourceUnits, myUnits);
+    filtered.push_back(aPoint);
+  }
+  
+  return filtered;
 }

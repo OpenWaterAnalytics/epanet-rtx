@@ -131,10 +131,15 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
   return points;
 }
 
+
+// gets adjacent points such that ( first < time <= second )
 std::pair< Point, Point > TimeSeries::adjacentPoints(time_t time) {
   Point previous, next;
   previous = pointBefore(time);
-  next = pointAfter(time);
+  next = point(time);
+  if (!next.isValid) {
+    next = pointAfter(time);
+  }
   return std::make_pair(previous, next);
 }
 
@@ -219,7 +224,7 @@ Clock::sharedPointer TimeSeries::clock() {
 
 void TimeSeries::setUnits(Units newUnits) {
   // changing units means the values here are no good anymore.
-  this->resetCache();
+  //this->resetCache();
   _units = newUnits;
 }
 

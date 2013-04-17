@@ -9,6 +9,7 @@
 #include "Link.h"
 
 using namespace RTX;
+using namespace std;
 
 Link::Link(const std::string& name, Node::sharedPointer startNode, Node::sharedPointer endNode) : Element(name) {
   _from = startNode;

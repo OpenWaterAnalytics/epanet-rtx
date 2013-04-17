@@ -104,6 +104,8 @@
 		22EFA1BD1471CEC4001102E0 /* rtxMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 22EFA1BC1471CEC4001102E0 /* rtxMacros.h */; };
 		22F63D3716C5735100A15368 /* SineTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22F63D3516C5735100A15368 /* SineTimeSeries.cpp */; };
 		22F63D3816C5735100A15368 /* SineTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F63D3616C5735100A15368 /* SineTimeSeries.h */; };
+		43627ECA171F27E3007AE0F5 /* StatusTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 43627EC9171F27E3007AE0F5 /* StatusTimeSeries.h */; };
+		43627ED0171F286C007AE0F5 /* StatusTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43627ECF171F286C007AE0F5 /* StatusTimeSeries.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -260,6 +262,8 @@
 		22EFA1BC1471CEC4001102E0 /* rtxMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rtxMacros.h; path = ../../src/rtxMacros.h; sourceTree = "<group>"; };
 		22F63D3516C5735100A15368 /* SineTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SineTimeSeries.cpp; path = ../../src/SineTimeSeries.cpp; sourceTree = "<group>"; };
 		22F63D3616C5735100A15368 /* SineTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SineTimeSeries.h; path = ../../src/SineTimeSeries.h; sourceTree = "<group>"; };
+		43627EC9171F27E3007AE0F5 /* StatusTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StatusTimeSeries.h; path = ../../src/StatusTimeSeries.h; sourceTree = "<group>"; };
+		43627ECF171F286C007AE0F5 /* StatusTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StatusTimeSeries.cpp; path = ../../src/StatusTimeSeries.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -484,16 +488,18 @@
 				22707A9416309D4000FEB4DD /* OffsetTimeSeries.cpp */,
 				220AE463145AFB3C002F07B4 /* CurveFunction.h */,
 				22253D8D16022FB6002F7256 /* CurveFunction.cpp */,
+				22B7154F14DC802300041167 /* Resampler.h */,
+				22B7155114DC813800041167 /* Resampler.cpp */,
 				22C62AD31439EE0B00841E60 /* MovingAverage.h */,
 				22C62AD21439EE0B00841E60 /* MovingAverage.cpp */,
 				222FDDD315C1BBE90065DAF6 /* FirstDerivative.h */,
 				222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */,
-				22B7154F14DC802300041167 /* Resampler.h */,
-				22B7155114DC813800041167 /* Resampler.cpp */,
 				22C62ACC1439EE0B00841E60 /* AggregatorTimeSeries.h */,
 				22C62ACB1439EE0B00841E60 /* AggregatorTimeSeries.cpp */,
 				22F63D3616C5735100A15368 /* SineTimeSeries.h */,
 				22F63D3516C5735100A15368 /* SineTimeSeries.cpp */,
+				43627EC9171F27E3007AE0F5 /* StatusTimeSeries.h */,
+				43627ECF171F286C007AE0F5 /* StatusTimeSeries.cpp */,
 			);
 			name = "time series classes";
 			sourceTree = "<group>";
@@ -629,6 +635,7 @@
 				227510E916D4231800B2BA62 /* BufferPointRecord.h in Headers */,
 				223F52C816D51F330086DC8F /* MapPointRecord.h in Headers */,
 				223F52D616D55D090086DC8F /* DequePointRecord.h in Headers */,
+				43627ECA171F27E3007AE0F5 /* StatusTimeSeries.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -800,6 +807,7 @@
 				227510E816D4231800B2BA62 /* BufferPointRecord.cpp in Sources */,
 				223F52C716D51F330086DC8F /* MapPointRecord.cpp in Sources */,
 				223F52D516D55D090086DC8F /* DequePointRecord.cpp in Sources */,
+				43627ED0171F286C007AE0F5 /* StatusTimeSeries.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -60,6 +60,10 @@ namespace RTX {
     
     virtual std::ostream& toStream(std::ostream &stream);
     
+  protected:
+    virtual int margin(); // override this for specific subclass implementation -- default is 1
+    virtual std::vector<Point> filteredPoints(time_t fromTime, time_t toTime, const std::vector<Point>& sourcePoints);
+    
   private:
     TimeSeries::sharedPointer _source;
     bool _doesHaveSource;

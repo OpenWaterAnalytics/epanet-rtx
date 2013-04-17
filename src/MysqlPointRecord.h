@@ -66,7 +66,7 @@ namespace RTX {
     
   private:
     void insertSingleNoCommit(const std::string& id, Point point);
-    bool _connectionOk;
+    bool checkConnection();
     void insertSingle(const string& id, time_t time, double value);
     Point selectSingle(const string& id, time_t time, boost::shared_ptr<sql::PreparedStatement> statement);
     void handleException(sql::SQLException &e);
