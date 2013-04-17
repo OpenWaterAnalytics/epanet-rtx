@@ -15,6 +15,9 @@
 #include "MovingAverage.h"
 #include "Resampler.h"
 #include "FirstDerivative.h"
+#include "OffsetTimeSeries.h"
+#include "StatusTimeSeries.h"
+#include "CurveFunction.h"
 #include "PointRecord.h"
 #include "OdbcPointRecord.h"
 #include "MysqlPointRecord.h"
@@ -42,6 +45,8 @@ ConfigFactory::ConfigFactory() {
   _timeSeriesPointerMap.insert(std::make_pair("Derivative", &ConfigFactory::createDerivative));
   _timeSeriesPointerMap.insert(std::make_pair("Offset", &ConfigFactory::createOffset));
   _timeSeriesPointerMap.insert(std::make_pair("FirstDerivative", &ConfigFactory::createDerivative));
+  _timeSeriesPointerMap.insert(std::make_pair("Status", &ConfigFactory::createStatus));
+  _timeSeriesPointerMap.insert(std::make_pair("CurveFunction", &ConfigFactory::createCurveFunction));
   
   // node-type configuration functions
   // Junctions
@@ -492,6 +497,63 @@ TimeSeries::sharedPointer ConfigFactory::createOffset(Setting &setting) {
   return offset;
 }
 
+TimeSeries::sharedPointer ConfigFactory::createStatus(Setting &setting) {
+  StatusTimeSeries::sharedPointer status( new StatusTimeSeries() );
+  setGenericTimeSeriesProperties(status, setting);
+  if (setting.exists("thresholdValue")) {
+    double v;
+    if (!setting.lookupValue("thresholdValue", v)) {
+      int iv;
+      setting.lookupValue("thresholdValue", iv);
+      v = (double)iv;
+    }
+    status->setThreshold(v);
+  }
+
+  return status;
+}
+
+TimeSeries::sharedPointer ConfigFactory::createCurveFunction(libconfig::Setting &setting) {
+  CurveFunction::sharedPointer timeSeries( new CurveFunction() );
+  // set generic properties
+  setGenericTimeSeriesProperties(timeSeries, setting);
+  
+  // additional setters for this class...
+  // input units
+  Units theUnits(RTX_DIMENSIONLESS);
+  if (setting.exists("inputUnits")) {
+    string unitName = setting["inputUnits"];
+    theUnits = Units::unitOfType(unitName);
+  }
+  timeSeries->setInputUnits(theUnits);
+
+  // a list of (x,y) coordinates defining the curve.
+  Setting& coordinates = setting["function"];
+  int coordinateCount = coordinates.getLength();
+  
+  for (int iCoordinate = 0; iCoordinate < coordinateCount; ++iCoordinate) {
+    Setting& thisCoordinate = coordinates[iCoordinate];
+    
+    if (thisCoordinate.exists("x") && thisCoordinate.exists("y")) {
+      double x;
+      if (!thisCoordinate.lookupValue("x", x)) {
+        int ix;
+        thisCoordinate.lookupValue("x", ix);
+        x = (double)ix;
+      }
+      double y;
+      if (!thisCoordinate.lookupValue("y", y)) {
+        int iy;
+        thisCoordinate.lookupValue("y", iy);
+        y = (double)iy;
+      }
+      timeSeries->addCurveCoordinate(x, y);
+    }
+
+  }
+  
+  return timeSeries;
+}
 
 #pragma mark - Model
 
