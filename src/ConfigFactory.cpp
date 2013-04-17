@@ -15,6 +15,9 @@
 #include "MovingAverage.h"
 #include "Resampler.h"
 #include "FirstDerivative.h"
+#include "OffsetTimeSeries.h"
+#include "StatusTimeSeries.h"
+#include "CurveFunction.h"
 #include "PointRecord.h"
 #include "OdbcPointRecord.h"
 #include "MysqlPointRecord.h"
@@ -42,6 +45,8 @@ ConfigFactory::ConfigFactory() {
   _timeSeriesPointerMap.insert(std::make_pair("Derivative", &ConfigFactory::createDerivative));
   _timeSeriesPointerMap.insert(std::make_pair("Offset", &ConfigFactory::createOffset));
   _timeSeriesPointerMap.insert(std::make_pair("FirstDerivative", &ConfigFactory::createDerivative));
+  _timeSeriesPointerMap.insert(std::make_pair("Status", &ConfigFactory::createStatus));
+  _timeSeriesPointerMap.insert(std::make_pair("CurveFunction", &ConfigFactory::createCurveFunction));
   
   // node-type configuration functions
   // Junctions
@@ -442,7 +447,10 @@ TimeSeries::sharedPointer ConfigFactory::createAggregator(libconfig::Setting &se
     string sourceName = thisSource["source"];
     double multiplier;
     // set the multiplier if it's specified - otherwise, set to 1.
-    if ( !thisSource.lookupValue("multiplier", multiplier) ) {
+    if (thisSource.exists("multiplier")) {
+      multiplier = getConfigDouble(thisSource, "multiplier");
+    }
+    else {
       multiplier = 1.;
     }
     sourceList.push_back(std::make_pair(sourceName, multiplier));
@@ -483,18 +491,65 @@ TimeSeries::sharedPointer ConfigFactory::createOffset(Setting &setting) {
   OffsetTimeSeries::sharedPointer offset( new OffsetTimeSeries() );
   setGenericTimeSeriesProperties(offset, setting);
   if (setting.exists("offsetValue")) {
-    double v;
-    if (!setting.lookupValue("offsetValue", v)) {
-      int iv;
-      setting.lookupValue("offsetValue", iv);
-      v = (double)iv;
-    }
+    double v = getConfigDouble(setting, "offsetValue");
     offset->setOffset(v);
   }
   
   return offset;
 }
 
+TimeSeries::sharedPointer ConfigFactory::createStatus(Setting &setting) {
+  StatusTimeSeries::sharedPointer status( new StatusTimeSeries() );
+  setGenericTimeSeriesProperties(status, setting);
+  if (setting.exists("thresholdValue")) {
+    double v = getConfigDouble(setting, "thresholdValue");
+    status->setThreshold(v);
+  }
+
+  return status;
+}
+
+TimeSeries::sharedPointer ConfigFactory::createCurveFunction(libconfig::Setting &setting) {
+  CurveFunction::sharedPointer timeSeries( new CurveFunction() );
+  // set generic properties
+  setGenericTimeSeriesProperties(timeSeries, setting);
+  
+  // additional setters for this class...
+  // input units
+  Units theUnits(RTX_DIMENSIONLESS);
+  if (setting.exists("inputUnits")) {
+    string unitName = setting["inputUnits"];
+    theUnits = Units::unitOfType(unitName);
+  }
+  timeSeries->setInputUnits(theUnits);
+
+  // a list of (x,y) coordinates defining the curve.
+  Setting& coordinates = setting["function"];
+  int coordinateCount = coordinates.getLength();
+  
+  for (int iCoordinate = 0; iCoordinate < coordinateCount; ++iCoordinate) {
+    Setting& thisCoordinate = coordinates[iCoordinate];
+    
+    if (thisCoordinate.exists("x") && thisCoordinate.exists("y")) {
+      double x = getConfigDouble(thisCoordinate, "x");
+      double y = getConfigDouble(thisCoordinate, "y");
+      timeSeries->addCurveCoordinate(x, y);
+    }
+
+  }
+  
+  return timeSeries;
+}
+
+double ConfigFactory::getConfigDouble(libconfig::Setting &config, const std::string &name) {
+  double value = 0;
+  if (!config.lookupValue(name, value)) {
+    int iv;
+    config.lookupValue(name, iv);
+    value = (double)iv;
+  }
+  return value;
+}
 
 #pragma mark - Model
 
