@@ -53,15 +53,17 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> OdbcPointRe
   wwQueries.lowerBound = "";
   wwQueries.upperBound = "";
   wwQueries.timeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
+  wwQueries.goodQuality = 192;
   
   
   odbc_query_t oraQueries;
   oraQueries.connectorName = "oracle";
   oraQueries.singleSelect = "";
-  oraQueries.rangeSelect = "";
+  oraQueries.rangeSelect = "SELECT #DATECOL# date, #TAGCOL# tag, #VALUECOL# value, #QUALITYCOL# quality FROM #TABLENAME# WHERE (date > ?) AND (date < ?) AND #TAGCOL# = ?";
   oraQueries.lowerBound = "";
   oraQueries.upperBound = "";
   oraQueries.timeQuery = "select sysdate from dual";
+  oraQueries.goodQuality = 192;
   
   
   list[wonderware_mssql] = wwQueries;
@@ -101,7 +103,7 @@ void OdbcPointRecord::setConnectorType(Sql_Connector_t connectorType) {
   
   map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> qTypes = queryTypes();
   if (qTypes.find(connectorType) == qTypes.end()) {
-    cerr << "could not find the specified connector type" << endl;
+    cerr << "OdbcPointRecord could not find the specified connector type" << endl;
     return;
   }
   
@@ -132,6 +134,7 @@ void OdbcPointRecord::setConnectorType(Sql_Connector_t connectorType) {
   setTimeQuery(queries.timeQuery);
   
   _query.tagNameInd = SQL_NTS;
+  _goodQuality = queries.goodQuality;
 
 }
 
@@ -449,7 +452,7 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
     int qu = record.quality;
     Point::Qual_t q = Point::Qual_t::good; // todo -- map to rtx quality types
     
-    if (record.valueInd > 0 && qu == RTX_OPC_GOOD) {
+    if (record.valueInd > 0 && qu == _goodQuality) {
       // ok
       p = Point(t, v, q);
       points.push_back(p);

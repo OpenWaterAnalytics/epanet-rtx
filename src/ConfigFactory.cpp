@@ -248,6 +248,9 @@ PointRecord::sharedPointer ConfigFactory::createOdbcPointRecord(libconfig::Setti
       cerr << "connector type " << type << " not set" << endl;
     }
   }
+  else {
+    cerr << "connector type not specified" << endl;
+  }
   
   
   r->setConnectionString(initString);
