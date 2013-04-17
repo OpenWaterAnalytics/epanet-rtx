@@ -42,6 +42,7 @@ namespace RTX {
     class odbc_query_t {
     public:
       std::string connectorName, singleSelect, rangeSelect, upperBound, lowerBound, timeQuery;
+      int goodQuality;
     };
     
     static std::map<Sql_Connector_t, odbc_query_t> queryTypes();
@@ -95,6 +96,7 @@ namespace RTX {
     
   private:
     bool _connectionOk;
+    int _goodQuality;
     std::vector<Point> pointsWithStatement(const string& id, SQLHSTMT statement, time_t startTime, time_t endTime = 0);
     typedef struct {
       SQLCHAR tagName[MAX_SCADA_TAG];
