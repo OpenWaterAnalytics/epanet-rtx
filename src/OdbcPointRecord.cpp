@@ -59,11 +59,11 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> OdbcPointRe
   odbc_query_t oraQueries;
   oraQueries.connectorName = "oracle";
   oraQueries.singleSelect = "";
-  oraQueries.rangeSelect = "SELECT #DATECOL# date, #TAGCOL# tag, #VALUECOL# value, #QUALITYCOL# quality FROM #TABLENAME# WHERE (date > ?) AND (date < ?) AND #TAGCOL# = ?";
+  oraQueries.rangeSelect = "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# > ?) AND (#DATECOL# < ?) AND #TAGCOL# = ?";
   oraQueries.lowerBound = "";
   oraQueries.upperBound = "";
   oraQueries.timeQuery = "select sysdate from dual";
-  oraQueries.goodQuality = 192;
+  oraQueries.goodQuality = 0;
   
   
   list[wonderware_mssql] = wwQueries;
@@ -221,11 +221,11 @@ void OdbcPointRecord::connect() throw(RtxException) {
     
     
     // prepare the statements
-    SQL_CHECK(SQLPrepare(_SCADAstmt, (SQLCHAR*)singleSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _SCADAstmt, SQL_HANDLE_STMT);
+    //SQL_CHECK(SQLPrepare(_SCADAstmt, (SQLCHAR*)singleSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _SCADAstmt, SQL_HANDLE_STMT);
     SQL_CHECK(SQLPrepare(_rangeStatement, (SQLCHAR*)rangeSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _rangeStatement, SQL_HANDLE_STMT);
     SQL_CHECK(SQLPrepare(_SCADAtimestmt, (SQLCHAR*)timeQuery().c_str(), SQL_NTS), "SQLPrepare", _SCADAtimestmt, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLPrepare(_lowerBoundStatement, (SQLCHAR*)loweBoundSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _lowerBoundStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLPrepare(_upperBoundStatement, (SQLCHAR*)upperBoundSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _upperBoundStatement, SQL_HANDLE_STMT);
+    //SQL_CHECK(SQLPrepare(_lowerBoundStatement, (SQLCHAR*)loweBoundSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _lowerBoundStatement, SQL_HANDLE_STMT);
+    //SQL_CHECK(SQLPrepare(_upperBoundStatement, (SQLCHAR*)upperBoundSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _upperBoundStatement, SQL_HANDLE_STMT);
     
     // if we made it this far...
     _connectionOk = true;
