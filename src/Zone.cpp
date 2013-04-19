@@ -45,10 +45,20 @@ void Zone::addJunction(Junction::sharedPointer junction) {
 }
 
 void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {
-  
+  /*
   cout << "==========" << endl;
   cout << "Zone " << name() << " : enumerating junctions" << endl;
   this->followJunction(junction);
+  */
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
 }
 

@@ -81,8 +81,14 @@ namespace RTX {
     
   private:
     void followJunction(Junction::sharedPointer junction);
+    bool isBoundaryFlowJunction(Junction::sharedPointer junction);
+    bool isTank(Junction::sharedPointer junction);
+    
+    std::vector<Junction::sharedPointer> _boundaryFlowJunctions;
+    std::vector<Tank::sharedPointer> _tanks;
     std::map< std::string, Junction::sharedPointer> _junctions;
-    std::vector<Pipe::sharedPointer> _boundaryPipes;
+    std::map<Pipe::sharedPointer, bool> _boundaryPipesDirectional;
+    
     TimeSeries::sharedPointer _demand;
     Units _flowUnits;
   };
