@@ -52,10 +52,55 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {
   */
   
   
+  cout << "Adding Junction: " << junction->name() << endl;
   
+  // breadth-first search.
+  deque<Junction::sharedPointer> candidateJunctions;
+  candidateJunctions.push_back(junction);
   
+  while (!candidateJunctions.empty()) {
+    Junction::sharedPointer thisJ = candidateJunctions.front();
+    this->addJunction(thisJ);
+    vector<Link::sharedPointer> connectedLinks = thisJ->links();
+    BOOST_FOREACH(Link::sharedPointer l, connectedLinks) {
+      // follow this link?
+      Pipe::sharedPointer p = boost::static_pointer_cast<Pipe>(l);
+      if (p->doesHaveFlowMeasure()) {
+        // stop here - it's a potential zone perimeter pipe.
+        // but first, capture the pipe and direction
+        direction_t dir;
+        if (p->from() == thisJ) {
+          dir = positive;
+        }
+        else if (p->to() == thisJ) {
+          dir = negative;
+        }
+        else {
+          // should not happen?
+          cerr << "direction could not be found for pipe: " << p->name() << endl;
+        }
+        _boundaryPipesDirectional.insert(make_pair(p, dir));
+        continue;
+      }
+      
+      std::pair<Node::sharedPointer, Node::sharedPointer> nodes = l->nodes();
+      BOOST_FOREACH(Node::sharedPointer n, nodes) {
+        Junction::sharedPointer candidateJ = boost::static_pointer_cast<Junction>(n);
+        if (candidateJ != thisJ && !this->doesHaveJunction(candidateJ)) {
+          // add to follow list
+          candidateJunctions.push_back(candidateJ);
+        }
+      }
+    }
+    candidateJunctions.pop_front();
+  }
   
+  // cleanup orphaned pipes (pipes which have been identified as perimeters, but have both start/end nodes listed inside the zone)
   
+  // separate junctions into:
+  // -- demand junctions
+  // -- boundary flow junctions
+  // -- storage tanks
   
   
   
@@ -64,7 +109,7 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {
 
 void Zone::followJunction(Junction::sharedPointer junction) {
   // don't let us add the same junction twice.
-  if (!junction || find(junction->name())) {
+  if (!junction || findJunction(junction->name())) {
     return;
   }
   
@@ -125,12 +170,19 @@ void Zone::followJunction(Junction::sharedPointer junction) {
   
 }
 
-Junction::sharedPointer Zone::find(std::string name) {
+Junction::sharedPointer Zone::findJunction(std::string name) {
   Junction::sharedPointer aJunction;
   if (_junctions.find(name) != _junctions.end() ) {
     aJunction = _junctions[name];
   }
   return aJunction;
+}
+
+bool Zone::doesHaveJunction(Junction::sharedPointer j) {
+  if (_junctions.find(j->name()) != _junctions.end()) {
+    return true;
+  }
+  return false;
 }
 
 std::vector<Junction::sharedPointer> Zone::junctions() {
