@@ -62,7 +62,7 @@ Point FirstDerivative::point(time_t time) {
     buf.push_back(firstPoint);
     buf.push_back(secondPoint);
     
-    Point p = filteredSingle(buf, time, source()->units());
+    p = filteredSingle(buf, time, source()->units());
     insert(p);
   }
   return p;

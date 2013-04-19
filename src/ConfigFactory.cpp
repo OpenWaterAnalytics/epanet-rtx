@@ -617,9 +617,9 @@ void ConfigFactory::createSimulationDefaults(Setting& setting) {
 void ConfigFactory::createZones(Setting& zoneGroup) {
   // get the zone information from the config,
   // then create each zone and add it to the model.
-  if ( zoneGroup.exists("use_demand_zones") ) {
-    bool useDemandZones = zoneGroup["use_demand_zones"];
-    if (useDemandZones) {
+  if ( zoneGroup.exists("auto_detect") ) {
+    bool autoDetect = zoneGroup["auto_detect"];
+    if (autoDetect) {
       _model->initDemandZones();
     }
   }

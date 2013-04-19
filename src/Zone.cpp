@@ -8,6 +8,7 @@
 
 #include "Zone.h"
 #include <boost/foreach.hpp>
+#include <boost/range/adaptors.hpp>
 
 using namespace RTX;
 using namespace std;
@@ -40,19 +41,27 @@ void Zone::addJunction(Junction::sharedPointer junction) {
     cerr << "err: junction already exists" << endl;
   }
   else {
-    _junctions[junction->name()] = junction;
+    _junctions.insert(make_pair(junction->name(), junction));
+  }
+}
+
+void Zone::removeJunction(Junction::sharedPointer junction) {
+  map<string, Junction::sharedPointer>::iterator jIt = _junctions.find(junction->name());
+  if (jIt != _junctions.end()) {
+    _junctions.erase(jIt);
+    cout << "removed junction: " << junction->name() << endl;
   }
 }
 
 void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {
-  /*
+  /* deprecated
   cout << "==========" << endl;
   cout << "Zone " << name() << " : enumerating junctions" << endl;
   this->followJunction(junction);
   */
   
   
-  cout << "Adding Junction: " << junction->name() << endl;
+  cout << "Starting At Root Junction: " << junction->name() << endl;
   
   // breadth-first search.
   deque<Junction::sharedPointer> candidateJunctions;
@@ -60,6 +69,7 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {
   
   while (!candidateJunctions.empty()) {
     Junction::sharedPointer thisJ = candidateJunctions.front();
+    cout << " - adding: " << thisJ->name() << endl;
     this->addJunction(thisJ);
     vector<Link::sharedPointer> connectedLinks = thisJ->links();
     BOOST_FOREACH(Link::sharedPointer l, connectedLinks) {
@@ -68,12 +78,15 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {
       if (p->doesHaveFlowMeasure()) {
         // stop here - it's a potential zone perimeter pipe.
         // but first, capture the pipe and direction
+        
+        cout << " - perimeter pipe: " << p->name() << endl;
+        
         direction_t dir;
         if (p->from() == thisJ) {
-          dir = positive;
+          dir = outDirection;
         }
         else if (p->to() == thisJ) {
-          dir = negative;
+          dir = inDirection;
         }
         else {
           // should not happen?
@@ -99,16 +112,77 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {
   
   // cleanup orphaned pipes (pipes which have been identified as perimeters, but have both start/end nodes listed inside the zone)
   
+  BOOST_FOREACH(Pipe::sharedPointer p, _boundaryPipesDirectional | boost::adaptors::map_keys) {
+    if (this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->to()))) {
+      cout << "removing orphaned pipe: " << p->name() << endl;
+      _boundaryPipesDirectional.erase(p);
+    }
+  }
+  
   // separate junctions into:
   // -- demand junctions
   // -- boundary flow junctions
   // -- storage tanks
   
   
+  BOOST_FOREACH(Junction::sharedPointer j, _junctions | boost::adaptors::map_values) {
+    // check if it's a tank or metered junction
+    if (isTank(j)) {
+      //this->removeJunction(j);
+      _tanks.push_back(boost::static_pointer_cast<Tank>(j));
+      cout << "found tank: " << j->name() << endl;
+    }
+    else if (isBoundaryFlowJunction(j)) {
+      //this->removeJunction(j);
+      _boundaryFlowJunctions.push_back(j);
+      cout << "found boundary flow: " << j->name() << endl;
+    }
+    
+  }
   
+  
+  // assemble the aggregated demand time series
+  
+  AggregatorTimeSeries::sharedPointer zoneDemand( new AggregatorTimeSeries() );
+  zoneDemand->setName("Zone " + this->name() + " demand");
+  BOOST_FOREACH(Tank::sharedPointer t, _tanks) {
+    zoneDemand->addSource(t->flowMeasure(), -1.);
+  }
+  /* boundary flows are accounted for in the allocation method
+  BOOST_FOREACH(Junction::sharedPointer j, _boundaryFlowJunctions) {
+    zoneDemand->addSource(j->boundaryFlow(), -1.);
+  }
+  */
+  
+  typedef pair<Pipe::sharedPointer, direction_t> pipeDirPair_t;
+  BOOST_FOREACH(pipeDirPair_t pd, _boundaryPipesDirectional) {
+    Pipe::sharedPointer p = pd.first;
+    direction_t dir = pd.second;
+    double dirMult = ( dir == inDirection ? 1. : -1. );
+    zoneDemand->addSource(p->flowMeasure(), dirMult);
+  }
+  
+  this->setDemand(zoneDemand);
+  
+  cout << this->name() << " Zone Description:" << endl;
+  cout << *zoneDemand << endl;
   
 }
 
+bool Zone::isTank(Junction::sharedPointer junction) {
+  if (junction->type() == Element::TANK) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+bool Zone::isBoundaryFlowJunction(Junction::sharedPointer junction) {
+  return (junction->doesHaveBoundaryFlow());
+}
+
+/* deprecated
 void Zone::followJunction(Junction::sharedPointer junction) {
   // don't let us add the same junction twice.
   if (!junction || findJunction(junction->name())) {
@@ -171,6 +245,7 @@ void Zone::followJunction(Junction::sharedPointer junction) {
   }
   
 }
+*/
 
 Junction::sharedPointer Zone::findJunction(std::string name) {
   Junction::sharedPointer aJunction;
@@ -246,8 +321,8 @@ void Zone::allocateDemandToJunctions(time_t time) {
   cout << "-------------------" << endl;
   cout << "time: " << time << endl;
   cout << "zone demand: " << zoneDemand << endl;
-  cout << "metered demand: " << meteredDemand << endl;
-  cout << "allocable demand: " << allocableDemand << endl;
+  cout << "metered: " << meteredDemand << endl;
+  cout << "allocable: " << allocableDemand << endl;
   
   // set the demand values for unmetered junctions, according to their base demands.
   BOOST_FOREACH(JunctionMapType::value_type& junctionPair, _junctions) {
@@ -266,8 +341,6 @@ void Zone::allocateDemandToJunctions(time_t time) {
       junction->demand()->insert( Point::convertPoint(demandPoint, myUnits, junction->demand()->units()) );
     }
   }
-  
-  
   
 }
 

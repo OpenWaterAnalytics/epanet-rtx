@@ -67,6 +67,7 @@ namespace RTX {
     
     // node accessors
     void addJunction(Junction::sharedPointer junction);
+    void removeJunction(Junction::sharedPointer junction);
     void enumerateJunctionsWithRootNode(Junction::sharedPointer junction);
     Junction::sharedPointer findJunction(std::string name);
     bool doesHaveJunction(Junction::sharedPointer j);
@@ -88,7 +89,7 @@ namespace RTX {
     std::vector<Junction::sharedPointer> _boundaryFlowJunctions;
     std::vector<Tank::sharedPointer> _tanks;
     std::map< std::string, Junction::sharedPointer> _junctions;
-    typedef enum {positive, negative} direction_t;
+    typedef enum {outDirection, inDirection} direction_t;
     std::map<Pipe::sharedPointer, direction_t> _boundaryPipesDirectional;
     
     TimeSeries::sharedPointer _demand;
