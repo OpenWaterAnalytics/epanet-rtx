@@ -83,9 +83,11 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {
         continue;
       }
       
-      std::pair<Node::sharedPointer, Node::sharedPointer> nodes = l->nodes();
-      BOOST_FOREACH(Node::sharedPointer n, nodes) {
-        Junction::sharedPointer candidateJ = boost::static_pointer_cast<Junction>(n);
+      pair<Node::sharedPointer, Node::sharedPointer> nodes = l->nodes();
+      vector<Junction::sharedPointer> juncs;
+      juncs.push_back(boost::static_pointer_cast<Junction>(nodes.first));
+      juncs.push_back(boost::static_pointer_cast<Junction>(nodes.second));
+      BOOST_FOREACH(Junction::sharedPointer candidateJ, juncs) {
         if (candidateJ != thisJ && !this->doesHaveJunction(candidateJ)) {
           // add to follow list
           candidateJunctions.push_back(candidateJ);
