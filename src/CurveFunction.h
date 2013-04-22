@@ -4,7 +4,7 @@
 //
 //  Created by the EPANET-RTX Development Team
 //  See README.md and license.txt for more information
-//  
+//
 
 #ifndef epanet_rtx_CurveFunctionTimeSeries_h
 #define epanet_rtx_CurveFunctionTimeSeries_h
@@ -34,7 +34,11 @@ namespace RTX {
     void setInputUnits(Units inputUnits);
     void addCurveCoordinate(double inputValue, double outputValue);
     
+  protected:
+    virtual std::vector<Point> filteredPoints(time_t fromTime, time_t toTime, const std::vector<Point>& sourcePoints);
+    
   private:
+    Point convertWithCurve(Point p, Units sourceU);
     std::vector< std::pair<double,double> > _curve;  // list of points for interpolation (x,y)
     Units _inputUnits;
   };
