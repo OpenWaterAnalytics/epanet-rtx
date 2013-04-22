@@ -10,6 +10,8 @@
 #include <boost/foreach.hpp>
 #include <boost/range/adaptors.hpp>
 
+#include "ConstantTimeSeries.h"
+
 using namespace RTX;
 using namespace std;
 
@@ -54,12 +56,8 @@ void Zone::removeJunction(Junction::sharedPointer junction) {
 }
 
 void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {
-  /* deprecated
-  cout << "==========" << endl;
-  cout << "Zone " << name() << " : enumerating junctions" << endl;
-  this->followJunction(junction);
-  */
   
+  bool doesContainReservoir = false;
   
   cout << "Starting At Root Junction: " << junction->name() << endl;
   
@@ -106,7 +104,7 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {
           candidateJunctions.push_back(candidateJ);
         }
       }
-    }
+    } // foreach connected link
     candidateJunctions.pop_front();
   }
   
@@ -126,6 +124,10 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {
   
   
   BOOST_FOREACH(Junction::sharedPointer j, _junctions | boost::adaptors::map_values) {
+    // is this a reservoir? if so, that's bad news -- we can't compute a control volume. the volume is infinite.
+    if (j->type() == Element::RESERVOIR) {
+      doesContainReservoir = true;
+    }
     // check if it's a tank or metered junction
     if (isTank(j)) {
       //this->removeJunction(j);
@@ -141,31 +143,39 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {
   }
   
   
-  // assemble the aggregated demand time series
-  
-  AggregatorTimeSeries::sharedPointer zoneDemand( new AggregatorTimeSeries() );
-  zoneDemand->setName("Zone " + this->name() + " demand");
-  BOOST_FOREACH(Tank::sharedPointer t, _tanks) {
-    zoneDemand->addSource(t->flowMeasure(), -1.);
+  if (!doesContainReservoir) {
+    // assemble the aggregated demand time series
+    
+    AggregatorTimeSeries::sharedPointer zoneDemand( new AggregatorTimeSeries() );
+    zoneDemand->setName("Zone " + this->name() + " demand");
+    BOOST_FOREACH(Tank::sharedPointer t, _tanks) {
+      zoneDemand->addSource(t->flowMeasure(), -1.);
+    }
+    /* boundary flows are accounted for in the allocation method
+     BOOST_FOREACH(Junction::sharedPointer j, _boundaryFlowJunctions) {
+     zoneDemand->addSource(j->boundaryFlow(), -1.);
+     }
+     */
+    
+    typedef pair<Pipe::sharedPointer, direction_t> pipeDirPair_t;
+    BOOST_FOREACH(pipeDirPair_t pd, _boundaryPipesDirectional) {
+      Pipe::sharedPointer p = pd.first;
+      direction_t dir = pd.second;
+      double dirMult = ( dir == inDirection ? 1. : -1. );
+      zoneDemand->addSource(p->flowMeasure(), dirMult);
+    }
+    
+    this->setDemand(zoneDemand);
   }
-  /* boundary flows are accounted for in the allocation method
-  BOOST_FOREACH(Junction::sharedPointer j, _boundaryFlowJunctions) {
-    zoneDemand->addSource(j->boundaryFlow(), -1.);
-  }
-  */
-  
-  typedef pair<Pipe::sharedPointer, direction_t> pipeDirPair_t;
-  BOOST_FOREACH(pipeDirPair_t pd, _boundaryPipesDirectional) {
-    Pipe::sharedPointer p = pd.first;
-    direction_t dir = pd.second;
-    double dirMult = ( dir == inDirection ? 1. : -1. );
-    zoneDemand->addSource(p->flowMeasure(), dirMult);
+  else {
+    ConstantTimeSeries::sharedPointer constZone(new ConstantTimeSeries());
+    this->setDemand(constZone);
   }
   
-  this->setDemand(zoneDemand);
+  
   
   cout << this->name() << " Zone Description:" << endl;
-  cout << *zoneDemand << endl;
+  cout << *this->demand() << endl;
   
 }
 
@@ -303,7 +313,9 @@ void Zone::allocateDemandToJunctions(time_t time) {
     Junction::sharedPointer junction = junctionPair.second;
     
     if ( junction->doesHaveBoundaryFlow() ) {
-      double demand = Units::convertValue(junction->boundaryFlow()->point(time).value, junction->boundaryFlow()->units(), myUnits);
+      Point dp = junction->boundaryFlow()->point(time);
+      double dval = dp.isValid ? dp.value : junction->boundaryFlow()->pointBefore(time).value;
+      double demand = Units::convertValue(dval, junction->boundaryFlow()->units(), myUnits);
       meteredDemand += demand;
     }
     else {
@@ -315,7 +327,9 @@ void Zone::allocateDemandToJunctions(time_t time) {
   
   // now we have the total (nominal) base demand for the zone.
   // total demand for the zone (includes metered and unmetered) -- already in myUnits.
-  zoneDemand = this->demand()->point(time).value;
+  Point dPoint = this->demand()->point(time);
+  
+  zoneDemand = ( dPoint.isValid ? dPoint.value : this->demand()->pointBefore(time).value );
   allocableDemand = zoneDemand - meteredDemand; // the total unmetered demand
   
   cout << "-------------------" << endl;
@@ -330,8 +344,9 @@ void Zone::allocateDemandToJunctions(time_t time) {
     if (junction->doesHaveBoundaryFlow()) {
       // junction does have boundary flow...
       // just need to copy the boundary flow into the junction's demand time series
-      Point demandPoint = junction->boundaryFlow()->point(time);
-      junction->demand()->insert( Point::convertPoint(demandPoint, junction->boundaryFlow()->units(), junction->demand()->units()) );
+      Point dp = junction->boundaryFlow()->point(time);
+      double dval = dp.isValid ? dp.value : junction->boundaryFlow()->pointBefore(time).value;
+      junction->demand()->insert( Point::convertPoint(Point(dval, time), junction->boundaryFlow()->units(), junction->demand()->units()) );
     }
     else {
       // junction relies on us to set its demand value...

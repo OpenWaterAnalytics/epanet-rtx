@@ -95,6 +95,8 @@
 		22E2C1E7160A061200FD0C3E /* report.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C91511173C0012D2A5 /* report.c */; };
 		22E2C1E8160A061200FD0C3E /* rules.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41CA1511173C0012D2A5 /* rules.c */; };
 		22E2C1E9160A061200FD0C3E /* smatrix.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41CB1511173C0012D2A5 /* smatrix.c */; };
+		22E4ED101725C1C60076E93D /* ConstantTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22E4ED0E1725C1C60076E93D /* ConstantTimeSeries.cpp */; };
+		22E4ED111725C1C60076E93D /* ConstantTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22E4ED0F1725C1C60076E93D /* ConstantTimeSeries.h */; };
 		22ED77CD158787B7002D67F1 /* Reservoir.h in Headers */ = {isa = PBXBuildFile; fileRef = 22ED77CC158787B7002D67F1 /* Reservoir.h */; };
 		22ED77D015878804002D67F1 /* Tank.h in Headers */ = {isa = PBXBuildFile; fileRef = 22ED77CF15878804002D67F1 /* Tank.h */; };
 		22ED77D21587884F002D67F1 /* Junction.h in Headers */ = {isa = PBXBuildFile; fileRef = 22ED77D11587884F002D67F1 /* Junction.h */; settings = {ATTRIBUTES = (); }; };
@@ -252,6 +254,8 @@
 		22DDAD931443750600C1F188 /* Model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Model.h; path = ../../src/Model.h; sourceTree = "<group>"; };
 		22DEE91B153F5C44008F75AE /* PointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PointRecord.cpp; path = ../../src/PointRecord.cpp; sourceTree = "<group>"; };
 		22E2962B16010A65003D378A /* Units.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Units.h; path = ../../src/Units.h; sourceTree = "<group>"; };
+		22E4ED0E1725C1C60076E93D /* ConstantTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConstantTimeSeries.cpp; path = ../../src/ConstantTimeSeries.cpp; sourceTree = "<group>"; };
+		22E4ED0F1725C1C60076E93D /* ConstantTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConstantTimeSeries.h; path = ../../src/ConstantTimeSeries.h; sourceTree = "<group>"; };
 		22ED77CC158787B7002D67F1 /* Reservoir.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reservoir.h; path = ../../src/Reservoir.h; sourceTree = "<group>"; };
 		22ED77CF15878804002D67F1 /* Tank.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tank.h; path = ../../src/Tank.h; sourceTree = "<group>"; };
 		22ED77D11587884F002D67F1 /* Junction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Junction.h; path = ../../src/Junction.h; sourceTree = "<group>"; };
@@ -482,6 +486,8 @@
 				22C62ACA1439ED9F00841E60 /* point record classes */,
 				22C62ADA1439EE0B00841E60 /* TimeSeries.h */,
 				22C62AD91439EE0B00841E60 /* TimeSeries.cpp */,
+				22E4ED0F1725C1C60076E93D /* ConstantTimeSeries.h */,
+				22E4ED0E1725C1C60076E93D /* ConstantTimeSeries.cpp */,
 				221E2EFD149A42F0000860C2 /* ModularTimeSeries.h */,
 				221E2EFF149A43A3000860C2 /* ModularTimeSeries.cpp */,
 				22707A9516309D4100FEB4DD /* OffsetTimeSeries.h */,
@@ -636,6 +642,7 @@
 				223F52C816D51F330086DC8F /* MapPointRecord.h in Headers */,
 				223F52D616D55D090086DC8F /* DequePointRecord.h in Headers */,
 				43627ECA171F27E3007AE0F5 /* StatusTimeSeries.h in Headers */,
+				22E4ED111725C1C60076E93D /* ConstantTimeSeries.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -808,6 +815,7 @@
 				223F52C716D51F330086DC8F /* MapPointRecord.cpp in Sources */,
 				223F52D516D55D090086DC8F /* DequePointRecord.cpp in Sources */,
 				43627ED0171F286C007AE0F5 /* StatusTimeSeries.cpp in Sources */,
+				22E4ED101725C1C60076E93D /* ConstantTimeSeries.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

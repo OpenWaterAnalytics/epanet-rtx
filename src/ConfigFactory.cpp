@@ -205,10 +205,7 @@ void ConfigFactory::createPointRecords(Setting& records) {
     else {
       std::cerr << "could not load point record\n";
     }
-    
   }
-
-  
   
   return;
 }
