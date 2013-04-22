@@ -19,9 +19,18 @@ OffsetTimeSeries::OffsetTimeSeries() {
 
 Point OffsetTimeSeries::point(time_t time){
   
+  Units sourceU = source()->units();
   Point sourcePoint = source()->point(time);
-  Point newPoint = this->convertWithOffset(sourcePoint, source()->units());
-  return newPoint;
+  
+  if (sourcePoint.isValid) {
+    Point newPoint = this->convertWithOffset(sourcePoint, sourceU);
+    return newPoint;
+  } else {
+    std::cerr << "check point availability first\n";
+    // TODO -- throw something?
+    Point newPoint(time, 0.0, Point::missing, 0.0);
+    return newPoint;
+  }
   
 }
 
