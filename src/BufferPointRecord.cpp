@@ -287,7 +287,10 @@ void BufferPointRecord::addPoint(const string& identifier, Point point) {
   
   
   
-  
+  // quick sanity check
+  if (point.quality == Point::missing) {
+    return;
+  }
   
   
   double value, confidence;
