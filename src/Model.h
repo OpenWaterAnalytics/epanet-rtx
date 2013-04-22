@@ -11,7 +11,6 @@
 
 #include <string.h>
 #include <map>
-#include <tr1/unordered_map>
 #include <time.h>
 #include <boost/foreach.hpp>
 #include "rtxExceptions.h"
@@ -137,8 +136,8 @@ namespace RTX {
 
     // element lists
     // master node/link lists
-    std::tr1::unordered_map<std::string, Node::sharedPointer> _nodes;
-    std::tr1::unordered_map<std::string, Link::sharedPointer> _links;
+    std::map<std::string, Node::sharedPointer> _nodes;
+    std::map<std::string, Link::sharedPointer> _links;
     // convenience lists for iterations
     std::vector<Element::sharedPointer> _elements;
     std::vector<Junction::sharedPointer> _junctions;

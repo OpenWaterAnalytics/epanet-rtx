@@ -38,7 +38,6 @@ namespace RTX {
     virtual std::string registerAndGetIdentifier(std::string recordName);    // registering record names.
     virtual std::vector<std::string> identifiers();
     
-    //virtual bool isPointAvailable(const string& identifier, time_t time);
     virtual Point point(const string& identifier, time_t time);
     virtual Point pointBefore(const string& identifier, time_t time);
     virtual Point pointAfter(const string& identifier, time_t time);
@@ -54,9 +53,6 @@ namespace RTX {
     virtual std::ostream& toStream(std::ostream &stream);
     
     // types
-    //typedef std::pair<double,double> PointPair_t;
-    //typedef std::pair<time_t, PointPair_t > TimePointPair_t;
-    //typedef boost::circular_buffer<TimePointPair_t> PointBuffer_t;
     typedef boost::circular_buffer<Point> PointBuffer_t;
     typedef std::pair<PointBuffer_t, boost::shared_ptr<boost::signals2::mutex> > BufferMutexPair_t;
     typedef std::map<std::string, BufferMutexPair_t> KeyedBufferMutexMap_t;
@@ -67,7 +63,6 @@ namespace RTX {
     
   private:
     std::map<std::string, BufferMutexPair_t > _keyedBufferMutex;
-    //Point makePoint(PointBuffer_t::const_iterator iterator);
   };
   
   std::ostream& operator<< (std::ostream &out, BufferPointRecord &pr);

@@ -13,22 +13,21 @@
 using namespace RTX;
 using namespace std;
 
-//bool compareTimePointPair(const BufferPointRecord::TimePointPair_t& lhs, const BufferPointRecord::TimePointPair_t& rhs);
-
 BufferPointRecord::BufferPointRecord() {
   
   _defaultCapacity = 100;
 }
 
+
 std::ostream& RTX::operator<< (std::ostream &out, BufferPointRecord &pr) {
   return pr.toStream(out);
 }
+
 
 std::ostream& BufferPointRecord::toStream(std::ostream &stream) {
   stream << "Buffered Point Record" << std::endl;
   return stream;
 }
-
 
 
 std::string BufferPointRecord::registerAndGetIdentifier(std::string recordName) {
@@ -48,8 +47,6 @@ std::string BufferPointRecord::registerAndGetIdentifier(std::string recordName) 
 }
 
 
-
-
 std::vector<std::string> BufferPointRecord::identifiers() {
   typedef std::map<std::string, BufferMutexPair_t >::value_type& nameMapValue_t;
   vector<string> names;
@@ -58,17 +55,6 @@ std::vector<std::string> BufferPointRecord::identifiers() {
   }
   return names;
 }
-/*
-bool compareTimePointPair(const BufferPointRecord::TimePointPair_t& lhs, const BufferPointRecord::TimePointPair_t& rhs) {
-  return lhs.first < rhs.first;
-}
-*/
-/*
-// convenience method for making a new point from a buffer iterator
-Point BufferPointRecord::makePoint(PointBuffer_t::const_iterator iterator) {
-  return Point((*iterator).first, (*iterator).second.first, Point::good, (*iterator).second.second);
-}
-*/
 
 Point BufferPointRecord::point(const string& identifier, time_t time) {
   
@@ -232,66 +218,10 @@ std::vector<Point> BufferPointRecord::pointsInRange(const string& identifier, ti
 
 void BufferPointRecord::addPoint(const string& identifier, Point point) {
   
-  //if (BufferPointRecord::isPointAvailable(identifier, point.time)) {
-    //cout << "skipping duplicate point" << endl;
-   // return;
-  //}
-  
-  /*
-  vector<Point> single;
-  single.push_back(point);
-  BufferPointRecord::addPoints(identifier, single);
-  
-  */
-  /*
-   bool unordered = false;
-   // test for continuity
-   KeyedBufferMutexMap_t::iterator kbmmit = _keyedBufferMutex.find(identifier);
-   if (kbmmit != _keyedBufferMutex.end()) {
-   // get the constituents
-   boost::signals2::mutex *mutex = (kbmmit->second.second.get());
-   PointBuffer_t& buffer = (kbmmit->second.first);
-   // lock the buffer
-   mutex->lock();
-   
-   // check for monotonically increasing time values.
-   PointBuffer_t::const_iterator pIt = buffer.begin();
-   
-   while (pIt != buffer.end()) {
-   time_t t1 = pIt->first;
-   ++pIt;
-   if (pIt == buffer.end()) { break; }
-   time_t t2 = pIt->first;
-   
-   if (t1 >= t2) {
-   cerr << "Points unordered" << endl;
-   unordered = true;
-   break;
-   }
-   }
-   
-   if (unordered) {
-   // make sure the points are in order.
-   sort(buffer.begin(), buffer.end(), compareTimePointPair);
-   }
-   
-   mutex->unlock();
-   }
-   
-   */
-  
-  
-  
-  
-  
-  
-  
-  
   // quick sanity check
   if (point.quality == Point::missing) {
     return;
   }
-  
   
   double value, confidence;
   time_t time;
@@ -300,9 +230,7 @@ void BufferPointRecord::addPoint(const string& identifier, Point point) {
   time = point.time;
   value = point.value;
   confidence = point.confidence;
-  
-  //PointPair_t newPoint(value, confidence);
-  
+    
   KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
   if (it != _keyedBufferMutex.end()) {
     // get the constituents
@@ -346,11 +274,6 @@ void BufferPointRecord::addPoint(const string& identifier, Point point) {
       }
       
     }
-    
-    
-    
-    
-    
     
     // all done.
     mutex->unlock();

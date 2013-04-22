@@ -72,8 +72,8 @@ namespace RTX {
     void setLinkValue(int epanetCode, const std::string& link, double value);
     
   private:
-    std::tr1::unordered_map<std::string, int> _nodeIndex;
-    std::tr1::unordered_map<std::string, int> _linkIndex;
+    std::map<std::string, int> _nodeIndex;
+    std::map<std::string, int> _linkIndex;
     // TODO - use boost filesystem instead of std::string path
     std::string _modelFile;
   };

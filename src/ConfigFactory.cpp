@@ -227,8 +227,10 @@ PointRecord::sharedPointer ConfigFactory::createOdbcPointRecord(libconfig::Setti
   OdbcPointRecord::sharedPointer r( new OdbcPointRecord() );
   
   // create the initialization string for the scada point record.
-  string initString = setting["connection"];
-  string name = setting["name"];
+  string initString, name;
+  if ( setting.lookupValue("connection", initString) || setting.lookupValue("name", name) ) {
+    cerr << "odbc record name or connection not valid -- check config";
+  }
   
   
   if (setting.exists("querySyntax")) {
