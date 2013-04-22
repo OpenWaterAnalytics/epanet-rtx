@@ -186,6 +186,10 @@ std::vector<Point> Resampler::filteredPoints(time_t fromTime, time_t toTime, con
 }
 
 
+// filteredSingle is responsible for generating a single Point that represents whatever transformation
+// the class is meant to provide. give it a const address of the pointBuffer_t window, which probably
+// contains the source points, and the source units so it can do the unit conversion.
+
 Point Resampler::filteredSingle(const pointBuffer_t& window, time_t t, Units fromUnits) {
   if (window.size() < 2) {
     return Point();
