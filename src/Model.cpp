@@ -110,7 +110,7 @@ void Model::setParameterSource(PointRecord::sharedPointer record) {
 
 #pragma mark - Demand Zones
 
-void Model::initDemandZones() {
+void Model::initDemandZones(bool detectClosedLinks) {
   
   // load up the node set
   std::set<Junction::sharedPointer> nodeSet;
@@ -136,6 +136,7 @@ void Model::initDemandZones() {
     
     string zoneName = boost::lexical_cast<string>(iZone);
     Zone::sharedPointer newZone(new Zone(zoneName));
+    
     
     // specifiy the root node and populate the tree.
     newZone->enumerateJunctionsWithRootNode(rootNode);

@@ -68,7 +68,7 @@ namespace RTX {
     // node accessors
     void addJunction(Junction::sharedPointer junction);
     void removeJunction(Junction::sharedPointer junction);
-    void enumerateJunctionsWithRootNode(Junction::sharedPointer junction);
+    void enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool stopAtClosedLinks = false);
     Junction::sharedPointer findJunction(std::string name);
     bool doesHaveJunction(Junction::sharedPointer j);
     std::vector<Junction::sharedPointer> junctions();

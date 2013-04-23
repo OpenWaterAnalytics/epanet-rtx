@@ -206,7 +206,7 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
     for (int iLink = 1; iLink <= linkCount; iLink++) {
       char enLinkName[RTX_MAX_CHAR_STRING], enFromName[RTX_MAX_CHAR_STRING], enToName[RTX_MAX_CHAR_STRING];
       int linkType, enFrom, enTo;
-      double length, diameter;
+      double length, diameter, status;
       string linkName;
       Node::sharedPointer startNode, endNode;
       Pipe::sharedPointer newPipe;
@@ -221,6 +221,7 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
       ENcheck(ENgetnodeid(enTo, enToName), "ENgetnodeid - enToName");
       ENcheck(ENgetlinkvalue(iLink, EN_DIAMETER, &diameter), "ENgetlinkvalue EN_DIAMETER");
       ENcheck(ENgetlinkvalue(iLink, EN_LENGTH, &length), "ENgetlinkvalue EN_LENGTH");
+      ENcheck(ENgetlinkvalue(iLink, EN_INITSTATUS, &status), "ENgetlinkvalue EN_STATUS");
       
       linkName = string(enLinkName);
 
@@ -266,6 +267,10 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
       // now that the pipe is created, set some basic properties.
       newPipe->setDiameter(diameter);
       newPipe->setLength(length);
+      
+      if (status == 0) {
+        newPipe->setFixedStatus(Pipe::CLOSED);
+      }
       
       newPipe->flow()->setUnits(flowUnits());
       

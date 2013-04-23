@@ -587,13 +587,50 @@ Model::sharedPointer ConfigFactory::model() {
 void ConfigFactory::createSimulationDefaults(Setting& setting) {
   if (setting.exists("staterecord")) {
     _doesHaveStateRecord = true;
-    std::string defaultRecordName = setting["staterecord"];
+    string defaultRecordName = setting["staterecord"];
     if (_pointRecordList.find(defaultRecordName) == _pointRecordList.end()) {
       std::cerr << "could not retrieve point record by name: " << defaultRecordName << std::endl;
     }
     _defaultRecord = _pointRecordList[defaultRecordName];
     // provide the model object with this record
-    _model->setStorage(_defaultRecord);
+    
+    // get the states we want to persist
+    if (setting.exists("save_states")) {
+      Setting &saveSetting = setting["save_states"];
+      if (!saveSetting.isList()) {
+        cerr << "save_states should be a list: check config format" << endl;
+      }
+      int nStates = saveSetting.getLength();
+      for (int iState = 0; iState < nStates; ++iState) {
+        string stateToSave = saveSetting[iState];
+        if (RTX_STRINGS_ARE_EQUAL(stateToSave, "all")) {
+          _model->setStorage(_defaultRecord);
+        }
+        else if (RTX_STRINGS_ARE_EQUAL(stateToSave, "measured")) {
+          // save only the element states that have measured counterparts.
+          std::vector<Junction::sharedPointer> junctions = _model->junctions();
+          BOOST_FOREACH(Junction::sharedPointer j, junctions) {
+            if (j->doesHaveHeadMeasure()) {
+              j->head()->setRecord(_defaultRecord);
+            }
+            if (j->doesHaveQualityMeasure()) {
+              j->quality()->setRecord(_defaultRecord);
+            }
+          }
+          
+          std::vector<Pipe::sharedPointer> pipes = _model->pipes();
+          BOOST_FOREACH(Pipe::sharedPointer p, pipes) {
+            if (p->doesHaveFlowMeasure()) {
+              p->flow()->setRecord(_defaultRecord);
+            }
+          }
+        }
+      }
+      
+      
+    }
+    
+    
   }
   else {
     std::cout << "Warning: no state record specified. Model results will not be persisted!" << std::endl;
@@ -614,12 +651,14 @@ void ConfigFactory::createSimulationDefaults(Setting& setting) {
 #pragma mark - Zone Settings
 
 void ConfigFactory::createZones(Setting& zoneGroup) {
+  bool detectClosed = false;
   // get the zone information from the config,
   // then create each zone and add it to the model.
   if ( zoneGroup.exists("auto_detect") ) {
     bool autoDetect = zoneGroup["auto_detect"];
+    zoneGroup.lookupValue("detect_closed_links", detectClosed);
     if (autoDetect) {
-      _model->initDemandZones();
+      _model->initDemandZones(detectClosed);
     }
   }
   

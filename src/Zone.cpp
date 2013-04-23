@@ -14,6 +14,7 @@
 
 using namespace RTX;
 using namespace std;
+using std::cout;
 
 Zone::Zone(const std::string& name) : Element(name), _flowUnits(1) {
   this->setType(ZONE);
@@ -55,7 +56,7 @@ void Zone::removeJunction(Junction::sharedPointer junction) {
   }
 }
 
-void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {
+void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool stopAtClosedLinks) {
   
   bool doesContainReservoir = false;
   
@@ -91,6 +92,10 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {
           cerr << "direction could not be found for pipe: " << p->name() << endl;
         }
         _boundaryPipesDirectional.insert(make_pair(p, dir));
+        continue;
+      }
+      else if (stopAtClosedLinks && p->fixedStatus() == Pipe::CLOSED) {
+        cout << "detected fixed status (closed) pipe: " << p->name() << endl;
         continue;
       }
       
@@ -147,6 +152,7 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {
     // assemble the aggregated demand time series
     
     AggregatorTimeSeries::sharedPointer zoneDemand( new AggregatorTimeSeries() );
+    zoneDemand->setUnits(RTX_GALLON_PER_MINUTE);
     zoneDemand->setName("Zone " + this->name() + " demand");
     BOOST_FOREACH(Tank::sharedPointer t, _tanks) {
       zoneDemand->addSource(t->flowMeasure(), -1.);
@@ -169,6 +175,7 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction) {
   }
   else {
     ConstantTimeSeries::sharedPointer constZone(new ConstantTimeSeries());
+    constZone->setUnits(RTX_GALLON_PER_MINUTE);
     this->setDemand(constZone);
   }
   
@@ -282,7 +289,12 @@ std::vector<Junction::sharedPointer> Zone::junctions() {
 }
 
 void Zone::setDemand(TimeSeries::sharedPointer demand) {
-  _demand = demand;
+  if (demand->units().isSameDimensionAs(RTX_CUBIC_METER_PER_SECOND)) {
+    _demand = demand;
+  }
+  else {
+    cerr << "could not set demand -- dimension must be volumetric rate" << endl;
+  }
 }
 
 TimeSeries::sharedPointer Zone::demand() {

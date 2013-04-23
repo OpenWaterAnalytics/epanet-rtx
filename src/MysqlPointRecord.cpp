@@ -51,9 +51,11 @@ MysqlPointRecord::MysqlPointRecord() {
 }
 
 MysqlPointRecord::~MysqlPointRecord() {
+  /*
   if (_driver) {
     _driver->threadEnd();
   }
+   */
 }
 
 #pragma mark - Public
