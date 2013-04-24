@@ -416,9 +416,6 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
     return points;
   }
   
-  // make sure the request paramter cache is current. (super uses this)
-  request = request_t(id,startTime, endTime);
-  
   // set up query-bound variables
   _query.start = sqlTime(startTime-1);
   _query.end = sqlTime(endTime+1); // add one second to get fractional times included
@@ -467,6 +464,10 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
   
   if (points.size() == 0) {
     //cerr << "no points found" << endl;
+  }
+  else {
+    // make sure the request paramter cache is current. (super uses this)
+    request = request_t(id,points.front().time, points.back().time);
   }
   
   return points;

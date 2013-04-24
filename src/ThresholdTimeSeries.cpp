@@ -1,23 +1,16 @@
-//
-//  StatusTimeSeries.cpp
-//  epanet-rtx
-//
-//  Created by Jim Uber on 4/9/2013 based on OffsetTimeSeries Class.
-//
-//
-
 #include <boost/foreach.hpp>
 
-#include "StatusTimeSeries.h"
+#include "ThresholdTimeSeries.h"
 
 using namespace std;
 using namespace RTX;
 
-StatusTimeSeries::StatusTimeSeries() {
-  setThreshold(0.);
+ThresholdTimeSeries::ThresholdTimeSeries() {
+  _threshold = 0;
+  _fixedValue = 1;
 }
 
-Point StatusTimeSeries::point(time_t time){
+Point ThresholdTimeSeries::point(time_t time){
   
   Point sourcePoint = source()->point(time);
   Point newPoint = this->convertWithThreshold(sourcePoint);
@@ -25,7 +18,7 @@ Point StatusTimeSeries::point(time_t time){
   
 }
 
-std::vector<Point> StatusTimeSeries::filteredPoints(time_t fromTime, time_t toTime, const std::vector<Point>& sourcePoints) {
+std::vector<Point> ThresholdTimeSeries::filteredPoints(time_t fromTime, time_t toTime, const std::vector<Point>& sourcePoints) {
   
   vector<Point> statusPoints;
   statusPoints.reserve(sourcePoints.size());
@@ -41,21 +34,25 @@ std::vector<Point> StatusTimeSeries::filteredPoints(time_t fromTime, time_t toTi
   return statusPoints;
 }
 
-void StatusTimeSeries::setThreshold(double threshold) {
+void ThresholdTimeSeries::setThreshold(double threshold) {
   _threshold = threshold;
 }
 
-double StatusTimeSeries::threshold() {
+double ThresholdTimeSeries::threshold() {
   return _threshold;
 }
 
-Point StatusTimeSeries::convertWithThreshold(Point p) {
-  double pointValue = 0.;
-  if(p.value > _threshold) pointValue = 1.;
+void ThresholdTimeSeries::setValue(double val) {
+  _fixedValue = val;
+}
+
+double ThresholdTimeSeries::value() {
+  return _fixedValue;
+}
+
+Point ThresholdTimeSeries::convertWithThreshold(Point p) {
+  double pointValue = (p.value > _threshold) ? _fixedValue : 0.;
   Point newPoint(p.time, pointValue, p.quality, p.confidence);
   return newPoint;
 }
 
-void StatusTimeSeries::setUnits(Units newUnits) {
-  cerr << "can not set units for status time series " << name() << endl;
-}

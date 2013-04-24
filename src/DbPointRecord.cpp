@@ -78,8 +78,15 @@ Point DbPointRecord::point(const string& id, time_t time) {
     time_t start = time - margin, end = time + margin;
     
     // do the request, and cache the request parameters.
-    request = request_t(id, start, end);
+    
     vector<Point> pVec = this->selectRange(id, start, end);
+    if (pVec.size() > 0) {
+      request = request_t(id, pVec.front().time, pVec.back().time);
+    }
+    else {
+      request = request_t(id,0,0);
+    }
+    
     
     vector<Point>::const_iterator pIt = pVec.begin();
     while (pIt != pVec.end()) {
@@ -197,7 +204,7 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, time_t startTi
     merged.insert(merged.end(), newPoints.begin(), newPoints.end());
     merged.insert(merged.end(), right.begin(), right.end());
     
-    request = request_t(id, qstart, qend);
+    request = request_t(id, merged.front().time, merged.back().time);
     DB_PR_SUPER::addPoints(id, merged);
     
     return merged;

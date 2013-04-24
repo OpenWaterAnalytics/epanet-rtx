@@ -16,7 +16,7 @@
 #include "Resampler.h"
 #include "FirstDerivative.h"
 #include "OffsetTimeSeries.h"
-#include "StatusTimeSeries.h"
+#include "ThresholdTimeSeries.h"
 #include "CurveFunction.h"
 #include "PointRecord.h"
 #include "OdbcPointRecord.h"
@@ -45,7 +45,7 @@ ConfigFactory::ConfigFactory() {
   _timeSeriesPointerMap.insert(std::make_pair("Derivative", &ConfigFactory::createDerivative));
   _timeSeriesPointerMap.insert(std::make_pair("Offset", &ConfigFactory::createOffset));
   _timeSeriesPointerMap.insert(std::make_pair("FirstDerivative", &ConfigFactory::createDerivative));
-  _timeSeriesPointerMap.insert(std::make_pair("Status", &ConfigFactory::createStatus));
+  _timeSeriesPointerMap.insert(std::make_pair("Threshold", &ConfigFactory::createThreshold));
   _timeSeriesPointerMap.insert(std::make_pair("CurveFunction", &ConfigFactory::createCurveFunction));
   
   // node-type configuration functions
@@ -497,8 +497,8 @@ TimeSeries::sharedPointer ConfigFactory::createOffset(Setting &setting) {
   return offset;
 }
 
-TimeSeries::sharedPointer ConfigFactory::createStatus(Setting &setting) {
-  StatusTimeSeries::sharedPointer status( new StatusTimeSeries() );
+TimeSeries::sharedPointer ConfigFactory::createThreshold(Setting &setting) {
+  ThresholdTimeSeries::sharedPointer status( new ThresholdTimeSeries() );
   setGenericTimeSeriesProperties(status, setting);
   if (setting.exists("thresholdValue")) {
     double v = getConfigDouble(setting, "thresholdValue");

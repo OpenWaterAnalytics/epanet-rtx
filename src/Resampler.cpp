@@ -200,10 +200,10 @@ Point Resampler::filteredSingle(const pointBuffer_t& window, time_t t, Units fro
   p2 = *(++it);
   
   if (p1.time == t) {
-    return p1;
+    return Point::convertPoint(p1, fromUnits, this->units());
   }
   if (p2.time == t) {
-    return p2;
+    return Point::convertPoint(p2, fromUnits, this->units());
   }
   
   
@@ -212,6 +212,7 @@ Point Resampler::filteredSingle(const pointBuffer_t& window, time_t t, Units fro
   time_t dt2 = t - p1.time;
   double dv2 = dv * dt2 / dt;
   double newValue = p1.value + dv2;
+  newValue = Units::convertValue(newValue, fromUnits, this->units());
   double newConfidence = (p1.confidence + p2.confidence) / 2; // TODO -- more elegant confidence estimation
   return Point(t, newValue, Point::interpolated, newConfidence);
 }

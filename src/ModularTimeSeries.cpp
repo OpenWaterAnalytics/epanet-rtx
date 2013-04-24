@@ -137,7 +137,10 @@ Point ModularTimeSeries::pointAfter(time_t time) {
 }
 
 vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
-  
+  if (!_doesHaveSource) {
+    vector<Point> empty;
+    return empty;
+  }
   if (!clock()->isRegular()) {
     // if the clock is irregular, there's no easy way around this.
     // call the source points method to get it to cache points...

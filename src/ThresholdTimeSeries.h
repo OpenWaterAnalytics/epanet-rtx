@@ -1,13 +1,13 @@
 //
-//  StatusTimeSeries.h
+//  ThresholdTimeSeries.h
 //  epanet-rtx
 //
-//  Created by Jim Uber on 4/9/2013 based on OffsetTimeSeries Class.
-//
+//  Created by the EPANET-RTX Development Team
+//  See README.md and license.txt for more information
 //
 
-#ifndef __epanet_rtx__StatusTimeSeries__
-#define __epanet_rtx__StatusTimeSeries__
+#ifndef __epanet_rtx__ThresholdTimeSeries__
+#define __epanet_rtx__ThresholdTimeSeries__
 
 #include <iostream>
 #include "ModularTimeSeries.h"
@@ -20,23 +20,25 @@ namespace RTX {
    convert the derivative of a pump runtime into a pump on/off status.
    */
   
-  class StatusTimeSeries : public ModularTimeSeries {
+  class ThresholdTimeSeries : public ModularTimeSeries {
     
   public:
-    RTX_SHARED_POINTER(StatusTimeSeries);
-    StatusTimeSeries();
+    RTX_SHARED_POINTER(ThresholdTimeSeries);
+    ThresholdTimeSeries();
     virtual Point point(time_t time);
     void setThreshold(double threshold);
     double threshold();
+    void setValue(double val);
+    double value();
+    
   protected:
     virtual std::vector<Point> filteredPoints(time_t fromTime, time_t toTime, const std::vector<Point>& sourcePoints);
-    // overridden methods from parent class
-    void setUnits(Units newUnits);
-    
+        
   private:
     Point convertWithThreshold(Point p);
     double _threshold;
+    double _fixedValue;
     
   };
 }
-#endif /* defined(__epanet_rtx__StatusTimeSeries__) */
+#endif /* defined(__epanet_rtx__ThresholdTimeSeries__) */
