@@ -77,6 +77,27 @@ bool Point::comparePointTime(const Point& left, const Point& right) {
   return left.time < right.time;
 }
 
+Point Point::linearInterpolate(const Point& p1, const Point& p2, const time_t& t) {
+  Point p;
+  if (p1.time == t) {
+    p = p1;
+  }
+  else if (p2.time == t) {
+    p = p2;
+  }
+  else {
+    time_t dt = p2.time - p1.time;
+    double dv = p2.value - p1.value;
+    time_t dt2 = t - p1.time;
+    double dv2 = dv * dt2 / dt;
+    double newValue = p1.value + dv2;
+    double newConfidence = (p1.confidence + p2.confidence) / 2; // TODO -- more elegant confidence estimation
+    p = Point(t, newValue, Point::interpolated, newConfidence);
+  }
+  return p;
+}
+
+
 
 std::ostream& RTX::operator<< (std::ostream &out, Point &point) {
   return point.toStream(out);

@@ -47,6 +47,7 @@ namespace RTX {
     // static class methods
     static Point convertPoint(const Point& point, const Units& fromUnits, const Units& toUnits);
     static bool comparePointTime(const Point& left, const Point& right);
+    static Point linearInterpolate(const Point& p1, const Point& p2, const time_t& t);
     
   };
 

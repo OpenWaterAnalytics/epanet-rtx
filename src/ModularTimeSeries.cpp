@@ -33,12 +33,12 @@ void ModularTimeSeries::setSource(TimeSeries::sharedPointer sourceTimeSeries) {
     _doesHaveSource = true;
     //resetCache();
     // if this is an irregular time series, then set this clock to the same as that guy's clock.
-    if (!clock()->isRegular()) {
-      setClock(source()->clock());
-    }
+    //if (!clock()->isRegular()) {
+    setClock(source()->clock());
+    //}
     // and if i don't have units, just borrow from the source.
     if (units().isDimensionless()) {
-      setUnits(_source->units()); // as a copy, in case it changes.
+      setUnits(_source->units());
     }
   }
   else {
@@ -85,17 +85,6 @@ bool ModularTimeSeries::isPointAvailable(time_t time) {
 Point ModularTimeSeries::point(time_t time) {
   // check the base-class availability. if it's cached or stored here locally, then send it on.
   // otherwise, check the upstream availability. if it's there, store it locally and pass it on.
-  
-  // check the requested time for validity
-  // if the time is not valid, rewind until a valid time is reached.
-  time_t newTime = clock()->validTime(time);
-
-  // if my clock can't find it, maybe my source's clock can?
-  if (newTime == 0) {
-    time = source()->clock()->validTime(time);
-  } else {
-    time = newTime;
-  }
   
   Point p = TimeSeries::point(time);
   if (p.isValid) {
@@ -145,20 +134,20 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
     // if the clock is irregular, there's no easy way around this.
     // call the source points method to get it to cache points...
     //cout << "calling source cache (" << source()->name() << ")" << endl;
-    time_t sStart = start;
-    time_t sEnd = end;
+    //time_t sStart = start;
+    //time_t sEnd = end;
     
     // widen the source window
-    for (int i = 0; i < margin(); ++i) {
-      sStart = source()->clock()->timeBefore(sStart);
-      sEnd = source()->clock()->timeAfter(sEnd);
-    }
+    //for (int i = 0; i < margin(); ++i) {
+    //  sStart = source()->clock()->timeBefore(sStart);
+    //  sEnd = source()->clock()->timeAfter(sEnd);
+    //}
     
-    sStart = sStart>0 ? sStart : start;
-    sEnd = sEnd>0 ? sEnd : end;
+    //sStart = sStart>0 ? sStart : start;
+    //sEnd = sEnd>0 ? sEnd : end;
     
-    vector<Point> sourcePoints = source()->points(sStart, sEnd);
-    vector<Point> filtered = this->filteredPoints(start, end, sourcePoints);
+    //vector<Point> sourcePoints = source()->points(sStart, sEnd);
+    vector<Point> filtered = this->filteredPoints(start, end);
     this->insertPoints(filtered);
     return filtered;
   }
@@ -210,17 +199,7 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
         gapStart = now;
         gapEnd = recordPoint.time;
         
-        Point gapSourceStart = Point(gapStart, 0);
-        Point gapSourceEnd = recordPoint;
-        
-        for (int i = 0; i < margin(); ++i) {
-          gapSourceStart = source()->pointBefore(gapSourceStart.time);
-          gapSourceEnd = source()->pointAfter(gapSourceEnd.time);
-        }
-        
-        
-        vector<Point> gapSourcePoints = source()->points(gapSourceStart.time, gapSourceEnd.time);
-        vector<Point> gapPoints = filteredPoints(gapStart, gapEnd, gapSourcePoints);
+        vector<Point> gapPoints = filteredPoints(gapStart, gapEnd);
         if (gapPoints.size() > 0) {
           this->insertPoints(gapPoints);
           now = gapPoints.back().time;
@@ -245,23 +224,11 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
   // otherwise, construct new points.
   // get the times for the source query
   Point sourceStart, sourceEnd;
-  Point s = source()->pointBefore(newStart);
-  Point e = source()->pointAfter(newEnd);
-  sourceStart = (s.isValid)? s : Point(newStart,0); //newStart;
-  sourceEnd = (e.isValid>0)? e : Point(newEnd,0); //newEnd;
-  
-  
-  // get the source points
-  std::vector<Point> sourcePoints = source()->points(sourceStart.time, sourceEnd.time);
-  if (sourcePoints.size() < 2) {
-    vector<Point> empty;
-    return empty;
-  }
   
   // create a place for the new points
   std::vector<Point> filtered;
   
-  filtered = filteredPoints(newStart, newEnd, sourcePoints);
+  filtered = filteredPoints(newStart, newEnd);
   
   // finally, add the points to myself.
   this->insertPoints(filtered);
@@ -276,17 +243,29 @@ int ModularTimeSeries::margin() {
 }
 
 
-vector<Point> ModularTimeSeries::filteredPoints(time_t fromTime, time_t toTime, const vector<Point>& sourcePoints) {
-  Units sourceUnits = source()->units();
-  Units myUnits = units();
+vector<Point> ModularTimeSeries::filteredPoints(time_t fromTime, time_t toTime) {
   vector<Point> filtered;
+  Point fromPoint, toPoint;
+  time_t fromSourceTime, toSourceTime;
+  for (int i = 0; i < margin(); ++i) {
+    fromPoint = source()->pointBefore(fromTime);
+    toPoint = source()->pointAfter(toTime);
+  }
+  
+  fromSourceTime = fromPoint.isValid ? fromPoint.time : fromTime;
+  toSourceTime = toPoint.isValid ? toPoint.time : toTime;
+  
+  // get the source points
+  std::vector<Point> sourcePoints = source()->points(fromSourceTime, toSourceTime);
+  if (sourcePoints.size() < 2) {
+    return filtered;
+  }
   
   BOOST_FOREACH(const Point& p, sourcePoints) {
     if (p.time < fromTime || p.time > toTime) {
-      // skip the points we didn't ask for.
-      continue;
+      continue; // skip the points we didn't ask for.
     }
-    Point aPoint = Point::convertPoint(p, sourceUnits, myUnits);
+    Point aPoint = Point::convertPoint(p, source()->units(), this->units());
     filtered.push_back(aPoint);
   }
   
