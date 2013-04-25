@@ -204,7 +204,8 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, time_t startTi
     merged.insert(merged.end(), newPoints.begin(), newPoints.end());
     merged.insert(merged.end(), right.begin(), right.end());
     
-    request = request_t(id, merged.front().time, merged.back().time);
+    request = (merged.size() > 0) ? request_t(id, merged.front().time, merged.back().time) : request_t(id,0,0);
+    
     DB_PR_SUPER::addPoints(id, merged);
     
     return merged;

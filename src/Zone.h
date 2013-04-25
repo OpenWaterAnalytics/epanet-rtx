@@ -60,6 +60,7 @@ namespace RTX {
   class Zone : public Element {
   public:
     RTX_SHARED_POINTER(Zone);
+    virtual std::ostream& toStream(std::ostream &stream);
     Zone(const std::string& name);
     ~Zone();
     
@@ -80,7 +81,7 @@ namespace RTX {
     
     // business logic
     virtual void allocateDemandToJunctions(time_t time);
-    
+        
   private:
     void followJunction(Junction::sharedPointer junction);
     bool isBoundaryFlowJunction(Junction::sharedPointer junction);

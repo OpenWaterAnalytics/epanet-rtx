@@ -36,3 +36,12 @@ void Element::setType(element_t type) {
 void Element::setRecord(PointRecord::sharedPointer record) {
   std::cerr << "base class called! error!" << std::endl;
 }
+
+std::ostream& RTX::operator<< (std::ostream &out, Element &e) {
+  return e.toStream(out);
+}
+
+std::ostream& Element::toStream(std::ostream &stream) {
+  stream << "Element: \"" << this->name() << "\"\n";
+  return stream;
+}

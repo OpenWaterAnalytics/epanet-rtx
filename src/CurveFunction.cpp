@@ -51,7 +51,7 @@ Point CurveFunction::point(time_t time) {
     Point newPoint = this->convertWithCurve(sourcePoint, sourceU);
     return newPoint;
   } else {
-    std::cerr << "check point availability first\n";
+    std::cerr << "CurveFunction \"" << this->name() << "\": check point availability first\n";
     // TODO -- throw something?
     Point newPoint(time, 0.0, Point::missing, 0.0);
     return newPoint;

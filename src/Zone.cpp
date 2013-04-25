@@ -29,6 +29,20 @@ Zone::~Zone() {
   
 }
 
+std::ostream& Zone::toStream(std::ostream &stream) {
+  stream << "Zone: \"" << this->name() << "\"\n";
+  stream << " - " << junctions().size() << " Junctions" << endl;
+  stream << " - " << _boundaryPipesDirectional.size() << " Boundary Pipes:" << endl;
+  typedef pair<Pipe::sharedPointer, direction_t> pipeDir_t;
+  BOOST_FOREACH(pipeDir_t pd, _boundaryPipesDirectional) {
+    Pipe::sharedPointer pipe = pd.first;
+    string dir = (pd.second == inDirection)? "(+)" : "(-)";
+    stream << "   -- " << dir << " " << pipe->name() << endl;
+  }
+  
+  return stream;
+}
+
 void Zone::setRecord(PointRecord::sharedPointer record) {
   if (_demand) {
     _demand->setRecord(record);
