@@ -125,6 +125,7 @@ namespace RTX {
     void createClocks(Setting& clockGroup);
     void createTimeSeriesList(Setting& timeSeriesGroup);
     void createZones(Setting& zoneGroup);
+    void createSaveOptions(Setting& saveGroup);
     double getConfigDouble(Setting& config, const std::string& name);
     bool _doesHaveStateRecord;
     

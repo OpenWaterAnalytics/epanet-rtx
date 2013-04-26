@@ -152,6 +152,14 @@ void ConfigFactory::loadConfigFile(const std::string& path) {
     createModel(modelGroup);
   }
   
+  // set simulation defaults
+  if ( !config.exists("simulation") ) {
+    config.add("simulation", Setting::TypeList);
+  } else {
+    Setting& simulationGroup = config["simulation"];
+    createSimulationDefaults(simulationGroup);
+  }
+  
   // make zones
   if ( !config.exists("zones") ) {
     config.add("zones", Setting::TypeList);
@@ -160,13 +168,14 @@ void ConfigFactory::loadConfigFile(const std::string& path) {
     createZones(zoneGroup);
   }
   
-  // set defaults
-  if ( !config.exists("simulation") ) {
-    config.add("simulation", Setting::TypeList);
+  // data persistence
+  if (!config.exists("save")) {
+    config.add("save", Setting::TypeList);
   } else {
-    Setting& simulationGroup = config["simulation"];
-    createSimulationDefaults(simulationGroup);
+    Setting &saveGroup = config["save"];
+    createSaveOptions(saveGroup);
   }
+  
   
 }
 
@@ -585,60 +594,7 @@ Model::sharedPointer ConfigFactory::model() {
 #pragma mark - Simulation Settings
 
 void ConfigFactory::createSimulationDefaults(Setting& setting) {
-  if (setting.exists("staterecord")) {
-    _doesHaveStateRecord = true;
-    string defaultRecordName = setting["staterecord"];
-    if (_pointRecordList.find(defaultRecordName) == _pointRecordList.end()) {
-      std::cerr << "could not retrieve point record by name: " << defaultRecordName << std::endl;
-    }
-    _defaultRecord = _pointRecordList[defaultRecordName];
-    // provide the model object with this record
-    
-    // get the states we want to persist
-    if (setting.exists("save_states")) {
-      Setting &saveSetting = setting["save_states"];
-      if (!saveSetting.isList()) {
-        cerr << "save_states should be a list: check config format" << endl;
-      }
-      int nStates = saveSetting.getLength();
-      for (int iState = 0; iState < nStates; ++iState) {
-        string stateToSave = saveSetting[iState];
-        if (RTX_STRINGS_ARE_EQUAL(stateToSave, "all")) {
-          _model->setStorage(_defaultRecord);
-        }
-        else if (RTX_STRINGS_ARE_EQUAL(stateToSave, "measured")) {
-          // save only the element states that have measured counterparts.
-          std::vector<Junction::sharedPointer> junctions = _model->junctions();
-          BOOST_FOREACH(Junction::sharedPointer j, junctions) {
-            if (j->doesHaveHeadMeasure()) {
-              j->head()->setRecord(_defaultRecord);
-            }
-            if (j->doesHaveQualityMeasure()) {
-              j->quality()->setRecord(_defaultRecord);
-            }
-          }
-          
-          std::vector<Pipe::sharedPointer> pipes = _model->pipes();
-          BOOST_FOREACH(Pipe::sharedPointer p, pipes) {
-            if (p->doesHaveFlowMeasure()) {
-              p->flow()->setRecord(_defaultRecord);
-            }
-          }
-        }
-      }
-      
-      
-    }
-    
-    
-  }
-  else {
-    std::cout << "Warning: no state record specified. Model results will not be persisted!" << std::endl;
-  }
-  
-  // todo -- specific storage items from config
-
-  // get other simulation settings
+  // get simulation settings
   Setting& timeSetting = setting["time"];
   const int hydStep = timeSetting["hydraulic"];
   const int qualStep = timeSetting["quality"];
@@ -664,6 +620,66 @@ void ConfigFactory::createZones(Setting& zoneGroup) {
   
 }
 
+
+#pragma mark - Save Options
+
+void ConfigFactory::createSaveOptions(libconfig::Setting &saveGroup) {
+  if (saveGroup.exists("staterecord")) {
+    _doesHaveStateRecord = true;
+    string defaultRecordName = saveGroup["staterecord"];
+    if (_pointRecordList.find(defaultRecordName) == _pointRecordList.end()) {
+      std::cerr << "could not retrieve point record by name: " << defaultRecordName << std::endl;
+    }
+    _defaultRecord = _pointRecordList[defaultRecordName];
+    // provide the model object with this record
+    
+    // get the states we want to persist
+    if (saveGroup.exists("save_states")) {
+      Setting &saveSetting = saveGroup["save_states"];
+      if (!saveSetting.isList()) {
+        cerr << "save_states should be a list: check config format" << endl;
+        return;
+      }
+      int nStates = saveSetting.getLength();
+      for (int iState = 0; iState < nStates; ++iState) {
+        string stateToSave = saveSetting[iState];
+        if (RTX_STRINGS_ARE_EQUAL(stateToSave, "all")) {
+          _model->setStorage(_defaultRecord);
+        }
+        else if (RTX_STRINGS_ARE_EQUAL(stateToSave, "measured")) {
+          // save only the element states that have measured counterparts.
+          std::vector<Junction::sharedPointer> junctions = _model->junctions();
+          BOOST_FOREACH(Junction::sharedPointer j, junctions) {
+            if (j->doesHaveHeadMeasure()) {
+              j->head()->setRecord(_defaultRecord);
+            }
+            if (j->doesHaveQualityMeasure()) {
+              j->quality()->setRecord(_defaultRecord);
+            }
+          }
+          
+          std::vector<Pipe::sharedPointer> pipes = _model->pipes();
+          BOOST_FOREACH(Pipe::sharedPointer p, pipes) {
+            if (p->doesHaveFlowMeasure()) {
+              p->flow()->setRecord(_defaultRecord);
+            }
+          }
+        } // measured
+        else if (RTX_STRINGS_ARE_EQUAL(stateToSave, "zone_demand")) {
+          vector<Zone::sharedPointer> zones = _model->zones();
+          BOOST_FOREACH(Zone::sharedPointer z, zones) {
+            z->setRecord(_defaultRecord);
+          }
+        } // zone demand
+      } // list of states
+    } // save_states group
+    
+    
+  }
+  else {
+    std::cout << "Warning: no state record specified. Model results will not be persisted!" << std::endl;
+  }
+}
 
 
 #pragma mark - Element Configuration

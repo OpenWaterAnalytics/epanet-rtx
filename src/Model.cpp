@@ -228,6 +228,8 @@ void Model::addValve(Valve::sharedPointer newValve) {
 void Model::addZone(Zone::sharedPointer zone) {
   _zones.push_back(zone);
   zone->setJunctionFlowUnits(this->flowUnits());
+  Clock::sharedPointer hydClock(new Clock(hydraulicTimeStep()));
+  zone->demand()->setClock(hydClock);
 }
 
 // add to master lists
