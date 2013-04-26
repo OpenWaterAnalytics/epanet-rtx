@@ -32,7 +32,7 @@ namespace RTX {
     double value();
     
   protected:
-    virtual std::vector<Point> filteredPoints(time_t fromTime, time_t toTime, const std::vector<Point>& sourcePoints);
+    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
         
   private:
     Point convertWithThreshold(Point p);
