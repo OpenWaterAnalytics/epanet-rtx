@@ -23,7 +23,13 @@ ModularTimeSeries::~ModularTimeSeries() {
 
 ostream& ModularTimeSeries::toStream(ostream &stream) {
   TimeSeries::toStream(stream);
-  stream << "Connected to: " << *_source << "\n";
+  stream << "Connected to: ";
+  if (_source) {
+    stream << *_source << endl;
+  }
+  else {
+    stream << "(nothing)" << endl;
+  }
   return stream;
 }
 
@@ -33,9 +39,9 @@ void ModularTimeSeries::setSource(TimeSeries::sharedPointer sourceTimeSeries) {
     _doesHaveSource = true;
     //resetCache();
     // if this is an irregular time series, then set this clock to the same as that guy's clock.
-    //if (!clock()->isRegular()) {
+    if (!clock()->isRegular()) {
     setClock(source()->clock());
-    //}
+    }
     // and if i don't have units, just borrow from the source.
     if (units().isDimensionless()) {
       setUnits(_source->units());

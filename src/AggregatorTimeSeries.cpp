@@ -25,6 +25,12 @@ bool AggregatorTimeSeries::doesHaveSource() {
   return !(_tsList.empty());
 }
 
+ostream& AggregatorTimeSeries::toStream(ostream &stream) {
+  TimeSeries::toStream(stream);
+  stream << "Connected to: " << _tsList.size() << " time series" << "\n";
+  return stream;
+}
+
 void AggregatorTimeSeries::addSource(TimeSeries::sharedPointer timeSeries, double multiplier) throw(RtxException) {
   
   // check compatibility

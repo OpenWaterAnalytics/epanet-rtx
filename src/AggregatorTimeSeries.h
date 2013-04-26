@@ -31,6 +31,7 @@ namespace RTX {
     TimeSeries::sharedPointer source();
     virtual void setSource(TimeSeries::sharedPointer source);
     virtual bool doesHaveSource();
+    virtual std::ostream& toStream(std::ostream &stream);
     
     // add a time series to this aggregator. optional parameter "multiplier" allows you to scale
     // the aggregated time series (for instance, by -1 if it needs to be subtracted).
