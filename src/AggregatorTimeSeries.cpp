@@ -21,6 +21,9 @@ TimeSeries::sharedPointer AggregatorTimeSeries::source() {
 void AggregatorTimeSeries::setSource(TimeSeries::sharedPointer source) {
   return;
 }
+bool AggregatorTimeSeries::doesHaveSource() {
+  return !(_tsList.empty());
+}
 
 void AggregatorTimeSeries::addSource(TimeSeries::sharedPointer timeSeries, double multiplier) throw(RtxException) {
   

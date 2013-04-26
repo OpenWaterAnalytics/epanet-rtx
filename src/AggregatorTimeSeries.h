@@ -30,6 +30,7 @@ namespace RTX {
     RTX_SHARED_POINTER(AggregatorTimeSeries);
     TimeSeries::sharedPointer source();
     virtual void setSource(TimeSeries::sharedPointer source);
+    virtual bool doesHaveSource();
     
     // add a time series to this aggregator. optional parameter "multiplier" allows you to scale
     // the aggregated time series (for instance, by -1 if it needs to be subtracted).

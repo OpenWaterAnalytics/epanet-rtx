@@ -48,7 +48,7 @@ namespace RTX {
     // class-specific methods
     TimeSeries::sharedPointer source();
     virtual void setSource(TimeSeries::sharedPointer source);
-    bool doesHaveSource();
+    virtual bool doesHaveSource();
     
     // overridden methods from parent class
     //virtual bool isPointAvailable(time_t time);

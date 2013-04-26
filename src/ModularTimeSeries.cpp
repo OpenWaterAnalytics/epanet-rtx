@@ -53,7 +53,12 @@ TimeSeries::sharedPointer ModularTimeSeries::source() {
 }
 
 bool ModularTimeSeries::doesHaveSource() {
-  return _doesHaveSource;
+  if (_source) {
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 
 void ModularTimeSeries::setUnits(Units newUnits) {
@@ -126,7 +131,7 @@ Point ModularTimeSeries::pointAfter(time_t time) {
 }
 
 vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
-  if (!_doesHaveSource) {
+  if (!doesHaveSource()) {
     vector<Point> empty;
     return empty;
   }
