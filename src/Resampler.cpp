@@ -82,9 +82,23 @@ bool Resampler::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
 
 
 
-std::vector<Point> Resampler::filteredPoints(time_t fromTime, time_t toTime, const std::vector<Point>& sourcePoints) {
+std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
   std::vector<Point> resampled;
-  Units sourceU = source()->units();
+  Point fromPoint, toPoint;
+  time_t fromSourceTime, toSourceTime;
+  for (int i = 0; i < margin(); ++i) {
+    fromPoint = sourceTs->pointBefore(fromTime);
+    toPoint = sourceTs->pointAfter(toTime);
+  }
+  
+  fromSourceTime = fromPoint.isValid ? fromPoint.time : fromTime;
+  toSourceTime = toPoint.isValid ? toPoint.time : toTime;
+  
+  // get the source points
+  std::vector<Point> sourcePoints = sourceTs->points(fromSourceTime, toSourceTime);
+  if (sourcePoints.size() < 2) {
+    return resampled;
+  }
   
   // check the source points
   if (sourcePoints.size() < 2) {
@@ -147,7 +161,7 @@ std::vector<Point> Resampler::filteredPoints(time_t fromTime, time_t toTime, con
     // are we in the right position?
     if (sourceLeft.time <= now && now <= sourceRight.time ) {
       // ok, interpolate.
-      Point interp = filteredSingle(buffer, now, sourceU);
+      Point interp = filteredSingle(buffer, now, sourceTs->units());
       if (interp.isValid) {
         resampled.push_back(interp);
       }

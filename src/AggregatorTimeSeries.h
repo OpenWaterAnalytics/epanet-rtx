@@ -11,7 +11,7 @@
 
 
 #include <vector>
-#include "TimeSeries.h"
+#include "Resampler.h"
 #include "rtxExceptions.h"
 
 namespace RTX {
@@ -24,10 +24,13 @@ namespace RTX {
    
    */
   
-  class AggregatorTimeSeries : public TimeSeries {
+  class AggregatorTimeSeries : public Resampler {
   
   public:
     RTX_SHARED_POINTER(AggregatorTimeSeries);
+    TimeSeries::sharedPointer source();
+    virtual void setSource(TimeSeries::sharedPointer source);
+    
     // add a time series to this aggregator. optional parameter "multiplier" allows you to scale
     // the aggregated time series (for instance, by -1 if it needs to be subtracted).
     void addSource(TimeSeries::sharedPointer timeSeries, double multiplier = 1.) throw(RtxException);
@@ -36,9 +39,12 @@ namespace RTX {
     
     // reimplement the base class methods
     virtual Point point(time_t time);
-    virtual std::vector< Point > points(time_t start, time_t end);
+    // points is handled by ModularTimeSeries, which calls filteredPoints (see below)
+    //virtual std::vector< Point > points(time_t start, time_t end);
 
-    
+  protected:
+    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
+
   private:
     // need to store several TimeSeries references...
     // _tsList[x].first == TimeSeries, _tsList[x].second == multipier

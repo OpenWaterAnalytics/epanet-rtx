@@ -12,6 +12,15 @@
 #include "boost/foreach.hpp"
 
 using namespace RTX;
+using namespace std;
+
+TimeSeries::sharedPointer AggregatorTimeSeries::source() {
+  TimeSeries::sharedPointer empty;
+  return empty;
+}
+void AggregatorTimeSeries::setSource(TimeSeries::sharedPointer source) {
+  return;
+}
 
 void AggregatorTimeSeries::addSource(TimeSeries::sharedPointer timeSeries, double multiplier) throw(RtxException) {
   
@@ -64,7 +73,7 @@ Point AggregatorTimeSeries::point(time_t time) {
   if (!aPoint.isValid || aPoint.quality == Point::missing) {
     aPoint = Point(time, 0, Point::good);
     // start at zero, and sum other TS's values.
-    std::vector< std::pair<TimeSeries::sharedPointer,double> >::iterator it;
+    //std::vector< std::pair<TimeSeries::sharedPointer,double> >::iterator it;
     typedef std::pair< TimeSeries::sharedPointer, double > tsPair_t;
     BOOST_FOREACH(tsPair_t tsPair , _tsList) {
       double multiplier;
@@ -80,7 +89,7 @@ Point AggregatorTimeSeries::point(time_t time) {
   
   return aPoint;
 }
-
+/*
 std::vector< Point > AggregatorTimeSeries::points(time_t start, time_t end) {
   typedef std::pair< TimeSeries::sharedPointer, double > tsPair_t;
   BOOST_FOREACH(tsPair_t tsPair , _tsList) {
@@ -89,6 +98,56 @@ std::vector< Point > AggregatorTimeSeries::points(time_t start, time_t end) {
   }
   
   return TimeSeries::points(start, end);
+}
+*/
+
+
+
+std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+  
+  // align the query with the clock
+  fromTime = (clock()->isValid(fromTime)) ? fromTime : clock()->timeAfter(fromTime);
+  toTime = (clock()->isValid(toTime)) ? toTime : clock()->timeBefore(toTime);
+  
+  vector<Point> aggregated;
+  if (clock()->isRegular()) {
+    aggregated.reserve((toTime-fromTime)/(clock()->period()));
+    for (time_t t = fromTime; t < toTime; t += clock()->period()) {
+      Point p(t, 0);
+      aggregated.push_back(p);
+    }
+  }
+  else {
+    cerr << "Aggregator must have a regular clock" << endl;
+  }
+  
+  typedef std::pair< TimeSeries::sharedPointer, double > tsPair_t;
+  BOOST_FOREACH(tsPair_t tsPair , _tsList) {
+    double multiplier = tsPair.second;
+    TimeSeries::sharedPointer ts = tsPair.first;
+    
+    // resample the source if needed.
+    // this also converts to local units, so we don't have to worry about that here.
+    vector<Point> thisSourcePoints = Resampler::filteredPoints(ts, fromTime, toTime);
+    vector<Point>::const_iterator pIt = thisSourcePoints.begin();
+    // add in the new points.
+    BOOST_FOREACH(Point& p, aggregated) {
+      // just make sure we're at the right time.
+      while ((*pIt).time < p.time) {
+        ++pIt;
+      }
+      //
+      if ((*pIt).time != p.time) {
+        cerr << "ERR: times not registered in aggregator" << endl;
+      }
+      
+      // add it in.
+      p += (*pIt) * multiplier;
+      
+    }
+  }
+  
+  return aggregated;
 }
 
 

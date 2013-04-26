@@ -62,7 +62,7 @@ namespace RTX {
     
   protected:
     virtual int margin(); // override this for specific subclass implementation -- default is 1
-    virtual std::vector<Point> filteredPoints(time_t fromTime, time_t toTime);
+    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
     
   private:
     TimeSeries::sharedPointer _source;

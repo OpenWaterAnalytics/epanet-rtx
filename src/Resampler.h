@@ -26,7 +26,7 @@ namespace RTX {
     
   protected:
     virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
-    virtual std::vector<Point> filteredPoints(time_t fromTime, time_t toTime, const std::vector<Point>& sourcePoints);
+    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
     
   private:
     virtual Point filteredSingle(const pointBuffer_t& window, time_t t, Units fromUnits);

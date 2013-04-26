@@ -147,7 +147,7 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
     //sEnd = sEnd>0 ? sEnd : end;
     
     //vector<Point> sourcePoints = source()->points(sStart, sEnd);
-    vector<Point> filtered = this->filteredPoints(start, end);
+    vector<Point> filtered = this->filteredPoints(source(), start, end);
     this->insertPoints(filtered);
     return filtered;
   }
@@ -199,7 +199,7 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
         gapStart = now;
         gapEnd = recordPoint.time;
         
-        vector<Point> gapPoints = filteredPoints(gapStart, gapEnd);
+        vector<Point> gapPoints = filteredPoints(source(), gapStart, gapEnd);
         if (gapPoints.size() > 0) {
           this->insertPoints(gapPoints);
           now = gapPoints.back().time;
@@ -228,7 +228,7 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
   // create a place for the new points
   std::vector<Point> filtered;
   
-  filtered = filteredPoints(newStart, newEnd);
+  filtered = filteredPoints(source(), newStart, newEnd);
   
   // finally, add the points to myself.
   this->insertPoints(filtered);
@@ -243,20 +243,20 @@ int ModularTimeSeries::margin() {
 }
 
 
-vector<Point> ModularTimeSeries::filteredPoints(time_t fromTime, time_t toTime) {
+vector<Point> ModularTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
   vector<Point> filtered;
   Point fromPoint, toPoint;
   time_t fromSourceTime, toSourceTime;
   for (int i = 0; i < margin(); ++i) {
-    fromPoint = source()->pointBefore(fromTime);
-    toPoint = source()->pointAfter(toTime);
+    fromPoint = sourceTs->pointBefore(fromTime);
+    toPoint = sourceTs->pointAfter(toTime);
   }
   
   fromSourceTime = fromPoint.isValid ? fromPoint.time : fromTime;
   toSourceTime = toPoint.isValid ? toPoint.time : toTime;
   
   // get the source points
-  std::vector<Point> sourcePoints = source()->points(fromSourceTime, toSourceTime);
+  std::vector<Point> sourcePoints = sourceTs->points(fromSourceTime, toSourceTime);
   if (sourcePoints.size() < 2) {
     return filtered;
   }
@@ -265,7 +265,7 @@ vector<Point> ModularTimeSeries::filteredPoints(time_t fromTime, time_t toTime) 
     if (p.time < fromTime || p.time > toTime) {
       continue; // skip the points we didn't ask for.
     }
-    Point aPoint = Point::convertPoint(p, source()->units(), this->units());
+    Point aPoint = Point::convertPoint(p, sourceTs->units(), this->units());
     filtered.push_back(aPoint);
   }
   
