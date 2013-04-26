@@ -34,9 +34,10 @@ Point OffsetTimeSeries::point(time_t time){
   
 }
 
-std::vector<Point> OffsetTimeSeries::filteredPoints(time_t fromTime, time_t toTime, const std::vector<Point>& sourcePoints) {
+std::vector<Point> OffsetTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
   
   Units sourceU = source()->units();
+  std::vector<Point> sourcePoints = sourceTs->points(fromTime, toTime);
   
   vector<Point> offsetPoints;
   offsetPoints.reserve(sourcePoints.size());

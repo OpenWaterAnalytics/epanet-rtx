@@ -39,8 +39,9 @@ void ModularTimeSeries::setSource(TimeSeries::sharedPointer sourceTimeSeries) {
     _doesHaveSource = true;
     //resetCache();
     // if this is an irregular time series, then set this clock to the same as that guy's clock.
+    // but only if it's irregular.
     if (!clock()->isRegular()) {
-    setClock(source()->clock());
+      setClock(source()->clock());
     }
     // and if i don't have units, just borrow from the source.
     if (units().isDimensionless()) {

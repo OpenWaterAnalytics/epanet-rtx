@@ -58,9 +58,10 @@ Point CurveFunction::point(time_t time) {
   }
 }
 
-std::vector<Point> CurveFunction::filteredPoints(time_t fromTime, time_t toTime, const std::vector<Point>& sourcePoints) {
+std::vector<Point> CurveFunction::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
   
-  Units sourceU = source()->units();
+  Units sourceU = sourceTs->units();
+  std::vector<Point> sourcePoints = sourceTs->points(fromTime, toTime);
   
   std::vector<Point> curvePoints;
   curvePoints.reserve(sourcePoints.size());

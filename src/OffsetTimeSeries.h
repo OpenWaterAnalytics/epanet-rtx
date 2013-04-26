@@ -22,7 +22,7 @@ namespace RTX {
     void setOffset(double offset);
     double offset();
   protected:
-    virtual std::vector<Point> filteredPoints(time_t fromTime, time_t toTime, const std::vector<Point>& sourcePoints);
+    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
   private:
     Point convertWithOffset(Point p, Units sourceU);
     double _offset;
