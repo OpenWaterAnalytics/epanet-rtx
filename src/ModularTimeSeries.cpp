@@ -13,7 +13,7 @@
 using namespace RTX;
 using namespace std;
 
-ModularTimeSeries::ModularTimeSeries() : TimeSeries::TimeSeries() {
+ModularTimeSeries::ModularTimeSeries() {
   _doesHaveSource = false;
 }
 

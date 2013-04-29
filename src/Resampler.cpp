@@ -14,7 +14,7 @@
 using namespace RTX;
 using namespace std;
 
-Resampler::Resampler() : ModularTimeSeries::ModularTimeSeries() {
+Resampler::Resampler() {
   
 }
 
