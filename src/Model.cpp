@@ -421,7 +421,7 @@ void Model::setSimulationParameters(time_t time) {
   // for valves, set status and setting
   BOOST_FOREACH(Valve::sharedPointer valve, this->valves()) {
     if (valve->doesHaveStatusParameter()) {
-      setPipeStatus( valve->name(), Pipe::status_t(valve->statusParameter()->point(time).value) );
+      setPipeStatus( valve->name(), Pipe::status_t((int)(valve->statusParameter()->point(time).value)) );
     }
     if (valve->doesHaveSettingParameter()) {
       setValveSetting( valve->name(), valve->settingParameter()->point(time).value );
@@ -431,7 +431,7 @@ void Model::setSimulationParameters(time_t time) {
   // for pumps, set status
   BOOST_FOREACH(Pump::sharedPointer pump, this->pumps()) {
     if (pump->doesHaveStatusParameter()) {
-      setPumpStatus( pump->name(), Pipe::status_t(pump->statusParameter()->point(time).value) );
+      setPumpStatus( pump->name(), Pipe::status_t((int)(pump->statusParameter()->point(time).value)) );
     }
   }
   
