@@ -90,7 +90,7 @@ void ConfigFactory::loadConfigFile(const std::string& path) {
   // use libconfig api to open config file
   try
   {
-    _configuration.readFile(configPath.c_str());
+    _configuration.readFile(configPath.string().c_str());
   }
   catch(const FileIOException &fioex)
   {
