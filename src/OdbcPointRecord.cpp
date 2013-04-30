@@ -11,13 +11,15 @@
 #include <boost/foreach.hpp>
 #include <boost/range/adaptors.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/date_time.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 #define RTX_OPC_GOOD 192
 
 
 using namespace RTX;
 using namespace std;
+
+boost::posix_time::ptime _pTimeEpoch;
 
 OdbcPointRecord::OdbcPointRecord() : _timeFormat(UTC){
   _connectionOk = false;
@@ -30,6 +32,7 @@ OdbcPointRecord::OdbcPointRecord() : _timeFormat(UTC){
   _SCADAdbc = NULL;
   _SCADAenv = NULL;
   _rangeStatement = NULL;
+  _pTimeEpoch = boost::posix_time::ptime(boost::gregorian::date(1970,1,1));
 }
 
 
@@ -444,7 +447,7 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
   BOOST_FOREACH(const ScadaRecord& record, records) {
     Point p;
     //time_t t = unixTime(record.time);
-    time_t t = sql_to_tm(record.time);
+    time_t t = sql_to_time_t(record.time);
     double v = record.value;
     int qu = record.quality;
     Point::Qual_t q = Point::Qual_t::good; // todo -- map to rtx quality types
@@ -497,14 +500,6 @@ SQL_TIMESTAMP_STRUCT OdbcPointRecord::sqlTime(time_t unixTime) {
   else if (timeFormat() == LOCAL) {
     pTMstruct = localtime(&unixTime);
   }
-  /*
-	if (pTMstruct->tm_isdst == 1) {
-    pTMstruct->tm_hour -= 1;
-  }
-  */
-  // fix any negative hour field
-  // not needed.
-  //mktime(pTMstruct);
 	
 	sqlTimestamp.year = pTMstruct->tm_year + 1900;
 	sqlTimestamp.month = pTMstruct->tm_mon + 1;
@@ -519,65 +514,8 @@ SQL_TIMESTAMP_STRUCT OdbcPointRecord::sqlTime(time_t unixTime) {
   return sqlTimestamp;
 }
 
-time_t OdbcPointRecord::unixTime(SQL_TIMESTAMP_STRUCT sqlTime) {
-  time_t myUnixTime;
-  struct tm tmTimestamp;
-  tmTimestamp.tm_isdst = 0;
-  struct tm* pTimestamp = &tmTimestamp;
-  const time_t timestamp = time(NULL);
-  pTimestamp = localtime(&timestamp);
-  
-  tmTimestamp.tm_year = sqlTime.year - 1900;
-  tmTimestamp.tm_mon = sqlTime.month -1;
-  tmTimestamp.tm_mday = sqlTime.day;
-  tmTimestamp.tm_hour = sqlTime.hour;
-  tmTimestamp.tm_min = sqlTime.minute;
-  tmTimestamp.tm_sec = sqlTime.second;
-  
-  
-  myUnixTime = mktime(&tmTimestamp);
-  // mktime sets to local time zone, but the passed-in structure should be UTC
-  if (timeFormat() == UTC) {
-    myUnixTime += pTimestamp->tm_gmtoff;
-  }
-  if (tmTimestamp.tm_isdst == 1) {
-    myUnixTime -= 3600;
-  }
-  
-  // todo -- we can speed up mktime, but this private method is borked so fix it.
-  //myUnixTime = time_to_epoch(&tmTimestamp, 0);
-  
-  
-  
-  
-  return myUnixTime;
-}
 
-time_t OdbcPointRecord::sql_to_tm( const SQL_TIMESTAMP_STRUCT& sqlTime ) {
-  
-  /*
-  const int mon_days [] =
-  {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-  long tyears, tdays, leaps, utc_hrs, utc_mins, utc_secs;
-  int i;
-  
-  tyears = sqlTime.year - 1970; // = ltm->tm_year - 70; // tm->tm_year is from 1900.
-  leaps = (tyears + 2) / 4; // no of next two lines until year 2100.
-  //i = (ltm->tm_year – 100) / 100;
-  //leaps -= ( (i/4)*3 + i%4 );
-  tdays = 0;
-  for (i=0; i < sqlTime.month-1; i++) {
-    tdays += mon_days[i];
-  }
-  
-  tdays += sqlTime.day - 1; // days of month passed.
-  tdays = tdays + (tyears * 365) + leaps;
-  
-  utc_hrs = sqlTime.hour;
-  utc_mins = sqlTime.minute;
-  utc_secs = sqlTime.second;
-  time_t uTime = (tdays * 86400) + (utc_hrs * 3600) + (utc_mins * 60) + utc_secs;
-  */
+time_t OdbcPointRecord::sql_to_time_t( const SQL_TIMESTAMP_STRUCT& sqlTime ) {
   
   time_t uTime;
   struct tm tmTime;
@@ -589,10 +527,11 @@ time_t OdbcPointRecord::sql_to_tm( const SQL_TIMESTAMP_STRUCT& sqlTime ) {
   tmTime.tm_min = sqlTime.minute;
   tmTime.tm_sec = sqlTime.second;
   
-  // Portability note: mktime is essentially universally available. timegm is rather rare. For the most portable conversion from a UTC broken-down time to a simple time, set the TZ environment variable to UTC, call mktime, then set TZ back.
+  // Portability note: mktime is essentially universally available. timegm is rather rare. fortunately, boost has some capabilities here.
+  // uTime = timegm(&tmTime);
   
-  uTime = timegm(&tmTime);
-  /*
+  uTime = boost_convert_tm_to_time_t(tmTime);
+  
   // back convert for a check
   SQL_TIMESTAMP_STRUCT sqlTimeCheck = this->sqlTime(uTime);
   if ( sqlTimeCheck.year == sqlTime.year &&
@@ -606,31 +545,20 @@ time_t OdbcPointRecord::sql_to_tm( const SQL_TIMESTAMP_STRUCT& sqlTime ) {
   else {
     cerr << "time not formed correctly" << endl;
   }
-   */
+   
   
   return uTime;
 }
 
 
-time_t OdbcPointRecord::time_to_epoch ( const struct tm *ltm, int utcdiff ) {
-  const int mon_days [] =
-  {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-  long tyears, tdays, leaps, utc_hrs;
-  int i;
-  
-  tyears = ltm->tm_year - 70; // tm->tm_year is from 1900.
-  leaps = (tyears + 2) / 4; // no of next two lines until year 2100.
-                            //i = (ltm->tm_year – 100) / 100;
-                            //leaps -= ( (i/4)*3 + i%4 );
-  tdays = 0;
-  for (i=0; i < ltm->tm_mon; i++) tdays += mon_days[i];
-  
-  tdays += ltm->tm_mday-1; // days of month passed.
-  tdays = tdays + (tyears * 365) + leaps;
-  
-  utc_hrs = ltm->tm_hour + utcdiff; // for your time zone.
-  return (tdays * 86400) + (utc_hrs * 3600) + (ltm->tm_min * 60) + ltm->tm_sec;
+time_t OdbcPointRecord::boost_convert_tm_to_time_t(const struct tm &tmStruct) {  
+  boost::posix_time::ptime pt = boost::posix_time::ptime_from_tm(tmStruct);
+  boost::posix_time::time_duration::sec_type x = (pt - _pTimeEpoch).total_seconds();
+  return time_t(x);
 }
+
+
+
 
 
 SQLRETURN OdbcPointRecord::SQL_CHECK(SQLRETURN retVal, string function, SQLHANDLE handle, SQLSMALLINT type) throw(string)

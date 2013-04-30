@@ -31,20 +31,20 @@ using namespace std;
     `time` int(11) unsigned NOT NULL,\
     `series_id` int(11) NOT NULL,\
     `value` double NOT NULL,\
-    KEY `id` (`series_id`),\
-    KEY `time` (`time`)\
-    ) ENGINE=InnoDB DEFAULT CHARSET=latin1;"
+    PRIMARY KEY (`time`,`series_id`)\
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;"
 
 #define RTX_CREATE_TSKEY_TABLE_STRING "\
-    CREATE TABLE IF NOT EXISTS `timeseries_meta` (\
-    `series_id` int(11) NOT NULL AUTO_INCREMENT,\
-    `name` varchar(255) NOT NULL,\
-    `units` varchar(12) NOT NULL,\
-    `regular_period` int(11) NOT NULL DEFAULT '0',\
-    `regular_offset` int(10) NOT NULL DEFAULT '0',\
-    PRIMARY KEY (`series_id`),\
-    UNIQUE KEY `name` (`name`)\
-    ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;"
+    CREATE TABLE IF NOT EXISTS `timeseries_meta` ( \
+    `series_id`      int(11)      NOT NULL AUTO_INCREMENT, \
+    `name`           varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL, \
+    `units`          varchar(12)  CHARACTER SET utf8 COLLATE utf8_bin NOT NULL, \
+    `regular_period` int(11)      NOT NULL DEFAULT '0', \
+    `regular_offset` int(10)      NOT NULL DEFAULT '0', \
+    PRIMARY KEY (`series_id`), \
+    UNIQUE KEY `name` (`name`) \
+    ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;"
+
 
 
 MysqlPointRecord::MysqlPointRecord() {
@@ -140,7 +140,7 @@ void MysqlPointRecord::connect() throw(RtxException) {
     string rangeSelect = preamble + "time >= ? AND time <= ? order by time asc";
     string nextSelect = preamble + "time > ? order by time asc LIMIT 1";
     string prevSelect = preamble + "time < ? order by time desc LIMIT 1";
-    string singleInsert = "INSERT INTO points (time, series_id, value) SELECT ?,series_id,? FROM timeseries_meta WHERE name = ?";
+    string singleInsert = "INSERT ignore INTO points (time, series_id, value) SELECT ?,series_id,? FROM timeseries_meta WHERE name = ?";
     
     string firstSelectStr = "SELECT time, value FROM points INNER JOIN timeseries_meta USING (series_id) WHERE name = ? order by time asc limit 1";
     string lastSelectStr = "SELECT time, value FROM points INNER JOIN timeseries_meta USING (series_id) WHERE name = ? order by time desc limit 1";
@@ -344,10 +344,16 @@ void MysqlPointRecord::insertSingleNoCommit(const std::string& id, Point point) 
   // todo -- check this: _singleInsert->setUInt64(1, (uint64_t)time);
   _singleInsert->setDouble(2, point.value);
   _singleInsert->setString(3, id);
-  int affected = _singleInsert->executeUpdate();
+  int affected = 0;
+  try {
+    affected = _singleInsert->executeUpdate();
+  } catch (...) {
+    cout << "whoops!" << endl;
+  }
   if (affected == 0) {
-    // throw something?
-    cerr << "zero rows inserted" << endl;
+    // this may happen if there's already data matching this time/id primary index.
+    // the insert was ignored.
+    //cerr << "zero rows inserted" << endl;
   }
 }
 

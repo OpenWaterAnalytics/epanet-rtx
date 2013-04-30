@@ -124,12 +124,12 @@ namespace RTX {
     
     
     void bindOutputColumns(SQLHSTMT statement, ScadaRecord* record);
-    SQL_TIMESTAMP_STRUCT sqlTime(time_t unixTime);
-    time_t unixTime(SQL_TIMESTAMP_STRUCT sqlTime);
     SQLRETURN SQL_CHECK(SQLRETURN retVal, std::string function, SQLHANDLE handle, SQLSMALLINT type) throw(std::string);
     std::string extract_error(std::string function, SQLHANDLE handle, SQLSMALLINT type);
-    time_t sql_to_tm ( const SQL_TIMESTAMP_STRUCT& sqlTime );
-    time_t time_to_epoch ( const struct tm *ltm, int utcdiff );
+    // time methods
+    SQL_TIMESTAMP_STRUCT sqlTime(time_t unixTime);
+    time_t sql_to_time_t ( const SQL_TIMESTAMP_STRUCT& sqlTime );
+    time_t boost_convert_tm_to_time_t(const struct tm &tmStruct);
   };
 
   
