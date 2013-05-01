@@ -338,7 +338,7 @@ Point OdbcPointRecord::selectNext(const string& id, time_t time) {
     }
   }
   if (points.empty()) {
-    cerr << "no points found for " << id << " :: range " << time - 1 << " - " << lookahead + margin << endl;
+    //cerr << "no points found for " << id << " :: range " << time - 1 << " - " << lookahead + margin << endl;
   }
   return p;
 }
@@ -365,7 +365,7 @@ Point OdbcPointRecord::selectPrevious(const string& id, time_t time) {
     p = points.back();
   }
   if (points.empty()) {
-    cerr << "no points found for " << id << " :: range " << lookbehind-margin << " - " << time+1 << endl;
+    //cerr << "no points found for " << id << " :: range " << lookbehind-margin << " - " << time+1 << endl;
   }
   return p;
 }

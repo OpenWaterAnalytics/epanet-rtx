@@ -257,6 +257,9 @@ int ModularTimeSeries::margin() {
 
 vector<Point> ModularTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
   vector<Point> filtered;
+  
+  /*
+   this is legacy code from resampler. it's not needed, right?
   Point fromPoint, toPoint;
   time_t fromSourceTime, toSourceTime;
   for (int i = 0; i < margin(); ++i) {
@@ -269,6 +272,9 @@ vector<Point> ModularTimeSeries::filteredPoints(TimeSeries::sharedPointer source
   
   // get the source points
   std::vector<Point> sourcePoints = sourceTs->points(fromSourceTime, toSourceTime);
+  */
+  std::vector<Point> sourcePoints = sourceTs->points(fromTime, toTime);
+
   if (sourcePoints.size() < 2) {
     return filtered;
   }
