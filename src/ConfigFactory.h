@@ -105,6 +105,9 @@ namespace RTX {
     TimeSeries::sharedPointer createOffset(Setting &setting);
     TimeSeries::sharedPointer createThreshold(Setting &setting);
     TimeSeries::sharedPointer createCurveFunction(Setting &setting);
+    TimeSeries::sharedPointer createValidRange(Setting &setting);
+    TimeSeries::sharedPointer createMultiplier(Setting &setting);
+    
     
     void configureQualitySource(Setting &setting, Element::sharedPointer junction);
     void configureBoundaryFlow(Setting &setting, Element::sharedPointer junction);
@@ -145,6 +148,7 @@ namespace RTX {
     
     map<string, string> _timeSeriesSourceList;
     map<string, std::vector< std::pair<string, double> > > _timeSeriesAggregationSourceList;
+    map<TimeSeries::sharedPointer,std::string> _multiplierBasisList;
   };
   
 }

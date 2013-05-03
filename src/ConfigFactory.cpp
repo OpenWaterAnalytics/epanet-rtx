@@ -9,6 +9,7 @@
 #include <iostream>
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/range/adaptors.hpp>
 
 #include "ConfigFactory.h"
 #include "AggregatorTimeSeries.h"
@@ -18,6 +19,9 @@
 #include "OffsetTimeSeries.h"
 #include "ThresholdTimeSeries.h"
 #include "CurveFunction.h"
+#include "MultiplierTimeSeries.h"
+#include "ValidRangeTimeSeries.h"
+
 #include "PointRecord.h"
 #include "OdbcPointRecord.h"
 #include "MysqlPointRecord.h"
@@ -33,40 +37,42 @@ using namespace std;
 
 ConfigFactory::ConfigFactory() {
   // register point record and time series types to their proper creators
-  _pointRecordPointerMap.insert(std::make_pair("SCADA", &ConfigFactory::createOdbcPointRecord));
-  _pointRecordPointerMap.insert(std::make_pair("MySQL", &ConfigFactory::createMySqlPointRecord));
+  _pointRecordPointerMap.insert(make_pair("SCADA", &ConfigFactory::createOdbcPointRecord));
+  _pointRecordPointerMap.insert(make_pair("MySQL", &ConfigFactory::createMySqlPointRecord));
   
-  //_clockPointerMap.insert(std::make_pair("regular", &ConfigFactory::createRegularClock));
+  //_clockPointerMap.insert(make_pair("regular", &ConfigFactory::createRegularClock));
   
-  _timeSeriesPointerMap.insert(std::make_pair("TimeSeries", &ConfigFactory::createTimeSeries));
-  _timeSeriesPointerMap.insert(std::make_pair("MovingAverage", &ConfigFactory::createMovingAverage));
-  _timeSeriesPointerMap.insert(std::make_pair("Aggregator", &ConfigFactory::createAggregator));
-  _timeSeriesPointerMap.insert(std::make_pair("Resampler", &ConfigFactory::createResampler));
-  _timeSeriesPointerMap.insert(std::make_pair("Derivative", &ConfigFactory::createDerivative));
-  _timeSeriesPointerMap.insert(std::make_pair("Offset", &ConfigFactory::createOffset));
-  _timeSeriesPointerMap.insert(std::make_pair("FirstDerivative", &ConfigFactory::createDerivative));
-  _timeSeriesPointerMap.insert(std::make_pair("Threshold", &ConfigFactory::createThreshold));
-  _timeSeriesPointerMap.insert(std::make_pair("CurveFunction", &ConfigFactory::createCurveFunction));
+  _timeSeriesPointerMap.insert(make_pair("TimeSeries", &ConfigFactory::createTimeSeries));
+  _timeSeriesPointerMap.insert(make_pair("MovingAverage", &ConfigFactory::createMovingAverage));
+  _timeSeriesPointerMap.insert(make_pair("Aggregator", &ConfigFactory::createAggregator));
+  _timeSeriesPointerMap.insert(make_pair("Resampler", &ConfigFactory::createResampler));
+  _timeSeriesPointerMap.insert(make_pair("Derivative", &ConfigFactory::createDerivative));
+  _timeSeriesPointerMap.insert(make_pair("Offset", &ConfigFactory::createOffset));
+  _timeSeriesPointerMap.insert(make_pair("FirstDerivative", &ConfigFactory::createDerivative));
+  _timeSeriesPointerMap.insert(make_pair("Threshold", &ConfigFactory::createThreshold));
+  _timeSeriesPointerMap.insert(make_pair("CurveFunction", &ConfigFactory::createCurveFunction));
+  _timeSeriesPointerMap.insert(make_pair("Multiplier", &ConfigFactory::createMultiplier));
+  _timeSeriesPointerMap.insert(make_pair("ValidRange", &ConfigFactory::createValidRange));
   
   // node-type configuration functions
   // Junctions
-  _parameterSetter.insert(std::make_pair("qualitysource", &ConfigFactory::configureQualitySource));
-  _parameterSetter.insert(std::make_pair("quality", &ConfigFactory::configureQualityMeasure));
-  _parameterSetter.insert(std::make_pair("boundaryflow", &ConfigFactory::configureBoundaryFlow));
-  _parameterSetter.insert(std::make_pair("headmeasure", &ConfigFactory::configureHeadMeasure));
+  _parameterSetter.insert(make_pair("qualitysource", &ConfigFactory::configureQualitySource));
+  _parameterSetter.insert(make_pair("quality", &ConfigFactory::configureQualityMeasure));
+  _parameterSetter.insert(make_pair("boundaryflow", &ConfigFactory::configureBoundaryFlow));
+  _parameterSetter.insert(make_pair("headmeasure", &ConfigFactory::configureHeadMeasure));
   // Tanks, Reservoirs
-  _parameterSetter.insert(std::make_pair("levelmeasure", &ConfigFactory::configureLevelMeasure));
-  _parameterSetter.insert(std::make_pair("boundaryhead", &ConfigFactory::configureBoundaryHead));
+  _parameterSetter.insert(make_pair("levelmeasure", &ConfigFactory::configureLevelMeasure));
+  _parameterSetter.insert(make_pair("boundaryhead", &ConfigFactory::configureBoundaryHead));
   
   // link-type configuration functions
   // Pipes
-  _parameterSetter.insert(std::make_pair("status", &ConfigFactory::configurePipeStatus));
-  _parameterSetter.insert(std::make_pair("flow", &ConfigFactory::configureFlowMeasure));
+  _parameterSetter.insert(make_pair("status", &ConfigFactory::configurePipeStatus));
+  _parameterSetter.insert(make_pair("flow", &ConfigFactory::configureFlowMeasure));
   // Pumps
-  _parameterSetter.insert(std::make_pair("curve", &ConfigFactory::configurePumpCurve));
-  _parameterSetter.insert(std::make_pair("energy", &ConfigFactory::configurePumpEnergyMeasure));
+  _parameterSetter.insert(make_pair("curve", &ConfigFactory::configurePumpCurve));
+  _parameterSetter.insert(make_pair("energy", &ConfigFactory::configurePumpEnergyMeasure));
   // Valves
-  _parameterSetter.insert(std::make_pair("setting", &ConfigFactory::configureValveSetting));
+  _parameterSetter.insert(make_pair("setting", &ConfigFactory::configureValveSetting));
   
   _doesHaveStateRecord = false;
   
@@ -82,7 +88,7 @@ ConfigFactory::~ConfigFactory() {
 
 #pragma mark - Loading File
 
-void ConfigFactory::loadConfigFile(const std::string& path) {
+void ConfigFactory::loadConfigFile(const string& path) {
   
   _configPath = path;
   boost::filesystem::path configPath(path);
@@ -94,12 +100,12 @@ void ConfigFactory::loadConfigFile(const std::string& path) {
   }
   catch(const FileIOException &fioex)
   {
-    std::cerr << "I/O error while reading file." << std::endl;
+    cerr << "I/O error while reading file." << endl;
     return;
   }
   catch(const ParseException &pex)
   {
-    std::cerr << "Parse error at " << pex.getFile() << ":" << pex.getLine() << " - " << pex.getError() << std::endl;
+    cerr << "Parse error at " << pex.getFile() << ":" << pex.getLine() << " - " << pex.getError() << endl;
     return;
   }
   
@@ -107,7 +113,7 @@ void ConfigFactory::loadConfigFile(const std::string& path) {
   Setting& root = _configuration.getRoot();
   
   // get the version number
-  std::string version = _configuration.lookup("version");
+  string version = _configuration.lookup("version");
   // todo -- check version number against CONFIGVERSION
   
   
@@ -180,11 +186,11 @@ void ConfigFactory::loadConfigFile(const std::string& path) {
 }
 
 
-std::map<std::string, TimeSeries::sharedPointer> ConfigFactory::timeSeries() {
+map<string, TimeSeries::sharedPointer> ConfigFactory::timeSeries() {
   return _timeSeriesList;
 }
 
-std::map<std::string, PointRecord::sharedPointer> ConfigFactory::pointRecords() {
+map<string, PointRecord::sharedPointer> ConfigFactory::pointRecords() {
   return _pointRecordList;
 }
 
@@ -192,7 +198,7 @@ PointRecord::sharedPointer ConfigFactory::defaultRecord() {
   return _defaultRecord;
 }
 
-std::map<std::string, Clock::sharedPointer> ConfigFactory::clocks() {
+map<string, Clock::sharedPointer> ConfigFactory::clocks() {
   return _clockList;
 }
 
@@ -212,7 +218,7 @@ void ConfigFactory::createPointRecords(Setting& records) {
       _pointRecordList[recordName] = pointRecord;
     }
     else {
-      std::cerr << "could not load point record\n";
+      cerr << "could not load point record\n";
     }
   }
   
@@ -323,19 +329,19 @@ void ConfigFactory::createTimeSeriesList(Setting& timeSeriesGroup) {
   }
   
   // connect single sources (ModularTimeSeries subclasses)
-  typedef std::map<string, string> stringMap_t;
+  typedef map<string, string> stringMap_t;
   BOOST_FOREACH(const stringMap_t::value_type& stringPair, _timeSeriesSourceList) {
     
     string tsName = stringPair.first;
     string sourceName = stringPair.second;
     
     if (_timeSeriesList.find(tsName) == _timeSeriesList.end()) {
-      std::cerr << "cannot locate Timeseries " << tsName << std::endl;
+      cerr << "cannot locate Timeseries " << tsName << endl;
       continue;
     }
     if (_timeSeriesList.find(sourceName) == _timeSeriesList.end()) {
-      std::cerr << "cannot locate specified source Timeseries " << sourceName << std::endl;
-      std::cerr << "-- (specified by Timeseries " << tsName << ")" << std::endl;
+      cerr << "cannot locate specified source Timeseries " << sourceName << endl;
+      cerr << "-- (specified by Timeseries " << tsName << ")" << endl;
       continue;
     }
     
@@ -346,7 +352,27 @@ void ConfigFactory::createTimeSeriesList(Setting& timeSeriesGroup) {
     
   }
   
-  typedef map<string, std::vector< std::pair<string, double> > > aggregatorMap_t;
+  
+  // connect multiplier time series sources
+  typedef map<TimeSeries::sharedPointer,string> multiplierMap_t;
+  BOOST_FOREACH(multiplierMap_t::value_type& multPair, _multiplierBasisList) {
+    TimeSeries::sharedPointer ts = multPair.first;
+    string basisName = multPair.second;
+    
+    if (_timeSeriesList.find(ts->name()) == _timeSeriesList.end()) {
+      cerr << "cannot locate Timeseries " << ts->name() << endl;
+      continue;
+    }
+    
+    MultiplierTimeSeries::sharedPointer mts = boost::static_pointer_cast<MultiplierTimeSeries>(ts);
+    if (mts) {
+      mts->setMultiplier(_timeSeriesList[mts->name()]);
+    }
+    
+  }
+  
+  
+  typedef map<string, vector< pair<string, double> > > aggregatorMap_t;
   typedef vector<pair<string,double> > stringDoublePair_t;
   
   // go through the list of aggregator time series
@@ -356,7 +382,7 @@ void ConfigFactory::createTimeSeriesList(Setting& timeSeriesGroup) {
     stringDoublePair_t aggregationList = aggregatorPair.second;
     
     if (_timeSeriesList.find(tsName) == _timeSeriesList.end()) {
-      std::cerr << "cannot locate Timeseries " << tsName << std::endl;
+      cerr << "cannot locate Timeseries " << tsName << endl;
       continue;
     }
     
@@ -368,8 +394,8 @@ void ConfigFactory::createTimeSeriesList(Setting& timeSeriesGroup) {
       double multiplier = entry.second;
       
       if (_timeSeriesList.find(sourceName) == _timeSeriesList.end()) {
-        std::cerr << "cannot locate specified source Timeseries " << sourceName << std::endl;
-        std::cerr << "-- (specified by Timeseries " << tsName << ")" << std::endl;
+        cerr << "cannot locate specified source Timeseries " << sourceName << endl;
+        cerr << "-- (specified by Timeseries " << tsName << ")" << endl;
         continue;
       }
       
@@ -383,10 +409,10 @@ void ConfigFactory::createTimeSeriesList(Setting& timeSeriesGroup) {
 }
 
 TimeSeries::sharedPointer ConfigFactory::createTimeSeriesOfType(libconfig::Setting &setting) {
-  std::string type = setting["type"];
+  string type = setting["type"];
   if (_timeSeriesPointerMap.find(type) == _timeSeriesPointerMap.end()) {
     // not found
-    std::cerr << "time series type " << type << " not implemented or not recognized" << std::endl;
+    cerr << "time series type " << type << " not implemented or not recognized" << endl;
     TimeSeries::sharedPointer empty;
     return empty;
   }
@@ -414,7 +440,7 @@ void ConfigFactory::setGenericTimeSeriesProperties(TimeSeries::sharedPointer tim
   // this means that the storage for the time series is probably external (scada / mysql).
   if (setting.exists("pointRecord")) {
     // TODO - test for existence of the actual point record.
-    std::string pointRecordName = setting["pointRecord"];
+    string pointRecordName = setting["pointRecord"];
     PointRecord::sharedPointer pointRecord = _pointRecordList[setting["pointRecord"]];
     timeSeries->setRecord(pointRecord);
   }
@@ -461,7 +487,7 @@ TimeSeries::sharedPointer ConfigFactory::createAggregator(libconfig::Setting &se
     else {
       multiplier = 1.;
     }
-    sourceList.push_back(std::make_pair(sourceName, multiplier));
+    sourceList.push_back(make_pair(sourceName, multiplier));
   }
   
   
@@ -549,7 +575,58 @@ TimeSeries::sharedPointer ConfigFactory::createCurveFunction(libconfig::Setting 
   return timeSeries;
 }
 
-double ConfigFactory::getConfigDouble(libconfig::Setting &config, const std::string &name) {
+TimeSeries::sharedPointer ConfigFactory::createValidRange(Setting &setting) {
+  
+  ValidRangeTimeSeries::sharedPointer ts( new ValidRangeTimeSeries() );
+  setGenericTimeSeriesProperties(ts, setting);
+  
+  pair<double,double> range = ts->range();
+  if (setting.exists("range_min")) {
+    range.first = getConfigDouble(setting, "range_min");
+  }
+  if (setting.exists("range_max")) {
+    range.second = getConfigDouble(setting, "range_max");
+  }
+  string mode;
+  if (setting.lookupValue("mode", mode)) {
+    if (RTX_STRINGS_ARE_EQUAL(mode, "drop")) {
+      ts->setMode(ValidRangeTimeSeries::drop);
+    }
+    else if (RTX_STRINGS_ARE_EQUAL(mode, "saturate")) {
+      ts->setMode(ValidRangeTimeSeries::saturate);
+    }
+    else {
+      cerr << "could not resolve mode: " << mode << " -- check config" << endl;
+    }
+  }
+  
+  
+  ts->setRange(range.first, range.second);
+  
+  return ts;
+}
+
+TimeSeries::sharedPointer ConfigFactory::createMultiplier(Setting &setting) {
+  
+  MultiplierTimeSeries::sharedPointer ts( new MultiplierTimeSeries() );
+  setGenericTimeSeriesProperties(ts, setting);
+  
+  string basis;
+  if (setting.lookupValue("multiplier", basis)) {
+    // add this ts:string pair to the map to be connected later.
+    _multiplierBasisList[ts] = basis;
+  }
+  
+  return ts;
+}
+
+
+
+
+
+
+
+double ConfigFactory::getConfigDouble(libconfig::Setting &config, const string &name) {
   double value = 0;
   if (!config.lookupValue(name, value)) {
     int iv;
@@ -563,7 +640,7 @@ double ConfigFactory::getConfigDouble(libconfig::Setting &config, const std::str
 
 void ConfigFactory::createModel(Setting& setting) {
   
-  std::string modelType = setting["type"];
+  string modelType = setting["type"];
   string modelFileName = setting["file"];
   boost::filesystem::path configPath(_configPath);
   boost::filesystem::path modelPath = configPath.parent_path();
@@ -628,7 +705,7 @@ void ConfigFactory::createSaveOptions(libconfig::Setting &saveGroup) {
     _doesHaveStateRecord = true;
     string defaultRecordName = saveGroup["staterecord"];
     if (_pointRecordList.find(defaultRecordName) == _pointRecordList.end()) {
-      std::cerr << "could not retrieve point record by name: " << defaultRecordName << std::endl;
+      cerr << "could not retrieve point record by name: " << defaultRecordName << endl;
     }
     _defaultRecord = _pointRecordList[defaultRecordName];
     // provide the model object with this record
@@ -648,7 +725,7 @@ void ConfigFactory::createSaveOptions(libconfig::Setting &saveGroup) {
         }
         else if (RTX_STRINGS_ARE_EQUAL(stateToSave, "measured")) {
           // save only the element states that have measured counterparts.
-          std::vector<Junction::sharedPointer> junctions = _model->junctions();
+          vector<Junction::sharedPointer> junctions = _model->junctions();
           BOOST_FOREACH(Junction::sharedPointer j, junctions) {
             if (j->doesHaveHeadMeasure()) {
               j->head()->setRecord(_defaultRecord);
@@ -658,7 +735,7 @@ void ConfigFactory::createSaveOptions(libconfig::Setting &saveGroup) {
             }
           }
           
-          std::vector<Pipe::sharedPointer> pipes = _model->pipes();
+          vector<Pipe::sharedPointer> pipes = _model->pipes();
           BOOST_FOREACH(Pipe::sharedPointer p, pipes) {
             if (p->doesHaveFlowMeasure()) {
               p->flow()->setRecord(_defaultRecord);
@@ -677,7 +754,7 @@ void ConfigFactory::createSaveOptions(libconfig::Setting &saveGroup) {
     
   }
   else {
-    std::cout << "Warning: no state record specified. Model results will not be persisted!" << std::endl;
+    cout << "Warning: no state record specified. Model results will not be persisted!" << endl;
   }
 }
 
@@ -685,16 +762,16 @@ void ConfigFactory::createSaveOptions(libconfig::Setting &saveGroup) {
 #pragma mark - Element Configuration
 
 
-void ConfigFactory::configureElements(std::vector<Element::sharedPointer> elements) {
+void ConfigFactory::configureElements(vector<Element::sharedPointer> elements) {
   BOOST_FOREACH(Element::sharedPointer element, elements) {
-    //std::cout << "configuring " << element->name() << std::endl;
+    //cout << "configuring " << element->name() << endl;
     configureElement(element);
   }
 }
 
 void ConfigFactory::configureElement(Element::sharedPointer element) {
   // make sure that the element is specified in the config file.
-  std::string name = element->name();
+  string name = element->name();
   
   // find the "elements" section in the configuration
   if (!_configuration.exists("configuration.elements")) {
@@ -706,7 +783,7 @@ void ConfigFactory::configureElement(Element::sharedPointer element) {
   const int elementCount = elements.getLength();
   for (int iElement = 0; iElement < elementCount; ++iElement) {
     Setting& elementSetting = elements[iElement];
-    std::string modelID = elementSetting["model_id"];
+    string modelID = elementSetting["model_id"];
     if ( RTX_STRINGS_ARE_EQUAL(modelID, name) ) {
       // great, a match.
       // configure the element with the proper states/parameters.
@@ -714,17 +791,17 @@ void ConfigFactory::configureElement(Element::sharedPointer element) {
       // todo - check if the type is in the pointer map
       
       // get the type of parameter
-      std::string parameterType = elementSetting["parameter"];
+      string parameterType = elementSetting["parameter"];
       if (_parameterSetter.find(parameterType) == _parameterSetter.end()) {
         // no such parameter type
-        std::cout << "could not find paramter type: " << parameterType << std::endl;
+        cout << "could not find paramter type: " << parameterType << endl;
         return;
       }
       ParameterFunction fp = _parameterSetter[parameterType];
       const string tsName = elementSetting["timeseries"];
       TimeSeries::sharedPointer series = _timeSeriesList[tsName];
       if (!series) {
-        std::cerr << "could not find time series \"" << tsName << "\"." << std::endl;
+        cerr << "could not find time series \"" << tsName << "\"." << endl;
         return;
       }
       (this->*fp)(elementSetting, element);
