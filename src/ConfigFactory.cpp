@@ -23,8 +23,15 @@
 #include "ValidRangeTimeSeries.h"
 
 #include "PointRecord.h"
-#include "OdbcPointRecord.h"
-#include "MysqlPointRecord.h"
+
+// conditional compilation
+#ifndef RTX_NO_ODBC
+  #include "OdbcPointRecord.h"
+#endif
+#ifndef RTX_NO_MYSQL
+  #include "MysqlPointRecord.h"
+#endif
+
 #include "Zone.h"
 #include "EpanetModel.h"
 #include "EpanetSyntheticModel.h"
@@ -33,12 +40,30 @@ using namespace RTX;
 using namespace libconfig;
 using namespace std;
 
+
+namespace RTX {
+  class PointRecordFactory {
+  public:
+#ifndef RTX_NO_ODBC
+    static PointRecord::sharedPointer createOdbcPointRecord(Setting& setting);
+#endif
+#ifndef RTX_NO_MYSQL
+    static PointRecord::sharedPointer createMySqlPointRecord(Setting& setting);
+#endif
+  };
+}
+
+
 #pragma mark Constructor/Destructor
 
 ConfigFactory::ConfigFactory() {
   // register point record and time series types to their proper creators
-  _pointRecordPointerMap.insert(make_pair("SCADA", &ConfigFactory::createOdbcPointRecord));
-  _pointRecordPointerMap.insert(make_pair("MySQL", &ConfigFactory::createMySqlPointRecord));
+  #ifndef RTX_NO_ODBC
+  _pointRecordPointerMap.insert(make_pair("SCADA", PointRecordFactory::createOdbcPointRecord));
+  #endif
+  #ifndef RTX_NO_MYSQL
+  _pointRecordPointerMap.insert(make_pair("MySQL", PointRecordFactory::createMySqlPointRecord));
+  #endif
   
   //_clockPointerMap.insert(make_pair("regular", &ConfigFactory::createRegularClock));
   
@@ -231,19 +256,20 @@ void ConfigFactory::createPointRecords(Setting& records) {
 PointRecord::sharedPointer ConfigFactory::createPointRecordOfType(libconfig::Setting &setting) {
   // TODO - check if the map item exists first
   PointRecordFunctionPointer fp = _pointRecordPointerMap[setting["type"]];
-  return (this->*fp)(setting);
+  return fp(setting);
 }
 
-PointRecord::sharedPointer ConfigFactory::createOdbcPointRecord(libconfig::Setting &setting) {
-  
+#pragma mark - Conditional DB Methods
+
+#ifndef RTX_NO_ODBC
+
+PointRecord::sharedPointer PointRecordFactory::createOdbcPointRecord(libconfig::Setting &setting) {
   OdbcPointRecord::sharedPointer r( new OdbcPointRecord() );
-  
   // create the initialization string for the scada point record.
   string initString, name;
   if ( !setting.lookupValue("connection", initString) && !setting.lookupValue("name", name) ) {
     cerr << "odbc record name or connection not valid -- check config";
   }
-  
   
   if (setting.exists("querySyntax")) {
     libconfig::Setting& syntax = setting["querySyntax"];
@@ -271,25 +297,25 @@ PointRecord::sharedPointer ConfigFactory::createOdbcPointRecord(libconfig::Setti
     cerr << "connector type not specified" << endl;
   }
   
-  
-  r->setConnectionString(initString);
-  //r->connect();
-  
+  r->setConnectionString(initString);  
   return r;
 }
 
-PointRecord::sharedPointer ConfigFactory::createMySqlPointRecord(libconfig::Setting &setting) {
+#endif
+
+#ifndef RTX_NO_MYSQL
+
+PointRecord::sharedPointer PointRecordFactory::createMySqlPointRecord(libconfig::Setting &setting) {
   string name = setting["name"];
   MysqlPointRecord::sharedPointer record( new MysqlPointRecord() );
   string initString = setting["connection"];
   record->setConnectionString(initString);
   //record->setName(name);
   //record->connect(); // leaving this to application code
-  
   return record;
 }
 
-
+#endif
 
 
 

@@ -66,6 +66,8 @@ namespace RTX {
   using std::map;
   using std::vector;
   
+  class PointRecordFactory;
+  
   // TODO - split this into separate factory classes (for pointrecords, timeseries, model, etc?)
   
   class ConfigFactory {
@@ -92,8 +94,6 @@ namespace RTX {
     void createSimulationDefaults(Setting& setting);
     
     PointRecord::sharedPointer createPointRecordOfType(Setting& setting);
-    PointRecord::sharedPointer createOdbcPointRecord(Setting& setting);
-    PointRecord::sharedPointer createMySqlPointRecord(Setting& setting);
     Clock::sharedPointer createRegularClock(Setting& setting);
     TimeSeries::sharedPointer createTimeSeriesOfType(Setting& setting);
     void setGenericTimeSeriesProperties(TimeSeries::sharedPointer timeSeries, Setting& setting);
@@ -133,8 +133,8 @@ namespace RTX {
     bool _doesHaveStateRecord;
     
     Config _configuration;
-    typedef PointRecord::sharedPointer (ConfigFactory::*PointRecordFunctionPointer)(Setting&);
     typedef TimeSeries::sharedPointer (ConfigFactory::*TimeSeriesFunctionPointer)(Setting&);
+    typedef PointRecord::sharedPointer (*PointRecordFunctionPointer)(Setting&);
     typedef void (ConfigFactory::*ParameterFunction)(Setting&, Element::sharedPointer);
     map<string, PointRecordFunctionPointer> _pointRecordPointerMap;
     map<string, TimeSeriesFunctionPointer> _timeSeriesPointerMap;
