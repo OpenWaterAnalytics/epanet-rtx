@@ -10,30 +10,6 @@ ThresholdTimeSeries::ThresholdTimeSeries() {
   _fixedValue = 1;
 }
 
-Point ThresholdTimeSeries::point(time_t time){
-  
-  Point sourcePoint = source()->point(time);
-  Point newPoint = this->convertWithThreshold(sourcePoint);
-  return newPoint;
-  
-}
-
-std::vector<Point> ThresholdTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
-  vector<Point> sourcePoints = sourceTs->points(fromTime, toTime);
-  vector<Point> statusPoints;
-  statusPoints.reserve(sourcePoints.size());
-  
-  BOOST_FOREACH(const Point& p, sourcePoints) {
-    if (p.time < fromTime || p.time > toTime) {
-      continue;
-    }
-    Point newP = this->convertWithThreshold(p);
-    statusPoints.push_back(newP);
-  }
-  
-  return statusPoints;
-}
-
 void ThresholdTimeSeries::setThreshold(double threshold) {
   _threshold = threshold;
 }
@@ -50,7 +26,8 @@ double ThresholdTimeSeries::value() {
   return _fixedValue;
 }
 
-Point ThresholdTimeSeries::convertWithThreshold(Point p) {
+Point ThresholdTimeSeries::filteredSingle(RTX::Point p, RTX::Units sourceU) {
+  // we don't care about units.
   double pointValue = (p.value > _threshold) ? _fixedValue : 0.;
   Point newPoint(p.time, pointValue, p.quality, p.confidence);
   return newPoint;

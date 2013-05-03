@@ -10,23 +10,20 @@
 #define __epanet_rtx__OffsetTimeSeries__
 
 #include <iostream>
-#include "ModularTimeSeries.h"
+#include "SinglePointFilterModularTimeSeries.h"
 
 namespace RTX {
-  class OffsetTimeSeries : public ModularTimeSeries {
+  class OffsetTimeSeries : public SinglePointFilterModularTimeSeries {
   
   public:
     RTX_SHARED_POINTER(OffsetTimeSeries);
     OffsetTimeSeries();
-    virtual Point point(time_t time);
     void setOffset(double offset);
     double offset();
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
+    Point filteredSingle(Point p, Units sourceU);
   private:
-    Point convertWithOffset(Point p, Units sourceU);
     double _offset;
-  
   };
 }
 #endif /* defined(__epanet_rtx__OffsetTimeSeries__) */

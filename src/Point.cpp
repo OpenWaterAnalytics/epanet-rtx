@@ -64,6 +64,13 @@ Point Point::operator*(const double factor) const {
   return Point(time, value, Point::good, confidence);
 }
 
+Point& Point::operator*=(const double factor) {
+  this->value *= factor;
+  this->confidence *= factor;
+  return *this;
+}
+
+
 Point Point::operator/(const double factor) const {
   double value;
   double confidence;

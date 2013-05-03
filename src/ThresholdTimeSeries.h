@@ -10,7 +10,7 @@
 #define __epanet_rtx__ThresholdTimeSeries__
 
 #include <iostream>
-#include "ModularTimeSeries.h"
+#include "SinglePointFilterModularTimeSeries.h"
 
 namespace RTX {
   //!   A Status Class to map the input time series into binary status based on a threshold.
@@ -20,22 +20,19 @@ namespace RTX {
    convert the derivative of a pump runtime into a pump on/off status.
    */
   
-  class ThresholdTimeSeries : public ModularTimeSeries {
+  class ThresholdTimeSeries : public SinglePointFilterModularTimeSeries {
     
   public:
     RTX_SHARED_POINTER(ThresholdTimeSeries);
     ThresholdTimeSeries();
-    virtual Point point(time_t time);
+    
     void setThreshold(double threshold);
     double threshold();
     void setValue(double val);
     double value();
     
-  protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
-        
   private:
-    Point convertWithThreshold(Point p);
+    Point filteredSingle(Point p, Units sourceU);
     double _threshold;
     double _fixedValue;
     
