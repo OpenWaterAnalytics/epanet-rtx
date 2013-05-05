@@ -41,7 +41,7 @@ int MovingAverage::windowSize() {
 }
 
 int MovingAverage::margin() {
-  return this->windowSize();
+  return this->windowSize() - 1;
 }
 
 #pragma mark - Public Overridden Methods
@@ -59,18 +59,27 @@ Point MovingAverage::filteredSingle(const pointBuffer_t &window, time_t t, RTX::
   pointBuffer_t::const_reverse_iterator rIt = window.rbegin();
   accumulator_set<double, stats<tag::mean> > meanAccumulator;
   
+  //cout << endl << "@@@ Moving Average t = " << t << endl;
+  
   int i = 0;
-  while (i < this->margin() && rIt != window.rend()) {
+  while (i < this->margin() + 1 && rIt != window.rend()) {
     Point p = *rIt;
     meanAccumulator(p.value);
     ++rIt;
     ++i;
+    //cout << "  i=" << i << " time=" << p.time << " value=" << p.value << endl;
+  }
+  
+  if (i != this->margin() + 1) {
+    cerr << "moving average point window is the wrong size" << endl;
   }
   
   // todo -- confidence
   
   double meanValue = mean(meanAccumulator);
   meanValue = Units::convertValue(meanValue, fromUnits, this->units());
+  
+  //cout << "    Mean value=" << meanValue << endl;
   
   Point filtered(t, meanValue, Point::Qual_t::averaged);
   return filtered;

@@ -84,11 +84,17 @@ bool Resampler::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
 
 std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
   std::vector<Point> resampled;
-  Point fromPoint, toPoint;
+  Point fromPoint, toPoint, newPoint;
   time_t fromSourceTime, toSourceTime;
-  for (int i = 0; i < margin(); ++i) {
-    fromPoint = sourceTs->pointBefore(fromTime);
-    toPoint = sourceTs->pointAfter(toTime);
+
+  // Try to expand the point range on either side by half the margin()
+  fromPoint = sourceTs->pointBefore(fromTime);
+  toPoint = sourceTs->pointAfter(toTime);
+  for (int i = 1; i < this->margin()/2; ++i) {
+    newPoint = sourceTs->pointBefore(fromPoint.time);
+    if (newPoint.isValid) {fromPoint = newPoint;}
+    newPoint = sourceTs->pointAfter(toPoint.time);
+    if (newPoint.isValid) {toPoint = newPoint;}
   }
   
   fromSourceTime = fromPoint.isValid ? fromPoint.time : fromTime;
@@ -127,8 +133,6 @@ std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs,
     
   }
   
-  pointBuffer_t buffer;
-  buffer.set_capacity(this->margin()+1);
   
   // scrub through the source Points and interpolate as we go.
   time_t now;
@@ -139,24 +143,29 @@ std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs,
     now = fromTime;
   }
   
-  vector<Point>::const_iterator sourceIt = sourcePoints.begin();
-    
+  // Initialize the points buffer
+  pointBuffer_t buffer;
+  buffer.set_capacity(this->margin()+1);
+  vector<Point>::const_iterator bufferIt = sourcePoints.begin();
+  buffer.push_back(*bufferIt);
+  // todo - this will get out of alignment if we didn't succeed in expanding the sourcePoints range
+  for (int i = 1; i < buffer.capacity(); ++i) {
+    newPoint = *(++bufferIt);
+    buffer.push_back(newPoint);
+  }
+  
+  // Initialize the interpolation interval
   Point sourceLeft, sourceRight;
-  sourceLeft = *sourceIt;
+  vector<Point>::const_iterator sourceIt = sourcePoints.begin();
+  sourceLeft = *(sourceIt);
   sourceRight = *(++sourceIt);
-  
-  buffer.push_back(sourceLeft);
-  buffer.push_back(sourceRight);
-  
-  
-  // fast forward now to meet our first available source point.
-  while (sourceLeft.time > now && now <= toTime) {
-    // warning!
-    now = clock()->timeAfter(now);
+  while (now > sourceRight.time && sourceIt != sourcePoints.end()) {
+    sourceLeft = sourceRight;
+    sourceRight = *(++sourceIt);
   }
   
   // start at the beginning, don't go past the end
-  while (now <= toTime && sourceIt != sourcePoints.end()) {
+  while (now <= toTime && bufferIt != sourcePoints.end()) {
     
     // are we in the right position?
     if (sourceLeft.time <= now && now <= sourceRight.time ) {
@@ -183,13 +192,12 @@ std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs,
     
     else if ( sourceRight.time < now ) {
       sourceLeft = sourceRight;
-      ++sourceIt;
-      if (sourceIt == sourcePoints.end()) {
+      sourceRight = *(++sourceIt);
+      newPoint = *(++bufferIt);
+      buffer.push_back(newPoint);
+      if (bufferIt == sourcePoints.end()) {
         cerr << "ending resample before the requested bound" << endl;
-        break;
       }
-      sourceRight = *sourceIt;
-      buffer.push_back(sourceRight);
     }
     
   }
