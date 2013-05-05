@@ -38,38 +38,58 @@ Point Resampler::point(time_t time) {
       return Point();
       //time = clock()->timeBefore(time);
     }
+    
     // now that that's settled, get some source points and interpolate.
-    Point p0, p1, interpolatedPoint;
+    Point fromPoint, toPoint, newPoint, resampled;
+    time_t fromSourceTime, toSourceTime;
     
-    std::pair< Point, Point > sourcePoints = source()->adjacentPoints(time);
-    p0 = sourcePoints.first;
-    p1 = sourcePoints.second;
+    // Try to expand the point range on either side by half the margin()
+    fromPoint = source()->pointBefore(time);
+    toPoint = source()->pointAfter(time);
+    for (int i = 1; i < this->margin()/2; ++i) {
+      newPoint = source()->pointBefore(fromPoint.time);
+      if (newPoint.isValid) {fromPoint = newPoint;}
+      newPoint = source()->pointAfter(toPoint.time);
+      if (newPoint.isValid) {toPoint = newPoint;}
+    }
+
+    fromSourceTime = fromPoint.isValid ? fromPoint.time : time;
+    toSourceTime = toPoint.isValid ? toPoint.time : time;
     
-    for (int i = 1; i < margin(); ++i) {
-      Point p0prime, p1prime;
-      p0prime = source()->pointBefore(p0.time);
-      //p1prime = source()->pointAfter(p1.time);
-      p0 = p0prime.isValid ? p0prime : p0;
-      //p1 = p1prime.isValid ? p1prime : p1;
+    // get the source points
+    std::vector<Point> sourcePoints = source()->points(fromSourceTime, toSourceTime);
+    
+    // check the source points
+    if (sourcePoints.size() < 2) {
+      return resampled;
     }
     
+    // also check that there is some data in between the requested bounds
+    if ( sourcePoints.back().time < time || time < sourcePoints.front().time ) {
+      return resampled;
+    }
+
+//    if (!p0.isValid || !p1.isValid || p0.quality==Point::missing || p1.quality==Point::missing) {
+//      // get out while the gettin's good
+//      interpolatedPoint = Point(time, 0, Point::missing);
+//      return interpolatedPoint;
+//    }
     
-    if (!p0.isValid || !p1.isValid || p0.quality==Point::missing || p1.quality==Point::missing) {
-      // get out while the gettin's good
-      interpolatedPoint = Point(time, 0, Point::missing);
-      return interpolatedPoint;
+    // Initialize the points buffer
+    pointBuffer_t buffer;
+    buffer.set_capacity(this->margin()+1);
+    vector<Point>::const_iterator bufferIt = sourcePoints.begin();
+    buffer.push_back(*bufferIt);
+    // todo - this will get out of alignment if we didn't succeed in expanding the sourcePoints range
+    for (int i = 1; i < buffer.capacity(); ++i) {
+      newPoint = *(++bufferIt);
+      buffer.push_back(newPoint);
     }
     
-    pointBuffer_t buf;
-    buf.set_capacity(2);
-    buf.push_back(p0);
-    buf.push_back(p1);
+    resampled = filteredSingle(buffer, time, source()->units());
     
-    interpolatedPoint = filteredSingle(buf, time, source()->units());
-    
-    
-    insert(interpolatedPoint);
-    return interpolatedPoint;
+    insert(resampled);
+    return resampled;
   }
 }
 
@@ -102,9 +122,6 @@ std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs,
   
   // get the source points
   std::vector<Point> sourcePoints = sourceTs->points(fromSourceTime, toSourceTime);
-  if (sourcePoints.size() < 2) {
-    return resampled;
-  }
   
   // check the source points
   if (sourcePoints.size() < 2) {

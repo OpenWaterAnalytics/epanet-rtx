@@ -68,6 +68,9 @@ Point MovingAverage::filteredSingle(const pointBuffer_t &window, time_t t, RTX::
     ++rIt;
     ++i;
     //cout << "  i=" << i << " time=" << p.time << " value=" << p.value << endl;
+    if (p.time == t) {
+      cout << "    Window midpoint i = " << i << endl;
+    }
   }
   
   if (i != this->margin() + 1) {
@@ -79,7 +82,7 @@ Point MovingAverage::filteredSingle(const pointBuffer_t &window, time_t t, RTX::
   double meanValue = mean(meanAccumulator);
   meanValue = Units::convertValue(meanValue, fromUnits, this->units());
   
-  //cout << "    Mean value=" << meanValue << endl;
+  cout << "    Mean value=" << meanValue << endl;
   
   Point filtered(t, meanValue, Point::Qual_t::averaged);
   return filtered;
