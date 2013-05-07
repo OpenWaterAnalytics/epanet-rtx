@@ -31,8 +31,6 @@ namespace RTX {
     DbPointRecord();
     virtual ~DbPointRecord() {};
     
-    
-    
     // end of the road for these guys
     Point point(const string& id, time_t time);
     Point pointBefore(const string& id, time_t time);
@@ -42,14 +40,10 @@ namespace RTX {
     void addPoints(const string& id, std::vector<Point> points);
     void reset();
     void reset(const string& id);
-    //Point firstPoint(const string& id);
-    //Point lastPoint(const string& id);
-    
-    
     
     // pointRecord methods to override
     virtual std::string registerAndGetIdentifier(std::string recordName)=0;
-    virtual std::vector<std::string> identifiers()=0;
+    //virtual std::vector<std::string> identifiers()=0;
     
     // db connection
     void setConnectionString(const std::string& connection);
@@ -60,7 +54,6 @@ namespace RTX {
     // db searching prefs
     void setSearchDistance(time_t time);
     time_t searchDistance();
-        
     
     //exceptions specific to this class family
     class RtxDbConnectException : public RtxException {

@@ -48,12 +48,6 @@ namespace RTX {
     
     
   protected:
-    // fetch means cache the results
-    //virtual void fetchRange(const std::string& id, time_t startTime, time_t endTime);
-    //virtual void fetchNext(const std::string& id, time_t time);
-    //virtual void fetchPrevious(const std::string& id, time_t time);
-    
-    // select just returns the results (no caching)
     virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);
     virtual Point selectNext(const std::string& id, time_t time);
     virtual Point selectPrevious(const std::string& id, time_t time);
