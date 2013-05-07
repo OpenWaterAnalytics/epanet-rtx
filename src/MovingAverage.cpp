@@ -41,7 +41,7 @@ int MovingAverage::windowSize() {
 }
 
 int MovingAverage::margin() {
-  return this->windowSize();
+  return (int)(this->windowSize() / 2);
 }
 
 #pragma mark - Public Overridden Methods
@@ -54,26 +54,45 @@ bool MovingAverage::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
 
 #pragma mark - Protected
 
-Point MovingAverage::filteredSingle(const pointBuffer_t &window, time_t t, RTX::Units fromUnits) {
-  
-  pointBuffer_t::const_reverse_iterator rIt = window.rbegin();
-  accumulator_set<double, stats<tag::mean> > meanAccumulator;
-  
-  int i = 0;
-  while (i < this->margin() && rIt != window.rend()) {
-    Point p = *rIt;
-    meanAccumulator(p.value);
-    ++rIt;
-    ++i;
+Point MovingAverage::filteredSingle(pVec_cIt &vecStart, pVec_cIt &vecEnd, pVec_cIt &vecPos, time_t t, RTX::Units fromUnits) {
+  // quick sanity check
+  if (vecPos == vecEnd) {
+    return Point();
   }
   
-  // todo -- confidence
+  cout << endl << "@@@ Moving Average t = " << t << endl;
+  
+  pVec_cIt fwd_it = vecPos;
+  pVec_cIt back_it = vecPos;
+  alignVectorIterators(vecStart, vecEnd, vecPos, t, back_it, fwd_it);
+  
+  
+  cout << "=======================" << endl;
+  // great, we've got points on either side.
+  // now we take an average.
+  int iPoints = 0;
+  accumulator_set<double, stats<tag::mean> > meanAccumulator;
+  while (back_it != fwd_it+1) {
+    Point p = *back_it;
+    meanAccumulator(p.value);
+    ++back_it;
+    ++iPoints;
+    cout << p;
+    if (p.time == t) {
+      cout << " ***";
+    }
+    cout << endl;
+  }
   
   double meanValue = mean(meanAccumulator);
   meanValue = Units::convertValue(meanValue, fromUnits, this->units());
   
+  cout << "+++++ Mean value (" << iPoints << " points) = " << meanValue << endl;
+  cout << "=======================" << endl;
+  
   Point filtered(t, meanValue, Point::Qual_t::averaged);
   return filtered;
 }
+
 
 

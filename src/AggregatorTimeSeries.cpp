@@ -15,8 +15,14 @@ using namespace RTX;
 using namespace std;
 
 TimeSeries::sharedPointer AggregatorTimeSeries::source() {
-  TimeSeries::sharedPointer empty;
-  return empty;
+  vector< pair<TimeSeries::sharedPointer,double> > sourceVec = this->sources();
+  if (sourceVec.size() > 0) {
+    return sourceVec.front().first;
+  }
+  else {
+    TimeSeries::sharedPointer empty;
+    return empty;
+  }
 }
 void AggregatorTimeSeries::setSource(TimeSeries::sharedPointer source) {
   return;
@@ -121,7 +127,7 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
   vector<Point> aggregated;
   if (clock()->isRegular()) {
     aggregated.reserve((toTime-fromTime)/(clock()->period()));
-    for (time_t t = fromTime; t < toTime; t += clock()->period()) {
+    for (time_t t = fromTime; t <= toTime; t += clock()->period()) {
       Point p(t, 0);
       aggregated.push_back(p);
     }

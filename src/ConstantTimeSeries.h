@@ -18,6 +18,10 @@ namespace RTX {
     RTX_SHARED_POINTER(ConstantTimeSeries);
     ConstantTimeSeries();
     virtual Point point(time_t time);
+    
+    void setValue(double value);
+    double value();
+    
   private:
     double _value;
   };

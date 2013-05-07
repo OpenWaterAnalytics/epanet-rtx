@@ -14,6 +14,8 @@
 #include "MovingAverage.h"
 #include "FirstDerivative.h"
 #include "SineTimeSeries.h"
+#include "ConstantTimeSeries.h"
+#include "AggregatorTimeSeries.h"
 
 #include "BufferPointRecord.h"
 #include "MysqlPointRecord.h"
@@ -36,12 +38,12 @@ int main(int argc, const char * argv[])
    We will create some points and store them.
    
    */
-  time_t start = 1222873200; // unix-time 2008-10-01 15:00:00 GMT
+  time_t start = 1000000000;
   
-  Point  p1(start,     34.5),
-         p2(start+100, 45.2),
-         p3(start+120, 45.9),
-         p4(start+230, 42.1);
+  Point  p1(start,   0),
+         p2(start+100, 100),
+         p3(start+120, 120),
+         p4(start+230, 230);
 
   
   // put these points into a vector
@@ -116,6 +118,34 @@ int main(int argc, const char * argv[])
   // display a range of points, as before:
   cout << "range of resampled points" << endl;
   printPoints( resampled->points(start, start+240) );
+  
+  
+  cout << "=======================================" << endl;
+  
+  
+  ConstantTimeSeries::sharedPointer constantTs( new ConstantTimeSeries() );
+  constantTs->setName("constant ts");
+  constantTs->setUnits(RTX_MILLION_GALLON_PER_DAY);
+  constantTs->setValue(10.);
+  constantTs->setClock(regular_30s);
+  
+  cout << "constant time series:" << endl;
+  printPoints(constantTs->points(start, start+240));
+  cout << "=======================================" << endl;
+  
+  
+  AggregatorTimeSeries::sharedPointer agg(new AggregatorTimeSeries());
+  agg->setName("aggregator");
+  agg->setUnits(RTX_MILLION_GALLON_PER_DAY);
+  agg->setClock(regular_30s);
+  agg->addSource(resampled);
+  agg->addSource(constantTs);
+  
+  cout << "aggregator time series:" << endl;
+  vector<Point> ps = agg->points(start+20, start+260);
+  printPoints(ps);
+  
+  
   
   cout << "=======================================" << endl;
   

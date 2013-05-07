@@ -144,21 +144,6 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
   }
   if (!clock()->isRegular()) {
     // if the clock is irregular, there's no easy way around this.
-    // call the source points method to get it to cache points...
-    //cout << "calling source cache (" << source()->name() << ")" << endl;
-    //time_t sStart = start;
-    //time_t sEnd = end;
-    
-    // widen the source window
-    //for (int i = 0; i < margin(); ++i) {
-    //  sStart = source()->clock()->timeBefore(sStart);
-    //  sEnd = source()->clock()->timeAfter(sEnd);
-    //}
-    
-    //sStart = sStart>0 ? sStart : start;
-    //sEnd = sEnd>0 ? sEnd : end;
-    
-    //vector<Point> sourcePoints = source()->points(sStart, sEnd);
     vector<Point> filtered = this->filteredPoints(source(), start, end);
     this->insertPoints(filtered);
     return filtered;
@@ -249,10 +234,6 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
   
 }
 
-
-int ModularTimeSeries::margin() {
-  return 1;
-}
 
 
 vector<Point> ModularTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {

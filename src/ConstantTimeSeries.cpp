@@ -12,3 +12,11 @@ ConstantTimeSeries::ConstantTimeSeries() {
 Point ConstantTimeSeries::point(time_t time)  {
   return Point(time, _value);
 }
+
+void ConstantTimeSeries::setValue(double value) {
+  _value = value;
+}
+
+double ConstantTimeSeries::value() {
+  return _value;
+}
