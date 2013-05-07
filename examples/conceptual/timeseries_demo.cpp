@@ -16,6 +16,7 @@
 #include "SineTimeSeries.h"
 #include "ConstantTimeSeries.h"
 #include "AggregatorTimeSeries.h"
+#include "CsvPointRecord.h"
 
 #include "BufferPointRecord.h"
 #include "MysqlPointRecord.h"
@@ -30,6 +31,24 @@ int main(int argc, const char * argv[])
   
   // RTX TimeSeries Demo Application
   // A demonstration of some of the important TimeSeries classes and methods
+  
+  
+  CsvPointRecord::sharedPointer csv(new CsvPointRecord() );
+  csv->setConnectionString("dir=csv_test");
+  csv->connect();
+  
+  cout << "ok" << endl;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   /*
