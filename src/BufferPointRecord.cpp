@@ -8,7 +8,8 @@
 
 #include "BufferPointRecord.h"
 
-#include "boost/foreach.hpp"
+#include <boost/foreach.hpp>
+#include <boost/interprocess/sync/scoped_lock.hpp>
 
 using namespace RTX;
 using namespace std;
@@ -218,72 +219,9 @@ std::vector<Point> BufferPointRecord::pointsInRange(const string& identifier, ti
 
 void BufferPointRecord::addPoint(const string& identifier, Point point) {
   
-  // quick sanity check
-  if (point.quality == Point::missing) {
-    return;
-  }
-  
-  double value, confidence;
-  time_t time;
-  bool skipped = true;
-  
-  time = point.time;
-  value = point.value;
-  confidence = point.confidence;
-    
-  KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
-  if (it != _keyedBufferMutex.end()) {
-    // get the constituents
-    boost::signals2::mutex *mutex = (it->second.second.get());
-    PointBuffer_t& buffer = (it->second.first);
-    // lock the buffer
-    mutex->lock();
-    
-    if (buffer.size() == buffer.capacity()) {
-      //cout << "buffer full" << endl;
-    }
-    
-    
-    time_t firstTime = BufferPointRecord::firstPoint(identifier).time;
-    time_t lastTime = BufferPointRecord::lastPoint(identifier).time;
-    if (time == lastTime || time == firstTime) {
-      // skip it
-      skipped = false;
-    }
-    if (time > lastTime) {
-      // end of the buffer
-      buffer.push_back(point);
-      skipped = false;
-    }
-    else if (time < firstTime) {
-      // front of the buffer
-      buffer.push_front(point);
-      skipped = false;
-    }
-    
-    if (skipped) {
-      //cout << "point skipped: " << identifier;
-      //TimePointPair_t finder(time, PointPair_t(0,0));
-      Point finder(time, 0);
-      PointBuffer_t::const_iterator it = lower_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
-      if (it->time != time) {
-        // if the time is not found here, then it's a new point.
-        buffer.push_front(point);
-        // make sure the points are in order.
-        sort(buffer.begin(), buffer.end(), &Point::comparePointTime);
-      }
-      
-    }
-    
-    // all done.
-    mutex->unlock();
-  }
-  
-  if (skipped) {
-    //cout << "(" << isPointAvailable(identifier, time) << ")" << endl;
-  }
-  
-  
+  // no-op. do something more interesting in your derived class.
+  // why no-op? because how can you ensure that a point you want to insert here is contiguous?
+  // there's now way without knowing about clocks and all that business. 
   
 }
 
@@ -296,6 +234,8 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
   KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
   if (it != _keyedBufferMutex.end()) {
     PointBuffer_t& buffer = (it->second.first);
+    boost::signals2::mutex *mutex = (it->second.second.get());
+    
     size_t capacity = buffer.capacity();
     if (capacity < points.size()) {
       // plenty of room
@@ -305,63 +245,80 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
     // figure out the insert order...
     // if the set we're inserting has to be prepended to the buffer...
     
-    time_t insertFirst = points.front().time;
-    time_t insertLast = points.back().time;
+    time_t firstInsertionTime = points.front().time;
+    time_t lastInsertionTime = points.back().time;
     
-    PointRecord::time_pair_t range = BufferPointRecord::range(identifier);
+    PointRecord::time_pair_t existingRange = BufferPointRecord::range(identifier);
     
     // make sure they're in order
     std::sort(points.begin(), points.end(), &Point::comparePointTime);
     
-   
-    bool gap = true;
-    
-    if (insertFirst < range.second && range.second < insertLast) {
-      // insert onto end.
-      gap = false;
-      Point finder(range.second, 0);
-      vector<Point>::const_iterator pIt = upper_bound(points.begin(), points.end(), finder, &Point::comparePointTime);
-      while (pIt != points.end()) {
-        // skip points that fall before the end of the buffer.
-        
-        if (pIt->time > range.second) {
-          BufferPointRecord::addPoint(identifier, *pIt);
-        }
-        ++pIt;
-      }
-    }
-    if (insertFirst < range.first && range.first < insertLast) {
-      // insert onto front (reverse iteration)
-      gap = false;
-      vector<Point>::const_reverse_iterator pIt = points.rbegin();
-      while (pIt != points.rend()) {
-        
-        // skip overlapping points.
-        if (pIt->time < range.first) {
-          BufferPointRecord::addPoint(identifier, *pIt);
-        }
-        // else { /* skip */ }
-        
-        ++pIt;
-      }
-    }
-    if (range.first <= insertFirst && insertLast <= range.second) {
-      // complete overlap -- why did we even try to add these?
-      gap = false;
-    }
-    
-    if (gap) {
-      // clear the buffer first.
-      buffer.clear();
+    // scoped lock so we don't have to worry about cleanup.
+    // locking the buffer because we're changing it.
+    {
+      boost::interprocess::scoped_lock<boost::signals2::mutex> lock(*mutex);
+      // more gap detection? righ on!
+      bool gap = true;
       
-      // add new points.
-      BOOST_FOREACH(Point p, points) {
-        BufferPointRecord::addPoint(identifier, p);
-      }
-    }
-    
+      if (firstInsertionTime < existingRange.second && existingRange.second < lastInsertionTime) {
+        // some of these new points need to be inserted ono the end.
+        // fast-fwd along the new points vector, ignoring any points that will not be appended.
+        gap = false;
+        Point finder(existingRange.second, 0);
+        vector<Point>::const_iterator pIt = upper_bound(points.begin(), points.end(), finder, &Point::comparePointTime);
+        // now insert these trailing points.
+        while (pIt != points.end()) {
+          if (pIt->time > existingRange.second) {
+            //BufferPointRecord::addPoint(identifier, *pIt);
+            // append to circular buffer.
+            buffer.push_back(*pIt);
+          }
+          else {
+            cerr << "BufferPointRecord: inserted points not ordered correctly" << endl;
+          }
+          ++pIt;
+        }
+      } // appending
+      
+      if (firstInsertionTime < existingRange.first && existingRange.first < lastInsertionTime) {
+        // some of the new points need to be pre-pended to the buffer.
+        // insert onto front (reverse iteration)
+        gap = false;
+        vector<Point>::const_reverse_iterator pIt = points.rbegin();
+        while (pIt != points.rend()) {
+          // make this smarter? using upper_bound maybe? todo - figure out upper_bound with a reverse_iterator
+          // skip overlapping points.
+          
+          if (pIt->time < existingRange.first) {
+            BufferPointRecord::addPoint(identifier, *pIt);
+          }
+          // else { /* skip */ }
+          
+          ++pIt;
+        }
+      } // prepending
+      
+      if (existingRange.first <= firstInsertionTime && lastInsertionTime <= existingRange.second) {
+        // complete overlap -- why did we even try to add these?
+        gap = false;
+      } // complete overlap
+      
+      // gap means that the points we're trying to insert do not overlap the existing points.
+      // therefore, there's no guarantee of contiguity. so our only option is to clear out the existing cache
+      // and insert the new points all by themselves.
+      if (gap) {
+        // clear the buffer first.
+        buffer.clear();
+        
+        // add new points.
+        BOOST_FOREACH(Point p, points) {
+          buffer.push_back(p);
+        }
+      } // gap
+    }// scoped mutex lock
   }
 }
+
 
 
 void BufferPointRecord::reset() {

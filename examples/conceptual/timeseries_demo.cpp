@@ -38,9 +38,9 @@ int main(int argc, const char * argv[])
    We will create some points and store them.
    
    */
-  time_t start = 1000000000; // unix-time 2008-10-01 15:00:00 GMT
+  time_t start = 1000000000;
   
-  Point  p1(start,     0),
+  Point  p1(start,   0),
          p2(start+100, 100),
          p3(start+120, 120),
          p4(start+230, 230);
@@ -142,7 +142,8 @@ int main(int argc, const char * argv[])
   agg->addSource(constantTs);
   
   cout << "aggregator time series:" << endl;
-  printPoints(agg->points(start, start+240));
+  vector<Point> ps = agg->points(start+20, start+260);
+  printPoints(ps);
   
   
   

@@ -127,7 +127,7 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
   vector<Point> aggregated;
   if (clock()->isRegular()) {
     aggregated.reserve((toTime-fromTime)/(clock()->period()));
-    for (time_t t = fromTime; t < toTime; t += clock()->period()) {
+    for (time_t t = fromTime; t <= toTime; t += clock()->period()) {
       Point p(t, 0);
       aggregated.push_back(p);
     }
