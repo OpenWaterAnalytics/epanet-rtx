@@ -19,14 +19,13 @@ namespace RTX {
     FirstDerivative();
     virtual ~FirstDerivative();
     
-    virtual Point point(time_t time);
     virtual void setSource(TimeSeries::sharedPointer source);
     virtual void setUnits(Units newUnits);
     virtual std::ostream& toStream(std::ostream &stream);
     
   protected:
     //virtual std::vector<Point> filteredPoints(time_t fromTime, time_t toTime, const std::vector<Point>& sourcePoints);
-    virtual Point filteredSingle(const pointBuffer_t& window, time_t t, Units fromUnits);
+    virtual Point filteredSingle(pVec_cIt& vecStart, pVec_cIt& vecEnd, pVec_cIt& vecPos, time_t t, Units fromUnits);
 
   };
   

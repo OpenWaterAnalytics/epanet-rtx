@@ -41,7 +41,7 @@ int MovingAverage::windowSize() {
 }
 
 int MovingAverage::margin() {
-  return this->windowSize() - 1;
+  return (int)(this->windowSize() / 2);
 }
 
 #pragma mark - Public Overridden Methods
@@ -54,38 +54,45 @@ bool MovingAverage::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
 
 #pragma mark - Protected
 
-Point MovingAverage::filteredSingle(const pointBuffer_t &window, time_t t, RTX::Units fromUnits) {
+Point MovingAverage::filteredSingle(pVec_cIt &vecStart, pVec_cIt &vecEnd, pVec_cIt &vecPos, time_t t, RTX::Units fromUnits) {
+  // quick sanity check
+  if (vecPos == vecEnd) {
+    return Point();
+  }
   
-  pointBuffer_t::const_reverse_iterator rIt = window.rbegin();
+  cout << endl << "@@@ Moving Average t = " << t << endl;
+  
+  pVec_cIt fwd_it = vecPos;
+  pVec_cIt back_it = vecPos;
+  alignVectorIterators(vecStart, vecEnd, vecPos, t, back_it, fwd_it);
+  
+  
+  cout << "=======================" << endl;
+  // great, we've got points on either side.
+  // now we take an average.
+  int iPoints = 0;
   accumulator_set<double, stats<tag::mean> > meanAccumulator;
-  
-  //cout << endl << "@@@ Moving Average t = " << t << endl;
-  
-  int i = 0;
-  while (i < this->margin() + 1 && rIt != window.rend()) {
-    Point p = *rIt;
+  while (back_it != fwd_it+1) {
+    Point p = *back_it;
     meanAccumulator(p.value);
-    ++rIt;
-    ++i;
-    //cout << "  i=" << i << " time=" << p.time << " value=" << p.value << endl;
+    ++back_it;
+    ++iPoints;
+    cout << p;
     if (p.time == t) {
-      cout << "    Window midpoint i = " << i << endl;
+      cout << " ***";
     }
+    cout << endl;
   }
-  
-  if (i != this->margin() + 1) {
-    cerr << "moving average point window is the wrong size" << endl;
-  }
-  
-  // todo -- confidence
   
   double meanValue = mean(meanAccumulator);
   meanValue = Units::convertValue(meanValue, fromUnits, this->units());
   
-  cout << "    Mean value=" << meanValue << endl;
+  cout << "+++++ Mean value (" << iPoints << " points) = " << meanValue << endl;
+  cout << "=======================" << endl;
   
   Point filtered(t, meanValue, Point::Qual_t::averaged);
   return filtered;
 }
+
 
 

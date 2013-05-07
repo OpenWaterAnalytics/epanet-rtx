@@ -38,7 +38,8 @@ namespace RTX {
   protected:
     virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
     virtual int margin();
-    virtual Point filteredSingle(const pointBuffer_t& window, time_t t, Units fromUnits);
+    //virtual Point filteredSingle(const pointBuffer_t& window, time_t t, Units fromUnits);
+    virtual Point filteredSingle(pVec_cIt& vecStart, pVec_cIt& vecEnd, pVec_cIt& vecPos, time_t t, Units fromUnits);
     
   private:
     int _windowSize;

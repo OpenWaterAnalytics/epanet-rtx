@@ -36,12 +36,12 @@ int main(int argc, const char * argv[])
    We will create some points and store them.
    
    */
-  time_t start = 1222873200; // unix-time 2008-10-01 15:00:00 GMT
+  time_t start = 1000000000; // unix-time 2008-10-01 15:00:00 GMT
   
-  Point  p1(start,     34.5),
-         p2(start+100, 45.2),
-         p3(start+120, 45.9),
-         p4(start+230, 42.1);
+  Point  p1(start,     0),
+         p2(start+100, 100),
+         p3(start+120, 120),
+         p4(start+230, 230);
 
   
   // put these points into a vector
