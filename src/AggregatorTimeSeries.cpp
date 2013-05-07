@@ -15,8 +15,14 @@ using namespace RTX;
 using namespace std;
 
 TimeSeries::sharedPointer AggregatorTimeSeries::source() {
-  TimeSeries::sharedPointer empty;
-  return empty;
+  vector< pair<TimeSeries::sharedPointer,double> > sourceVec = this->sources();
+  if (sourceVec.size() > 0) {
+    return sourceVec.front().first;
+  }
+  else {
+    TimeSeries::sharedPointer empty;
+    return empty;
+  }
 }
 void AggregatorTimeSeries::setSource(TimeSeries::sharedPointer source) {
   return;

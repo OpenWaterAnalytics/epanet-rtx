@@ -46,7 +46,7 @@ namespace RTX {
     virtual ~ModularTimeSeries();
     
     // class-specific methods
-    TimeSeries::sharedPointer source();
+    virtual TimeSeries::sharedPointer source();
     virtual void setSource(TimeSeries::sharedPointer source);
     virtual bool doesHaveSource();
     

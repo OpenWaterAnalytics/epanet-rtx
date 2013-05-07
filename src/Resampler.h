@@ -34,7 +34,7 @@ namespace RTX {
     void alignVectorIterators(pVec_cIt& start, pVec_cIt& end, pVec_cIt& pos, time_t t, pVec_cIt& back, pVec_cIt& fwd);
     
   private:
-    std::pair<time_t,time_t> expandedRange(time_t start, time_t end);
+    std::pair<time_t,time_t> expandedRange(TimeSeries::sharedPointer sourceTs, time_t start, time_t end);
 
   };
   

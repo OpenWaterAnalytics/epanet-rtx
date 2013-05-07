@@ -41,7 +41,7 @@ Point Resampler::point(time_t time) {
     
     // now that that's settled, get some source points and interpolate.
     Point fromPoint, toPoint, newPoint, resampled;
-    pair<time_t,time_t> sourceRange = expandedRange(time,time);
+    pair<time_t,time_t> sourceRange = expandedRange(source(), time,time);
     
     // get the source points
     std::vector<Point> sourcePoints = source()->points(sourceRange.first, sourceRange.second);
@@ -77,14 +77,14 @@ bool Resampler::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
 }
 
 std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
-  Units sourceUnits = source()->units();
+  Units sourceUnits = sourceTs->units();
   std::vector<Point> resampled;
   Point fromPoint, toPoint, newPoint;
 
   // Try to expand the point range
-  pair<time_t,time_t> sourceRange = expandedRange(fromTime,toTime);
+  pair<time_t,time_t> sourceRange = expandedRange(sourceTs, fromTime, toTime);
   // get the source points
-  std::vector<Point> sourcePoints = source()->points(sourceRange.first, sourceRange.second);
+  std::vector<Point> sourcePoints = sourceTs->points(sourceRange.first, sourceRange.second);
   
   // check the source points
   if (sourcePoints.size() < 2) {
@@ -161,7 +161,7 @@ std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs,
 // margin = 1:          [x----x----x----x]
 // margin = 2:     [x----x----x----x----x----x]
 
-std::pair<time_t,time_t> Resampler::expandedRange(time_t start, time_t end) {
+std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sourceTs, time_t start, time_t end) {
   
   // quick check for usage
   if (start == 0 || end == 0 || end < start) {
@@ -173,14 +173,14 @@ std::pair<time_t,time_t> Resampler::expandedRange(time_t start, time_t end) {
   time_t rangeStart = start, rangeEnd = end;
   
   for (int iBackward = 0; iBackward < this->margin(); ++iBackward) {
-    Point behindPoint = source()->pointBefore(rangeStart);
+    Point behindPoint = sourceTs->pointBefore(rangeStart);
     if (behindPoint.isValid) {
       rangeStart = behindPoint.time;
     }
   }
   
   for (int iForward = 0; iForward < this->margin(); ++iForward) {
-    Point inFrontPoint = source()->pointAfter(rangeEnd);
+    Point inFrontPoint = sourceTs->pointAfter(rangeEnd);
     if (inFrontPoint.isValid) {
       rangeEnd = inFrontPoint.time;
     }

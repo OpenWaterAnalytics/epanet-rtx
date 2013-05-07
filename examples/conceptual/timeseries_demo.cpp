@@ -14,6 +14,8 @@
 #include "MovingAverage.h"
 #include "FirstDerivative.h"
 #include "SineTimeSeries.h"
+#include "ConstantTimeSeries.h"
+#include "AggregatorTimeSeries.h"
 
 #include "BufferPointRecord.h"
 #include "MysqlPointRecord.h"
@@ -116,6 +118,33 @@ int main(int argc, const char * argv[])
   // display a range of points, as before:
   cout << "range of resampled points" << endl;
   printPoints( resampled->points(start, start+240) );
+  
+  
+  cout << "=======================================" << endl;
+  
+  
+  ConstantTimeSeries::sharedPointer constantTs( new ConstantTimeSeries() );
+  constantTs->setName("constant ts");
+  constantTs->setUnits(RTX_MILLION_GALLON_PER_DAY);
+  constantTs->setValue(10.);
+  constantTs->setClock(regular_30s);
+  
+  cout << "constant time series:" << endl;
+  printPoints(constantTs->points(start, start+240));
+  cout << "=======================================" << endl;
+  
+  
+  AggregatorTimeSeries::sharedPointer agg(new AggregatorTimeSeries());
+  agg->setName("aggregator");
+  agg->setUnits(RTX_MILLION_GALLON_PER_DAY);
+  agg->setClock(regular_30s);
+  agg->addSource(resampled);
+  agg->addSource(constantTs);
+  
+  cout << "aggregator time series:" << endl;
+  printPoints(agg->points(start, start+240));
+  
+  
   
   cout << "=======================================" << endl;
   
