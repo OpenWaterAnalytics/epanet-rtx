@@ -1,51 +1,33 @@
-#include "CsvPointRecord.h"
-
+#include <iostream>
+#include <fstream>
+#include <sstream>
 #include <boost/foreach.hpp>
 #include <boost/regex.hpp>
+
+#include "CsvPointRecord.h"
 
 using namespace RTX;
 using namespace std;
 using namespace boost::filesystem;
 
-
 CsvPointRecord::CsvPointRecord() {
   _isReadonly = false;
-  _isConnected = false;
 }
 
-void CsvPointRecord::connect() throw(RtxException) {
-  
-  // expected format: "dir=path/to/folder;readonly=[yes/no]"
-  std::string tokenizedString = this->connectionString();
-  if (RTX_STRINGS_ARE_EQUAL(tokenizedString, "")) {
+CsvPointRecord::~CsvPointRecord() {
+  // upon destruction, save all data back into csv files.
+  if (_isReadonly) {
+    cout << "warning: csv point record may be losing changes (readonly)" << endl;
     return;
   }
-  
-  // de-tokenize
-  std::map<std::string, std::string> kvPairs;
-  {
-    boost::regex kvReg("([^=]+)=([^;]+);?"); // key - value pair
-    boost::sregex_iterator it(tokenizedString.begin(), tokenizedString.end(), kvReg), end;
-    for ( ; it != end; ++it) {
-      kvPairs[(*it)[1]] = (*it)[2];
-    }
-    
-    // if any of the keys are missing, just return.
-    if (kvPairs.find("dir") == kvPairs.end()) {
-      cerr << "CSV directory not specified!" << endl;
-      return;
-    }
-    if (kvPairs.find("readonly") != kvPairs.end()) {
-      const string& readonly = kvPairs["readonly"];
-      if (RTX_STRINGS_ARE_EQUAL(readonly, "yes")) {
-        _isReadonly = true;
-      }
-    }
-  }
-  const string& dir = kvPairs["dir"];
-  
+  saveDataToCsvDir(_path);
+}
+
+
+void CsvPointRecord::setPath(const std::string& pathStr) {
+  // expected format: "dir=path/to/folder;readonly=[yes/no]"
   // try to access the directory
-  _path = path(dir);
+  _path = path(pathStr);
   
   bool dirOk = (exists(_path) && is_directory(_path));
   if (exists(_path) && !is_directory(_path)) {
@@ -66,12 +48,16 @@ void CsvPointRecord::connect() throw(RtxException) {
   
   if (dirOk) {
     // load in any data that may be in that dir
-    
     loadDataFromCsvDir(_path);
-    _isConnected = true;
   }
-  
-  
+}
+
+void CsvPointRecord::setReadOnly(bool readOnly) {
+  _isReadonly = readOnly;
+}
+
+bool CsvPointRecord::isReadOnly() {
+  return _isReadonly;
 }
 
 void CsvPointRecord::loadDataFromCsvDir(boost::filesystem::path dirPath) {
@@ -79,7 +65,7 @@ void CsvPointRecord::loadDataFromCsvDir(boost::filesystem::path dirPath) {
   // quick check
   bool dirOk = (exists(_path) && is_directory(_path));
   if (!dirOk) {
-    cerr << "could not load data: directory not ok" << endl;
+    cerr << "could not load data from [" << _path << "] :: directory not ok" << endl;
     return;
   }
   
@@ -88,103 +74,90 @@ void CsvPointRecord::loadDataFromCsvDir(boost::filesystem::path dirPath) {
   copy(directory_iterator(dirPath), directory_iterator(), back_inserter(files));
   sort(files.begin(), files.end());
   
-  // debug
-  cout << "CSV Point Record found " << files.size() << " files:" << endl;
+  //static const boost::regex csvFormat("(")
   BOOST_FOREACH(path p, files) {
-    cout << p.filename() << endl;
-  }
-  
-  
-  
-  BOOST_FOREACH(path p, files) {
+    
+    // check the file name
+    const string ext( p.filename().extension().string() );
+    if ( ! RTX_STRINGS_ARE_EQUAL(ext, ".csv") ) {
+      cerr << "warning: ignoring file " << p.filename() << " because it's not a csv" << endl;
+      continue;
+    }
+    
+    const string tsName( p.stem().string() );
+    vector<Point> pointContents;
+    ifstream csvFileStream(p.c_str());
+    string line;
+    time_t time;
+    double value;
+    string comma;
     
     // get the file and parse it into my buffer.
-    
-    
+    if (csvFileStream.is_open()) {
+      while (csvFileStream.good()) {
+        getline(csvFileStream, line);
+        stringstream ss(line);
+        // comment line -- todo - add units?
+        if (ss.peek() == '#') {
+          ss.ignore(); // skip comment character
+          string comment;
+          ss >> comment;
+          //cout << "Comment: " << comment << endl;
+          continue;
+        }
+        ss >> time;
+        if (ss.peek() == ',') {
+          ss.ignore();
+        }
+        ss >> value;
+        if (ss.fail()) {
+          // end of parse
+          continue;
+        }
+        Point newPoint(time, value);
+        //cout << newPoint << endl;
+        pointContents.push_back(newPoint);
+      } // EOF
+      
+      csvFileStream.close();
+      this->registerAndGetIdentifier(tsName);
+      RTX_CSVPR_SUPER::addPoints(tsName, pointContents); // cache them in the superclass
+    } // file opened
+    else {
+      cerr << "File stream not good: " << p.filename() << endl;
+    }
+  }
+}
+
+void CsvPointRecord::saveDataToCsvDir(boost::filesystem::path dirPath) {
+  if (isReadOnly()) {
+    cerr << "cannot save to csv: point record is read-only" << endl;
+    return;
   }
   
-  
-  
-  
+  vector<string> ids = this->identifiers();
+  BOOST_FOREACH(string id, ids) {
+    // the timeseries name becomes the filename.
+    path newCsv = _path;
+    newCsv /= id;
+    newCsv += ".csv";
+    
+    ofstream csvOfStream(newCsv.c_str());
+    if (csvOfStream.good()) {
+      time_pair_t range = this->range(id);
+      vector<Point> points = this->pointsInRange(id, range.first, range.second);
+      BOOST_FOREACH(Point p, points) {
+        csvOfStream << p.time << ", " << p.value << endl;
+      }
+    } // ostream good
+    csvOfStream.close();
+  } // foreach id
   
 }
 
-bool CsvPointRecord::isConnected() {
-  return _isConnected;
-}
-
-std::string CsvPointRecord::registerAndGetIdentifier(std::string recordName) {
-  
-}
-
-/* using base impl
-std::vector<std::string> CsvPointRecord::identifiers() {
-  
-}
-
-PointRecord::time_pair_t CsvPointRecord::range(const std::string& id) {
-  
-}
-*/
 
 std::ostream& CsvPointRecord::toStream(std::ostream &stream) {
   stream << "CSV Record: " << _path.filename() << endl;
   return stream;
 }
-
-
-std::vector<Point> CsvPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
-  vector<Point> empty;
-  return empty;
-}
-
-Point CsvPointRecord::selectNext(const std::string& id, time_t time) {
-  return Point();
-}
-
-Point CsvPointRecord::selectPrevious(const std::string& id, time_t time) {
-  return Point();
-}
-
-
-void CsvPointRecord::insertSingle(const std::string& id, Point point) {
-  if (_isReadonly) {
-    return;
-  }
-  else {
-    
-  }
-}
-
-void CsvPointRecord::insertRange(const std::string& id, std::vector<Point> points) {
-  if (_isReadonly) {
-    return;
-  }
-  else {
-    
-  }
-}
-
-void CsvPointRecord::removeRecord(const std::string& id) {
-  if (_isReadonly) {
-    return;
-  }
-  else {
-    
-  }
-}
-
-void CsvPointRecord::truncate() {
-  if (_isReadonly) {
-    return;
-  }
-  else {
-    
-  }
-}
-
-
-
-
-
 

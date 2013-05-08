@@ -385,7 +385,6 @@
 				220AE46A145B0EDC002F07B4 /* OdbcPointRecord.cpp */,
 				2281A75E15A7451F0018EC0F /* MysqlPointRecord.h */,
 				225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */,
-				22CE31EA173993ED008AC1F9 /* csv */,
 			);
 			name = db;
 			sourceTree = "<group>";
@@ -562,6 +561,7 @@
 				223F52C516D51F330086DC8F /* MapPointRecord.cpp */,
 				227510E716D4231800B2BA62 /* BufferPointRecord.h */,
 				227510E616D4231800B2BA62 /* BufferPointRecord.cpp */,
+				22CE31EA173993ED008AC1F9 /* csv */,
 				222F51B816D7D07400C86F71 /* db */,
 			);
 			name = "point record classes";

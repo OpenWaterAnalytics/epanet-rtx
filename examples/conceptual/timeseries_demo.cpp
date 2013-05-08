@@ -32,10 +32,25 @@ int main(int argc, const char * argv[])
   // RTX TimeSeries Demo Application
   // A demonstration of some of the important TimeSeries classes and methods
   
-  
-  CsvPointRecord::sharedPointer csv(new CsvPointRecord() );
-  csv->setConnectionString("dir=csv_test");
-  csv->connect();
+  {
+    CsvPointRecord::sharedPointer csv(new CsvPointRecord() );
+    csv->setReadOnly(false);
+    csv->setPath("csv_test");
+    
+    TimeSeries::sharedPointer ts(new TimeSeries());
+    ts->setName("csv1");
+    ts->setRecord(csv);
+    
+    ModularTimeSeries::sharedPointer mts(new ModularTimeSeries());
+    mts->setName("mts");
+    mts->setSource(ts);
+    mts->setRecord(csv);
+    
+    vector<Point> points = mts->points(10, 30);
+    
+    
+    
+  }
   
   cout << "ok" << endl;
   
