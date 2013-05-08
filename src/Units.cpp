@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <map>
+#include <string>
 #include "Units.h"
 
 using namespace RTX;
