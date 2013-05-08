@@ -23,6 +23,7 @@
 #include "ValidRangeTimeSeries.h"
 
 #include "PointRecord.h"
+#include "CsvPointRecord.h"
 
 // conditional compilation
 #ifndef RTX_NO_ODBC
@@ -40,10 +41,10 @@ using namespace RTX;
 using namespace libconfig;
 using namespace std;
 
-
 namespace RTX {
   class PointRecordFactory {
   public:
+    static PointRecord::sharedPointer createCsvPointRecord(Setting& setting);
 #ifndef RTX_NO_ODBC
     static PointRecord::sharedPointer createOdbcPointRecord(Setting& setting);
 #endif
@@ -58,6 +59,7 @@ namespace RTX {
 
 ConfigFactory::ConfigFactory() {
   // register point record and time series types to their proper creators
+  _pointRecordPointerMap.insert(make_pair("CSV", PointRecordFactory::createCsvPointRecord));
   #ifndef RTX_NO_ODBC
   _pointRecordPointerMap.insert(make_pair("SCADA", PointRecordFactory::createOdbcPointRecord));
   #endif
@@ -238,6 +240,10 @@ void ConfigFactory::createPointRecords(Setting& records) {
   for (int iRecord = 0; iRecord < recordCount; ++iRecord) {
     Setting& record = records[iRecord];
     string recordName = record["name"];
+    // somewhat hackish. since the pointrecords are created via static class methods, we have to piggy-back
+    // the config file path onto the Setting& argument in case the pointrecord needs it (like the csv version will)
+    record.add("configPath", libconfig::Setting::Type::TypeString);
+    record["configPath"] = _configPath;
     PointRecord::sharedPointer pointRecord = createPointRecordOfType(record);
     if (pointRecord) {
       _pointRecordList[recordName] = pointRecord;
@@ -245,6 +251,8 @@ void ConfigFactory::createPointRecords(Setting& records) {
     else {
       cerr << "could not load point record\n";
     }
+    // strip the config path. we were never here.
+    record.remove("configPath");
   }
   
   return;
@@ -259,6 +267,30 @@ PointRecord::sharedPointer ConfigFactory::createPointRecordOfType(libconfig::Set
   return fp(setting);
 }
 
+
+PointRecord::sharedPointer PointRecordFactory::createCsvPointRecord(Setting& setting) {
+  CsvPointRecord::sharedPointer csv(new CsvPointRecord());
+  string csvDirPath, name, configPath;
+  
+  if (setting.lookupValue("name", name) && setting.lookupValue("path", csvDirPath) && setting.lookupValue("configPath", configPath) ) {
+    bool readOnly = false;
+    bool settingPresent = setting.lookupValue("readonly", readOnly); // if setting is not present, this fails but readOnly is not modified.
+    
+    csv->setReadOnly(readOnly);
+    
+    boost::filesystem::path path(configPath);
+    path = path.parent_path();
+    path /= csvDirPath;
+    csv->setPath(path.string());
+    
+  }
+  else {
+    cerr << "CSV Point Record -- check config" << endl;
+  }
+  
+  return csv;
+}
+
 #pragma mark - Conditional DB Methods
 
 #ifndef RTX_NO_ODBC
@@ -267,7 +299,7 @@ PointRecord::sharedPointer PointRecordFactory::createOdbcPointRecord(libconfig::
   OdbcPointRecord::sharedPointer r( new OdbcPointRecord() );
   // create the initialization string for the scada point record.
   string initString, name;
-  if ( !setting.lookupValue("connection", initString) && !setting.lookupValue("name", name) ) {
+  if ( !setting.lookupValue("connection", initString) || !setting.lookupValue("name", name) ) {
     cerr << "odbc record name or connection not valid -- check config";
   }
   

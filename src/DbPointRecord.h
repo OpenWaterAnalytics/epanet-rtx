@@ -42,7 +42,7 @@ namespace RTX {
     void reset(const string& id);
     
     // pointRecord methods to override
-    virtual std::string registerAndGetIdentifier(std::string recordName)=0;
+    //virtual std::string registerAndGetIdentifier(std::string recordName)=0;
     //virtual std::vector<std::string> identifiers()=0;
     
     // db connection

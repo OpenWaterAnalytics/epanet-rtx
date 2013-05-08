@@ -35,7 +35,7 @@ int main (int argc, const char * argv[])
   
   // test the real-time methods
   runSimulationUsingConfig(realtimeConfig, someTime, duration);
-
+  
   
   return 0;
 }
