@@ -69,6 +69,8 @@
 		22A7B70916778A7A00538839 /* sampletown_realtime.cfg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 221C06C716077FD200B8969C /* sampletown_realtime.cfg */; };
 		22A7B70A16778A7A00538839 /* sampletown_synthetic.cfg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 221C06C816077FD200B8969C /* sampletown_synthetic.cfg */; };
 		22A7B70B16778A7A00538839 /* sampletown.inp in CopyFiles */ = {isa = PBXBuildFile; fileRef = 221C06C916077FD200B8969C /* sampletown.inp */; };
+		22A842D5173BF446009CE769 /* GainTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22A842D3173BF445009CE769 /* GainTimeSeries.cpp */; };
+		22A842D6173BF446009CE769 /* GainTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22A842D4173BF445009CE769 /* GainTimeSeries.h */; };
 		22B7154E14DC2C2C00041167 /* Clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B7154D14DC2C2C00041167 /* Clock.cpp */; };
 		22B7155014DC802300041167 /* Resampler.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B7154F14DC802300041167 /* Resampler.h */; };
 		22B7155214DC813800041167 /* Resampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B7155114DC813800041167 /* Resampler.cpp */; };
@@ -249,6 +251,8 @@
 		229D1BDB15FE3E20000B4C94 /* libboost_date_time.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_date_time.dylib; path = /usr/local/lib/libboost_date_time.dylib; sourceTree = "<absolute>"; };
 		229D1BDF15FE3E45000B4C94 /* libconfig++.9.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libconfig++.9.dylib"; path = "/usr/local/lib/libconfig++.9.dylib"; sourceTree = "<absolute>"; };
 		22A4B41814E1B93D006D01C3 /* Clock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Clock.h; path = ../../src/Clock.h; sourceTree = "<group>"; };
+		22A842D3173BF445009CE769 /* GainTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GainTimeSeries.cpp; path = ../../src/GainTimeSeries.cpp; sourceTree = "<group>"; };
+		22A842D4173BF445009CE769 /* GainTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GainTimeSeries.h; path = ../../src/GainTimeSeries.h; sourceTree = "<group>"; };
 		22B7154D14DC2C2C00041167 /* Clock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Clock.cpp; path = ../../src/Clock.cpp; sourceTree = "<group>"; };
 		22B7154F14DC802300041167 /* Resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Resampler.h; path = ../../src/Resampler.h; sourceTree = "<group>"; };
 		22B7155114DC813800041167 /* Resampler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Resampler.cpp; path = ../../src/Resampler.cpp; sourceTree = "<group>"; };
@@ -418,6 +422,8 @@
 				226AC1461733F996009B7C90 /* ValidRangeTimeSeries.cpp */,
 				226AC14C17340D06009B7C90 /* MultiplierTimeSeries.h */,
 				226AC14B17340D06009B7C90 /* MultiplierTimeSeries.cpp */,
+				22A842D4173BF445009CE769 /* GainTimeSeries.h */,
+				22A842D3173BF445009CE769 /* GainTimeSeries.cpp */,
 			);
 			name = "Single Point Filters";
 			sourceTree = "<group>";
@@ -697,6 +703,7 @@
 				226AC1491733F996009B7C90 /* ValidRangeTimeSeries.h in Headers */,
 				226AC14E17340D06009B7C90 /* MultiplierTimeSeries.h in Headers */,
 				22CE31EE17399403008AC1F9 /* CsvPointRecord.h in Headers */,
+				22A842D6173BF446009CE769 /* GainTimeSeries.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -874,6 +881,7 @@
 				226AC1481733F996009B7C90 /* ValidRangeTimeSeries.cpp in Sources */,
 				226AC14D17340D06009B7C90 /* MultiplierTimeSeries.cpp in Sources */,
 				22CE31ED17399403008AC1F9 /* CsvPointRecord.cpp in Sources */,
+				22A842D5173BF446009CE769 /* GainTimeSeries.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

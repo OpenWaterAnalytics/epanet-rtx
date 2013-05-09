@@ -87,6 +87,7 @@ ConfigFactory::ConfigFactory() {
   _parameterSetter.insert(make_pair("quality", &ConfigFactory::configureQualityMeasure));
   _parameterSetter.insert(make_pair("boundaryflow", &ConfigFactory::configureBoundaryFlow));
   _parameterSetter.insert(make_pair("headmeasure", &ConfigFactory::configureHeadMeasure));
+  _parameterSetter.insert(make_pair("pressuremeasure", &ConfigFactory::configurePressureMeasure));
   // Tanks, Reservoirs
   _parameterSetter.insert(make_pair("levelmeasure", &ConfigFactory::configureLevelMeasure));
   _parameterSetter.insert(make_pair("boundaryhead", &ConfigFactory::configureBoundaryHead));
@@ -849,6 +850,9 @@ void ConfigFactory::configureElement(Element::sharedPointer element) {
       // todo - check if the type is in the pointer map
       
       // get the type of parameter
+      if (!elementSetting.exists("parameter")) {
+        cerr << "skipping element " << modelID << " : missing parameter" << endl;
+      }
       string parameterType = elementSetting["parameter"];
       if (_parameterSetter.find(parameterType) == _parameterSetter.end()) {
         // no such parameter type
@@ -862,6 +866,7 @@ void ConfigFactory::configureElement(Element::sharedPointer element) {
         cerr << "could not find time series \"" << tsName << "\"." << endl;
         return;
       }
+      // configure the individual element using this setting.
       (this->*fp)(elementSetting, element);
     }
   }
@@ -892,6 +897,15 @@ void ConfigFactory::configureHeadMeasure(Setting &setting, Element::sharedPointe
     TimeSeries::sharedPointer head = _timeSeriesList[setting["timeseries"]];
     // if it's in units of PSI, then it requires a tweak. (TODO)
     thisJunction->setHeadMeasure(head);
+  }
+}
+
+void ConfigFactory::configurePressureMeasure(Setting &setting, Element::sharedPointer junction) {
+  Junction::sharedPointer thisJunction = boost::dynamic_pointer_cast<Junction>(junction);
+  if (thisJunction) {
+    TimeSeries::sharedPointer pres = _timeSeriesList[setting["timeseries"]];
+    // if it's in units of PSI, then it requires a tweak. (TODO)
+    thisJunction->setPressureMeasure(pres);
   }
 }
 

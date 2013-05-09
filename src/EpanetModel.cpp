@@ -183,15 +183,14 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
           throw "Node Type Unknown";
       } // switch nodeType
       
+      // set units for new element
+      newJunction->head()->setUnits(headUnits());
+      newJunction->demand()->setUnits(flowUnits());
       
       // newJunction is the generic (base-class) pointer to the specific object,
       // so we can use base-class methods to set some parameters.
       newJunction->setElevation(z);
       newJunction->setCoordinates(x, y);
-      
-      // set units for new element
-      newJunction->head()->setUnits(headUnits());
-      newJunction->demand()->setUnits(flowUnits());
       
       double demand = 0;
       ENcheck( ENgetnodevalue(iNode, EN_BASEDEMAND, &demand), "ENgetnodevalue(EN_BASEDEMAND)" );

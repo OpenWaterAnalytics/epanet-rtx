@@ -12,7 +12,6 @@
 #include <boost/weak_ptr.hpp>
 
 #include "Element.h"
-#include "AggregatorTimeSeries.h"
 
 namespace RTX {
   

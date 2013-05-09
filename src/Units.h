@@ -12,9 +12,9 @@
 // convenience defines ------------ unit= conversion,   dimension (m,l,t,current,temp,amount,intensity)
 #define RTX_DIMENSIONLESS           Units(1)
 // Pressure
-#define RTX_PSI                     Units(0.0001450378911491,1,-1,-2)
+#define RTX_PSI                     Units(6894.75728,   1,-1,-2)
 #define RTX_PASCAL                  Units(1,            1,-1,-2)
-#define RTX_KILOPASCAL              Units(.001,         1,-1,-2)
+#define RTX_KILOPASCAL              Units(1000,         1,-1,-2)
 // distance
 #define RTX_FOOT                    Units(.3048,        0,1,0)
 #define RTX_INCH                    Units(.0254,        0,1,0)

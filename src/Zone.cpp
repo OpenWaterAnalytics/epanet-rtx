@@ -6,11 +6,12 @@
 //  See README.md and license.txt for more information
 //  
 
-#include "Zone.h"
 #include <boost/foreach.hpp>
 #include <boost/range/adaptors.hpp>
 
+#include "Zone.h"
 #include "ConstantTimeSeries.h"
+#include "AggregatorTimeSeries.h"
 
 using namespace RTX;
 using namespace std;
