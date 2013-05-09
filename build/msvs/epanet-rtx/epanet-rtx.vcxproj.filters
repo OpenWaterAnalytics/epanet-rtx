@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\epanet">
+      <UniqueIdentifier>{6296dd00-9d0b-4d0b-b2d5-9817da358451}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\epanet">
+      <UniqueIdentifier>{acfddb60-4603-4e71-8e95-dd9ecc322f61}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -86,13 +92,7 @@
     <ClInclude Include="..\..\..\src\MovingAverage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\MysqlPointRecord.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\Node.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\OdbcPointRecord.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\OffsetTimeSeries.h">
@@ -139,6 +139,39 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\Valve.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\CsvPointRecord.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\ValidRangeTimeSeries.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\MultiplierTimeSeries.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\epanet\src\enumstxt.h">
+      <Filter>Header Files\epanet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\epanet\src\funcs.h">
+      <Filter>Header Files\epanet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\epanet\src\hash.h">
+      <Filter>Header Files\epanet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\epanet\src\mempool.h">
+      <Filter>Header Files\epanet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\epanet\src\text.h">
+      <Filter>Header Files\epanet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\epanet\src\toolkit.h">
+      <Filter>Header Files\epanet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\epanet\src\types.h">
+      <Filter>Header Files\epanet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\epanet\src\vars.h">
+      <Filter>Header Files\epanet</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -202,13 +235,7 @@
     <ClCompile Include="..\..\..\src\MovingAverage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\MysqlPointRecord.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\Node.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\OdbcPointRecord.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\OffsetTimeSeries.cpp">
@@ -249,6 +276,54 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\Valve.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\CsvPointRecord.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\ValidRangeTimeSeries.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\MultiplierTimeSeries.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\epanet\src\smatrix.c">
+      <Filter>Source Files\epanet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\epanet\src\epanet.c">
+      <Filter>Source Files\epanet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\epanet\src\hash.c">
+      <Filter>Source Files\epanet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\epanet\src\hydraul.c">
+      <Filter>Source Files\epanet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\epanet\src\inpfile.c">
+      <Filter>Source Files\epanet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\epanet\src\input1.c">
+      <Filter>Source Files\epanet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\epanet\src\input2.c">
+      <Filter>Source Files\epanet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\epanet\src\input3.c">
+      <Filter>Source Files\epanet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\epanet\src\mempool.c">
+      <Filter>Source Files\epanet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\epanet\src\output.c">
+      <Filter>Source Files\epanet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\epanet\src\quality.c">
+      <Filter>Source Files\epanet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\epanet\src\report.c">
+      <Filter>Source Files\epanet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\epanet\src\rules.c">
+      <Filter>Source Files\epanet</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
