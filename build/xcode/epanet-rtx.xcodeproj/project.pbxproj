@@ -22,6 +22,11 @@
 		221C06C516077FC100B8969C /* validator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221C06C416077FC100B8969C /* validator.cpp */; };
 		221E2EFE149A42F0000860C2 /* ModularTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 221E2EFD149A42F0000860C2 /* ModularTimeSeries.h */; };
 		221E2F00149A43A3000860C2 /* ModularTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221E2EFF149A43A3000860C2 /* ModularTimeSeries.cpp */; };
+		22211AD4173C2E9700309C2F /* libboost_date_time.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD0173C2E9700309C2F /* libboost_date_time.a */; };
+		22211AD5173C2E9700309C2F /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD1173C2E9700309C2F /* libboost_filesystem.a */; };
+		22211AD6173C2E9700309C2F /* libboost_regex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD2173C2E9700309C2F /* libboost_regex.a */; };
+		22211AD7173C2E9700309C2F /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD3173C2E9700309C2F /* libboost_system.a */; };
+		22211AD9173C2EAC00309C2F /* libconfig++.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD8173C2EAC00309C2F /* libconfig++.a */; };
 		22253D8F16022FB6002F7256 /* CurveFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22253D8D16022FB6002F7256 /* CurveFunction.cpp */; };
 		222FDDD615C1BC2F0065DAF6 /* FirstDerivative.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */; };
 		223F52C716D51F330086DC8F /* MapPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223F52C516D51F330086DC8F /* MapPointRecord.cpp */; };
@@ -44,6 +49,58 @@
 		226AC14E17340D06009B7C90 /* MultiplierTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 226AC14C17340D06009B7C90 /* MultiplierTimeSeries.h */; };
 		22707A9616309D4100FEB4DD /* OffsetTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22707A9416309D4000FEB4DD /* OffsetTimeSeries.cpp */; };
 		22707A9716309D4100FEB4DD /* OffsetTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22707A9516309D4100FEB4DD /* OffsetTimeSeries.h */; };
+		22748770173C2F8900FD0506 /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BF02D215EBCABC00F66465 /* Point.cpp */; };
+		22748771173C2FFE00FD0506 /* ConfigFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224B19A1152CA7510051F408 /* ConfigFactory.cpp */; };
+		22748772173C2FFE00FD0506 /* Clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B7154D14DC2C2C00041167 /* Clock.cpp */; };
+		22748773173C2FFE00FD0506 /* IrregularClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2251DCA4168105AA00515EBF /* IrregularClock.cpp */; };
+		22748774173C2FFE00FD0506 /* epanet.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41BC1511173C0012D2A5 /* epanet.c */; };
+		22748775173C2FFE00FD0506 /* hash.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41BE1511173C0012D2A5 /* hash.c */; };
+		22748776173C2FFE00FD0506 /* hydraul.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C01511173C0012D2A5 /* hydraul.c */; };
+		22748777173C2FFE00FD0506 /* inpfile.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C11511173C0012D2A5 /* inpfile.c */; };
+		22748778173C2FFE00FD0506 /* input1.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C21511173C0012D2A5 /* input1.c */; };
+		22748779173C2FFE00FD0506 /* input2.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C31511173C0012D2A5 /* input2.c */; };
+		2274877A173C2FFE00FD0506 /* input3.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C41511173C0012D2A5 /* input3.c */; };
+		2274877B173C2FFE00FD0506 /* mempool.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C51511173C0012D2A5 /* mempool.c */; };
+		2274877C173C2FFE00FD0506 /* output.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C71511173C0012D2A5 /* output.c */; };
+		2274877D173C2FFE00FD0506 /* quality.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C81511173C0012D2A5 /* quality.c */; };
+		2274877E173C2FFE00FD0506 /* report.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C91511173C0012D2A5 /* report.c */; };
+		2274877F173C2FFE00FD0506 /* rules.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41CA1511173C0012D2A5 /* rules.c */; };
+		22748780173C2FFE00FD0506 /* smatrix.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41CB1511173C0012D2A5 /* smatrix.c */; };
+		22748781173C2FFE00FD0506 /* Element.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE46E145B283C002F07B4 /* Element.cpp */; };
+		22748782173C2FFE00FD0506 /* Zone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE474145B2A28002F07B4 /* Zone.cpp */; };
+		22748783173C2FFE00FD0506 /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE470145B29F7002F07B4 /* Node.cpp */; };
+		22748784173C2FFE00FD0506 /* Junction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22ED77D3158788CC002D67F1 /* Junction.cpp */; };
+		22748785173C2FFE00FD0506 /* Tank.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22ED77D515878953002D67F1 /* Tank.cpp */; };
+		22748786173C2FFE00FD0506 /* Reservoir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22ED77D71587898D002D67F1 /* Reservoir.cpp */; };
+		22748787173C2FFE00FD0506 /* Link.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE472145B2A0C002F07B4 /* Link.cpp */; };
+		22748788173C2FFE00FD0506 /* Pipe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22804093158F8243004222DA /* Pipe.cpp */; };
+		22748789173C2FFE00FD0506 /* Valve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409E158F8351004222DA /* Valve.cpp */; };
+		2274878A173C2FFE00FD0506 /* Pump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409A158F82EE004222DA /* Pump.cpp */; };
+		2274878B173C2FFE00FD0506 /* Model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE467145B0D15002F07B4 /* Model.cpp */; };
+		2274878C173C2FFE00FD0506 /* EpanetModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22909B3B147DDE2A00945449 /* EpanetModel.cpp */; };
+		2274878D173C2FFE00FD0506 /* EpanetSyntheticModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221A19CE1579112B00F0699E /* EpanetSyntheticModel.cpp */; };
+		2274878E173C2FFE00FD0506 /* Units.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 226861C814716D2A000DDDEF /* Units.cpp */; };
+		2274878F173C2FFE00FD0506 /* PointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22DEE91B153F5C44008F75AE /* PointRecord.cpp */; };
+		22748790173C2FFE00FD0506 /* MapPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223F52C516D51F330086DC8F /* MapPointRecord.cpp */; };
+		22748791173C2FFE00FD0506 /* BufferPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227510E616D4231800B2BA62 /* BufferPointRecord.cpp */; };
+		22748792173C2FFE00FD0506 /* CsvPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22CE31EB17399403008AC1F9 /* CsvPointRecord.cpp */; };
+		22748793173C2FFE00FD0506 /* DbPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227CEC9E16BADD6000E8E7C8 /* DbPointRecord.cpp */; };
+		22748794173C2FFE00FD0506 /* TimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C62AD91439EE0B00841E60 /* TimeSeries.cpp */; };
+		22748795173C2FFE00FD0506 /* ConstantTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22E4ED0E1725C1C60076E93D /* ConstantTimeSeries.cpp */; };
+		22748796173C2FFE00FD0506 /* SineTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22F63D3516C5735100A15368 /* SineTimeSeries.cpp */; };
+		22748797173C2FFE00FD0506 /* ModularTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221E2EFF149A43A3000860C2 /* ModularTimeSeries.cpp */; };
+		22748798173C2FFE00FD0506 /* SinglePointFilterModularTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 226AC1411733F5CE009B7C90 /* SinglePointFilterModularTimeSeries.cpp */; };
+		22748799173C2FFE00FD0506 /* OffsetTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22707A9416309D4000FEB4DD /* OffsetTimeSeries.cpp */; };
+		2274879A173C2FFE00FD0506 /* ThresholdTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43627ECF171F286C007AE0F5 /* ThresholdTimeSeries.cpp */; };
+		2274879B173C2FFE00FD0506 /* ValidRangeTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 226AC1461733F996009B7C90 /* ValidRangeTimeSeries.cpp */; };
+		2274879C173C2FFE00FD0506 /* MultiplierTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 226AC14B17340D06009B7C90 /* MultiplierTimeSeries.cpp */; };
+		2274879D173C2FFE00FD0506 /* GainTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22A842D3173BF445009CE769 /* GainTimeSeries.cpp */; };
+		2274879E173C2FFE00FD0506 /* CurveFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22253D8D16022FB6002F7256 /* CurveFunction.cpp */; };
+		2274879F173C2FFE00FD0506 /* Resampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B7155114DC813800041167 /* Resampler.cpp */; };
+		227487A0173C2FFE00FD0506 /* MovingAverage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C62AD21439EE0B00841E60 /* MovingAverage.cpp */; };
+		227487A1173C2FFE00FD0506 /* FirstDerivative.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */; };
+		227487A2173C2FFE00FD0506 /* AggregatorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C62ACB1439EE0B00841E60 /* AggregatorTimeSeries.cpp */; };
+		227487AC173C314D00FD0506 /* DequePointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223F52D316D55D090086DC8F /* DequePointRecord.cpp */; };
 		227510E816D4231800B2BA62 /* BufferPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227510E616D4231800B2BA62 /* BufferPointRecord.cpp */; };
 		227510E916D4231800B2BA62 /* BufferPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 227510E716D4231800B2BA62 /* BufferPointRecord.h */; };
 		227CEC9F16BADD6000E8E7C8 /* DbPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227CEC9E16BADD6000E8E7C8 /* DbPointRecord.cpp */; };
@@ -184,6 +241,12 @@
 		221C06C916077FD200B8969C /* sampletown.inp */ = {isa = PBXFileReference; lastKnownFileType = text; name = sampletown.inp; path = ../../examples/validator/sampletown.inp; sourceTree = "<group>"; };
 		221E2EFD149A42F0000860C2 /* ModularTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ModularTimeSeries.h; path = ../../src/ModularTimeSeries.h; sourceTree = "<group>"; };
 		221E2EFF149A43A3000860C2 /* ModularTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ModularTimeSeries.cpp; path = ../../src/ModularTimeSeries.cpp; sourceTree = "<group>"; };
+		22211ACC173C2E6F00309C2F /* libepanet-rtx.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libepanet-rtx.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		22211AD0173C2E9700309C2F /* libboost_date_time.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_date_time.a; path = /usr/local/lib/libboost_date_time.a; sourceTree = "<absolute>"; };
+		22211AD1173C2E9700309C2F /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = /usr/local/lib/libboost_filesystem.a; sourceTree = "<absolute>"; };
+		22211AD2173C2E9700309C2F /* libboost_regex.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_regex.a; path = /usr/local/lib/libboost_regex.a; sourceTree = "<absolute>"; };
+		22211AD3173C2E9700309C2F /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = /usr/local/lib/libboost_system.a; sourceTree = "<absolute>"; };
+		22211AD8173C2EAC00309C2F /* libconfig++.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libconfig++.a"; path = "/usr/local/lib/libconfig++.a"; sourceTree = "<absolute>"; };
 		22253D8D16022FB6002F7256 /* CurveFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CurveFunction.cpp; path = ../../src/CurveFunction.cpp; sourceTree = "<group>"; };
 		222A41BB1511173C0012D2A5 /* enumstxt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = enumstxt.h; path = ../../src/epanet/src/enumstxt.h; sourceTree = "<group>"; };
 		222A41BC1511173C0012D2A5 /* epanet.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = epanet.c; path = ../../src/epanet/src/epanet.c; sourceTree = "<group>"; };
@@ -292,6 +355,18 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		22211AC9173C2E6F00309C2F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22211AD9173C2EAC00309C2F /* libconfig++.a in Frameworks */,
+				22211AD4173C2E9700309C2F /* libboost_date_time.a in Frameworks */,
+				22211AD5173C2E9700309C2F /* libboost_filesystem.a in Frameworks */,
+				22211AD6173C2E9700309C2F /* libboost_regex.a in Frameworks */,
+				22211AD7173C2E9700309C2F /* libboost_system.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		228A836B16DBE5E7008E9C35 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -340,6 +415,11 @@
 		220DFA9C15502E4100AF41D0 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				22211AD8173C2EAC00309C2F /* libconfig++.a */,
+				22211AD0173C2E9700309C2F /* libboost_date_time.a */,
+				22211AD1173C2E9700309C2F /* libboost_filesystem.a */,
+				22211AD2173C2E9700309C2F /* libboost_regex.a */,
+				22211AD3173C2E9700309C2F /* libboost_system.a */,
 				22EE08BA16DBCF9400B51366 /* libboost_timer.dylib */,
 				22CAA0AB16D27CB800EF4643 /* libmysqlcppconn.dylib */,
 				228B2F4916CAEF4000FDAC47 /* libiodbc.2.dylib */,
@@ -526,6 +606,7 @@
 				22C62AF4143A0E3300841E60 /* rtx-validator */,
 				22B8A79C1603CA6100EECAA5 /* timeseries_demo */,
 				228A836E16DBE5E7008E9C35 /* data_access_profiling */,
+				22211ACC173C2E6F00309C2F /* libepanet-rtx.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -662,6 +743,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		22211ACA173C2E6F00309C2F /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		22C62ABE1439ED6300841E60 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -710,6 +798,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		22211ACB173C2E6F00309C2F /* epanet-rtx-static */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 22211ACF173C2E6F00309C2F /* Build configuration list for PBXNativeTarget "epanet-rtx-static" */;
+			buildPhases = (
+				22211AC8173C2E6F00309C2F /* Sources */,
+				22211AC9173C2E6F00309C2F /* Frameworks */,
+				22211ACA173C2E6F00309C2F /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "epanet-rtx-static";
+			productName = "epanet-rtx-static";
+			productReference = 22211ACC173C2E6F00309C2F /* libepanet-rtx.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		228A836D16DBE5E7008E9C35 /* data_access_profiling */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 228A837416DBE5E7008E9C35 /* Build configuration list for PBXNativeTarget "data_access_profiling" */;
@@ -800,6 +905,7 @@
 			projectRoot = "";
 			targets = (
 				22C62ABF1439ED6300841E60 /* epanet-rtx */,
+				22211ACB173C2E6F00309C2F /* epanet-rtx-static */,
 				22C62AF3143A0E3300841E60 /* rtx-validator */,
 				22B8A79B1603CA6100EECAA5 /* timeseries_demo */,
 				228A836D16DBE5E7008E9C35 /* data_access_profiling */,
@@ -808,6 +914,65 @@
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		22211AC8173C2E6F00309C2F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				227487AC173C314D00FD0506 /* DequePointRecord.cpp in Sources */,
+				22748771173C2FFE00FD0506 /* ConfigFactory.cpp in Sources */,
+				22748772173C2FFE00FD0506 /* Clock.cpp in Sources */,
+				22748773173C2FFE00FD0506 /* IrregularClock.cpp in Sources */,
+				22748774173C2FFE00FD0506 /* epanet.c in Sources */,
+				22748775173C2FFE00FD0506 /* hash.c in Sources */,
+				22748776173C2FFE00FD0506 /* hydraul.c in Sources */,
+				22748777173C2FFE00FD0506 /* inpfile.c in Sources */,
+				22748778173C2FFE00FD0506 /* input1.c in Sources */,
+				22748779173C2FFE00FD0506 /* input2.c in Sources */,
+				2274877A173C2FFE00FD0506 /* input3.c in Sources */,
+				2274877B173C2FFE00FD0506 /* mempool.c in Sources */,
+				2274877C173C2FFE00FD0506 /* output.c in Sources */,
+				2274877D173C2FFE00FD0506 /* quality.c in Sources */,
+				2274877E173C2FFE00FD0506 /* report.c in Sources */,
+				2274877F173C2FFE00FD0506 /* rules.c in Sources */,
+				22748780173C2FFE00FD0506 /* smatrix.c in Sources */,
+				22748781173C2FFE00FD0506 /* Element.cpp in Sources */,
+				22748782173C2FFE00FD0506 /* Zone.cpp in Sources */,
+				22748783173C2FFE00FD0506 /* Node.cpp in Sources */,
+				22748784173C2FFE00FD0506 /* Junction.cpp in Sources */,
+				22748785173C2FFE00FD0506 /* Tank.cpp in Sources */,
+				22748786173C2FFE00FD0506 /* Reservoir.cpp in Sources */,
+				22748787173C2FFE00FD0506 /* Link.cpp in Sources */,
+				22748788173C2FFE00FD0506 /* Pipe.cpp in Sources */,
+				22748789173C2FFE00FD0506 /* Valve.cpp in Sources */,
+				2274878A173C2FFE00FD0506 /* Pump.cpp in Sources */,
+				2274878B173C2FFE00FD0506 /* Model.cpp in Sources */,
+				2274878C173C2FFE00FD0506 /* EpanetModel.cpp in Sources */,
+				2274878D173C2FFE00FD0506 /* EpanetSyntheticModel.cpp in Sources */,
+				2274878E173C2FFE00FD0506 /* Units.cpp in Sources */,
+				2274878F173C2FFE00FD0506 /* PointRecord.cpp in Sources */,
+				22748790173C2FFE00FD0506 /* MapPointRecord.cpp in Sources */,
+				22748791173C2FFE00FD0506 /* BufferPointRecord.cpp in Sources */,
+				22748792173C2FFE00FD0506 /* CsvPointRecord.cpp in Sources */,
+				22748793173C2FFE00FD0506 /* DbPointRecord.cpp in Sources */,
+				22748794173C2FFE00FD0506 /* TimeSeries.cpp in Sources */,
+				22748795173C2FFE00FD0506 /* ConstantTimeSeries.cpp in Sources */,
+				22748796173C2FFE00FD0506 /* SineTimeSeries.cpp in Sources */,
+				22748797173C2FFE00FD0506 /* ModularTimeSeries.cpp in Sources */,
+				22748798173C2FFE00FD0506 /* SinglePointFilterModularTimeSeries.cpp in Sources */,
+				22748799173C2FFE00FD0506 /* OffsetTimeSeries.cpp in Sources */,
+				2274879A173C2FFE00FD0506 /* ThresholdTimeSeries.cpp in Sources */,
+				2274879B173C2FFE00FD0506 /* ValidRangeTimeSeries.cpp in Sources */,
+				2274879C173C2FFE00FD0506 /* MultiplierTimeSeries.cpp in Sources */,
+				2274879D173C2FFE00FD0506 /* GainTimeSeries.cpp in Sources */,
+				2274879E173C2FFE00FD0506 /* CurveFunction.cpp in Sources */,
+				2274879F173C2FFE00FD0506 /* Resampler.cpp in Sources */,
+				227487A0173C2FFE00FD0506 /* MovingAverage.cpp in Sources */,
+				227487A1173C2FFE00FD0506 /* FirstDerivative.cpp in Sources */,
+				227487A2173C2FFE00FD0506 /* AggregatorTimeSeries.cpp in Sources */,
+				22748770173C2F8900FD0506 /* Point.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		228A836A16DBE5E7008E9C35 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -904,6 +1069,46 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		22211ACD173C2E6F00309C2F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LIBRARY = "libstdc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					RTX_NO_ODBC,
+					RTX_NO_MYSQL,
+				);
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				MACH_O_TYPE = staticlib;
+				PRODUCT_NAME = "epanet-rtx";
+			};
+			name = Debug;
+		};
+		22211ACE173C2E6F00309C2F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LIBRARY = "libstdc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				MACH_O_TYPE = staticlib;
+				PRODUCT_NAME = "epanet-rtx";
+			};
+			name = Release;
+		};
 		228A837516DBE5E7008E9C35 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1039,12 +1244,10 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = NO;
-				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -1054,12 +1257,10 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
-				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = NO;
-				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
@@ -1085,6 +1286,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		22211ACF173C2E6F00309C2F /* Build configuration list for PBXNativeTarget "epanet-rtx-static" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				22211ACD173C2E6F00309C2F /* Debug */,
+				22211ACE173C2E6F00309C2F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		228A837416DBE5E7008E9C35 /* Build configuration list for PBXNativeTarget "data_access_profiling" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

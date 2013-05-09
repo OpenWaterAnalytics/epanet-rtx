@@ -2,7 +2,6 @@
 #include <fstream>
 #include <sstream>
 #include <boost/foreach.hpp>
-#include <boost/regex.hpp>
 
 #include "CsvPointRecord.h"
 
@@ -74,7 +73,6 @@ void CsvPointRecord::loadDataFromCsvDir(boost::filesystem::path dirPath) {
   copy(directory_iterator(dirPath), directory_iterator(), back_inserter(files));
   sort(files.begin(), files.end());
   
-  //static const boost::regex csvFormat("(")
   BOOST_FOREACH(path p, files) {
     
     // check the file name

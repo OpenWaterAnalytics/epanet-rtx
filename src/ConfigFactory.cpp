@@ -19,6 +19,7 @@
 #include "OffsetTimeSeries.h"
 #include "ThresholdTimeSeries.h"
 #include "CurveFunction.h"
+#include "ConstantTimeSeries.h"
 #include "MultiplierTimeSeries.h"
 #include "ValidRangeTimeSeries.h"
 
@@ -80,6 +81,7 @@ ConfigFactory::ConfigFactory() {
   _timeSeriesPointerMap.insert(make_pair("CurveFunction", &ConfigFactory::createCurveFunction));
   _timeSeriesPointerMap.insert(make_pair("Multiplier", &ConfigFactory::createMultiplier));
   _timeSeriesPointerMap.insert(make_pair("ValidRange", &ConfigFactory::createValidRange));
+  _timeSeriesPointerMap.insert(make_pair("Constant", &ConfigFactory::createConstant));
   
   // node-type configuration functions
   // Junctions
@@ -263,9 +265,16 @@ void ConfigFactory::createPointRecords(Setting& records) {
 // this just executes a function pointer stored in a map, which is keyed with the string name of the type of pointrecord to create.
 // so access the "type" field of the passed setting, and execute the proper function to create the pointrecord.
 PointRecord::sharedPointer ConfigFactory::createPointRecordOfType(libconfig::Setting &setting) {
-  // TODO - check if the map item exists first
-  PointRecordFunctionPointer fp = _pointRecordPointerMap[setting["type"]];
-  return fp(setting);
+  // check if the map item exists first
+  string type;
+  if (setting.lookupValue("type", type) && (_pointRecordPointerMap.find(type) != _pointRecordPointerMap.end()) ) {
+    PointRecordFunctionPointer fp = _pointRecordPointerMap[setting["type"]];
+    return fp(setting);
+  }
+  
+  cerr << "Point Record type [" << type << "] not supported" << endl;
+  PointRecord::sharedPointer empty;
+  return empty;
 }
 
 
@@ -633,6 +642,19 @@ TimeSeries::sharedPointer ConfigFactory::createCurveFunction(libconfig::Setting 
   
   return timeSeries;
 }
+
+TimeSeries::sharedPointer ConfigFactory::createConstant(Setting &setting) {
+  ConstantTimeSeries::sharedPointer constant( new ConstantTimeSeries() );
+  setGenericTimeSeriesProperties(constant, setting);
+  
+  if (setting.exists("value")) {
+    double val = getConfigDouble(setting, "value");
+    constant->setValue(val);
+  }
+  
+  return constant;
+}
+
 
 TimeSeries::sharedPointer ConfigFactory::createValidRange(Setting &setting) {
   

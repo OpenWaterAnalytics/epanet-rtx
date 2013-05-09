@@ -13,6 +13,7 @@
 #include "BufferPointRecord.h"
 
 using namespace RTX;
+using namespace std;
 
 
 TimeSeries::TimeSeries() : _units(1) {
@@ -194,6 +195,10 @@ time_t TimeSeries::period() {
 void TimeSeries::setRecord(PointRecord::sharedPointer record) {
   if(_points) {
     _points->reset(name());
+  }
+  if (!record) {
+    cerr << "could not set record" << endl;
+    return;
   }
   _points = record;
   record->registerAndGetIdentifier(name());
