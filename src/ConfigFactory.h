@@ -112,6 +112,7 @@ namespace RTX {
     void configureQualitySource(Setting &setting, Element::sharedPointer junction);
     void configureBoundaryFlow(Setting &setting, Element::sharedPointer junction);
     void configureHeadMeasure(Setting &setting, Element::sharedPointer junction);
+    void configurePressureMeasure(Setting &setting, Element::sharedPointer junction);
     void configureLevelMeasure(Setting &setting, Element::sharedPointer tank);
     void configureQualityMeasure(Setting &setting, Element::sharedPointer junction);
     void configureBoundaryHead(Setting &setting, Element::sharedPointer junction);

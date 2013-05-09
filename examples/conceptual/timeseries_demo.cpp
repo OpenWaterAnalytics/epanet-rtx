@@ -17,6 +17,7 @@
 #include "ConstantTimeSeries.h"
 #include "AggregatorTimeSeries.h"
 #include "CsvPointRecord.h"
+#include "GainTimeSeries.h"
 
 #include "BufferPointRecord.h"
 #include "MysqlPointRecord.h"
@@ -28,6 +29,29 @@ void printPoints(vector<Point> pointVector);
 
 int main(int argc, const char * argv[])
 {
+  
+  Clock::sharedPointer reg10m(new Clock(60*10));
+  
+  ConstantTimeSeries::sharedPointer pressure( new ConstantTimeSeries() );
+  pressure->setUnits(RTX_KILOPASCAL);
+  pressure->setClock(reg10m);
+  pressure->setValue(1);
+  
+  GainTimeSeries::sharedPointer gainTs( new GainTimeSeries() );
+  
+  gainTs->setUnits(RTX_FOOT);
+  gainTs->setGainUnits( RTX_METER / RTX_PASCAL );
+  gainTs->setGain(0.0001019977334);
+  gainTs->setSource(pressure);
+  
+  Point cp = gainTs->point(100);
+  
+  cout << cp << endl;
+  
+  double val = Units::convertValue(1, RTX_INCH, RTX_FOOT);
+  
+  cout << val << endl;
+  
   
   // RTX TimeSeries Demo Application
   // A demonstration of some of the important TimeSeries classes and methods
