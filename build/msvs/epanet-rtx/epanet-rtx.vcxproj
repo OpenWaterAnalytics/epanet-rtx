@@ -20,7 +20,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CLRSupport>true</CLRSupport>
+    <CLRSupport>false</CLRSupport>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -51,7 +51,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;RTX_NO_ODBC;RTX_NO_MYSQL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
@@ -59,6 +59,9 @@
       <AdditionalDependencies>
       </AdditionalDependencies>
     </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>C:\Documents and Settings\Administrator\My Documents\GitHub\epanet-rtx\src;C:\dev\libconfig\lib;C:\dev\boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -90,12 +93,21 @@
     <ClInclude Include="..\..\..\src\Clock.h" />
     <ClInclude Include="..\..\..\src\ConfigFactory.h" />
     <ClInclude Include="..\..\..\src\ConstantTimeSeries.h" />
+    <ClInclude Include="..\..\..\src\CsvPointRecord.h" />
     <ClInclude Include="..\..\..\src\CurveFunction.h" />
     <ClInclude Include="..\..\..\src\DbPointRecord.h" />
     <ClInclude Include="..\..\..\src\DequePointRecord.h" />
     <ClInclude Include="..\..\..\src\Element.h" />
     <ClInclude Include="..\..\..\src\EpanetModel.h" />
     <ClInclude Include="..\..\..\src\EpanetSyntheticModel.h" />
+    <ClInclude Include="..\..\..\src\epanet\src\enumstxt.h" />
+    <ClInclude Include="..\..\..\src\epanet\src\funcs.h" />
+    <ClInclude Include="..\..\..\src\epanet\src\hash.h" />
+    <ClInclude Include="..\..\..\src\epanet\src\mempool.h" />
+    <ClInclude Include="..\..\..\src\epanet\src\text.h" />
+    <ClInclude Include="..\..\..\src\epanet\src\toolkit.h" />
+    <ClInclude Include="..\..\..\src\epanet\src\types.h" />
+    <ClInclude Include="..\..\..\src\epanet\src\vars.h" />
     <ClInclude Include="..\..\..\src\FirstDerivative.h" />
     <ClInclude Include="..\..\..\src\IrregularClock.h" />
     <ClInclude Include="..\..\..\src\Junction.h" />
@@ -104,9 +116,8 @@
     <ClInclude Include="..\..\..\src\Model.h" />
     <ClInclude Include="..\..\..\src\ModularTimeSeries.h" />
     <ClInclude Include="..\..\..\src\MovingAverage.h" />
-    <ClInclude Include="..\..\..\src\MysqlPointRecord.h" />
+    <ClInclude Include="..\..\..\src\MultiplierTimeSeries.h" />
     <ClInclude Include="..\..\..\src\Node.h" />
-    <ClInclude Include="..\..\..\src\OdbcPointRecord.h" />
     <ClInclude Include="..\..\..\src\OffsetTimeSeries.h" />
     <ClInclude Include="..\..\..\src\Pipe.h" />
     <ClInclude Include="..\..\..\src\Point.h" />
@@ -121,6 +132,7 @@
     <ClInclude Include="..\..\..\src\ThresholdTimeSeries.h" />
     <ClInclude Include="..\..\..\src\TimeSeries.h" />
     <ClInclude Include="..\..\..\src\Units.h" />
+    <ClInclude Include="..\..\..\src\ValidRangeTimeSeries.h" />
     <ClInclude Include="..\..\..\src\Valve.h" />
     <ClInclude Include="..\..\..\src\Zone.h" />
   </ItemGroup>
@@ -130,12 +142,26 @@
     <ClCompile Include="..\..\..\src\Clock.cpp" />
     <ClCompile Include="..\..\..\src\ConfigFactory.cpp" />
     <ClCompile Include="..\..\..\src\ConstantTimeSeries.cpp" />
+    <ClCompile Include="..\..\..\src\CsvPointRecord.cpp" />
     <ClCompile Include="..\..\..\src\CurveFunction.cpp" />
     <ClCompile Include="..\..\..\src\DbPointRecord.cpp" />
     <ClCompile Include="..\..\..\src\DequePointRecord.cpp" />
     <ClCompile Include="..\..\..\src\Element.cpp" />
     <ClCompile Include="..\..\..\src\EpanetModel.cpp" />
     <ClCompile Include="..\..\..\src\EpanetSyntheticModel.cpp" />
+    <ClCompile Include="..\..\..\src\epanet\src\epanet.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\hash.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\hydraul.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\inpfile.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\input1.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\input2.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\input3.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\mempool.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\output.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\quality.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\report.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\rules.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\smatrix.c" />
     <ClCompile Include="..\..\..\src\FirstDerivative.cpp" />
     <ClCompile Include="..\..\..\src\IrregularClock.cpp" />
     <ClCompile Include="..\..\..\src\Junction.cpp" />
@@ -144,9 +170,8 @@
     <ClCompile Include="..\..\..\src\Model.cpp" />
     <ClCompile Include="..\..\..\src\ModularTimeSeries.cpp" />
     <ClCompile Include="..\..\..\src\MovingAverage.cpp" />
-    <ClCompile Include="..\..\..\src\MysqlPointRecord.cpp" />
+    <ClCompile Include="..\..\..\src\MultiplierTimeSeries.cpp" />
     <ClCompile Include="..\..\..\src\Node.cpp" />
-    <ClCompile Include="..\..\..\src\OdbcPointRecord.cpp" />
     <ClCompile Include="..\..\..\src\OffsetTimeSeries.cpp" />
     <ClCompile Include="..\..\..\src\Pipe.cpp" />
     <ClCompile Include="..\..\..\src\Point.cpp" />
@@ -159,6 +184,7 @@
     <ClCompile Include="..\..\..\src\ThresholdTimeSeries.cpp" />
     <ClCompile Include="..\..\..\src\TimeSeries.cpp" />
     <ClCompile Include="..\..\..\src\Units.cpp" />
+    <ClCompile Include="..\..\..\src\ValidRangeTimeSeries.cpp" />
     <ClCompile Include="..\..\..\src\Valve.cpp" />
     <ClCompile Include="..\..\..\src\Zone.cpp" />
   </ItemGroup>

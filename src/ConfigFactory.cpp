@@ -59,12 +59,12 @@ namespace RTX {
 
 ConfigFactory::ConfigFactory() {
   // register point record and time series types to their proper creators
-  _pointRecordPointerMap.insert(make_pair("CSV", PointRecordFactory::createCsvPointRecord));
+  _pointRecordPointerMap["CSV"] = PointRecordFactory::createCsvPointRecord;
   #ifndef RTX_NO_ODBC
-  _pointRecordPointerMap.insert(make_pair("SCADA", PointRecordFactory::createOdbcPointRecord));
+  _pointRecordPointerMap.insert["SCADA"] = PointRecordFactory::createOdbcPointRecord;
   #endif
   #ifndef RTX_NO_MYSQL
-  _pointRecordPointerMap.insert(make_pair("MySQL", PointRecordFactory::createMySqlPointRecord));
+  _pointRecordPointerMap.insert["MySQL"] = PointRecordFactory::createMySqlPointRecord;
   #endif
   
   //_clockPointerMap.insert(make_pair("regular", &ConfigFactory::createRegularClock));
