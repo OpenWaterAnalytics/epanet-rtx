@@ -105,6 +105,7 @@ namespace RTX {
     TimeSeries::sharedPointer createOffset(Setting &setting);
     TimeSeries::sharedPointer createThreshold(Setting &setting);
     TimeSeries::sharedPointer createCurveFunction(Setting &setting);
+    TimeSeries::sharedPointer createConstant(Setting &setting);
     TimeSeries::sharedPointer createValidRange(Setting &setting);
     TimeSeries::sharedPointer createMultiplier(Setting &setting);
     
