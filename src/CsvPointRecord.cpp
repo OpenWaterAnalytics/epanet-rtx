@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <boost/foreach.hpp>
@@ -16,7 +17,7 @@ CsvPointRecord::CsvPointRecord() {
 CsvPointRecord::~CsvPointRecord() {
   // upon destruction, save all data back into csv files.
   if (_isReadonly) {
-    cout << "warning: csv point record may be losing changes (readonly)" << endl;
+    cout << "warning: csv record " << _path.filename().stem().string() << " may be losing changes (readonly)" << endl;
     return;
   }
   saveDataToCsvDir(_path);
@@ -78,7 +79,7 @@ void CsvPointRecord::loadDataFromCsvDir(boost::filesystem::path dirPath) {
     // check the file name
     const string ext( p.filename().extension().string() );
     if ( ! RTX_STRINGS_ARE_EQUAL(ext, ".csv") ) {
-      cerr << "warning: ignoring file " << p.filename() << " because it's not a csv" << endl;
+      //cerr << "warning: ignoring file " << p.filename() << " because it's not a csv" << endl;
       continue;
     }
     
@@ -145,7 +146,7 @@ void CsvPointRecord::saveDataToCsvDir(boost::filesystem::path dirPath) {
       time_pair_t range = this->range(id);
       vector<Point> points = this->pointsInRange(id, range.first, range.second);
       BOOST_FOREACH(Point p, points) {
-        csvOfStream << p.time << ", " << p.value << endl;
+        csvOfStream << p.time << ", " << setprecision(12) << p.value << endl;
       }
     } // ostream good
     csvOfStream.close();
