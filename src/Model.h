@@ -82,6 +82,8 @@ namespace RTX {
     int qualityTimeStep();
     
     virtual time_t currentSimulationTime();
+    TimeSeries::sharedPointer iterations() {return _iterations;}
+    TimeSeries::sharedPointer relativeError() {return _relativeError;}
     
     virtual std::ostream& toStream(std::ostream &stream);
 
@@ -97,7 +99,6 @@ namespace RTX {
     Units headUnits();
     void setFlowUnits(Units units);
     void setHeadUnits(Units units);
-    
     
     // model parameter setting
     // recreating or wrapping basic api functionality here.
