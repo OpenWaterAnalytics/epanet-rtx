@@ -25,7 +25,6 @@ CsvPointRecord::~CsvPointRecord() {
 
 
 void CsvPointRecord::setPath(const std::string& pathStr) {
-  // expected format: "dir=path/to/folder;readonly=[yes/no]"
   // try to access the directory
   _path = path(pathStr);
   
