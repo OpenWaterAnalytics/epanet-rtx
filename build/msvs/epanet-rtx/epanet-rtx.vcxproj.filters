@@ -173,6 +173,12 @@
     <ClInclude Include="..\..\..\src\epanet\src\vars.h">
       <Filter>Header Files\epanet</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\SinglePointFilterModularTimeSeries.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\GainTimeSeries.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\Zone.cpp">
@@ -324,6 +330,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\epanet\src\rules.c">
       <Filter>Source Files\epanet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\SinglePointFilterModularTimeSeries.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\GainTimeSeries.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

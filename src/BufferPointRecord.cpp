@@ -7,7 +7,7 @@
 //
 
 #include "BufferPointRecord.h"
-
+#include <iostream>
 #include <boost/foreach.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
 

@@ -19,7 +19,7 @@ using namespace RTX;
 Tank::Tank(const std::string& name) : Junction(name) {
   setType(TANK);
   // initialize time series states
-
+  _doesResetLevel = false;
   _level.reset( new OffsetTimeSeries() );
   _level->setSource(this->head());
   _level->setName(name + " level (offset)");

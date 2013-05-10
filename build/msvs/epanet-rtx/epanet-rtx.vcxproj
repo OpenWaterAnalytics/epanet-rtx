@@ -24,10 +24,10 @@
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <CLRSupport>true</CLRSupport>
-    <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>false</CLRSupport>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -46,6 +46,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\dev\boost;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -53,6 +54,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;RTX_NO_ODBC;RTX_NO_MYSQL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -67,7 +69,8 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -109,6 +112,7 @@
     <ClInclude Include="..\..\..\src\epanet\src\types.h" />
     <ClInclude Include="..\..\..\src\epanet\src\vars.h" />
     <ClInclude Include="..\..\..\src\FirstDerivative.h" />
+    <ClInclude Include="..\..\..\src\GainTimeSeries.h" />
     <ClInclude Include="..\..\..\src\IrregularClock.h" />
     <ClInclude Include="..\..\..\src\Junction.h" />
     <ClInclude Include="..\..\..\src\Link.h" />
@@ -128,6 +132,7 @@
     <ClInclude Include="..\..\..\src\rtxExceptions.h" />
     <ClInclude Include="..\..\..\src\rtxMacros.h" />
     <ClInclude Include="..\..\..\src\SineTimeSeries.h" />
+    <ClInclude Include="..\..\..\src\SinglePointFilterModularTimeSeries.h" />
     <ClInclude Include="..\..\..\src\Tank.h" />
     <ClInclude Include="..\..\..\src\ThresholdTimeSeries.h" />
     <ClInclude Include="..\..\..\src\TimeSeries.h" />
@@ -163,6 +168,7 @@
     <ClCompile Include="..\..\..\src\epanet\src\rules.c" />
     <ClCompile Include="..\..\..\src\epanet\src\smatrix.c" />
     <ClCompile Include="..\..\..\src\FirstDerivative.cpp" />
+    <ClCompile Include="..\..\..\src\GainTimeSeries.cpp" />
     <ClCompile Include="..\..\..\src\IrregularClock.cpp" />
     <ClCompile Include="..\..\..\src\Junction.cpp" />
     <ClCompile Include="..\..\..\src\Link.cpp" />
@@ -180,6 +186,7 @@
     <ClCompile Include="..\..\..\src\Resampler.cpp" />
     <ClCompile Include="..\..\..\src\Reservoir.cpp" />
     <ClCompile Include="..\..\..\src\SineTimeSeries.cpp" />
+    <ClCompile Include="..\..\..\src\SinglePointFilterModularTimeSeries.cpp" />
     <ClCompile Include="..\..\..\src\Tank.cpp" />
     <ClCompile Include="..\..\..\src\ThresholdTimeSeries.cpp" />
     <ClCompile Include="..\..\..\src\TimeSeries.cpp" />

@@ -12,6 +12,7 @@
 
 #include "Point.h"
 #include <math.h>
+#include <iostream>
 
 using namespace std;
 using namespace RTX;
