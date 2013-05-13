@@ -22,6 +22,30 @@ void ValidRangeTimeSeries::setMode(filterMode_t mode) {
   _mode = mode;
 }
 
+Point ValidRangeTimeSeries::pointBefore(time_t time) {
+  
+  Point beforePoint = RTX_VRTS_SUPER::pointBefore(time);
+    
+  // If baseclass pointBefore returns an invalid point,
+  // then keep searching backwards
+  while (!beforePoint.isValid && beforePoint.time > 0) {
+    beforePoint = RTX_VRTS_SUPER::pointBefore(beforePoint.time);
+  }
+  return beforePoint;
+}
+
+Point ValidRangeTimeSeries::pointAfter(time_t time) {
+  
+  Point afterPoint = RTX_VRTS_SUPER::pointAfter(time);
+  
+  // If baseclass pointBefore returns an invalid point,
+  // then keep searching backwards
+  while (!afterPoint.isValid && afterPoint.time > 0) {
+    afterPoint = RTX_VRTS_SUPER::pointAfter(afterPoint.time);
+  }
+  return afterPoint;
+}
+
 Point ValidRangeTimeSeries::filteredSingle(RTX::Point p, RTX::Units sourceU) {
   Point convertedSourcePoint = Point::convertPoint(p, sourceU, units());
   Point newP;
@@ -34,6 +58,10 @@ Point ValidRangeTimeSeries::filteredSingle(RTX::Point p, RTX::Units sourceU) {
       pointValue = RTX_MAX(pointValue, _range.first);
       pointValue = RTX_MIN(pointValue, _range.second);
       newP = Point(convertedSourcePoint.time, pointValue, convertedSourcePoint.quality, convertedSourcePoint.confidence);
+    }
+    else {
+      // drop point - return only the time
+      newP.time = convertedSourcePoint.time;
     }
   }
   else {
