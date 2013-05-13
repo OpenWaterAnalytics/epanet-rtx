@@ -12,8 +12,10 @@
 #include <iostream>
 #include "SinglePointFilterModularTimeSeries.h"
 
+#define RTX_VRTS_SUPER SinglePointFilterModularTimeSeries
+
 namespace RTX {
-  class ValidRangeTimeSeries : public SinglePointFilterModularTimeSeries {
+  class ValidRangeTimeSeries : public RTX_VRTS_SUPER {
   public:
     RTX_SHARED_POINTER(ValidRangeTimeSeries);
     ValidRangeTimeSeries();
@@ -23,6 +25,10 @@ namespace RTX {
     typedef enum {saturate,drop} filterMode_t;
     filterMode_t mode();
     void setMode(filterMode_t mode);
+    
+    // Overridden methods
+    virtual Point pointBefore(time_t time);
+    virtual Point pointAfter(time_t time);
     
   private:
     Point filteredSingle(Point p, Units sourceU);
