@@ -30,6 +30,9 @@ namespace RTX {
     double threshold();
     void setValue(double val);
     double value();
+    virtual void setSource(TimeSeries::sharedPointer source);
+    virtual void setUnits(Units newUnits);
+
     
   private:
     Point filteredSingle(Point p, Units sourceU);

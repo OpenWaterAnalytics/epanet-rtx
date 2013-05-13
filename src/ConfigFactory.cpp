@@ -434,7 +434,7 @@ void ConfigFactory::createTimeSeriesList(Setting& timeSeriesGroup) {
     
     MultiplierTimeSeries::sharedPointer mts = boost::static_pointer_cast<MultiplierTimeSeries>(ts);
     if (mts) {
-      mts->setMultiplier(_timeSeriesList[mts->name()]);
+      mts->setMultiplier(_timeSeriesList[basisName]);
     }
     
   }

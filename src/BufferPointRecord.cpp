@@ -285,12 +285,13 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
         // insert onto front (reverse iteration)
         gap = false;
         vector<Point>::const_reverse_iterator pIt = points.rbegin();
+//        int iPoint=0;
         while (pIt != points.rend()) {
           // make this smarter? using upper_bound maybe? todo - figure out upper_bound with a reverse_iterator
           // skip overlapping points.
           
           if (pIt->time < existingRange.first) {
-            BufferPointRecord::addPoint(identifier, *pIt);
+            buffer.push_front(*pIt);
           }
           // else { /* skip */ }
           
