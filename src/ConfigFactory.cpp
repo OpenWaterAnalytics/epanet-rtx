@@ -10,6 +10,7 @@
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/range/adaptors.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "ConfigFactory.h"
 #include "AggregatorTimeSeries.h"
@@ -238,11 +239,17 @@ map<string, Clock::sharedPointer> ConfigFactory::clocks() {
 void ConfigFactory::createPointRecords(Setting& records) {  
   
   int recordCount = records.getLength();
+  string recordName("");
   
   // loop through the records and create them.
   for (int iRecord = 0; iRecord < recordCount; ++iRecord) {
     Setting& record = records[iRecord];
-    string recordName = record["name"];
+    if (record.exists("name")) {
+      record.lookupValue("name", recordName);
+    }
+    else {
+      recordName = "Record " + boost::lexical_cast<std::string>(iRecord);
+    }
     // somewhat hackish. since the pointrecords are created via static class methods, we have to piggy-back
     // the config file path onto the Setting& argument in case the pointrecord needs it (like the csv version will)
     record.add("configPath", libconfig::Setting::Type::TypeString);
@@ -268,7 +275,7 @@ PointRecord::sharedPointer ConfigFactory::createPointRecordOfType(libconfig::Set
   // check if the map item exists first
   string type;
   if (setting.lookupValue("type", type) && (_pointRecordPointerMap.find(type) != _pointRecordPointerMap.end()) ) {
-    PointRecordFunctionPointer fp = _pointRecordPointerMap[setting["type"]];
+    PointRecordFunctionPointer fp = _pointRecordPointerMap[type];
     return fp(setting);
   }
   
@@ -284,7 +291,9 @@ PointRecord::sharedPointer PointRecordFactory::createCsvPointRecord(Setting& set
   
   if (setting.lookupValue("name", name) && setting.lookupValue("path", csvDirPath) && setting.lookupValue("configPath", configPath) ) {
     bool readOnly = false;
-    bool settingPresent = setting.lookupValue("readonly", readOnly); // if setting is not present, this fails but readOnly is not modified.
+    if (setting.exists("readonly")) {
+      setting.lookupValue("readonly", readOnly);
+    }
     
     csv->setReadOnly(readOnly);
     
