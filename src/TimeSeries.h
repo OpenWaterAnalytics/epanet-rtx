@@ -73,6 +73,11 @@ namespace RTX {
     virtual std::string name();
     PointRecord::sharedPointer record();
     
+    // convenience
+    double averageValue(time_t start, time_t end);
+    Point maxPoint(time_t start, time_t end);
+    Point minPoint(time_t start, time_t end);
+    
     // setters
     virtual void setName(const std::string& name);
     void setRecord(PointRecord::sharedPointer record);

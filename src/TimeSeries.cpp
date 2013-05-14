@@ -183,6 +183,53 @@ Point TimeSeries::pointAfter(time_t time) {
   return myPoint;
 }
 
+
+double TimeSeries::averageValue(time_t start, time_t end) {
+  double accum = 0;
+  vector<Point> ps = this->points(start, end);
+  if (ps.size() == 0) {
+    return 0.;
+  }
+  BOOST_FOREACH(const Point& p, ps) {
+    if (p.isValid) {
+      accum += p.value;
+    }
+  }
+  return (accum / (double)ps.size());
+}
+
+Point TimeSeries::maxPoint(time_t start, time_t end) {
+  Point max;
+  vector<Point> ps = this->points(start, end);
+  if (ps.size() > 0) {
+    max = ps.front();
+    BOOST_FOREACH(const Point& p, ps) {
+      if (p.value > max.value) {
+        max = p;
+      }
+    }
+  }
+  return max;
+}
+
+Point TimeSeries::minPoint(time_t start, time_t end) {
+  Point min;
+  vector<Point> ps = this->points(start, end);
+  if (ps.size() > 0) {
+    min = ps.front();
+    BOOST_FOREACH(const Point& p, ps) {
+      if (p.value < min.value) {
+        min = p;
+      }
+    }
+  }
+  return min;
+}
+
+
+
+
+
 time_t TimeSeries::period() {
   if (_clock) {
     return _clock->period();
