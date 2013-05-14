@@ -139,7 +139,7 @@ void Model::initDemandZones(bool detectClosedLinks) {
     
     
     // specifiy the root node and populate the tree.
-    newZone->enumerateJunctionsWithRootNode(rootNode);
+    newZone->enumerateJunctionsWithRootNode(rootNode,detectClosedLinks);
     
     // get the list of junctions that were just added.
     vector<Junction::sharedPointer> addedJunctions = newZone->junctions();
