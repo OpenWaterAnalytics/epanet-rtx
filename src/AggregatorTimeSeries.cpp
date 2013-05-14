@@ -9,7 +9,8 @@
 #include <iostream>
 
 #include "AggregatorTimeSeries.h"
-#include "boost/foreach.hpp"
+#include <boost/foreach.hpp>
+#include <boost/range/adaptors.hpp>
 
 using namespace RTX;
 using namespace std;
@@ -33,7 +34,15 @@ bool AggregatorTimeSeries::doesHaveSource() {
 
 ostream& AggregatorTimeSeries::toStream(ostream &stream) {
   TimeSeries::toStream(stream);
-  stream << "Connected to: " << _tsList.size() << " time series" << "\n";
+  stream << "Connected to: " << _tsList.size() << " time series:" << "\n";
+  
+  typedef std::pair<TimeSeries::sharedPointer,double> tsMultPair_t;
+  BOOST_FOREACH(const tsMultPair_t& tsmult, _tsList) {
+    double multiplier = tsmult.second;
+    TimeSeries::sharedPointer ts = tsmult.first;
+    string dir = (multiplier > 0)? "(+)" : "(-)";
+    stream << "   -- " << dir << " " << ts->name() << endl;
+  }
   return stream;
 }
 

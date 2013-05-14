@@ -301,7 +301,10 @@ int DLLEXPORT ENopen(char *f1, char *f2, char *f3)
       errmsg(errcode);
       return(errcode);
    }
-   writelogo();
+  if (RptFile != NULL) {
+    writelogo();
+  }
+  
 
 /* Find network size & allocate memory for data */
    writecon(FMT02);
@@ -2554,7 +2557,7 @@ int   openfiles(char *f1, char *f2, char *f3)
       writecon(f1);
       return(302);
    }
-   if (strlen(f2) == 0) RptFile = stdout;
+   if (strlen(f2) == 0) {} //RptFile = stdout;
    else if ((RptFile = fopen(f2,"wt")) == NULL)
    {
       writecon(FMT06);

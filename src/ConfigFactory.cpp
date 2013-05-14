@@ -86,24 +86,24 @@ ConfigFactory::ConfigFactory() {
   
   // node-type configuration functions
   // Junctions
-  _parameterSetter.insert(make_pair("qualitysource", &ConfigFactory::configureQualitySource));
-  _parameterSetter.insert(make_pair("quality", &ConfigFactory::configureQualityMeasure));
-  _parameterSetter.insert(make_pair("boundaryflow", &ConfigFactory::configureBoundaryFlow));
-  _parameterSetter.insert(make_pair("headmeasure", &ConfigFactory::configureHeadMeasure));
-  _parameterSetter.insert(make_pair("pressuremeasure", &ConfigFactory::configurePressureMeasure));
+  _parameterSetter.insert(make_pair("quality_boundary", &ConfigFactory::configureQualitySource));
+  _parameterSetter.insert(make_pair("quality_measure",  &ConfigFactory::configureQualityMeasure));
+  _parameterSetter.insert(make_pair("flow_boundary",    &ConfigFactory::configureBoundaryFlow));
+  _parameterSetter.insert(make_pair("head_measure",     &ConfigFactory::configureHeadMeasure));
+  _parameterSetter.insert(make_pair("pressure_measure", &ConfigFactory::configurePressureMeasure));
   // Tanks, Reservoirs
-  _parameterSetter.insert(make_pair("levelmeasure", &ConfigFactory::configureLevelMeasure));
-  _parameterSetter.insert(make_pair("boundaryhead", &ConfigFactory::configureBoundaryHead));
+  _parameterSetter.insert(make_pair("level_measure",    &ConfigFactory::configureLevelMeasure));
+  _parameterSetter.insert(make_pair("head_boundary",    &ConfigFactory::configureBoundaryHead));
   
   // link-type configuration functions
   // Pipes
-  _parameterSetter.insert(make_pair("status", &ConfigFactory::configurePipeStatus));
-  _parameterSetter.insert(make_pair("flow", &ConfigFactory::configureFlowMeasure));
+  _parameterSetter.insert(make_pair("status_boundary", &ConfigFactory::configurePipeStatus));
+  _parameterSetter.insert(make_pair("flow_measure", &ConfigFactory::configureFlowMeasure));
   // Pumps
   _parameterSetter.insert(make_pair("curve", &ConfigFactory::configurePumpCurve));
-  _parameterSetter.insert(make_pair("energy", &ConfigFactory::configurePumpEnergyMeasure));
+  _parameterSetter.insert(make_pair("energy_measure", &ConfigFactory::configurePumpEnergyMeasure));
   // Valves
-  _parameterSetter.insert(make_pair("setting", &ConfigFactory::configureValveSetting));
+  _parameterSetter.insert(make_pair("setting_boundary", &ConfigFactory::configureValveSetting));
   
   _doesHaveStateRecord = false;
   
@@ -824,7 +824,6 @@ void ConfigFactory::createSaveOptions(libconfig::Setting &saveGroup) {
               j->quality()->setRecord(_defaultRecord);
             }
           }
-          
           vector<Pipe::sharedPointer> pipes = _model->pipes();
           BOOST_FOREACH(Pipe::sharedPointer p, pipes) {
             if (p->doesHaveFlowMeasure()) {

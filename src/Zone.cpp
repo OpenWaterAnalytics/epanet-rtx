@@ -40,6 +40,9 @@ std::ostream& Zone::toStream(std::ostream &stream) {
     string dir = (pd.second == inDirection)? "(+)" : "(-)";
     stream << "   -- " << dir << " " << pipe->name() << endl;
   }
+  stream << "Time Series Aggregation:" << endl;
+  stream << _demand << endl;
+  
   
   return stream;
 }

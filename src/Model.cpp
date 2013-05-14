@@ -378,6 +378,15 @@ std::ostream& Model::toStream(std::ostream &stream) {
     stream << "State Storage:" << endl << *_record;
   }
   
+  if (_zones.size() > 0) {
+    stream << "Demand Zones:" << endl;
+    BOOST_FOREACH(Zone::sharedPointer z, _zones) {
+      stream << "## Zone: " << z->name() << endl;
+      stream << *z << endl;
+    }
+  }
+  
+  
   return stream;
 }
 
