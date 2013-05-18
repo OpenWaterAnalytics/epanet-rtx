@@ -113,7 +113,7 @@ Point ModularTimeSeries::point(time_t time) {
       return aPoint;
     }
     else {
-      cerr << "ModularTimeSeries: check point availability first\n";
+      //cerr << "ModularTimeSeries: check point availability first\n";
       // TODO -- throw something? reminder to check point availability first...
       Point point;
       return point;

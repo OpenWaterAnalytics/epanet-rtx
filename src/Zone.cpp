@@ -33,15 +33,10 @@ Zone::~Zone() {
 std::ostream& Zone::toStream(std::ostream &stream) {
   stream << "Zone: \"" << this->name() << "\"\n";
   stream << " - " << junctions().size() << " Junctions" << endl;
-  stream << " - " << _boundaryPipesDirectional.size() << " Boundary Pipes:" << endl;
-  typedef pair<Pipe::sharedPointer, direction_t> pipeDir_t;
-  BOOST_FOREACH(pipeDir_t pd, _boundaryPipesDirectional) {
-    Pipe::sharedPointer pipe = pd.first;
-    string dir = (pd.second == inDirection)? "(+)" : "(-)";
-    stream << "   -- " << dir << " " << pipe->name() << endl;
-  }
+  stream << " - " << _boundaryPipesDirectional.size() << " Boundary Pipes" << endl;
+  stream << " - " << _tanks.size() << " Tanks" << endl;
   stream << "Time Series Aggregation:" << endl;
-  stream << _demand << endl;
+  stream << *_demand << endl;
   
   
   return stream;
@@ -59,7 +54,7 @@ void Zone::setJunctionFlowUnits(RTX::Units units) {
 
 void Zone::addJunction(Junction::sharedPointer junction) {
   if (_junctions.find(junction->name()) != _junctions.end()) {
-    cerr << "err: junction already exists" << endl;
+    //cerr << "err: junction already exists" << endl;
   }
   else {
     _junctions.insert(make_pair(junction->name(), junction));
@@ -78,7 +73,7 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
   
   bool doesContainReservoir = false;
   
-  cout << "Starting At Root Junction: " << junction->name() << endl;
+  //cout << "Starting At Root Junction: " << junction->name() << endl;
   
   // breadth-first search.
   deque<Junction::sharedPointer> candidateJunctions;
@@ -86,7 +81,7 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
   
   while (!candidateJunctions.empty()) {
     Junction::sharedPointer thisJ = candidateJunctions.front();
-    cout << " - adding: " << thisJ->name() << endl;
+    //cout << " - adding: " << thisJ->name() << endl;
     this->addJunction(thisJ);
     vector<Link::sharedPointer> connectedLinks = thisJ->links();
     BOOST_FOREACH(Link::sharedPointer l, connectedLinks) {
@@ -96,7 +91,7 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
         // stop here - it's a potential zone perimeter pipe.
         // but first, capture the pipe and direction
         
-        cout << " - perimeter pipe: " << p->name() << endl;
+        //cout << " - perimeter pipe: " << p->name() << endl;
         
         direction_t dir;
         if (p->from() == thisJ) {
@@ -107,13 +102,14 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
         }
         else {
           // should not happen?
+          dir = inDirection;
           cerr << "direction could not be found for pipe: " << p->name() << endl;
         }
         _boundaryPipesDirectional.insert(make_pair(p, dir));
         continue;
       }
-      else if (stopAtClosedLinks && p->fixedStatus() == Pipe::CLOSED) {
-        cout << "detected fixed status (closed) pipe: " << p->name() << endl;
+      else if ( (stopAtClosedLinks) && (p->fixedStatus() == Pipe::CLOSED) && (p->type() != Element::PUMP) ) {
+        //cout << "detected fixed status (closed) pipe: " << p->name() << endl;
         continue;
       }
       
@@ -135,7 +131,7 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
   
   BOOST_FOREACH(Pipe::sharedPointer p, _boundaryPipesDirectional | boost::adaptors::map_keys) {
     if (this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->to()))) {
-      cout << "removing orphaned pipe: " << p->name() << endl;
+      //cout << "removing orphaned pipe: " << p->name() << endl;
       _boundaryPipesDirectional.erase(p);
     }
   }
@@ -155,12 +151,12 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
     if (isTank(j)) {
       //this->removeJunction(j);
       _tanks.push_back(boost::static_pointer_cast<Tank>(j));
-      cout << "found tank: " << j->name() << endl;
+      //cout << "found tank: " << j->name() << endl;
     }
     else if (isBoundaryFlowJunction(j)) {
       //this->removeJunction(j);
       _boundaryFlowJunctions.push_back(j);
-      cout << "found boundary flow: " << j->name() << endl;
+      //cout << "found boundary flow: " << j->name() << endl;
     }
     
   }
@@ -193,14 +189,16 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
   }
   else {
     ConstantTimeSeries::sharedPointer constZone(new ConstantTimeSeries());
+    constZone->setName("Zero Demand");
+    constZone->setValue(0.);
     constZone->setUnits(RTX_GALLON_PER_MINUTE);
     this->setDemand(constZone);
   }
   
   
   
-  cout << this->name() << " Zone Description:" << endl;
-  cout << *this->demand() << endl;
+  //cout << this->name() << " Zone Description:" << endl;
+  //cout << *this->demand() << endl;
   
 }
 
@@ -357,33 +355,35 @@ void Zone::allocateDemandToJunctions(time_t time) {
   
   // now we have the total (nominal) base demand for the zone.
   // total demand for the zone (includes metered and unmetered) -- already in myUnits.
-  Point dPoint = this->demand()->point(time);
+  Point dPoint = this->demand()->pointAtOrBefore(time);
   
   zoneDemand = ( dPoint.isValid ? dPoint.value : this->demand()->pointBefore(time).value );
   allocableDemand = zoneDemand - meteredDemand; // the total unmetered demand
-  
+  /*
   cout << "-------------------" << endl;
   cout << "time: " << time << endl;
   cout << "zone demand: " << zoneDemand << endl;
   cout << "metered: " << meteredDemand << endl;
   cout << "allocable: " << allocableDemand << endl;
-  
+  */
   // set the demand values for unmetered junctions, according to their base demands.
   BOOST_FOREACH(JunctionMapType::value_type& junctionPair, _junctions) {
     Junction::sharedPointer junction = junctionPair.second;
     if (junction->doesHaveBoundaryFlow()) {
       // junction does have boundary flow...
       // just need to copy the boundary flow into the junction's demand time series
-      Point dp = junction->boundaryFlow()->point(time);
-      double dval = dp.isValid ? dp.value : junction->boundaryFlow()->pointBefore(time).value;
-      junction->demand()->insert( Point::convertPoint(Point(dval, time), junction->boundaryFlow()->units(), junction->demand()->units()) );
+      Point dp = junction->boundaryFlow()->pointAtOrBefore(time);
+      Point newDemandPoint = Point::convertPoint(dp, junction->boundaryFlow()->units(), junction->demand()->units());
+      junction->demand()->insert( newDemandPoint );
     }
     else {
-      // junction relies on us to set its demand value...
-      double baseDemand = Units::convertValue(junction->baseDemand(), modelUnits, myUnits);
-      double newDemand = baseDemand * ( allocableDemand / totalBaseDemand );
-      Point demandPoint(time, newDemand);
-      junction->demand()->insert( Point::convertPoint(demandPoint, myUnits, junction->demand()->units()) );
+      // junction relies on us to set its demand value... but only set it if the total base demand > 0
+      if (totalBaseDemand > 0) {
+        double baseDemand = Units::convertValue(junction->baseDemand(), modelUnits, myUnits);
+        double newDemand = baseDemand * ( allocableDemand / totalBaseDemand );
+        Point demandPoint(time, newDemand);
+        junction->demand()->insert( Point::convertPoint(demandPoint, myUnits, junction->demand()->units()) );
+      }
     }
   }
   

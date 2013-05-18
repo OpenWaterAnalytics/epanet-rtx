@@ -473,13 +473,6 @@
 			name = db;
 			sourceTree = "<group>";
 		};
-		22303FB61499364800B2CE26 /* TRASH */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = TRASH;
-			sourceTree = "<group>";
-		};
 		226861C414715E53000DDDEF /* units */ = {
 			isa = PBXGroup;
 			children = (
@@ -593,7 +586,6 @@
 				22DDAD7D1443682300C1F188 /* model */,
 				22C62B02143A107D00841E60 /* exceptions */,
 				22C62AC91439ED9300841E60 /* time series classes */,
-				22303FB61499364800B2CE26 /* TRASH */,
 				22C62AC11439ED6300841E60 /* Products */,
 				220DFA9C15502E4100AF41D0 /* Libraries */,
 			);
@@ -1091,6 +1083,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				MACH_O_TYPE = staticlib;
 				PRODUCT_NAME = "epanet-rtx";
+				RUN_CLANG_STATIC_ANALYZER = NO;
 			};
 			name = Debug;
 		};
@@ -1114,6 +1107,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				MACH_O_TYPE = staticlib;
 				PRODUCT_NAME = "epanet-rtx";
+				RUN_CLANG_STATIC_ANALYZER = NO;
 			};
 			name = Release;
 		};

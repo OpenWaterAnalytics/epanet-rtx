@@ -7,16 +7,21 @@ using namespace std;
 
 Point SinglePointFilterModularTimeSeries::point(time_t time){
   
+  Point newPoint = TimeSeries::point(time);
+  if (newPoint.isValid) {
+    return newPoint;
+  }
   Units sourceU = source()->units();
   Point sourcePoint = source()->point(time);
-  Point newPoint;
   
   if (sourcePoint.isValid) {
     newPoint = this->filteredSingle(sourcePoint, sourceU);
+    this->insert(newPoint);
   }
   else {
-    std::cerr << "SinglePointFilter: \"" << this->name() << "\": check point availability first\n";
+    //std::cerr << "SinglePointFilter: \"" << this->name() << "\": check point availability first\n";
   }
+  
   return newPoint;
 }
 

@@ -11,6 +11,8 @@
 #include <string>
 #include "Units.h"
 
+#include <boost/algorithm/string.hpp>
+
 using namespace RTX;
 using namespace std;
 
@@ -202,11 +204,12 @@ map<string, Units> Units::unitStringMap() {
 // factory for string input
 Units Units::unitOfType(const string& unitString) {
   map<string, Units> unitMap = Units::unitStringMap();
-  if (unitMap.find(unitString) != unitMap.end()) {
-    return unitMap[unitString];
+  string uStr = boost::algorithm::to_lower_copy(unitString);
+  if (unitMap.find(uStr) != unitMap.end()) {
+    return unitMap[uStr];
   }
   else {
-    cerr << "Units not recognized: " << unitString << endl;
+    cerr << "WARNING: Units not recognized: " << uStr << " - defaulting to dimensionless." << endl;
     return RTX_DIMENSIONLESS;
   }
 }

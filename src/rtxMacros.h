@@ -16,9 +16,15 @@
 #define RTX_MAX(x,y) x>y?x:y
 #define RTX_MIN(x,y) x<y?x:y
 
-// silly macro for string comparison
+// silly macros for silly string comparison
 #include <boost/algorithm/string/predicate.hpp>
 #define RTX_STRINGS_ARE_EQUAL(x,y) (boost::algorithm::iequals(x,y))
 #define RTX_STRINGS_ARE_EQUAL_CS(x,y) (x.compare(y)==0)
+
+
+#ifndef RTX_BUFFER_DEFAULT_CACHESIZE
+#define RTX_BUFFER_DEFAULT_CACHESIZE 100
+#endif
+
 
 #endif

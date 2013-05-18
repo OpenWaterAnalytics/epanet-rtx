@@ -67,6 +67,7 @@ namespace RTX {
     virtual Point point(time_t time);
     virtual Point pointBefore(time_t time);
     virtual Point pointAfter(time_t time);
+    virtual Point pointAtOrBefore(time_t time);
     virtual std::vector< Point > points(time_t start, time_t end); // points in range
     virtual std::pair< Point, Point > adjacentPoints(time_t time); // adjacent points
     virtual time_t period();                              //! 1/frequency (# seconds between data points)

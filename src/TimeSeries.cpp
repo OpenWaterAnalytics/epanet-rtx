@@ -18,7 +18,6 @@ using namespace std;
 
 TimeSeries::TimeSeries() : _units(1) {
   _name = "";  
-  _cacheSize = 1000; // default cache size
   _points.reset( new BufferPointRecord() );
   setName("Time Series");
   _clock.reset( new IrregularClock(_points, "Time Series") );
@@ -183,6 +182,15 @@ Point TimeSeries::pointAfter(time_t time) {
   return myPoint;
 }
 
+Point TimeSeries::pointAtOrBefore(time_t time) {
+  Point p = this->point(time);
+  if (!p.isValid) {
+    p = this->pointBefore(time);
+  }
+  return p;
+}
+
+
 
 double TimeSeries::averageValue(time_t start, time_t end) {
   double accum = 0;
@@ -244,7 +252,7 @@ void TimeSeries::setRecord(PointRecord::sharedPointer record) {
     _points->reset(name());
   }
   if (!record) {
-    cerr << "could not set record" << endl;
+    cerr << "WARNING: could not set record for Time Series \"" << this->name() << "\"" << endl;
     return;
   }
   _points = record;

@@ -51,7 +51,7 @@ Point CurveFunction::point(time_t time) {
     Point newPoint = this->convertWithCurve(sourcePoint, sourceU);
     return newPoint;
   } else {
-    std::cerr << "CurveFunction \"" << this->name() << "\": check point availability first\n";
+    //std::cerr << "CurveFunction \"" << this->name() << "\": check point availability first\n";
     // TODO -- throw something?
     Point newPoint(time, 0.0, Point::missing, 0.0);
     return newPoint;
@@ -112,12 +112,12 @@ Point CurveFunction::convertWithCurve(Point p, Units sourceU) {
   }
   else if (convertedSourceValue <= minimumX) {
     // outside left edge of x range -- return minimum y
-    std::cerr << "input x value out of function range\n";
+    //std::cerr << "input x value out of function range\n";
     newValue = minimumY;
   }
   else {
     // outside right edge of x range - return maximum y
-    std::cerr << "input x value out of function range\n";
+    //std::cerr << "input x value out of function range\n";
     newValue = maximumY;
   }
   

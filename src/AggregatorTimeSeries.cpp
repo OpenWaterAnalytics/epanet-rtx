@@ -41,7 +41,7 @@ ostream& AggregatorTimeSeries::toStream(ostream &stream) {
     double multiplier = tsmult.second;
     TimeSeries::sharedPointer ts = tsmult.first;
     string dir = (multiplier > 0)? "(+)" : "(-)";
-    stream << "   -- " << dir << " " << ts->name() << endl;
+    stream << "    " << dir << " " << ts->name() << endl;
   }
   return stream;
 }
@@ -92,7 +92,11 @@ std::vector< std::pair<TimeSeries::sharedPointer,double> > AggregatorTimeSeries:
 Point AggregatorTimeSeries::point(time_t time) {
   // call the base class method first, to see if the point is accessible via cache.
   Point aPoint = TimeSeries::point(time);
-
+  
+  if (!this->clock()->isValid(time)) {
+    return Point();
+  }
+  
   // if not, we construct it.
   if (!aPoint.isValid || aPoint.quality == Point::missing) {
     aPoint = Point(time, 0, Point::good);

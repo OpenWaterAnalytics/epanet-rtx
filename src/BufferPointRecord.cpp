@@ -15,8 +15,7 @@ using namespace RTX;
 using namespace std;
 
 BufferPointRecord::BufferPointRecord() {
-  
-  _defaultCapacity = 100;
+  _defaultCapacity = RTX_BUFFER_DEFAULT_CACHESIZE;
 }
 
 

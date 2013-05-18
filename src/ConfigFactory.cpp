@@ -516,10 +516,15 @@ void ConfigFactory::setGenericTimeSeriesProperties(TimeSeries::sharedPointer tim
   // if a pointRecord is specified, then re-set the timeseries' cache.
   // this means that the storage for the time series is probably external (scada / mysql).
   if (setting.exists("pointRecord")) {
-    // TODO - test for existence of the actual point record.
     string pointRecordName = setting["pointRecord"];
-    PointRecord::sharedPointer pointRecord = _pointRecordList[setting["pointRecord"]];
-    timeSeries->setRecord(pointRecord);
+    if (_pointRecordList.find(pointRecordName) == _pointRecordList.end()) {
+      // not found
+      cerr << "WARNING: could not find point record \"" << pointRecordName << "\"" << endl;
+    }
+    else {
+      PointRecord::sharedPointer pointRecord = _pointRecordList[setting["pointRecord"]];
+      timeSeries->setRecord(pointRecord);
+    }
   }
   
   // set any upstream sources. forward declarations are allowed, as these will be set only after all timeseries objects have been created.
