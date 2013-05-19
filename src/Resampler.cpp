@@ -211,16 +211,17 @@ void Resampler::alignVectorIterators(pVec_cIt& start, pVec_cIt& end, pVec_cIt& p
   // get some vital info
   int marginDistance = this->margin();
   int iForwards = (t < pos->time) ? 1 : 0; // are we in front of t? if so, we've got a head start.
-  int iBackwards = 0;
+  int iBackwards = 0; // should def. be zero / sph
   
   // some quick checking that everything is in order
   while (fwd != end && fwd->time < t) {
     // if the fwd iterator time is before the desired time, nudge it forward
-    ++fwd;
+    ++fwd; // this breakpoint should never fire -- right? let's check this.
   }
   while (back != start && t < back->time) {
     // if the back iterator time is after the desired time, nudge it back.
     --back;
+    iBackwards = 1; // if we end up here, then the backwards iterator is behind "t"
   }
   
   
