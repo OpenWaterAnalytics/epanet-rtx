@@ -220,7 +220,8 @@ void BufferPointRecord::addPoint(const string& identifier, Point point) {
   
   // no-op. do something more interesting in your derived class.
   // why no-op? because how can you ensure that a point you want to insert here is contiguous?
-  // there's now way without knowing about clocks and all that business. 
+  // there's now way without knowing about clocks and all that business.
+//  cout << "BufferPointRecord::addPoint() -- no point added for TimeSeries " << identifier << endl;
   
 }
 
@@ -259,7 +260,7 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
       // more gap detection? righ on!
       bool gap = true;
       
-      if (firstInsertionTime < existingRange.second && existingRange.second < lastInsertionTime) {
+      if (firstInsertionTime <= existingRange.second && existingRange.second < lastInsertionTime) {
         // some of these new points need to be inserted ono the end.
         // fast-fwd along the new points vector, ignoring any points that will not be appended.
         gap = false;
@@ -279,12 +280,12 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
         }
       } // appending
       
-      if (firstInsertionTime < existingRange.first && existingRange.first < lastInsertionTime) {
+      if (firstInsertionTime < existingRange.first && existingRange.first <= lastInsertionTime) {
         // some of the new points need to be pre-pended to the buffer.
         // insert onto front (reverse iteration)
         gap = false;
         vector<Point>::const_reverse_iterator pIt = points.rbegin();
-//        int iPoint=0;
+
         while (pIt != points.rend()) {
           // make this smarter? using upper_bound maybe? todo - figure out upper_bound with a reverse_iterator
           // skip overlapping points.

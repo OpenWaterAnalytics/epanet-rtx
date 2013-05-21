@@ -16,7 +16,9 @@ Point SinglePointFilterModularTimeSeries::point(time_t time){
   
   if (sourcePoint.isValid) {
     newPoint = this->filteredSingle(sourcePoint, sourceU);
-    this->insert(newPoint);
+    if (newPoint.isValid) { // filtering can invalidate
+      this->insert(newPoint);
+    }
   }
   else {
     //std::cerr << "SinglePointFilter: \"" << this->name() << "\": check point availability first\n";
