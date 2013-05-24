@@ -49,7 +49,13 @@ bool Clock::isCompatibleWith(Clock::sharedPointer clock) {
   }
   // determine if there's a difference in period - it's ok if the compared
   // clock is faster, as long as it's a multiple.
-  periodModulus = this->period() % clock->period();
+  if (clock->period() > 0) {
+    periodModulus = this->period() % clock->period();
+  }
+  else {
+    return false;
+  }
+  
   
   // if the difference is evenly divisible by the compared period,
   // and the periods are evenly divisible... then it's ok.

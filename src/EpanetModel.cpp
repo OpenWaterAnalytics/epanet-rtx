@@ -11,7 +11,7 @@
 #include "rtxMacros.h"
 #include "CurveFunction.h"
 
-#include "epanet/src/types.h"
+#include <epanet/src/types.h>
 
 using namespace RTX;
 using namespace std;

@@ -27,6 +27,7 @@
 		22211AD6173C2E9700309C2F /* libboost_regex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD2173C2E9700309C2F /* libboost_regex.a */; };
 		22211AD7173C2E9700309C2F /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD3173C2E9700309C2F /* libboost_system.a */; };
 		22253D8F16022FB6002F7256 /* CurveFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22253D8D16022FB6002F7256 /* CurveFunction.cpp */; };
+		222F3AD6174FB70C009ECF73 /* libepanet.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 222F3AD3174FB6BD009ECF73 /* libepanet.dylib */; };
 		222FDDD615C1BC2F0065DAF6 /* FirstDerivative.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */; };
 		223F52C716D51F330086DC8F /* MapPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223F52C516D51F330086DC8F /* MapPointRecord.cpp */; };
 		223F52C816D51F330086DC8F /* MapPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 223F52C616D51F330086DC8F /* MapPointRecord.h */; };
@@ -53,19 +54,6 @@
 		22748771173C2FFE00FD0506 /* ConfigFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224B19A1152CA7510051F408 /* ConfigFactory.cpp */; };
 		22748772173C2FFE00FD0506 /* Clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B7154D14DC2C2C00041167 /* Clock.cpp */; };
 		22748773173C2FFE00FD0506 /* IrregularClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2251DCA4168105AA00515EBF /* IrregularClock.cpp */; };
-		22748774173C2FFE00FD0506 /* epanet.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41BC1511173C0012D2A5 /* epanet.c */; };
-		22748775173C2FFE00FD0506 /* hash.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41BE1511173C0012D2A5 /* hash.c */; };
-		22748776173C2FFE00FD0506 /* hydraul.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C01511173C0012D2A5 /* hydraul.c */; };
-		22748777173C2FFE00FD0506 /* inpfile.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C11511173C0012D2A5 /* inpfile.c */; };
-		22748778173C2FFE00FD0506 /* input1.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C21511173C0012D2A5 /* input1.c */; };
-		22748779173C2FFE00FD0506 /* input2.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C31511173C0012D2A5 /* input2.c */; };
-		2274877A173C2FFE00FD0506 /* input3.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C41511173C0012D2A5 /* input3.c */; };
-		2274877B173C2FFE00FD0506 /* mempool.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C51511173C0012D2A5 /* mempool.c */; };
-		2274877C173C2FFE00FD0506 /* output.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C71511173C0012D2A5 /* output.c */; };
-		2274877D173C2FFE00FD0506 /* quality.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C81511173C0012D2A5 /* quality.c */; };
-		2274877E173C2FFE00FD0506 /* report.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C91511173C0012D2A5 /* report.c */; };
-		2274877F173C2FFE00FD0506 /* rules.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41CA1511173C0012D2A5 /* rules.c */; };
-		22748780173C2FFE00FD0506 /* smatrix.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41CB1511173C0012D2A5 /* smatrix.c */; };
 		22748781173C2FFE00FD0506 /* Element.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE46E145B283C002F07B4 /* Element.cpp */; };
 		22748782173C2FFE00FD0506 /* Zone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE474145B2A28002F07B4 /* Zone.cpp */; };
 		22748783173C2FFE00FD0506 /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE470145B29F7002F07B4 /* Node.cpp */; };
@@ -150,19 +138,6 @@
 		22DDAD941443750600C1F188 /* Model.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DDAD931443750600C1F188 /* Model.h */; };
 		22DEE91C153F5C44008F75AE /* PointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22DEE91B153F5C44008F75AE /* PointRecord.cpp */; };
 		22E2962C16010A65003D378A /* Units.h in Headers */ = {isa = PBXBuildFile; fileRef = 22E2962B16010A65003D378A /* Units.h */; };
-		22E2C1DD160A05D800FD0C3E /* epanet.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41BC1511173C0012D2A5 /* epanet.c */; };
-		22E2C1DE160A05E400FD0C3E /* hash.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41BE1511173C0012D2A5 /* hash.c */; };
-		22E2C1DF160A05E800FD0C3E /* hydraul.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C01511173C0012D2A5 /* hydraul.c */; };
-		22E2C1E0160A05F000FD0C3E /* inpfile.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C11511173C0012D2A5 /* inpfile.c */; };
-		22E2C1E1160A05F900FD0C3E /* input1.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C21511173C0012D2A5 /* input1.c */; };
-		22E2C1E2160A05FB00FD0C3E /* input2.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C31511173C0012D2A5 /* input2.c */; };
-		22E2C1E3160A05FF00FD0C3E /* input3.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C41511173C0012D2A5 /* input3.c */; };
-		22E2C1E4160A061200FD0C3E /* mempool.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C51511173C0012D2A5 /* mempool.c */; };
-		22E2C1E5160A061200FD0C3E /* output.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C71511173C0012D2A5 /* output.c */; };
-		22E2C1E6160A061200FD0C3E /* quality.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C81511173C0012D2A5 /* quality.c */; };
-		22E2C1E7160A061200FD0C3E /* report.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41C91511173C0012D2A5 /* report.c */; };
-		22E2C1E8160A061200FD0C3E /* rules.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41CA1511173C0012D2A5 /* rules.c */; };
-		22E2C1E9160A061200FD0C3E /* smatrix.c in Sources */ = {isa = PBXBuildFile; fileRef = 222A41CB1511173C0012D2A5 /* smatrix.c */; };
 		22E4ED101725C1C60076E93D /* ConstantTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22E4ED0E1725C1C60076E93D /* ConstantTimeSeries.cpp */; };
 		22E4ED111725C1C60076E93D /* ConstantTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22E4ED0F1725C1C60076E93D /* ConstantTimeSeries.h */; };
 		22ED77CD158787B7002D67F1 /* Reservoir.h in Headers */ = {isa = PBXBuildFile; fileRef = 22ED77CC158787B7002D67F1 /* Reservoir.h */; };
@@ -179,6 +154,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		222F3AD2174FB6BD009ECF73 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 222F3ACD174FB6BD009ECF73 /* epanet.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC0630554660B00DB518D;
+			remoteInfo = epanet;
+		};
+		222F3AD4174FB6BD009ECF73 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 222F3ACD174FB6BD009ECF73 /* epanet.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 22322F66106833BB00641384;
+			remoteInfo = runepanet;
+		};
 		228A837F16DBEBC8008E9C35 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
@@ -248,27 +237,7 @@
 		22211AD3173C2E9700309C2F /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = /usr/local/lib/libboost_system.a; sourceTree = "<absolute>"; };
 		22211AD8173C2EAC00309C2F /* libconfig++.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libconfig++.a"; path = "/usr/local/lib/libconfig++.a"; sourceTree = "<absolute>"; };
 		22253D8D16022FB6002F7256 /* CurveFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CurveFunction.cpp; path = ../../src/CurveFunction.cpp; sourceTree = "<group>"; };
-		222A41BB1511173C0012D2A5 /* enumstxt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = enumstxt.h; path = ../../src/epanet/src/enumstxt.h; sourceTree = "<group>"; };
-		222A41BC1511173C0012D2A5 /* epanet.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = epanet.c; path = ../../src/epanet/src/epanet.c; sourceTree = "<group>"; };
-		222A41BD1511173C0012D2A5 /* funcs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = funcs.h; path = ../../src/epanet/src/funcs.h; sourceTree = "<group>"; };
-		222A41BE1511173C0012D2A5 /* hash.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = hash.c; path = ../../src/epanet/src/hash.c; sourceTree = "<group>"; };
-		222A41BF1511173C0012D2A5 /* hash.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = hash.h; path = ../../src/epanet/src/hash.h; sourceTree = "<group>"; };
-		222A41C01511173C0012D2A5 /* hydraul.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = hydraul.c; path = ../../src/epanet/src/hydraul.c; sourceTree = "<group>"; };
-		222A41C11511173C0012D2A5 /* inpfile.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = inpfile.c; path = ../../src/epanet/src/inpfile.c; sourceTree = "<group>"; };
-		222A41C21511173C0012D2A5 /* input1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = input1.c; path = ../../src/epanet/src/input1.c; sourceTree = "<group>"; };
-		222A41C31511173C0012D2A5 /* input2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = input2.c; path = ../../src/epanet/src/input2.c; sourceTree = "<group>"; };
-		222A41C41511173C0012D2A5 /* input3.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = input3.c; path = ../../src/epanet/src/input3.c; sourceTree = "<group>"; };
-		222A41C51511173C0012D2A5 /* mempool.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = mempool.c; path = ../../src/epanet/src/mempool.c; sourceTree = "<group>"; };
-		222A41C61511173C0012D2A5 /* mempool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mempool.h; path = ../../src/epanet/src/mempool.h; sourceTree = "<group>"; };
-		222A41C71511173C0012D2A5 /* output.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = output.c; path = ../../src/epanet/src/output.c; sourceTree = "<group>"; };
-		222A41C81511173C0012D2A5 /* quality.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = quality.c; path = ../../src/epanet/src/quality.c; sourceTree = "<group>"; };
-		222A41C91511173C0012D2A5 /* report.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = report.c; path = ../../src/epanet/src/report.c; sourceTree = "<group>"; };
-		222A41CA1511173C0012D2A5 /* rules.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = rules.c; path = ../../src/epanet/src/rules.c; sourceTree = "<group>"; };
-		222A41CB1511173C0012D2A5 /* smatrix.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = smatrix.c; path = ../../src/epanet/src/smatrix.c; sourceTree = "<group>"; };
-		222A41CC1511173C0012D2A5 /* text.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = text.h; path = ../../src/epanet/src/text.h; sourceTree = "<group>"; };
-		222A41CD1511173C0012D2A5 /* toolkit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = toolkit.h; path = ../../src/epanet/src/toolkit.h; sourceTree = "<group>"; };
-		222A41CE1511173C0012D2A5 /* types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = types.h; path = ../../src/epanet/src/types.h; sourceTree = "<group>"; };
-		222A41CF1511173C0012D2A5 /* vars.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = vars.h; path = ../../src/epanet/src/vars.h; sourceTree = "<group>"; };
+		222F3ACD174FB6BD009ECF73 /* epanet.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = epanet.xcodeproj; path = ../../../epanet/build/Xcode/epanet/epanet.xcodeproj; sourceTree = "<group>"; };
 		222FDDD315C1BBE90065DAF6 /* FirstDerivative.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FirstDerivative.h; path = ../../src/FirstDerivative.h; sourceTree = "<group>"; };
 		222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FirstDerivative.cpp; path = ../../src/FirstDerivative.cpp; sourceTree = "<group>"; };
 		223F52C516D51F330086DC8F /* MapPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapPointRecord.cpp; path = ../../src/MapPointRecord.cpp; sourceTree = "<group>"; };
@@ -390,6 +359,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				222F3AD6174FB70C009ECF73 /* libepanet.dylib in Frameworks */,
 				2283ED2016CD6E3700CCDA9F /* libboost_system.dylib in Frameworks */,
 				228B2F4A16CAEF4000FDAC47 /* libiodbc.2.dylib in Frameworks */,
 				220D3B6516125B140029A041 /* libboost_regex.dylib in Frameworks */,
@@ -432,32 +402,13 @@
 			name = Libraries;
 			sourceTree = "<group>";
 		};
-		222A41A4151115820012D2A5 /* epanet engine */ = {
+		222F3ACE174FB6BD009ECF73 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				222A41CD1511173C0012D2A5 /* toolkit.h */,
-				222A41BC1511173C0012D2A5 /* epanet.c */,
-				222A41BB1511173C0012D2A5 /* enumstxt.h */,
-				222A41BD1511173C0012D2A5 /* funcs.h */,
-				222A41BE1511173C0012D2A5 /* hash.c */,
-				222A41BF1511173C0012D2A5 /* hash.h */,
-				222A41C01511173C0012D2A5 /* hydraul.c */,
-				222A41C11511173C0012D2A5 /* inpfile.c */,
-				222A41C21511173C0012D2A5 /* input1.c */,
-				222A41C31511173C0012D2A5 /* input2.c */,
-				222A41C41511173C0012D2A5 /* input3.c */,
-				222A41C51511173C0012D2A5 /* mempool.c */,
-				222A41C61511173C0012D2A5 /* mempool.h */,
-				222A41C71511173C0012D2A5 /* output.c */,
-				222A41C81511173C0012D2A5 /* quality.c */,
-				222A41C91511173C0012D2A5 /* report.c */,
-				222A41CA1511173C0012D2A5 /* rules.c */,
-				222A41CB1511173C0012D2A5 /* smatrix.c */,
-				222A41CC1511173C0012D2A5 /* text.h */,
-				222A41CE1511173C0012D2A5 /* types.h */,
-				222A41CF1511173C0012D2A5 /* vars.h */,
+				222F3AD3174FB6BD009ECF73 /* libepanet.dylib */,
+				222F3AD5174FB6BD009ECF73 /* runepanet */,
 			);
-			name = "epanet engine";
+			name = Products;
 			sourceTree = "<group>";
 		};
 		222F51B816D7D07400C86F71 /* db */ = {
@@ -578,6 +529,7 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
+				222F3ACD174FB6BD009ECF73 /* epanet.xcodeproj */,
 				22B8A7971603CA1300EECAA5 /* demos */,
 				22C62AEF143A0E1600841E60 /* test application */,
 				22C678A4152A427000519E1B /* object factories */,
@@ -701,7 +653,6 @@
 		22DDAD7D1443682300C1F188 /* model */ = {
 			isa = PBXGroup;
 			children = (
-				222A41A4151115820012D2A5 /* epanet engine */,
 				22DDAD7F1443682E00C1F188 /* physical elements */,
 				228040A2158F83C5004222DA /* Model Classes */,
 			);
@@ -894,6 +845,12 @@
 			mainGroup = 22C62AB51439ED6300841E60;
 			productRefGroup = 22C62AC11439ED6300841E60 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 222F3ACE174FB6BD009ECF73 /* Products */;
+					ProjectRef = 222F3ACD174FB6BD009ECF73 /* epanet.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				22C62ABF1439ED6300841E60 /* epanet-rtx */,
@@ -905,6 +862,23 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXReferenceProxy section */
+		222F3AD3174FB6BD009ECF73 /* libepanet.dylib */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.dylib";
+			path = libepanet.dylib;
+			remoteRef = 222F3AD2174FB6BD009ECF73 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		222F3AD5174FB6BD009ECF73 /* runepanet */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = runepanet;
+			remoteRef = 222F3AD4174FB6BD009ECF73 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
 /* Begin PBXSourcesBuildPhase section */
 		22211AC8173C2E6F00309C2F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -914,19 +888,6 @@
 				22748771173C2FFE00FD0506 /* ConfigFactory.cpp in Sources */,
 				22748772173C2FFE00FD0506 /* Clock.cpp in Sources */,
 				22748773173C2FFE00FD0506 /* IrregularClock.cpp in Sources */,
-				22748774173C2FFE00FD0506 /* epanet.c in Sources */,
-				22748775173C2FFE00FD0506 /* hash.c in Sources */,
-				22748776173C2FFE00FD0506 /* hydraul.c in Sources */,
-				22748777173C2FFE00FD0506 /* inpfile.c in Sources */,
-				22748778173C2FFE00FD0506 /* input1.c in Sources */,
-				22748779173C2FFE00FD0506 /* input2.c in Sources */,
-				2274877A173C2FFE00FD0506 /* input3.c in Sources */,
-				2274877B173C2FFE00FD0506 /* mempool.c in Sources */,
-				2274877C173C2FFE00FD0506 /* output.c in Sources */,
-				2274877D173C2FFE00FD0506 /* quality.c in Sources */,
-				2274877E173C2FFE00FD0506 /* report.c in Sources */,
-				2274877F173C2FFE00FD0506 /* rules.c in Sources */,
-				22748780173C2FFE00FD0506 /* smatrix.c in Sources */,
 				22748781173C2FFE00FD0506 /* Element.cpp in Sources */,
 				22748782173C2FFE00FD0506 /* Zone.cpp in Sources */,
 				22748783173C2FFE00FD0506 /* Node.cpp in Sources */,
@@ -985,19 +946,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22E2C1DD160A05D800FD0C3E /* epanet.c in Sources */,
-				22E2C1DF160A05E800FD0C3E /* hydraul.c in Sources */,
-				22E2C1DE160A05E400FD0C3E /* hash.c in Sources */,
-				22E2C1E0160A05F000FD0C3E /* inpfile.c in Sources */,
-				22E2C1E1160A05F900FD0C3E /* input1.c in Sources */,
-				22E2C1E2160A05FB00FD0C3E /* input2.c in Sources */,
-				22E2C1E3160A05FF00FD0C3E /* input3.c in Sources */,
-				22E2C1E4160A061200FD0C3E /* mempool.c in Sources */,
-				22E2C1E5160A061200FD0C3E /* output.c in Sources */,
-				22E2C1E6160A061200FD0C3E /* quality.c in Sources */,
-				22E2C1E7160A061200FD0C3E /* report.c in Sources */,
-				22E2C1E8160A061200FD0C3E /* rules.c in Sources */,
-				22E2C1E9160A061200FD0C3E /* smatrix.c in Sources */,
 				22C62ADB1439EE0B00841E60 /* AggregatorTimeSeries.cpp in Sources */,
 				22C62AE21439EE0B00841E60 /* MovingAverage.cpp in Sources */,
 				22C62AE91439EE0B00841E60 /* TimeSeries.cpp in Sources */,
@@ -1246,7 +1194,10 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				HEADER_SEARCH_PATHS = /usr/local/include;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					/Users/sam/Copy/Code,
+				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = NO;
@@ -1259,7 +1210,10 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
-				HEADER_SEARCH_PATHS = /usr/local/include;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					/Users/sam/Copy/Code,
+				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = NO;
