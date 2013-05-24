@@ -13,11 +13,7 @@
 #include "BufferPointRecord.h"
 
 #include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics/stats.hpp>
-#include <boost/accumulators/statistics/mean.hpp>
-#include <boost/accumulators/statistics/variance.hpp>
-#include <boost/accumulators/statistics/max.hpp>
-#include <boost/accumulators/statistics/min.hpp>
+#include <boost/accumulators/statistics.hpp>
 
 
 using namespace RTX;
@@ -204,16 +200,18 @@ TimeSeries::Summary TimeSeries::summary(time_t start, time_t end) {
   Summary s;
   s.points = this->points(start, end);
   
-  accumulator_set<double, features<tag::min, tag::max, tag::mean, tag::variance(lazy)> > acc;
+  accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::variance(lazy)> > acc;
   BOOST_FOREACH(const Point& p, s.points) {
     acc(p.value);
   }
   
   s.mean = mean(acc);
-  s.count = count(acc);
   s.variance = variance(acc);
-  s.min = min(acc);
-  s.max = max(acc);
+  s.count = extract::count(acc);
+  s.min = extract::min(acc);
+  s.max = extract::max(acc);
+  
+  return s;
 }
 
 
