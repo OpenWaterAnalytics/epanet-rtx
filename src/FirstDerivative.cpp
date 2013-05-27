@@ -80,7 +80,6 @@ Point FirstDerivative::filteredSingle(pVec_cIt& vecStart, pVec_cIt& vecEnd, pVec
   double dv = p2.value - p1.value;
   double dvdt = Units::convertValue(dv / double(dt), fromUnits / RTX_SECOND, this->units());
   
-  //fd = Point::linearInterpolate(p1, p2, t);
   return Point(t, dvdt);
 }
 

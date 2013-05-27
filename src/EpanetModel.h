@@ -13,7 +13,8 @@
 #include "rtxMacros.h"
 
 extern "C" {
-  #include "epanet/src/toolkit.h"
+  #define EN_API_FLOAT_TYPE double
+  #include <epanet/src/toolkit.h>
 }
 
 namespace RTX {

@@ -12,8 +12,13 @@
 #include "IrregularClock.h"
 #include "BufferPointRecord.h"
 
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics.hpp>
+
+
 using namespace RTX;
 using namespace std;
+using namespace boost::accumulators;
 
 
 TimeSeries::TimeSeries() : _units(1) {
@@ -191,51 +196,23 @@ Point TimeSeries::pointAtOrBefore(time_t time) {
 }
 
 
-
-double TimeSeries::averageValue(time_t start, time_t end) {
-  double accum = 0;
-  vector<Point> ps = this->points(start, end);
-  if (ps.size() == 0) {
-    return 0.;
+TimeSeries::Summary TimeSeries::summary(time_t start, time_t end) {
+  Summary s;
+  s.points = this->points(start, end);
+  
+  accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::variance(lazy)> > acc;
+  BOOST_FOREACH(const Point& p, s.points) {
+    acc(p.value);
   }
-  BOOST_FOREACH(const Point& p, ps) {
-    if (p.isValid) {
-      accum += p.value;
-    }
-  }
-  return (accum / (double)ps.size());
+  
+  s.mean = mean(acc);
+  s.variance = variance(acc);
+  s.count = extract::count(acc);
+  s.min = extract::min(acc);
+  s.max = extract::max(acc);
+  
+  return s;
 }
-
-Point TimeSeries::maxPoint(time_t start, time_t end) {
-  Point max;
-  vector<Point> ps = this->points(start, end);
-  if (ps.size() > 0) {
-    max = ps.front();
-    BOOST_FOREACH(const Point& p, ps) {
-      if (p.value > max.value) {
-        max = p;
-      }
-    }
-  }
-  return max;
-}
-
-Point TimeSeries::minPoint(time_t start, time_t end) {
-  Point min;
-  vector<Point> ps = this->points(start, end);
-  if (ps.size() > 0) {
-    min = ps.front();
-    BOOST_FOREACH(const Point& p, ps) {
-      if (p.value < min.value) {
-        min = p;
-      }
-    }
-  }
-  return min;
-}
-
-
-
 
 
 time_t TimeSeries::period() {

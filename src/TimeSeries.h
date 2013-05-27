@@ -53,6 +53,19 @@ namespace RTX {
   
   class TimeSeries {    
   public:
+    
+    // public internal class description for the summary
+    class Summary {
+    public:
+      std::vector<Point> points;
+      double mean;
+      double variance;
+      size_t count;
+      double min;
+      double max;
+    };
+    
+    
     RTX_SHARED_POINTER(TimeSeries);
     
     // ctor & dtor
@@ -74,10 +87,7 @@ namespace RTX {
     virtual std::string name();
     PointRecord::sharedPointer record();
     
-    // convenience
-    double averageValue(time_t start, time_t end);
-    Point maxPoint(time_t start, time_t end);
-    Point minPoint(time_t start, time_t end);
+    TimeSeries::Summary summary(time_t start, time_t end);
     
     // setters
     virtual void setName(const std::string& name);

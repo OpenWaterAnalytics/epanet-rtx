@@ -11,7 +11,7 @@
 #include "rtxMacros.h"
 #include "CurveFunction.h"
 
-#include "epanet/src/types.h"
+#include <epanet/src/types.h>
 
 using namespace RTX;
 using namespace std;
@@ -285,7 +285,6 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
     this->setHydraulicTimeStep((int)enTimeStep);
     
     ENcheck(ENopenH(), "ENopenH");
-    
     ENcheck(ENinitH(10), "ENinitH");
     
   }
@@ -480,10 +479,12 @@ int EpanetModel::relativeError(time_t time) {
 
 
 void EpanetModel::setHydraulicTimeStep(int seconds) {
-  ENcheck( ENsettimeparam(EN_REPORTSTEP, (long)seconds), "ENsettimeparam(EN_REPORTSTEP)");
-  ENcheck( ENsettimeparam(EN_HYDSTEP, (long)seconds), "ENsettimeparam(EN_HYDSTEP)");
+  
+  ENcheck( ENsettimeparam(EN_REPORTSTEP, (long)seconds), "ENsettimeparam(EN_REPORTSTEP)" );
+  ENcheck( ENsettimeparam(EN_HYDSTEP, (long)seconds), "ENsettimeparam(EN_HYDSTEP)" );
   // base class method
   Model::setHydraulicTimeStep(seconds);
+  
 }
 
 void EpanetModel::setQualityTimeStep(int seconds) {
