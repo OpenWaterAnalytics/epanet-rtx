@@ -1196,7 +1196,7 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
-					/Users/sam/Copy/Code,
+					"${SRCROOT}/../../../epanet/src",
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1212,7 +1212,7 @@
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
-					/Users/sam/Copy/Code,
+					"${SRCROOT}/../../../epanet/src",
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";

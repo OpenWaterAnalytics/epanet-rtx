@@ -14,7 +14,7 @@
 
 extern "C" {
   #define EN_API_FLOAT_TYPE double
-  #include <epanet/src/toolkit.h>
+  #include <toolkit.h>
 }
 
 namespace RTX {
