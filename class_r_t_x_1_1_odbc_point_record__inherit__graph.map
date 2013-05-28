@@ -1,0 +1,5 @@
+<map id="RTX::OdbcPointRecord" name="RTX::OdbcPointRecord">
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_db_point_record.html" title="A persistence layer for databases." alt="" coords="14,161,159,189"/>
+<area shape="rect" id="node4" href="$class_r_t_x_1_1_buffer_point_record.html" title="RTX::BufferPointRecord" alt="" coords="5,83,168,111"/>
+<area shape="rect" id="node6" href="$class_r_t_x_1_1_point_record.html" title="A Point Record Class for storing and retrieving Points." alt="" coords="22,6,151,34"/>
+</map>

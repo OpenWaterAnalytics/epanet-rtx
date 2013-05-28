@@ -1,0 +1,8 @@
+<map id="RTX::PointRecord" name="RTX::PointRecord">
+<area shape="rect" id="node3" href="$class_r_t_x_1_1_buffer_point_record.html" title="RTX::BufferPointRecord" alt="" coords="97,83,260,111"/>
+<area shape="rect" id="node11" href="$class_r_t_x_1_1_deque_point_record.html" title="RTX::DequePointRecord" alt="" coords="284,83,451,111"/>
+<area shape="rect" id="node13" href="$class_r_t_x_1_1_map_point_record.html" title="RTX::MapPointRecord" alt="" coords="476,83,629,111"/>
+<area shape="rect" id="node5" href="$class_r_t_x_1_1_db_point_record.html" title="A persistence layer for databases." alt="" coords="106,161,251,189"/>
+<area shape="rect" id="node7" href="$class_r_t_x_1_1_mysql_point_record.html" title="A persistence layer for MySQL databases." alt="" coords="5,238,168,266"/>
+<area shape="rect" id="node9" href="$class_r_t_x_1_1_odbc_point_record.html" title="A persistence class for SCADA databases." alt="" coords="192,238,352,266"/>
+</map>

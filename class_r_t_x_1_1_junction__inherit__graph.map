@@ -1,0 +1,6 @@
+<map id="RTX::Junction" name="RTX::Junction">
+<area shape="rect" id="node7" href="$class_r_t_x_1_1_reservoir.html" title="RTX::Reservoir" alt="" coords="5,238,117,266"/>
+<area shape="rect" id="node9" href="$class_r_t_x_1_1_tank.html" title="RTX::Tank" alt="" coords="141,238,224,266"/>
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_node.html" title="Node Class." alt="" coords="78,83,164,111"/>
+<area shape="rect" id="node4" href="$class_r_t_x_1_1_element.html" title="Element Base Class." alt="" coords="69,6,173,34"/>
+</map>

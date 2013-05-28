@@ -1,0 +1,10 @@
+<map id="RTX::TimeSeries" name="RTX::TimeSeries">
+<area shape="rect" id="node3" href="$class_r_t_x_1_1_aggregator_time_series.html" title="Aggregates (and optionally scales) arbitrary many input time series." alt="" coords="177,57,365,85"/>
+<area shape="rect" id="node5" href="$class_r_t_x_1_1_modular_time_series.html" title="A Time Series class that allows a single upstream TimeSeries." alt="" coords="186,109,356,137"/>
+<area shape="rect" id="node17" href="$class_r_t_x_1_1_sine_time_series.html" title="RTX::SineTimeSeries" alt="" coords="196,161,345,189"/>
+<area shape="rect" id="node7" href="$class_r_t_x_1_1_curve_function.html" title="A Curve Function Class to perform arbitrary mapping of values." alt="" coords="421,5,563,33"/>
+<area shape="rect" id="node9" href="$class_r_t_x_1_1_first_derivative.html" title="RTX::FirstDerivative" alt="" coords="422,57,562,85"/>
+<area shape="rect" id="node11" href="$class_r_t_x_1_1_moving_average.html" title="RTX::MovingAverage" alt="" coords="418,109,566,137"/>
+<area shape="rect" id="node13" href="$class_r_t_x_1_1_offset_time_series.html" title="RTX::OffsetTimeSeries" alt="" coords="413,161,571,189"/>
+<area shape="rect" id="node15" href="$class_r_t_x_1_1_resampler.html" title="RTX::Resampler" alt="" coords="432,213,552,241"/>
+</map>
