@@ -59,6 +59,7 @@ namespace RTX {
   
   class Zone : public Element {
   public:
+    typedef enum {outDirection, inDirection} direction_t;
     RTX_SHARED_POINTER(Zone);
     virtual std::ostream& toStream(std::ostream &stream);
     Zone(const std::string& name);
@@ -73,6 +74,8 @@ namespace RTX {
     Junction::sharedPointer findJunction(std::string name);
     bool doesHaveJunction(Junction::sharedPointer j);
     std::vector<Junction::sharedPointer> junctions();
+    std::vector<Tank::sharedPointer> tanks();
+    std::map<Pipe::sharedPointer, Zone::direction_t> boundaryPipes();
     
     // time series accessors
     TimeSeries::sharedPointer demand();
@@ -90,7 +93,6 @@ namespace RTX {
     std::vector<Junction::sharedPointer> _boundaryFlowJunctions;
     std::vector<Tank::sharedPointer> _tanks;
     std::map< std::string, Junction::sharedPointer> _junctions;
-    typedef enum {outDirection, inDirection} direction_t;
     std::map<Pipe::sharedPointer, direction_t> _boundaryPipesDirectional;
     
     TimeSeries::sharedPointer _demand;

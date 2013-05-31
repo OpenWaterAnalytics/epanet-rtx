@@ -10,7 +10,7 @@
 
 #include "TimeSeries.h"
 #include "IrregularClock.h"
-#include "BufferPointRecord.h"
+#include "PointRecord.h"
 
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics.hpp>
@@ -23,7 +23,7 @@ using namespace boost::accumulators;
 
 TimeSeries::TimeSeries() : _units(1) {
   _name = "";  
-  _points.reset( new BufferPointRecord() );
+  _points.reset( new PointRecord() );
   setName("Time Series");
   _clock.reset( new IrregularClock(_points, "Time Series") );
   _units = RTX_DIMENSIONLESS;

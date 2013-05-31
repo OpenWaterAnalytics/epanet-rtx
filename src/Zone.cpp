@@ -304,6 +304,14 @@ std::vector<Junction::sharedPointer> Zone::junctions() {
   return theJunctions;
 }
 
+std::vector<Tank::sharedPointer> Zone::tanks() {
+  return _tanks;
+}
+
+std::map<Pipe::sharedPointer, Zone::direction_t> Zone::boundaryPipes() {
+  return _boundaryPipesDirectional;
+}
+
 void Zone::setDemand(TimeSeries::sharedPointer demand) {
   if (demand->units().isSameDimensionAs(RTX_CUBIC_METER_PER_SECOND)) {
     _demand = demand;
