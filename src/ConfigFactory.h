@@ -87,8 +87,7 @@ namespace RTX {
     Model::sharedPointer model();
     
     vector<string> elementList();
-    void configureElements(vector<Element::sharedPointer> elements);
-    void configureElement(Element::sharedPointer element);
+    void configureElements(Model::sharedPointer model);
     
   protected:
     void createSimulationDefaults(Setting& setting);

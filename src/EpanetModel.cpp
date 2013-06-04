@@ -21,8 +21,13 @@ EpanetModel::EpanetModel() : Model() {
   _modelFile = "";
 }
 EpanetModel::~EpanetModel() {
-  ENcheck( ENcloseH(), "ENcloseH");
-  ENcheck( ENclose(), "ENclose");
+  try {
+    ENcheck( ENcloseH(), "ENcloseH");
+    ENcheck( ENclose(), "ENclose");
+  } catch (...) {
+    cerr << "warning: epanet closed improperly" << endl;
+  }
+  
 }
 
 #pragma mark - Loading

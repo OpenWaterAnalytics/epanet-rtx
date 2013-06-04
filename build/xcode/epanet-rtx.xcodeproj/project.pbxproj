@@ -154,6 +154,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		2211F99317597654001C7F61 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 222F3ACD174FB6BD009ECF73 /* epanet.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2255753B17551217009946B1;
+			remoteInfo = "epanet-static";
+		};
 		222F3AD2174FB6BD009ECF73 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 222F3ACD174FB6BD009ECF73 /* epanet.xcodeproj */;
@@ -407,6 +414,7 @@
 			children = (
 				222F3AD3174FB6BD009ECF73 /* libepanet.dylib */,
 				222F3AD5174FB6BD009ECF73 /* runepanet */,
+				2211F99417597654001C7F61 /* libepanet-static.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -863,6 +871,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		2211F99417597654001C7F61 /* libepanet-static.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libepanet-static.a";
+			remoteRef = 2211F99317597654001C7F61 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		222F3AD3174FB6BD009ECF73 /* libepanet.dylib */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.dylib";
@@ -1188,6 +1203,7 @@
 		22C62AC51439ED6300841E60 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LIBRARY = "compiler-default";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1208,6 +1224,7 @@
 		22C62AC61439ED6300841E60 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LIBRARY = "compiler-default";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (

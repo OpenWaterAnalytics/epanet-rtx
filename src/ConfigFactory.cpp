@@ -747,13 +747,13 @@ void ConfigFactory::createModel(Setting& setting) {
     _model->loadModelFromFile(modelPath.string());
     // hook up the model's elements to timeseries objects
     _model->overrideControls();
-    configureElements(_model->elements());
+    configureElements(_model);
   }
   
   if ( RTX_STRINGS_ARE_EQUAL(modelType, "synthetic_epanet") ) {
     _model.reset( new EpanetSyntheticModel() );
     _model->loadModelFromFile(modelPath.string());
-    configureElements(_model->elements());
+    configureElements(_model);
   }
   
 
@@ -856,55 +856,89 @@ void ConfigFactory::createSaveOptions(libconfig::Setting &saveGroup) {
 #pragma mark - Element Configuration
 
 
-void ConfigFactory::configureElements(vector<Element::sharedPointer> elements) {
-  BOOST_FOREACH(Element::sharedPointer element, elements) {
-    //cout << "configuring " << element->name() << endl;
-    configureElement(element);
+void ConfigFactory::configureElements(Model::sharedPointer model) {
+  
+  // hash by name
+  map<string,Element::sharedPointer> junctionMap;
+  BOOST_FOREACH(Junction::sharedPointer j, model->junctions()) {
+    junctionMap.insert(make_pair(j->name(), j));
   }
-}
-
-void ConfigFactory::configureElement(Element::sharedPointer element) {
-  // make sure that the element is specified in the config file.
-  string name = element->name();
+  BOOST_FOREACH(Tank::sharedPointer t, model->tanks()) {
+    junctionMap.insert(make_pair(t->name(), t));
+  }
+  BOOST_FOREACH(Reservoir::sharedPointer r, model->reservoirs()) {
+    junctionMap.insert(make_pair(r->name(), r));
+  }
+  
+  map<string, Element::sharedPointer> pipeMap;
+  BOOST_FOREACH(Pipe::sharedPointer p, model->pipes()) {
+    pipeMap.insert(make_pair(p->name(), p));
+  }
+  BOOST_FOREACH(Pump::sharedPointer p, model->pumps()) {
+    pipeMap.insert(make_pair(p->name(), p));
+  }
+  BOOST_FOREACH(Valve::sharedPointer v, model->valves()) {
+    pipeMap.insert(make_pair(v->name(), v));
+  }
+  
+  
+  // parameter types keyed to element types.
+  map<string, map<string, Element::sharedPointer>* > parameterTypes;
+  parameterTypes.insert(make_pair("status_boundary", &pipeMap));
+  parameterTypes.insert(make_pair("energy_measure", &pipeMap));
+  parameterTypes.insert(make_pair("flow_measure", &pipeMap));
+  parameterTypes.insert(make_pair("setting_boundary", &pipeMap));
+  parameterTypes.insert(make_pair("quality_boundary", &junctionMap));
+  parameterTypes.insert(make_pair("quality_measure", &junctionMap));
+  parameterTypes.insert(make_pair("flow_boundary", &junctionMap));
+  parameterTypes.insert(make_pair("head_measure", &junctionMap));
+  parameterTypes.insert(make_pair("pressure_measure", &junctionMap));
+  parameterTypes.insert(make_pair("level_measure", &junctionMap));
+  parameterTypes.insert(make_pair("head_boundary", &junctionMap));
+  
+  
+  
   
   // find the "elements" section in the configuration
   if (!_configuration.exists("configuration.elements")) {
     return;
   }
   Setting& elements = _configuration.lookup("configuration.elements");
-  
-  // see if the elements list includes this element
   const int elementCount = elements.getLength();
   for (int iElement = 0; iElement < elementCount; ++iElement) {
     Setting& elementSetting = elements[iElement];
     string modelID = elementSetting["model_id"];
-    if ( RTX_STRINGS_ARE_EQUAL(modelID, name) ) {
-      // great, a match.
-      // configure the element with the proper states/parameters.
-      // todo - check element type (link or node)... names may not be unique.
-      // todo - check if the type is in the pointer map
-      
-      // get the type of parameter
-      if (!elementSetting.exists("parameter")) {
-        cerr << "skipping element " << modelID << " : missing parameter" << endl;
-      }
-      string parameterType = elementSetting["parameter"];
-      if (_parameterSetter.find(parameterType) == _parameterSetter.end()) {
-        // no such parameter type
-        cout << "could not find paramter type: " << parameterType << endl;
-        return;
-      }
-      ParameterFunction fp = _parameterSetter[parameterType];
-      const string tsName = elementSetting["timeseries"];
-      TimeSeries::sharedPointer series = _timeSeriesList[tsName];
-      if (!series) {
-        cerr << "could not find time series \"" << tsName << "\"." << endl;
-        return;
-      }
-      // configure the individual element using this setting.
-      (this->*fp)(elementSetting, element);
+    if (!elementSetting.exists("parameter")) {
+      cerr << "skipping element " << modelID << " : missing parameter" << endl;
+      continue;
     }
+    string parameterType = elementSetting["parameter"];
+    if (_parameterSetter.find(parameterType) == _parameterSetter.end() || parameterTypes.find(parameterType) == parameterTypes.end()) {
+      // no such parameter type
+      cout << "could not find parameter type: " << parameterType << endl;
+      continue;
+    }
+    
+    map<string, Element::sharedPointer>* elementMap = parameterTypes[parameterType];
+    if ((*elementMap).find(modelID) == (*elementMap).end()) {
+      cerr << "could not find element: " << modelID << endl;
+      continue;
+    }
+    Element::sharedPointer element = (*elementMap)[modelID];
+    
+    ParameterFunction fp = _parameterSetter[parameterType];
+    const string tsName = elementSetting["timeseries"];
+    TimeSeries::sharedPointer series = _timeSeriesList[tsName];
+    if (!series) {
+      cerr << "could not find time series \"" << tsName << "\"." << endl;
+      return;
+    }
+    // configure the individual element using this setting.
+    (this->*fp)(elementSetting, element);
+    
   }
+  
+  
 }
 
 
