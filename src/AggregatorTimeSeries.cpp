@@ -49,7 +49,10 @@ ostream& AggregatorTimeSeries::toStream(ostream &stream) {
 void AggregatorTimeSeries::addSource(TimeSeries::sharedPointer timeSeries, double multiplier) throw(RtxException) {
   
   // check compatibility
-  if (!isCompatibleWith(timeSeries)) throw IncompatibleComponent();
+  if (!isCompatibleWith(timeSeries)) {
+    cerr << "Incompatible time series: " << *timeSeries << endl;
+    return;
+  }
   
   if (units().isDimensionless() && sources().size() == 0) {
     // we have default units and no sources yet, so it would be safe to adopt the new source's units.
