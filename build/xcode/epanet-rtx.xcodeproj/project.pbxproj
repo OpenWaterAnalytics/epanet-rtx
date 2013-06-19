@@ -151,8 +151,6 @@
 		22F63D3816C5735100A15368 /* SineTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F63D3616C5735100A15368 /* SineTimeSeries.h */; };
 		43627ECA171F27E3007AE0F5 /* ThresholdTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 43627EC9171F27E3007AE0F5 /* ThresholdTimeSeries.h */; };
 		43627ED0171F286C007AE0F5 /* ThresholdTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43627ECF171F286C007AE0F5 /* ThresholdTimeSeries.cpp */; };
-		43F09E381763F15000F9960D /* RuntimeStatus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43F09E361763F15000F9960D /* RuntimeStatus.cpp */; };
-		43F09E391763F15000F9960D /* RuntimeStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 43F09E371763F15000F9960D /* RuntimeStatus.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -330,8 +328,6 @@
 		22F63D3616C5735100A15368 /* SineTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SineTimeSeries.h; path = ../../src/SineTimeSeries.h; sourceTree = "<group>"; };
 		43627EC9171F27E3007AE0F5 /* ThresholdTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThresholdTimeSeries.h; path = ../../src/ThresholdTimeSeries.h; sourceTree = "<group>"; };
 		43627ECF171F286C007AE0F5 /* ThresholdTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ThresholdTimeSeries.cpp; path = ../../src/ThresholdTimeSeries.cpp; sourceTree = "<group>"; };
-		43F09E361763F15000F9960D /* RuntimeStatus.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RuntimeStatus.cpp; path = ../../src/RuntimeStatus.cpp; sourceTree = "<group>"; };
-		43F09E371763F15000F9960D /* RuntimeStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RuntimeStatus.h; path = ../../src/RuntimeStatus.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -587,8 +583,6 @@
 				22C62AD21439EE0B00841E60 /* MovingAverage.cpp */,
 				222FDDD315C1BBE90065DAF6 /* FirstDerivative.h */,
 				222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */,
-				43F09E371763F15000F9960D /* RuntimeStatus.h */,
-				43F09E361763F15000F9960D /* RuntimeStatus.cpp */,
 				22C62ACC1439EE0B00841E60 /* AggregatorTimeSeries.h */,
 				22C62ACB1439EE0B00841E60 /* AggregatorTimeSeries.cpp */,
 			);
@@ -749,7 +743,6 @@
 				226AC14E17340D06009B7C90 /* MultiplierTimeSeries.h in Headers */,
 				22CE31EE17399403008AC1F9 /* CsvPointRecord.h in Headers */,
 				22A842D6173BF446009CE769 /* GainTimeSeries.h in Headers */,
-				43F09E391763F15000F9960D /* RuntimeStatus.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1009,7 +1002,6 @@
 				226AC14D17340D06009B7C90 /* MultiplierTimeSeries.cpp in Sources */,
 				22CE31ED17399403008AC1F9 /* CsvPointRecord.cpp in Sources */,
 				22A842D5173BF446009CE769 /* GainTimeSeries.cpp in Sources */,
-				43F09E381763F15000F9960D /* RuntimeStatus.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -23,7 +23,6 @@
 #include "ConstantTimeSeries.h"
 #include "MultiplierTimeSeries.h"
 #include "ValidRangeTimeSeries.h"
-#include "RuntimeStatus.h"
 
 #include "PointRecord.h"
 #include "CsvPointRecord.h"
@@ -84,8 +83,7 @@ ConfigFactory::ConfigFactory() {
   _timeSeriesPointerMap.insert(make_pair("Multiplier", &ConfigFactory::createMultiplier));
   _timeSeriesPointerMap.insert(make_pair("ValidRange", &ConfigFactory::createValidRange));
   _timeSeriesPointerMap.insert(make_pair("Constant", &ConfigFactory::createConstant));
-  _timeSeriesPointerMap.insert(make_pair("RuntimeStatus", &ConfigFactory::createRuntimeStatus));
-
+  
   // node-type configuration functions
   // Junctions
   _parameterSetter.insert(make_pair("quality_boundary", &ConfigFactory::configureQualitySource));
@@ -717,16 +715,6 @@ TimeSeries::sharedPointer ConfigFactory::createMultiplier(Setting &setting) {
   return ts;
 }
 
-TimeSeries::sharedPointer ConfigFactory::createRuntimeStatus(Setting &setting) {
-  RuntimeStatus::sharedPointer ts( new RuntimeStatus() );
-  setGenericTimeSeriesProperties(ts, setting);
-  if (setting.exists("thresholdValue")) {
-    double v = getConfigDouble(setting, "thresholdValue");
-    ts->setThreshold(v);
-  }
-  
-  return ts;
-}
 
 
 
