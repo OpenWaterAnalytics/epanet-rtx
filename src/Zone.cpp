@@ -103,13 +103,13 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
         
         //cout << " - perimeter pipe: " << p->name() << endl;
         
-        Pipe::direction_t dir = p->assumedFlowDirectionAtNode(boost::static_pointer_cast<Node>(thisJ));
+        Link::direction_t dir = p->directionRelativeToNode(thisJ);
         _measuredBoundaryPipesDirectional.insert(make_pair(p, dir));
         continue;
       }
-      else if ( (stopAtClosedLinks) && (p->isAlwaysClosed()) ) {
+      else if ( stopAtClosedLinks && isAlwaysClosed(p) ) {
         // stop here as well - a potential closed perimeter pipe
-        Pipe::direction_t dir = p->assumedFlowDirectionAtNode(boost::static_pointer_cast<Node>(thisJ));
+        Pipe::direction_t dir = p->directionRelativeToNode(thisJ);
         _closedBoundaryPipesDirectional.insert(make_pair(p, dir));
         //cout << "detected fixed status (closed) pipe: " << p->name() << endl;
         continue;
@@ -136,7 +136,7 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
     if (this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->to()))) {
       //cout << "removing orphaned pipe: " << p->name() << endl;
       _measuredBoundaryPipesDirectional.erase(p);
-      _measuredInteriorPipes.insert(make_pair(p, Pipe::unknownDirection));
+      _measuredInteriorPipes.push_back(p);
     }
   }
   map<Pipe::sharedPointer, Pipe::direction_t> closedBoundaryPipesDirectional = closedBoundaryPipes();
@@ -144,7 +144,7 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
     if (this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->to()))) {
       //cout << "removing orphaned pipe: " << p->name() << endl;
       _closedBoundaryPipesDirectional.erase(p);
-      _closedInteriorPipes.insert(make_pair(p, Pipe::unknownDirection));
+      _closedInteriorPipes.push_back(p);
     }
   }
 
@@ -212,6 +212,10 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
   //cout << this->name() << " Zone Description:" << endl;
   //cout << *this->demand() << endl;
   
+}
+
+bool Zone::isAlwaysClosed(Pipe::sharedPointer pipe) {
+  return ((pipe->fixedStatus() == Pipe::CLOSED) && (pipe->type() != Element::PUMP));
 }
 
 bool Zone::isTank(Junction::sharedPointer junction) {
@@ -328,11 +332,11 @@ std::map<Pipe::sharedPointer, Pipe::direction_t> Zone::closedBoundaryPipes() {
   return _closedBoundaryPipesDirectional;
 }
 
-std::map<Pipe::sharedPointer, Pipe::direction_t> Zone::closedInteriorPipes() {
+std::vector<Pipe::sharedPointer> Zone::closedInteriorPipes() {
   return _closedInteriorPipes;
 }
 
-std::map<Pipe::sharedPointer, Pipe::direction_t> Zone::measuredInteriorPipes() {
+std::vector<Pipe::sharedPointer> Zone::measuredInteriorPipes() {
   return _measuredInteriorPipes;
 }
 

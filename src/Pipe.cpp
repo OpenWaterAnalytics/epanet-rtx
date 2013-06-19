@@ -72,27 +72,6 @@ void Pipe::setStatusParameter(TimeSeries::sharedPointer status) {
 bool Pipe::doesHaveFlowMeasure() {
   return _doesHaveFlowMeasure;
 }
-
-bool Pipe::isAlwaysClosed() {
-  return (this->fixedStatus() == Pipe::CLOSED) && (this->type() != Element::PUMP);
-}
-
-Pipe::direction_t Pipe::assumedFlowDirectionAtNode(Node::sharedPointer node) {
-  direction_t dir;
-  if (from() == node) {
-    dir = outDirection;
-  }
-  else if (to() == node) {
-    dir = inDirection;
-  }
-  else {
-    // should not happen
-    dir = unknownDirection;
-    std::cerr << "direction could not be found for pipe: " << name() << std::endl;
-  }
-  return dir;
-}
-
 TimeSeries::sharedPointer Pipe::flowMeasure() {
   return _flowMeasure;
 }

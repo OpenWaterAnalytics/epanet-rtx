@@ -19,7 +19,6 @@ namespace RTX {
   class Pipe : public Link {
   public:
     typedef enum {OPEN = true, CLOSED = false} status_t;
-    typedef enum {outDirection, inDirection, unknownDirection} direction_t;
     RTX_SHARED_POINTER(Pipe);
     Pipe(const std::string& name, Node::sharedPointer startNode, Node::sharedPointer endNode);
     virtual ~Pipe();
@@ -32,9 +31,7 @@ namespace RTX {
     
     status_t fixedStatus();
     void setFixedStatus(status_t status);
-    bool isAlwaysClosed();
-    direction_t assumedFlowDirectionAtNode(Node::sharedPointer node);
-
+    
     // states
     TimeSeries::sharedPointer flow();
     

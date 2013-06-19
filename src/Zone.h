@@ -76,8 +76,8 @@ namespace RTX {
     std::vector<Tank::sharedPointer> tanks();
     std::map<Pipe::sharedPointer, Pipe::direction_t> measuredBoundaryPipes();
     std::map<Pipe::sharedPointer, Pipe::direction_t> closedBoundaryPipes();
-    std::map<Pipe::sharedPointer, Pipe::direction_t> closedInteriorPipes();
-    std::map<Pipe::sharedPointer, Pipe::direction_t> measuredInteriorPipes();
+    std::vector<Pipe::sharedPointer> closedInteriorPipes();
+    std::vector<Pipe::sharedPointer> measuredInteriorPipes();
 
     // time series accessors
     TimeSeries::sharedPointer demand();
@@ -91,14 +91,15 @@ namespace RTX {
     // void followJunction(Junction::sharedPointer junction);
     bool isBoundaryFlowJunction(Junction::sharedPointer junction);
     bool isTank(Junction::sharedPointer junction);
+    bool isAlwaysClosed(Pipe::sharedPointer pipe);
     
     std::vector<Junction::sharedPointer> _boundaryFlowJunctions;
     std::vector<Tank::sharedPointer> _tanks;
     std::map< std::string, Junction::sharedPointer> _junctions;
     std::map<Pipe::sharedPointer, Pipe::direction_t> _measuredBoundaryPipesDirectional;
     std::map<Pipe::sharedPointer, Pipe::direction_t> _closedBoundaryPipesDirectional;
-    std::map<Pipe::sharedPointer, Pipe::direction_t> _closedInteriorPipes;
-    std::map<Pipe::sharedPointer, Pipe::direction_t> _measuredInteriorPipes;
+    std::vector<Pipe::sharedPointer> _closedInteriorPipes;
+    std::vector<Pipe::sharedPointer> _measuredInteriorPipes;
 
     TimeSeries::sharedPointer _demand;
     Units _flowUnits;

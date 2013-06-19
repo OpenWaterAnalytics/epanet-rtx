@@ -34,4 +34,18 @@ Node::sharedPointer Link::to() {
 
 
 
+Link::direction_t Link::directionRelativeToNode(Node::sharedPointer node) {
+  direction_t dir;
+  if (from() == node) {
+    dir = outDirection;
+  }
+  else if (to() == node) {
+    dir = inDirection;
+  }
+  else {
+    // should not happen
+    std::cerr << "direction could not be found for pipe: " << name() << std::endl;
+  }
+  return dir;
+}
 
