@@ -119,6 +119,7 @@
 		22B7154E14DC2C2C00041167 /* Clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B7154D14DC2C2C00041167 /* Clock.cpp */; };
 		22B7155014DC802300041167 /* Resampler.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B7154F14DC802300041167 /* Resampler.h */; };
 		22B7155214DC813800041167 /* Resampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B7155114DC813800041167 /* Resampler.cpp */; };
+		22B7E0CF1767917D00F10EBB /* libepanet-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2211F99417597654001C7F61 /* libepanet-static.a */; };
 		22B8A7A61603CA8D00EECAA5 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22C62AC01439ED6300841E60 /* libepanet-rtx.dylib */; };
 		22BF02D315EBCABC00F66465 /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BF02D215EBCABC00F66465 /* Point.cpp */; };
 		22C62ADB1439EE0B00841E60 /* AggregatorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C62ACB1439EE0B00841E60 /* AggregatorTimeSeries.cpp */; };
@@ -335,6 +336,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22B7E0CF1767917D00F10EBB /* libepanet-static.a in Frameworks */,
 				2247874217417D5600E0DA66 /* libconfig++.a in Frameworks */,
 				22211AD4173C2E9700309C2F /* libboost_date_time.a in Frameworks */,
 				22211AD5173C2E9700309C2F /* libboost_filesystem.a in Frameworks */,
@@ -1041,9 +1043,14 @@
 					"DEBUG=1",
 					"$(inherited)",
 					RTX_NO_ODBC,
+					"EN_API_FLOAT_TYPE=double",
 					RTX_NO_MYSQL,
 				);
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					"${SRCROOT}/../../../epanet/src",
+				);
 				MACH_O_TYPE = staticlib;
 				PRODUCT_NAME = "epanet-rtx";
 				RUN_CLANG_STATIC_ANALYZER = NO;
@@ -1066,8 +1073,13 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					RTX_NO_MYSQL,
 					RTX_NO_ODBC,
+					"EN_API_FLOAT_TYPE=double",
 				);
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					"${SRCROOT}/../../../epanet/src",
+				);
 				MACH_O_TYPE = staticlib;
 				PRODUCT_NAME = "epanet-rtx";
 				RUN_CLANG_STATIC_ANALYZER = NO;
@@ -1206,10 +1218,7 @@
 				CLANG_CXX_LIBRARY = "compiler-default";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "EN_API_FLOAT_TYPE=double";
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					"${SRCROOT}/../../../epanet/src",
@@ -1227,6 +1236,7 @@
 				CLANG_CXX_LIBRARY = "compiler-default";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = "EN_API_FLOAT_TYPE=double";
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					"${SRCROOT}/../../../epanet/src",

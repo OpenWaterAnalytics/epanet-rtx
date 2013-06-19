@@ -112,6 +112,8 @@ void Model::setParameterSource(PointRecord::sharedPointer record) {
 
 void Model::initDemandZones(bool detectClosedLinks) {
   
+  _zones.clear();
+  
   // load up the node set
   std::set<Junction::sharedPointer> nodeSet;
   BOOST_FOREACH(Junction::sharedPointer junction, _junctions) {
@@ -139,7 +141,14 @@ void Model::initDemandZones(bool detectClosedLinks) {
     
     
     // specifiy the root node and populate the tree.
-    newZone->enumerateJunctionsWithRootNode(rootNode,detectClosedLinks);
+    try {
+      newZone->enumerateJunctionsWithRootNode(rootNode,detectClosedLinks);
+    } catch (exception &e) {
+      cerr << "Zone could not be enumerated: " << e.what() << endl;
+    } catch (...) {
+      cerr << "Zone could not be enumerated, and I don't know why" << endl;
+    }
+    
     
     // get the list of junctions that were just added.
     vector<Junction::sharedPointer> addedJunctions = newZone->junctions();
@@ -158,6 +167,7 @@ void Model::initDemandZones(bool detectClosedLinks) {
       }
     }
     
+    cout << "adding zone: " << *newZone << endl;
     this->addZone(newZone);
   }
   

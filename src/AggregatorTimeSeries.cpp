@@ -49,7 +49,10 @@ ostream& AggregatorTimeSeries::toStream(ostream &stream) {
 void AggregatorTimeSeries::addSource(TimeSeries::sharedPointer timeSeries, double multiplier) throw(RtxException) {
   
   // check compatibility
-  if (!isCompatibleWith(timeSeries)) throw IncompatibleComponent();
+  if (!isCompatibleWith(timeSeries)) {
+    cerr << "Incompatible time series: " << *timeSeries << endl;
+    return;
+  }
   
   if (units().isDimensionless() && sources().size() == 0) {
     // we have default units and no sources yet, so it would be safe to adopt the new source's units.
@@ -157,26 +160,21 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
     // resample the source if needed.
     // this also converts to local units, so we don't have to worry about that here.
     vector<Point> thisSourcePoints = Resampler::filteredPoints(ts, fromTime, toTime);
-    if (thisSourcePoints.size() > 0) {
-      // add in the new points.
-      vector<Point>::const_iterator pIt = thisSourcePoints.begin();
-      BOOST_FOREACH(Point& p, aggregated) {
-        // just make sure we're at the right time.
-        while ((*pIt).time < p.time) {
-          ++pIt;
-        }
-        //
-        if ((*pIt).time != p.time) {
-          cerr << "ERR: times not registered in aggregator" << endl;
-        }
-        
-        // add it in.
-        p += (*pIt) * multiplier;
-        
+    vector<Point>::const_iterator pIt = thisSourcePoints.begin();
+    // add in the new points.
+    BOOST_FOREACH(Point& p, aggregated) {
+      // just make sure we're at the right time.
+      while ((*pIt).time < p.time) {
+        ++pIt;
       }
-    }
-    else {
-      cerr << "ERR: no source points for aggregator" << endl;
+      //
+      if ((*pIt).time != p.time) {
+        cerr << "ERR: times not registered in aggregator" << endl;
+      }
+      
+      // add it in.
+      p += (*pIt) * multiplier;
+      
     }
   }
   
