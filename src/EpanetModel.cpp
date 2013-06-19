@@ -197,8 +197,19 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
       newJunction->setElevation(z);
       newJunction->setCoordinates(x, y);
       
-      double demand = 0;
-      ENcheck( ENgetnodevalue(iNode, EN_BASEDEMAND, &demand), "ENgetnodevalue(EN_BASEDEMAND)" );
+      // Base demand is sum of all demand categories, accounting for patterns
+      double demand = 0, categoryDemand = 0, avgPatternValue = 0;
+      int numDemands = 0, patternIdx = 0;
+      ENcheck( ENgetnumdemands(iNode, &numDemands), "ENgetnumdemands()");
+      for (int demandIdx = 1; demandIdx <= numDemands; demandIdx++) {
+        ENcheck( ENgetbasedemand(iNode, demandIdx, &categoryDemand), "ENgetbasedemand()" );
+        ENcheck( ENgetdemandpattern(iNode, demandIdx, &patternIdx), "ENgetdemandpattern()");
+        avgPatternValue = 1.0;
+        if (patternIdx > 0) { // Not the default "pattern" = 1
+          ENcheck( ENgetaveragepatternvalue(patternIdx, &avgPatternValue), "ENgetaveragepatternvalue()");
+        }
+        demand+=categoryDemand*avgPatternValue;
+      }
       newJunction->setBaseDemand(demand);
       
       // and keep track of the epanet-toolkit index of this element
