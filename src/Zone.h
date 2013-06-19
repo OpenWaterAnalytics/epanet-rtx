@@ -59,7 +59,6 @@ namespace RTX {
   
   class Zone : public Element {
   public:
-    typedef enum {outDirection, inDirection} direction_t;
     RTX_SHARED_POINTER(Zone);
     virtual std::ostream& toStream(std::ostream &stream);
     Zone(const std::string& name);
@@ -75,8 +74,11 @@ namespace RTX {
     bool doesHaveJunction(Junction::sharedPointer j);
     std::vector<Junction::sharedPointer> junctions();
     std::vector<Tank::sharedPointer> tanks();
-    std::map<Pipe::sharedPointer, Zone::direction_t> boundaryPipes();
-    
+    std::map<Pipe::sharedPointer, Pipe::direction_t> measuredBoundaryPipes();
+    std::map<Pipe::sharedPointer, Pipe::direction_t> closedBoundaryPipes();
+    std::map<Pipe::sharedPointer, Pipe::direction_t> closedInteriorPipes();
+    std::map<Pipe::sharedPointer, Pipe::direction_t> measuredInteriorPipes();
+
     // time series accessors
     TimeSeries::sharedPointer demand();
     void setDemand(TimeSeries::sharedPointer demand);
@@ -86,15 +88,18 @@ namespace RTX {
     virtual void allocateDemandToJunctions(time_t time);
         
   private:
-    void followJunction(Junction::sharedPointer junction);
+    // void followJunction(Junction::sharedPointer junction);
     bool isBoundaryFlowJunction(Junction::sharedPointer junction);
     bool isTank(Junction::sharedPointer junction);
     
     std::vector<Junction::sharedPointer> _boundaryFlowJunctions;
     std::vector<Tank::sharedPointer> _tanks;
     std::map< std::string, Junction::sharedPointer> _junctions;
-    std::map<Pipe::sharedPointer, direction_t> _boundaryPipesDirectional;
-    
+    std::map<Pipe::sharedPointer, Pipe::direction_t> _measuredBoundaryPipesDirectional;
+    std::map<Pipe::sharedPointer, Pipe::direction_t> _closedBoundaryPipesDirectional;
+    std::map<Pipe::sharedPointer, Pipe::direction_t> _closedInteriorPipes;
+    std::map<Pipe::sharedPointer, Pipe::direction_t> _measuredInteriorPipes;
+
     TimeSeries::sharedPointer _demand;
     Units _flowUnits;
   };

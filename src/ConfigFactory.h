@@ -107,6 +107,7 @@ namespace RTX {
     TimeSeries::sharedPointer createConstant(Setting &setting);
     TimeSeries::sharedPointer createValidRange(Setting &setting);
     TimeSeries::sharedPointer createMultiplier(Setting &setting);
+    TimeSeries::sharedPointer createRuntimeStatus(Setting &setting);
     
     
     void configureQualitySource(Setting &setting, Element::sharedPointer junction);

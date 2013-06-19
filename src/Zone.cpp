@@ -33,11 +33,21 @@ Zone::~Zone() {
 std::ostream& Zone::toStream(std::ostream &stream) {
   stream << "Zone: \"" << this->name() << "\"\n";
   stream << " - " << junctions().size() << " Junctions" << endl;
-  stream << " - " << _boundaryPipesDirectional.size() << " Boundary Pipes" << endl;
   stream << " - " << _tanks.size() << " Tanks" << endl;
+  stream << " - " << _measuredBoundaryPipesDirectional.size() << " Measured Boundary Pipes" << endl;
+  stream << " - " << _closedBoundaryPipesDirectional.size() << " Closed Boundary Pipes" << endl;
+  stream << " - " << _measuredInteriorPipes.size() << " Measured Interior Pipes" << endl;
+  stream << " - " << _closedInteriorPipes.size() << " Closed Interior Pipes" << endl;
+  stream << "Closed Boundary Pipes:" << endl;
+  std::pair<Pipe::sharedPointer, Pipe::direction_t> cp;
+  BOOST_FOREACH(cp, _closedBoundaryPipesDirectional) {
+    double multiplier = cp.second;
+    Pipe::sharedPointer p = cp.first;
+    string dir = (multiplier > 0)? "(+)" : "(-)";
+    stream << "    " << dir << " " << p->name() << endl;
+  }
   stream << "Time Series Aggregation:" << endl;
   stream << *_demand << endl;
-  
   
   return stream;
 }
@@ -93,22 +103,14 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
         
         //cout << " - perimeter pipe: " << p->name() << endl;
         
-        direction_t dir;
-        if (p->from() == thisJ) {
-          dir = outDirection;
-        }
-        else if (p->to() == thisJ) {
-          dir = inDirection;
-        }
-        else {
-          // should not happen?
-          dir = inDirection;
-          cerr << "direction could not be found for pipe: " << p->name() << endl;
-        }
-        _boundaryPipesDirectional.insert(make_pair(p, dir));
+        Pipe::direction_t dir = p->assumedFlowDirectionAtNode(boost::static_pointer_cast<Node>(thisJ));
+        _measuredBoundaryPipesDirectional.insert(make_pair(p, dir));
         continue;
       }
-      else if ( (stopAtClosedLinks) && (p->fixedStatus() == Pipe::CLOSED) && (p->type() != Element::PUMP) ) {
+      else if ( (stopAtClosedLinks) && (p->isAlwaysClosed()) ) {
+        // stop here as well - a potential closed perimeter pipe
+        Pipe::direction_t dir = p->assumedFlowDirectionAtNode(boost::static_pointer_cast<Node>(thisJ));
+        _closedBoundaryPipesDirectional.insert(make_pair(p, dir));
         //cout << "detected fixed status (closed) pipe: " << p->name() << endl;
         continue;
       }
@@ -129,13 +131,23 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
   
   // cleanup orphaned pipes (pipes which have been identified as perimeters, but have both start/end nodes listed inside the zone)
   
-  BOOST_FOREACH(Pipe::sharedPointer p, _boundaryPipesDirectional | boost::adaptors::map_keys) {
+  map<Pipe::sharedPointer, Pipe::direction_t> measuredBoundaryPipesDirectional = measuredBoundaryPipes();
+  BOOST_FOREACH(Pipe::sharedPointer p, measuredBoundaryPipesDirectional | boost::adaptors::map_keys) {
     if (this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->to()))) {
       //cout << "removing orphaned pipe: " << p->name() << endl;
-      _boundaryPipesDirectional.erase(p);
+      _measuredBoundaryPipesDirectional.erase(p);
+      _measuredInteriorPipes.insert(make_pair(p, Pipe::unknownDirection));
     }
   }
-  
+  map<Pipe::sharedPointer, Pipe::direction_t> closedBoundaryPipesDirectional = closedBoundaryPipes();
+  BOOST_FOREACH(Pipe::sharedPointer p, closedBoundaryPipesDirectional | boost::adaptors::map_keys) {
+    if (this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->to()))) {
+      //cout << "removing orphaned pipe: " << p->name() << endl;
+      _closedBoundaryPipesDirectional.erase(p);
+      _closedInteriorPipes.insert(make_pair(p, Pipe::unknownDirection));
+    }
+  }
+
   // separate junctions into:
   // -- demand junctions
   // -- boundary flow junctions
@@ -177,11 +189,11 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
      }
      */
     
-    typedef pair<Pipe::sharedPointer, direction_t> pipeDirPair_t;
-    BOOST_FOREACH(pipeDirPair_t pd, _boundaryPipesDirectional) {
+    typedef pair<Pipe::sharedPointer, Pipe::direction_t> pipeDirPair_t;
+    BOOST_FOREACH(pipeDirPair_t pd, _measuredBoundaryPipesDirectional) {
       Pipe::sharedPointer p = pd.first;
-      direction_t dir = pd.second;
-      double dirMult = ( dir == inDirection ? 1. : -1. );
+      Pipe::direction_t dir = pd.second;
+      double dirMult = ( dir == Pipe::inDirection ? 1. : -1. );
       zoneDemand->addSource(p->flowMeasure(), dirMult);
     }
     
@@ -308,8 +320,20 @@ std::vector<Tank::sharedPointer> Zone::tanks() {
   return _tanks;
 }
 
-std::map<Pipe::sharedPointer, Zone::direction_t> Zone::boundaryPipes() {
-  return _boundaryPipesDirectional;
+std::map<Pipe::sharedPointer, Pipe::direction_t> Zone::measuredBoundaryPipes() {
+  return _measuredBoundaryPipesDirectional;
+}
+
+std::map<Pipe::sharedPointer, Pipe::direction_t> Zone::closedBoundaryPipes() {
+  return _closedBoundaryPipesDirectional;
+}
+
+std::map<Pipe::sharedPointer, Pipe::direction_t> Zone::closedInteriorPipes() {
+  return _closedInteriorPipes;
+}
+
+std::map<Pipe::sharedPointer, Pipe::direction_t> Zone::measuredInteriorPipes() {
+  return _measuredInteriorPipes;
 }
 
 void Zone::setDemand(TimeSeries::sharedPointer demand) {
