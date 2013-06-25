@@ -199,7 +199,7 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
         vector<Point> gapPoints = filteredPoints(source(), gapStart, gapEnd);
         if (gapPoints.size() > 0) {
           this->insertPoints(gapPoints);
-          now = gapPoints.back().time;
+          now = clock()->timeAfter(gapPoints.back().time);
           BOOST_FOREACH(Point p, gapPoints) {
             stitchedPoints.push_back(p);
           }

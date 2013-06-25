@@ -31,6 +31,8 @@ namespace RTX {
     Point(time_t time, double value, Qual_t qual = good, double confidence = 0.);
     // dtor
     ~Point();
+    
+    // operators
     Point operator+(const Point& point) const;
     Point& operator+=(const Point& point);
     Point operator*(const double factor) const;

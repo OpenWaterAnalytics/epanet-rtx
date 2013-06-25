@@ -62,13 +62,22 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> OdbcPointRe
   odbc_query_t oraQueries;
   oraQueries.connectorName = "oracle";
   oraQueries.singleSelect = "";
-  oraQueries.rangeSelect = "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# > ?) AND (#DATECOL# < ?) AND #TAGCOL# = ?";
+  oraQueries.rangeSelect = "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# > ?) AND (#DATECOL# < ?) AND #TAGCOL# = ? ORDER BY #DATECOL# asc";
   oraQueries.lowerBound = "";
   oraQueries.upperBound = "";
   oraQueries.timeQuery = "select sysdate from dual";
   oraQueries.goodQuality = 0;
   
-  
+  /*
+  oraQueries.rangeSelect = "\
+  select time, name, value, quality from \
+  (select SCADA.CTPLUS_TB_POINTDATA.EVENTTIMEUTC time, SCADA.CTPLUS_TB_POINTDATA.POINTID id, SCADA.CTPLUS_TB_POINTDATA.VALUE value, SCADA.CTPLUS_TB_POINTDATA.QUALITY quality \
+   from SCADA.CTPLUS_TB_POINTDATA \
+   where (SCADA.CTPLUS_TB_POINTDATA.EVENTTIMEUTC > ?) \
+   AND (SCADA.CTPLUS_TB_POINTDATA.EVENTTIMEUTC < ?)) \
+   right inner join (select SCADA.CTPLUS_TB_POINTID.ID pointID, SCADA.CTPLUS_TB_POINTID.NAME name from SCADA.CTPLUS_TB_POINTID where name = ?) \
+   on id = pointId ORDER BY time asc";
+  */
   list[wonderware_mssql] = wwQueries;
   list[oracle] = oraQueries;
   
@@ -346,7 +355,7 @@ Point OdbcPointRecord::selectNext(const string& id, time_t time) {
 
 Point OdbcPointRecord::selectPrevious(const string& id, time_t time) {
   Point p;
-  time_t margin = 60*60*12;
+  time_t margin = 60*60*24*7; // one week?
   vector<Point> points = pointsWithStatement(id, _rangeStatement, time - margin, time+1);
   
   time_t max_margin = this->searchDistance();
@@ -482,7 +491,7 @@ void OdbcPointRecord::bindOutputColumns(SQLHSTMT statement, ScadaRecord* record)
   SQL_CHECK(SQLBindCol(statement, 1, SQL_C_TYPE_TIMESTAMP, &(record->time), NULL, &(record->timeInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
   SQL_CHECK(SQLBindCol(statement, 2, SQL_C_CHAR, record->tagName, MAX_SCADA_TAG, &(record->tagNameInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
   SQL_CHECK(SQLBindCol(statement, 3, SQL_C_DOUBLE, &(record->value), 0, &(record->valueInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
-  SQL_CHECK(SQLBindCol(statement, 4, SQL_C_ULONG, &(record->quality), 0, &(record->qualityInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
+  SQL_CHECK(SQLBindCol(statement, 4, SQL_INTEGER, &(record->quality), 0, &(record->qualityInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
 }
 
 

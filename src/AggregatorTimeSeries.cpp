@@ -160,12 +160,19 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
     // resample the source if needed.
     // this also converts to local units, so we don't have to worry about that here.
     vector<Point> thisSourcePoints = Resampler::filteredPoints(ts, fromTime, toTime);
+    if (thisSourcePoints.size() == 0) {
+      cerr << "no points found for : " << *ts << endl;
+      continue;
+    }
     vector<Point>::const_iterator pIt = thisSourcePoints.begin();
     // add in the new points.
     BOOST_FOREACH(Point& p, aggregated) {
       // just make sure we're at the right time.
       while ((*pIt).time < p.time) {
         ++pIt;
+      }
+      if (pIt == thisSourcePoints.end()) {
+        break;
       }
       //
       if ((*pIt).time != p.time) {

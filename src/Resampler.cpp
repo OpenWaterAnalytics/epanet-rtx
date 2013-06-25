@@ -86,6 +86,20 @@ std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs,
   // get the source points
   std::vector<Point> sourcePoints = sourceTs->points(sourceRange.first, sourceRange.second);
   
+  
+  // check that it's ordered.
+  if (sourcePoints.size() > 0) {
+    time_t orderTime = sourcePoints.front().time;
+    BOOST_FOREACH(const Point& p, sourcePoints) {
+      if (p.time < orderTime) {
+        cerr << "not ordered" << endl;
+      }
+      orderTime = p.time;
+    }
+  }
+  
+  
+  
   // check the source points
   if (sourcePoints.size() < 2) {
     return resampled;

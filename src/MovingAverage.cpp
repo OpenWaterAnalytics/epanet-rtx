@@ -32,7 +32,7 @@ MovingAverage::~MovingAverage() {
 #pragma mark - Added Methods
 
 void MovingAverage::setWindowSize(int numberOfPoints) {
-  resetCache();
+  //resetCache();
   _windowSize = numberOfPoints;
 }
 

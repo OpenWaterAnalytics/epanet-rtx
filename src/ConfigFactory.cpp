@@ -931,7 +931,7 @@ void ConfigFactory::configureElements(Model::sharedPointer model) {
     TimeSeries::sharedPointer series = _timeSeriesList[tsName];
     if (!series) {
       cerr << "could not find time series \"" << tsName << "\"." << endl;
-      return;
+      continue;
     }
     // configure the individual element using this setting.
     (this->*fp)(elementSetting, element);
