@@ -161,7 +161,7 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
     // this also converts to local units, so we don't have to worry about that here.
     vector<Point> thisSourcePoints = Resampler::filteredPoints(ts, fromTime, toTime);
     if (thisSourcePoints.size() == 0) {
-      cerr << "no points found for : " << *ts << endl;
+      cerr << "no points found for : " << ts->name() << "(" << fromTime << " - " << toTime << ")" << endl;
       continue;
     }
     vector<Point>::const_iterator pIt = thisSourcePoints.begin();

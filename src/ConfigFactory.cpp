@@ -362,7 +362,7 @@ PointRecord::sharedPointer PointRecordFactory::createMySqlPointRecord(libconfig:
   string initString = setting["connection"];
   record->setConnectionString(initString);
   //record->setName(name);
-  //record->connect(); // leaving this to application code
+  //record->dbConnect(); // leaving this to application code
   return record;
 }
 

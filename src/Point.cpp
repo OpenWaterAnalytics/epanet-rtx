@@ -116,7 +116,7 @@ std::ostream& RTX::operator<< (std::ostream &out, Point &point) {
 }
 
 std::ostream& Point::toStream(std::ostream &stream) {
-  stream << "(" << time << "," << value << "," << quality << ")";
+  stream << "(" << time << "," << value << "," << quality << "," << confidence << ")";
   return stream;
 }
 
@@ -127,7 +127,7 @@ std::ostream& Point::toStream(std::ostream &stream) {
 Point Point::convertPoint(const Point& point, const Units& fromUnits, const Units& toUnits) {
   double value = Units::convertValue(point.value, fromUnits, toUnits);
   double confidence = Units::convertValue(point.confidence, fromUnits, toUnits);
-  return Point(point.time, value, Point::good, confidence);
+  return Point(point.time, value, point.quality, confidence);
 }
 
 

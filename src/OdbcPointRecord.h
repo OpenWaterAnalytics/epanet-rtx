@@ -45,7 +45,7 @@ namespace RTX {
     class odbc_query_t {
     public:
       std::string connectorName, singleSelect, rangeSelect, upperBound, lowerBound, timeQuery;
-      int goodQuality;
+      std::map<int,Point::Qual_t> qualityMap;
     };
     
     static std::map<Sql_Connector_t, odbc_query_t> queryTypes();
@@ -59,7 +59,7 @@ namespace RTX {
     // public methods
     void setTableColumnNames(const std::string& table, const std::string& dateCol, const std::string& tagCol, const std::string& valueCol, const std::string& qualityCol);
     void setConnectorType(Sql_Connector_t connectorType);
-    virtual void connect() throw(RtxException);
+    virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
     virtual std::string registerAndGetIdentifier(std::string recordName);
     virtual std::vector<std::string> identifiers();
@@ -99,14 +99,14 @@ namespace RTX {
     
   private:
     bool _connectionOk;
-    int _goodQuality;
+    std::map<int,Point::Qual_t> _qualityMap;
     std::vector<Point> pointsWithStatement(const string& id, SQLHSTMT statement, time_t startTime, time_t endTime = 0);
     typedef struct {
-      SQLCHAR tagName[MAX_SCADA_TAG];
+      //SQLCHAR tagName[MAX_SCADA_TAG];
       SQL_TIMESTAMP_STRUCT time;
       double value;
       int quality;
-      SQLLEN tagNameInd, timeInd, valueInd, qualityInd;
+      SQLLEN /*tagNameInd,*/ timeInd, valueInd, qualityInd;
     } ScadaRecord;
     typedef struct {
       SQL_TIMESTAMP_STRUCT start;

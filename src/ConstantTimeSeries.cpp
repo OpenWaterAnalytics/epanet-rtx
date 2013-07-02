@@ -10,7 +10,7 @@ ConstantTimeSeries::ConstantTimeSeries() {
 }
 
 Point ConstantTimeSeries::point(time_t time)  {
-  return Point(time, _value);
+  return Point(time, _value, Point::Qual_t::constant);
 }
 
 void ConstantTimeSeries::setValue(double value) {

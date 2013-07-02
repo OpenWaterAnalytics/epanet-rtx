@@ -13,8 +13,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#define RTX_OPC_GOOD 192
-
 
 using namespace RTX;
 using namespace std;
@@ -50,23 +48,30 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> OdbcPointRe
   
   odbc_query_t wwQueries;
   wwQueries.connectorName = "wonderware_mssql";
-  wwQueries.singleSelect = "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# = ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
+  wwQueries.singleSelect = "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# = ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
   //wwQueries.rangeSelect =  "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# >= ?) AND (#DATECOL# <= ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC' ORDER BY #DATECOL# asc"; // experimentally, ORDER BY is much slower. wonderware always returns rows ordered by DateTime ascending, so this is not really necessary.
-  wwQueries.rangeSelect =  "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# > ?) AND (#DATECOL# < ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
+  wwQueries.rangeSelect =  "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# > ?) AND (#DATECOL# < ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
   wwQueries.lowerBound = "";
   wwQueries.upperBound = "";
   wwQueries.timeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
-  wwQueries.goodQuality = 192;
-  
+  map<int, Point::Qual_t> wwQualMap;
+  wwQualMap[192] = Point::Qual_t::good;
+  wwQualMap[0] = Point::Qual_t::missing;
+  wwQueries.qualityMap = wwQualMap;
   
   odbc_query_t oraQueries;
   oraQueries.connectorName = "oracle";
   oraQueries.singleSelect = "";
-  oraQueries.rangeSelect = "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# > ?) AND (#DATECOL# < ?) AND #TAGCOL# = ? ORDER BY #DATECOL# asc";
+  oraQueries.rangeSelect = "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# > ?) AND (#DATECOL# < ?) AND #TAGCOL# = ? ORDER BY #DATECOL# asc";
   oraQueries.lowerBound = "";
   oraQueries.upperBound = "";
   oraQueries.timeQuery = "select sysdate from dual";
-  oraQueries.goodQuality = 0;
+  map<int, Point::Qual_t> oraQualMap;
+  oraQualMap[0] = Point::Qual_t::good;
+  oraQualMap[32] = Point::Qual_t::missing;
+  oraQualMap[128] = Point::Qual_t::estimated;
+  oraQualMap[256] = Point::Qual_t::estimated;
+  oraQueries.qualityMap = oraQualMap;
   
   /*
   oraQueries.rangeSelect = "\
@@ -146,12 +151,12 @@ void OdbcPointRecord::setConnectorType(Sql_Connector_t connectorType) {
   setTimeQuery(queries.timeQuery);
   
   _query.tagNameInd = SQL_NTS;
-  _goodQuality = queries.goodQuality;
+  _qualityMap = queries.qualityMap;
 
 }
 
 
-void OdbcPointRecord::connect() throw(RtxException) {
+void OdbcPointRecord::dbConnect() throw(RtxException) {
   _connectionOk = false;
   if (RTX_STRINGS_ARE_EQUAL(this->connectionString(), "")) {
     return;
@@ -448,7 +453,7 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
     cerr << errorMessage << endl;
     cerr << "Could not get data from db connection\n";
     cerr << "Attempting to reconnect..." << endl;
-    this->connect();
+    this->dbConnect();
     cerr << "Connection returned " << this->isConnected() << endl;
   }
   
@@ -459,9 +464,14 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
     time_t t = sql_to_time_t(record.time);
     double v = record.value;
     int qu = record.quality;
-    Point::Qual_t q = Point::Qual_t::good; // todo -- map to rtx quality types
+    Point::Qual_t q = Point::Qual_t::missing;
     
-    if (record.valueInd > 0 && qu == _goodQuality) {
+    // map to rtx quality types
+    if (_qualityMap.count(qu) > 0) {
+      q = _qualityMap[qu];
+    }
+    
+    if (record.valueInd > 0 && q != Point::Qual_t::missing) {
       // ok
       p = Point(t, v, q);
       points.push_back(p);
@@ -489,9 +499,9 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
 
 void OdbcPointRecord::bindOutputColumns(SQLHSTMT statement, ScadaRecord* record) {
   SQL_CHECK(SQLBindCol(statement, 1, SQL_C_TYPE_TIMESTAMP, &(record->time), NULL, &(record->timeInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
-  SQL_CHECK(SQLBindCol(statement, 2, SQL_C_CHAR, record->tagName, MAX_SCADA_TAG, &(record->tagNameInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
-  SQL_CHECK(SQLBindCol(statement, 3, SQL_C_DOUBLE, &(record->value), 0, &(record->valueInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
-  SQL_CHECK(SQLBindCol(statement, 4, SQL_INTEGER, &(record->quality), 0, &(record->qualityInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
+  //SQL_CHECK(SQLBindCol(statement, 2, SQL_C_CHAR, record->tagName, MAX_SCADA_TAG, &(record->tagNameInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
+  SQL_CHECK(SQLBindCol(statement, 2, SQL_C_DOUBLE, &(record->value), 0, &(record->valueInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
+  SQL_CHECK(SQLBindCol(statement, 3, SQL_INTEGER, &(record->quality), 0, &(record->qualityInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
 }
 
 

@@ -39,7 +39,7 @@ namespace RTX {
     MysqlPointRecord();
     virtual ~MysqlPointRecord();
     
-    virtual void connect() throw(RtxException);
+    virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
     virtual std::string registerAndGetIdentifier(std::string recordName);
     virtual std::vector<std::string> identifiers();
@@ -63,6 +63,8 @@ namespace RTX {
     bool checkConnection();
     void insertSingle(const string& id, time_t time, double value);
     Point selectSingle(const string& id, time_t time, boost::shared_ptr<sql::PreparedStatement> statement);
+    std::vector<Point> pointsFromResultSet(boost::shared_ptr<sql::ResultSet> result);
+    
     void handleException(sql::SQLException &e);
     string _name;
     sql::Driver* _driver;

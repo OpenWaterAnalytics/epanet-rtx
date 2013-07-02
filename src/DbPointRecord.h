@@ -48,7 +48,7 @@ namespace RTX {
     // db connection
     void setConnectionString(const std::string& connection);
     const std::string& connectionString();
-    virtual void connect() throw(RtxException){};
+    virtual void dbConnect() throw(RtxException){};
     virtual bool isConnected(){return true;};
     
     // db searching prefs

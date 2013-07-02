@@ -139,6 +139,7 @@
 		22DDAD941443750600C1F188 /* Model.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DDAD931443750600C1F188 /* Model.h */; };
 		22DEE91C153F5C44008F75AE /* PointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22DEE91B153F5C44008F75AE /* PointRecord.cpp */; };
 		22E2962C16010A65003D378A /* Units.h in Headers */ = {isa = PBXBuildFile; fileRef = 22E2962B16010A65003D378A /* Units.h */; };
+		22E2A624177DC57F008D139A /* TsdbPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 22E2A622177DC57E008D139A /* TsdbPointRecord.h */; };
 		22E4ED101725C1C60076E93D /* ConstantTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22E4ED0E1725C1C60076E93D /* ConstantTimeSeries.cpp */; };
 		22E4ED111725C1C60076E93D /* ConstantTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22E4ED0F1725C1C60076E93D /* ConstantTimeSeries.h */; };
 		22ED77CD158787B7002D67F1 /* Reservoir.h in Headers */ = {isa = PBXBuildFile; fileRef = 22ED77CC158787B7002D67F1 /* Reservoir.h */; };
@@ -315,6 +316,8 @@
 		22DDAD931443750600C1F188 /* Model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Model.h; path = ../../src/Model.h; sourceTree = "<group>"; };
 		22DEE91B153F5C44008F75AE /* PointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PointRecord.cpp; path = ../../src/PointRecord.cpp; sourceTree = "<group>"; };
 		22E2962B16010A65003D378A /* Units.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Units.h; path = ../../src/Units.h; sourceTree = "<group>"; };
+		22E2A621177DC57E008D139A /* TsdbPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TsdbPointRecord.cpp; path = ../../src/TsdbPointRecord.cpp; sourceTree = "<group>"; };
+		22E2A622177DC57E008D139A /* TsdbPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TsdbPointRecord.h; path = ../../src/TsdbPointRecord.h; sourceTree = "<group>"; };
 		22E4ED0E1725C1C60076E93D /* ConstantTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConstantTimeSeries.cpp; path = ../../src/ConstantTimeSeries.cpp; sourceTree = "<group>"; };
 		22E4ED0F1725C1C60076E93D /* ConstantTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConstantTimeSeries.h; path = ../../src/ConstantTimeSeries.h; sourceTree = "<group>"; };
 		22ED77CC158787B7002D67F1 /* Reservoir.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reservoir.h; path = ../../src/Reservoir.h; sourceTree = "<group>"; };
@@ -430,6 +433,8 @@
 				220AE46A145B0EDC002F07B4 /* OdbcPointRecord.cpp */,
 				2281A75E15A7451F0018EC0F /* MysqlPointRecord.h */,
 				225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */,
+				22E2A622177DC57E008D139A /* TsdbPointRecord.h */,
+				22E2A621177DC57E008D139A /* TsdbPointRecord.cpp */,
 			);
 			name = db;
 			sourceTree = "<group>";
@@ -745,6 +750,7 @@
 				226AC14E17340D06009B7C90 /* MultiplierTimeSeries.h in Headers */,
 				22CE31EE17399403008AC1F9 /* CsvPointRecord.h in Headers */,
 				22A842D6173BF446009CE769 /* GainTimeSeries.h in Headers */,
+				22E2A624177DC57F008D139A /* TsdbPointRecord.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

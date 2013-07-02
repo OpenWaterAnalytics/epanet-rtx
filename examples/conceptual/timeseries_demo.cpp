@@ -30,32 +30,36 @@ void printPoints(vector<Point> pointVector);
 int main(int argc, const char * argv[])
 {
   
-  Clock::sharedPointer reg10m(new Clock(60*10));
   
-  ConstantTimeSeries::sharedPointer pressure( new ConstantTimeSeries() );
-  pressure->setUnits(RTX_KILOPASCAL);
-  pressure->setClock(reg10m);
-  pressure->setValue(1);
+  if (0) {
+    Clock::sharedPointer reg10m(new Clock(60*10));
+    
+    ConstantTimeSeries::sharedPointer pressure( new ConstantTimeSeries() );
+    pressure->setUnits(RTX_KILOPASCAL);
+    pressure->setClock(reg10m);
+    pressure->setValue(1);
+    
+    GainTimeSeries::sharedPointer gainTs( new GainTimeSeries() );
+    
+    gainTs->setUnits(RTX_FOOT);
+    gainTs->setGainUnits( RTX_METER / RTX_PASCAL );
+    gainTs->setGain(0.0001019977334);
+    gainTs->setSource(pressure);
+    
+    Point cp = gainTs->point(100);
+    
+    cout << cp << endl;
+    
+    double val = Units::convertValue(1, RTX_INCH, RTX_FOOT);
+    
+    cout << val << endl;
+  }
   
-  GainTimeSeries::sharedPointer gainTs( new GainTimeSeries() );
-  
-  gainTs->setUnits(RTX_FOOT);
-  gainTs->setGainUnits( RTX_METER / RTX_PASCAL );
-  gainTs->setGain(0.0001019977334);
-  gainTs->setSource(pressure);
-  
-  Point cp = gainTs->point(100);
-  
-  cout << cp << endl;
-  
-  double val = Units::convertValue(1, RTX_INCH, RTX_FOOT);
-  
-  cout << val << endl;
   
   
   // RTX TimeSeries Demo Application
   // A demonstration of some of the important TimeSeries classes and methods
-  
+  if(0)
   {
     CsvPointRecord::sharedPointer csv(new CsvPointRecord() );
     csv->setReadOnly(false);
@@ -96,12 +100,16 @@ int main(int argc, const char * argv[])
    We will create some points and store them.
    
    */
+  
+  using Point::Qual_t::good;
+  using Point::Qual_t::missing;
+  
   time_t start = 1000000000;
   
-  Point  p1(start,   0),
-         p2(start+100, 100),
-         p3(start+120, 120),
-         p4(start+230, 230);
+  Point  p1(start,   0, good, 0.5),
+         p2(start+100, 100, good, 0.8),
+         p3(start+120, 120, Point::Qual_t::estimated, 0.8),
+         p4(start+230, 230, good, 0.7);
 
   
   // put these points into a vector
@@ -231,7 +239,7 @@ int main(int argc, const char * argv[])
   // I can use the MysqlPointRecord (fill in your credentials below):
   MysqlPointRecord::sharedPointer dbRecord(new MysqlPointRecord());
   dbRecord->setConnectionString("HOST=tcp://localhost;UID=rtx_db_agent;PWD=rtx_db_agent;DB=rtx_demo_db");
-  dbRecord->connect();
+  dbRecord->dbConnect();
   if (dbRecord->isConnected()) {
     // empty out any previous data
     dbRecord->reset();
@@ -243,7 +251,7 @@ int main(int argc, const char * argv[])
     // to the MySQL database instead of just RAM.
     // Really - Check your database after this call.
     cout << endl << "points are being persisted:" << endl;
-    printPoints( movingAverage->points(start, end) );
+    printPoints( movingAverage->points(start, start+240) );
   }
   else {
     cout << "whoops, db could not connect" << endl;

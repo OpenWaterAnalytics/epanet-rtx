@@ -72,9 +72,11 @@ Point MovingAverage::filteredSingle(pVec_cIt &vecStart, pVec_cIt &vecEnd, pVec_c
   // now we take an average.
 //  int iPoints = 0;
   accumulator_set<double, stats<tag::mean> > meanAccumulator;
+  accumulator_set<double, stats<tag::mean> > confidenceAccum;
   while (back_it != fwd_it+1) {
     Point p = *back_it;
     meanAccumulator(p.value);
+    confidenceAccum(p.confidence);
     ++back_it;
 //    ++iPoints;
 //    cout << p;
@@ -85,12 +87,10 @@ Point MovingAverage::filteredSingle(pVec_cIt &vecStart, pVec_cIt &vecEnd, pVec_c
   }
   
   double meanValue = mean(meanAccumulator);
-  meanValue = Units::convertValue(meanValue, fromUnits, this->units());
-  
-//  cout << "+++++ Mean value (" << iPoints << " points) = " << meanValue << endl;
-//  cout << "=======================" << endl;
-  
-  Point filtered(t, meanValue, Point::Qual_t::averaged);
+  double confidenceMean = mean(confidenceAccum);
+  //meanValue = Units::convertValue(meanValue, fromUnits, this->units());
+  Point meanPoint(t, meanValue, Point::Qual_t::averaged, confidenceMean);
+  Point filtered = Point::convertPoint(meanPoint, fromUnits, this->units());
   return filtered;
 }
 
