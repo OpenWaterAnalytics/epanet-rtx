@@ -159,7 +159,10 @@ std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs,
     }
     
     now = clock()->timeAfter(now);
-    
+    if (now == 0) {
+      // edge case - could be reached if a resampler doesn't have a clock
+      break;
+    }
   }
   
   

@@ -91,6 +91,19 @@ std::vector< std::pair<TimeSeries::sharedPointer,double> > AggregatorTimeSeries:
   return _tsList;
 }
 
+void AggregatorTimeSeries::setMultiplierForSource(TimeSeries::sharedPointer timeSeries, double multiplier) {
+  // _tsList[x].first == TimeSeries, _tsList[x].second == multipier
+  // (private) std::vector< std::pair<TimeSeries::sharedPointer,double> > _tsList;
+  typedef std::pair<TimeSeries::sharedPointer, double> tsDoublePair_t;
+  BOOST_FOREACH(tsDoublePair_t& item, _tsList) {
+    TimeSeries::sharedPointer ts = item.first;
+    if (ts == timeSeries) {
+      item.second = multiplier;
+      // todo -- reset pointrecord backing store?
+    }
+  }
+}
+
 
 Point AggregatorTimeSeries::point(time_t time) {
   // call the base class method first, to see if the point is accessible via cache.

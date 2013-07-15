@@ -89,7 +89,7 @@ Point MovingAverage::filteredSingle(pVec_cIt &vecStart, pVec_cIt &vecEnd, pVec_c
   double meanValue = mean(meanAccumulator);
   double confidenceMean = mean(confidenceAccum);
   //meanValue = Units::convertValue(meanValue, fromUnits, this->units());
-  Point meanPoint(t, meanValue, Point::Qual_t::averaged, confidenceMean);
+  Point meanPoint(t, meanValue, Point::averaged, confidenceMean);
   Point filtered = Point::convertPoint(meanPoint, fromUnits, this->units());
   return filtered;
 }

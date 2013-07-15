@@ -34,8 +34,15 @@ ostream& ModularTimeSeries::toStream(ostream &stream) {
 }
 
 void ModularTimeSeries::setSource(TimeSeries::sharedPointer sourceTimeSeries) {
+  if (!sourceTimeSeries) {
+    _source = TimeSeries::sharedPointer();
+    _doesHaveSource = false;
+    return;
+  }
+  
   if( isCompatibleWith(sourceTimeSeries) ) {
     _source = sourceTimeSeries;
+    
     _doesHaveSource = true;
     //resetCache();
     // if this is an irregular time series, then set this clock to the same as that guy's clock.

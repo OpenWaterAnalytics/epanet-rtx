@@ -15,8 +15,18 @@ using namespace RTX;
 using namespace std;
 
 
-PointRecord::PointRecord() {
+PointRecord::PointRecord() : _name("") {
 }
+
+
+std::string PointRecord::name() {
+  return _name;
+}
+
+void PointRecord::setName(std::string name) {
+  _name = name;
+}
+
 
 std::ostream& RTX::operator<< (std::ostream &out, PointRecord &pr) {
   return pr.toStream(out);

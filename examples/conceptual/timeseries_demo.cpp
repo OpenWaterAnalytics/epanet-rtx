@@ -101,14 +101,14 @@ int main(int argc, const char * argv[])
    
    */
   
-  using Point::Qual_t::good;
-  using Point::Qual_t::missing;
+  using Point::good;
+  using Point::missing;
   
   time_t start = 1000000000;
   
   Point  p1(start,   0, good, 0.5),
          p2(start+100, 100, good, 0.8),
-         p3(start+120, 120, Point::Qual_t::estimated, 0.8),
+         p3(start+120, 120, Point::estimated, 0.8),
          p4(start+230, 230, good, 0.7);
 
   

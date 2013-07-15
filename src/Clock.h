@@ -85,6 +85,9 @@ namespace RTX {
     Clock(int period, time_t start = 0);
     virtual ~Clock();
     
+    std::string name();
+    void setName(std::string name);
+    
     virtual bool isCompatibleWith(Clock::sharedPointer clock);
     virtual bool isValid(time_t time);
     virtual time_t validTime(time_t time);
@@ -102,6 +105,7 @@ namespace RTX {
     time_t _start;
     int _period;
     bool _isRegular;
+    std::string _name;
     
   };
   

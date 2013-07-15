@@ -58,6 +58,9 @@ namespace RTX {
     PointRecord();
     virtual ~PointRecord() {};
     
+    std::string name();
+    void setName(std::string name);
+    
     virtual std::string registerAndGetIdentifier(std::string recordName);    // registering record names.
     virtual std::vector<std::string> identifiers();
     
@@ -79,6 +82,9 @@ namespace RTX {
   protected:
     std::string _cachedPointId;
     Point _cachedPoint;
+    
+  private:
+    std::string _name;
   
   };
   

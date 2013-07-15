@@ -226,12 +226,14 @@ time_t TimeSeries::period() {
 
 void TimeSeries::setRecord(PointRecord::sharedPointer record) {
   if(_points) {
-    _points->reset(name());
+    //_points->reset(name());
   }
   if (!record) {
-    cerr << "WARNING: could not set record for Time Series \"" << this->name() << "\"" << endl;
-    return;
+    PointRecord::sharedPointer pr( new PointRecord() );
+    record = pr;
+    cerr << "WARNING: removing record for Time Series \"" << this->name() << "\"" << endl;
   }
+  
   _points = record;
   record->registerAndGetIdentifier(name());
   
@@ -286,8 +288,9 @@ bool TimeSeries::isCompatibleWith(TimeSeries::sharedPointer otherSeries) {
   
   // basic check for compatible regular time series.
   Clock::sharedPointer theirClock = otherSeries->clock(), myClock = this->clock();
-  
-  return (myClock->isCompatibleWith(theirClock) && (units().isDimensionless() || units().isSameDimensionAs(otherSeries->units())));
+  bool clocksCompatible = myClock->isCompatibleWith(theirClock);
+  bool unitsCompatible = units().isDimensionless() || units().isSameDimensionAs(otherSeries->units());
+  return (clocksCompatible && unitsCompatible);
 }
 
 

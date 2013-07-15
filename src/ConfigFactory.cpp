@@ -252,7 +252,7 @@ void ConfigFactory::createPointRecords(Setting& records) {
     }
     // somewhat hackish. since the pointrecords are created via static class methods, we have to piggy-back
     // the config file path onto the Setting& argument in case the pointrecord needs it (like the csv version will)
-    record.add("configPath", libconfig::Setting::Type::TypeString);
+    record.add("configPath", libconfig::Setting::TypeString);
     record["configPath"] = _configPath;
     PointRecord::sharedPointer pointRecord = createPointRecordOfType(record);
     if (pointRecord) {

@@ -55,8 +55,8 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> OdbcPointRe
   wwQueries.upperBound = "";
   wwQueries.timeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
   map<int, Point::Qual_t> wwQualMap;
-  wwQualMap[192] = Point::Qual_t::good;
-  wwQualMap[0] = Point::Qual_t::missing;
+  wwQualMap[192] = Point::good;
+  wwQualMap[0] = Point::missing;
   wwQueries.qualityMap = wwQualMap;
   
   odbc_query_t oraQueries;
@@ -67,10 +67,10 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> OdbcPointRe
   oraQueries.upperBound = "";
   oraQueries.timeQuery = "select sysdate from dual";
   map<int, Point::Qual_t> oraQualMap;
-  oraQualMap[0] = Point::Qual_t::good;
-  oraQualMap[32] = Point::Qual_t::missing;
-  oraQualMap[128] = Point::Qual_t::estimated;
-  oraQualMap[256] = Point::Qual_t::estimated;
+  oraQualMap[0] = Point::good;
+  oraQualMap[32] = Point::missing;
+  oraQualMap[128] = Point::estimated;
+  oraQualMap[256] = Point::estimated;
   oraQueries.qualityMap = oraQualMap;
   
   /*
@@ -464,14 +464,14 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
     time_t t = sql_to_time_t(record.time);
     double v = record.value;
     int qu = record.quality;
-    Point::Qual_t q = Point::Qual_t::missing;
+    Point::Qual_t q = Point::missing;
     
     // map to rtx quality types
     if (_qualityMap.count(qu) > 0) {
       q = _qualityMap[qu];
     }
     
-    if (record.valueInd > 0 && q != Point::Qual_t::missing) {
+    if (record.valueInd > 0 && q != Point::missing) {
       // ok
       p = Point(t, v, q);
       points.push_back(p);
