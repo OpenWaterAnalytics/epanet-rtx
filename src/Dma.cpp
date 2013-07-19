@@ -79,7 +79,7 @@ void Dma::removeJunction(Junction::sharedPointer junction) {
   }
 }
 
-void Dma::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool stopAtClosedLinks) {
+void Dma::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool stopAtClosedLinks, vector<Pipe::sharedPointer> ignorePipes) {
   
   bool doesContainReservoir = false;
   
@@ -98,21 +98,25 @@ void Dma::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool 
       // follow this link?
       Pipe::sharedPointer p = boost::static_pointer_cast<Pipe>(l);
       if (p->doesHaveFlowMeasure()) {
-        // stop here - it's a potential dma perimeter pipe.
-        // but first, capture the pipe and direction
+        // look here - it's a potential dma perimeter pipe.
+        // should we ignore it?
+        if (std::find(ignorePipes.begin(), ignorePipes.end(), p) == ignorePipes.end()) {
+          // not on the list - so we accept the pipe.
+          // but first, capture the pipe and direction
+          Link::direction_t dir = p->directionRelativeToNode(thisJ);
+          _measuredBoundaryPipesDirectional.insert(make_pair(p, dir));
+          continue;
+        }
         
-        //cout << " - perimeter pipe: " << p->name() << endl;
-        
-        Link::direction_t dir = p->directionRelativeToNode(thisJ);
-        _measuredBoundaryPipesDirectional.insert(make_pair(p, dir));
-        continue;
       }
       else if ( stopAtClosedLinks && isAlwaysClosed(p) ) {
         // stop here as well - a potential closed perimeter pipe
-        Pipe::direction_t dir = p->directionRelativeToNode(thisJ);
-        _closedBoundaryPipesDirectional.insert(make_pair(p, dir));
-        //cout << "detected fixed status (closed) pipe: " << p->name() << endl;
-        continue;
+        if (std::find(ignorePipes.begin(), ignorePipes.end(), p) == ignorePipes.end()) {
+          Pipe::direction_t dir = p->directionRelativeToNode(thisJ);
+          _closedBoundaryPipesDirectional.insert(make_pair(p, dir));
+          //cout << "detected fixed status (closed) pipe: " << p->name() << endl;
+          continue;
+        }
       }
       
       pair<Node::sharedPointer, Node::sharedPointer> nodes = l->nodes();

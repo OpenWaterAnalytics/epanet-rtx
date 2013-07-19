@@ -19,6 +19,7 @@ using namespace std;
 EpanetModel::EpanetModel() : Model() {
   // nothing to do, right?
   _modelFile = "";
+  _shouldRunWaterQuality = true;
 }
 EpanetModel::~EpanetModel() {
   try {
@@ -107,6 +108,11 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
       volumeUnits = RTX_CUBIC_FOOT;
     }
     
+    
+    // what units are quality in? who knows!
+    this->setQualityUnits(RTX_MILLIGRAMS_PER_LITER);
+    ENcheck(ENsetqualtype(CHEM, (char*)"rtxChem", (char*)"mg/l", ""), "ENsetqualtype");
+    
     // create nodes
     for (int iNode=1; iNode <= nodeCount; iNode++) {
       char enName[RTX_MAX_CHAR_STRING];
@@ -191,6 +197,7 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
       // set units for new element
       newJunction->head()->setUnits(headUnits());
       newJunction->demand()->setUnits(flowUnits());
+      newJunction->quality()->setUnits(qualityUnits());
       
       // newJunction is the generic (base-class) pointer to the specific object,
       // so we can use base-class methods to set some parameters.
@@ -208,7 +215,7 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
         if (patternIdx > 0) { // Not the default "pattern" = 1
           ENcheck( ENgetaveragepatternvalue(patternIdx, &avgPatternValue), "ENgetaveragepatternvalue()");
         }
-        demand+=categoryDemand*avgPatternValue;
+        demand += categoryDemand * avgPatternValue;
       }
       newJunction->setBaseDemand(demand);
       
@@ -302,7 +309,8 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
     
     ENcheck(ENopenH(), "ENopenH");
     ENcheck(ENinitH(10), "ENinitH");
-    
+    ENcheck(ENopenQ(), "ENopenQ");
+    ENcheck(ENinitQ(EN_NOSAVE), "ENinitQ");
   }
   catch(string error) {
     std::cerr << "ERROR: " << error;
@@ -380,6 +388,12 @@ void EpanetModel::setJunctionDemand(const string& junction, double demand) {
   setNodeValue(EN_BASEDEMAND, junction, demand);
 }
 
+void EpanetModel::setJunctionQuality(const std::string& junction, double quality) {
+  // todo - add more source types, depending on time series dimension?
+  setNodeValue(EN_SOURCETYPE, junction, SETPOINT);
+  setNodeValue(EN_SOURCEQUAL, junction, quality);
+}
+
 void EpanetModel::setPipeStatus(const string& pipe, Pipe::status_t status) {
   setLinkValue(EN_STATUS, pipe, status);
 }
@@ -438,8 +452,12 @@ void EpanetModel::solveSimulation(time_t time) {
   // set the current epanet-time to zero, since we override epanet-time.
   setCurrentSimulationTime( time );
   ENcheck(ENsettimeparam(EN_HTIME, 0), "ENsettimeparam(EN_HTIME)");
+  ENcheck(ENsettimeparam(EN_QTIME, 0), "ENsettimeparam(EN_QTIME)");
   // solve the hydraulics
   ENcheck(ENrunH(&timestep), "ENrunH");
+  if (_shouldRunWaterQuality) {
+    ENcheck(ENrunQ(&timestep), "ENrunQ");
+  }
 }
 
 time_t EpanetModel::nextHydraulicStep(time_t time) {
@@ -468,11 +486,17 @@ time_t EpanetModel::nextHydraulicStep(time_t time) {
 // evolve tank levels
 void EpanetModel::stepSimulation(time_t time) {
   long step = (long)(time - currentSimulationTime());
+  long qstep = step;
   
   //std::cout << "set step to: " << step << std::endl;
   
   ENcheck( ENsettimeparam(EN_HYDSTEP, step), "ENsettimeparam(EN_HYDSTEP)" );
   ENcheck( ENnextH(&step), "ENnexH()" );
+  
+  if (_shouldRunWaterQuality) {
+    ENcheck(ENnextQ(&qstep), "ENnextQ");
+  }
+  
   long supposedStep = time - currentSimulationTime();
   if (step != supposedStep) {
     // it's an intermediate step

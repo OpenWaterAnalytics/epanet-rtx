@@ -53,7 +53,7 @@ namespace RTX {
     void setParameterSource(PointRecord::sharedPointer record);
     
     // DMAs -- identified by boundary link sets (doesHaveFlowMeasure)
-    void initDMAs(bool detectClosedLinks);
+    void initDMAs(bool detectClosedLinks, std::vector<Pipe::sharedPointer> ignorePipes = std::vector<Pipe::sharedPointer>());
     
     // element accessors
     void addJunction(Junction::sharedPointer newJunction);
@@ -92,13 +92,16 @@ namespace RTX {
     virtual ~Model();
     
     void setSimulationParameters(time_t time);
-    void saveHydraulicStates(time_t time);
+    void saveNetworkStates(time_t time);
     
     // units
     Units flowUnits();
     Units headUnits();
+    Units qualityUnits();
+    
     void setFlowUnits(Units units);
     void setHeadUnits(Units units);
+    void setQualityUnits(Units units);
     
     // model parameter setting
     // recreating or wrapping basic api functionality here.
@@ -114,6 +117,7 @@ namespace RTX {
     virtual void setReservoirHead(const std::string& reservoir, double level) = 0;
     virtual void setTankLevel(const std::string& tank, double level) = 0;
     virtual void setJunctionDemand(const std::string& junction, double demand) = 0;
+    virtual void setJunctionQuality(const std::string& junction, double quality) = 0;
     
     virtual void setPipeStatus(const std::string& pipe, Pipe::status_t status) = 0;
     virtual void setPumpStatus(const std::string& pump, Pipe::status_t status) = 0;
@@ -159,7 +163,7 @@ namespace RTX {
     
     time_t _currentSimulationTime;
     
-    Units _flowUnits, _headUnits;
+    Units _flowUnits, _headUnits, _qualityUnits;
 
     
   };

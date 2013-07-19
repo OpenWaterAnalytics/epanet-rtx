@@ -786,7 +786,31 @@ void ConfigFactory::createDmaObjs(Setting& dmaGroup) {
     bool autoDetect = dmaGroup["auto_detect"];
     dmaGroup.lookupValue("detect_closed_links", detectClosed);
     if (autoDetect) {
-      _model->initDMAs(detectClosed);
+      vector<string> ignoreLinkNameList;
+      // list of links to ignore?
+      if (dmaGroup.exists("ignore_links")) {
+        Setting &ignoreListSetting = dmaGroup["ignore_links"];
+        if (!ignoreListSetting.isList()) {
+          cerr << "ignore_list should be a list: check config format" << endl;
+          return;
+        }
+        int nLinks = ignoreListSetting.getLength();
+        for (int iLink = 0; iLink < nLinks; ++iLink) {
+          string linkName = ignoreListSetting[iLink];
+          ignoreLinkNameList.push_back(linkName);
+        }
+      }
+      
+      // we have a list of pipe names, but now we need the actual objects.
+      vector<Pipe::sharedPointer> ignorePipes;
+      BOOST_FOREACH(const string& name, ignoreLinkNameList) {
+        Link::sharedPointer link = _model->linkWithName(name);
+        if (link) {
+          ignorePipes.push_back(boost::static_pointer_cast<Pipe>(link));
+        }
+      }
+      
+      _model->initDMAs(detectClosed,ignorePipes);
     }
   }
   

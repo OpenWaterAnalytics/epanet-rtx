@@ -1219,6 +1219,7 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					"${SRCROOT}/../../../epanet/src",
+					"${SRCROOT}/../../../epanet/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/lib,
@@ -1239,6 +1240,7 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
 					"${SRCROOT}/../../../epanet/src",
+					"${SRCROOT}/../../../epanet/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/lib,

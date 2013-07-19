@@ -30,8 +30,12 @@ int main (int argc, const char * argv[])
   time_t someTime = 1222873200; // unix-time 2008-10-01 15:00:00 GMT
   long duration = 60 * 60 * 24; // 1 day
   
+  forwardSimulationConfig = "/Users/sam/Copy/Code/epanet-rtx/examples/validator/sampletown_synthetic.cfg";
+  
   // test the forward synthetic simulation
-  runSimulationUsingConfig(forwardSimulationConfig, someTime-3600, duration+7200);
+  //runSimulationUsingConfig(forwardSimulationConfig, someTime-3600, duration+7200);
+  
+  realtimeConfig = "/Users/sam/Copy/Code/epanet-rtx/examples/validator/sampletown_realtime.cfg";
   
   // test the real-time methods
   runSimulationUsingConfig(realtimeConfig, someTime, duration);

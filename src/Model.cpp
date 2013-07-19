@@ -51,9 +51,10 @@ std::string Model::modelFile() {
 #pragma mark - Units
 Units Model::flowUnits()    { return _flowUnits; }
 Units Model::headUnits()    { return _headUnits; }
-void Model::setFlowUnits(Units units)   { _flowUnits = units; }
-void Model::setHeadUnits(Units units)   { _headUnits = units; }
-
+Units Model::qualityUnits() { return _qualityUnits; }
+void Model::setFlowUnits(Units units)    { _flowUnits = units; }
+void Model::setHeadUnits(Units units)    { _headUnits = units; }
+void Model::setQualityUnits(Units units) { _qualityUnits = units; }
 
 #pragma mark - Storage
 void Model::setStorage(PointRecord::sharedPointer record) {
@@ -110,7 +111,7 @@ void Model::setParameterSource(PointRecord::sharedPointer record) {
 
 #pragma mark - Demand dmas
 
-void Model::initDMAs(bool detectClosedLinks) {
+void Model::initDMAs(bool detectClosedLinks, vector<Pipe::sharedPointer> ignorePipes) {
   
   _dmas.clear();
   
@@ -142,7 +143,7 @@ void Model::initDMAs(bool detectClosedLinks) {
     
     // specifiy the root node and populate the tree.
     try {
-      newDma->enumerateJunctionsWithRootNode(rootNode,detectClosedLinks);
+      newDma->enumerateJunctionsWithRootNode(rootNode,detectClosedLinks,ignorePipes);
     } catch (exception &e) {
       cerr << "DMA could not be enumerated: " << e.what() << endl;
     } catch (...) {
@@ -331,7 +332,7 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
     // simulate this period, find the next timestep boundary.
     solveSimulation(simulationTime);
     // tell each element to update its derived states (simulation-computed values)
-    saveHydraulicStates(simulationTime);
+    saveNetworkStates(simulationTime);
     // get time to next simulation period
     nextSimulationTime = nextHydraulicStep(simulationTime);
     nextClockTime = _regularMasterClock->timeAfter(simulationTime);
@@ -421,6 +422,7 @@ void Model::setSimulationParameters(time_t time) {
       }
     }
   }
+  
   // for reservoirs, set the boundary head condition
   BOOST_FOREACH(Reservoir::sharedPointer reservoir, this->reservoirs()) {
     if (reservoir->doesHaveBoundaryHead()) {
@@ -429,6 +431,7 @@ void Model::setSimulationParameters(time_t time) {
       setReservoirHead( reservoir->name(), headValue );
     }
   }
+  
   // for tanks, set the boundary head, but only if the tank reset clock has fired.
   BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
     if (tank->doesResetLevel() && tank->levelResetClock()->isValid(time) && tank->doesHaveHeadMeasure()) {
@@ -455,11 +458,23 @@ void Model::setSimulationParameters(time_t time) {
   }
   
   
+  //////////////////////////////
+  // water quality parameters //
+  //////////////////////////////
+  BOOST_FOREACH(Junction::sharedPointer j, this->junctions()) {
+    if (j->doesHaveQualitySource()) {
+      double quality = Units::convertValue(j->qualitySource()->pointAtOrBefore(time).value, j->qualitySource()->units(), qualityUnits());
+      setJunctionQuality(j->name(), quality);
+    }
+  }
+  
+  
+  
 }
 
 
 
-void Model::saveHydraulicStates(time_t time) {
+void Model::saveNetworkStates(time_t time) {
   
   // retrieve results from the hydraulic sim 
   // then insert the state values into elements' time series.
@@ -473,7 +488,7 @@ void Model::saveHydraulicStates(time_t time) {
     
     // todo - more fine-grained quality data? at wq step resolution...
     double quality;
-    quality = 0; // Units::convertValue(junctionQuality(junction->name()), RTX_MILLIGRAMS_PER_LITER, junction->quality()->units());
+    quality = Units::convertValue(junctionQuality(junction->name()), this->qualityUnits(), junction->quality()->units());
     Point qualityPoint(time, quality, Point::good);
     junction->quality()->insert(qualityPoint);
   }
@@ -500,6 +515,12 @@ void Model::saveHydraulicStates(time_t time) {
     head = Units::convertValue(junctionHead(tank->name()), headUnits(), tank->head()->units());
     Point headPoint(time, head, Point::good);
     tank->head()->insert(headPoint);
+    
+    double quality;
+    quality = Units::convertValue(junctionQuality(tank->name()), this->qualityUnits(), tank->quality()->units());
+    Point qualityPoint(time, quality, Point::good);
+    tank->quality()->insert(qualityPoint);
+    
   }
   
   // pipe elements
