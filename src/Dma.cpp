@@ -1,5 +1,5 @@
 //
-//  Zone.cpp
+//  Dma.cpp
 //  epanet-rtx
 //
 //  Created by the EPANET-RTX Development Team
@@ -9,7 +9,7 @@
 #include <boost/foreach.hpp>
 #include <boost/range/adaptors.hpp>
 
-#include "Zone.h"
+#include "Dma.h"
 #include "ConstantTimeSeries.h"
 #include "AggregatorTimeSeries.h"
 
@@ -17,21 +17,21 @@ using namespace RTX;
 using namespace std;
 using std::cout;
 
-Zone::Zone(const std::string& name) : Element(name), _flowUnits(1) {
-  this->setType(ZONE);
+Dma::Dma(const std::string& name) : Element(name), _flowUnits(1) {
+  this->setType(DMA);
   _flowUnits = RTX_LITER_PER_SECOND;
   // set to aggregator type because that's the most likely scenario.
-  // presumably, we will use Zone::enumerateJunctionsWithRootNode to populate the aggregation.
+  // presumably, we will use Dma::enumerateJunctionsWithRootNode to populate the aggregation.
   _demand.reset(new AggregatorTimeSeries() );
-  _demand->setName("Z " + name + " demand");
+  _demand->setName("DMA " + name + " demand");
   _demand->setUnits(RTX_LITER_PER_SECOND);
 }
-Zone::~Zone() {
+Dma::~Dma() {
   
 }
 
-std::ostream& Zone::toStream(std::ostream &stream) {
-  stream << "Zone: \"" << this->name() << "\"\n";
+std::ostream& Dma::toStream(std::ostream &stream) {
+  stream << "DMA: \"" << this->name() << "\"\n";
   stream << " - " << junctions().size() << " Junctions" << endl;
   stream << " - " << _tanks.size() << " Tanks" << endl;
   stream << " - " << _measuredBoundaryPipesDirectional.size() << " Measured Boundary Pipes" << endl;
@@ -52,17 +52,17 @@ std::ostream& Zone::toStream(std::ostream &stream) {
   return stream;
 }
 
-void Zone::setRecord(PointRecord::sharedPointer record) {
+void Dma::setRecord(PointRecord::sharedPointer record) {
   if (_demand) {
     _demand->setRecord(record);
   }
 }
 
-void Zone::setJunctionFlowUnits(RTX::Units units) {
+void Dma::setJunctionFlowUnits(RTX::Units units) {
   _flowUnits = units;
 }
 
-void Zone::addJunction(Junction::sharedPointer junction) {
+void Dma::addJunction(Junction::sharedPointer junction) {
   if (_junctions.find(junction->name()) != _junctions.end()) {
     //cerr << "err: junction already exists" << endl;
   }
@@ -71,7 +71,7 @@ void Zone::addJunction(Junction::sharedPointer junction) {
   }
 }
 
-void Zone::removeJunction(Junction::sharedPointer junction) {
+void Dma::removeJunction(Junction::sharedPointer junction) {
   map<string, Junction::sharedPointer>::iterator jIt = _junctions.find(junction->name());
   if (jIt != _junctions.end()) {
     _junctions.erase(jIt);
@@ -79,7 +79,7 @@ void Zone::removeJunction(Junction::sharedPointer junction) {
   }
 }
 
-void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool stopAtClosedLinks) {
+void Dma::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool stopAtClosedLinks) {
   
   bool doesContainReservoir = false;
   
@@ -98,7 +98,7 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
       // follow this link?
       Pipe::sharedPointer p = boost::static_pointer_cast<Pipe>(l);
       if (p->doesHaveFlowMeasure()) {
-        // stop here - it's a potential zone perimeter pipe.
+        // stop here - it's a potential dma perimeter pipe.
         // but first, capture the pipe and direction
         
         //cout << " - perimeter pipe: " << p->name() << endl;
@@ -129,7 +129,7 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
     candidateJunctions.pop_front();
   }
   
-  // cleanup orphaned pipes (pipes which have been identified as perimeters, but have both start/end nodes listed inside the zone)
+  // cleanup orphaned pipes (pipes which have been identified as perimeters, but have both start/end nodes listed inside the dma)
   
   map<Pipe::sharedPointer, Pipe::direction_t> measuredBoundaryPipesDirectional = measuredBoundaryPipes();
   BOOST_FOREACH(Pipe::sharedPointer p, measuredBoundaryPipesDirectional | boost::adaptors::map_keys) {
@@ -177,15 +177,15 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
   if (!doesContainReservoir) {
     // assemble the aggregated demand time series
     
-    AggregatorTimeSeries::sharedPointer zoneDemand( new AggregatorTimeSeries() );
-    zoneDemand->setUnits(RTX_GALLON_PER_MINUTE);
-    zoneDemand->setName("Zone " + this->name() + " demand");
+    AggregatorTimeSeries::sharedPointer dmaDemand( new AggregatorTimeSeries() );
+    dmaDemand->setUnits(RTX_GALLON_PER_MINUTE);
+    dmaDemand->setName("DMA " + this->name() + " demand");
     BOOST_FOREACH(Tank::sharedPointer t, _tanks) {
-      zoneDemand->addSource(t->flowMeasure(), -1.);
+      dmaDemand->addSource(t->flowMeasure(), -1.);
     }
     /* boundary flows are accounted for in the allocation method
      BOOST_FOREACH(Junction::sharedPointer j, _boundaryFlowJunctions) {
-     zoneDemand->addSource(j->boundaryFlow(), -1.);
+     dmaDemand->addSource(j->boundaryFlow(), -1.);
      }
      */
     
@@ -194,31 +194,31 @@ void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool
       Pipe::sharedPointer p = pd.first;
       Pipe::direction_t dir = pd.second;
       double dirMult = ( dir == Pipe::inDirection ? 1. : -1. );
-      zoneDemand->addSource(p->flowMeasure(), dirMult);
+      dmaDemand->addSource(p->flowMeasure(), dirMult);
     }
     
-    this->setDemand(zoneDemand);
+    this->setDemand(dmaDemand);
   }
   else {
-    ConstantTimeSeries::sharedPointer constZone(new ConstantTimeSeries());
-    constZone->setName("Zero Demand");
-    constZone->setValue(0.);
-    constZone->setUnits(RTX_GALLON_PER_MINUTE);
-    this->setDemand(constZone);
+    ConstantTimeSeries::sharedPointer constDma(new ConstantTimeSeries());
+    constDma->setName("Zero Demand");
+    constDma->setValue(0.);
+    constDma->setUnits(RTX_GALLON_PER_MINUTE);
+    this->setDemand(constDma);
   }
   
   
   
-  //cout << this->name() << " Zone Description:" << endl;
+  //cout << this->name() << " dma Description:" << endl;
   //cout << *this->demand() << endl;
   
 }
 
-bool Zone::isAlwaysClosed(Pipe::sharedPointer pipe) {
+bool Dma::isAlwaysClosed(Pipe::sharedPointer pipe) {
   return ((pipe->fixedStatus() == Pipe::CLOSED) && (pipe->type() != Element::PUMP));
 }
 
-bool Zone::isTank(Junction::sharedPointer junction) {
+bool Dma::isTank(Junction::sharedPointer junction) {
   if (junction->type() == Element::TANK) {
     return true;
   }
@@ -227,12 +227,12 @@ bool Zone::isTank(Junction::sharedPointer junction) {
   }
 }
 
-bool Zone::isBoundaryFlowJunction(Junction::sharedPointer junction) {
+bool Dma::isBoundaryFlowJunction(Junction::sharedPointer junction) {
   return (junction->doesHaveBoundaryFlow());
 }
 
 /* deprecated
-void Zone::followJunction(Junction::sharedPointer junction) {
+void Dma::followJunction(Junction::sharedPointer junction) {
   // don't let us add the same junction twice.
   if (!junction || findJunction(junction->name())) {
     return;
@@ -248,10 +248,10 @@ void Zone::followJunction(Junction::sharedPointer junction) {
     Tank::sharedPointer thisTank = boost::static_pointer_cast<Tank>(junction);
     TimeSeries::sharedPointer flow = thisTank->flowMeasure();
     
-    // flow is positive into the tank (out of the zone), so its sign for demand aggregation purposes should be negative.
-    AggregatorTimeSeries::sharedPointer zoneDemand = boost::static_pointer_cast<AggregatorTimeSeries>(this->demand());
-    cout << "zone " << this->name() << " : adding tank source : " << flow->name() << endl;
-    zoneDemand->addSource(flow, -1.);
+    // flow is positive into the tank (out of the dma), so its sign for demand aggregation purposes should be negative.
+    AggregatorTimeSeries::sharedPointer dmaDemand = boost::static_pointer_cast<AggregatorTimeSeries>(this->demand());
+    cout << "dma " << this->name() << " : adding tank source : " << flow->name() << endl;
+    dmaDemand->addSource(flow, -1.);
   }
   
   
@@ -260,7 +260,7 @@ void Zone::followJunction(Junction::sharedPointer junction) {
     cout << "... examining pipe " << link->name() << endl;
     Pipe::sharedPointer pipe = boost::static_pointer_cast<Pipe>(link);
     
-    // get the link direction. into the zone is positive.
+    // get the link direction. into the dma is positive.
     bool directionIsOut = (junction == pipe->from());
     
     // sanity
@@ -284,19 +284,19 @@ void Zone::followJunction(Junction::sharedPointer junction) {
       // we have found a measurement.
       // add it to the control volume calculation.
       double direction = (directionIsOut? -1. : 1.);
-      AggregatorTimeSeries::sharedPointer zoneDemand = boost::static_pointer_cast<AggregatorTimeSeries>(this->demand());
-      if (!zoneDemand) {
-        cerr << "zone time series wrong type: " << *(this->demand()) << endl;
+      AggregatorTimeSeries::sharedPointer dmaDemand = boost::static_pointer_cast<AggregatorTimeSeries>(this->demand());
+      if (!dmaDemand) {
+        cerr << "dma time series wrong type: " << *(this->demand()) << endl;
       }
-      cout << "zone " << this->name() << " : adding source " << pipe->flowMeasure()->name() << endl;
-      zoneDemand->addSource(pipe->flowMeasure(), direction);
+      cout << "dma " << this->name() << " : adding source " << pipe->flowMeasure()->name() << endl;
+      dmaDemand->addSource(pipe->flowMeasure(), direction);
     }
   }
   
 }
 */
 
-Junction::sharedPointer Zone::findJunction(std::string name) {
+Junction::sharedPointer Dma::findJunction(std::string name) {
   Junction::sharedPointer aJunction;
   if (_junctions.find(name) != _junctions.end() ) {
     aJunction = _junctions[name];
@@ -304,14 +304,14 @@ Junction::sharedPointer Zone::findJunction(std::string name) {
   return aJunction;
 }
 
-bool Zone::doesHaveJunction(Junction::sharedPointer j) {
+bool Dma::doesHaveJunction(Junction::sharedPointer j) {
   if (_junctions.find(j->name()) != _junctions.end()) {
     return true;
   }
   return false;
 }
 
-std::vector<Junction::sharedPointer> Zone::junctions() {
+std::vector<Junction::sharedPointer> Dma::junctions() {
   typedef std::map<std::string, Junction::sharedPointer> JunctionMap;
   std::vector<Junction::sharedPointer> theJunctions;
   BOOST_FOREACH(const JunctionMap::value_type& junctionPair, _junctions) {
@@ -320,27 +320,27 @@ std::vector<Junction::sharedPointer> Zone::junctions() {
   return theJunctions;
 }
 
-std::vector<Tank::sharedPointer> Zone::tanks() {
+std::vector<Tank::sharedPointer> Dma::tanks() {
   return _tanks;
 }
 
-std::map<Pipe::sharedPointer, Pipe::direction_t> Zone::measuredBoundaryPipes() {
+std::map<Pipe::sharedPointer, Pipe::direction_t> Dma::measuredBoundaryPipes() {
   return _measuredBoundaryPipesDirectional;
 }
 
-std::map<Pipe::sharedPointer, Pipe::direction_t> Zone::closedBoundaryPipes() {
+std::map<Pipe::sharedPointer, Pipe::direction_t> Dma::closedBoundaryPipes() {
   return _closedBoundaryPipesDirectional;
 }
 
-std::vector<Pipe::sharedPointer> Zone::closedInteriorPipes() {
+std::vector<Pipe::sharedPointer> Dma::closedInteriorPipes() {
   return _closedInteriorPipes;
 }
 
-std::vector<Pipe::sharedPointer> Zone::measuredInteriorPipes() {
+std::vector<Pipe::sharedPointer> Dma::measuredInteriorPipes() {
   return _measuredInteriorPipes;
 }
 
-void Zone::setDemand(TimeSeries::sharedPointer demand) {
+void Dma::setDemand(TimeSeries::sharedPointer demand) {
   if (demand->units().isSameDimensionAs(RTX_CUBIC_METER_PER_SECOND)) {
     _demand = demand;
   }
@@ -349,11 +349,11 @@ void Zone::setDemand(TimeSeries::sharedPointer demand) {
   }
 }
 
-TimeSeries::sharedPointer Zone::demand() {
+TimeSeries::sharedPointer Dma::demand() {
   return _demand;
 }
 
-void Zone::allocateDemandToJunctions(time_t time) {
+void Dma::allocateDemandToJunctions(time_t time) {
   // get each node's base demand for the current time
   // add the base demands together. this is the total base demand.
   // get the input demand value for the current time - from the demand() method
@@ -363,7 +363,7 @@ void Zone::allocateDemandToJunctions(time_t time) {
   
   typedef std::map< std::string, Junction::sharedPointer > JunctionMapType;
   double totalBaseDemand = 0;
-  double zoneDemand = 0;
+  double dmaDemand = 0;
   double allocableDemand = 0;
   double meteredDemand = 0;
   
@@ -389,16 +389,16 @@ void Zone::allocateDemandToJunctions(time_t time) {
     
   }
   
-  // now we have the total (nominal) base demand for the zone.
-  // total demand for the zone (includes metered and unmetered) -- already in myUnits.
+  // now we have the total (nominal) base demand for the dma.
+  // total demand for the dma (includes metered and unmetered) -- already in myUnits.
   Point dPoint = this->demand()->pointAtOrBefore(time);
   
-  zoneDemand = ( dPoint.isValid ? dPoint.value : this->demand()->pointBefore(time).value );
-  allocableDemand = zoneDemand - meteredDemand; // the total unmetered demand
+  dmaDemand = ( dPoint.isValid ? dPoint.value : this->demand()->pointBefore(time).value );
+  allocableDemand = dmaDemand - meteredDemand; // the total unmetered demand
   /*
   cout << "-------------------" << endl;
   cout << "time: " << time << endl;
-  cout << "zone demand: " << zoneDemand << endl;
+  cout << "dma demand: " << dmaDemand << endl;
   cout << "metered: " << meteredDemand << endl;
   cout << "allocable: " << allocableDemand << endl;
   */

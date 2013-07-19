@@ -26,7 +26,7 @@ namespace RTX {
   */
   class Element {
   public:
-    typedef enum { JUNCTION, TANK, RESERVOIR, PIPE, PUMP, VALVE, ZONE } element_t;  
+    typedef enum { JUNCTION, TANK, RESERVOIR, PIPE, PUMP, VALVE, DMA } element_t;
       // please don't misuse this type enumeration!!!
     RTX_SHARED_POINTER(Element);
     virtual std::ostream& toStream(std::ostream &stream);

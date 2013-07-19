@@ -22,7 +22,7 @@
 #include "Pipe.h"
 #include "Pump.h"
 #include "Valve.h"
-#include "Zone.h"
+#include "Dma.h"
 #include "PointRecord.h"
 #include "Units.h"
 #include "rtxMacros.h"
@@ -52,8 +52,8 @@ namespace RTX {
     void setStorage(PointRecord::sharedPointer record);
     void setParameterSource(PointRecord::sharedPointer record);
     
-    // demand zones -- identified by boundary link sets (doesHaveFlowMeasure)
-    void initDemandZones(bool detectClosedLinks);
+    // DMAs -- identified by boundary link sets (doesHaveFlowMeasure)
+    void initDMAs(bool detectClosedLinks);
     
     // element accessors
     void addJunction(Junction::sharedPointer newJunction);
@@ -62,11 +62,11 @@ namespace RTX {
     void addPipe(Pipe::sharedPointer newPipe);
     void addPump(Pump::sharedPointer newPump);
     void addValve(Valve::sharedPointer newValve);
-    void addZone(Zone::sharedPointer zone);
+    void addDma(Dma::sharedPointer dma);
     Link::sharedPointer linkWithName(const std::string& name);
     Node::sharedPointer nodeWithName(const std::string& name);
     std::vector<Element::sharedPointer> elements();
-    std::vector<Zone::sharedPointer> zones();
+    std::vector<Dma::sharedPointer> dmas();
     std::vector<Junction::sharedPointer> junctions();
     std::vector<Tank::sharedPointer> tanks();
     std::vector<Reservoir::sharedPointer> reservoirs();
@@ -147,7 +147,7 @@ namespace RTX {
     std::vector<Pipe::sharedPointer> _pipes;
     std::vector<Pump::sharedPointer> _pumps;
     std::vector<Valve::sharedPointer> _valves;
-    std::vector<Zone::sharedPointer> _zones;
+    std::vector<Dma::sharedPointer> _dmas;
     
     PointRecord::sharedPointer _record;         // default record for results
     Clock::sharedPointer _regularMasterClock;   // normal hydraulic timestep

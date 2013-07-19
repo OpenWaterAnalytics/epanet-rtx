@@ -128,7 +128,7 @@ namespace RTX {
     void createPointRecords(Setting& records);
     void createClocks(Setting& clockGroup);
     void createTimeSeriesList(Setting& timeSeriesGroup);
-    void createZones(Setting& zoneGroup);
+    void createDmaObjs(Setting& dmaGroup);
     void createSaveOptions(Setting& saveGroup);
     double getConfigDouble(Setting& config, const std::string& name);
     bool _doesHaveStateRecord;

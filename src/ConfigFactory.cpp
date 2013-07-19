@@ -35,7 +35,7 @@
   #include "MysqlPointRecord.h"
 #endif
 
-#include "Zone.h"
+#include "Dma.h"
 #include "EpanetModel.h"
 #include "EpanetSyntheticModel.h"
 
@@ -197,12 +197,12 @@ void ConfigFactory::loadConfigFile(const string& path) {
     createSimulationDefaults(simulationGroup);
   }
   
-  // make zones
-  if ( !config.exists("zones") ) {
-    config.add("zones", Setting::TypeList);
+  // make dmas
+  if ( !config.exists("DMAs") ) {
+    config.add("DMAs", Setting::TypeList);
   } else {
-    Setting& zoneGroup = config["zones"];
-    createZones(zoneGroup);
+    Setting& dmaGroup = config["DMAs"];
+    createDmaObjs(dmaGroup);
   }
   
   // data persistence
@@ -776,17 +776,17 @@ void ConfigFactory::createSimulationDefaults(Setting& setting) {
   _model->setQualityTimeStep(qualStep);
 }
 
-#pragma mark - Zone Settings
+#pragma mark - DMA Settings
 
-void ConfigFactory::createZones(Setting& zoneGroup) {
+void ConfigFactory::createDmaObjs(Setting& dmaGroup) {
   bool detectClosed = false;
-  // get the zone information from the config,
-  // then create each zone and add it to the model.
-  if ( zoneGroup.exists("auto_detect") ) {
-    bool autoDetect = zoneGroup["auto_detect"];
-    zoneGroup.lookupValue("detect_closed_links", detectClosed);
+  // get the dma information from the config,
+  // then create each dma and add it to the model.
+  if ( dmaGroup.exists("auto_detect") ) {
+    bool autoDetect = dmaGroup["auto_detect"];
+    dmaGroup.lookupValue("detect_closed_links", detectClosed);
     if (autoDetect) {
-      _model->initDemandZones(detectClosed);
+      _model->initDMAs(detectClosed);
     }
   }
   
@@ -836,12 +836,12 @@ void ConfigFactory::createSaveOptions(libconfig::Setting &saveGroup) {
             }
           }
         } // measured
-        else if (RTX_STRINGS_ARE_EQUAL(stateToSave, "zone_demand")) {
-          vector<Zone::sharedPointer> zones = _model->zones();
-          BOOST_FOREACH(Zone::sharedPointer z, zones) {
+        else if (RTX_STRINGS_ARE_EQUAL(stateToSave, "dma_demand")) {
+          vector<Dma::sharedPointer> dmas = _model->dmas();
+          BOOST_FOREACH(Dma::sharedPointer z, dmas) {
             z->setRecord(_defaultRecord);
           }
-        } // zone demand
+        } // dma demand
       } // list of states
     } // save_states group
     

@@ -65,8 +65,8 @@ void Model::setStorage(PointRecord::sharedPointer record) {
     element->setRecord(_record);
   }
   
-  BOOST_FOREACH(Zone::sharedPointer zone, zones()) {
-    zone->setRecord(_record);
+  BOOST_FOREACH(Dma::sharedPointer dma, dmas()) {
+    dma->setRecord(_record);
   }
   
   _relativeError->setRecord(_record);
@@ -108,11 +108,11 @@ void Model::setParameterSource(PointRecord::sharedPointer record) {
 }
 
 
-#pragma mark - Demand Zones
+#pragma mark - Demand dmas
 
-void Model::initDemandZones(bool detectClosedLinks) {
+void Model::initDMAs(bool detectClosedLinks) {
   
-  _zones.clear();
+  _dmas.clear();
   
   // load up the node set
   std::set<Junction::sharedPointer> nodeSet;
@@ -125,36 +125,36 @@ void Model::initDemandZones(bool detectClosedLinks) {
   BOOST_FOREACH(Junction::sharedPointer reservoir, _reservoirs) {
     nodeSet.insert(reservoir);
   }
-  int iZone = 0;
+  int iDma = 0;
     
   // if the set is not empty, then there's work to be done:
   while (!nodeSet.empty()) {
-    iZone++;
+    iDma++;
     
-    // pick a random node, and build out that zone.
+    // pick a random node, and build out that dma.
     set<Junction::sharedPointer>::iterator nodeIt;
     nodeIt = nodeSet.begin();
     Junction::sharedPointer rootNode = *nodeIt;
     
-    string zoneName = boost::lexical_cast<string>(iZone);
-    Zone::sharedPointer newZone(new Zone(zoneName));
+    string dmaName = boost::lexical_cast<string>(iDma);
+    Dma::sharedPointer newDma(new Dma(dmaName));
     
     
     // specifiy the root node and populate the tree.
     try {
-      newZone->enumerateJunctionsWithRootNode(rootNode,detectClosedLinks);
+      newDma->enumerateJunctionsWithRootNode(rootNode,detectClosedLinks);
     } catch (exception &e) {
-      cerr << "Zone could not be enumerated: " << e.what() << endl;
+      cerr << "DMA could not be enumerated: " << e.what() << endl;
     } catch (...) {
-      cerr << "Zone could not be enumerated, and I don't know why" << endl;
+      cerr << "DMA could not be enumerated, and I don't know why" << endl;
     }
     
     
     // get the list of junctions that were just added.
-    vector<Junction::sharedPointer> addedJunctions = newZone->junctions();
+    vector<Junction::sharedPointer> addedJunctions = newDma->junctions();
     
     if (addedJunctions.size() < 1) {
-      cerr << "Could not add any junctions to zone " << iZone << endl;
+      cerr << "Could not add any junctions to dma " << iDma << endl;
       continue;
     }
     
@@ -167,8 +167,8 @@ void Model::initDemandZones(bool detectClosedLinks) {
       }
     }
     
-    cout << "adding zone: " << *newZone << endl;
-    this->addZone(newZone);
+    cout << "adding dma: " << *newDma << endl;
+    this->addDma(newDma);
   }
   
   
@@ -235,11 +235,11 @@ void Model::addValve(Valve::sharedPointer newValve) {
   add(newValve);
 }
 
-void Model::addZone(Zone::sharedPointer zone) {
-  _zones.push_back(zone);
-  zone->setJunctionFlowUnits(this->flowUnits());
+void Model::addDma(Dma::sharedPointer dma) {
+  _dmas.push_back(dma);
+  dma->setJunctionFlowUnits(this->flowUnits());
   Clock::sharedPointer hydClock(new Clock(hydraulicTimeStep()));
-  zone->demand()->setClock(hydClock);
+  dma->demand()->setClock(hydClock);
 }
 
 // add to master lists
@@ -279,8 +279,8 @@ std::vector<Element::sharedPointer> Model::elements() {
   return _elements;
 }
 
-std::vector<Zone::sharedPointer> Model::zones() {
-  return _zones;
+std::vector<Dma::sharedPointer> Model::dmas() {
+  return _dmas;
 }
 std::vector<Junction::sharedPointer> Model::junctions() {
   return _junctions;
@@ -370,7 +370,7 @@ std::ostream& Model::toStream(std::ostream &stream) {
   /*
    
    Model Properties:
-      ## nodes (## tanks, ## reservoirs) in ## zones
+      ## nodes (## tanks, ## reservoirs) in ## dmas
       ## links (## pumps, ## valves)
    Time Steps:
       ##s (hydraulic), ##s (quality)
@@ -380,7 +380,7 @@ std::ostream& Model::toStream(std::ostream &stream) {
    */
   
   stream << "Model Properties" << endl;
-  stream << "\t" << _nodes.size() << " nodes (" << _tanks.size() << " tanks, " << _reservoirs.size() << " reservoirs ) in " << _zones.size() << " zones" << endl;
+  stream << "\t" << _nodes.size() << " nodes (" << _tanks.size() << " tanks, " << _reservoirs.size() << " reservoirs ) in " << _dmas.size() << " dmas" << endl;
   stream << "\t" << _links.size() << " links (" << _pumps.size() << " pumps, " << _valves.size() << " valves)" << endl;
   stream << "Time Steps:" << endl;
   stream << "\t" << hydraulicTimeStep() << "s (hydraulic), " << qualityTimeStep() << "s (quality)" << endl;
@@ -388,11 +388,11 @@ std::ostream& Model::toStream(std::ostream &stream) {
     stream << "State Storage:" << endl << *_record;
   }
   
-  if (_zones.size() > 0) {
-    stream << "Demand Zones:" << endl;
-    BOOST_FOREACH(Zone::sharedPointer z, _zones) {
-      stream << "## Zone: " << z->name() << endl;
-      stream << *z << endl;
+  if (_dmas.size() > 0) {
+    stream << "Demand DMAs:" << endl;
+    BOOST_FOREACH(Dma::sharedPointer d, _dmas) {
+      stream << "## DMA: " << d->name() << endl;
+      stream << *d << endl;
     }
   }
   
@@ -403,10 +403,10 @@ std::ostream& Model::toStream(std::ostream &stream) {
 void Model::setSimulationParameters(time_t time) {
   // set all element parameters
   
-  // allocate junction demands based on zones, and set the junction demand values in the model.
+  // allocate junction demands based on dmas, and set the junction demand values in the model.
   if (_doesOverrideDemands) {
-    BOOST_FOREACH(Zone::sharedPointer zone, this->zones()) {
-      zone->allocateDemandToJunctions(time);
+    BOOST_FOREACH(Dma::sharedPointer dma, this->dmas()) {
+      dma->allocateDemandToJunctions(time);
     }
     // hydraulic junctions - set demand values.
     BOOST_FOREACH(Junction::sharedPointer junction, this->junctions()) {

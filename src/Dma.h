@@ -1,13 +1,13 @@
 //
-//  Zone.h
+//  Dma.h
 //  epanet-rtx
 //
 //  Created by the EPANET-RTX Development Team
 //  See README.md and license.txt for more information
 //  
 
-#ifndef epanet_rtx_Zone_h
-#define epanet_rtx_Zone_h
+#ifndef epanet_rtx_Dma_h
+#define epanet_rtx_Dma_h
 
 #include <vector>
 #include "rtxMacros.h"
@@ -22,47 +22,47 @@ namespace RTX {
 
   /*!
  
-   \class Zone
-   \brief Zone represents a collection of junctions that can be considered together in a control volume.
+   \class Dma
+   \brief Dma represents a collection of junctions that can be considered together in a control volume.
    
-   Derive from the Zone class to implement custom demand allocation schemes.
+   Derive from the Dma class to implement custom demand allocation schemes.
  
    
-   \fn virtual void Zone::setRecord(PointRecord::sharedPointer record)
+   \fn virtual void Dma::setRecord(PointRecord::sharedPointer record)
    \brief Set the intended PointRecord object for storing data. Defaults to the generic TimeSeries storage mechanism.
    \param record The PointRecord pointer
    \sa PointRecord TimeSeries
    
    
-   \fn void Zone::enumerateJunctionsWithRootNode(Junction::sharedPointer junction)
-   \brief Add a group of junctions to a Zone.
+   \fn void Dma::enumerateJunctionsWithRootNode(Junction::sharedPointer junction)
+   \brief Add a group of junctions to a Dma.
    
-   Uses graph connectivity to enumerate the junctions in a zone starting with the passed Junction pointer. The enumeration uses a depth-first search to follow Pipe elements, and stops at links which return true to the doesHaveFlowMeasure() method.
+   Uses graph connectivity to enumerate the junctions in a dma starting with the passed Junction pointer. The enumeration uses a depth-first search to follow Pipe elements, and stops at links which return true to the doesHaveFlowMeasure() method.
    
-   \param junction A single junction within the intended zone.
+   \param junction A single junction within the intended dma.
    \sa Junction Pipe
    
    
    
-   \fn void Zone::setDemand(TimeSeries::sharedPointer demand);
+   \fn void Dma::setDemand(TimeSeries::sharedPointer demand);
    \brief Set the TimeSeries to use as the basis for demand allocation.
    \param demand A TimeSeries pointer
    \sa TimeSeries
    
    
-   \fn virtual void Zone::allocateDemandToJunctions(time_t time)
-   \brief Allocate demand from the Zone's demand TimeSeries to the constituent junctions.
+   \fn virtual void Dma::allocateDemandToJunctions(time_t time)
+   \brief Allocate demand from the DMA's demand TimeSeries to the constituent junctions.
    \param time The time frame for which to perform the allocation.
    \sa TimeSeries Junction
    */
   
   
-  class Zone : public Element {
+  class Dma : public Element {
   public:
-    RTX_SHARED_POINTER(Zone);
+    RTX_SHARED_POINTER(Dma);
     virtual std::ostream& toStream(std::ostream &stream);
-    Zone(const std::string& name);
-    ~Zone();
+    Dma(const std::string& name);
+    ~Dma();
     
     virtual void setRecord(PointRecord::sharedPointer record);
     
