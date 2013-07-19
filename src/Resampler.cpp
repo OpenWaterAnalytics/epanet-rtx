@@ -39,6 +39,10 @@ Point Resampler::point(time_t time) {
       //time = clock()->timeBefore(time);
     }
     
+    if (!source()) {
+      return Point();
+    }
+    
     // now that that's settled, get some source points and interpolate.
     Point fromPoint, toPoint, newPoint, resampled;
     pair<time_t,time_t> sourceRange = expandedRange(source(), time,time);

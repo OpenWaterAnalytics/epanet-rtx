@@ -21,7 +21,7 @@ boost::posix_time::ptime _pTimeEpoch;
 
 OdbcPointRecord::OdbcPointRecord() : _timeFormat(UTC){
   _connectionOk = false;
-  
+  _connectorType = NO_CONNECTOR;
   _tableName = "#TABLENAME#";
   _dateCol = "#DATECOL";
   _tagCol = "#TAGCOL";
@@ -116,7 +116,13 @@ void OdbcPointRecord::setTableColumnNames(const string& table, const string& dat
   
 }
 
+OdbcPointRecord::Sql_Connector_t OdbcPointRecord::connectorType() {
+  return _connectorType;
+}
+
 void OdbcPointRecord::setConnectorType(Sql_Connector_t connectorType) {
+  
+  _connectorType = connectorType;
   
   map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> qTypes = queryTypes();
   if (qTypes.find(connectorType) == qTypes.end()) {
@@ -270,6 +276,8 @@ vector<string> OdbcPointRecord::identifiers() {
   if (!isConnected()) {
     return ids;
   }
+  return ids;
+  
   
   // get tag names from db.
   string tagQuery = "SELECT TagName FROM Tag ORDER BY TagName";

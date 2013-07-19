@@ -59,6 +59,7 @@ namespace RTX {
     // public methods
     void setTableColumnNames(const std::string& table, const std::string& dateCol, const std::string& tagCol, const std::string& valueCol, const std::string& qualityCol);
     void setConnectorType(Sql_Connector_t connectorType);
+    Sql_Connector_t connectorType();
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
     virtual std::string registerAndGetIdentifier(std::string recordName);
@@ -124,7 +125,7 @@ namespace RTX {
     std::string _dsn;
     ScadaRecord _tempRecord;
     ScadaQuery _query;
-    
+    Sql_Connector_t _connectorType;
     
     void bindOutputColumns(SQLHSTMT statement, ScadaRecord* record);
     SQLRETURN SQL_CHECK(SQLRETURN retVal, std::string function, SQLHANDLE handle, SQLSMALLINT type) throw(std::string);

@@ -58,6 +58,7 @@ namespace RTX {
     class Summary {
     public:
       std::vector<Point> points;
+      std::vector<Point> gaps;
       double mean;
       double variance;
       size_t count;

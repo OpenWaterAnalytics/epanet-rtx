@@ -200,6 +200,17 @@ TimeSeries::Summary TimeSeries::summary(time_t start, time_t end) {
   Summary s;
   s.points = this->points(start, end);
   
+  // gaps
+  s.gaps.reserve(s.points.size());
+  time_t prior = this->pointBefore(s.points.front().time).time;
+  BOOST_FOREACH(const Point& p, s.points) {
+    time_t gapLength = p.time - prior;
+    Point newPoint(p.time, (double)gapLength);
+    s.gaps.push_back(newPoint);
+    prior = p.time;
+  }
+  
+  // stats
   accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::variance(lazy)> > acc;
   BOOST_FOREACH(const Point& p, s.points) {
     acc(p.value);

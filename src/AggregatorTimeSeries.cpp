@@ -194,6 +194,9 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
       
       // add it in.
       p += (*pIt) * multiplier;
+      if ((*pIt).quality != Point::good) {
+        p.quality = (*pIt).quality;
+      }
       
     }
   }

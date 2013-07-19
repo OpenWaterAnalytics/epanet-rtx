@@ -73,7 +73,8 @@ Point MovingAverage::filteredSingle(pVec_cIt &vecStart, pVec_cIt &vecEnd, pVec_c
 //  int iPoints = 0;
   accumulator_set<double, stats<tag::mean> > meanAccumulator;
   accumulator_set<double, stats<tag::mean> > confidenceAccum;
-  while (back_it != fwd_it+1) {
+  int nAccumulated = 0;
+  while (back_it != fwd_it+1 && nAccumulated++ < this->windowSize()) {
     Point p = *back_it;
     meanAccumulator(p.value);
     confidenceAccum(p.confidence);

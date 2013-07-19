@@ -29,6 +29,7 @@ Point::Point(time_t t, double v, Qual_t q, double c) : time(t),value(v),quality(
 }
 
 Point::~Point() {
+  
 }
 
 
