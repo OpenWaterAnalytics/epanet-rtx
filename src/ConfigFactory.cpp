@@ -749,13 +749,15 @@ void ConfigFactory::createModel(Setting& setting) {
     _model->overrideControls();
     configureElements(_model);
   }
-  
-  if ( RTX_STRINGS_ARE_EQUAL(modelType, "synthetic_epanet") ) {
+  else if ( RTX_STRINGS_ARE_EQUAL(modelType, "synthetic_epanet") ) {
     _model.reset( new EpanetSyntheticModel() );
     _model->loadModelFromFile(modelPath.string());
     configureElements(_model);
   }
   
+  if (_model) {
+    _model->setShouldRunWaterQuality(true);
+  }
 
 }
 
@@ -961,8 +963,7 @@ void ConfigFactory::configureElements(Model::sharedPointer model) {
     (this->*fp)(elementSetting, element);
     
   }
-  
-  
+
 }
 
 

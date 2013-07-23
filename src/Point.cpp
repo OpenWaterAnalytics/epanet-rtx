@@ -105,7 +105,7 @@ Point Point::linearInterpolate(const Point& p1, const Point& p2, const time_t& t
     double dv2 = dv * dt2 / dt;
     double newValue = p1.value + dv2;
     double newConfidence = (p1.confidence + p2.confidence) / 2; // TODO -- more elegant confidence estimation
-    p = Point(t, newValue, Point::interpolated, newConfidence);
+    p = Point(t, newValue, Point::good, newConfidence);
   }
   return p;
 }

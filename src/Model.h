@@ -52,6 +52,9 @@ namespace RTX {
     void setStorage(PointRecord::sharedPointer record);
     void setParameterSource(PointRecord::sharedPointer record);
     
+    bool shouldRunWaterQuality();
+    void setShouldRunWaterQuality(bool run);
+    
     // DMAs -- identified by boundary link sets (doesHaveFlowMeasure)
     void initDMAs(bool detectClosedLinks, std::vector<Pipe::sharedPointer> ignorePipes = std::vector<Pipe::sharedPointer>());
     
@@ -135,6 +138,7 @@ namespace RTX {
     
   private:
     std::string _modelFile;
+    bool _shouldRunWaterQuality;
     // master list access
     void add(Junction::sharedPointer newJunction);
     void add(Pipe::sharedPointer newPipe);

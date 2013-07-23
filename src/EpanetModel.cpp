@@ -19,8 +19,8 @@ using namespace std;
 EpanetModel::EpanetModel() : Model() {
   // nothing to do, right?
   _modelFile = "";
-  _shouldRunWaterQuality = true;
 }
+
 EpanetModel::~EpanetModel() {
   try {
     ENcheck( ENcloseH(), "ENcloseH");
@@ -455,7 +455,7 @@ void EpanetModel::solveSimulation(time_t time) {
   ENcheck(ENsettimeparam(EN_QTIME, 0), "ENsettimeparam(EN_QTIME)");
   // solve the hydraulics
   ENcheck(ENrunH(&timestep), "ENrunH");
-  if (_shouldRunWaterQuality) {
+  if (this->shouldRunWaterQuality()) {
     ENcheck(ENrunQ(&timestep), "ENrunQ");
   }
 }
@@ -493,7 +493,7 @@ void EpanetModel::stepSimulation(time_t time) {
   ENcheck( ENsettimeparam(EN_HYDSTEP, step), "ENsettimeparam(EN_HYDSTEP)" );
   ENcheck( ENnextH(&step), "ENnexH()" );
   
-  if (_shouldRunWaterQuality) {
+  if (this->shouldRunWaterQuality()) {
     ENcheck(ENnextQ(&qstep), "ENnextQ");
   }
   
@@ -506,13 +506,13 @@ void EpanetModel::stepSimulation(time_t time) {
 }
 
 int EpanetModel::iterations(time_t time) {
-  int iterations;
+  double iterations;
   ENcheck( ENgetstatistic(EN_ITERATIONS, &iterations), "ENgetstatistic(EN_ITERATIONS)");
   return iterations;
 }
 
 int EpanetModel::relativeError(time_t time) {
-  int relativeError;
+  double relativeError;
   ENcheck( ENgetstatistic(EN_RELATIVEERROR, &relativeError), "ENgetstatistic(EN_RELATIVEERROR)");
   return relativeError;
 }

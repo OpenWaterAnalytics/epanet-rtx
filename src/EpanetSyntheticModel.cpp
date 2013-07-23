@@ -54,7 +54,9 @@ void EpanetSyntheticModel::solveSimulation(time_t time) {
   
   // solve the hydraulics
   ENcheck(ENrunH(&timestep), "ENrunH");
-
+  if (this->shouldRunWaterQuality()) {
+    ENcheck(ENrunQ(&timestep), "ENrunQ");
+  }
 }
 
 // adjust duration of epanet toolkit simulation if necessary.
@@ -70,4 +72,5 @@ time_t EpanetSyntheticModel::nextHydraulicStep(time_t time) {
   
   // call base class method
   return EpanetModel::nextHydraulicStep(time);
+  
 }

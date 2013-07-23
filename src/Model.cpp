@@ -28,6 +28,7 @@ Model::Model() : _flowUnits(1), _headUnits(1) {
   _relativeError->setName("Relative Error");
   _iterations->setName("Iterations");
   _doesOverrideDemands = false;
+  _shouldRunWaterQuality = false;
   
   // defaults
   setFlowUnits(RTX_LITER_PER_SECOND);
@@ -47,6 +48,15 @@ void Model::loadModelFromFile(const std::string& filename) throw(std::exception)
 std::string Model::modelFile() {
   return _modelFile;
 }
+
+bool Model::shouldRunWaterQuality() {
+  return _shouldRunWaterQuality;
+}
+
+void Model::setShouldRunWaterQuality(bool run) {
+  _shouldRunWaterQuality = run;
+}
+
 
 #pragma mark - Units
 Units Model::flowUnits()    { return _flowUnits; }

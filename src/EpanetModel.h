@@ -81,7 +81,6 @@ namespace RTX {
     std::map<std::string, int> _linkIndex;
     // TODO - use boost filesystem instead of std::string path
     std::string _modelFile;
-    bool _shouldRunWaterQuality;
   };
   
 }
