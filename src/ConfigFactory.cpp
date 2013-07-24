@@ -198,10 +198,10 @@ void ConfigFactory::loadConfigFile(const string& path) {
   }
   
   // make dmas
-  if ( !config.exists("DMAs") ) {
-    config.add("DMAs", Setting::TypeList);
+  if ( !config.exists("dma") ) {
+    config.add("dma", Setting::TypeList);
   } else {
-    Setting& dmaGroup = config["DMAs"];
+    Setting& dmaGroup = config["dma"];
     createDmaObjs(dmaGroup);
   }
   
