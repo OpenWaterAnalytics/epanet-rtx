@@ -99,22 +99,23 @@ void Dma::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool 
       Pipe::sharedPointer p = boost::static_pointer_cast<Pipe>(l);
       if (p->doesHaveFlowMeasure()) {
         // look here - it's a potential dma perimeter pipe.
+        
+        // capture the pipe and direction - this list will be pruned later
+        Link::direction_t dir = p->directionRelativeToNode(thisJ);
+        _measuredBoundaryPipesDirectional.insert(make_pair(p, dir));
         // should we ignore it?
-        if (std::find(ignorePipes.begin(), ignorePipes.end(), p) == ignorePipes.end()) {
-          // not on the list - so we accept the pipe.
-          // but first, capture the pipe and direction
-          Link::direction_t dir = p->directionRelativeToNode(thisJ);
-          _measuredBoundaryPipesDirectional.insert(make_pair(p, dir));
+        if (std::find(ignorePipes.begin(), ignorePipes.end(), p) == ignorePipes.end()) { // not ignored
+          // not on the ignore list - so we assume that the pipe could actually be a boundary pipe. do not go through the pipe.
+          // if the pipe IS on the ignore list, then follow it with the BFS.
           continue;
         }
         
       }
       else if ( stopAtClosedLinks && isAlwaysClosed(p) ) {
         // stop here as well - a potential closed perimeter pipe
-        if (std::find(ignorePipes.begin(), ignorePipes.end(), p) == ignorePipes.end()) {
-          Pipe::direction_t dir = p->directionRelativeToNode(thisJ);
-          _closedBoundaryPipesDirectional.insert(make_pair(p, dir));
-          //cout << "detected fixed status (closed) pipe: " << p->name() << endl;
+        Pipe::direction_t dir = p->directionRelativeToNode(thisJ);
+        _closedBoundaryPipesDirectional.insert(make_pair(p, dir));
+        if (std::find(ignorePipes.begin(), ignorePipes.end(), p) == ignorePipes.end()) { // not ignored
           continue;
         }
       }
@@ -134,6 +135,7 @@ void Dma::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool 
   }
   
   // cleanup orphaned pipes (pipes which have been identified as perimeters, but have both start/end nodes listed inside the dma)
+  // this set may include "ignored" pipes.
   
   map<Pipe::sharedPointer, Pipe::direction_t> measuredBoundaryPipesDirectional = measuredBoundaryPipes();
   BOOST_FOREACH(Pipe::sharedPointer p, measuredBoundaryPipesDirectional | boost::adaptors::map_keys) {

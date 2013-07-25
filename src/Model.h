@@ -40,12 +40,15 @@ namespace RTX {
    
    */
   
+  using std::vector;
+  using std::string;
+  
   class Model {
   public:
     RTX_SHARED_POINTER(Model);
     
-    virtual void loadModelFromFile(const std::string& filename) throw(std::exception);
-    std::string modelFile();
+    virtual void loadModelFromFile(const string& filename) throw(std::exception);
+    string modelFile();
     virtual void overrideControls() throw(RtxException);
     void runSinglePeriod(time_t time);
     void runExtendedPeriod(time_t start, time_t end);
@@ -56,7 +59,11 @@ namespace RTX {
     void setShouldRunWaterQuality(bool run);
     
     // DMAs -- identified by boundary link sets (doesHaveFlowMeasure)
-    void initDMAs(bool detectClosedLinks, std::vector<Pipe::sharedPointer> ignorePipes = std::vector<Pipe::sharedPointer>());
+    void initDMAs();
+    void setDmaShouldDetectClosedLinks(bool detect);
+    bool dmaShouldDetectClosedLinks();
+    void setDmaPipesToIgnore(vector<Pipe::sharedPointer> ignorePipes);
+    vector<Pipe::sharedPointer> dmaPipesToIgnore();
     
     // element accessors
     void addJunction(Junction::sharedPointer newJunction);
@@ -66,16 +73,16 @@ namespace RTX {
     void addPump(Pump::sharedPointer newPump);
     void addValve(Valve::sharedPointer newValve);
     void addDma(Dma::sharedPointer dma);
-    Link::sharedPointer linkWithName(const std::string& name);
-    Node::sharedPointer nodeWithName(const std::string& name);
-    std::vector<Element::sharedPointer> elements();
-    std::vector<Dma::sharedPointer> dmas();
-    std::vector<Junction::sharedPointer> junctions();
-    std::vector<Tank::sharedPointer> tanks();
-    std::vector<Reservoir::sharedPointer> reservoirs();
-    std::vector<Pipe::sharedPointer> pipes();
-    std::vector<Pump::sharedPointer> pumps();
-    std::vector<Valve::sharedPointer> valves();
+    Link::sharedPointer linkWithName(const string& name);
+    Node::sharedPointer nodeWithName(const string& name);
+    vector<Element::sharedPointer> elements();
+    vector<Dma::sharedPointer> dmas();
+    vector<Junction::sharedPointer> junctions();
+    vector<Tank::sharedPointer> tanks();
+    vector<Reservoir::sharedPointer> reservoirs();
+    vector<Pipe::sharedPointer> pipes();
+    vector<Pump::sharedPointer> pumps();
+    vector<Valve::sharedPointer> valves();
     
     // simulation properties
     virtual void setHydraulicTimeStep(int seconds);
@@ -108,23 +115,23 @@ namespace RTX {
     
     // model parameter setting
     // recreating or wrapping basic api functionality here.
-    virtual double reservoirLevel(const std::string& reservoirName) = 0;
-    virtual double tankLevel(const std::string& tankName) = 0;
-    virtual double junctionHead(const std::string& junction) = 0;
-    virtual double junctionDemand(const std::string& junctionName) = 0;
-    virtual double junctionQuality(const std::string& junctionName) = 0;
+    virtual double reservoirLevel(const string& reservoirName) = 0;
+    virtual double tankLevel(const string& tankName) = 0;
+    virtual double junctionHead(const string& junction) = 0;
+    virtual double junctionDemand(const string& junctionName) = 0;
+    virtual double junctionQuality(const string& junctionName) = 0;
     // link elements
-    virtual double pipeFlow(const std::string& pipe) = 0;
-    virtual double pumpEnergy(const std::string& pump) = 0;
+    virtual double pipeFlow(const string& pipe) = 0;
+    virtual double pumpEnergy(const string& pump) = 0;
     
-    virtual void setReservoirHead(const std::string& reservoir, double level) = 0;
-    virtual void setTankLevel(const std::string& tank, double level) = 0;
-    virtual void setJunctionDemand(const std::string& junction, double demand) = 0;
-    virtual void setJunctionQuality(const std::string& junction, double quality) = 0;
+    virtual void setReservoirHead(const string& reservoir, double level) = 0;
+    virtual void setTankLevel(const string& tank, double level) = 0;
+    virtual void setJunctionDemand(const string& junction, double demand) = 0;
+    virtual void setJunctionQuality(const string& junction, double quality) = 0;
     
-    virtual void setPipeStatus(const std::string& pipe, Pipe::status_t status) = 0;
-    virtual void setPumpStatus(const std::string& pump, Pipe::status_t status) = 0;
-    virtual void setValveSetting(const std::string& valve, double setting) = 0;
+    virtual void setPipeStatus(const string& pipe, Pipe::status_t status) = 0;
+    virtual void setPumpStatus(const string& pump, Pipe::status_t status) = 0;
+    virtual void setValveSetting(const string& valve, double setting) = 0;
     
     virtual void solveSimulation(time_t time) = 0;
     virtual time_t nextHydraulicStep(time_t time) = 0;
@@ -137,7 +144,7 @@ namespace RTX {
     
     
   private:
-    std::string _modelFile;
+    string _modelFile;
     bool _shouldRunWaterQuality;
     // master list access
     void add(Junction::sharedPointer newJunction);
@@ -145,17 +152,19 @@ namespace RTX {
 
     // element lists
     // master node/link lists
-    std::map<std::string, Node::sharedPointer> _nodes;
-    std::map<std::string, Link::sharedPointer> _links;
+    std::map<string, Node::sharedPointer> _nodes;
+    std::map<string, Link::sharedPointer> _links;
     // convenience lists for iterations
-    std::vector<Element::sharedPointer> _elements;
-    std::vector<Junction::sharedPointer> _junctions;
-    std::vector<Tank::sharedPointer> _tanks;
-    std::vector<Reservoir::sharedPointer> _reservoirs;
-    std::vector<Pipe::sharedPointer> _pipes;
-    std::vector<Pump::sharedPointer> _pumps;
-    std::vector<Valve::sharedPointer> _valves;
-    std::vector<Dma::sharedPointer> _dmas;
+    vector<Element::sharedPointer> _elements;
+    vector<Junction::sharedPointer> _junctions;
+    vector<Tank::sharedPointer> _tanks;
+    vector<Reservoir::sharedPointer> _reservoirs;
+    vector<Pipe::sharedPointer> _pipes;
+    vector<Pump::sharedPointer> _pumps;
+    vector<Valve::sharedPointer> _valves;
+    vector<Dma::sharedPointer> _dmas;
+    vector<Pipe::sharedPointer> _dmaPipesToIgnore;
+    bool _dmaShouldDetectClosedLinks;
     
     PointRecord::sharedPointer _record;         // default record for results
     Clock::sharedPointer _regularMasterClock;   // normal hydraulic timestep

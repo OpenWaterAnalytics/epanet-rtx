@@ -30,6 +30,9 @@ Model::Model() : _flowUnits(1), _headUnits(1) {
   _doesOverrideDemands = false;
   _shouldRunWaterQuality = false;
   
+  _dmaShouldDetectClosedLinks = false;
+  _dmaPipesToIgnore = vector<Pipe::sharedPointer>();
+  
   // defaults
   setFlowUnits(RTX_LITER_PER_SECOND);
   setHeadUnits(RTX_METER);
@@ -121,7 +124,7 @@ void Model::setParameterSource(PointRecord::sharedPointer record) {
 
 #pragma mark - Demand dmas
 
-void Model::initDMAs(bool detectClosedLinks, vector<Pipe::sharedPointer> ignorePipes) {
+void Model::initDMAs() {
   
   _dmas.clear();
   
@@ -153,7 +156,7 @@ void Model::initDMAs(bool detectClosedLinks, vector<Pipe::sharedPointer> ignoreP
     
     // specifiy the root node and populate the tree.
     try {
-      newDma->enumerateJunctionsWithRootNode(rootNode,detectClosedLinks,ignorePipes);
+      newDma->enumerateJunctionsWithRootNode(rootNode,this->dmaShouldDetectClosedLinks(),this->dmaPipesToIgnore());
     } catch (exception &e) {
       cerr << "DMA could not be enumerated: " << e.what() << endl;
     } catch (...) {
@@ -188,6 +191,22 @@ void Model::initDMAs(bool detectClosedLinks, vector<Pipe::sharedPointer> ignoreP
   
 }
 
+
+void Model::setDmaShouldDetectClosedLinks(bool detect) {
+  _dmaShouldDetectClosedLinks = detect;
+}
+
+bool Model::dmaShouldDetectClosedLinks() {
+  return _dmaShouldDetectClosedLinks;
+}
+
+void Model::setDmaPipesToIgnore(vector<Pipe::sharedPointer> ignorePipes) {
+  _dmaPipesToIgnore = ignorePipes;
+}
+
+vector<Pipe::sharedPointer> Model::dmaPipesToIgnore() {
+  return _dmaPipesToIgnore;
+}
 
 #pragma mark - Controls
 

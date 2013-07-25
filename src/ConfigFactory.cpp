@@ -812,7 +812,9 @@ void ConfigFactory::createDmaObjs(Setting& dmaGroup) {
         }
       }
       
-      _model->initDMAs(detectClosed,ignorePipes);
+      _model->setDmaPipesToIgnore(ignorePipes);
+      _model->setDmaShouldDetectClosedLinks(detectClosed);
+      _model->initDMAs();
     }
   }
   
