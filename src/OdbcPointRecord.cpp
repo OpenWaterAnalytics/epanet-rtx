@@ -478,6 +478,9 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
     if (_qualityMap.count(qu) > 0) {
       q = _qualityMap[qu];
     }
+    else {
+      q = Point::bad;
+    }
     
     if (record.valueInd > 0 && q != Point::missing) {
       // ok
