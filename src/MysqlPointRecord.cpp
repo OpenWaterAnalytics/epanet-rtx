@@ -189,14 +189,17 @@ bool MysqlPointRecord::isConnected() {
 std::string MysqlPointRecord::registerAndGetIdentifier(std::string recordName) {
   // insert the identifier, or make sure it's in the db.
   this->checkConnection();
-  try {
-    boost::shared_ptr<sql::PreparedStatement> seriesNameStatement( _connection->prepareStatement("INSERT IGNORE INTO timeseries_meta (name) VALUES (?)") );
-    seriesNameStatement->setString(1,recordName);
-    seriesNameStatement->executeUpdate();
-    _connection->commit();
-  } catch (sql::SQLException &e) {
-    handleException(e);
-	}
+  if (isConnected()) {
+    try {
+      boost::shared_ptr<sql::PreparedStatement> seriesNameStatement( _connection->prepareStatement("INSERT IGNORE INTO timeseries_meta (name) VALUES (?)") );
+      seriesNameStatement->setString(1,recordName);
+      seriesNameStatement->executeUpdate();
+      _connection->commit();
+    } catch (sql::SQLException &e) {
+      handleException(e);
+    }
+  }
+  
   
   DB_PR_SUPER::registerAndGetIdentifier(recordName);
   
@@ -435,7 +438,12 @@ bool MysqlPointRecord::checkConnection() {
     cerr << "mysql connection was closed. attempting to reconnect." << endl;
     this->dbConnect();
   }
-  return !(_connection->isClosed());
+  if (_connection) {
+    return !(_connection->isClosed());
+  }
+  else {
+    return false;
+  }
 }
 
 void MysqlPointRecord::handleException(sql::SQLException &e) {
