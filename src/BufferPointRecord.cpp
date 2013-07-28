@@ -172,7 +172,7 @@ Point BufferPointRecord::pointAfter(const string& identifier, time_t time) {
     mutex->lock();
     
     PointBuffer_t::const_iterator it = upper_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
-    if (it != buffer.end()) {
+    if (it != buffer.end() && it != buffer.begin()) {
       foundPoint = *it;
       _cachedPoint = foundPoint;
       _cachedPointId = identifier;
