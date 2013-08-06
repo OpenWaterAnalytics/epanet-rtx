@@ -23,14 +23,16 @@ void FirstDerivative::setSource(TimeSeries::sharedPointer source) {
   Units originalUnits = this->units();
   this->setUnits(RTX_DIMENSIONLESS);  // non-dimensionalize so that we can accept this source.
   Resampler::setSource(source);
-  
-  // get the rate of change units
-  Units rate = source->units() / RTX_SECOND;
-  
-  if (rate.isSameDimensionAs(originalUnits)) {
-    rate = originalUnits;
+  if (source) {
+    // get the rate of change units
+    Units rate = source->units() / RTX_SECOND;
+    
+    if (rate.isSameDimensionAs(originalUnits)) {
+      rate = originalUnits;
+    }
+    this->setUnits(rate);  // re-set the units.
   }
-  this->setUnits(rate);  // re-set the units.
+  
 }
 
 void FirstDerivative::setUnits(Units newUnits) {
