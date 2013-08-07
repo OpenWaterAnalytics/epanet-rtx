@@ -270,6 +270,7 @@ void Model::addDma(Dma::sharedPointer dma) {
   dma->setJunctionFlowUnits(this->flowUnits());
   Clock::sharedPointer hydClock(new Clock(hydraulicTimeStep()));
   dma->demand()->setClock(hydClock);
+  
 }
 
 // add to master lists

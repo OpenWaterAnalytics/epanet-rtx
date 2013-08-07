@@ -242,7 +242,7 @@ void TimeSeries::setRecord(PointRecord::sharedPointer record) {
   if (!record) {
     PointRecord::sharedPointer pr( new PointRecord() );
     record = pr;
-    cerr << "WARNING: removing record for Time Series \"" << this->name() << "\"" << endl;
+    //cerr << "WARNING: removing record for Time Series \"" << this->name() << "\"" << endl;
   }
   
   _points = record;
