@@ -46,7 +46,10 @@ namespace RTX {
   class Model {
   public:
     RTX_SHARED_POINTER(Model);
-    
+    Model();
+    virtual ~Model();
+    std::string name();
+    void setName(std::string name);
     virtual void loadModelFromFile(const string& filename) throw(std::exception);
     string modelFile();
     virtual void overrideControls() throw(RtxException);
@@ -98,8 +101,6 @@ namespace RTX {
     virtual std::ostream& toStream(std::ostream &stream);
 
   protected:
-    Model();
-    virtual ~Model();
     
     void setSimulationParameters(time_t time);
     void saveNetworkStates(time_t time);
@@ -115,35 +116,36 @@ namespace RTX {
     
     // model parameter setting
     // recreating or wrapping basic api functionality here.
-    virtual double reservoirLevel(const string& reservoirName) = 0;
-    virtual double tankLevel(const string& tankName) = 0;
-    virtual double junctionHead(const string& junction) = 0;
-    virtual double junctionDemand(const string& junctionName) = 0;
-    virtual double junctionQuality(const string& junctionName) = 0;
+    virtual double reservoirLevel(const string& reservoirName) { return 0; };
+    virtual double tankLevel(const string& tankName) { return 0; };
+    virtual double junctionHead(const string& junction) { return 0; };
+    virtual double junctionDemand(const string& junctionName) { return 0; };
+    virtual double junctionQuality(const string& junctionName) { return 0; };
     // link elements
-    virtual double pipeFlow(const string& pipe) = 0;
-    virtual double pumpEnergy(const string& pump) = 0;
+    virtual double pipeFlow(const string& pipe) { return 0; };
+    virtual double pumpEnergy(const string& pump) { return 0; };
     
-    virtual void setReservoirHead(const string& reservoir, double level) = 0;
-    virtual void setTankLevel(const string& tank, double level) = 0;
-    virtual void setJunctionDemand(const string& junction, double demand) = 0;
-    virtual void setJunctionQuality(const string& junction, double quality) = 0;
+    virtual void setReservoirHead(const string& reservoir, double level) { };
+    virtual void setTankLevel(const string& tank, double level) { };
+    virtual void setJunctionDemand(const string& junction, double demand) { };
+    virtual void setJunctionQuality(const string& junction, double quality) { };
     
-    virtual void setPipeStatus(const string& pipe, Pipe::status_t status) = 0;
-    virtual void setPumpStatus(const string& pump, Pipe::status_t status) = 0;
-    virtual void setValveSetting(const string& valve, double setting) = 0;
+    virtual void setPipeStatus(const string& pipe, Pipe::status_t status) { };
+    virtual void setPumpStatus(const string& pump, Pipe::status_t status) { };
+    virtual void setValveSetting(const string& valve, double setting) { };
     
-    virtual void solveSimulation(time_t time) = 0;
-    virtual time_t nextHydraulicStep(time_t time) = 0;
-    virtual void stepSimulation(time_t time) = 0;
-    virtual int iterations(time_t time) = 0;
-    virtual int relativeError(time_t time) = 0;
+    virtual void solveSimulation(time_t time) { };
+    virtual time_t nextHydraulicStep(time_t time) { return 0; };
+    virtual void stepSimulation(time_t time) { };
+    virtual int iterations(time_t time) { return 0; };
+    virtual int relativeError(time_t time) { return 0; };
     
     virtual void setCurrentSimulationTime(time_t time);
     
     
     
   private:
+    string _name;
     string _modelFile;
     bool _shouldRunWaterQuality;
     // master list access
