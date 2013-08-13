@@ -44,6 +44,8 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
   
   _modelFile = filename;
   
+  // to-do model [TITLE] / mod epanet toolkit to get title
+  
   // pointers (which will be reset in the creation loop)
   Pipe::sharedPointer newPipe;
   Pump::sharedPointer newPump;
@@ -133,7 +135,7 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
       nodeName = string(enName);
       
       CurveFunction::sharedPointer volumeCurveTs;
-      
+      double minLevel = 0, maxLevel = 0;
 
       switch (nodeType) {
         case EN_TANK:
@@ -142,6 +144,11 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
           // todo -- geometry
           
           addTank(newTank);
+          
+          ENcheck(ENgetnodevalue(iNode, EN_MAXLEVEL, &maxLevel), "ENgetnodevalue(EN_MAXLEVEL)");
+          ENcheck(ENgetnodevalue(iNode, EN_MINLEVEL, &minLevel), "ENgetnodevalue(EN_MINLEVEL)");
+          newTank->setMinMaxLevel(minLevel, maxLevel);
+          
           newTank->level()->setUnits(headUnits());
           newTank->flowMeasure()->setUnits(flowUnits());
           volumeCurveTs = boost::static_pointer_cast<CurveFunction>(newTank->volumeMeasure());

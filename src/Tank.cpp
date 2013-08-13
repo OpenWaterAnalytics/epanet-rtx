@@ -24,6 +24,9 @@ Tank::Tank(const std::string& name) : Junction(name) {
   _level->setSource(this->head());
   _level->setName(name + " level (offset)");
   
+  _minLevel = 0;
+  _maxLevel = 0;
+  
   // likely to be used.
   _levelMeasure.reset( new OffsetTimeSeries() );
   _levelMeasure->setUnits(RTX_METER);
@@ -44,6 +47,19 @@ Tank::~Tank() {
   
 }
 
+
+void Tank::setMinMaxLevel(double minLevel, double maxLevel) {
+  _minLevel = minLevel;
+  _maxLevel = maxLevel;
+}
+
+double Tank::minLevel() {
+  return _minLevel;
+}
+
+double Tank::maxLevel() {
+  return _maxLevel;
+}
 
 void Tank::setElevation(double elevation) {
   Node::setElevation(elevation);

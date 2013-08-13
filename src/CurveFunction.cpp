@@ -11,6 +11,7 @@
 #include "CurveFunction.h"
 
 using namespace RTX;
+using namespace std;
 
 CurveFunction::CurveFunction() : _inputUnits(1) {
   
@@ -22,6 +23,11 @@ void CurveFunction::setSource(TimeSeries::sharedPointer source) {
   this->setUnits(RTX_DIMENSIONLESS);  // non-dimensionalize so that we can accept this source.
   ModularTimeSeries::setSource(source);
   this->setUnits(myRealUnits);  // re-set the units.
+  // by default, input units set to source units
+  if (source) {
+    this->setInputUnits(source->units());
+  }
+  
 }
 
 void CurveFunction::setUnits(Units newUnits) {
@@ -41,6 +47,18 @@ void CurveFunction::setInputUnits(Units inputUnits) {
 void CurveFunction::addCurveCoordinate(double inputValue, double outputValue) {
   std::pair<double,double> newCoord(inputValue,outputValue);
   _curve.push_back(newCoord);
+}
+
+void CurveFunction::setCurve( vector<pair<double,double> > curve) {
+  _curve = curve;
+}
+
+void CurveFunction::clearCurve() {
+  _curve.clear();
+}
+
+std::vector<std::pair<double,double> > CurveFunction::curve() {
+  return _curve;
 }
 
 Point CurveFunction::point(time_t time) {
@@ -81,6 +99,10 @@ Point CurveFunction::convertWithCurve(Point p, Units sourceU) {
   // convert input units and get the value
   Point convertedSourcePoint = Point::convertPoint(p, sourceU, _inputUnits);
   double convertedSourceValue = convertedSourcePoint.value;
+  
+  if (_curve.size() < 1) {
+    return Point(p.time,0,Point::missing);
+  }
   
   double newValue;
   double minimumX = _curve.front().first;

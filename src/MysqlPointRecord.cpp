@@ -481,7 +481,7 @@ std::ostream& MysqlPointRecord::toStream(std::ostream &stream) {
   stream << "Mysql Point Record (" << _name << ")" << endl;
   
   
-  if (_connection -> isClosed()) {
+  if (!_connection || _connection->isClosed()) {
     stream << "no connection" << endl;
     return stream;
   }

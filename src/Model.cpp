@@ -36,12 +36,21 @@ Model::Model() : _flowUnits(1), _headUnits(1) {
   // defaults
   setFlowUnits(RTX_LITER_PER_SECOND);
   setHeadUnits(RTX_METER);
+  _name = "Model";
 }
 Model::~Model() {
   
 }
 std::ostream& RTX::operator<< (std::ostream &out, Model &model) {
   return model.toStream(out);
+}
+
+string Model::name() {
+  return _name;
+}
+
+void Model::setName(string name) {
+  _name = name;
 }
 
 void Model::loadModelFromFile(const std::string& filename) throw(std::exception) {
@@ -270,6 +279,7 @@ void Model::addDma(Dma::sharedPointer dma) {
   dma->setJunctionFlowUnits(this->flowUnits());
   Clock::sharedPointer hydClock(new Clock(hydraulicTimeStep()));
   dma->demand()->setClock(hydClock);
+  
 }
 
 // add to master lists
