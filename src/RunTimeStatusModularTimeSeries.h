@@ -19,6 +19,9 @@ namespace RTX {
   public:
     RTX_SHARED_POINTER(RunTimeStatusModularTimeSeries);
     void setThreshold(double threshold);
+    void setResetCeiling(double ceiling);
+    void setResetFloor(double floor);
+    void setResetTolerance(double tolerance);
 
     // Overridden methods
     virtual Point point(time_t time);
@@ -27,9 +30,12 @@ namespace RTX {
     
   private:
     virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
-    double _threshold;
-    Point _cachedPoint;
-    double _cachedRuntime;
+    double _threshold; // Tolerance in seconds
+    Point _cachedPoint; // Last status point
+    Point _cachedSourcePoint; // Last source point, consistent with _cachedPoint
+    double _resetCeiling = 0.0; // seconds - resets when hit (0 = non-reset)
+    double _resetFloor = 0.0; // seconds - resets to when hit (0 = non-reset)
+    double _resetTolerance = 0.0; // seconds - detects reset
 
   };
 }

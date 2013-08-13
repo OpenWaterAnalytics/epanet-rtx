@@ -724,6 +724,18 @@ TimeSeries::sharedPointer ConfigFactory::createRuntimeStatus(Setting &setting) {
     double v = getConfigDouble(setting, "thresholdValue");
     ts->setThreshold(v);
   }
+  if (setting.exists("resetCeilingValue")) {
+    double v = getConfigDouble(setting, "resetCeilingValue");
+    ts->setResetCeiling(v);
+  }
+  if (setting.exists("resetFloorValue")) {
+    double v = getConfigDouble(setting, "resetFloorValue");
+    ts->setResetFloor(v);
+  }
+  if (setting.exists("resetToleranceValue")) {
+    double v = getConfigDouble(setting, "resetToleranceValue");
+    ts->setResetTolerance(v);
+  }
   
   return ts;
 }
