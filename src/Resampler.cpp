@@ -114,12 +114,17 @@ std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs,
   
   
   // check the source points
-  if (sourcePoints.size() < 2) {
+  bool tooFewPoints = (_mode == step) ? (sourcePoints.size() < 1) : (sourcePoints.size() < 2);
+  if (tooFewPoints) {
     return resampled;
   }
-    
+
   // also check that there is some data in between the requested bounds
   if (_mode == step) {
+    if ( toTime < sourcePoints.front().time ) {
+      return resampled;
+    }
+    
     if ( fromTime < sourcePoints.front().time ) {
       // source data doesn't cover my whole range...
       cerr << "source data does not cover requested range" << endl;
@@ -169,7 +174,7 @@ std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs,
     ++filterLocation;
   }
   
-  while (now <= toTime && filterLocation != sourceEnd) {
+  while (now <= toTime) {
     
     Point p = filteredSingle(sourceBegin, sourceEnd, filterLocation, now, sourceUnits);
     if (p.isValid) {
@@ -178,6 +183,8 @@ std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs,
     else {
       cerr << "Filter failure: " << this->name() << " :: t = " << now << endl;
     }
+    
+    if ( (_mode == linear) && (filterLocation == sourceEnd) ) break; 
     
     now = clock()->timeAfter(now);
     if (now == 0) {
@@ -302,7 +309,7 @@ Point Resampler::filteredSingle(pVec_cIt& vecStart, pVec_cIt& vecEnd, pVec_cIt& 
   Point sourceInterp;
   
   // quick sanity check
-  if (vecPos == vecEnd) {
+  if ( (_mode == linear) && (vecPos == vecEnd) ) {
     return Point();
   }
   
@@ -314,7 +321,8 @@ Point Resampler::filteredSingle(pVec_cIt& vecStart, pVec_cIt& vecEnd, pVec_cIt& 
   // with any luck, at this point we have the back and fwd iterators positioned just right.
   // one on either side of the time point we need.
   // however, we may have been unable to accomplish this task.
-  if (t < back_it->time || fwd_it->time < t) {
+  bool invalid = (_mode == step) ? (t < back_it->time) : (t < back_it->time || fwd_it->time < t);
+  if (invalid) {
     return Point(); // invalid
   }
   
@@ -327,12 +335,7 @@ Point Resampler::filteredSingle(pVec_cIt& vecStart, pVec_cIt& vecEnd, pVec_cIt& 
     p1 = *back_it;
     p2 = *fwd_it;
     
-    if (_mode == step) {
-      sourceInterp = Point(t, p1.value, Point::good, p1.confidence);
-    }
-    else {
-      sourceInterp = Point::linearInterpolate(p1, p2, t);
-    }
+    sourceInterp = (_mode == step) ? Point(t, p1.value, Point::good, p1.confidence) : Point::linearInterpolate(p1, p2, t);
     return Point::convertPoint(sourceInterp, fromUnits, this->units());
   }
   
