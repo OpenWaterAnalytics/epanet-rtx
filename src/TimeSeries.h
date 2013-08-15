@@ -94,7 +94,7 @@ namespace RTX {
     virtual void setName(const std::string& name);
     void setRecord(PointRecord::sharedPointer record);
     void resetCache();
-    void setClock(Clock::sharedPointer clock);
+    virtual void setClock(Clock::sharedPointer clock);
     Clock::sharedPointer clock();
     virtual void setUnits(Units newUnits);
     Units units();

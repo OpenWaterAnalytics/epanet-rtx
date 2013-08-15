@@ -5,6 +5,15 @@
 using namespace std;
 using namespace RTX;
 
+RunTimeStatusModularTimeSeries::RunTimeStatusModularTimeSeries() {
+  _threshold = 0.0;
+  _resetTolerance = 0.0;
+  _resetCeiling = 0.0;
+  _resetFloor = 0.0;
+  _statusPointShelfLife = 12*60*60*24*7;
+  _windowSize = 2;
+}
+
 void RunTimeStatusModularTimeSeries::setThreshold(double threshold) {
   _threshold = threshold;
 }
@@ -31,49 +40,42 @@ Point RunTimeStatusModularTimeSeries::point(time_t time){
 
 Point RunTimeStatusModularTimeSeries::pointBefore(time_t time) {
   
-  Point beforePoint;
+//  Point beforePoint = pointNext(time, before);
   
-  std::cerr << "RunTimeStatusModularTimeSeries::pointBefore: \"" << this->name() << "\": no pointBefore method\n";
-
+  cerr << "RunTimeStatus pointBefore method not implemented" << endl;
+  Point beforePoint;
   return beforePoint;
 }
 
 Point RunTimeStatusModularTimeSeries::pointAfter(time_t time) {
   
+  Point afterPoint = pointNext(time, after);
+  
+  return afterPoint;
+}
+
+void RunTimeStatusModularTimeSeries::setClock(Clock::sharedPointer clock) {
+  // refuse to retain our own clock so that pointRecord->pointBefore accesses our record and not the sources
+  std::cerr << "RunTimeStatusModularTimeSeries clock can not be set\n";
+}
+
+Point RunTimeStatusModularTimeSeries::pointNext(time_t time, searchDirection_t dir) {
+  
 //  cout << endl << endl << "PointAfter: " << time << endl;
   
   Point lastPoint, nextPoint, newPoint;
-  static int lookbackWindowSize = 2; // we will start this many points before
-  static time_t oneWeek(60*60*24*7);
-  static time_t statusPointShelfLife(12*oneWeek);
   Units sourceU = source()->units();
   
-  double lastTime, changeTime;
-  int lastStatus;
-  if (_cachedPoint.isValid && _cachedPoint.time <= time && _cachedPoint.time > (time - statusPointShelfLife) ) {
-    // start with a known prior status point
-    lastStatus = _cachedPoint.value;
-    lastTime = (double)_cachedPoint.time;
-    changeTime = lastTime;
-    // and a known prior runtime point
-    lastPoint = _cachedSourcePoint;
-  }
-  else {
-    // start a few points back and figure out the status
-    time_t backTime = time;
-    for (int iBack = 0; iBack < lookbackWindowSize; iBack++) {
-      lastPoint = source()->pointBefore(backTime);
-      if (!lastPoint.isValid) {
-        return newPoint; // failed - can't determine change in status
-      }
-      lastPoint = Point::convertPoint(lastPoint, sourceU, RTX_SECOND);
-      backTime = lastPoint.time;
-    }
-    _cachedSourcePoint = lastPoint;
-    lastStatus = 0; // arbitrary starting guess
-    lastTime = (double)lastPoint.time;
-    changeTime = lastTime;
-  }
+  // Get a starting source and status point
+  std::pair< Point, Point > startPoints = beginningStatus(time, dir, sourceU);
+  Point sourcePoint = startPoints.first;
+  Point statusPoint = startPoints.second;
+  
+  _cachedSourcePoint = sourcePoint;
+  lastPoint = sourcePoint;
+  double lastTime = (double)statusPoint.time;
+  double lastStatus = statusPoint.value;
+  double changeTime = lastTime;
   
 //  cout << "<<t=" << lastTime << " v=" << lastPoint.value << endl;
   
@@ -83,7 +85,7 @@ Point RunTimeStatusModularTimeSeries::pointAfter(time_t time) {
   while (!changeStatus) {
     
     // get the next point
-    nextPoint = source()->pointAfter((time_t)lastTime);
+    nextPoint = (dir == after) ? source()->pointAfter((time_t)lastTime) : source()->pointBefore((time_t)lastTime);
     if (!nextPoint.isValid) {
       return newPoint; // no change in status so return nothing
     }
@@ -122,7 +124,7 @@ Point RunTimeStatusModularTimeSeries::pointAfter(time_t time) {
         // now off - new status point
         lastStatus = 0;
         changeTime += accumRuntime;
-        if ((time_t)changeTime >= time) changeStatus = true;
+        if ((time_t)changeTime > time) changeStatus = true;
         newPoint = Point((time_t)changeTime, (double)lastStatus, Point::good, _threshold);
         _cachedPoint = newPoint;
         // new source point
@@ -146,7 +148,7 @@ Point RunTimeStatusModularTimeSeries::pointAfter(time_t time) {
         // now on - determine the status change
         lastStatus = 1;
         changeTime += accumTime - accumRuntime;
-        if ((time_t)changeTime >= time) changeStatus = true;
+        if ((time_t)changeTime > time) changeStatus = true;
         newPoint = Point((time_t)changeTime, (double)lastStatus, Point::good, _threshold);
         _cachedPoint = newPoint;
         _cachedSourcePoint = Point((time_t)changeTime, _cachedSourcePoint.value, Point::good, _threshold);
@@ -182,3 +184,52 @@ std::vector<Point> RunTimeStatusModularTimeSeries::filteredPoints(TimeSeries::sh
   _cachedSourcePoint = tempSourcePoint;
   return statusPoints;
 }
+
+std::pair< Point, Point > RunTimeStatusModularTimeSeries::beginningStatus(time_t time, searchDirection_t dir, Units sourceU) {
+  
+  Point statusPoint, sourcePoint;
+  bool cachedPointIsValid;
+  if (dir == after) {
+    cachedPointIsValid =  (_cachedPoint.isValid && _cachedPoint.time <= time && _cachedPoint.time > (time - _statusPointShelfLife) );
+  }
+  else {
+    cachedPointIsValid =  (_cachedPoint.isValid && _cachedPoint.time >= time && _cachedPoint.time < (time + _statusPointShelfLife) );
+  }
+  
+  if ( cachedPointIsValid ) {
+    // start with a known prior status point
+    statusPoint = _cachedPoint;
+    sourcePoint = _cachedSourcePoint;
+  }
+  else {
+    // start a few points back so we can figure out the status
+    time_t lastTime = time;
+    Point aPoint, lastPoint;
+    for (int iBack = 0; iBack < _windowSize; iBack++) {
+      aPoint = (dir == after) ? source()->pointBefore(lastTime) : source()->pointAfter(lastTime);
+      if (!aPoint.isValid) {
+        break; // failed - can't start from before
+      }
+      lastPoint = aPoint;
+      lastTime = lastPoint.time;
+    }
+    if (!lastPoint.isValid) {
+      // Failed to look backward; try the current time and after
+      aPoint = source()->point(time);
+      if (!aPoint.isValid) {
+        aPoint = (dir == after) ? source()->pointAfter(time) : source()->pointBefore(time);
+      }
+      lastPoint = aPoint;
+    }
+    sourcePoint = Point::convertPoint(lastPoint, sourceU, RTX_SECOND);
+    if (sourcePoint.isValid) {
+      statusPoint = Point(sourcePoint.time, 0.0, Point::good, _threshold);
+    }
+    else {
+      statusPoint = Point(sourcePoint.time, 0.0, Point::bad, _threshold);
+    }
+  }
+  
+  return std::make_pair(sourcePoint, statusPoint);
+}
+
