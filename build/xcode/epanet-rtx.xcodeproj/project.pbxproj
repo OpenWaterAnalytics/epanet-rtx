@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		22024431178B5AB000B9023E /* libconfig++.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 229D1BDF15FE3E45000B4C94 /* libconfig++.9.dylib */; };
+		220500D217B984470062D02B /* RunTimeStatusModularTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220500D017B984470062D02B /* RunTimeStatusModularTimeSeries.cpp */; };
+		220500D317B984470062D02B /* RunTimeStatusModularTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220500D017B984470062D02B /* RunTimeStatusModularTimeSeries.cpp */; };
+		220500D417B984470062D02B /* RunTimeStatusModularTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 220500D117B984470062D02B /* RunTimeStatusModularTimeSeries.h */; };
+		220500D517B984470062D02B /* RunTimeStatusModularTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 220500D117B984470062D02B /* RunTimeStatusModularTimeSeries.h */; };
 		220AE464145AFB3C002F07B4 /* CurveFunction.h in Headers */ = {isa = PBXBuildFile; fileRef = 220AE463145AFB3C002F07B4 /* CurveFunction.h */; };
 		220AE466145B0A8F002F07B4 /* Dma.h in Headers */ = {isa = PBXBuildFile; fileRef = 220AE465145B0A8F002F07B4 /* Dma.h */; };
 		220AE468145B0D15002F07B4 /* Model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE467145B0D15002F07B4 /* Model.cpp */; };
@@ -220,6 +224,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		220500D017B984470062D02B /* RunTimeStatusModularTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RunTimeStatusModularTimeSeries.cpp; path = ../../src/RunTimeStatusModularTimeSeries.cpp; sourceTree = "<group>"; };
+		220500D117B984470062D02B /* RunTimeStatusModularTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RunTimeStatusModularTimeSeries.h; path = ../../src/RunTimeStatusModularTimeSeries.h; sourceTree = "<group>"; };
 		220AE463145AFB3C002F07B4 /* CurveFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CurveFunction.h; path = ../../src/CurveFunction.h; sourceTree = "<group>"; };
 		220AE465145B0A8F002F07B4 /* Dma.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Dma.h; path = ../../src/Dma.h; sourceTree = "<group>"; };
 		220AE467145B0D15002F07B4 /* Model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Model.cpp; path = ../../src/Model.cpp; sourceTree = "<group>"; };
@@ -592,6 +598,8 @@
 				222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */,
 				22C62ACC1439EE0B00841E60 /* AggregatorTimeSeries.h */,
 				22C62ACB1439EE0B00841E60 /* AggregatorTimeSeries.cpp */,
+				220500D017B984470062D02B /* RunTimeStatusModularTimeSeries.cpp */,
+				220500D117B984470062D02B /* RunTimeStatusModularTimeSeries.h */,
 			);
 			name = "time series classes";
 			sourceTree = "<group>";
@@ -705,6 +713,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				220500D517B984470062D02B /* RunTimeStatusModularTimeSeries.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -751,6 +760,7 @@
 				22CE31EE17399403008AC1F9 /* CsvPointRecord.h in Headers */,
 				22A842D6173BF446009CE769 /* GainTimeSeries.h in Headers */,
 				22E2A624177DC57F008D139A /* TsdbPointRecord.h in Headers */,
+				220500D417B984470062D02B /* RunTimeStatusModularTimeSeries.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -946,6 +956,7 @@
 				227487A1173C2FFE00FD0506 /* FirstDerivative.cpp in Sources */,
 				227487A2173C2FFE00FD0506 /* AggregatorTimeSeries.cpp in Sources */,
 				22748770173C2F8900FD0506 /* Point.cpp in Sources */,
+				220500D317B984470062D02B /* RunTimeStatusModularTimeSeries.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1010,6 +1021,7 @@
 				226AC14D17340D06009B7C90 /* MultiplierTimeSeries.cpp in Sources */,
 				22CE31ED17399403008AC1F9 /* CsvPointRecord.cpp in Sources */,
 				22A842D5173BF446009CE769 /* GainTimeSeries.cpp in Sources */,
+				220500D217B984470062D02B /* RunTimeStatusModularTimeSeries.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
