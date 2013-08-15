@@ -596,6 +596,19 @@ TimeSeries::sharedPointer ConfigFactory::createMovingAverage(libconfig::Setting 
 TimeSeries::sharedPointer ConfigFactory::createResampler(libconfig::Setting &setting) {
   Resampler::sharedPointer resampler( new Resampler() );
   setGenericTimeSeriesProperties(resampler, setting);
+  string mode;
+  if (setting.lookupValue("mode", mode)) {
+    if (RTX_STRINGS_ARE_EQUAL(mode, "linear")) {
+      resampler->setMode(Resampler::linear);
+    }
+    else if (RTX_STRINGS_ARE_EQUAL(mode, "step")) {
+      resampler->setMode(Resampler::step);
+    }
+    else {
+      cerr << "could not resolve Resampler mode: " << mode << " -- check config" << endl;
+    }
+  }
+
   return resampler;
 }
 

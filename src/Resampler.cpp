@@ -15,7 +15,7 @@ using namespace RTX;
 using namespace std;
 
 Resampler::Resampler() {
-  
+  _mode = linear;
 }
 
 Resampler::~Resampler() {
@@ -69,6 +69,15 @@ Point Resampler::point(time_t time) {
   }
 }
 
+Resampler::interpolateMode_t Resampler::mode() {
+  return _mode;
+}
+
+void Resampler::setMode(interpolateMode_t mode) {
+  _mode = mode;
+}
+
+
 #pragma mark - Protected Methods
 
 int Resampler::margin() {
@@ -110,13 +119,21 @@ std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs,
   }
     
   // also check that there is some data in between the requested bounds
-  if ( sourcePoints.back().time < fromTime || toTime < sourcePoints.front().time ) {
-    return resampled;
+  if (_mode == step) {
+    if ( fromTime < sourcePoints.front().time ) {
+      // source data doesn't cover my whole range...
+      cerr << "source data does not cover requested range" << endl;
+    }
   }
-  
-  if ( fromTime < sourcePoints.front().time || sourcePoints.back().time < toTime) {
-    // source data doesn't cover my whole range...
-    cerr << "source data does not cover requested range" << endl;
+  else {
+    if ( sourcePoints.back().time < fromTime || toTime < sourcePoints.front().time ) {
+      return resampled;
+    }
+    
+    if ( fromTime < sourcePoints.front().time || sourcePoints.back().time < toTime) {
+      // source data doesn't cover my whole range...
+      cerr << "source data does not cover requested range" << endl;
+    }
   }
   
   // reserve for the new points
@@ -192,7 +209,7 @@ std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sour
   
   
   time_t rangeStart = start, rangeEnd = end;
-  /*
+
   for (int iBackward = 0; iBackward < this->margin(); ++iBackward) {
     Point behindPoint = sourceTs->pointBefore(rangeStart);
     if (behindPoint.isValid) {
@@ -212,15 +229,15 @@ std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sour
       break;
     }
   }
-  */
+
   
   
-  for (int iBackward = 0; iBackward < this->margin(); ++iBackward) {
-    rangeStart = sourceTs->clock()->timeBefore(rangeStart);
-  }
-  for (int iForward = 0; iForward < this->margin(); ++iForward) {
-    rangeEnd = sourceTs->clock()->timeAfter(rangeEnd);
-  }
+//  for (int iBackward = 0; iBackward < this->margin(); ++iBackward) {
+//    rangeStart = sourceTs->clock()->timeBefore(rangeStart);
+//  }
+//  for (int iForward = 0; iForward < this->margin(); ++iForward) {
+//    rangeEnd = sourceTs->clock()->timeAfter(rangeEnd);
+//  }
   
   pair<time_t, time_t> newRange(0,0);
   
@@ -310,7 +327,12 @@ Point Resampler::filteredSingle(pVec_cIt& vecStart, pVec_cIt& vecEnd, pVec_cIt& 
     p1 = *back_it;
     p2 = *fwd_it;
     
-    sourceInterp = Point::linearInterpolate(p1, p2, t);
+    if (_mode == step) {
+      sourceInterp = Point(t, p1.value, Point::good, p1.confidence);
+    }
+    else {
+      sourceInterp = Point::linearInterpolate(p1, p2, t);
+    }
     return Point::convertPoint(sourceInterp, fromUnits, this->units());
   }
   
