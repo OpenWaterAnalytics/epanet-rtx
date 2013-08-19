@@ -134,7 +134,8 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
       
       nodeName = string(enName);
       
-      CurveFunction::sharedPointer volumeCurveTs;
+      //CurveFunction::sharedPointer volumeCurveTs;
+      vector< pair<double,double> > curveGeometry;
       double minLevel = 0, maxLevel = 0;
 
       switch (nodeType) {
@@ -151,29 +152,37 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
           
           newTank->level()->setUnits(headUnits());
           newTank->flowMeasure()->setUnits(flowUnits());
-          volumeCurveTs = boost::static_pointer_cast<CurveFunction>(newTank->volumeMeasure());
-          volumeCurveTs->setInputUnits(headUnits());
-          volumeCurveTs->setUnits(volumeUnits);
+          //volumeCurveTs = boost::static_pointer_cast<CurveFunction>(newTank->volumeMeasure());
+          //volumeCurveTs->setInputUnits(headUnits());
+          //volumeCurveTs->setUnits(volumeUnits);
           
           double volumeCurveIndex;
           ENcheck(ENgetnodevalue(iNode, EN_VOLCURVE, &volumeCurveIndex), "ENgetnodevalue EN_VOLCURVE");
           
+          
           if (volumeCurveIndex > 0) {
             // curved tank
             double *xVals, *yVals;
+            char curveId[256];
             int nVals;
-            ENcheck(ENgetcurve(volumeCurveIndex, &nVals, &xVals, &yVals), "ENgetcurve");
+            ENcheck(ENgetcurve(volumeCurveIndex, curveId, &nVals, &xVals, &yVals), "ENgetcurve");
             for (int iPoint = 0; iPoint < nVals; iPoint++) {
-              volumeCurveTs->addCurveCoordinate(xVals[iPoint], yVals[iPoint]);
+              curveGeometry.push_back(make_pair(xVals[iPoint], yVals[iPoint]));
+              //volumeCurveTs->addCurveCoordinate(xVals[iPoint], yVals[iPoint]);
               //cout << "(" << xVals[iPoint] << "," << yVals[iPoint] << ")-";
             }
             // client must free x/y values
             free(xVals);
             free(yVals);
+            
+            // set tank geometry
+            newTank->setGeometry(curveGeometry, headUnits(), volumeUnits);
+            newTank->geometryName = string(curveId);
+            
             //cout << endl;
           }
           else {
-            // it's a cylindrical tank
+            // it's a cylindrical tank - invent a curve
             double minVolume, maxVolume;
             double minLevel, maxLevel;
             
@@ -182,8 +191,11 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
             ENcheck(ENgetnodevalue(iNode, EN_MINVOLUME, &minVolume), "EN_MINVOLUME");
             ENcheck(ENgetnodevalue(iNode, EN_MAXVOLUME, &maxVolume), "EN_MAXVOLUME");
             
-            volumeCurveTs->addCurveCoordinate(minLevel, minVolume);
-            volumeCurveTs->addCurveCoordinate(maxLevel, maxVolume);
+            curveGeometry.push_back(make_pair(minLevel, minVolume));
+            curveGeometry.push_back(make_pair(maxLevel, maxVolume));
+            
+            //volumeCurveTs->addCurveCoordinate(minLevel, minVolume);
+            //volumeCurveTs->addCurveCoordinate(maxLevel, maxVolume);
           }
           
           newJunction = newTank;

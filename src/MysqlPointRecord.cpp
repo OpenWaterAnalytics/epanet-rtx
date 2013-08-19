@@ -186,13 +186,14 @@ bool MysqlPointRecord::isConnected() {
   return connected;
 }
 
-std::string MysqlPointRecord::registerAndGetIdentifier(std::string recordName) {
+std::string MysqlPointRecord::registerAndGetIdentifier(std::string recordName, Units dataUnits) {
   // insert the identifier, or make sure it's in the db.
   this->checkConnection();
   if (isConnected()) {
     try {
-      boost::shared_ptr<sql::PreparedStatement> seriesNameStatement( _connection->prepareStatement("INSERT IGNORE INTO timeseries_meta (name) VALUES (?)") );
+      boost::shared_ptr<sql::PreparedStatement> seriesNameStatement( _connection->prepareStatement("INSERT IGNORE INTO timeseries_meta (name,units) VALUES (?,?)") );
       seriesNameStatement->setString(1,recordName);
+      seriesNameStatement->setString(2, dataUnits.unitString());
       seriesNameStatement->executeUpdate();
       _connection->commit();
     } catch (sql::SQLException &e) {
@@ -201,7 +202,7 @@ std::string MysqlPointRecord::registerAndGetIdentifier(std::string recordName) {
   }
   
   
-  DB_PR_SUPER::registerAndGetIdentifier(recordName);
+  DB_PR_SUPER::registerAndGetIdentifier(recordName, dataUnits);
   
   return recordName;
 }
@@ -234,7 +235,30 @@ PointRecord::time_pair_t MysqlPointRecord::range(const string& id) {
 
 
 
-#pragma mark -
+#pragma mark - db meta
+
+vector< pair<string, Units> > MysqlPointRecord::availableData() {
+  vector< pair<string, Units> > available;
+  
+  if (isConnected()) {
+    
+    boost::shared_ptr<sql::Statement> selectNamesStatement( _connection->createStatement() );
+    boost::shared_ptr<sql::ResultSet> results( selectNamesStatement->executeQuery("SELECT name,units FROM timeseries_meta WHERE 1") );
+    while (results->next()) {
+      // add the name to the list.
+      std::string theName = results->getString("name");
+      std::string theUnits = results->getString("units");
+      //std::cout << "found: " << thisName << std::endl;
+      available.push_back(make_pair(theName, Units::unitOfType(theUnits)));
+    }
+    
+  }
+  
+
+  return available;
+  
+}
+
 
 std::vector<std::string> MysqlPointRecord::identifiers() {
   std::vector<std::string> ids;

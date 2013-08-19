@@ -43,7 +43,7 @@ std::ostream& RTX::operator<< (std::ostream &out, TimeSeries &ts) {
 
 void TimeSeries::setName(const std::string& name) {
   _name = name;
-  _points->registerAndGetIdentifier(name);
+  _points->registerAndGetIdentifier(name, this->units());
   if (_clock && !_clock->isRegular()) {
     // reset the clock to point to the new record ID, but only if we start with an irregular clock.
     _clock.reset( new IrregularClock(_points, name) );
@@ -246,7 +246,7 @@ void TimeSeries::setRecord(PointRecord::sharedPointer record) {
   }
   
   _points = record;
-  record->registerAndGetIdentifier(name());
+  record->registerAndGetIdentifier(this->name(), this->units());
   
   // if my clock is irregular, then re-set it with the current pointRecord as the master synchronizer.
   if (!_clock || !_clock->isRegular()) {
@@ -260,7 +260,7 @@ PointRecord::sharedPointer TimeSeries::record() {
 
 void TimeSeries::resetCache() {
   _points->reset(name());
-  _points->registerAndGetIdentifier(name());
+  _points->registerAndGetIdentifier(this->name(), this->units());
 }
 
 void TimeSeries::setClock(Clock::sharedPointer clock) {

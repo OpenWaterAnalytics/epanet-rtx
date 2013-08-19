@@ -235,10 +235,12 @@ void DbPointRecord::reset() {
 
 
 void DbPointRecord::reset(const string& id) {
+  // deprecate?
+  cout << "Whoops - don't use this" << endl;
   DB_PR_SUPER::reset(id);
   this->removeRecord(id);
   // wiped out the record completely, so re-initialize it.
-  this->registerAndGetIdentifier(id);
+  //this->registerAndGetIdentifier(id);
 }
 
 /*

@@ -38,7 +38,7 @@ std::ostream& PointRecord::toStream(std::ostream &stream) {
 }
 
 
-std::string PointRecord::registerAndGetIdentifier(std::string recordName) {
+std::string PointRecord::registerAndGetIdentifier(std::string recordName, Units dataUnits) {
   
   return recordName;
 }

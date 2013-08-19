@@ -15,6 +15,7 @@
 #include "FirstDerivative.h"
 
 using namespace RTX;
+using namespace std;
 
 Tank::Tank(const std::string& name) : Junction(name) {
   setType(TANK);
@@ -61,6 +62,28 @@ double Tank::maxLevel() {
   return _maxLevel;
 }
 
+
+void Tank::setGeometry(std::vector<std::pair<double, double> > levelVolumePoints, RTX::Units levelUnits, RTX::Units volumeUnits) {
+  
+  _geometry = levelVolumePoints;
+  _geometryLevelUnits = levelUnits;
+  _geometryVolumeUnits = volumeUnits;
+  
+  _volumeMeasure->setCurve(_geometry);
+  _volumeMeasure->setInputUnits(levelUnits);
+  _volumeMeasure->setUnits(volumeUnits);
+  
+}
+
+vector< pair<double,double> > Tank::geometry() {
+  return _geometry;
+}
+pair<Units,Units> Tank::geometryUnits() {
+  return make_pair(_geometryLevelUnits, _geometryVolumeUnits);
+}
+
+
+
 void Tank::setElevation(double elevation) {
   Node::setElevation(elevation);
   // re-set the elevation offset for the level timeseries
@@ -92,6 +115,7 @@ void Tank::setHeadMeasure(TimeSeries::sharedPointer head) {
   // todo -- revise elevation units handling
   _levelMeasure->setUnits(head->units());
   _levelMeasure->setSource(head);
+  
   _levelMeasure->setClock(head->clock());
   _volumeMeasure->setClock(head->clock());
   _flowMeasure->setClock(head->clock());

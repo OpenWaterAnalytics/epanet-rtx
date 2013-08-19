@@ -118,7 +118,7 @@ void CsvPointRecord::loadDataFromCsvDir(boost::filesystem::path dirPath) {
       } // EOF
       
       csvFileStream.close();
-      this->registerAndGetIdentifier(tsName);
+      this->registerAndGetIdentifier(tsName, Units());
       RTX_CSVPR_SUPER::addPoints(tsName, pointContents); // cache them in the superclass
     } // file opened
     else {

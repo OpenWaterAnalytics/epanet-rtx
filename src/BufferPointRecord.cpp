@@ -30,7 +30,7 @@ std::ostream& BufferPointRecord::toStream(std::ostream &stream) {
 }
 
 
-std::string BufferPointRecord::registerAndGetIdentifier(std::string recordName) {
+std::string BufferPointRecord::registerAndGetIdentifier(std::string recordName, Units dataUnits) {
   // register the recordName internally and generate a buffer and mutex
   
   // check to see if it's there first

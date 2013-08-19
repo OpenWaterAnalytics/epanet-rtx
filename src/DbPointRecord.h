@@ -41,6 +41,8 @@ namespace RTX {
     void reset();
     void reset(const string& id);
     
+    virtual std::vector<std::pair<std::string, Units> >availableData() {};
+    
     // pointRecord methods to override
     //virtual std::string registerAndGetIdentifier(std::string recordName)=0;
     //virtual std::vector<std::string> identifiers()=0;

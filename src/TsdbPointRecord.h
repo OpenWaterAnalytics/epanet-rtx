@@ -23,7 +23,7 @@ namespace RTX {
     virtual ~TsdbPointRecord() {};
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
-    virtual std::string registerAndGetIdentifier(std::string recordName);
+    virtual std::string registerAndGetIdentifier(std::string recordName, Units dataUnits);
     virtual std::vector<std::string> identifiers();
     virtual time_pair_t range(const string& id);
     virtual std::ostream& toStream(std::ostream &stream);

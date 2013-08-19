@@ -33,6 +33,7 @@ namespace RTX {
     
     // added functionality.
     void setInputUnits(Units inputUnits);
+    Units inputUnits();
     void addCurveCoordinate(double inputValue, double outputValue);
     void setCurve( std::vector<std::pair<double,double> > curve);
     void clearCurve();
