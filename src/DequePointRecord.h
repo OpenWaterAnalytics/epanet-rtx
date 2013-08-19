@@ -31,10 +31,9 @@ namespace RTX {
     DequePointRecord();
     virtual ~DequePointRecord() {};
     
-    virtual std::string registerAndGetIdentifier(std::string recordName);    // registering record names.
+    virtual std::string registerAndGetIdentifier(std::string recordName, Units dataUnits);    // registering record names.
     virtual std::vector<std::string> identifiers();
     
-    //virtual bool isPointAvailable(const string& identifier, time_t time);
     virtual Point point(const string& identifier, time_t time);
     virtual Point pointBefore(const string& identifier, time_t time);
     virtual Point pointAfter(const string& identifier, time_t time);

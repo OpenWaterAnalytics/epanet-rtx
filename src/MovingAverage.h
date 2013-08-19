@@ -9,8 +9,7 @@
 #ifndef rtx_movingaverage_h
 #define rtx_movingaverage_h
 
-#include "ModularTimeSeries.h"
-#include "TimeSeries.h"
+#include "Resampler.h"
 
 using std::vector;
 
@@ -25,7 +24,7 @@ using std::vector;
  */
 
 namespace RTX {
-  class MovingAverage : public ModularTimeSeries {
+  class MovingAverage : public Resampler {
   public:
     RTX_SHARED_POINTER(MovingAverage);
     MovingAverage();
@@ -36,23 +35,13 @@ namespace RTX {
     void setWindowSize(int numberOfPoints);   // set number of points to consider in the moving average calculation
     int windowSize();                         // return the window size (see above)
     
-    // overridden methods (from derived classes)
-    virtual Point point(time_t time);
-    virtual std::vector< Point > points(time_t start, time_t end);
-    
   protected:
     virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
+    virtual int margin();
+    //virtual Point filteredSingle(const pointBuffer_t& window, time_t t, Units fromUnits);
+    virtual Point filteredSingle(pVec_cIt& vecStart, pVec_cIt& vecEnd, pVec_cIt& vecPos, time_t t, Units fromUnits);
     
   private:
-    // methods
-    Point movingAverageAt(time_t time);
-    double calculateAverage(vector< Point > points);
-    // attributes
-    int N;
-    //array to store moving average
-    double movAvg[100];
-    typedef vector<Point>::const_iterator pointVectorIterator;
-    int k, k2, i;
     int _windowSize;
   };
 }

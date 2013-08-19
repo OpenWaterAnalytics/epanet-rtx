@@ -66,6 +66,8 @@ namespace RTX {
   using std::map;
   using std::vector;
   
+  class PointRecordFactory;
+  
   // TODO - split this into separate factory classes (for pointrecords, timeseries, model, etc?)
   
   class ConfigFactory {
@@ -85,15 +87,12 @@ namespace RTX {
     Model::sharedPointer model();
     
     vector<string> elementList();
-    void configureElements(vector<Element::sharedPointer> elements);
-    void configureElement(Element::sharedPointer element);
+    void configureElements(Model::sharedPointer model);
     
   protected:
     void createSimulationDefaults(Setting& setting);
     
     PointRecord::sharedPointer createPointRecordOfType(Setting& setting);
-    PointRecord::sharedPointer createOdbcPointRecord(Setting& setting);
-    PointRecord::sharedPointer createMySqlPointRecord(Setting& setting);
     Clock::sharedPointer createRegularClock(Setting& setting);
     TimeSeries::sharedPointer createTimeSeriesOfType(Setting& setting);
     void setGenericTimeSeriesProperties(TimeSeries::sharedPointer timeSeries, Setting& setting);
@@ -103,10 +102,18 @@ namespace RTX {
     TimeSeries::sharedPointer createResampler(Setting &setting);
     TimeSeries::sharedPointer createDerivative(Setting &setting);
     TimeSeries::sharedPointer createOffset(Setting &setting);
+    TimeSeries::sharedPointer createThreshold(Setting &setting);
+    TimeSeries::sharedPointer createCurveFunction(Setting &setting);
+    TimeSeries::sharedPointer createConstant(Setting &setting);
+    TimeSeries::sharedPointer createValidRange(Setting &setting);
+    TimeSeries::sharedPointer createMultiplier(Setting &setting);
+    TimeSeries::sharedPointer createRuntimeStatus(Setting &setting);
+
     
     void configureQualitySource(Setting &setting, Element::sharedPointer junction);
     void configureBoundaryFlow(Setting &setting, Element::sharedPointer junction);
     void configureHeadMeasure(Setting &setting, Element::sharedPointer junction);
+    void configurePressureMeasure(Setting &setting, Element::sharedPointer junction);
     void configureLevelMeasure(Setting &setting, Element::sharedPointer tank);
     void configureQualityMeasure(Setting &setting, Element::sharedPointer junction);
     void configureBoundaryHead(Setting &setting, Element::sharedPointer junction);
@@ -122,13 +129,14 @@ namespace RTX {
     void createPointRecords(Setting& records);
     void createClocks(Setting& clockGroup);
     void createTimeSeriesList(Setting& timeSeriesGroup);
-    void createZones(Setting& zoneGroup);
-    
+    void createDmaObjs(Setting& dmaGroup);
+    void createSaveOptions(Setting& saveGroup);
+    double getConfigDouble(Setting& config, const std::string& name);
     bool _doesHaveStateRecord;
     
     Config _configuration;
-    typedef PointRecord::sharedPointer (ConfigFactory::*PointRecordFunctionPointer)(Setting&);
     typedef TimeSeries::sharedPointer (ConfigFactory::*TimeSeriesFunctionPointer)(Setting&);
+    typedef PointRecord::sharedPointer (*PointRecordFunctionPointer)(Setting&);
     typedef void (ConfigFactory::*ParameterFunction)(Setting&, Element::sharedPointer);
     map<string, PointRecordFunctionPointer> _pointRecordPointerMap;
     map<string, TimeSeriesFunctionPointer> _timeSeriesPointerMap;
@@ -142,6 +150,7 @@ namespace RTX {
     
     map<string, string> _timeSeriesSourceList;
     map<string, std::vector< std::pair<string, double> > > _timeSeriesAggregationSourceList;
+    map<TimeSeries::sharedPointer,std::string> _multiplierBasisList;
   };
   
 }

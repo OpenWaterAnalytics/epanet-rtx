@@ -46,9 +46,9 @@ namespace RTX {
     virtual ~ModularTimeSeries();
     
     // class-specific methods
-    TimeSeries::sharedPointer source();
+    virtual TimeSeries::sharedPointer source();
     virtual void setSource(TimeSeries::sharedPointer source);
-    bool doesHaveSource();
+    virtual bool doesHaveSource();
     
     // overridden methods from parent class
     //virtual bool isPointAvailable(time_t time);
@@ -59,6 +59,9 @@ namespace RTX {
     virtual void setUnits(Units newUnits);
     
     virtual std::ostream& toStream(std::ostream &stream);
+    
+  protected:
+    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
     
   private:
     TimeSeries::sharedPointer _source;

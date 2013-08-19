@@ -46,6 +46,7 @@ namespace RTX {
     bool doesHaveHeadMeasure();
     TimeSeries::sharedPointer headMeasure();
     virtual void setHeadMeasure(TimeSeries::sharedPointer head);
+    virtual void setPressureMeasure(TimeSeries::sharedPointer pressure);
     
     bool doesHaveQualityMeasure();
     TimeSeries::sharedPointer qualityMeasure();

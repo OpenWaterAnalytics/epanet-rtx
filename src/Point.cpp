@@ -6,8 +6,13 @@
 //  See README.md and license.txt for more information
 //  
 
+#ifdef _WIN32
+  #define isnan(x) (x!=x)
+#endif
+
 #include "Point.h"
 #include <math.h>
+#include <iostream>
 
 using namespace std;
 using namespace RTX;
@@ -24,6 +29,7 @@ Point::Point(time_t t, double v, Qual_t q, double c) : time(t),value(v),quality(
 }
 
 Point::~Point() {
+  
 }
 
 
@@ -60,6 +66,13 @@ Point Point::operator*(const double factor) const {
   return Point(time, value, Point::good, confidence);
 }
 
+Point& Point::operator*=(const double factor) {
+  this->value *= factor;
+  this->confidence *= factor;
+  return *this;
+}
+
+
 Point Point::operator/(const double factor) const {
   double value;
   double confidence;
@@ -77,13 +90,34 @@ bool Point::comparePointTime(const Point& left, const Point& right) {
   return left.time < right.time;
 }
 
+Point Point::linearInterpolate(const Point& p1, const Point& p2, const time_t& t) {
+  Point p;
+  if (p1.time == t) {
+    p = p1;
+  }
+  else if (p2.time == t) {
+    p = p2;
+  }
+  else {
+    time_t dt = p2.time - p1.time;
+    double dv = p2.value - p1.value;
+    time_t dt2 = t - p1.time;
+    double dv2 = dv * dt2 / dt;
+    double newValue = p1.value + dv2;
+    double newConfidence = (p1.confidence + p2.confidence) / 2; // TODO -- more elegant confidence estimation
+    p = Point(t, newValue, Point::good, newConfidence);
+  }
+  return p;
+}
+
+
 
 std::ostream& RTX::operator<< (std::ostream &out, Point &point) {
   return point.toStream(out);
 }
 
 std::ostream& Point::toStream(std::ostream &stream) {
-  stream << "(" << time << "," << value << "," << quality << ")";
+  stream << "(" << time << "," << value << "," << quality << "," << confidence << ")";
   return stream;
 }
 
@@ -94,7 +128,7 @@ std::ostream& Point::toStream(std::ostream &stream) {
 Point Point::convertPoint(const Point& point, const Units& fromUnits, const Units& toUnits) {
   double value = Units::convertValue(point.value, fromUnits, toUnits);
   double confidence = Units::convertValue(point.confidence, fromUnits, toUnits);
-  return Point(point.time, value, Point::good, confidence);
+  return Point(point.time, value, point.quality, confidence);
 }
 
 

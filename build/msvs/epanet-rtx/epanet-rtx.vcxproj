@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{00EA0C97-A0A0-4480-8D49-33F4F81FC2AF}</ProjectGuid>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <Keyword>ManagedCProj</Keyword>
+    <RootNamespace>epanetrtx</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CLRSupport>false</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CLRSupport>false</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\dev\boost;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\dev;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\dev\boost;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;RTX_NO_ODBC;RTX_NO_MYSQL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>C:\Documents and Settings\Administrator\My Documents\GitHub\epanet-rtx\src;C:\dev\libconfig\lib;C:\dev\boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>RTX_NO_MYSQL;RTX_NO_ODBC;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.ico" />
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="app.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\AggregatorTimeSeries.h" />
+    <ClInclude Include="..\..\..\src\BufferPointRecord.h" />
+    <ClInclude Include="..\..\..\src\Clock.h" />
+    <ClInclude Include="..\..\..\src\ConfigFactory.h" />
+    <ClInclude Include="..\..\..\src\ConstantTimeSeries.h" />
+    <ClInclude Include="..\..\..\src\CsvPointRecord.h" />
+    <ClInclude Include="..\..\..\src\CurveFunction.h" />
+    <ClInclude Include="..\..\..\src\DbPointRecord.h" />
+    <ClInclude Include="..\..\..\src\DequePointRecord.h" />
+    <ClInclude Include="..\..\..\src\Element.h" />
+    <ClInclude Include="..\..\..\src\EpanetModel.h" />
+    <ClInclude Include="..\..\..\src\EpanetSyntheticModel.h" />
+    <ClInclude Include="..\..\..\src\epanet\src\enumstxt.h" />
+    <ClInclude Include="..\..\..\src\epanet\src\funcs.h" />
+    <ClInclude Include="..\..\..\src\epanet\src\hash.h" />
+    <ClInclude Include="..\..\..\src\epanet\src\mempool.h" />
+    <ClInclude Include="..\..\..\src\epanet\src\text.h" />
+    <ClInclude Include="..\..\..\src\epanet\src\toolkit.h" />
+    <ClInclude Include="..\..\..\src\epanet\src\types.h" />
+    <ClInclude Include="..\..\..\src\epanet\src\vars.h" />
+    <ClInclude Include="..\..\..\src\FirstDerivative.h" />
+    <ClInclude Include="..\..\..\src\GainTimeSeries.h" />
+    <ClInclude Include="..\..\..\src\IrregularClock.h" />
+    <ClInclude Include="..\..\..\src\Junction.h" />
+    <ClInclude Include="..\..\..\src\Link.h" />
+    <ClInclude Include="..\..\..\src\MapPointRecord.h" />
+    <ClInclude Include="..\..\..\src\Model.h" />
+    <ClInclude Include="..\..\..\src\ModularTimeSeries.h" />
+    <ClInclude Include="..\..\..\src\MovingAverage.h" />
+    <ClInclude Include="..\..\..\src\MultiplierTimeSeries.h" />
+    <ClInclude Include="..\..\..\src\Node.h" />
+    <ClInclude Include="..\..\..\src\OffsetTimeSeries.h" />
+    <ClInclude Include="..\..\..\src\Pipe.h" />
+    <ClInclude Include="..\..\..\src\Point.h" />
+    <ClInclude Include="..\..\..\src\PointRecord.h" />
+    <ClInclude Include="..\..\..\src\Pump.h" />
+    <ClInclude Include="..\..\..\src\Resampler.h" />
+    <ClInclude Include="..\..\..\src\Reservoir.h" />
+    <ClInclude Include="..\..\..\src\rtxExceptions.h" />
+    <ClInclude Include="..\..\..\src\rtxMacros.h" />
+    <ClInclude Include="..\..\..\src\SineTimeSeries.h" />
+    <ClInclude Include="..\..\..\src\SinglePointFilterModularTimeSeries.h" />
+    <ClInclude Include="..\..\..\src\Tank.h" />
+    <ClInclude Include="..\..\..\src\ThresholdTimeSeries.h" />
+    <ClInclude Include="..\..\..\src\TimeSeries.h" />
+    <ClInclude Include="..\..\..\src\Units.h" />
+    <ClInclude Include="..\..\..\src\ValidRangeTimeSeries.h" />
+    <ClInclude Include="..\..\..\src\Valve.h" />
+    <ClInclude Include="..\..\..\src\Zone.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\AggregatorTimeSeries.cpp" />
+    <ClCompile Include="..\..\..\src\BufferPointRecord.cpp" />
+    <ClCompile Include="..\..\..\src\Clock.cpp" />
+    <ClCompile Include="..\..\..\src\ConfigFactory.cpp" />
+    <ClCompile Include="..\..\..\src\ConstantTimeSeries.cpp" />
+    <ClCompile Include="..\..\..\src\CsvPointRecord.cpp" />
+    <ClCompile Include="..\..\..\src\CurveFunction.cpp" />
+    <ClCompile Include="..\..\..\src\DbPointRecord.cpp" />
+    <ClCompile Include="..\..\..\src\DequePointRecord.cpp" />
+    <ClCompile Include="..\..\..\src\Element.cpp" />
+    <ClCompile Include="..\..\..\src\EpanetModel.cpp" />
+    <ClCompile Include="..\..\..\src\EpanetSyntheticModel.cpp" />
+    <ClCompile Include="..\..\..\src\epanet\src\epanet.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\hash.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\hydraul.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\inpfile.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\input1.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\input2.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\input3.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\mempool.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\output.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\quality.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\report.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\rules.c" />
+    <ClCompile Include="..\..\..\src\epanet\src\smatrix.c" />
+    <ClCompile Include="..\..\..\src\FirstDerivative.cpp" />
+    <ClCompile Include="..\..\..\src\GainTimeSeries.cpp" />
+    <ClCompile Include="..\..\..\src\IrregularClock.cpp" />
+    <ClCompile Include="..\..\..\src\Junction.cpp" />
+    <ClCompile Include="..\..\..\src\Link.cpp" />
+    <ClCompile Include="..\..\..\src\MapPointRecord.cpp" />
+    <ClCompile Include="..\..\..\src\Model.cpp" />
+    <ClCompile Include="..\..\..\src\ModularTimeSeries.cpp" />
+    <ClCompile Include="..\..\..\src\MovingAverage.cpp" />
+    <ClCompile Include="..\..\..\src\MultiplierTimeSeries.cpp" />
+    <ClCompile Include="..\..\..\src\Node.cpp" />
+    <ClCompile Include="..\..\..\src\OffsetTimeSeries.cpp" />
+    <ClCompile Include="..\..\..\src\Pipe.cpp" />
+    <ClCompile Include="..\..\..\src\Point.cpp" />
+    <ClCompile Include="..\..\..\src\PointRecord.cpp" />
+    <ClCompile Include="..\..\..\src\Pump.cpp" />
+    <ClCompile Include="..\..\..\src\Resampler.cpp" />
+    <ClCompile Include="..\..\..\src\Reservoir.cpp" />
+    <ClCompile Include="..\..\..\src\SineTimeSeries.cpp" />
+    <ClCompile Include="..\..\..\src\SinglePointFilterModularTimeSeries.cpp" />
+    <ClCompile Include="..\..\..\src\Tank.cpp" />
+    <ClCompile Include="..\..\..\src\ThresholdTimeSeries.cpp" />
+    <ClCompile Include="..\..\..\src\TimeSeries.cpp" />
+    <ClCompile Include="..\..\..\src\Units.cpp" />
+    <ClCompile Include="..\..\..\src\ValidRangeTimeSeries.cpp" />
+    <ClCompile Include="..\..\..\src\Valve.cpp" />
+    <ClCompile Include="..\..\..\src\Zone.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

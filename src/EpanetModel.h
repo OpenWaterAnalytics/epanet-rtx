@@ -13,7 +13,8 @@
 #include "rtxMacros.h"
 
 extern "C" {
-  #include "epanet/src/toolkit.h"
+  #define EN_API_FLOAT_TYPE double
+  #include <epanet2.h>
 }
 
 namespace RTX {
@@ -48,12 +49,16 @@ namespace RTX {
     double pipeFlow(const std::string& pipe);
     double pumpEnergy(const std::string& pump);
     
+    // hydraulic
     void setReservoirHead(const std::string& reservoir, double level);
     void setTankLevel(const std::string& tank, double level);
     void setJunctionDemand(const std::string& junction, double demand);
     void setPipeStatus(const std::string& pipe, Pipe::status_t status);
     void setPumpStatus(const std::string& pump, Pipe::status_t status);
     void setValveSetting(const std::string& valve, double setting);
+    
+    // quality
+    void setJunctionQuality(const std::string& junction, double quality);
     
     // simulation methods
     virtual void solveSimulation(time_t time);
@@ -72,8 +77,8 @@ namespace RTX {
     void setLinkValue(int epanetCode, const std::string& link, double value);
     
   private:
-    std::tr1::unordered_map<std::string, int> _nodeIndex;
-    std::tr1::unordered_map<std::string, int> _linkIndex;
+    std::map<std::string, int> _nodeIndex;
+    std::map<std::string, int> _linkIndex;
     // TODO - use boost filesystem instead of std::string path
     std::string _modelFile;
   };

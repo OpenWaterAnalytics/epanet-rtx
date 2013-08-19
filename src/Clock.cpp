@@ -12,7 +12,7 @@
 
 using namespace RTX;
 
-Clock::Clock(int period, time_t start) {
+Clock::Clock(int period, time_t start) : _name("") {
   if (period > 0) {
     _period = period;
     _isRegular = true;
@@ -34,6 +34,15 @@ std::ostream& RTX::operator<< (std::ostream &out, Clock &clock) {
 
 #pragma mark - Public Methods
 
+
+std::string Clock::name() {
+  return _name;
+}
+
+void Clock::setName(std::string name) {
+  _name = name;
+}
+
 bool Clock::isCompatibleWith(Clock::sharedPointer clock) {
   // if this clock is irregular, it's compatible with anything!
   if (!isRegular()) {
@@ -49,7 +58,13 @@ bool Clock::isCompatibleWith(Clock::sharedPointer clock) {
   }
   // determine if there's a difference in period - it's ok if the compared
   // clock is faster, as long as it's a multiple.
-  periodModulus = this->period() % clock->period();
+  if (clock->period() > 0) {
+    periodModulus = this->period() % clock->period();
+  }
+  else {
+    return false;
+  }
+  
   
   // if the difference is evenly divisible by the compared period,
   // and the periods are evenly divisible... then it's ok.

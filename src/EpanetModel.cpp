@@ -11,7 +11,7 @@
 #include "rtxMacros.h"
 #include "CurveFunction.h"
 
-#include "epanet/src/types.h"
+#include <types.h>
 
 using namespace RTX;
 using namespace std;
@@ -20,7 +20,14 @@ EpanetModel::EpanetModel() : Model() {
   // nothing to do, right?
   _modelFile = "";
 }
+
 EpanetModel::~EpanetModel() {
+  try {
+    ENcheck( ENcloseH(), "ENcloseH");
+    ENcheck( ENclose(), "ENclose");
+  } catch (...) {
+    cerr << "warning: epanet closed improperly" << endl;
+  }
   
 }
 
@@ -36,6 +43,8 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
   long enTimeStep;
   
   _modelFile = filename;
+  
+  // to-do model [TITLE] / mod epanet toolkit to get title
   
   // pointers (which will be reset in the creation loop)
   Pipe::sharedPointer newPipe;
@@ -101,6 +110,11 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
       volumeUnits = RTX_CUBIC_FOOT;
     }
     
+    
+    // what units are quality in? who knows!
+    this->setQualityUnits(RTX_MILLIGRAMS_PER_LITER);
+    ENcheck(ENsetqualtype(CHEM, (char*)"rtxChem", (char*)"mg/l", ""), "ENsetqualtype");
+    
     // create nodes
     for (int iNode=1; iNode <= nodeCount; iNode++) {
       char enName[RTX_MAX_CHAR_STRING];
@@ -120,8 +134,9 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
       
       nodeName = string(enName);
       
-      CurveFunction::sharedPointer volumeCurveTs;
-      
+      //CurveFunction::sharedPointer volumeCurveTs;
+      vector< pair<double,double> > curveGeometry;
+      double minLevel = 0, maxLevel = 0;
 
       switch (nodeType) {
         case EN_TANK:
@@ -130,31 +145,44 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
           // todo -- geometry
           
           addTank(newTank);
+          
+          ENcheck(ENgetnodevalue(iNode, EN_MAXLEVEL, &maxLevel), "ENgetnodevalue(EN_MAXLEVEL)");
+          ENcheck(ENgetnodevalue(iNode, EN_MINLEVEL, &minLevel), "ENgetnodevalue(EN_MINLEVEL)");
+          newTank->setMinMaxLevel(minLevel, maxLevel);
+          
           newTank->level()->setUnits(headUnits());
           newTank->flowMeasure()->setUnits(flowUnits());
-          volumeCurveTs = boost::static_pointer_cast<CurveFunction>(newTank->volumeMeasure());
-          volumeCurveTs->setInputUnits(headUnits());
-          volumeCurveTs->setUnits(volumeUnits);
+          //volumeCurveTs = boost::static_pointer_cast<CurveFunction>(newTank->volumeMeasure());
+          //volumeCurveTs->setInputUnits(headUnits());
+          //volumeCurveTs->setUnits(volumeUnits);
           
           double volumeCurveIndex;
           ENcheck(ENgetnodevalue(iNode, EN_VOLCURVE, &volumeCurveIndex), "ENgetnodevalue EN_VOLCURVE");
           
+          
           if (volumeCurveIndex > 0) {
             // curved tank
             double *xVals, *yVals;
+            char curveId[256];
             int nVals;
-            ENcheck(ENgetcurve(volumeCurveIndex, &nVals, &xVals, &yVals), "ENgetcurve");
+            ENcheck(ENgetcurve(volumeCurveIndex, curveId, &nVals, &xVals, &yVals), "ENgetcurve");
             for (int iPoint = 0; iPoint < nVals; iPoint++) {
-              volumeCurveTs->addCurveCoordinate(xVals[iPoint], yVals[iPoint]);
+              curveGeometry.push_back(make_pair(xVals[iPoint], yVals[iPoint]));
+              //volumeCurveTs->addCurveCoordinate(xVals[iPoint], yVals[iPoint]);
               //cout << "(" << xVals[iPoint] << "," << yVals[iPoint] << ")-";
             }
             // client must free x/y values
             free(xVals);
             free(yVals);
+            
+            // set tank geometry
+            newTank->setGeometry(curveGeometry, headUnits(), volumeUnits);
+            newTank->geometryName = string(curveId);
+            
             //cout << endl;
           }
           else {
-            // it's a cylindrical tank
+            // it's a cylindrical tank - invent a curve
             double minVolume, maxVolume;
             double minLevel, maxLevel;
             
@@ -163,8 +191,11 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
             ENcheck(ENgetnodevalue(iNode, EN_MINVOLUME, &minVolume), "EN_MINVOLUME");
             ENcheck(ENgetnodevalue(iNode, EN_MAXVOLUME, &maxVolume), "EN_MAXVOLUME");
             
-            volumeCurveTs->addCurveCoordinate(minLevel, minVolume);
-            volumeCurveTs->addCurveCoordinate(maxLevel, maxVolume);
+            curveGeometry.push_back(make_pair(minLevel, minVolume));
+            curveGeometry.push_back(make_pair(maxLevel, maxVolume));
+            
+            //volumeCurveTs->addCurveCoordinate(minLevel, minVolume);
+            //volumeCurveTs->addCurveCoordinate(maxLevel, maxVolume);
           }
           
           newJunction = newTank;
@@ -182,18 +213,29 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
           throw "Node Type Unknown";
       } // switch nodeType
       
+      // set units for new element
+      newJunction->head()->setUnits(headUnits());
+      newJunction->demand()->setUnits(flowUnits());
+      newJunction->quality()->setUnits(qualityUnits());
       
       // newJunction is the generic (base-class) pointer to the specific object,
       // so we can use base-class methods to set some parameters.
       newJunction->setElevation(z);
       newJunction->setCoordinates(x, y);
       
-      // set units for new element
-      newJunction->head()->setUnits(headUnits());
-      newJunction->demand()->setUnits(flowUnits());
-      
-      double demand = 0;
-      ENcheck( ENgetnodevalue(iNode, EN_BASEDEMAND, &demand), "ENgetnodevalue(EN_BASEDEMAND)" );
+      // Base demand is sum of all demand categories, accounting for patterns
+      double demand = 0, categoryDemand = 0, avgPatternValue = 0;
+      int numDemands = 0, patternIdx = 0;
+      ENcheck( ENgetnumdemands(iNode, &numDemands), "ENgetnumdemands()");
+      for (int demandIdx = 1; demandIdx <= numDemands; demandIdx++) {
+        ENcheck( ENgetbasedemand(iNode, demandIdx, &categoryDemand), "ENgetbasedemand()" );
+        ENcheck( ENgetdemandpattern(iNode, demandIdx, &patternIdx), "ENgetdemandpattern()");
+        avgPatternValue = 1.0;
+        if (patternIdx > 0) { // Not the default "pattern" = 1
+          ENcheck( ENgetaveragepatternvalue(patternIdx, &avgPatternValue), "ENgetaveragepatternvalue()");
+        }
+        demand += categoryDemand * avgPatternValue;
+      }
       newJunction->setBaseDemand(demand);
       
       // and keep track of the epanet-toolkit index of this element
@@ -205,7 +247,7 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
     for (int iLink = 1; iLink <= linkCount; iLink++) {
       char enLinkName[RTX_MAX_CHAR_STRING], enFromName[RTX_MAX_CHAR_STRING], enToName[RTX_MAX_CHAR_STRING];
       int linkType, enFrom, enTo;
-      double length, diameter;
+      double length, diameter, status;
       string linkName;
       Node::sharedPointer startNode, endNode;
       Pipe::sharedPointer newPipe;
@@ -220,6 +262,7 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
       ENcheck(ENgetnodeid(enTo, enToName), "ENgetnodeid - enToName");
       ENcheck(ENgetlinkvalue(iLink, EN_DIAMETER, &diameter), "ENgetlinkvalue EN_DIAMETER");
       ENcheck(ENgetlinkvalue(iLink, EN_LENGTH, &length), "ENgetlinkvalue EN_LENGTH");
+      ENcheck(ENgetlinkvalue(iLink, EN_INITSTATUS, &status), "ENgetlinkvalue EN_STATUS");
       
       linkName = string(enLinkName);
 
@@ -266,6 +309,10 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
       newPipe->setDiameter(diameter);
       newPipe->setLength(length);
       
+      if (status == 0) {
+        newPipe->setFixedStatus(Pipe::CLOSED);
+      }
+      
       newPipe->flow()->setUnits(flowUnits());
       
       // keep track of this element index
@@ -280,9 +327,9 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
     this->setHydraulicTimeStep((int)enTimeStep);
     
     ENcheck(ENopenH(), "ENopenH");
-    
     ENcheck(ENinitH(10), "ENinitH");
-    
+    ENcheck(ENopenQ(), "ENopenQ");
+    ENcheck(ENinitQ(EN_NOSAVE), "ENinitQ");
   }
   catch(string error) {
     std::cerr << "ERROR: " << error;
@@ -360,6 +407,12 @@ void EpanetModel::setJunctionDemand(const string& junction, double demand) {
   setNodeValue(EN_BASEDEMAND, junction, demand);
 }
 
+void EpanetModel::setJunctionQuality(const std::string& junction, double quality) {
+  // todo - add more source types, depending on time series dimension?
+  setNodeValue(EN_SOURCETYPE, junction, SETPOINT);
+  setNodeValue(EN_SOURCEQUAL, junction, quality);
+}
+
 void EpanetModel::setPipeStatus(const string& pipe, Pipe::status_t status) {
   setLinkValue(EN_STATUS, pipe, status);
 }
@@ -418,8 +471,12 @@ void EpanetModel::solveSimulation(time_t time) {
   // set the current epanet-time to zero, since we override epanet-time.
   setCurrentSimulationTime( time );
   ENcheck(ENsettimeparam(EN_HTIME, 0), "ENsettimeparam(EN_HTIME)");
+  ENcheck(ENsettimeparam(EN_QTIME, 0), "ENsettimeparam(EN_QTIME)");
   // solve the hydraulics
   ENcheck(ENrunH(&timestep), "ENrunH");
+  if (this->shouldRunWaterQuality()) {
+    ENcheck(ENrunQ(&timestep), "ENrunQ");
+  }
 }
 
 time_t EpanetModel::nextHydraulicStep(time_t time) {
@@ -448,11 +505,17 @@ time_t EpanetModel::nextHydraulicStep(time_t time) {
 // evolve tank levels
 void EpanetModel::stepSimulation(time_t time) {
   long step = (long)(time - currentSimulationTime());
+  long qstep = step;
   
   //std::cout << "set step to: " << step << std::endl;
   
   ENcheck( ENsettimeparam(EN_HYDSTEP, step), "ENsettimeparam(EN_HYDSTEP)" );
   ENcheck( ENnextH(&step), "ENnexH()" );
+  
+  if (this->shouldRunWaterQuality()) {
+    ENcheck(ENnextQ(&qstep), "ENnextQ");
+  }
+  
   long supposedStep = time - currentSimulationTime();
   if (step != supposedStep) {
     // it's an intermediate step
@@ -462,23 +525,25 @@ void EpanetModel::stepSimulation(time_t time) {
 }
 
 int EpanetModel::iterations(time_t time) {
-  int iterations;
+  double iterations;
   ENcheck( ENgetstatistic(EN_ITERATIONS, &iterations), "ENgetstatistic(EN_ITERATIONS)");
   return iterations;
 }
 
 int EpanetModel::relativeError(time_t time) {
-  int relativeError;
+  double relativeError;
   ENcheck( ENgetstatistic(EN_RELATIVEERROR, &relativeError), "ENgetstatistic(EN_RELATIVEERROR)");
   return relativeError;
 }
 
 
 void EpanetModel::setHydraulicTimeStep(int seconds) {
-  ENcheck( ENsettimeparam(EN_REPORTSTEP, (long)seconds), "ENsettimeparam(EN_REPORTSTEP)");
-  ENcheck( ENsettimeparam(EN_HYDSTEP, (long)seconds), "ENsettimeparam(EN_HYDSTEP)");
+  
+  ENcheck( ENsettimeparam(EN_REPORTSTEP, (long)seconds), "ENsettimeparam(EN_REPORTSTEP)" );
+  ENcheck( ENsettimeparam(EN_HYDSTEP, (long)seconds), "ENsettimeparam(EN_HYDSTEP)" );
   // base class method
   Model::setHydraulicTimeStep(seconds);
+  
 }
 
 void EpanetModel::setQualityTimeStep(int seconds) {

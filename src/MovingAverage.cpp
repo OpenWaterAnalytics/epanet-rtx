@@ -11,6 +11,7 @@
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/mean.hpp>
+#include <boost/circular_buffer.hpp>
 #include <math.h>
 
 #include <iostream>
@@ -20,8 +21,8 @@ using namespace std;
 using namespace boost::accumulators;
 
 
-MovingAverage::MovingAverage() : ModularTimeSeries::ModularTimeSeries() {
-  _windowSize = 7;
+MovingAverage::MovingAverage() {
+  _windowSize = 5;
 }
 
 MovingAverage::~MovingAverage() {
@@ -31,7 +32,7 @@ MovingAverage::~MovingAverage() {
 #pragma mark - Added Methods
 
 void MovingAverage::setWindowSize(int numberOfPoints) {
-  resetCache();
+  //resetCache();
   _windowSize = numberOfPoints;
 }
 
@@ -39,47 +40,11 @@ int MovingAverage::windowSize() {
   return _windowSize;
 }
 
+int MovingAverage::margin() {
+  return (int)(this->windowSize() / 2);
+}
+
 #pragma mark - Public Overridden Methods
-
-Point MovingAverage::point(time_t time) {
-  
-  // check the requested time for validity...
-  if ( !(clock()->isValid(time)) ) {
-    // if the time is not valid, rewind until a valid time is reached.
-    time = clock()->timeBefore(time);
-  }
-  
-  // a point is requested. see if it is available in my cache (via base class methods)
-  Point p = TimeSeries::point(time);
-  if (p.isValid) {
-    return p;
-  }
-  
-  // if not, we need to construct it and store it locally.
-  Point aFilteredPoint = Point::convertPoint(this->movingAverageAt(time), source()->units(), units());
-  
-  // add the point to the local cache, and return it.
-  this->insert(aFilteredPoint);
-  
-  return aFilteredPoint;
-}
-
-std::vector< Point > MovingAverage::points(time_t start, time_t end) {
-  // todo - better logic here...
-  time_t period = this->period();
-  
-  // encourage the appropriate cache.
-  if (!source()) {
-    std::vector< Point > empty;
-    return empty;
-  }
-  cout << "calling source cache (" << source()->name() << ")" << endl;
-  source()->points( start - (period * windowSize()), end + (period * windowSize()) );
-  
-  // now return just the results we care about.
-  return ModularTimeSeries::points(start, end);
-  
-}
 
 bool MovingAverage::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
   // a MA can intrinsically resample
@@ -87,58 +52,48 @@ bool MovingAverage::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
 }
 
 
-#pragma mark - Private Methods
+#pragma mark - Protected
 
-Point MovingAverage::movingAverageAt(time_t time) {
-  
-  // get a collection of points around "time" from the source() timeseries, and send them to the calculator.
-  
-  std::vector< Point > somePoints;
-  int halfWindow = floor(_windowSize / 2);
-  
-  // push in the point at the current time
-  somePoints.push_back( source()->point(time) );
-  
-  // push in a half-window's worth of points (to the left) from the source time series into the vector.
-  time_t rewindTime = time;
-  Point pointToPush;
-  for (int i = 0; i < halfWindow; ++i) {
-    pointToPush = source()->pointBefore(rewindTime);
-    if (!pointToPush.isValid) {
-      continue;
-    }
-    somePoints.push_back( pointToPush );
-    rewindTime = pointToPush.time;
+Point MovingAverage::filteredSingle(pVec_cIt &vecStart, pVec_cIt &vecEnd, pVec_cIt &vecPos, time_t t, RTX::Units fromUnits) {
+  // quick sanity check
+  if (vecPos == vecEnd) {
+    return Point();
   }
   
-  // and now push a half-window's worth of points from the right.
-  time_t forwardTime = time;
-  for (int i = 0; i < halfWindow; ++i) {
-    pointToPush = source()->pointAfter(forwardTime);
-    if (!pointToPush.isValid) {
-      continue;
-    }
-    somePoints.push_back( pointToPush );
-    forwardTime = pointToPush.time;
-  }
+//  cout << endl << "@@@ Moving Average t = " << t << endl;
+  
+  pVec_cIt fwd_it = vecPos;
+  pVec_cIt back_it = vecPos;
+  alignVectorIterators(vecStart, vecEnd, vecPos, t, back_it, fwd_it);
   
   
-  double movingAverageValue = calculateAverage(somePoints);
-    
-  return Point(time, movingAverageValue, Point::good);
-  
-}
-
-// average the points
-double MovingAverage::calculateAverage(vector< Point > somePoints) {
-  
+//  cout << "=======================" << endl;
+  // great, we've got points on either side.
+  // now we take an average.
+//  int iPoints = 0;
   accumulator_set<double, stats<tag::mean> > meanAccumulator;
-  BOOST_FOREACH(Point point, somePoints) {
-    double pointValue = point.value;
-    meanAccumulator(pointValue);
+  accumulator_set<double, stats<tag::mean> > confidenceAccum;
+  int nAccumulated = 0;
+  while (back_it != fwd_it+1 && nAccumulated++ < this->windowSize()) {
+    Point p = *back_it;
+    meanAccumulator(p.value);
+    confidenceAccum(p.confidence);
+    ++back_it;
+//    ++iPoints;
+//    cout << p;
+//    if (p.time == t) {
+//      cout << " ***";
+//    }
+//    cout << endl;
   }
   
   double meanValue = mean(meanAccumulator);
-  return meanValue;
-
+  double confidenceMean = mean(confidenceAccum);
+  //meanValue = Units::convertValue(meanValue, fromUnits, this->units());
+  Point meanPoint(t, meanValue, Point::good, confidenceMean);
+  Point filtered = Point::convertPoint(meanPoint, fromUnits, this->units());
+  return filtered;
 }
+
+
+

@@ -29,6 +29,9 @@ namespace RTX {
     void setLength(double length);
     void setDiameter(double diameter);
     
+    status_t fixedStatus();
+    void setFixedStatus(status_t status);
+    
     // states
     TimeSeries::sharedPointer flow();
     
@@ -43,6 +46,7 @@ namespace RTX {
     void setFlowMeasure(TimeSeries::sharedPointer flow);
     
   private:
+    status_t _fixedStatus;
     double _length;
     double _diameter;
     TimeSeries::sharedPointer _flowState;

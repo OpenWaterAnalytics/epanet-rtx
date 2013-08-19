@@ -23,9 +23,11 @@ namespace RTX {
   class Link : public Element {
   public:
     RTX_SHARED_POINTER(Link);
+    typedef enum {outDirection, inDirection} direction_t;
     std::pair<Node::sharedPointer, Node::sharedPointer> nodes();
     Node::sharedPointer from();
     Node::sharedPointer to();
+    Link::direction_t directionRelativeToNode(Node::sharedPointer node);
     
   protected:
     Link(const std::string& name, Node::sharedPointer startNode, Node::sharedPointer endNode);

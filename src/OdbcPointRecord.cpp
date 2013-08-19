@@ -11,24 +11,34 @@
 #include <boost/foreach.hpp>
 #include <boost/range/adaptors.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/date_time.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 
 using namespace RTX;
 using namespace std;
 
+boost::posix_time::ptime _pTimeEpoch;
+
 OdbcPointRecord::OdbcPointRecord() : _timeFormat(UTC){
   _connectionOk = false;
-  
+  _connectorType = NO_CONNECTOR;
   _tableName = "#TABLENAME#";
   _dateCol = "#DATECOL";
   _tagCol = "#TAGCOL";
   _valueCol = "#VALUECOL";
   _qualityCol = "#QUALITYCOL#";
+  _SCADAdbc = NULL;
+  _SCADAenv = NULL;
+  _rangeStatement = NULL;
+  _pTimeEpoch = boost::posix_time::ptime(boost::gregorian::date(1970,1,1));
 }
 
 
 OdbcPointRecord::~OdbcPointRecord() {
-  
+  // make sure handles are free
+  SQLFreeStmt(_rangeStatement, SQL_CLOSE);
+  SQLFreeHandle(SQL_HANDLE_DBC, _SCADAdbc);
+  SQLFreeHandle(SQL_HANDLE_ENV, _SCADAenv);
 }
 
 
@@ -38,23 +48,41 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> OdbcPointRe
   
   odbc_query_t wwQueries;
   wwQueries.connectorName = "wonderware_mssql";
-  wwQueries.singleSelect = "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# = ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
+  wwQueries.singleSelect = "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# = ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
   //wwQueries.rangeSelect =  "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# >= ?) AND (#DATECOL# <= ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC' ORDER BY #DATECOL# asc"; // experimentally, ORDER BY is much slower. wonderware always returns rows ordered by DateTime ascending, so this is not really necessary.
-  wwQueries.rangeSelect =  "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# >= ?) AND (#DATECOL# <= ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
+  wwQueries.rangeSelect =  "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# > ?) AND (#DATECOL# < ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
   wwQueries.lowerBound = "";
   wwQueries.upperBound = "";
   wwQueries.timeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
-  
+  map<int, Point::Qual_t> wwQualMap;
+  wwQualMap[192] = Point::good;
+  wwQualMap[0] = Point::missing;
+  wwQueries.qualityMap = wwQualMap;
   
   odbc_query_t oraQueries;
   oraQueries.connectorName = "oracle";
   oraQueries.singleSelect = "";
-  oraQueries.rangeSelect = "";
+  oraQueries.rangeSelect = "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# > ?) AND (#DATECOL# < ?) AND #TAGCOL# = ? ORDER BY #DATECOL# asc";
   oraQueries.lowerBound = "";
   oraQueries.upperBound = "";
   oraQueries.timeQuery = "select sysdate from dual";
+  map<int, Point::Qual_t> oraQualMap;
+  oraQualMap[0] = Point::good;
+  oraQualMap[32] = Point::missing;
+  oraQualMap[128] = Point::estimated;
+  oraQualMap[256] = Point::estimated;
+  oraQueries.qualityMap = oraQualMap;
   
-  
+  /*
+  oraQueries.rangeSelect = "\
+  select time, name, value, quality from \
+  (select SCADA.CTPLUS_TB_POINTDATA.EVENTTIMEUTC time, SCADA.CTPLUS_TB_POINTDATA.POINTID id, SCADA.CTPLUS_TB_POINTDATA.VALUE value, SCADA.CTPLUS_TB_POINTDATA.QUALITY quality \
+   from SCADA.CTPLUS_TB_POINTDATA \
+   where (SCADA.CTPLUS_TB_POINTDATA.EVENTTIMEUTC > ?) \
+   AND (SCADA.CTPLUS_TB_POINTDATA.EVENTTIMEUTC < ?)) \
+   right inner join (select SCADA.CTPLUS_TB_POINTID.ID pointID, SCADA.CTPLUS_TB_POINTID.NAME name from SCADA.CTPLUS_TB_POINTID where name = ?) \
+   on id = pointId ORDER BY time asc";
+  */
   list[wonderware_mssql] = wwQueries;
   list[oracle] = oraQueries;
   
@@ -88,11 +116,17 @@ void OdbcPointRecord::setTableColumnNames(const string& table, const string& dat
   
 }
 
+OdbcPointRecord::Sql_Connector_t OdbcPointRecord::connectorType() {
+  return _connectorType;
+}
+
 void OdbcPointRecord::setConnectorType(Sql_Connector_t connectorType) {
+  
+  _connectorType = connectorType;
   
   map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> qTypes = queryTypes();
   if (qTypes.find(connectorType) == qTypes.end()) {
-    cerr << "could not find the specified connector type" << endl;
+    cerr << "OdbcPointRecord could not find the specified connector type" << endl;
     return;
   }
   
@@ -123,11 +157,12 @@ void OdbcPointRecord::setConnectorType(Sql_Connector_t connectorType) {
   setTimeQuery(queries.timeQuery);
   
   _query.tagNameInd = SQL_NTS;
+  _qualityMap = queries.qualityMap;
 
 }
 
 
-void OdbcPointRecord::connect() throw(RtxException) {
+void OdbcPointRecord::dbConnect() throw(RtxException) {
   _connectionOk = false;
   if (RTX_STRINGS_ARE_EQUAL(this->connectionString(), "")) {
     return;
@@ -137,6 +172,11 @@ void OdbcPointRecord::connect() throw(RtxException) {
   SQLRETURN sqlRet;
   
   try {
+    // make sure handles are free
+    sqlRet = SQLFreeStmt(_rangeStatement, SQL_CLOSE);
+    sqlRet = SQLFreeHandle(SQL_HANDLE_DBC, _SCADAdbc);
+    sqlRet = SQLFreeHandle(SQL_HANDLE_ENV, _SCADAenv);
+    
     /* Allocate an environment handle */
     SQL_CHECK(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &_SCADAenv), "SQLAllocHandle", _SCADAenv, SQL_HANDLE_ENV);
     /* We want ODBC 3 support */
@@ -145,6 +185,21 @@ void OdbcPointRecord::connect() throw(RtxException) {
     SQL_CHECK(SQLAllocHandle(SQL_HANDLE_DBC, _SCADAenv, &_SCADAdbc), "SQLAllocHandle", _SCADAenv, SQL_HANDLE_ENV);
     /* Connect to the DSN, checking for connectivity */
     //"Attempting to Connect to SCADA..."
+    
+    // readonly
+    SQLUINTEGER mode = SQL_MODE_READ_ONLY;
+    SQL_CHECK(SQLSetConnectAttr(_SCADAdbc, SQL_ATTR_ACCESS_MODE, &mode, SQL_IS_UINTEGER), "SQLSetConnectAttr", _SCADAdbc, SQL_HANDLE_DBC);
+    
+    // timeouts
+    SQLUINTEGER timeout = 5;
+    sqlRet = SQL_CHECK(SQLSetConnectAttr(_SCADAdbc, SQL_ATTR_LOGIN_TIMEOUT, &timeout, 0/*ignored*/), "SQLSetConnectAttr", _SCADAdbc, SQL_HANDLE_DBC);
+    sqlRet = SQL_CHECK(SQLSetConnectAttr(_SCADAdbc, SQL_ATTR_CONNECTION_TIMEOUT, &timeout, 0/*ignored*/), "SQLSetConnectAttr", _SCADAdbc, SQL_HANDLE_DBC);
+    //sqlRet = SQL_CHECK(SQLSetConnectAttr(_SCADAdbc, SQL_ATTR_CONNECTION_TIMEOUT, &timeout, SQL_IS_UINTEGER), "SQLSetConnectAttr", _SCADAdbc, SQL_HANDLE_DBC);
+    //SQLINTEGER confirm = 0, nBytes = 0;
+    //sqlRet = SQL_CHECK(SQLGetConnectAttr(_SCADAdbc, SQL_ATTR_CONNECTION_TIMEOUT, &confirm, 0 /* ignored */, &nBytes), "SQLGetConnectAttr", _SCADAdbc, SQL_HANDLE_DBC);
+    //if (confirm != timeout) {
+    //  cerr << "timeout not set correctly" << endl;
+    //}
     
     SQLSMALLINT returnLen;
     //SQL_CHECK(SQLDriverConnect(_SCADAdbc, NULL, (SQLCHAR*)(this->connectionString()).c_str(), SQL_NTS, NULL, 0, &returnLen, SQL_DRIVER_COMPLETE), "SQLDriverConnect", _SCADAdbc, SQL_HANDLE_DBC);
@@ -172,6 +227,9 @@ void OdbcPointRecord::connect() throw(RtxException) {
     SQL_CHECK(SQLBindParameter(_rangeStatement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.end, sizeof(SQL_TIMESTAMP_STRUCT), &_query.endInd), "SQLBindParameter", _rangeStatement, SQL_HANDLE_STMT);
     SQL_CHECK(SQLBindParameter(_rangeStatement, 3, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd), "SQLBindParameter", _rangeStatement, SQL_HANDLE_STMT);
     
+    // query timeout
+    SQL_CHECK(SQLSetStmtAttr(_rangeStatement, SQL_ATTR_QUERY_TIMEOUT, &timeout, 0), "SQLSetStmtAttr", _rangeStatement, SQL_HANDLE_STMT);
+    
     // bindings for lower bound statement
     bindOutputColumns(_lowerBoundStatement, &_tempRecord);
     SQL_CHECK(SQLBindParameter(_lowerBoundStatement, 1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd), "SQLBindParameter", _lowerBoundStatement, SQL_HANDLE_STMT);
@@ -186,11 +244,11 @@ void OdbcPointRecord::connect() throw(RtxException) {
     
     
     // prepare the statements
-    SQL_CHECK(SQLPrepare(_SCADAstmt, (SQLCHAR*)singleSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _SCADAstmt, SQL_HANDLE_STMT);
+    //SQL_CHECK(SQLPrepare(_SCADAstmt, (SQLCHAR*)singleSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _SCADAstmt, SQL_HANDLE_STMT);
     SQL_CHECK(SQLPrepare(_rangeStatement, (SQLCHAR*)rangeSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _rangeStatement, SQL_HANDLE_STMT);
     SQL_CHECK(SQLPrepare(_SCADAtimestmt, (SQLCHAR*)timeQuery().c_str(), SQL_NTS), "SQLPrepare", _SCADAtimestmt, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLPrepare(_lowerBoundStatement, (SQLCHAR*)loweBoundSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _lowerBoundStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLPrepare(_upperBoundStatement, (SQLCHAR*)upperBoundSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _upperBoundStatement, SQL_HANDLE_STMT);
+    //SQL_CHECK(SQLPrepare(_lowerBoundStatement, (SQLCHAR*)loweBoundSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _lowerBoundStatement, SQL_HANDLE_STMT);
+    //SQL_CHECK(SQLPrepare(_upperBoundStatement, (SQLCHAR*)upperBoundSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _upperBoundStatement, SQL_HANDLE_STMT);
     
     // if we made it this far...
     _connectionOk = true;
@@ -209,8 +267,8 @@ bool OdbcPointRecord::isConnected() {
   return _connectionOk;
 }
 
-string OdbcPointRecord::registerAndGetIdentifier(string recordName) {
-  return DB_PR_SUPER::registerAndGetIdentifier(recordName);
+string OdbcPointRecord::registerAndGetIdentifier(string recordName, Units dataUnits) {
+  return DB_PR_SUPER::registerAndGetIdentifier(recordName, dataUnits);
 }
 
 vector<string> OdbcPointRecord::identifiers() {
@@ -218,6 +276,8 @@ vector<string> OdbcPointRecord::identifiers() {
   if (!isConnected()) {
     return ids;
   }
+  return ids;
+  
   
   // get tag names from db.
   string tagQuery = "SELECT TagName FROM Tag ORDER BY TagName";
@@ -300,7 +360,7 @@ Point OdbcPointRecord::selectNext(const string& id, time_t time) {
     }
   }
   if (points.empty()) {
-    cerr << "no points found for " << id << " :: range " << time - 1 << " - " << lookahead + margin << endl;
+    //cerr << "no points found for " << id << " :: range " << time - 1 << " - " << lookahead + margin << endl;
   }
   return p;
 }
@@ -308,7 +368,7 @@ Point OdbcPointRecord::selectNext(const string& id, time_t time) {
 
 Point OdbcPointRecord::selectPrevious(const string& id, time_t time) {
   Point p;
-  time_t margin = 60*60*12;
+  time_t margin = 60*60*24*7; // one week?
   vector<Point> points = pointsWithStatement(id, _rangeStatement, time - margin, time+1);
   
   time_t max_margin = this->searchDistance();
@@ -327,7 +387,7 @@ Point OdbcPointRecord::selectPrevious(const string& id, time_t time) {
     p = points.back();
   }
   if (points.empty()) {
-    cerr << "no points found for " << id << " :: range " << lookbehind-margin << " - " << time+1 << endl;
+    //cerr << "no points found for " << id << " :: range " << lookbehind-margin << " - " << time+1 << endl;
   }
   return p;
 }
@@ -381,35 +441,19 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
     return points;
   }
   
-  // make sure the request paramter cache is current. (super uses this)
-  request = request_t(id,startTime, endTime);
-  
   // set up query-bound variables
   _query.start = sqlTime(startTime-1);
   _query.end = sqlTime(endTime+1); // add one second to get fractional times included
   strcpy(_query.tagName, id.c_str());
+  vector<ScadaRecord> records;
   
   try {
-    //cout << "scada: " << id << " : " << startTime << " - " << endTime << endl;
-    SQL_CHECK(SQLExecute(statement), "SQLExecute", statement, SQL_HANDLE_STMT);
+    if (statement == NULL) {
+      throw string("Connection not initialized.");
+    }
+    SQL_CHECK(SQLExecute(statement), "SQLExecute", statement, SQL_HANDLE_STMT);    
     while (SQL_SUCCEEDED(SQLFetch(statement))) {
-      Point p;
-      //time_t t = unixTime(_tempRecord.time);
-      time_t t = sql_to_tm(_tempRecord.time);
-      double v = _tempRecord.value;
-      int qu = _tempRecord.quality;
-      Point::Qual_t q = Point::Qual_t::good; // todo -- map to rtx quality types
-      
-      if (_tempRecord.valueInd > 0 && qu == 0) {
-        // ok
-        p = Point(t, v, q);
-        points.push_back(p);
-      }
-      else {
-        // nothing
-        //cout << "skipped invalid point. quality = " << _tempRecord.quality << endl;
-      }
-      
+      records.push_back(_tempRecord);
     }
     SQL_CHECK(SQLFreeStmt(statement, SQL_CLOSE), "SQLCancel", statement, SQL_HANDLE_STMT);
   }
@@ -417,12 +461,46 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
     cerr << errorMessage << endl;
     cerr << "Could not get data from db connection\n";
     cerr << "Attempting to reconnect..." << endl;
-    this->connect();
+    this->dbConnect();
     cerr << "Connection returned " << this->isConnected() << endl;
   }
   
+  
+  BOOST_FOREACH(const ScadaRecord& record, records) {
+    Point p;
+    //time_t t = unixTime(record.time);
+    time_t t = sql_to_time_t(record.time);
+    double v = record.value;
+    int qu = record.quality;
+    Point::Qual_t q = Point::missing;
+    
+    // map to rtx quality types
+    if (_qualityMap.count(qu) > 0) {
+      q = _qualityMap[qu];
+    }
+    else {
+      q = Point::bad;
+    }
+    
+    if (record.valueInd > 0 && q != Point::missing) {
+      // ok
+      p = Point(t, v, q);
+      points.push_back(p);
+    }
+    else {
+      // nothing
+      //cout << "skipped invalid point. quality = " << _tempRecord.quality << endl;
+    }
+
+  }
+  
+  
   if (points.size() == 0) {
     //cerr << "no points found" << endl;
+  }
+  else {
+    // make sure the request paramter cache is current. (super uses this)
+    request = request_t(id,points.front().time, points.back().time);
   }
   
   return points;
@@ -432,9 +510,9 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
 
 void OdbcPointRecord::bindOutputColumns(SQLHSTMT statement, ScadaRecord* record) {
   SQL_CHECK(SQLBindCol(statement, 1, SQL_C_TYPE_TIMESTAMP, &(record->time), NULL, &(record->timeInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
-  SQL_CHECK(SQLBindCol(statement, 2, SQL_C_CHAR, record->tagName, MAX_SCADA_TAG, &(record->tagNameInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
-  SQL_CHECK(SQLBindCol(statement, 3, SQL_C_DOUBLE, &(record->value), 0, &(record->valueInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
-  SQL_CHECK(SQLBindCol(statement, 4, SQL_C_ULONG, &(record->quality), 0, &(record->qualityInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
+  //SQL_CHECK(SQLBindCol(statement, 2, SQL_C_CHAR, record->tagName, MAX_SCADA_TAG, &(record->tagNameInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
+  SQL_CHECK(SQLBindCol(statement, 2, SQL_C_DOUBLE, &(record->value), 0, &(record->valueInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
+  SQL_CHECK(SQLBindCol(statement, 3, SQL_INTEGER, &(record->quality), 0, &(record->qualityInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
 }
 
 
@@ -452,14 +530,6 @@ SQL_TIMESTAMP_STRUCT OdbcPointRecord::sqlTime(time_t unixTime) {
   else if (timeFormat() == LOCAL) {
     pTMstruct = localtime(&unixTime);
   }
-  /*
-	if (pTMstruct->tm_isdst == 1) {
-    pTMstruct->tm_hour -= 1;
-  }
-  */
-  // fix any negative hour field
-  // not needed.
-  //mktime(pTMstruct);
 	
 	sqlTimestamp.year = pTMstruct->tm_year + 1900;
 	sqlTimestamp.month = pTMstruct->tm_mon + 1;
@@ -474,65 +544,8 @@ SQL_TIMESTAMP_STRUCT OdbcPointRecord::sqlTime(time_t unixTime) {
   return sqlTimestamp;
 }
 
-time_t OdbcPointRecord::unixTime(SQL_TIMESTAMP_STRUCT sqlTime) {
-  time_t myUnixTime;
-  struct tm tmTimestamp;
-  tmTimestamp.tm_isdst = 0;
-  struct tm* pTimestamp = &tmTimestamp;
-  const time_t timestamp = time(NULL);
-  pTimestamp = localtime(&timestamp);
-  
-  tmTimestamp.tm_year = sqlTime.year - 1900;
-  tmTimestamp.tm_mon = sqlTime.month -1;
-  tmTimestamp.tm_mday = sqlTime.day;
-  tmTimestamp.tm_hour = sqlTime.hour;
-  tmTimestamp.tm_min = sqlTime.minute;
-  tmTimestamp.tm_sec = sqlTime.second;
-  
-  
-  myUnixTime = mktime(&tmTimestamp);
-  // mktime sets to local time zone, but the passed-in structure should be UTC
-  if (timeFormat() == UTC) {
-    myUnixTime += pTimestamp->tm_gmtoff;
-  }
-  if (tmTimestamp.tm_isdst == 1) {
-    myUnixTime -= 3600;
-  }
-  
-  // todo -- we can speed up mktime, but this private method is borked so fix it.
-  //myUnixTime = time_to_epoch(&tmTimestamp, 0);
-  
-  
-  
-  
-  return myUnixTime;
-}
 
-time_t OdbcPointRecord::sql_to_tm( const SQL_TIMESTAMP_STRUCT& sqlTime ) {
-  
-  /*
-  const int mon_days [] =
-  {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-  long tyears, tdays, leaps, utc_hrs, utc_mins, utc_secs;
-  int i;
-  
-  tyears = sqlTime.year - 1970; // = ltm->tm_year - 70; // tm->tm_year is from 1900.
-  leaps = (tyears + 2) / 4; // no of next two lines until year 2100.
-  //i = (ltm->tm_year – 100) / 100;
-  //leaps -= ( (i/4)*3 + i%4 );
-  tdays = 0;
-  for (i=0; i < sqlTime.month-1; i++) {
-    tdays += mon_days[i];
-  }
-  
-  tdays += sqlTime.day - 1; // days of month passed.
-  tdays = tdays + (tyears * 365) + leaps;
-  
-  utc_hrs = sqlTime.hour;
-  utc_mins = sqlTime.minute;
-  utc_secs = sqlTime.second;
-  time_t uTime = (tdays * 86400) + (utc_hrs * 3600) + (utc_mins * 60) + utc_secs;
-  */
+time_t OdbcPointRecord::sql_to_time_t( const SQL_TIMESTAMP_STRUCT& sqlTime ) {
   
   time_t uTime;
   struct tm tmTime;
@@ -544,10 +557,11 @@ time_t OdbcPointRecord::sql_to_tm( const SQL_TIMESTAMP_STRUCT& sqlTime ) {
   tmTime.tm_min = sqlTime.minute;
   tmTime.tm_sec = sqlTime.second;
   
-  // Portability note: mktime is essentially universally available. timegm is rather rare. For the most portable conversion from a UTC broken-down time to a simple time, set the TZ environment variable to UTC, call mktime, then set TZ back.
+  // Portability note: mktime is essentially universally available. timegm is rather rare. fortunately, boost has some capabilities here.
+  // uTime = timegm(&tmTime);
   
-  uTime = timegm(&tmTime);
-  /*
+  uTime = boost_convert_tm_to_time_t(tmTime);
+  
   // back convert for a check
   SQL_TIMESTAMP_STRUCT sqlTimeCheck = this->sqlTime(uTime);
   if ( sqlTimeCheck.year == sqlTime.year &&
@@ -561,31 +575,20 @@ time_t OdbcPointRecord::sql_to_tm( const SQL_TIMESTAMP_STRUCT& sqlTime ) {
   else {
     cerr << "time not formed correctly" << endl;
   }
-   */
+   
   
   return uTime;
 }
 
 
-time_t OdbcPointRecord::time_to_epoch ( const struct tm *ltm, int utcdiff ) {
-  const int mon_days [] =
-  {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-  long tyears, tdays, leaps, utc_hrs;
-  int i;
-  
-  tyears = ltm->tm_year - 70; // tm->tm_year is from 1900.
-  leaps = (tyears + 2) / 4; // no of next two lines until year 2100.
-                            //i = (ltm->tm_year – 100) / 100;
-                            //leaps -= ( (i/4)*3 + i%4 );
-  tdays = 0;
-  for (i=0; i < ltm->tm_mon; i++) tdays += mon_days[i];
-  
-  tdays += ltm->tm_mday-1; // days of month passed.
-  tdays = tdays + (tyears * 365) + leaps;
-  
-  utc_hrs = ltm->tm_hour + utcdiff; // for your time zone.
-  return (tdays * 86400) + (utc_hrs * 3600) + (ltm->tm_min * 60) + ltm->tm_sec;
+time_t OdbcPointRecord::boost_convert_tm_to_time_t(const struct tm &tmStruct) {  
+  boost::posix_time::ptime pt = boost::posix_time::ptime_from_tm(tmStruct);
+  boost::posix_time::time_duration::sec_type x = (pt - _pTimeEpoch).total_seconds();
+  return time_t(x);
 }
+
+
+
 
 
 SQLRETURN OdbcPointRecord::SQL_CHECK(SQLRETURN retVal, string function, SQLHANDLE handle, SQLSMALLINT type) throw(string)

@@ -9,6 +9,8 @@
 #include <iostream>
 
 #include "Junction.h"
+#include "OffsetTimeSeries.h"
+#include "GainTimeSeries.h"
 
 using namespace RTX;
 
@@ -89,6 +91,24 @@ void Junction::setHeadMeasure(TimeSeries::sharedPointer headMeasure) {
 TimeSeries::sharedPointer Junction::headMeasure() {
   return _headMeasure;
 }
+
+void Junction::setPressureMeasure(TimeSeries::sharedPointer pressure) {
+  // pressure depends on elevation --> head = mx(pressure) + elev
+  GainTimeSeries::sharedPointer gainTs( new GainTimeSeries() );
+  gainTs->setUnits(RTX_METER);
+  gainTs->setGainUnits( RTX_METER / RTX_PASCAL );
+  gainTs->setGain(0.0001019977334);
+  gainTs->setSource(pressure);
+  
+  OffsetTimeSeries::sharedPointer headMeas( new OffsetTimeSeries() );
+  headMeas->setUnits(this->head()->units());
+  headMeas->setOffset(this->elevation());
+  headMeas->setSource(gainTs);
+  
+  this->setHeadMeasure(headMeas);
+}
+
+
 
 // quality measurement
 bool Junction::doesHaveQualityMeasure() {

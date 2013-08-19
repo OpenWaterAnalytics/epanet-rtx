@@ -11,7 +11,7 @@
 using namespace std;
 using namespace RTX;
 
-FirstDerivative::FirstDerivative() : ModularTimeSeries::ModularTimeSeries() {
+FirstDerivative::FirstDerivative() {
   
 }
 
@@ -20,13 +20,19 @@ FirstDerivative::~FirstDerivative() {
 }
 
 void FirstDerivative::setSource(TimeSeries::sharedPointer source) {
+  Units originalUnits = this->units();
   this->setUnits(RTX_DIMENSIONLESS);  // non-dimensionalize so that we can accept this source.
-  ModularTimeSeries::setSource(source);
+  Resampler::setSource(source);
+  if (source) {
+    // get the rate of change units
+    Units rate = source->units() / RTX_SECOND;
+    
+    if (rate.isSameDimensionAs(originalUnits)) {
+      rate = originalUnits;
+    }
+    this->setUnits(rate);  // re-set the units.
+  }
   
-  // get the rate of change units
-  Units rate = source->units() / RTX_SECOND;
-  
-  this->setUnits(rate);  // re-set the units.
 }
 
 void FirstDerivative::setUnits(Units newUnits) {
@@ -42,123 +48,43 @@ void FirstDerivative::setUnits(Units newUnits) {
   }
 }
 
-Point FirstDerivative::point(time_t time) {
+Point FirstDerivative::filteredSingle(pVec_cIt& vecStart, pVec_cIt& vecEnd, pVec_cIt& vecPos, time_t t, Units fromUnits) {
   
-  // return obj
-  Point p;
-
-  /* check the requested time for validity...
-  if ( !(clock()->isValid(time)) ) {
-    // if the time is not valid, rewind until a valid time is reached.
-    time = clock()->timeBefore(time);
-  }
-  */
-  p = TimeSeries::point(time);
-  if (p.isValid) {
-    return p;
-  }
-  else {
-    std::pair<Point,Point> adjacent = source()->adjacentPoints(time);
-    //Point secondPoint = source()->point(time);
-    //if (!secondPoint.isValid) {
-    Point secondPoint = adjacent.second;
-    //}
-    Point firstPoint = adjacent.first;
-    if (!firstPoint.isValid) {
-      firstPoint = Point();
-    }
-    Point p = deriv(firstPoint, secondPoint, time);
-    insert(p);
-  }
-  return p;
-}
-
-std::vector<Point> FirstDerivative::points(time_t start, time_t end) {
+  Point fd;
   
-  Units sourceU = source()->units();
-  Units myU = units();
-  
-  // make sure the times are aligned with the clock.
-  time_t newStart = (clock()->isValid(start)) ? start : clock()->timeAfter(start);
-  time_t newEnd = (clock()->isValid(end)) ? end : clock()->timeBefore(end);
-  
-  time_t sourceStart, sourceEnd;
-  {
-    time_t s = source()->pointBefore(newStart).time;
-    time_t e = source()->pointAfter(newEnd).time;
-    sourceStart = (s>0)? s : newStart;
-    sourceEnd = (e>0)? e : newEnd;
-  }
-  // get the source points
-  std::vector<Point> sourcePoints = source()->points(sourceStart, sourceEnd);
-  if (sourcePoints.size() < 2) {
-    vector<Point> empty;
-    return empty;
-  }
-  
-  // create a place for the new points
-  std::vector<Point> fd;
-  {
-    std::vector<Point>::size_type s = (newEnd - newStart) / period();
-    fd.reserve(s);
-  }
-  
-  
-  // scrub through the source Points and take derivative as we go.
-  time_t now = newStart;
-  vector<Point>::const_iterator sourceIt = sourcePoints.begin();
-  Point left, right;
-  left = *sourceIt;
-  ++sourceIt;
-  right = *sourceIt;
-  
-  // fast forward now to meet our first available source point.
-  while (left.time > now) {
-    now = clock()->timeAfter(now);
-  }
-  
-  while (sourceIt != sourcePoints.end() && now <= newEnd) {
-    
-    while (right.time < now) {
-      // increment our source point iterator
-      // if we've gone past our neighbor points.
-      left = right;
-      ++sourceIt;
-      if (sourceIt == sourcePoints.end()) {
-        break;
-      }
-      right = *sourceIt;
-    }
-    
-    if (left.time == right.time) {
-      break;
-    }
-    // we have two neighboring points. let's do it.
-    Point p = deriv(left, right, now); // returns in my units
-    fd.push_back(p);
-    
-    // and it is not now anymore
-    now = clock()->timeAfter(now);
-    
-  }
-  
-  // finally, add the points to myself.
-  this->insertPoints(fd);
-  
-  return fd;
-  
-}
-
-
-Point FirstDerivative::deriv(RTX::Point p1, RTX::Point p2, time_t t) {
-  if (!(p1.isValid && p2.isValid)) {
+  // quick sanity check
+  if (vecPos == vecEnd) {
     return Point();
   }
+  
+  pVec_cIt fwd_it = vecPos;
+  pVec_cIt back_it = vecPos;
+  alignVectorIterators(vecStart, vecEnd, vecPos, t, back_it, fwd_it);
+  
+  
+  // with any luck, at this point we have the back and fwd iterators positioned just right.
+  // one on either side of the time point we need.
+  // however, we may have been unable to accomplish this task.
+  if (t < back_it->time || fwd_it->time < t) {
+    return Point(); // invalid
+  }
+  
+  // it's possible that the vecPos is aligned right on the requested time, so check for that:
+  if (vecPos->time == t) {
+    // do back-calculation. forget the fwd iterator, use the vecPos instead.
+    fwd_it = vecPos;
+  }
+  Point p1, p2;
+  p1 = *back_it;
+  p2 = *fwd_it;
+  
   time_t dt = p2.time - p1.time;
   double dv = p2.value - p1.value;
-  double dvdt = Units::convertValue(dv / double(dt), source()->units() / RTX_SECOND, this->units());
+  double dvdt = Units::convertValue(dv / double(dt), fromUnits / RTX_SECOND, this->units());
+  
   return Point(t, dvdt);
 }
+
 
 
 std::ostream& FirstDerivative::toStream(std::ostream &stream) {

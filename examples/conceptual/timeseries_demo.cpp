@@ -13,6 +13,11 @@
 #include "Resampler.h"
 #include "MovingAverage.h"
 #include "FirstDerivative.h"
+#include "SineTimeSeries.h"
+#include "ConstantTimeSeries.h"
+#include "AggregatorTimeSeries.h"
+#include "CsvPointRecord.h"
+#include "GainTimeSeries.h"
 
 #include "BufferPointRecord.h"
 #include "MysqlPointRecord.h"
@@ -25,8 +30,68 @@ void printPoints(vector<Point> pointVector);
 int main(int argc, const char * argv[])
 {
   
+  
+  if (0) {
+    Clock::sharedPointer reg10m(new Clock(60*10));
+    
+    ConstantTimeSeries::sharedPointer pressure( new ConstantTimeSeries() );
+    pressure->setUnits(RTX_KILOPASCAL);
+    pressure->setClock(reg10m);
+    pressure->setValue(1);
+    
+    GainTimeSeries::sharedPointer gainTs( new GainTimeSeries() );
+    
+    gainTs->setUnits(RTX_FOOT);
+    gainTs->setGainUnits( RTX_METER / RTX_PASCAL );
+    gainTs->setGain(0.0001019977334);
+    gainTs->setSource(pressure);
+    
+    Point cp = gainTs->point(100);
+    
+    cout << cp << endl;
+    
+    double val = Units::convertValue(1, RTX_INCH, RTX_FOOT);
+    
+    cout << val << endl;
+  }
+  
+  
+  
   // RTX TimeSeries Demo Application
   // A demonstration of some of the important TimeSeries classes and methods
+  if(0)
+  {
+    CsvPointRecord::sharedPointer csv(new CsvPointRecord() );
+    csv->setReadOnly(false);
+    csv->setPath("csv_test");
+    
+    TimeSeries::sharedPointer ts(new TimeSeries());
+    ts->setName("csv1");
+    ts->setRecord(csv);
+    
+    ModularTimeSeries::sharedPointer mts(new ModularTimeSeries());
+    mts->setName("mts");
+    mts->setSource(ts);
+    mts->setRecord(csv);
+    
+    vector<Point> points = mts->points(10, 30);
+    
+    
+    
+  }
+  
+  cout << "ok" << endl;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   /*
@@ -35,12 +100,16 @@ int main(int argc, const char * argv[])
    We will create some points and store them.
    
    */
-  time_t start = 1222873200; // unix-time 2008-10-01 15:00:00 GMT
   
-  Point  p1(start,     34.5),
-         p2(start+100, 45.2),
-         p3(start+120, 45.9),
-         p4(start+230, 42.1);
+  using Point::good;
+  using Point::missing;
+  
+  time_t start = 1000000000;
+  
+  Point  p1(start,   0, good, 0.5),
+         p2(start+100, 100, good, 0.8),
+         p3(start+120, 120, Point::estimated, 0.8),
+         p4(start+230, 230, good, 0.7);
 
   
   // put these points into a vector
@@ -116,6 +185,34 @@ int main(int argc, const char * argv[])
   cout << "range of resampled points" << endl;
   printPoints( resampled->points(start, start+240) );
   
+  
+  cout << "=======================================" << endl;
+  
+  
+  ConstantTimeSeries::sharedPointer constantTs( new ConstantTimeSeries() );
+  constantTs->setName("constant ts");
+  constantTs->setUnits(RTX_MILLION_GALLON_PER_DAY);
+  constantTs->setValue(10.);
+  constantTs->setClock(regular_30s);
+  
+  cout << "constant time series:" << endl;
+  printPoints(constantTs->points(start, start+240));
+  cout << "=======================================" << endl;
+  
+  
+  AggregatorTimeSeries::sharedPointer agg(new AggregatorTimeSeries());
+  agg->setName("aggregator");
+  agg->setUnits(RTX_MILLION_GALLON_PER_DAY);
+  agg->setClock(regular_30s);
+  agg->addSource(resampled);
+  agg->addSource(constantTs);
+  
+  cout << "aggregator time series:" << endl;
+  vector<Point> ps = agg->points(start+20, start+260);
+  printPoints(ps);
+  
+  
+  
   cout << "=======================================" << endl;
   
   // how about smoothing?
@@ -142,7 +239,7 @@ int main(int argc, const char * argv[])
   // I can use the MysqlPointRecord (fill in your credentials below):
   MysqlPointRecord::sharedPointer dbRecord(new MysqlPointRecord());
   dbRecord->setConnectionString("HOST=tcp://localhost;UID=rtx_db_agent;PWD=rtx_db_agent;DB=rtx_demo_db");
-  dbRecord->connect();
+  dbRecord->dbConnect();
   if (dbRecord->isConnected()) {
     // empty out any previous data
     dbRecord->reset();
@@ -154,7 +251,7 @@ int main(int argc, const char * argv[])
     // to the MySQL database instead of just RAM.
     // Really - Check your database after this call.
     cout << endl << "points are being persisted:" << endl;
-    printPoints( movingAverage->points(start, end) );
+    printPoints( movingAverage->points(start, start+240) );
   }
   else {
     cout << "whoops, db could not connect" << endl;
@@ -183,6 +280,10 @@ int main(int argc, const char * argv[])
   derivative->setSource(movingAverage);
   
   printPoints(derivative->points(start, start+240));
+  
+  
+  
+  
   
   
   return 0;

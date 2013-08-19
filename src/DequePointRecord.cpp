@@ -29,7 +29,7 @@ std::ostream& DequePointRecord::toStream(std::ostream &stream) {
 }
 
 
-std::string DequePointRecord::registerAndGetIdentifier(std::string recordName) {
+std::string DequePointRecord::registerAndGetIdentifier(std::string recordName, Units dataUnits) {
   
   // check to see if it's there first
   if (_points.find(recordName) == _points.end()) {

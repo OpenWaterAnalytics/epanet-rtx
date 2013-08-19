@@ -15,14 +15,18 @@
 #include "FirstDerivative.h"
 
 using namespace RTX;
+using namespace std;
 
 Tank::Tank(const std::string& name) : Junction(name) {
   setType(TANK);
   // initialize time series states
-
+  _doesResetLevel = false;
   _level.reset( new OffsetTimeSeries() );
   _level->setSource(this->head());
   _level->setName(name + " level (offset)");
+  
+  _minLevel = 0;
+  _maxLevel = 0;
   
   // likely to be used.
   _levelMeasure.reset( new OffsetTimeSeries() );
@@ -43,6 +47,41 @@ Tank::Tank(const std::string& name) : Junction(name) {
 Tank::~Tank() {
   
 }
+
+
+void Tank::setMinMaxLevel(double minLevel, double maxLevel) {
+  _minLevel = minLevel;
+  _maxLevel = maxLevel;
+}
+
+double Tank::minLevel() {
+  return _minLevel;
+}
+
+double Tank::maxLevel() {
+  return _maxLevel;
+}
+
+
+void Tank::setGeometry(std::vector<std::pair<double, double> > levelVolumePoints, RTX::Units levelUnits, RTX::Units volumeUnits) {
+  
+  _geometry = levelVolumePoints;
+  _geometryLevelUnits = levelUnits;
+  _geometryVolumeUnits = volumeUnits;
+  
+  _volumeMeasure->setCurve(_geometry);
+  _volumeMeasure->setInputUnits(levelUnits);
+  _volumeMeasure->setUnits(volumeUnits);
+  
+}
+
+vector< pair<double,double> > Tank::geometry() {
+  return _geometry;
+}
+pair<Units,Units> Tank::geometryUnits() {
+  return make_pair(_geometryLevelUnits, _geometryVolumeUnits);
+}
+
 
 
 void Tank::setElevation(double elevation) {
@@ -76,6 +115,7 @@ void Tank::setHeadMeasure(TimeSeries::sharedPointer head) {
   // todo -- revise elevation units handling
   _levelMeasure->setUnits(head->units());
   _levelMeasure->setSource(head);
+  
   _levelMeasure->setClock(head->clock());
   _volumeMeasure->setClock(head->clock());
   _flowMeasure->setClock(head->clock());

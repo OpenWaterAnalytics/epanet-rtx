@@ -19,9 +19,18 @@ Pipe::Pipe(const std::string& name, Node::sharedPointer startNode, Node::sharedP
   _flowState.reset( new TimeSeries() );
   _flowState->setUnits(RTX_LITER_PER_SECOND);
   _flowState->setName("L " + name + " flow");
+  _fixedStatus = Pipe::OPEN;
 }
 Pipe::~Pipe() {
   
+}
+
+Pipe::status_t Pipe::fixedStatus() {
+  return _fixedStatus;
+}
+
+void Pipe::setFixedStatus(status_t status) {
+  _fixedStatus = status;
 }
 
 void Pipe::setRecord(PointRecord::sharedPointer record) {

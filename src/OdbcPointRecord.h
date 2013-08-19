@@ -15,6 +15,9 @@
 
 #include <deque>
 
+#ifdef _WIN32
+  #include <Windows.h>
+#endif
 #include <sql.h>
 #include <sqlext.h>
 
@@ -42,6 +45,7 @@ namespace RTX {
     class odbc_query_t {
     public:
       std::string connectorName, singleSelect, rangeSelect, upperBound, lowerBound, timeQuery;
+      std::map<int,Point::Qual_t> qualityMap;
     };
     
     static std::map<Sql_Connector_t, odbc_query_t> queryTypes();
@@ -55,9 +59,10 @@ namespace RTX {
     // public methods
     void setTableColumnNames(const std::string& table, const std::string& dateCol, const std::string& tagCol, const std::string& valueCol, const std::string& qualityCol);
     void setConnectorType(Sql_Connector_t connectorType);
-    virtual void connect() throw(RtxException);
+    Sql_Connector_t connectorType();
+    virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
-    virtual std::string registerAndGetIdentifier(std::string recordName);
+    virtual std::string registerAndGetIdentifier(std::string recordName, Units dataUnits);
     virtual std::vector<std::string> identifiers();
     virtual std::ostream& toStream(std::ostream &stream);
     
@@ -95,13 +100,14 @@ namespace RTX {
     
   private:
     bool _connectionOk;
+    std::map<int,Point::Qual_t> _qualityMap;
     std::vector<Point> pointsWithStatement(const string& id, SQLHSTMT statement, time_t startTime, time_t endTime = 0);
     typedef struct {
-      SQLCHAR tagName[MAX_SCADA_TAG];
+      //SQLCHAR tagName[MAX_SCADA_TAG];
       SQL_TIMESTAMP_STRUCT time;
       double value;
       int quality;
-      SQLLEN tagNameInd, timeInd, valueInd, qualityInd;
+      SQLLEN /*tagNameInd,*/ timeInd, valueInd, qualityInd;
     } ScadaRecord;
     typedef struct {
       SQL_TIMESTAMP_STRUCT start;
@@ -119,15 +125,15 @@ namespace RTX {
     std::string _dsn;
     ScadaRecord _tempRecord;
     ScadaQuery _query;
-    
+    Sql_Connector_t _connectorType;
     
     void bindOutputColumns(SQLHSTMT statement, ScadaRecord* record);
-    SQL_TIMESTAMP_STRUCT sqlTime(time_t unixTime);
-    time_t unixTime(SQL_TIMESTAMP_STRUCT sqlTime);
     SQLRETURN SQL_CHECK(SQLRETURN retVal, std::string function, SQLHANDLE handle, SQLSMALLINT type) throw(std::string);
     std::string extract_error(std::string function, SQLHANDLE handle, SQLSMALLINT type);
-    time_t sql_to_tm ( const SQL_TIMESTAMP_STRUCT& sqlTime );
-    time_t time_to_epoch ( const struct tm *ltm, int utcdiff );
+    // time methods
+    SQL_TIMESTAMP_STRUCT sqlTime(time_t unixTime);
+    time_t sql_to_time_t ( const SQL_TIMESTAMP_STRUCT& sqlTime );
+    time_t boost_convert_tm_to_time_t(const struct tm &tmStruct);
   };
 
   

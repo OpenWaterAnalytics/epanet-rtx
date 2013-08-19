@@ -9,8 +9,9 @@
 #ifndef epanet_rtx_node_family_h
 #define epanet_rtx_node_family_h
 
+#include <boost/weak_ptr.hpp>
+
 #include "Element.h"
-#include "AggregatorTimeSeries.h"
 
 namespace RTX {
   
@@ -42,7 +43,7 @@ namespace RTX {
     
   private:
     double _x, _y, _z;
-    std::vector< boost::shared_ptr<Link> > _links;
+    std::vector< boost::weak_ptr<Link> > _links;
     
   };
   

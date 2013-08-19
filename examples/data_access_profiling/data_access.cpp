@@ -45,7 +45,7 @@ int main(int argc, const char * argv[])
     
     DbPointRecord::sharedPointer record( new MysqlPointRecord() );
     record->setConnectionString("HOST=unix:///tmp/mysql.sock;UID=rtx_db_agent;PWD=rtx_db_agent;DB=rtx_demo_db");
-    record->connect();
+    record->dbConnect();
     cout << *record;
     sourceTS->setRecord(record);
     
@@ -74,7 +74,7 @@ int main(int argc, const char * argv[])
   // this will create a new time series that uses the same point record as the original sourceTS.
   DbPointRecord::sharedPointer record2( new MysqlPointRecord() );
   record2->setConnectionString("HOST=tcp://localhost;UID=rtx_db_agent;PWD=rtx_db_agent;DB=rtx_demo_db");
-  record2->connect();
+  record2->dbConnect();
   TimeSeries::sharedPointer ts(new TimeSeries());
   ts->setName("source");
   ts->setUnits(RTX_CUBIC_FOOT_PER_SECOND);
