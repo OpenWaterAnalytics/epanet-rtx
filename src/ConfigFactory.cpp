@@ -515,6 +515,16 @@ void ConfigFactory::setGenericTimeSeriesProperties(TimeSeries::sharedPointer tim
     timeSeries->setClock(clock);
   }
   
+  if (setting.exists("firstTime")) {
+    double v = getConfigDouble(setting, "firstTime");
+    timeSeries->setFirstTime((time_t) v);
+  }
+  
+  if (setting.exists("lastTime")) {
+    double v = getConfigDouble(setting, "lastTime");
+    timeSeries->setLastTime((time_t) v);
+  }
+
   // if a pointRecord is specified, then re-set the timeseries' cache.
   // this means that the storage for the time series is probably external (scada / mysql).
   if (setting.exists("pointRecord")) {
@@ -527,6 +537,14 @@ void ConfigFactory::setGenericTimeSeriesProperties(TimeSeries::sharedPointer tim
       PointRecord::sharedPointer pointRecord = _pointRecordList[setting["pointRecord"]];
       timeSeries->setRecord(pointRecord);
     }
+  }
+  
+  // optional initial value at the initial time
+  if (setting.exists("initialValue")) {
+    double v = getConfigDouble(setting, "initialValue");
+    time_t t = timeSeries->firstTime();
+    Point aPoint(t, v, Point::good, 0);
+    timeSeries->insert(aPoint);
   }
   
   // set any upstream sources. forward declarations are allowed, as these will be set only after all timeseries objects have been created.
@@ -900,6 +918,13 @@ void ConfigFactory::createSaveOptions(libconfig::Setting &saveGroup) {
               p->flow()->setRecord(_defaultRecord);
             }
           }
+          vector<Tank::sharedPointer> tanks = _model->tanks();
+          BOOST_FOREACH(Tank::sharedPointer t, tanks) {
+            if (t->doesHaveHeadMeasure()) {
+              t->head()->setRecord(_defaultRecord);
+              t->level()->setRecord(_defaultRecord);
+            }
+          }          
         } // measured
         else if (RTX_STRINGS_ARE_EQUAL(stateToSave, "dma_demand")) {
           vector<Dma::sharedPointer> dmas = _model->dmas();

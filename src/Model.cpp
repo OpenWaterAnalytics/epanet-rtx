@@ -554,6 +554,7 @@ void Model::saveNetworkStates(time_t time) {
     head = Units::convertValue(junctionHead(tank->name()), headUnits(), tank->head()->units());
     Point headPoint(time, head, Point::good);
     tank->head()->insert(headPoint);
+    tank->level()->point(headPoint.time);
     
     double quality;
     quality = Units::convertValue(junctionQuality(tank->name()), this->qualityUnits(), tank->quality()->units());
