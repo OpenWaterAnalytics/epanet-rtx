@@ -58,7 +58,14 @@ bool PointRecord::isPointAvailable(const string& identifier, time_t time) {
 */
 
 Point PointRecord::point(const string& identifier, time_t time) {
-  return Point();
+  // return the cached point if it is valid
+  if (_cachedPointId == identifier && _cachedPoint.time == time) {
+    return _cachedPoint;
+  }
+  else {
+//    cout << "Unable to return Point for ID " << identifier << endl;
+    return Point();
+  }
 }
 
 
@@ -91,7 +98,9 @@ PointRecord::time_pair_t PointRecord::range(const string& id) {
 
 
 void PointRecord::addPoint(const string& identifier, Point point) {
-  
+  // Cache this single point
+  _cachedPointId = identifier;
+  _cachedPoint = point;
 }
 
 
