@@ -36,6 +36,9 @@ OdbcPointRecord::OdbcPointRecord() : _timeFormat(UTC){
 
 OdbcPointRecord::~OdbcPointRecord() {
   // make sure handles are free
+  if (_SCADAdbc != NULL) {
+    SQL_CHECK(SQLDisconnect(_SCADAdbc), "SQLDisconnect", _SCADAdbc, SQL_HANDLE_DBC);
+  }
   SQLFreeStmt(_rangeStatement, SQL_CLOSE);
   SQLFreeHandle(SQL_HANDLE_DBC, _SCADAdbc);
   SQLFreeHandle(SQL_HANDLE_ENV, _SCADAenv);
@@ -68,9 +71,13 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> OdbcPointRe
   oraQueries.timeQuery = "select sysdate from dual";
   map<int, Point::Qual_t> oraQualMap;
   oraQualMap[0] = Point::good;
-  oraQualMap[32] = Point::missing;
-  oraQualMap[128] = Point::estimated;
-  oraQualMap[256] = Point::estimated;
+  oraQualMap[128] = Point::questionable;
+  oraQualMap[192] = Point::questionable;
+  oraQualMap[256] = Point::questionable;
+  oraQualMap[768] = Point::questionable;
+  oraQualMap[32]   = Point::missing;
+  oraQualMap[1024] = Point::missing;
+  
   oraQueries.qualityMap = oraQualMap;
   
   /*
@@ -124,6 +131,10 @@ void OdbcPointRecord::setConnectorType(Sql_Connector_t connectorType) {
   
   _connectorType = connectorType;
   
+  if (connectorType == NO_CONNECTOR) {
+    return;
+  }
+  
   map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> qTypes = queryTypes();
   if (qTypes.find(connectorType) == qTypes.end()) {
     cerr << "OdbcPointRecord could not find the specified connector type" << endl;
@@ -131,8 +142,6 @@ void OdbcPointRecord::setConnectorType(Sql_Connector_t connectorType) {
   }
   
   OdbcPointRecord::odbc_query_t queries = qTypes[connectorType];
-  
-  
   {
     // do some string replacement to construct the sql queries from my type's template queries.
     vector<string*> querystrings;
@@ -170,6 +179,11 @@ void OdbcPointRecord::dbConnect() throw(RtxException) {
   
   
   SQLRETURN sqlRet;
+  
+  if (_SCADAdbc != NULL) {
+    SQL_CHECK(SQLDisconnect(_SCADAdbc), "SQLDisconnect", _SCADAdbc, SQL_HANDLE_DBC);
+  }
+  
   
   try {
     // make sure handles are free

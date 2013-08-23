@@ -13,6 +13,7 @@
 #include <vector>
 #include "Resampler.h"
 #include "rtxExceptions.h"
+#include <boost/foreach.hpp>
 
 namespace RTX {
   
