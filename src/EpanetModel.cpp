@@ -392,7 +392,15 @@ void EpanetModel::setTankLevel(const string& tank, double level) {
 }
 
 void EpanetModel::setJunctionDemand(const string& junction, double demand) {
-  setNodeValue(EN_BASEDEMAND, junction, demand);
+  int nodeIndex = _nodeIndex[junction];
+  // Junction demand is total demand - so deal with multiple categories
+  int numDemands = 0;
+  ENcheck( ENgetnumdemands(nodeIndex, &numDemands), "ENgetnumdemands()");
+  for (int demandIdx = 1; demandIdx < numDemands; demandIdx++) {
+    ENcheck( ENsetbasedemand(nodeIndex, demandIdx, 0.0), "ENsetbasedemand()" );
+  }
+  // Last demand category is the one... per EPANET convention
+  ENcheck( ENsetbasedemand(nodeIndex, numDemands, demand), "ENsetbasedemand()" );
 }
 
 void EpanetModel::setJunctionQuality(const std::string& junction, double quality) {
