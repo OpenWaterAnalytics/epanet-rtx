@@ -473,12 +473,21 @@ void Model::setSimulationParameters(time_t time) {
   
   // for tanks, set the boundary head, but only if the tank reset clock has fired.
   BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
-    if (tank->doesResetLevel() && tank->levelResetClock()->isValid(time) && tank->doesHaveHeadMeasure()) {
-      double levelValue = Units::convertValue(tank->level()->pointAtOrBefore(time).value, tank->level()->units(), headUnits());
+    if (tank->doesResetLevelUsingClock() && tank->levelResetClock()->isValid(time) && tank->doesHaveHeadMeasure()) {
+      double levelValue = Units::convertValue(tank->levelMeasure()->pointAtOrBefore(time).value, tank->levelMeasure()->units(), headUnits());
       setTankLevel(tank->name(), levelValue);
     }
   }
-  
+
+  // or, set the boundary head if someone has specifically requested it
+  BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
+    if (tank->resetLevelNextTime() && tank->doesHaveHeadMeasure()) {
+      double levelValue = Units::convertValue(tank->levelMeasure()->pointAtOrBefore(time).value, tank->levelMeasure()->units(), headUnits());
+      setTankLevel(tank->name(), levelValue);
+      tank->setResetLevelNextTime(false);      
+    }
+  }
+
   // for valves, set status and setting
   BOOST_FOREACH(Valve::sharedPointer valve, this->valves()) {
     if (valve->doesHaveStatusParameter()) {
@@ -554,6 +563,7 @@ void Model::saveNetworkStates(time_t time) {
     head = Units::convertValue(junctionHead(tank->name()), headUnits(), tank->head()->units());
     Point headPoint(time, head, Point::good);
     tank->head()->insert(headPoint);
+    tank->level()->point(headPoint.time);
     
     double quality;
     quality = Units::convertValue(junctionQuality(tank->name()), this->qualityUnits(), tank->quality()->units());

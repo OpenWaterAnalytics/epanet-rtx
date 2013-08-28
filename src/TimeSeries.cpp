@@ -6,6 +6,7 @@
 //  See README.md and license.txt for more information
 //  
 
+#include <limits.h>
 #include <boost/foreach.hpp>
 
 #include "TimeSeries.h"
@@ -27,6 +28,7 @@ TimeSeries::TimeSeries() : _units(1) {
   setName("Time Series");
   _clock.reset( new IrregularClock(_points, "Time Series") );
   _units = RTX_DIMENSIONLESS;
+  _validTimeRange = std::make_pair(1, LONG_MAX);
 }
 
 TimeSeries::~TimeSeries() {
@@ -280,6 +282,22 @@ void TimeSeries::setUnits(Units newUnits) {
 
 Units TimeSeries::units() {
   return _units;
+}
+
+void TimeSeries::setFirstTime(time_t time) {
+  _validTimeRange.first = time;
+}
+
+void TimeSeries::setLastTime(time_t time) {
+  _validTimeRange.second = time;
+}
+
+time_t TimeSeries::firstTime() {
+  return _validTimeRange.first;
+}
+
+time_t TimeSeries::lastTime() {
+  return _validTimeRange.second;
 }
 
 #pragma mark - Protected Methods
