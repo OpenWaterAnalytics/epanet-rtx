@@ -918,6 +918,18 @@ void ConfigFactory::createSaveOptions(libconfig::Setting &saveGroup) {
               p->flow()->setRecord(_defaultRecord);
             }
           }
+          vector<Pump::sharedPointer> pumps = _model->pumps();
+          BOOST_FOREACH(Pump::sharedPointer p, pumps) {
+            if (p->doesHaveFlowMeasure()) {
+              p->flow()->setRecord(_defaultRecord);
+            }
+          }
+          vector<Valve::sharedPointer> valves = _model->valves();
+          BOOST_FOREACH(Valve::sharedPointer p, valves) {
+            if (p->doesHaveFlowMeasure()) {
+              p->flow()->setRecord(_defaultRecord);
+            }
+          }
           vector<Tank::sharedPointer> tanks = _model->tanks();
           BOOST_FOREACH(Tank::sharedPointer t, tanks) {
             if (t->doesHaveHeadMeasure()) {
@@ -925,6 +937,12 @@ void ConfigFactory::createSaveOptions(libconfig::Setting &saveGroup) {
               t->level()->setRecord(_defaultRecord);
             }
           }          
+          vector<Reservoir::sharedPointer> reservoirs = _model->reservoirs();
+          BOOST_FOREACH(Reservoir::sharedPointer r, reservoirs) {
+            if (r->doesHaveHeadMeasure()) {
+              r->head()->setRecord(_defaultRecord);
+            }
+          }
         } // measured
         else if (RTX_STRINGS_ARE_EQUAL(stateToSave, "dma_demand")) {
           vector<Dma::sharedPointer> dmas = _model->dmas();
