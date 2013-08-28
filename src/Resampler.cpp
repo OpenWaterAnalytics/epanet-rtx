@@ -214,12 +214,19 @@ std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sour
   }
   */
   
+  int myMargin = this->margin(); // easier to debug
   
-  for (int iBackward = 0; iBackward < this->margin(); ++iBackward) {
-    rangeStart = sourceTs->clock()->timeBefore(rangeStart);
+  for (int iBackward = 0; iBackward < myMargin; ++iBackward) {
+    time_t before = sourceTs->clock()->timeBefore(rangeStart);
+    if (before > 0) {
+      rangeStart = before;
+    }
   }
-  for (int iForward = 0; iForward < this->margin(); ++iForward) {
-    rangeEnd = sourceTs->clock()->timeAfter(rangeEnd);
+  for (int iForward = 0; iForward < myMargin; ++iForward) {
+    time_t after = sourceTs->clock()->timeAfter(rangeEnd);
+    if (after > 0) {
+      rangeEnd = after;
+    }
   }
   
   pair<time_t, time_t> newRange(0,0);
