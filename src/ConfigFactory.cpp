@@ -515,6 +515,16 @@ void ConfigFactory::setGenericTimeSeriesProperties(TimeSeries::sharedPointer tim
     timeSeries->setClock(clock);
   }
   
+  if (setting.exists("firstTime")) {
+    double v = getConfigDouble(setting, "firstTime");
+    timeSeries->setFirstTime((time_t) v);
+  }
+  
+  if (setting.exists("lastTime")) {
+    double v = getConfigDouble(setting, "lastTime");
+    timeSeries->setLastTime((time_t) v);
+  }
+
   // if a pointRecord is specified, then re-set the timeseries' cache.
   // this means that the storage for the time series is probably external (scada / mysql).
   if (setting.exists("pointRecord")) {
@@ -527,6 +537,14 @@ void ConfigFactory::setGenericTimeSeriesProperties(TimeSeries::sharedPointer tim
       PointRecord::sharedPointer pointRecord = _pointRecordList[setting["pointRecord"]];
       timeSeries->setRecord(pointRecord);
     }
+  }
+  
+  // optional initial value at the initial time
+  if (setting.exists("initialValue")) {
+    double v = getConfigDouble(setting, "initialValue");
+    time_t t = timeSeries->firstTime();
+    Point aPoint(t, v, Point::good, 0);
+    timeSeries->insert(aPoint);
   }
   
   // set any upstream sources. forward declarations are allowed, as these will be set only after all timeseries objects have been created.
@@ -596,6 +614,19 @@ TimeSeries::sharedPointer ConfigFactory::createMovingAverage(libconfig::Setting 
 TimeSeries::sharedPointer ConfigFactory::createResampler(libconfig::Setting &setting) {
   Resampler::sharedPointer resampler( new Resampler() );
   setGenericTimeSeriesProperties(resampler, setting);
+  string mode;
+  if (setting.lookupValue("mode", mode)) {
+    if (RTX_STRINGS_ARE_EQUAL(mode, "linear")) {
+      resampler->setMode(Resampler::linear);
+    }
+    else if (RTX_STRINGS_ARE_EQUAL(mode, "step")) {
+      resampler->setMode(Resampler::step);
+    }
+    else {
+      cerr << "could not resolve Resampler mode: " << mode << " -- check config" << endl;
+    }
+  }
+
   return resampler;
 }
 
@@ -885,6 +916,31 @@ void ConfigFactory::createSaveOptions(libconfig::Setting &saveGroup) {
           BOOST_FOREACH(Pipe::sharedPointer p, pipes) {
             if (p->doesHaveFlowMeasure()) {
               p->flow()->setRecord(_defaultRecord);
+            }
+          }
+          vector<Pump::sharedPointer> pumps = _model->pumps();
+          BOOST_FOREACH(Pump::sharedPointer p, pumps) {
+            if (p->doesHaveFlowMeasure()) {
+              p->flow()->setRecord(_defaultRecord);
+            }
+          }
+          vector<Valve::sharedPointer> valves = _model->valves();
+          BOOST_FOREACH(Valve::sharedPointer p, valves) {
+            if (p->doesHaveFlowMeasure()) {
+              p->flow()->setRecord(_defaultRecord);
+            }
+          }
+          vector<Tank::sharedPointer> tanks = _model->tanks();
+          BOOST_FOREACH(Tank::sharedPointer t, tanks) {
+            if (t->doesHaveHeadMeasure()) {
+              t->head()->setRecord(_defaultRecord);
+              t->level()->setRecord(_defaultRecord);
+            }
+          }          
+          vector<Reservoir::sharedPointer> reservoirs = _model->reservoirs();
+          BOOST_FOREACH(Reservoir::sharedPointer r, reservoirs) {
+            if (r->doesHaveHeadMeasure()) {
+              r->head()->setRecord(_defaultRecord);
             }
           }
         } // measured

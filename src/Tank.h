@@ -33,7 +33,9 @@ namespace RTX {
     std::string geometryName;
     
     void setElevation(double elevation);
-    bool doesResetLevel();
+    bool doesResetLevelUsingClock();
+    void setResetLevelNextTime(bool reset);
+    bool resetLevelNextTime();
     void setLevelResetClock(Clock::sharedPointer clock);
     Clock::sharedPointer levelResetClock();
     
@@ -59,7 +61,7 @@ namespace RTX {
     std::vector< std::pair<double,double> > _geometry;
     Units _geometryLevelUnits;
     Units _geometryVolumeUnits;
-    
+    bool _resetLevelNextTime;
     
   }; // Tank
   

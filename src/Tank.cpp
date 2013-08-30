@@ -21,6 +21,7 @@ Tank::Tank(const std::string& name) : Junction(name) {
   setType(TANK);
   // initialize time series states
   _doesResetLevel = false;
+  _resetLevelNextTime = false;
   _level.reset( new OffsetTimeSeries() );
   _level->setSource(this->head());
   _level->setName(name + " level (offset)");
@@ -134,7 +135,13 @@ TimeSeries::sharedPointer Tank::volumeMeasure() {
 }
 
 
-bool Tank::doesResetLevel() {
+void Tank::setResetLevelNextTime(bool reset) {
+  _resetLevelNextTime = reset;
+}
+bool Tank::resetLevelNextTime() {
+  return _resetLevelNextTime;
+}
+bool Tank::doesResetLevelUsingClock() {
   return _doesResetLevel;
 }
 void Tank::setLevelResetClock(Clock::sharedPointer clock) {

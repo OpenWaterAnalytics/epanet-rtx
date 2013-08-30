@@ -429,10 +429,12 @@ void Dma::allocateDemandToJunctions(time_t time) {
   allocableDemand = dmaDemand - meteredDemand; // the total unmetered demand
   /*
   cout << "-------------------" << endl;
+  cout << "dma: " << this->name() << endl;
   cout << "time: " << time << endl;
   cout << "dma demand: " << dmaDemand << endl;
   cout << "metered: " << meteredDemand << endl;
   cout << "allocable: " << allocableDemand << endl;
+  cout << "dma base demand: " << totalBaseDemand << endl;
   */
   // set the demand values for unmetered junctions, according to their base demands.
   BOOST_FOREACH(JunctionMapType::value_type& junctionPair, _junctions) {
