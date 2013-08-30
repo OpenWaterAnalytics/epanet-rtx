@@ -181,7 +181,7 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
     // add in the new points.
     BOOST_FOREACH(Point& p, aggregated) {
       // just make sure we're at the right time.
-      while ((*pIt).time < p.time) {
+      while (pIt != thisSourcePoints.end() && (*pIt).time < p.time) {
         ++pIt;
       }
       if (pIt == thisSourcePoints.end()) {
