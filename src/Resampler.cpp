@@ -51,13 +51,21 @@ Point Resampler::point(time_t time) {
     std::vector<Point> sourcePoints = source()->points(sourceRange.first, sourceRange.second);
     
     // check the source points
-    if (sourcePoints.size() < 2) {
+    bool tooFewPoints = (_mode == step) ? (sourcePoints.size() < 1) : (sourcePoints.size() < 2);
+    if (tooFewPoints) {
       return resampled;
     }
     
     // also check that there is some data in between the requested bounds
-    if ( sourcePoints.back().time < time || time < sourcePoints.front().time ) {
-      return resampled;
+    if (_mode == step) {
+      if ( time < sourcePoints.front().time ) {
+        return resampled;
+      }
+    }
+    else {
+      if ( sourcePoints.back().time < time || time < sourcePoints.front().time ) {
+        return resampled;
+      }
     }
     
     pVec_cIt vecStart = sourcePoints.begin();
