@@ -175,8 +175,6 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
             free(xVals);
             free(yVals);
             
-            // set tank geometry
-            newTank->setGeometry(curveGeometry, headUnits(), volumeUnits);
             newTank->geometryName = string(curveId);
             
             //cout << endl;
@@ -198,6 +196,9 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
             //volumeCurveTs->addCurveCoordinate(maxLevel, maxVolume);
           }
           
+          // set tank geometry
+          newTank->setGeometry(curveGeometry, headUnits(), volumeUnits);
+
           newJunction = newTank;
           break;
         case EN_RESERVOIR:

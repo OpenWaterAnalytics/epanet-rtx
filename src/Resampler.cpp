@@ -245,7 +245,7 @@ std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sour
     }
   }
 
-  
+  /*
   int myMargin = this->margin(); // easier to debug
   
   for (int iBackward = 0; iBackward < myMargin; ++iBackward) {
@@ -260,6 +260,7 @@ std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sour
       rangeEnd = after;
     }
   }
+   */
   
   pair<time_t, time_t> newRange(0,0);
   
