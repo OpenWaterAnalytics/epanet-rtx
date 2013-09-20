@@ -197,6 +197,14 @@ map<string, Units> Units::unitStringMap() {
   m["mg/l"]= RTX_MILLIGRAMS_PER_LITER;
   // conductance
   m["us/cm"]=RTX_MICROSIEMENS_PER_CM;
+  // velocity
+  m["m/s"] = RTX_METER_PER_SECOND;
+  m["fps"] = RTX_FOOT_PER_SECOND;
+  m["ft/hr"] = RTX_FOOT_PER_HOUR;
+  // acceleration
+  m["m/s/s"] = RTX_METER_PER_SECOND_SECOND;
+  m["ft/s/s"] = RTX_FOOT_PER_SECOND_SECOND;
+  m["ft/hr/hr"] = RTX_FOOT_PER_HOUR_HOUR;
 
   return m;
 }
