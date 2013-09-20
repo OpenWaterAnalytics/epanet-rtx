@@ -475,6 +475,9 @@ void Model::setSimulationParameters(time_t time) {
   BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
     if (tank->doesResetLevelUsingClock() && tank->levelResetClock()->isValid(time) && tank->doesHaveHeadMeasure()) {
       double levelValue = Units::convertValue(tank->levelMeasure()->pointAtOrBefore(time).value, tank->levelMeasure()->units(), headUnits());
+      // adjust for model limits (epanet rejects otherwise, for example)
+      levelValue = (levelValue <= tank->maxLevel()) ? levelValue : tank->maxLevel();
+      levelValue = (levelValue >= tank->minLevel()) ? levelValue : tank->minLevel();
       setTankLevel(tank->name(), levelValue);
     }
   }
@@ -483,6 +486,9 @@ void Model::setSimulationParameters(time_t time) {
   BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
     if (tank->resetLevelNextTime() && tank->doesHaveHeadMeasure()) {
       double levelValue = Units::convertValue(tank->levelMeasure()->pointAtOrBefore(time).value, tank->levelMeasure()->units(), headUnits());
+      // adjust for model limits (epanet rejects otherwise, for example)
+      levelValue = (levelValue <= tank->maxLevel()) ? levelValue : tank->maxLevel();
+      levelValue = (levelValue >= tank->minLevel()) ? levelValue : tank->minLevel();
       setTankLevel(tank->name(), levelValue);
       tank->setResetLevelNextTime(false);      
     }
@@ -490,21 +496,36 @@ void Model::setSimulationParameters(time_t time) {
 
   // for valves, set status and setting
   BOOST_FOREACH(Valve::sharedPointer valve, this->valves()) {
+    // status can affect settings and vice-versa; status rules
+    Pipe::status_t status = Pipe::OPEN;
     if (valve->doesHaveStatusParameter()) {
-      setPipeStatus( valve->name(), Pipe::status_t((int)(valve->statusParameter()->pointAtOrBefore(time).value)) );
+      status = Pipe::status_t((int)(valve->statusParameter()->pointAtOrBefore(time).value));
+      setPipeStatus( valve->name(), status );
     }
-    if (valve->doesHaveSettingParameter()) {
+    if (valve->doesHaveSettingParameter() && status) {
       setValveSetting( valve->name(), valve->settingParameter()->pointAtOrBefore(time).value );
     }
   }
   
-  // for pumps, set status
+  // for pumps, set status and setting
   BOOST_FOREACH(Pump::sharedPointer pump, this->pumps()) {
+    // status can affect settings and vice-versa; status rules
+    Pipe::status_t status = Pipe::OPEN;
     if (pump->doesHaveStatusParameter()) {
-      setPumpStatus( pump->name(), Pipe::status_t((int)(pump->statusParameter()->pointAtOrBefore(time).value)) );
+      status = Pipe::status_t((int)(pump->statusParameter()->pointAtOrBefore(time).value));
+      setPumpStatus( pump->name(), status );
+    }
+    if (pump->doesHaveSettingParameter() && status) {
+      setPumpSetting( pump->name(), pump->settingParameter()->pointAtOrBefore(time).value );
     }
   }
   
+  // for pipes, set status
+  BOOST_FOREACH(Pipe::sharedPointer pipe, this->pipes()) {
+    if (pipe->doesHaveStatusParameter()) {
+      setPipeStatus( pipe->name(), Pipe::status_t((int)(pipe->statusParameter()->pointAtOrBefore(time).value)) );
+    }
+  }
   
   //////////////////////////////
   // water quality parameters //

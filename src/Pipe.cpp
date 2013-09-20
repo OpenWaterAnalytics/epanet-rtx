@@ -16,6 +16,7 @@ Pipe::Pipe(const std::string& name, Node::sharedPointer startNode, Node::sharedP
   setType(PIPE);
   _doesHaveFlowMeasure = false;
   _doesHaveStatusParameter = false;
+  _doesHaveSettingParameter = false;
   _flowState.reset( new TimeSeries() );
   _flowState->setUnits(RTX_LITER_PER_SECOND);
   _flowState->setName("L " + name + " flow");
@@ -78,4 +79,17 @@ TimeSeries::sharedPointer Pipe::flowMeasure() {
 void Pipe::setFlowMeasure(TimeSeries::sharedPointer flow) {
   _doesHaveFlowMeasure = (flow ? true : false);
   _flowMeasure = flow;
+}
+
+bool Pipe::doesHaveSettingParameter() {
+  return _doesHaveSettingParameter;
+}
+
+TimeSeries::sharedPointer Pipe::settingParameter() {
+  return _setting;
+}
+
+void Pipe::setSettingParameter(TimeSeries::sharedPointer setting) {
+  _doesHaveSettingParameter = (setting ? true : false);
+  _setting = setting;
 }

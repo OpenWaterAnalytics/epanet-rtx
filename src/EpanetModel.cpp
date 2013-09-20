@@ -431,6 +431,10 @@ void EpanetModel::setPumpStatus(const string& pump, Pipe::status_t status) {
   setPipeStatus(pump, status);
 }
 
+void EpanetModel::setPumpSetting(const string& pump, double setting) {
+  setLinkValue(EN_SETTING, pump, setting);
+}
+
 void EpanetModel::setValveSetting(const string& valve, double setting) {
   setLinkValue(EN_SETTING, valve, setting);
 }

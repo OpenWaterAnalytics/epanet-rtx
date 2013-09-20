@@ -32,12 +32,16 @@ namespace RTX {
     double value();
     virtual void setSource(TimeSeries::sharedPointer source);
     virtual void setUnits(Units newUnits);
+    typedef enum {absolute,normal} compareMode_t;
+    compareMode_t mode();
+    void setMode(compareMode_t mode);
 
     
   private:
     Point filteredSingle(Point p, Units sourceU);
     double _threshold;
     double _fixedValue;
+    compareMode_t _mode;
     
   };
 }

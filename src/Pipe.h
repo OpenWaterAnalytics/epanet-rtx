@@ -39,7 +39,10 @@ namespace RTX {
     bool doesHaveStatusParameter();
     TimeSeries::sharedPointer statusParameter();
     void setStatusParameter(TimeSeries::sharedPointer status);
-    
+    bool doesHaveSettingParameter();
+    TimeSeries::sharedPointer settingParameter();
+    void setSettingParameter(TimeSeries::sharedPointer setting);
+
     // measurements
     bool doesHaveFlowMeasure();
     TimeSeries::sharedPointer flowMeasure();
@@ -52,6 +55,8 @@ namespace RTX {
     TimeSeries::sharedPointer _flowState;
     TimeSeries::sharedPointer _flowMeasure;
     TimeSeries::sharedPointer _status;
+    TimeSeries::sharedPointer _setting;
+    bool _doesHaveSettingParameter;
     bool _doesHaveStatusParameter;
     bool _doesHaveFlowMeasure;
   };

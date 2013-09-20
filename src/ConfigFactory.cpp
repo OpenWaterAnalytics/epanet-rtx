@@ -24,6 +24,7 @@
 #include "MultiplierTimeSeries.h"
 #include "ValidRangeTimeSeries.h"
 #include "RunTimeStatusModularTimeSeries.h"
+#include "GainTimeSeries.h"
 
 #include "PointRecord.h"
 #include "CsvPointRecord.h"
@@ -85,6 +86,7 @@ ConfigFactory::ConfigFactory() {
   _timeSeriesPointerMap.insert(make_pair("ValidRange", &ConfigFactory::createValidRange));
   _timeSeriesPointerMap.insert(make_pair("Constant", &ConfigFactory::createConstant));
   _timeSeriesPointerMap.insert(make_pair("RuntimeStatus", &ConfigFactory::createRuntimeStatus));
+  _timeSeriesPointerMap.insert(make_pair("Gain", &ConfigFactory::createGain));
 
   // node-type configuration functions
   // Junctions
@@ -101,12 +103,11 @@ ConfigFactory::ConfigFactory() {
   // Pipes
   _parameterSetter.insert(make_pair("status_boundary", &ConfigFactory::configurePipeStatus));
   _parameterSetter.insert(make_pair("flow_measure", &ConfigFactory::configureFlowMeasure));
+  _parameterSetter.insert(make_pair("setting_boundary", &ConfigFactory::configurePipeSetting));
   // Pumps
   _parameterSetter.insert(make_pair("curve", &ConfigFactory::configurePumpCurve));
   _parameterSetter.insert(make_pair("energy_measure", &ConfigFactory::configurePumpEnergyMeasure));
-  // Valves
-  _parameterSetter.insert(make_pair("setting_boundary", &ConfigFactory::configureValveSetting));
-  
+
   _doesHaveStateRecord = false;
   
 }
@@ -654,6 +655,18 @@ TimeSeries::sharedPointer ConfigFactory::createThreshold(Setting &setting) {
     double v = getConfigDouble(setting, "thresholdValue");
     status->setThreshold(v);
   }
+  string mode;
+  if (setting.lookupValue("mode", mode)) {
+    if (RTX_STRINGS_ARE_EQUAL(mode, "normal")) {
+      status->setMode(ThresholdTimeSeries::normal);
+    }
+    else if (RTX_STRINGS_ARE_EQUAL(mode, "absolute")) {
+      status->setMode(ThresholdTimeSeries::absolute);
+    }
+    else {
+      cerr << "could not resolve mode: " << mode << " -- check config" << endl;
+    }
+  }
 
   return status;
 }
@@ -771,6 +784,25 @@ TimeSeries::sharedPointer ConfigFactory::createRuntimeStatus(Setting &setting) {
   return ts;
 }
 
+TimeSeries::sharedPointer ConfigFactory::createGain(Setting &setting) {
+  GainTimeSeries::sharedPointer ts( new GainTimeSeries() );
+  setGenericTimeSeriesProperties(ts, setting);
+  if (setting.exists("gainValue")) {
+    double v = getConfigDouble(setting, "gainValue");
+    ts->setGain(v);
+  }
+  
+  // additional setters for this class...
+  // input units
+  Units theUnits(RTX_DIMENSIONLESS);
+  if (setting.exists("gainUnits")) {
+    string unitName = setting["gainUnits"];
+    theUnits = Units::unitOfType(unitName);
+  }
+  ts->setGainUnits(theUnits);
+
+  return ts;
+}
 
 
 
@@ -1117,6 +1149,14 @@ void ConfigFactory::configurePipeStatus(Setting &setting, Element::sharedPointer
   }
 }
 
+void ConfigFactory::configurePipeSetting(Setting &setting, Element::sharedPointer pipe) {
+  Pipe::sharedPointer thisPipe = boost::dynamic_pointer_cast<Pipe>(pipe);
+  if (thisPipe) {
+    TimeSeries::sharedPointer pipeSetting = _timeSeriesList[setting["timeseries"]];
+    thisPipe->setSettingParameter(pipeSetting);
+  }
+}
+
 void ConfigFactory::configureFlowMeasure(Setting &setting, Element::sharedPointer pipe) {
   Pipe::sharedPointer thisPipe = boost::dynamic_pointer_cast<Pipe>(pipe);
   if (thisPipe) {
@@ -1138,13 +1178,6 @@ void ConfigFactory::configurePumpEnergyMeasure(Setting &setting, Element::shared
   if (thisPump) {
     TimeSeries::sharedPointer energy = _timeSeriesList[setting["timeseries"]];
     thisPump->setEnergyMeasure(energy);
-  }
-}
-void ConfigFactory::configureValveSetting(Setting &setting, Element::sharedPointer valve) {
-  Valve::sharedPointer thisValve = boost::dynamic_pointer_cast<Valve>(valve);
-  if (thisValve) {
-    TimeSeries::sharedPointer valveSetting = _timeSeriesList[setting["timeseries"]];
-    thisValve->setSettingParameter(valveSetting);
   }
 }
 

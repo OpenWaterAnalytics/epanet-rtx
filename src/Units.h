@@ -55,6 +55,14 @@
 #define RTX_MILLIGRAMS_PER_LITER    RTX::Units(.001,         1,-3,0)
 // conductance
 #define RTX_MICROSIEMENS_PER_CM     RTX::Units(.0001,        -1,-3,3,2)
+// velocity
+#define RTX_METER_PER_SECOND        RTX::Units(1,            0,1,-1)
+#define RTX_FOOT_PER_SECOND         RTX::Units(.3048,        0,1,-1)
+#define RTX_FOOT_PER_HOUR           RTX::Units(84.6666667E-6,0,1,-1)
+// acceleration
+#define RTX_METER_PER_SECOND_SECOND RTX::Units(1,            0,1,-2)
+#define RTX_FOOT_PER_SECOND_SECOND  RTX::Units(.3048,        0,1,-2)
+#define RTX_FOOT_PER_HOUR_HOUR      RTX::Units(25.5185185E-9,0,1,-2)
 
 
 namespace RTX {
