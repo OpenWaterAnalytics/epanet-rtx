@@ -108,8 +108,9 @@ namespace RTX {
     TimeSeries::sharedPointer createValidRange(Setting &setting);
     TimeSeries::sharedPointer createMultiplier(Setting &setting);
     TimeSeries::sharedPointer createRuntimeStatus(Setting &setting);
+    TimeSeries::sharedPointer createGain(Setting &setting);
 
-    
+
     void configureQualitySource(Setting &setting, Element::sharedPointer junction);
     void configureBoundaryFlow(Setting &setting, Element::sharedPointer junction);
     void configureHeadMeasure(Setting &setting, Element::sharedPointer junction);
@@ -118,10 +119,10 @@ namespace RTX {
     void configureQualityMeasure(Setting &setting, Element::sharedPointer junction);
     void configureBoundaryHead(Setting &setting, Element::sharedPointer junction);
     void configurePipeStatus(Setting &setting, Element::sharedPointer pipe);
+    void configurePipeSetting(Setting &setting, Element::sharedPointer pipe);
     void configureFlowMeasure(Setting &setting, Element::sharedPointer pipe);
     void configurePumpCurve(Setting &setting, Element::sharedPointer pump);
     void configurePumpEnergyMeasure(Setting &setting, Element::sharedPointer pump);
-    void configureValveSetting(Setting &setting, Element::sharedPointer valve);
     
     void createModel(Setting& setting);
     
