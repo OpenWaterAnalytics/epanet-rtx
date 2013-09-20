@@ -55,6 +55,7 @@ namespace RTX {
     void setJunctionDemand(const std::string& junction, double demand);
     void setPipeStatus(const std::string& pipe, Pipe::status_t status);
     void setPumpStatus(const std::string& pump, Pipe::status_t status);
+    void setPumpSetting(const std::string& pump, double setting);
     void setValveSetting(const std::string& valve, double setting);
     
     // quality

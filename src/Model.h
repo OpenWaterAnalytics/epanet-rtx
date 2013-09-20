@@ -132,6 +132,7 @@ namespace RTX {
     
     virtual void setPipeStatus(const string& pipe, Pipe::status_t status) { };
     virtual void setPumpStatus(const string& pump, Pipe::status_t status) { };
+    virtual void setPumpSetting(const std::string& pump, double setting) { };
     virtual void setValveSetting(const string& valve, double setting) { };
     
     virtual void solveSimulation(time_t time) { };
