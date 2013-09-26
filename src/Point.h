@@ -52,9 +52,15 @@ namespace RTX {
     static bool comparePointTime(const Point& left, const Point& right);
     static Point linearInterpolate(const Point& p1, const Point& p2, const time_t& t);
     
+    friend std::ostream& operator<<(std::ostream& outputStream, const Point& p)
+    {
+      return outputStream << p.value;
+    }
+    
+    
   };
 
-  std::ostream& operator<< (std::ostream &out, Point &point);
+  //std::ostream& operator<< (std::ostream &out, Point &point);
 
 }
 

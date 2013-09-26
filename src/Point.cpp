@@ -111,10 +111,11 @@ Point Point::linearInterpolate(const Point& p1, const Point& p2, const time_t& t
 }
 
 
-
+/*
 std::ostream& RTX::operator<< (std::ostream &out, Point &point) {
   return point.toStream(out);
 }
+*/
 
 std::ostream& Point::toStream(std::ostream &stream) {
   stream << "(" << time << "," << value << "," << quality << "," << confidence << ")";

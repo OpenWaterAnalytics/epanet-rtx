@@ -89,6 +89,9 @@ Point FirstDerivative::filteredSingle(pVec_cIt& vecStart, pVec_cIt& vecEnd, pVec
 
 std::ostream& FirstDerivative::toStream(std::ostream &stream) {
   TimeSeries::toStream(stream);
-  stream << "First Derivative Of: " << *source() << "\n";
+  if (source()) {
+    stream << "First Derivative Of: " << *source() << "\n";
+  }
+  
   return stream;
 }

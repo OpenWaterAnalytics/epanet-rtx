@@ -13,17 +13,7 @@
 
 #include <libconfig.h++>
 
-#include "rtxMacros.h"
-#include "TimeSeries.h"
-#include "PointRecord.h"
-#include "Junction.h"
-#include "Tank.h"
-#include "Reservoir.h"
-#include "Link.h"
-#include "Pipe.h"
-#include "Pump.h"
-#include "Valve.h"
-#include "Model.h"
+#include "ProjectFile.h"
 
 namespace RTX {
   
@@ -70,14 +60,14 @@ namespace RTX {
   
   // TODO - split this into separate factory classes (for pointrecords, timeseries, model, etc?)
   
-  class ConfigFactory {
+  class ConfigFactory : public ProjectFile {
   public:
     RTX_SHARED_POINTER(ConfigFactory);
     ConfigFactory();
     ~ConfigFactory();
     
-    void loadConfigFile(const string& path);
-    void saveConfigFile(const string& path);
+    void loadProjectFile(const string& path);
+    void saveProjectFile(const string& path);
     void clear();
     
     map<string, TimeSeries::sharedPointer> timeSeries();
@@ -86,7 +76,6 @@ namespace RTX {
     PointRecord::sharedPointer defaultRecord();
     Model::sharedPointer model();
     
-    vector<string> elementList();
     void configureElements(Model::sharedPointer model);
     
   protected:

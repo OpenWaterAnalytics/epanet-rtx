@@ -122,7 +122,7 @@ ConfigFactory::~ConfigFactory() {
 
 #pragma mark - Loading File
 
-void ConfigFactory::loadConfigFile(const string& path) {
+void ConfigFactory::loadProjectFile(const string& path) {
   
   _configPath = path;
   boost::filesystem::path configPath(path);
@@ -219,6 +219,9 @@ void ConfigFactory::loadConfigFile(const string& path) {
   
 }
 
+void ConfigFactory::saveProjectFile(const string &path) {
+  // unimplemented
+}
 
 map<string, TimeSeries::sharedPointer> ConfigFactory::timeSeries() {
   return _timeSeriesList;
@@ -236,6 +239,9 @@ map<string, Clock::sharedPointer> ConfigFactory::clocks() {
   return _clockList;
 }
 
+void ConfigFactory::clear() {
+  
+}
 
 #pragma mark - PointRecord
 
