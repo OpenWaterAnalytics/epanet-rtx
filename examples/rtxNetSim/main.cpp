@@ -16,7 +16,7 @@ int main(int argc, const char * argv[])
 {
   
   time_t someTime = 1353330000; // unix-time 2012-11-19 8:00:00 EST
-  long duration = 60 * 60 * 24; // 1 day
+  long duration = 60 * 60 * 24 * 12; // 12 days
   
   string forwardSimulationConfig("");
   if (argc > 1) {
@@ -32,6 +32,13 @@ int main(int argc, const char * argv[])
     config.loadProjectFile(forwardSimulationConfig);
     
     model = config.model();
+    
+    // reset tank levels (forget what the model says)
+    BOOST_FOREACH(Tank::sharedPointer t, model->tanks()) {
+      t->setResetLevelNextTime(true);
+    }
+    
+    model->setInitialQuality(350.);
     
     cout << "RTX: Running simulation for..." << endl;
     cout << *model;

@@ -402,6 +402,10 @@ int Model::qualityTimeStep() {
   return _qualityTimeStep;
 }
 
+void Model::setInitialQuality(double qual) {
+  
+}
+
 
 #pragma mark - Protected Methods
 

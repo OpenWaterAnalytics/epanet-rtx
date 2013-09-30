@@ -69,6 +69,7 @@ namespace RTX {
     virtual int relativeError(time_t time);
     virtual void setHydraulicTimeStep(int seconds);
     virtual void setQualityTimeStep(int seconds);
+    virtual void setInitialQuality(double qual);
     void ENcheck(int errorCode, std::string externalFunction) throw(std::string);
     
     // protected accessors

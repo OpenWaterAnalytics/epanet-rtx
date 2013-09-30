@@ -939,6 +939,16 @@ void ConfigFactory::createSaveOptions(libconfig::Setting &saveGroup) {
         if (RTX_STRINGS_ARE_EQUAL(stateToSave, "all")) {
           _model->setStorage(_defaultRecord);
         }
+        else if (RTX_STRINGS_ARE_EQUAL(stateToSave, "flow")) {
+          BOOST_FOREACH(Pipe::sharedPointer p, _model->pipes()) {
+            p->flow()->setRecord(_defaultRecord);
+          }
+        }
+        else if (RTX_STRINGS_ARE_EQUAL(stateToSave, "quality")) {
+          BOOST_FOREACH(Junction::sharedPointer j, _model->junctions()) {
+            j->quality()->setRecord(_defaultRecord);
+          }
+        }
         else if (RTX_STRINGS_ARE_EQUAL(stateToSave, "measured")) {
           // save only the element states that have measured counterparts.
           vector<Junction::sharedPointer> junctions = _model->junctions();

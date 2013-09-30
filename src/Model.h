@@ -93,6 +93,7 @@ namespace RTX {
     
     virtual void setQualityTimeStep(int seconds);
     int qualityTimeStep();
+    virtual void setInitialQuality(double qual);
     
     virtual time_t currentSimulationTime();
     TimeSeries::sharedPointer iterations() {return _iterations;}

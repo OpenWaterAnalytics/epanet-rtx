@@ -13,6 +13,8 @@
 
 #include <types.h>
 
+#include <boost/range/adaptors.hpp>
+
 using namespace RTX;
 using namespace std;
 
@@ -112,8 +114,8 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
     
     
     // what units are quality in? who knows!
-    this->setQualityUnits(RTX_MILLIGRAMS_PER_LITER);
-    ENcheck(ENsetqualtype(CHEM, (char*)"rtxChem", (char*)"mg/l", ""), "ENsetqualtype");
+    this->setQualityUnits(RTX_MICROSIEMENS_PER_CM);
+    ENcheck(ENsetqualtype(CHEM, (char*)"rtxConductivity", (char*)"us/cm", (char*)""), "ENsetqualtype");
     
     // create nodes
     for (int iNode=1; iNode <= nodeCount; iNode++) {
@@ -565,6 +567,14 @@ void EpanetModel::setQualityTimeStep(int seconds) {
   Model::setQualityTimeStep(seconds);
 }
 
+void EpanetModel::setInitialQuality(double qual) {
+  ENcheck(ENcloseQ(), "ENcloseQ");
+  BOOST_FOREACH(int iNode, _nodeIndex | boost::adaptors::map_values) {
+    ENcheck(ENsetnodevalue(iNode, EN_INITQUAL, qual), "ENsetnodevalue - EN_INITQUAL");
+  }
+  ENcheck(ENopenQ(), "ENopenQ");
+  ENcheck(ENinitQ(EN_NOSAVE), "ENinitQ");
+}
 
 #pragma mark -
 #pragma mark Internal Private Methods

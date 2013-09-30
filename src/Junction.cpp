@@ -112,7 +112,7 @@ void Junction::setPressureMeasure(TimeSeries::sharedPointer pressure) {
 
 // quality measurement
 bool Junction::doesHaveQualityMeasure() {
-  return _doesHaveQualitySource;
+  return _doesHaveQualityMeasure;
 }
 void Junction::setQualityMeasure(TimeSeries::sharedPointer quality) {
   _doesHaveQualityMeasure = (quality ? true : false);
