@@ -93,14 +93,17 @@ void Tank::setElevation(double elevation) {
 }
 
 void Tank::setLevelMeasure(TimeSeries::sharedPointer levelMeasure) {
-  //std::cout << "oops, depricated" << std::endl;
+  if (!levelMeasure) {
+    this->setHeadMeasure(TimeSeries::sharedPointer());
+  }
+  else {
+    OffsetTimeSeries::sharedPointer offsetHeadMeasure( new OffsetTimeSeries() );
+    offsetHeadMeasure->setName(this->name() + " offset");
+    offsetHeadMeasure->setSource(levelMeasure);
+    offsetHeadMeasure->setOffset( (this->elevation()) );
   
-  OffsetTimeSeries::sharedPointer offsetHeadMeasure( new OffsetTimeSeries() );
-  offsetHeadMeasure->setName(this->name() + " offset");
-  offsetHeadMeasure->setSource(levelMeasure);
-  offsetHeadMeasure->setOffset( (this->elevation()) );
-  
-  this->setHeadMeasure(offsetHeadMeasure);
+    this->setHeadMeasure(offsetHeadMeasure);
+  }
 }
 
 TimeSeries::sharedPointer Tank::levelMeasure() {
