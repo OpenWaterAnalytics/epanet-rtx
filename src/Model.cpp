@@ -71,12 +71,65 @@ void Model::setShouldRunWaterQuality(bool run) {
 
 
 #pragma mark - Units
-Units Model::flowUnits()    { return _flowUnits; }
-Units Model::headUnits()    { return _headUnits; }
-Units Model::qualityUnits() { return _qualityUnits; }
-void Model::setFlowUnits(Units units)    { _flowUnits = units; }
-void Model::setHeadUnits(Units units)    { _headUnits = units; }
-void Model::setQualityUnits(Units units) { _qualityUnits = units; }
+Units Model::flowUnits()    {
+  return _flowUnits;
+}
+Units Model::headUnits()    {
+  return _headUnits;
+}
+Units Model::qualityUnits() {
+  return _qualityUnits;
+}
+void Model::setFlowUnits(Units units)    {
+  if (!units.isSameDimensionAs(RTX_LITER_PER_SECOND)) {
+    cerr << "units not dimensionally consistent with flow" << endl;
+    return;
+  }
+  _flowUnits = units;
+  BOOST_FOREACH(Junction::sharedPointer j, this->junctions()) {
+    j->demand()->setUnits(units);
+  }
+  BOOST_FOREACH(Tank::sharedPointer t, this->tanks()) {
+    t->flowMeasure()->setUnits(units);
+  }
+  BOOST_FOREACH(Pipe::sharedPointer p, this->pipes()) {
+    p->flow()->setUnits(units);
+  }
+  BOOST_FOREACH(Pump::sharedPointer p, this->pumps()) {
+    p->flow()->setUnits(units);
+  }
+  BOOST_FOREACH(Valve::sharedPointer v, this->valves()) {
+    v->flow()->setUnits(units);
+  }
+}
+void Model::setHeadUnits(Units units)    {
+  _headUnits = units;
+  
+  BOOST_FOREACH(Junction::sharedPointer j, this->junctions()) {
+    j->head()->setUnits(units);
+  }
+  BOOST_FOREACH(Tank::sharedPointer t, this->tanks()) {
+    t->head()->setUnits(units);
+    t->level()->setUnits(units);
+  }
+  BOOST_FOREACH(Reservoir::sharedPointer r, this->reservoirs()) {
+    r->head()->setUnits(units);
+  }
+  
+}
+void Model::setQualityUnits(Units units) {
+  _qualityUnits = units;
+  BOOST_FOREACH(Junction::sharedPointer j, this->junctions()) {
+    j->quality()->setUnits(units);
+  }
+  BOOST_FOREACH(Tank::sharedPointer t, this->tanks()) {
+    t->quality()->setUnits(units);
+  }
+  BOOST_FOREACH(Reservoir::sharedPointer r, this->reservoirs()) {
+    r->quality()->setUnits(units);
+  }
+  
+}
 
 #pragma mark - Storage
 void Model::setStorage(PointRecord::sharedPointer record) {

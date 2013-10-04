@@ -62,6 +62,13 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
     // get units from epanet
     int flowUnitType = 0;
     bool isSI = false;
+    
+    int qualCode, traceNode;
+    char chemName[32],chemUnits[32];
+    ENcheck( ENgetqualinfo(&qualCode, chemName, chemUnits, &traceNode), "ENgetqualinfo" );
+    Units qualUnits = Units::unitOfType(string(chemUnits));
+    this->setQualityUnits(qualUnits);
+    
     ENcheck( ENgetflowunits(&flowUnitType), "ENgetflowunits");
     switch (flowUnitType)
     {

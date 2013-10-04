@@ -19,13 +19,16 @@ namespace RTX {
     Reservoir(const std::string& name);
     virtual ~Reservoir();
     
+    void setFixedLevel(double level);
+    double fixedLevel();
+    
     // maybe?
     bool doesHaveBoundaryHead();
     TimeSeries::sharedPointer boundaryHead();
     void setBoundaryHead(TimeSeries::sharedPointer head);
     
   private:
-    // nothing
+    double _fixedLevel;
     
   }; // class Reservoir
   

@@ -19,7 +19,15 @@ Reservoir::~Reservoir() {
   
 }
 
-// for the following methods, default to the headMeasure Junction:: methods, 
+void Reservoir::setFixedLevel(double level) {
+  _fixedLevel = level;
+}
+
+double Reservoir::fixedLevel() {
+  return _fixedLevel;
+}
+
+// for the following methods, default to the headMeasure Junction:: methods,
 // since if a reservoir has a measurement, it simply must be a boundary condition.
 
 void Reservoir::setBoundaryHead(TimeSeries::sharedPointer head) {

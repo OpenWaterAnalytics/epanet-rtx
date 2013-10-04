@@ -6,7 +6,9 @@ using namespace std;
 
 
 Point SinglePointFilterModularTimeSeries::point(time_t time){
-  
+  if (!source()) {
+    return Point();
+  }
   Point newPoint = TimeSeries::point(time);
   if (newPoint.isValid) {
     return newPoint;

@@ -101,10 +101,6 @@ namespace RTX {
     
     virtual std::ostream& toStream(std::ostream &stream);
 
-  protected:
-    
-    void setSimulationParameters(time_t time);
-    void saveNetworkStates(time_t time);
     
     // units
     Units flowUnits();
@@ -114,6 +110,13 @@ namespace RTX {
     void setFlowUnits(Units units);
     void setHeadUnits(Units units);
     void setQualityUnits(Units units);
+    
+  protected:
+    
+    void setSimulationParameters(time_t time);
+    void saveNetworkStates(time_t time);
+    
+    
     
     // model parameter setting
     // recreating or wrapping basic api functionality here.
