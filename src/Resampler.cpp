@@ -225,7 +225,8 @@ std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sour
   
   time_t rangeStart = start, rangeEnd = end;
 
-  for (int iBackward = 0; iBackward < this->margin(); ++iBackward) {
+  int margin = this->margin();
+  for (int iBackward = 0; iBackward < margin; ++iBackward) {
     Point behindPoint = sourceTs->pointBefore(rangeStart);
     if (behindPoint.isValid) {
       rangeStart = behindPoint.time;
@@ -235,7 +236,7 @@ std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sour
     }
   }
   
-  for (int iForward = 0; iForward < this->margin(); ++iForward) {
+  for (int iForward = 0; iForward < margin; ++iForward) {
     Point inFrontPoint = sourceTs->pointAfter(rangeEnd);
     if (inFrontPoint.isValid) {
       rangeEnd = inFrontPoint.time;
