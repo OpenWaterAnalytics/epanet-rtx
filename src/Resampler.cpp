@@ -271,9 +271,12 @@ std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sour
 }
 
 
-// align the position, back, and fwd iterators to where the will need to be.
+// align the position, back, and fwd iterators to where they will need to be.
+// back and fwd are margin() points behind and forward of requested time.
+// the number of points between back and fwd is 2*margin(), or 2*margin()+1
+// if the requested time is on a point.
 
-void Resampler::alignVectorIterators(pVec_cIt& start, pVec_cIt& end, pVec_cIt& pos, time_t t, pVec_cIt& back, pVec_cIt& fwd) {
+bool Resampler::alignVectorIterators(pVec_cIt& start, pVec_cIt& end, pVec_cIt& pos, time_t t, pVec_cIt& back, pVec_cIt& fwd) {
   
   // move the position vector to my desired time, or slightly after.
   while (pos != end && pos->time < t) {
@@ -286,7 +289,7 @@ void Resampler::alignVectorIterators(pVec_cIt& start, pVec_cIt& end, pVec_cIt& p
   
   // get some vital info
   int marginDistance = this->margin();
-  int iForwards = (t < pos->time) ? 1 : 0; // are we in front of t? if so, we've got a head start.
+  int iForwards = (t < pos->time) ? 1 : 0; // are we forward of t? if so, we've got a head start.
   int iBackwards = 0; // should def. be zero / sph
   
   // some quick checking that everything is in order
@@ -302,15 +305,21 @@ void Resampler::alignVectorIterators(pVec_cIt& start, pVec_cIt& end, pVec_cIt& p
   
   
   // widen the bounds (within the allowable range) to account for my margin
-  while (fwd != end && ++iForwards <= marginDistance) {
+  while (fwd != end && iForwards < marginDistance) {
     ++fwd;
+    ++iForwards;
   }
   if (fwd == end) {
     --fwd;
+    --iForwards;
   }
-  while (back != start && ++iBackwards <= marginDistance) {
+  while (back != start && iBackwards < marginDistance) {
     --back;
+    ++iBackwards;
   }
+  
+  bool success = (iForwards == marginDistance && iBackwards == marginDistance) ? true : false;
+  return success;
   
   // ok, all done. everything is passed by ref.
   

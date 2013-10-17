@@ -35,7 +35,7 @@ namespace RTX {
     virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
     //virtual Point filteredSingle(const pointBuffer_t& window, time_t t, Units fromUnits);
     virtual Point filteredSingle(pVec_cIt& vecStart, pVec_cIt& vecEnd, pVec_cIt& vecPos, time_t t, Units fromUnits);
-    void alignVectorIterators(pVec_cIt& start, pVec_cIt& end, pVec_cIt& pos, time_t t, pVec_cIt& back, pVec_cIt& fwd);
+    bool alignVectorIterators(pVec_cIt& start, pVec_cIt& end, pVec_cIt& pos, time_t t, pVec_cIt& back, pVec_cIt& fwd);
     
   private:
     std::pair<time_t,time_t> expandedRange(TimeSeries::sharedPointer sourceTs, time_t start, time_t end);

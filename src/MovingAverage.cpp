@@ -64,9 +64,15 @@ Point MovingAverage::filteredSingle(pVec_cIt &vecStart, pVec_cIt &vecEnd, pVec_c
   
   pVec_cIt fwd_it = vecPos;
   pVec_cIt back_it = vecPos;
-  alignVectorIterators(vecStart, vecEnd, vecPos, t, back_it, fwd_it);
+  bool success = alignVectorIterators(vecStart, vecEnd, vecPos, t, back_it, fwd_it);
   
-  
+  // with any luck, at this point we have the back and fwd iterators positioned just right.
+  // +/- the margin from the time point we need.
+  // however, we may have been unable to accomplish this task.
+  if (t < back_it->time || fwd_it->time < t || !success) {
+    return Point(); // invalid
+  }
+
 //  cout << "=======================" << endl;
   // great, we've got points on either side.
   // now we take an average.
