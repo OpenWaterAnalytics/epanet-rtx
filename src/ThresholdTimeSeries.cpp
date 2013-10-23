@@ -9,7 +9,7 @@ using namespace RTX;
 ThresholdTimeSeries::ThresholdTimeSeries() {
   _threshold = 0;
   _fixedValue = 1;
-  _mode = normal;
+  _mode = thresholdModeNormal;
 }
 
 void ThresholdTimeSeries::setThreshold(double threshold) {
@@ -28,11 +28,11 @@ double ThresholdTimeSeries::value() {
   return _fixedValue;
 }
 
-void ThresholdTimeSeries::setMode(compareMode_t mode) {
+void ThresholdTimeSeries::setMode(thresholdMode_t mode) {
   _mode = mode;
 }
 
-ThresholdTimeSeries::compareMode_t ThresholdTimeSeries::mode() {
+ThresholdTimeSeries::thresholdMode_t ThresholdTimeSeries::mode() {
   return _mode;
 }
 
@@ -57,7 +57,7 @@ void ThresholdTimeSeries::setUnits(Units newUnits) {
 Point ThresholdTimeSeries::filteredSingle(RTX::Point p, RTX::Units sourceU) {
   // we don't care about units.
   double pointValue;
-  if (_mode == absolute) {
+  if (_mode == thresholdModeAbsolute) {
     pointValue = (abs(p.value) > _threshold) ? _fixedValue : 0.;
   }
   else {

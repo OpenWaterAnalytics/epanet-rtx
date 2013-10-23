@@ -664,10 +664,10 @@ TimeSeries::sharedPointer ConfigFactory::createThreshold(Setting &setting) {
   string mode;
   if (setting.lookupValue("mode", mode)) {
     if (RTX_STRINGS_ARE_EQUAL(mode, "normal")) {
-      status->setMode(ThresholdTimeSeries::normal);
+      status->setMode(ThresholdTimeSeries::thresholdModeNormal);
     }
     else if (RTX_STRINGS_ARE_EQUAL(mode, "absolute")) {
-      status->setMode(ThresholdTimeSeries::absolute);
+      status->setMode(ThresholdTimeSeries::thresholdModeAbsolute);
     }
     else {
       cerr << "could not resolve mode: " << mode << " -- check config" << endl;

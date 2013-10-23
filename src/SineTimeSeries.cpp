@@ -10,9 +10,10 @@
 using namespace RTX;
 using namespace std;
 
-SineTimeSeries::SineTimeSeries() {
+SineTimeSeries::SineTimeSeries(time_t period) {
   Clock::sharedPointer clock(new Clock(600));
   setClock(clock);
+  _period = period;
 }
 
 
@@ -22,7 +23,7 @@ Point SineTimeSeries::point(time_t time) {
     time = clock()->timeBefore(time);
   }
   
-  double value = sin((double)time * M_PI * 2 / (24*60*60));
+  double value = sin((double)time * M_PI * 2 / (_period));
   return Point(time, value);
   
 }
