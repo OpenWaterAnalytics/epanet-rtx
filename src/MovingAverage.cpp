@@ -69,7 +69,7 @@ Point MovingAverage::filteredSingle(pVec_cIt &vecStart, pVec_cIt &vecEnd, pVec_c
   // with any luck, at this point we have the back and fwd iterators positioned just right.
   // +/- the margin from the time point we need.
   // however, we may have been unable to accomplish this task.
-  if (t < back_it->time || fwd_it->time < t || !success) {
+  if (!success) {
     return Point(); // invalid
   }
 

@@ -178,8 +178,12 @@ std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs,
   
   // get the filtering location iterator into position.
   // this dude should track pretty closely to "now".
-  while (filterLocation->time < now) {
+  while (filterLocation != sourceEnd && filterLocation->time < now) {
     ++filterLocation;
+  }
+  if (filterLocation == sourceEnd) {
+    // at worst locate the last point
+    --filterLocation;
   }
   
   while (now <= toTime) {
@@ -191,8 +195,6 @@ std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs,
     else {
       cerr << "Filter failure: " << this->name() << " :: t = " << now << endl;
     }
-    
-    if ( (_mode == linear) && (filterLocation == sourceEnd) ) break; 
     
     now = clock()->timeAfter(now);
     if (now == 0) {
@@ -280,8 +282,14 @@ std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sour
 bool Resampler::alignVectorIterators(pVec_cIt& start, pVec_cIt& end, pVec_cIt& pos, time_t t, pVec_cIt& back, pVec_cIt& fwd) {
   
   // move the position vector to my desired time, or slightly after.
+  while (pos != start && pos->time > t) {
+    --pos;
+  }
   while (pos != end && pos->time < t) {
     ++pos;
+  }
+  if (pos == end) {
+    --pos;
   }
   
   // let's get centered.
@@ -290,20 +298,8 @@ bool Resampler::alignVectorIterators(pVec_cIt& start, pVec_cIt& end, pVec_cIt& p
   
   // get some vital info
   int marginDistance = this->margin();
-  int iForwards = (t < pos->time) ? 1 : 0; // are we forward of t? if so, we've got a head start.
-  int iBackwards = 0; // should def. be zero / sph
-  
-  // some quick checking that everything is in order
-  while (fwd != end && fwd->time < t) {
-    // if the fwd iterator time is before the desired time, nudge it forward
-    ++fwd; // this breakpoint should never fire -- right? let's check this.
-  }
-  while (back != start && t < back->time) {
-    // if the back iterator time is after the desired time, nudge it back.
-    --back;
-    iBackwards = 1; // if we end up here, then the backwards iterator is behind "t"
-  }
-  
+  int iForwards = (t < pos->time) ? 1 : 0; // are we ahead of t? if so, we've got a head start.
+  int iBackwards = (pos->time < t) ? 1 : 0; // are we behind t by one point? if so, we've got a head start
   
   // widen the bounds (within the allowable range) to account for my margin
   while (fwd != end && iForwards < marginDistance) {
@@ -334,22 +330,17 @@ bool Resampler::alignVectorIterators(pVec_cIt& start, pVec_cIt& end, pVec_cIt& p
 Point Resampler::filteredSingle(pVec_cIt& vecStart, pVec_cIt& vecEnd, pVec_cIt& vecPos, time_t t, Units fromUnits) {
   Point sourceInterp;
   
-  // quick sanity check
-  if ( (_mode == linear) && (vecPos == vecEnd) ) {
-    return Point();
-  }
-  
   pVec_cIt fwd_it = vecPos;
   pVec_cIt back_it = vecPos;
-  alignVectorIterators(vecStart, vecEnd, vecPos, t, back_it, fwd_it);
+  bool success = alignVectorIterators(vecStart, vecEnd, vecPos, t, back_it, fwd_it);
   
   
   // with any luck, at this point we have the back and fwd iterators positioned just right.
   // one on either side of the time point we need.
   // however, we may have been unable to accomplish this task.
-  bool invalid = (_mode == step) ? (t < back_it->time) : (t < back_it->time || fwd_it->time < t);
-  if (invalid) {
-    return Point(); // invalid
+  bool notValid = (_mode == step) ? (t < back_it->time) : ( !success );
+  if (notValid) {
+    return Point(); // missing some source points
   }
   
   // it's possible that the vecPos is aligned right on the requested time, so check for that:
