@@ -139,7 +139,7 @@ std::vector< time_t > Clock::timeValuesInRange(time_t start, time_t end) {
   if (!isValid(start)) {
     start = timeAfter(start);
   }
-  for (time_t thisTime = start; thisTime < end; thisTime = timeAfter(thisTime)) {
+  for (time_t thisTime = start; thisTime <= end; thisTime = timeAfter(thisTime)) {
     if (thisTime == 0) {
       break;
     }

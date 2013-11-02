@@ -141,8 +141,17 @@ Point BufferPointRecord::pointBefore(const string& identifier, time_t time) {
     mutex->lock();
     
     PointBuffer_t::const_iterator it  = lower_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
-    if (it != buffer.end() && it != buffer.begin()) {
-      if (--it != buffer.end()) {
+    if (it != buffer.begin()) {
+      // OK we're not at the beginning, so there is a point before time
+      if (it != buffer.end()) {
+        // and we're not at the end, so the point is within the continuous buffer
+        // we want the previous point
+        foundPoint = *(--it);
+        _cachedPoint = foundPoint;
+        _cachedPointId = identifier;
+      }
+      else if ((--it)->time == time - 1) {
+        // edge case where end of buffer is adjacent to requested time
         foundPoint = *it;
         _cachedPoint = foundPoint;
         _cachedPointId = identifier;
@@ -172,11 +181,17 @@ Point BufferPointRecord::pointAfter(const string& identifier, time_t time) {
     mutex->lock();
     
     PointBuffer_t::const_iterator it = upper_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
-    if (it != buffer.end() && it != buffer.begin()) {
-      foundPoint = *it;
-      _cachedPoint = foundPoint;
-      _cachedPointId = identifier;
+    if (it != buffer.end()) {
+      // OK we're not at the end, so there is a point after time
+      if (it != buffer.begin() || (it->time == time + 1)) {
+        // either we're not at the beginning, so the point is within the continuous buffer -
+        // or edge case where beginning of buffer is adjacent to requested time
+        foundPoint = *it;
+        _cachedPoint = foundPoint;
+        _cachedPointId = identifier;
+      }
     }
+    
     
     // all done.
     mutex->unlock();

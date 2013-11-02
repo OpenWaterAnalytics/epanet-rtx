@@ -113,7 +113,8 @@ Point DbPointRecord::pointBefore(const string& id, time_t time) {
   Point p = DB_PR_SUPER::pointBefore(id, time);
   
   if (!p.isValid) {
-    if (request.contains(id, time)) {
+    // check if last request covered before
+    if (request.contains(id, time-1)) {
       return Point();
     }
     PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
@@ -143,7 +144,8 @@ Point DbPointRecord::pointAfter(const string& id, time_t time) {
   Point p = DB_PR_SUPER::pointAfter(id, time);
   
   if (!p.isValid) {
-    if (request.contains(id, time)) {
+    // check if last request covered after
+    if (request.contains(id, time+1)) {
       return Point();
     }
     PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
