@@ -11,6 +11,7 @@
 
 #include "TimeSeries.h"
 #include "Resampler.h"
+#include "MovingAverage.h"
 #include "PointRecord.h"
 #include "MysqlPointRecord.h"
 
@@ -42,15 +43,53 @@ int main(int argc, const char * argv[])
     sourceTS->setName("source");
     sourceTS->setUnits(RTX_CUBIC_FOOT_PER_SECOND);
     
-    
     DbPointRecord::sharedPointer record( new MysqlPointRecord() );
-    record->setConnectionString("HOST=unix:///tmp/mysql.sock;UID=rtx_db_agent;PWD=rtx_db_agent;DB=rtx_demo_db");
+    record->setConnectionString("HOST=unix:///tmp/mysql.sock;UID=rtx_db_agent;PWD=rtx_db_agent;DB=rtx_benchmark");
     record->dbConnect();
     cout << *record;
-    sourceTS->setRecord(record);
     
     // clear points
-    record->reset(sourceTS->name());
+    record->reset();
+    sourceTS->setRecord(record);
+    
+    Clock::sharedPointer reg( new Clock(1) );
+    
+    MovingAverage::sharedPointer ma( new MovingAverage );
+    ma->setClock(reg);
+    ma->setSource(sourceTS);
+    ma->setWindowSize(7);
+    ma->setName("movingaverage");
+    ma->setRecord(record);
+    
+    time_t startTime = 1382721461;
+    time_t increment = 1;
+    while (1) {
+      time_t summaryStart = startTime;
+      std::vector<Point> rando;
+      for (time_t t=0; t < 100000; t+=increment) {
+        startTime += increment;
+        double pointValue = (double)t;
+        Point p(startTime, pointValue);
+        rando.push_back(p);
+      }
+      time_t summaryEnd = startTime;
+      {
+        boost::timer::auto_cpu_timer insTimer;
+        sourceTS->insertPoints(rando);
+        TimeSeries::Summary summary = ma->summary(summaryStart + 4, summaryEnd - 4);
+      }
+      
+      
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     if (0) {
       cout << "single insertion:" << endl;

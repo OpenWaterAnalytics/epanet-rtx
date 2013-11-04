@@ -70,13 +70,13 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::odbc_query_t> OdbcPointRe
   oraQueries.upperBound = "";
   oraQueries.timeQuery = "select sysdate from dual";
   map<int, Point::Qual_t> oraQualMap;
-  oraQualMap[0] = Point::good;
-  oraQualMap[128] = Point::questionable;
-  oraQualMap[192] = Point::questionable;
-  oraQualMap[256] = Point::questionable;
-  oraQualMap[768] = Point::questionable;
-  oraQualMap[32]   = Point::missing;
-  oraQualMap[1024] = Point::missing;
+  oraQualMap[0] = Point::good;            // 00000000000
+  oraQualMap[128] = Point::questionable;  // 00010000000
+  oraQualMap[192] = Point::questionable;  // 00011000000
+  oraQualMap[256] = Point::questionable;  // 00100000000
+  oraQualMap[768] = Point::questionable;  // 01100000000
+  oraQualMap[32]   = Point::missing;      // 00000100000
+  oraQualMap[1024] = Point::missing;      // 10000000000
   
   oraQueries.qualityMap = oraQualMap;
   

@@ -33,7 +33,7 @@ using namespace std;
     `value` double NOT NULL,\
     `confidence` double NOT NULL,\
     `quality` tinyint(4) NOT NULL,\
-    PRIMARY KEY (`time`,`series_id`)\
+    PRIMARY KEY (`series_id`,`time`)\
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;"
 
 #define RTX_CREATE_TSKEY_TABLE_STRING "\
@@ -376,7 +376,7 @@ void MysqlPointRecord::insertSingleNoCommit(const std::string& id, Point point) 
   _singleInsert->setString(5, id);
   int affected = 0;
   try {
-    affected = _singleInsert->executeUpdate();
+    affected = _singleInsert->execute();
   } catch (...) {
     cout << "whoops!" << endl;
   }
