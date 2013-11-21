@@ -64,51 +64,21 @@ MysqlPointRecord::~MysqlPointRecord() {
 
 void MysqlPointRecord::dbConnect() throw(RtxException) {
   
-  // split the tokenized string. we're expecting something like "HOST=tcp://localhost;USER=db_user;PWD=db_pass;DB=rtx_db_name"
-  std::string tokenizedString = this->connectionString();
-  if (RTX_STRINGS_ARE_EQUAL(tokenizedString, "")) {
-    return;
-  }
-  
-  // de-tokenize
-  
-  std::map<std::string, std::string> kvPairs;
-  {
-    boost::regex kvReg("([^=]+)=([^;]+);?"); // key - value pair
-    boost::sregex_iterator it(tokenizedString.begin(), tokenizedString.end(), kvReg), end;
-    for ( ; it != end; ++it) {
-      kvPairs[(*it)[1]] = (*it)[2];
-    }
-    
-    // if any of the keys are missing, just return.
-    if (kvPairs.find("HOST") == kvPairs.end() ||
-        kvPairs.find("UID") == kvPairs.end() ||
-        kvPairs.find("PWD") == kvPairs.end() ||
-        kvPairs.find("DB") == kvPairs.end() )
-    {
-      return;
-    }
-  }
-  const std::string& host = kvPairs["HOST"];
-  const std::string& user = kvPairs["UID"];
-  const std::string& password = kvPairs["PWD"];
-  const std::string& database = kvPairs["DB"];
-  
   bool databaseDoesExist = false;
   try {
     _driver = get_driver_instance();
     _driver->threadInit();
-    _connection.reset( _driver->connect(host, user, password) );
-    _connection->setAutoCommit(false);
+    _mysqlCon.reset( _driver->connect(_connectionInfo.host, _connectionInfo.uid, _connectionInfo.pwd) );
+    _mysqlCon->setAutoCommit(false);
     
     // test for database exists
     
-    boost::shared_ptr<sql::Statement> st( _connection->createStatement() );
-    sql::DatabaseMetaData *meta =  _connection->getMetaData();
+    boost::shared_ptr<sql::Statement> st( _mysqlCon->createStatement() );
+    sql::DatabaseMetaData *meta =  _mysqlCon->getMetaData();
     boost::shared_ptr<sql::ResultSet> results( meta->getSchemas() );
     while (results->next()) {
       std::string resultString(results->getString("TABLE_SCHEM"));
-      if ( RTX_STRINGS_ARE_EQUAL(database, resultString) ) {
+      if ( RTX_STRINGS_ARE_EQUAL(_connectionInfo.db, resultString) ) {
         databaseDoesExist = true;
         break;
       }
@@ -121,18 +91,18 @@ void MysqlPointRecord::dbConnect() throw(RtxException) {
       
       // create database
       updateString = "CREATE DATABASE ";
-      updateString += database;
+      updateString += _connectionInfo.db;
       st->executeUpdate(updateString);
-      _connection->commit();
-      _connection->setSchema(database);
+      _mysqlCon->commit();
+      _mysqlCon->setSchema(_connectionInfo.db);
       // create tables
       st->executeUpdate(RTX_CREATE_POINT_TABLE_STRING);
       st->executeUpdate(RTX_CREATE_TSKEY_TABLE_STRING);
-      _connection->commit();
+      _mysqlCon->commit();
       //cout << "Created new Database: " << database << endl;
     }
     
-    _connection->setSchema(database);
+    _mysqlCon->setSchema(_connectionInfo.db);
     
     
     // build the queries, since preparedStatements can't specify table names.
@@ -147,17 +117,15 @@ void MysqlPointRecord::dbConnect() throw(RtxException) {
     string firstSelectStr = "SELECT time, value, quality, confidence FROM points INNER JOIN timeseries_meta USING (series_id) WHERE name = ? order by time asc limit 1";
     string lastSelectStr = "SELECT time, value, quality, confidence FROM points INNER JOIN timeseries_meta USING (series_id) WHERE name = ? order by time desc limit 1";
     
-    _rangeSelect.reset( _connection->prepareStatement(rangeSelect) );
-    _singleSelect.reset( _connection->prepareStatement(singleSelect) );
-    _nextSelect.reset( _connection->prepareStatement(nextSelect) );
-    _previousSelect.reset( _connection->prepareStatement(prevSelect) );
-    _singleInsert.reset( _connection->prepareStatement(singleInsert) );
+    _rangeSelect.reset( _mysqlCon->prepareStatement(rangeSelect) );
+    _singleSelect.reset( _mysqlCon->prepareStatement(singleSelect) );
+    _nextSelect.reset( _mysqlCon->prepareStatement(nextSelect) );
+    _previousSelect.reset( _mysqlCon->prepareStatement(prevSelect) );
+    _singleInsert.reset( _mysqlCon->prepareStatement(singleInsert) );
     
-    _firstSelect.reset( _connection->prepareStatement(firstSelectStr) );
-    _lastSelect.reset( _connection->prepareStatement(lastSelectStr) );
+    _firstSelect.reset( _mysqlCon->prepareStatement(firstSelectStr) );
+    _lastSelect.reset( _mysqlCon->prepareStatement(lastSelectStr) );
     
-    // if we made it this far...
-    _name = database;
   }
   catch (sql::SQLException &e) {
 		handleException(e);
@@ -165,14 +133,14 @@ void MysqlPointRecord::dbConnect() throw(RtxException) {
 }
 
 bool MysqlPointRecord::isConnected() {
-  if (!_connection || !checkConnection()) {
+  if (!_mysqlCon || !checkConnection()) {
     return false;
   }
   boost::shared_ptr<sql::Statement> stmt;
   boost::shared_ptr<sql::ResultSet> rs;
   bool connected = false;
   try {
-    stmt.reset(_connection->createStatement());
+    stmt.reset(_mysqlCon->createStatement());
     rs.reset( stmt->executeQuery("SELECT 1") );
     if (rs->next()) {
       connected = true; // connection is valid
@@ -191,11 +159,11 @@ std::string MysqlPointRecord::registerAndGetIdentifier(std::string recordName, U
   this->checkConnection();
   if (isConnected()) {
     try {
-      boost::shared_ptr<sql::PreparedStatement> seriesNameStatement( _connection->prepareStatement("INSERT IGNORE INTO timeseries_meta (name,units) VALUES (?,?)") );
+      boost::shared_ptr<sql::PreparedStatement> seriesNameStatement( _mysqlCon->prepareStatement("INSERT IGNORE INTO timeseries_meta (name,units) VALUES (?,?)") );
       seriesNameStatement->setString(1,recordName);
       seriesNameStatement->setString(2, dataUnits.unitString());
       seriesNameStatement->executeUpdate();
-      _connection->commit();
+      _mysqlCon->commit();
     } catch (sql::SQLException &e) {
       handleException(e);
     }
@@ -233,6 +201,42 @@ PointRecord::time_pair_t MysqlPointRecord::range(const string& id) {
   return make_pair(first.time, last.time);
 }
 
+#pragma mark - simple set/get
+
+string MysqlPointRecord::host() {
+  return _connectionInfo.host;
+}
+
+void MysqlPointRecord::setHost(string host) {
+  _connectionInfo.host = host;
+}
+
+
+string MysqlPointRecord::uid() {
+  return _connectionInfo.uid;
+}
+
+void MysqlPointRecord::setUid(string uid) {
+  _connectionInfo.uid = uid;
+}
+
+
+string MysqlPointRecord::pwd() {
+  return _connectionInfo.pwd;
+}
+
+void MysqlPointRecord::setPwd(string pwd) {
+  _connectionInfo.pwd = pwd;
+}
+
+
+string MysqlPointRecord::db() {
+  return _connectionInfo.db;
+}
+
+void MysqlPointRecord::setDb(string db) {
+  _connectionInfo.db = db;
+}
 
 
 #pragma mark - db meta
@@ -242,7 +246,7 @@ vector< pair<string, Units> > MysqlPointRecord::availableData() {
   
   if (isConnected()) {
     
-    boost::shared_ptr<sql::Statement> selectNamesStatement( _connection->createStatement() );
+    boost::shared_ptr<sql::Statement> selectNamesStatement( _mysqlCon->createStatement() );
     boost::shared_ptr<sql::ResultSet> results( selectNamesStatement->executeQuery("SELECT name,units FROM timeseries_meta WHERE 1") );
     while (results->next()) {
       // add the name to the list.
@@ -265,7 +269,7 @@ std::vector<std::string> MysqlPointRecord::identifiers() {
   if (!isConnected()) {
     return ids;
   }
-  boost::shared_ptr<sql::Statement> selectNamesStatement( _connection->createStatement() );
+  boost::shared_ptr<sql::Statement> selectNamesStatement( _mysqlCon->createStatement() );
   boost::shared_ptr<sql::ResultSet> results( selectNamesStatement->executeQuery("SELECT name FROM timeseries_meta WHERE 1") );
   while (results->next()) {
     // add the name to the list.
@@ -329,7 +333,7 @@ Point MysqlPointRecord::selectPrevious(const std::string& id, time_t time) {
 void MysqlPointRecord::insertSingle(const std::string& id, Point point) {
   if (checkConnection()) {
     insertSingleNoCommit(id, point);
-    _connection->commit();
+    _mysqlCon->commit();
   }
 }
 
@@ -363,7 +367,7 @@ void MysqlPointRecord::insertRange(const std::string& id, std::vector<Point> poi
         insertSingleNoCommit(id, p);
       }
     }
-    _connection->commit();
+    _mysqlCon->commit();
   }
 }
 
@@ -393,9 +397,9 @@ void MysqlPointRecord::removeRecord(const string& id) {
     string removePoints = "delete p, m from points p inner join timeseries_meta m on p.series_id=m.series_id where m.name = \"" + id + "\"";
     boost::shared_ptr<sql::Statement> removePointsStmt;
     try {
-      removePointsStmt.reset( _connection->createStatement() );
+      removePointsStmt.reset( _mysqlCon->createStatement() );
       removePointsStmt->executeUpdate(removePoints);
-      _connection->commit();
+      _mysqlCon->commit();
     } catch (sql::SQLException &e) {
       handleException(e);
     }
@@ -409,13 +413,13 @@ void MysqlPointRecord::truncate() {
     
     boost::shared_ptr<sql::Statement> truncatePointsStmt, truncateKeysStmt;
     
-    truncatePointsStmt.reset( _connection->createStatement() );
-    truncateKeysStmt.reset( _connection->createStatement() );
+    truncatePointsStmt.reset( _mysqlCon->createStatement() );
+    truncateKeysStmt.reset( _mysqlCon->createStatement() );
     
     truncatePointsStmt->executeUpdate(truncatePoints);
     truncateKeysStmt->executeUpdate(truncateKeys);
     
-    _connection->commit();
+    _mysqlCon->commit();
   }
   catch (sql::SQLException &e) {
     handleException(e);
@@ -458,12 +462,12 @@ Point MysqlPointRecord::selectSingle(const string& id, time_t time, boost::share
 
 bool MysqlPointRecord::checkConnection() {
 
-  if(!_connection) {
+  if(!_mysqlCon) {
     cerr << "mysql connection was closed. attempting to reconnect." << endl;
     this->dbConnect();
   }
-  if (_connection) {
-    return !(_connection->isClosed());
+  if (_mysqlCon) {
+    return !(_mysqlCon->isClosed());
   }
   else {
     return false;
@@ -502,15 +506,15 @@ void MysqlPointRecord::handleException(sql::SQLException &e) {
 #pragma mark - Protected
 
 std::ostream& MysqlPointRecord::toStream(std::ostream &stream) {
-  stream << "Mysql Point Record (" << _name << ")" << endl;
+  stream << "Mysql Point Record (" << _connectionInfo.db << ")" << endl;
   
   
-  if (!_connection || _connection->isClosed()) {
+  if (!_mysqlCon || _mysqlCon->isClosed()) {
     stream << "no connection" << endl;
     return stream;
   }
     
-  sql::DatabaseMetaData *meta = _connection->getMetaData();
+  sql::DatabaseMetaData *meta = _mysqlCon->getMetaData();
   
 	stream << "\t" << meta->getDatabaseProductName() << " " << meta->getDatabaseProductVersion() << endl;
 	stream << "\tUser: " << meta->getUserName() << endl;

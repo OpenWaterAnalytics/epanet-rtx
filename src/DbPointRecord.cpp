@@ -30,12 +30,12 @@ DbPointRecord::DbPointRecord() : request("",0,0) {
 }
 
 
-void DbPointRecord::setConnectionString(const std::string& connection) {
-  _connectionString = connection;
-}
-const std::string& DbPointRecord::connectionString() {
-  return _connectionString;
-}
+//void DbPointRecord::setConnectionString(const std::string& connection) {
+//  _connectionString = connection;
+//}
+//const std::string& DbPointRecord::connectionString() {
+//  return _connectionString;
+//}
 
 void DbPointRecord::setSearchDistance(time_t time) {
   _searchDistance = time;
@@ -232,15 +232,15 @@ void DbPointRecord::addPoints(const string& id, std::vector<Point> points) {
 
 void DbPointRecord::reset() {
   DB_PR_SUPER::reset();
-  this->truncate();
+  //this->truncate();
 }
 
 
 void DbPointRecord::reset(const string& id) {
   // deprecate?
-  cout << "Whoops - don't use this" << endl;
+  //cout << "Whoops - don't use this" << endl;
   DB_PR_SUPER::reset(id);
-  this->removeRecord(id);
+  //this->removeRecord(id);
   // wiped out the record completely, so re-initialize it.
   //this->registerAndGetIdentifier(id);
 }

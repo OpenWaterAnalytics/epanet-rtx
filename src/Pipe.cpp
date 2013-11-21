@@ -77,6 +77,10 @@ TimeSeries::sharedPointer Pipe::flowMeasure() {
   return _flowMeasure;
 }
 void Pipe::setFlowMeasure(TimeSeries::sharedPointer flow) {
+  if (flow && !flow->units().isSameDimensionAs(RTX_LITER_PER_SECOND)) {
+    // not units of flow
+    return;
+  }
   _doesHaveFlowMeasure = (flow ? true : false);
   _flowMeasure = flow;
 }

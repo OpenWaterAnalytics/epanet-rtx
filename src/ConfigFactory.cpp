@@ -338,7 +338,7 @@ PointRecord::sharedPointer PointRecordFactory::createOdbcPointRecord(libconfig::
     string tagCol   = syntax["TagColumn"];
     string valueCol = syntax["ValueColumn"];
     string qualCol  = syntax["QualityColumn"];
-    r->setTableColumnNames(table, dateCol, tagCol, valueCol, qualCol);
+//    r->setTableColumnNames(table, dateCol, tagCol, valueCol, qualCol);
   }
   
   if (setting.exists("connectorType")) {
@@ -357,7 +357,7 @@ PointRecord::sharedPointer PointRecordFactory::createOdbcPointRecord(libconfig::
     cerr << "connector type not specified" << endl;
   }
   
-  r->setConnectionString(initString);  
+//  r->setConnectionString(initString);
   return r;
 }
 
@@ -369,7 +369,7 @@ PointRecord::sharedPointer PointRecordFactory::createMySqlPointRecord(libconfig:
   string name = setting["name"];
   MysqlPointRecord::sharedPointer record( new MysqlPointRecord() );
   string initString = setting["connection"];
-  record->setConnectionString(initString);
+//  record->setConnectionString(initString);
   //record->setName(name);
   //record->dbConnect(); // leaving this to application code
   return record;

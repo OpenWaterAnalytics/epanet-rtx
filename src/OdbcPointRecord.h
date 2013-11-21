@@ -30,6 +30,9 @@ namespace RTX {
    
    */
   
+  using std::string;
+  using std::vector;
+  
   class OdbcPointRecord : public DbPointRecord {
   public:
     // types
@@ -42,13 +45,33 @@ namespace RTX {
       mssql
     } Sql_Connector_t;
     
-    class odbc_query_t {
+    class OdbcQuery {
     public:
       std::string connectorName, singleSelect, rangeSelect, upperBound, lowerBound, timeQuery;
       std::map<int,Point::Qual_t> qualityMap;
     };
     
-    static std::map<Sql_Connector_t, odbc_query_t> queryTypes();
+    class OdbcTableDescription {
+    public:
+      string dataTable, dataDateCol, dataNameCol, dataValueCol, dataQualityCol;
+      string tagTable, tagNameCol, tagUnitsCol;
+    };
+    
+    class OdbcConnection {
+    public:
+      string dsn;
+      string pwd;
+      string uid;
+    };
+    
+    class OdbcSqlHandle {
+    public:
+      SQLHENV SCADAenv;
+      SQLHDBC SCADAdbc;
+      SQLHSTMT SCADAstmt, rangeStatement, lowerBoundStatement, upperBoundStatement, SCADAtimestmt;
+    };
+    
+    static std::map<Sql_Connector_t, OdbcQuery> queryTypes();
     static Sql_Connector_t typeForName(const std::string& connector);
     
     // shared pointer and ctor/dtor
@@ -57,37 +80,58 @@ namespace RTX {
     virtual ~OdbcPointRecord();
     
     // public methods
-    void setTableColumnNames(const std::string& table, const std::string& dateCol, const std::string& tagCol, const std::string& valueCol, const std::string& qualityCol);
-    void setConnectorType(Sql_Connector_t connectorType);
+    
+    vector<string>dsnList();
+    
+    string dsn();
+    void setDsn(string dsn);
+    
+    string uid();
+    void setUid(string uid);
+    
+    string pwd();
+    void setPwd(string pwd);
+    
+    string dataTable();
+    void setDataTable(string table);
+    
+    string dataDateColumn();
+    void setDataDateColumn(string col);
+    
+    string dataNameColumn();
+    void setDataNameColumn(string col);
+    
+    string dataValueColumn();
+    void setDataValueColumn(string col);
+    
+    string dataQualityColumn();
+    void setDataQualityColumn(string col);
+    
+    string tagTable();
+    void setTagTable(string table);
+    
+    string tagNameColumn();
+    void setTagNameColumn(string col);
+    
+    string tagUnitsColumn();
+    void setTagUnitsColumn(string col);
+    
     Sql_Connector_t connectorType();
+    void setConnectorType(Sql_Connector_t connectorType);
+    
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
+    
     virtual std::string registerAndGetIdentifier(std::string recordName, Units dataUnits);
     virtual std::vector<std::string> identifiers();
     virtual std::ostream& toStream(std::ostream &stream);
     
-    void setSingleSelectQuery(const std::string& query) {_singleSelect = query;};
-    void setRangeSelectQuery(const std::string& query) {_rangeSelect = query;};
-    void setLowerBoundSelectQuery(const std::string& query) {_lowerBoundSelect = query;};
-    void setUpperBoundSelectQuery(const std::string& query) {_upperBoundSelect = query;};
-    void setTimeQuery(const std::string& query) {_timeQuery = query;};
-    
     void setTimeFormat(time_format_t timeFormat) { _timeFormat = timeFormat;};
     time_format_t timeFormat() { return _timeFormat; };
     
-    std::string singleSelectQuery() {return _singleSelect;};
-    std::string rangeSelectQuery() {return _rangeSelect;};
-    std::string loweBoundSelectQuery() {return _lowerBoundSelect;};
-    std::string upperBoundSelectQuery() {return _upperBoundSelect;};
-    std::string timeQuery() {return _timeQuery;};
     
   protected:
-    // fetch means cache the results
-    //virtual void fetchRange(const std::string& id, time_t startTime, time_t endTime);
-    //virtual void fetchNext(const std::string& id, time_t time);
-    //virtual void fetchPrevious(const std::string& id, time_t time);
-    
-    // select just returns the results (no caching)
+    void initDsnList();
     virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);
     virtual Point selectNext(const std::string& id, time_t time);
     virtual Point selectPrevious(const std::string& id, time_t time);
@@ -99,8 +143,10 @@ namespace RTX {
     virtual void truncate();
     
   private:
+    
+    vector<string>_dsnList;
+    void rebuildQueries();
     bool _connectionOk;
-    std::map<int,Point::Qual_t> _qualityMap;
     std::vector<Point> pointsWithStatement(const string& id, SQLHSTMT statement, time_t startTime, time_t endTime = 0);
     typedef struct {
       //SQLCHAR tagName[MAX_SCADA_TAG];
@@ -116,13 +162,12 @@ namespace RTX {
       SQLLEN startInd, endInd, tagNameInd;
     } ScadaQuery;
     
-    std::string _tableName, _dateCol, _tagCol, _valueCol, _qualityCol;
-    std::string _singleSelect, _rangeSelect, _upperBoundSelect, _lowerBoundSelect, _timeQuery;
+    OdbcConnection _connection;
+    OdbcQuery      _querySyntax;
+    OdbcTableDescription _tableDescription;
+    OdbcSqlHandle _handles;
     time_format_t _timeFormat;
-    SQLHENV _SCADAenv;
-    SQLHDBC _SCADAdbc;
-    SQLHSTMT _SCADAstmt, _rangeStatement, _lowerBoundStatement, _upperBoundStatement, _SCADAtimestmt;
-    std::string _dsn;
+
     ScadaRecord _tempRecord;
     ScadaQuery _query;
     Sql_Connector_t _connectorType;

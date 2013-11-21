@@ -48,8 +48,8 @@ namespace RTX {
     //virtual std::vector<std::string> identifiers()=0;
     
     // db connection
-    void setConnectionString(const std::string& connection);
-    const std::string& connectionString();
+//    void setConnectionString(const std::string& connection);
+//    const std::string& connectionString();
     virtual void dbConnect() throw(RtxException){};
     virtual bool isConnected(){return true;};
     
