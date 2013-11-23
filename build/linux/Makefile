@@ -24,9 +24,9 @@ C_FLAGS = -w -fPIC $(INCLUDEARGS)
 LDFLAGS = -L. -L/usr/local/lib -v
 
 # *** Files
-RTX_HEADERS = AggregatorTimeSeries.h Clock.h ConfigFactory.h ConstantSeries.h CurveFunction.h DbPointRecord.h Element.h EpanetModel.h EpanetSyntheticModel.cpp EpanetSyntheticModel.h FirstDerivative.h IrregularClock.h Junction.h Link.h Model.h ModularTimeSeries.h MovingAverage.h MysqlPointRecord.h Node.h PersistentContainer.h Pipe.h Point.h PointContainer.h PointRecord.h Pump.h Resampler.h Reservoir.h ScadaPointRecord.h Tank.h TimeSeries.h Units.h Valve.h Zone.h rtxExceptions.h rtxMacros.h
+RTX_HEADERS = AggregatorTimeSeries.h Clock.h ConfigFactory.h CurveFunction.h DbPointRecord.h Element.h EpanetModel.h EpanetSyntheticModel.cpp EpanetSyntheticModel.h FirstDerivative.h IrregularClock.h Junction.h Link.h Model.h ModularTimeSeries.h MovingAverage.h MysqlPointRecord.h Node.h Pipe.h Point.h PointRecord.h Pump.h Resampler.h Reservoir.h Tank.h TimeSeries.h Units.h Valve.h Zone.h rtxExceptions.h rtxMacros.h
 
-RTX_SRC = AggregatorTimeSeries.cpp Clock.cpp ConfigFactory.cpp ConstantSeries.cpp CurveFunction.cpp Element.cpp EpanetModel.cpp EpanetSyntheticModel.cpp FirstDerivative.cpp IrregularClock.cpp Junction.cpp Link.cpp Model.cpp ModularTimeSeries.cpp MovingAverage.cpp MysqlPointRecord.cpp Node.cpp PersistentContainer.cpp Pipe.cpp Point.cpp PointContainer.cpp PointRecord.cpp Pump.cpp Resampler.cpp Reservoir.cpp ScadaPointRecord.cpp Tank.cpp TimeSeries.cpp Units.cpp Valve.cpp Zone.cpp
+RTX_SRC = AggregatorTimeSeries.cpp Clock.cpp ConfigFactory.cpp CurveFunction.cpp Element.cpp EpanetModel.cpp EpanetSyntheticModel.cpp FirstDerivative.cpp IrregularClock.cpp Junction.cpp Link.cpp Model.cpp ModularTimeSeries.cpp MovingAverage.cpp MysqlPointRecord.cpp Node.cpp Pipe.cpp Point.cpp PointRecord.cpp Pump.cpp Resampler.cpp Reservoir.cpp Tank.cpp TimeSeries.cpp Units.cpp Valve.cpp Zone.cpp
 
 RTX_OBJS = AggregatorTimeSeries.o Clock.o ConfigFactory.o ConstantSeries.o CurveFunction.o Element.o EpanetModel.o EpanetSyntheticModel.o FirstDerivative.o IrregularClock.o Junction.o Link.o Model.o ModularTimeSeries.o MovingAverage.o MysqlPointRecord.o Node.o PersistentContainer.o Pipe.o Point.o PointContainer.o PointRecord.o Pump.o Resampler.o Reservoir.o ScadaPointRecord.o Tank.o TimeSeries.o Units.o Valve.o Zone.o
 
