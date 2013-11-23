@@ -28,7 +28,7 @@ RTX_HEADERS = AggregatorTimeSeries.h Clock.h ConfigFactory.h CurveFunction.h DbP
 
 RTX_SRC = AggregatorTimeSeries.cpp Clock.cpp ConfigFactory.cpp CurveFunction.cpp Element.cpp EpanetModel.cpp EpanetSyntheticModel.cpp FirstDerivative.cpp IrregularClock.cpp Junction.cpp Link.cpp Model.cpp ModularTimeSeries.cpp MovingAverage.cpp MysqlPointRecord.cpp Node.cpp Pipe.cpp Point.cpp PointRecord.cpp Pump.cpp Resampler.cpp Reservoir.cpp Tank.cpp TimeSeries.cpp Units.cpp Valve.cpp Zone.cpp
 
-RTX_OBJS = AggregatorTimeSeries.o Clock.o ConfigFactory.o ConstantSeries.o CurveFunction.o Element.o EpanetModel.o EpanetSyntheticModel.o FirstDerivative.o IrregularClock.o Junction.o Link.o Model.o ModularTimeSeries.o MovingAverage.o MysqlPointRecord.o Node.o PersistentContainer.o Pipe.o Point.o PointContainer.o PointRecord.o Pump.o Resampler.o Reservoir.o ScadaPointRecord.o Tank.o TimeSeries.o Units.o Valve.o Zone.o
+RTX_OBJS = AggregatorTimeSeries.o Clock.o ConfigFactory.o CurveFunction.o Element.o EpanetModel.o EpanetSyntheticModel.o FirstDerivative.o IrregularClock.o Junction.o Link.o Model.o ModularTimeSeries.o MovingAverage.o MysqlPointRecord.o Node.o Pipe.o Point.o PointRecord.o Pump.o Resampler.o Reservoir.o Tank.o TimeSeries.o Units.o Valve.o Zone.o
 
 EPANET_SRC = epanet.c hash.c hydraul.c inpfile.c input1.c input2.c input3.c mempool.c output.c quality.c report.c rules.c smatrix.c
 
