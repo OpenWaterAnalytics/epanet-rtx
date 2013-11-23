@@ -24,11 +24,11 @@ C_FLAGS = -w -fPIC $(INCLUDEARGS)
 LDFLAGS = -L. -L/usr/local/lib -v
 
 # *** Files
-RTX_HEADERS = AggregatorTimeSeries.h BufferPointRecord.h Clock.h ConfigFactory.h CurveFunction.h DbPointRecord.h Element.h EpanetModel.h EpanetSyntheticModel.cpp EpanetSyntheticModel.h FirstDerivative.h IrregularClock.h Junction.h Link.h Model.h ModularTimeSeries.h MovingAverage.h MysqlPointRecord.h Node.h OdbcPointRecord.h Pipe.h Point.h PointRecord.h Pump.h Resampler.h Reservoir.h Tank.h TimeSeries.h Units.h Valve.h Zone.h rtxExceptions.h rtxMacros.h
+RTX_HEADERS = AggregatorTimeSeries.h BufferPointRecord.h Clock.h ConfigFactory.h CurveFunction.h DbPointRecord.h Element.h EpanetModel.h EpanetSyntheticModel.cpp EpanetSyntheticModel.h FirstDerivative.h IrregularClock.h Junction.h Link.h Model.h ModularTimeSeries.h MovingAverage.h MysqlPointRecord.h Node.h OdbcPointRecord.h OffsetTimeSeries.h Pipe.h Point.h PointRecord.h Pump.h Resampler.h Reservoir.h Tank.h TimeSeries.h Units.h Valve.h Zone.h rtxExceptions.h rtxMacros.h
 
-RTX_SRC = AggregatorTimeSeries.cpp BufferPointRecord.cpp Clock.cpp ConfigFactory.cpp CurveFunction.cpp DbPointRecord.cpp Element.cpp EpanetModel.cpp EpanetSyntheticModel.cpp FirstDerivative.cpp IrregularClock.cpp Junction.cpp Link.cpp Model.cpp ModularTimeSeries.cpp MovingAverage.cpp MysqlPointRecord.cpp Node.cpp OdbcPointRecord.cpp Pipe.cpp Point.cpp PointRecord.cpp Pump.cpp Resampler.cpp Reservoir.cpp Tank.cpp TimeSeries.cpp Units.cpp Valve.cpp Zone.cpp
+RTX_SRC = AggregatorTimeSeries.cpp BufferPointRecord.cpp Clock.cpp ConfigFactory.cpp CurveFunction.cpp DbPointRecord.cpp Element.cpp EpanetModel.cpp EpanetSyntheticModel.cpp FirstDerivative.cpp IrregularClock.cpp Junction.cpp Link.cpp Model.cpp ModularTimeSeries.cpp MovingAverage.cpp MysqlPointRecord.cpp Node.cpp OdbcPointRecord.cpp OffsetTimeSeries.cpp Pipe.cpp Point.cpp PointRecord.cpp Pump.cpp Resampler.cpp Reservoir.cpp Tank.cpp TimeSeries.cpp Units.cpp Valve.cpp Zone.cpp
 
-RTX_OBJS = AggregatorTimeSeries.o BufferPointRecord.o Clock.o ConfigFactory.o CurveFunction.o DbPointRecord.o Element.o EpanetModel.o EpanetSyntheticModel.o FirstDerivative.o IrregularClock.o Junction.o Link.o Model.o ModularTimeSeries.o MovingAverage.o MysqlPointRecord.o Node.o OdbcPointRecord.o Pipe.o Point.o PointRecord.o Pump.o Resampler.o Reservoir.o Tank.o TimeSeries.o Units.o Valve.o Zone.o
+RTX_OBJS = AggregatorTimeSeries.o BufferPointRecord.o Clock.o ConfigFactory.o CurveFunction.o DbPointRecord.o Element.o EpanetModel.o EpanetSyntheticModel.o FirstDerivative.o IrregularClock.o Junction.o Link.o Model.o ModularTimeSeries.o MovingAverage.o MysqlPointRecord.o Node.o OdbcPointRecord.o OffsetTimeSeries.o Pipe.o Point.o PointRecord.o Pump.o Resampler.o Reservoir.o Tank.o TimeSeries.o Units.o Valve.o Zone.o
 
 EPANET_SRC = epanet.c hash.c hydraul.c inpfile.c input1.c input2.c input3.c mempool.c output.c quality.c report.c rules.c smatrix.c
 
@@ -55,13 +55,13 @@ getobj:
 	-@rm -rf $(OBJPATH) 2> /dev/null
 
 rtx-demo: timeseries_demo.o
-	$(CPP_COMPILER) $(CPP_FLAGS) -o $@ $^ $(LDFLAGS) -l$(RTXNAME) -lboost_system
+	$(CPP_COMPILER) $(CPP_FLAGS) -o $@ $^ $(LDFLAGS) -l$(RTXNAME) -lboost_system -lboost_regex
 
 timeseries_demo.o: timeseries_demo.cpp
 	$(CPP_COMPILER) $(CPP_FLAGS) -c $^
 
 rtx-validator: validator.o
-	$(CPP_COMPILER) $(CPP_FLAGS) -o $@ $^ $(LDFLAGS) -l$(RTXNAME) -lboost_system
+	$(CPP_COMPILER) $(CPP_FLAGS) -o $@ $^ $(LDFLAGS) -l$(RTXNAME) -lboost_system -lboost_regex
 
 validator.o: validator.cpp
 	$(CPP_COMPILER) $(CPP_FLAGS) -c $^
