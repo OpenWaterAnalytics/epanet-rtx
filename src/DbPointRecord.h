@@ -68,6 +68,8 @@ namespace RTX {
       { return "Could not retrieve data.\n"; }
     };
     
+    std::string errorMessage;
+    
   protected:
     // fetch means cache the results
     // these have obvious default implementations, but you can override them also.

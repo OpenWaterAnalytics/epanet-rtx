@@ -50,6 +50,7 @@ using namespace std;
 
 
 MysqlPointRecord::MysqlPointRecord() {
+  _connected = false;
 }
 
 MysqlPointRecord::~MysqlPointRecord() {
@@ -65,6 +66,15 @@ MysqlPointRecord::~MysqlPointRecord() {
 void MysqlPointRecord::dbConnect() throw(RtxException) {
   
   bool databaseDoesExist = false;
+  
+  if (RTX_STRINGS_ARE_EQUAL(this->uid(), "") ||
+      RTX_STRINGS_ARE_EQUAL(this->pwd(), "") ||
+      RTX_STRINGS_ARE_EQUAL(this->db(), "") ) {
+    errorMessage = "Incomplete Login";
+    return;
+  }
+  
+  
   try {
     _driver = get_driver_instance();
     _driver->threadInit();
@@ -126,9 +136,12 @@ void MysqlPointRecord::dbConnect() throw(RtxException) {
     _firstSelect.reset( _mysqlCon->prepareStatement(firstSelectStr) );
     _lastSelect.reset( _mysqlCon->prepareStatement(lastSelectStr) );
     
+    _connected = true;
+    errorMessage = "OK";
   }
   catch (sql::SQLException &e) {
-		handleException(e);
+		_connected = false;
+    handleException(e);
   }
 }
 
@@ -450,6 +463,11 @@ std::vector<Point> MysqlPointRecord::pointsFromResultSet(boost::shared_ptr<sql::
 Point MysqlPointRecord::selectSingle(const string& id, time_t time, boost::shared_ptr<sql::PreparedStatement> statement) {
   //cout << "mysql single: " << id << " -- " << time << endl;
   Point point;
+  if (!_connected) {
+    if(!checkConnection()) {
+      return Point();
+    }
+  }
   statement->setString(1, id);
   statement->setInt(2, (int)time);
   boost::shared_ptr<sql::ResultSet> results(statement->executeQuery());
@@ -486,6 +504,8 @@ void MysqlPointRecord::handleException(sql::SQLException &e) {
   cerr << endl << "# ERR: DbcException in " << __FILE__ << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
   /* Use what(), getErrorCode() and getSQLState() */
   cerr << "# ERR: " << e.what() << " (MySQL error code: " << e.getErrorCode() << ", SQLState: " << e.getSQLState() << " )" << endl;
+  
+  errorMessage = std::string(e.what());
   
   if (e.getErrorCode() == 1047) {
     /*

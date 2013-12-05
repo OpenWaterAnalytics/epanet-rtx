@@ -17,6 +17,8 @@
 #include "ModularTimeSeries.h"
 #include "AggregatorTimeSeries.h"
 
+
+
 namespace RTX {
   
   class SqliteProjectFile : public ProjectFile {
@@ -25,11 +27,12 @@ namespace RTX {
     void saveProjectFile(const string& path);
     void clear();
     
-    map<string, TimeSeries::sharedPointer> timeSeries();
-    map<string, PointRecord::sharedPointer> pointRecords();
-    map<string, Clock::sharedPointer> clocks();
-    PointRecord::sharedPointer defaultRecord();
+    RTX_LIST<TimeSeries::sharedPointer> timeSeries();
+    RTX_LIST<Clock::sharedPointer> clocks();
+    RTX_LIST<PointRecord::sharedPointer> records();
     Model::sharedPointer model();
+    
+    PointRecord::sharedPointer defaultRecord();
     
     
   private:

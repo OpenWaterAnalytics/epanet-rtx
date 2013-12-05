@@ -106,10 +106,12 @@ namespace RTX {
     Units flowUnits();
     Units headUnits();
     Units qualityUnits();
+    Units volumeUnits();
     
     void setFlowUnits(Units units);
     void setHeadUnits(Units units);
     void setQualityUnits(Units units);
+    void setVolumeUnits(Units units);
     
   protected:
     
@@ -183,7 +185,7 @@ namespace RTX {
     
     time_t _currentSimulationTime;
     
-    Units _flowUnits, _headUnits, _qualityUnits;
+    Units _flowUnits, _headUnits, _qualityUnits, _volumeUnits;
 
     
   };

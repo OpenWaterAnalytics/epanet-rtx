@@ -148,13 +148,17 @@ namespace RTX {
     void rebuildQueries();
     bool _connectionOk;
     std::vector<Point> pointsWithStatement(const string& id, SQLHSTMT statement, time_t startTime, time_t endTime = 0);
-    typedef struct {
+    
+    class ScadaRecord {
+    public:
       //SQLCHAR tagName[MAX_SCADA_TAG];
       SQL_TIMESTAMP_STRUCT time;
       double value;
       int quality;
       SQLLEN /*tagNameInd,*/ timeInd, valueInd, qualityInd;
-    } ScadaRecord;
+      bool compareRecords(const ScadaRecord& left, const ScadaRecord& right);
+    };
+    
     typedef struct {
       SQL_TIMESTAMP_STRUCT start;
       SQL_TIMESTAMP_STRUCT end;

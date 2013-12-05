@@ -70,9 +70,9 @@ namespace RTX {
     void saveProjectFile(const string& path);
     void clear();
     
-    map<string, TimeSeries::sharedPointer> timeSeries();
-    map<string, PointRecord::sharedPointer> pointRecords();
-    map<string, Clock::sharedPointer> clocks();
+    //map<string, TimeSeries::sharedPointer> timeSeries();
+    //map<string, PointRecord::sharedPointer> pointRecords();
+    //map<string, Clock::sharedPointer> clocks();
     PointRecord::sharedPointer defaultRecord();
     Model::sharedPointer model();
     

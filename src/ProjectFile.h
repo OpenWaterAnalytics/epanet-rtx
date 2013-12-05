@@ -22,10 +22,16 @@
 #include "Pump.h"
 #include "Valve.h"
 #include "Model.h"
+#include "Units.h"
+
+#include <list>
 
 using std::map;
 using std::vector;
 using std::string;
+
+
+#define RTX_LIST std::list
 
 namespace RTX {
   
@@ -33,19 +39,18 @@ namespace RTX {
   public:
     RTX_SHARED_POINTER(ProjectFile);
     
-    virtual void loadProjectFile(const string& path) = 0;
-    virtual void saveProjectFile(const string& path) = 0;
+    virtual void loadFromPath(const string& path) = 0;
+    virtual void saveToPath(const string& path) = 0;
     virtual void clear() = 0;
     
-    virtual map<string, TimeSeries::sharedPointer> timeSeries() = 0;
-    virtual map<string, PointRecord::sharedPointer> pointRecords() = 0;
-    virtual map<string, Clock::sharedPointer> clocks() = 0;
-    virtual PointRecord::sharedPointer defaultRecord() = 0;
+    virtual RTX_LIST<TimeSeries::sharedPointer> timeSeries() = 0;
+    virtual RTX_LIST<Clock::sharedPointer> clocks() = 0;
+    virtual RTX_LIST<PointRecord::sharedPointer> records() = 0;
     virtual Model::sharedPointer model() = 0;
     
-    virtual void insertTimeSeries(TimeSeries::sharedPointer ts) {};
-    virtual void insertClock(Clock::sharedPointer clock) {};
-    virtual void insertRecord(PointRecord::sharedPointer record) {};
+    virtual void insertTimeSeries(TimeSeries::sharedPointer ts) = 0;
+    virtual void insertClock(Clock::sharedPointer clock) = 0;
+    virtual void insertRecord(PointRecord::sharedPointer record) = 0;
     
   };
   

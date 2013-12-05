@@ -143,7 +143,7 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::OdbcQuery> OdbcPointRecor
   // "regular" mssql db...
   OdbcQuery mssqlQueries = wwQueries;
   mssqlQueries.connectorName = "mssql";
-  mssqlQueries.rangeSelect =  "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# > ?) AND (#DATECOL# < ?) AND #TAGCOL# = ?";
+  mssqlQueries.rangeSelect =  "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE #TAGCOL# = ? AND (#DATECOL# > ?) AND (#DATECOL# < ?)";// ORDER BY #DATECOL# asc";
   mssqlQueries.qualityMap = oraQualMap;
   
   
@@ -333,6 +333,7 @@ void OdbcPointRecord::dbConnect() throw(RtxException) {
   if (RTX_STRINGS_ARE_EQUAL(this->dsn(), "") ||
       RTX_STRINGS_ARE_EQUAL(this->uid(), "") ||
       RTX_STRINGS_ARE_EQUAL(this->pwd(), "") ) {
+    errorMessage = "Incomplete Login";
     return;
   }
   
@@ -378,9 +379,9 @@ void OdbcPointRecord::dbConnect() throw(RtxException) {
     
     // bindings for the range statement
     bindOutputColumns(_handles.rangeStatement, &_tempRecord);
-    SQL_CHECK(SQLBindParameter(_handles.rangeStatement, 1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd), "SQLBindParameter", _handles.rangeStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLBindParameter(_handles.rangeStatement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.end, sizeof(SQL_TIMESTAMP_STRUCT), &_query.endInd), "SQLBindParameter", _handles.rangeStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLBindParameter(_handles.rangeStatement, 3, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd), "SQLBindParameter", _handles.rangeStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLBindParameter(_handles.rangeStatement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd), "SQLBindParameter", _handles.rangeStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLBindParameter(_handles.rangeStatement, 3, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.end, sizeof(SQL_TIMESTAMP_STRUCT), &_query.endInd), "SQLBindParameter", _handles.rangeStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLBindParameter(_handles.rangeStatement, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd), "SQLBindParameter", _handles.rangeStatement, SQL_HANDLE_STMT);
     
     SQLUINTEGER timeout = 5;
     // query timeout
@@ -388,15 +389,15 @@ void OdbcPointRecord::dbConnect() throw(RtxException) {
     
     // bindings for lower bound statement
     bindOutputColumns(_handles.lowerBoundStatement, &_tempRecord);
-    SQL_CHECK(SQLBindParameter(_handles.lowerBoundStatement, 1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd), "SQLBindParameter", _handles.lowerBoundStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLBindParameter(_handles.lowerBoundStatement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.end, sizeof(SQL_TIMESTAMP_STRUCT), &_query.endInd), "SQLBindParameter", _handles.lowerBoundStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLBindParameter(_handles.lowerBoundStatement, 3, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd), "SQLBindParameter", _handles.lowerBoundStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLBindParameter(_handles.lowerBoundStatement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd), "SQLBindParameter", _handles.lowerBoundStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLBindParameter(_handles.lowerBoundStatement, 3, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.end, sizeof(SQL_TIMESTAMP_STRUCT), &_query.endInd), "SQLBindParameter", _handles.lowerBoundStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLBindParameter(_handles.lowerBoundStatement, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd), "SQLBindParameter", _handles.lowerBoundStatement, SQL_HANDLE_STMT);
     
     // bindings for upper bound statement
     bindOutputColumns(_handles.upperBoundStatement, &_tempRecord);
-    SQL_CHECK(SQLBindParameter(_handles.upperBoundStatement, 1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd), "SQLBindParameter", _handles.upperBoundStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLBindParameter(_handles.upperBoundStatement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.end, sizeof(SQL_TIMESTAMP_STRUCT), &_query.endInd), "SQLBindParameter", _handles.upperBoundStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLBindParameter(_handles.upperBoundStatement, 3, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd), "SQLBindParameter", _handles.upperBoundStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLBindParameter(_handles.upperBoundStatement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd), "SQLBindParameter", _handles.upperBoundStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLBindParameter(_handles.upperBoundStatement, 3, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.end, sizeof(SQL_TIMESTAMP_STRUCT), &_query.endInd), "SQLBindParameter", _handles.upperBoundStatement, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLBindParameter(_handles.upperBoundStatement, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd), "SQLBindParameter", _handles.upperBoundStatement, SQL_HANDLE_STMT);
     
     
     // prepare the statements
@@ -409,8 +410,11 @@ void OdbcPointRecord::dbConnect() throw(RtxException) {
     // if we made it this far...
     _connectionOk = true;
     
-  } catch (string errorMessage) {
-    cerr << "Initialize failed: " << errorMessage << "\n";
+    errorMessage = "OK";
+    
+  } catch (string err) {
+    errorMessage = err;
+    cerr << "Initialize failed: " << err << "\n";
     _connectionOk = false;
     //throw DbPointRecord::RtxDbConnectException();
   }
@@ -445,9 +449,15 @@ vector<string> OdbcPointRecord::identifiers() {
   SQLRETURN retCode;
   SQLLEN tagLengthInd;
   
-  SQL_CHECK(SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &tagStmt), "SQLAllocHandle", _handles.SCADAstmt, SQL_HANDLE_STMT);
-  SQL_CHECK(SQLPrepare(tagStmt, (SQLCHAR*)tagQuery.c_str(), SQL_NTS), "identifiers", _handles.SCADAdbc, SQL_HANDLE_DBC);
-  SQL_CHECK(SQLExecute(tagStmt), "SQLExecute", tagStmt, SQL_HANDLE_STMT);
+  try {
+    SQL_CHECK(SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &tagStmt), "SQLAllocHandle", _handles.SCADAstmt, SQL_HANDLE_STMT);
+    SQL_CHECK(SQLPrepare(tagStmt, (SQLCHAR*)tagQuery.c_str(), SQL_NTS), "identifiers", _handles.SCADAdbc, SQL_HANDLE_DBC);
+    SQL_CHECK(SQLExecute(tagStmt), "SQLExecute", tagStmt, SQL_HANDLE_STMT);
+  } catch (string &e) {
+    return ids;
+  }
+  
+  
   
   while (true) {
     retCode = SQLFetch(tagStmt);
@@ -591,9 +601,13 @@ ostream& OdbcPointRecord::toStream(ostream &stream) {
 
 
 vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT statement, time_t startTime, time_t endTime) {
+  
+  if (!_connectionOk) {
+    this->dbConnect();
+  }
+  
   vector< Point > points;
   points.clear();
-  
   
   if (startTime == 0 || endTime == 0) {
     // something smells
@@ -604,7 +618,7 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
   _query.start = sqlTime(startTime-1);
   _query.end = sqlTime(endTime+1); // add one second to get fractional times included
   strcpy(_query.tagName, id.c_str());
-  vector<ScadaRecord> records;
+  list<ScadaRecord> records;
   
   try {
     if (statement == NULL) {
@@ -653,6 +667,8 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
 
   }
   
+  // make sure the points are sorted
+  std::sort(points.begin(), points.end(), &Point::comparePointTime);
   
   if (points.size() == 0) {
     //cerr << "no points found" << endl;
@@ -783,7 +799,7 @@ string OdbcPointRecord::extract_error(string function, SQLHANDLE handle, SQLSMAL
       msg += "::";
       msg += (char*)text;
     }
-    
+    errorMessage = std::string((char*)text);
     // check if it's a connection issue
     if (strncmp((char*)state, "SCADA_CONNECTION_ISSSUE", 2) == 0) {
       msg += "::Connection Issue::";

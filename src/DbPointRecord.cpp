@@ -27,6 +27,7 @@ bool DbPointRecord::request_t::contains(std::string id, time_t t) {
 
 DbPointRecord::DbPointRecord() : request("",0,0) {
   _searchDistance = 60*60*24*7; // 1-week
+  errorMessage = "Not Connected";
 }
 
 

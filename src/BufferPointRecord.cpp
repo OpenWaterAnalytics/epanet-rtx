@@ -59,9 +59,10 @@ std::vector<std::string> BufferPointRecord::identifiers() {
 Point BufferPointRecord::point(const string& identifier, time_t time) {
   
   bool isAvailable = false;
+  bool idsMatch = RTX_STRINGS_ARE_EQUAL_CS(_cachedPointId, identifier);
   
   // quick check for repeated calls
-  if (_cachedPoint.time == time && RTX_STRINGS_ARE_EQUAL_CS(_cachedPointId, identifier) ) {
+  if (_cachedPoint.time == time && idsMatch ) {
     return _cachedPoint;
   }
   
@@ -87,13 +88,21 @@ Point BufferPointRecord::point(const string& identifier, time_t time) {
   
   if (pFirst.time <= time && time <= pLast.time) {
     // search the buffer
-    //TimePointPair_t finder(time, PointPair_t(0,0));
     Point finder(time, 0);
-    PointBuffer_t::const_iterator pbIt = std::lower_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
+    /*
+    if (!idsMatch || _cacheIterator.m_buff == NULL) {
+      _cacheIterator = buffer.begin();
+    }
+     */
+    PointBuffer_t::iterator startIterator = /*(_cacheIterator->time < pFirst.time) ? _cacheIterator :*/ buffer.begin();
+    
+    
+    PointBuffer_t::iterator pbIt = std::lower_bound(startIterator, buffer.end(), finder, &Point::comparePointTime);
     if (pbIt != buffer.end() && pbIt->time == time) {
       isAvailable = true;
       _cachedPoint = *pbIt;
       _cachedPointId = identifier;
+      _cacheIterator = pbIt;
     }
     else {
       //cerr << "whoops, not found" << endl;

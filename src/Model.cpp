@@ -80,6 +80,10 @@ Units Model::headUnits()    {
 Units Model::qualityUnits() {
   return _qualityUnits;
 }
+Units Model::volumeUnits() {
+  return _volumeUnits;
+}
+
 void Model::setFlowUnits(Units units)    {
   if (!units.isSameDimensionAs(RTX_LITER_PER_SECOND)) {
     cerr << "units not dimensionally consistent with flow" << endl;
@@ -129,6 +133,10 @@ void Model::setQualityUnits(Units units) {
     r->quality()->setUnits(units);
   }
   
+}
+
+void Model::setVolumeUnits(RTX::Units units) {
+  _volumeUnits = units;
 }
 
 #pragma mark - Storage

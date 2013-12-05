@@ -61,6 +61,7 @@ namespace RTX {
   protected:
     
   private:
+    PointBuffer_t::iterator _cacheIterator;
     std::map<std::string, BufferMutexPair_t > _keyedBufferMutex;
     size_t _defaultCapacity;
   };

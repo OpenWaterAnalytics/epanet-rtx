@@ -226,7 +226,7 @@ std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sour
   
   
   time_t rangeStart = start, rangeEnd = end;
-
+  
   int margin = this->margin();
   for (int iBackward = 0; iBackward < margin; ++iBackward) {
     Point behindPoint = sourceTs->pointBefore(rangeStart);
@@ -315,7 +315,7 @@ bool Resampler::alignVectorIterators(pVec_cIt& start, pVec_cIt& end, pVec_cIt& p
     ++iBackwards;
   }
   
-  bool success = (iForwards == marginDistance && iBackwards == marginDistance) ? true : false;
+  bool success = (iForwards == marginDistance && iBackwards == marginDistance);
   return success;
   
   // ok, all done. everything is passed by ref.

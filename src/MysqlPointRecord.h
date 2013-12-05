@@ -81,6 +81,7 @@ namespace RTX {
     virtual void truncate();
     
   private:
+    bool _connected;
     mysql_connection_t _connectionInfo;
     void insertSingleNoCommit(const std::string& id, Point point);
     bool checkConnection();
