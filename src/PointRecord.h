@@ -83,6 +83,8 @@ namespace RTX {
     std::string _cachedPointId;
     Point _cachedPoint;
     
+    std::map<std::string,Point> _pointCache;
+    
   private:
     std::string _name;
   

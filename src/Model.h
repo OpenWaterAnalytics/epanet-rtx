@@ -99,6 +99,9 @@ namespace RTX {
     TimeSeries::sharedPointer iterations() {return _iterations;}
     TimeSeries::sharedPointer relativeError() {return _relativeError;}
     
+    bool tanksNeedReset();
+    void setTanksNeedReset(bool needReset);
+    
     virtual std::ostream& toStream(std::ostream &stream);
 
     
@@ -155,6 +158,7 @@ namespace RTX {
     string _name;
     string _modelFile;
     bool _shouldRunWaterQuality;
+    bool _tanksNeedReset;
     // master list access
     void add(Junction::sharedPointer newJunction);
     void add(Pipe::sharedPointer newPipe);

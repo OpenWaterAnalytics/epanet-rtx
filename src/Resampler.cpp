@@ -228,42 +228,40 @@ std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sour
   time_t rangeStart = start, rangeEnd = end;
   
   int margin = this->margin();
-  for (int iBackward = 0; iBackward < margin; ++iBackward) {
-    Point behindPoint = sourceTs->pointBefore(rangeStart);
-    if (behindPoint.isValid) {
-      rangeStart = behindPoint.time;
+  Clock::sharedPointer myClock = this->clock();
+  
+  if (myClock->isRegular()) {
+    // much faster.
+    rangeStart = (myClock->isValid(rangeStart)) ? rangeStart : myClock->timeBefore(rangeStart);
+    rangeEnd = (myClock->isValid(rangeEnd)) ? rangeEnd : myClock->timeAfter(rangeEnd);
+    
+    rangeStart -= myClock->period() * margin;
+    rangeEnd += myClock->period() * margin;
+    
+  }
+  
+  else {
+    for (int iBackward = 0; iBackward < margin; ++iBackward) {
+      Point behindPoint = sourceTs->pointBefore(rangeStart);
+      if (behindPoint.isValid) {
+        rangeStart = behindPoint.time;
+      }
+      else {
+        break;
+      }
     }
-    else {
-      break;
+    
+    for (int iForward = 0; iForward < margin; ++iForward) {
+      Point inFrontPoint = sourceTs->pointAfter(rangeEnd);
+      if (inFrontPoint.isValid) {
+        rangeEnd = inFrontPoint.time;
+      }
+      else {
+        break;
+      }
     }
   }
   
-  for (int iForward = 0; iForward < margin; ++iForward) {
-    Point inFrontPoint = sourceTs->pointAfter(rangeEnd);
-    if (inFrontPoint.isValid) {
-      rangeEnd = inFrontPoint.time;
-    }
-    else {
-      break;
-    }
-  }
-
-  /*
-  int myMargin = this->margin(); // easier to debug
-  
-  for (int iBackward = 0; iBackward < myMargin; ++iBackward) {
-    time_t before = sourceTs->clock()->timeBefore(rangeStart);
-    if (before > 0) {
-      rangeStart = before;
-    }
-  }
-  for (int iForward = 0; iForward < myMargin; ++iForward) {
-    time_t after = sourceTs->clock()->timeAfter(rangeEnd);
-    if (after > 0) {
-      rangeEnd = after;
-    }
-  }
-   */
   
   pair<time_t, time_t> newRange(0,0);
   

@@ -37,6 +37,8 @@ Model::Model() : _flowUnits(1), _headUnits(1) {
   setFlowUnits(RTX_LITER_PER_SECOND);
   setHeadUnits(RTX_METER);
   _name = "Model";
+  
+  _tanksNeedReset = false;
 }
 Model::~Model() {
   
@@ -426,7 +428,17 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
   time_t nextClockTime = start;
   time_t nextSimulationTime = start;
   time_t stepToTime = start;
+  
   while (simulationTime < end) {
+    
+    // reset tanks?
+    if (_tanksNeedReset) {
+      _tanksNeedReset = false;
+      BOOST_FOREACH(Tank::sharedPointer t, this->tanks()) {
+        t->setResetLevelNextTime(true);
+      }
+    }
+    
     // get parameters from the RTX elements, and pull them into the simulation
     setSimulationParameters(simulationTime);
     // simulate this period, find the next timestep boundary.
@@ -465,6 +477,14 @@ int Model::qualityTimeStep() {
 
 void Model::setInitialQuality(double qual) {
   
+}
+
+bool Model::tanksNeedReset() {
+  return _tanksNeedReset;
+}
+
+void Model::setTanksNeedReset(bool reset) {
+  _tanksNeedReset = reset;
 }
 
 

@@ -157,8 +157,9 @@ std::vector<std::string> SqlitePointRecord::identifiers() {
       names.push_back(string((char*)row));
       ret = sqlite3_step(_selectNamesStmt);
     }
+    sqlite3_reset(_selectNamesStmt);
   }
-  sqlite3_reset(_selectNamesStmt);
+  
   
   
   return names;
@@ -173,6 +174,9 @@ PointRecord::time_pair_t SqlitePointRecord::range(const string& id) {
   Point last,first;
   vector<Point> points;
   
+  if (!isConnected()) {
+    this->dbConnect();
+  }
   if (isConnected()) {
     
     sqlite3_bind_text(_selectFirstStmt, 1, id.c_str(), -1, NULL);
@@ -194,45 +198,79 @@ PointRecord::time_pair_t SqlitePointRecord::range(const string& id) {
 }
 
 std::vector<Point> SqlitePointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
+  vector<Point> points;
   
-  // SELECT time, value, quality, confidence FROM points INNER JOIN meta USING (series_id) WHERE name = ? AND time >= ? AND time <= ? order by time asc
-  
-  sqlite3_bind_text(_selectRangeStmt, 1, id.c_str(), -1, NULL);
-  sqlite3_bind_int(_selectRangeStmt, 2, (int)startTime);
-  sqlite3_bind_int(_selectRangeStmt, 3, (int)endTime);
-  
-  return pointsFromPreparedStatement(_selectRangeStmt);
+  if (!isConnected()) {
+    this->dbConnect();
+  }
+  if (isConnected()) {
+    // SELECT time, value, quality, confidence FROM points INNER JOIN meta USING (series_id) WHERE name = ? AND time >= ? AND time <= ? order by time asc
+    
+    sqlite3_bind_text(_selectRangeStmt, 1, id.c_str(), -1, NULL);
+    sqlite3_bind_int(_selectRangeStmt, 2, (int)startTime);
+    sqlite3_bind_int(_selectRangeStmt, 3, (int)endTime);
+    
+    return pointsFromPreparedStatement(_selectRangeStmt);
+  }
+  return points;
 }
 
 Point SqlitePointRecord::selectNext(const std::string& id, time_t time) {
   
-  sqlite3_bind_text(_selectNextStmt, 1, id.c_str(), -1, NULL);
-  sqlite3_bind_int(_selectRangeStmt, 2, (int)time);
+  Point p;
   
-  vector<Point> points = pointsFromPreparedStatement(_selectRangeStmt);
-  
-  if (points.size() > 0) {
-    return points.front();
+  if (!isConnected()) {
+    this->dbConnect();
   }
-  return Point();
+  if (isConnected()) {
+    sqlite3_bind_text(_selectNextStmt, 1, id.c_str(), -1, NULL);
+    sqlite3_bind_int(_selectNextStmt, 2, (int)time);
+    
+    vector<Point> points = pointsFromPreparedStatement(_selectNextStmt);
+    
+    if (points.size() > 0) {
+      return points.front();
+    }
+    return Point();
+  }
+  return p;
+  
+  
 }
 
 Point SqlitePointRecord::selectPrevious(const std::string& id, time_t time) {
   
-  sqlite3_bind_text(_selectPreviousStmt, 1, id.c_str(), -1, NULL);
-  sqlite3_bind_int(_selectPreviousStmt, 2, (int)time);
+  Point p;
   
-  vector<Point> points = pointsFromPreparedStatement(_selectPreviousStmt);
-  
-  if (points.size() > 0) {
-    return points.front();
+  if (!isConnected()) {
+    this->dbConnect();
   }
-  return Point();
+  if (isConnected()) {
+    sqlite3_bind_text(_selectPreviousStmt, 1, id.c_str(), -1, NULL);
+    sqlite3_bind_int(_selectPreviousStmt, 2, (int)time);
+    
+    vector<Point> points = pointsFromPreparedStatement(_selectPreviousStmt);
+    
+    if (points.size() > 0) {
+      return points.front();
+    }
+    return Point();
+  }
+  return p;
+  
+  
 }
 
 
 // insertions or alterations may choose to ignore / deny
 void SqlitePointRecord::insertSingle(const std::string& id, Point point) {
+  
+  if (!isConnected()) {
+    dbConnect();
+  }
+  if (!isConnected()) {
+    return;
+  }
   
   int ret;
   

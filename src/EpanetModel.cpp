@@ -56,6 +56,8 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
 
 void EpanetModel::useEpanetFile(const std::string& filename) {
   
+  Model::loadModelFromFile(filename);
+  
   Units volumeUnits(0);
   long enTimeStep;
   
