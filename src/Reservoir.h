@@ -26,6 +26,9 @@ namespace RTX {
     bool doesHaveBoundaryHead();
     TimeSeries::sharedPointer boundaryHead();
     void setBoundaryHead(TimeSeries::sharedPointer head);
+    bool doesHaveBoundaryQuality();
+    TimeSeries::sharedPointer boundaryQuality();
+    void setBoundaryQuality(TimeSeries::sharedPointer quality);
     
   private:
     double _fixedLevel;

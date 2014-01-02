@@ -93,8 +93,10 @@ namespace RTX {
     
     virtual void setQualityTimeStep(int seconds);
     int qualityTimeStep();
-    virtual void setInitialQuality(double qual);
-    
+    void setInitialJunctionUniformQuality(double qual);
+    void setInitialJunctionQualityFromMeasurements(time_t time);
+    virtual void setInitialModelQuality() { };
+
     virtual time_t currentSimulationTime();
     TimeSeries::sharedPointer iterations() {return _iterations;}
     TimeSeries::sharedPointer relativeError() {return _relativeError;}
@@ -130,11 +132,13 @@ namespace RTX {
     virtual double junctionHead(const string& junction) { return 0; };
     virtual double junctionDemand(const string& junctionName) { return 0; };
     virtual double junctionQuality(const string& junctionName) { return 0; };
+    virtual double junctionInitialQuality(const string& junctionName) { return 0; };
     // link elements
     virtual double pipeFlow(const string& pipe) { return 0; };
     virtual double pumpEnergy(const string& pump) { return 0; };
     
     virtual void setReservoirHead(const string& reservoir, double level) { };
+    virtual void setReservoirQuality(const string& reservoir, double quality) { };
     virtual void setTankLevel(const string& tank, double level) { };
     virtual void setJunctionDemand(const string& junction, double demand) { };
     virtual void setJunctionQuality(const string& junction, double quality) { };
@@ -152,6 +156,7 @@ namespace RTX {
     
     virtual void setCurrentSimulationTime(time_t time);
     
+    double nodeDistanceXY(Node::sharedPointer n1, Node::sharedPointer n2);
     
     
   private:

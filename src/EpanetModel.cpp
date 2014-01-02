@@ -283,6 +283,11 @@ void EpanetModel::createRtxWrappers() {
     newJunction->setElevation(z);
     newJunction->setCoordinates(x, y);
     
+    // Initial quality specified in input data
+    double initQual;
+    ENcheck(ENgetnodevalue(iNode, EN_INITQUAL, &initQual), "EN_INITQUAL");
+    newJunction->setInitialQuality(initQual);
+    
     // Base demand is sum of all demand categories, accounting for patterns
     double demand = 0, categoryDemand = 0, avgPatternValue = 0;
     int numDemands = 0, patternIdx = 0;
@@ -438,6 +443,10 @@ std::ostream& EpanetModel::toStream(std::ostream &stream) {
 
 void EpanetModel::setReservoirHead(const string& reservoir, double level) {
   setNodeValue(EN_TANKLEVEL, reservoir, level);
+}
+
+void EpanetModel::setReservoirQuality(const string& reservoir, double quality) {
+  setNodeValue(EN_SOURCEQUAL, reservoir, quality);
 }
 
 void EpanetModel::setTankLevel(const string& tank, double level) {
@@ -606,12 +615,24 @@ void EpanetModel::setQualityTimeStep(int seconds) {
   Model::setQualityTimeStep(seconds);
 }
 
-void EpanetModel::setInitialQuality(double qual) {
+void EpanetModel::setInitialModelQuality() {
   ENcheck(ENcloseQ(), "ENcloseQ");
-  BOOST_FOREACH(int iNode, _nodeIndex | boost::adaptors::map_values) {
+  ENcheck(ENopenQ(), "ENopenQ");
+
+  // Junctions
+  BOOST_FOREACH(Junction::sharedPointer junc, this->junctions()) {
+    double qual = junc->initialQuality();
+    int iNode = _nodeIndex[junc->name()];
     ENcheck(ENsetnodevalue(iNode, EN_INITQUAL, qual), "ENsetnodevalue - EN_INITQUAL");
   }
-  ENcheck(ENopenQ(), "ENopenQ");
+  
+  // Tanks
+  BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
+    double qual = tank->initialQuality();
+    int iNode = _nodeIndex[tank->name()];
+    ENcheck(ENsetnodevalue(iNode, EN_INITQUAL, qual), "ENsetnodevalue - EN_INITQUAL");
+  }
+  
   ENcheck(ENinitQ(EN_NOSAVE), "ENinitQ");
 }
 

@@ -52,6 +52,7 @@ namespace RTX {
     
     // hydraulic
     void setReservoirHead(const std::string& reservoir, double level);
+    void setReservoirQuality(const string& reservoir, double quality);
     void setTankLevel(const std::string& tank, double level);
     void setJunctionDemand(const std::string& junction, double demand);
     void setPipeStatus(const std::string& pipe, Pipe::status_t status);
@@ -70,7 +71,7 @@ namespace RTX {
     virtual int relativeError(time_t time);
     virtual void setHydraulicTimeStep(int seconds);
     virtual void setQualityTimeStep(int seconds);
-    virtual void setInitialQuality(double qual);
+    virtual void setInitialModelQuality();
     void ENcheck(int errorCode, std::string externalFunction) throw(std::string);
     
     // protected accessors

@@ -34,10 +34,10 @@ namespace RTX {
     
     void setElevation(double elevation);
     bool doesResetLevelUsingClock();
-    void setResetLevelNextTime(bool reset);
-    bool resetLevelNextTime();
     void setLevelResetClock(Clock::sharedPointer clock);
     Clock::sharedPointer levelResetClock();
+    void setResetLevelNextTime(bool reset);
+    bool resetLevelNextTime();
     
     // parameters
     void setLevelMeasure(TimeSeries::sharedPointer level);

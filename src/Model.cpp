@@ -475,8 +475,14 @@ int Model::qualityTimeStep() {
   return _qualityTimeStep;
 }
 
-void Model::setInitialQuality(double qual) {
-  
+void Model::setInitialJunctionUniformQuality(double qual) {
+  // Constant initial quality of Junctions and Tanks (Reservoirs are boundary conditions)
+  BOOST_FOREACH(Junction::sharedPointer junc, this->junctions()) {
+    junc->setInitialQuality(qual);
+  }
+  BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
+    tank->setInitialQuality(qual);
+  }
 }
 
 bool Model::tanksNeedReset() {
@@ -487,6 +493,67 @@ void Model::setTanksNeedReset(bool reset) {
   _tanksNeedReset = reset;
 }
 
+void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
+  // Measured initial quality of Junctions and Tanks (Reservoirs are boundary conditions)
+  // using nearest neighbor interpolation of quality measurements
+  
+  // junction measurements
+  std::vector< std::pair<Junction::sharedPointer, double> > measuredJunctions;
+  BOOST_FOREACH(Junction::sharedPointer junc, this->junctions()) {
+    if (junc->doesHaveQualityMeasure()) {
+      TimeSeries::sharedPointer qualityTS = junc->qualityMeasure();
+      Point aPoint = qualityTS->pointAtOrBefore(time);
+      if (aPoint.isValid) {
+        measuredJunctions.push_back(make_pair(junc, aPoint.value));
+      }
+    }
+  }
+  // tank measurements
+  BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
+    if (tank->doesHaveQualityMeasure()) {
+      TimeSeries::sharedPointer qualityTS = tank->qualityMeasure();
+      Point aPoint = qualityTS->pointAtOrBefore(time);
+      if (aPoint.isValid) {
+        measuredJunctions.push_back(make_pair(tank, aPoint.value));
+      }
+    }
+  }
+  
+  // Nearest neighbor interpolation by enumeration
+  // junctions
+  BOOST_FOREACH(Junction::sharedPointer junc, this->junctions()) {
+    std::pair<Junction::sharedPointer, double> mjunc;
+    double minDistance = DBL_MAX;
+    double initQuality = 0;
+    BOOST_FOREACH(mjunc, measuredJunctions) {
+      double d = nodeDistanceXY(junc, mjunc.first);
+      if (d < minDistance) {
+        minDistance = d;
+        initQuality = mjunc.second;
+      }
+    }
+    // initialize the junction quality
+    junc->setInitialQuality(initQuality);
+//    cout << "Junction " << junc->name() << " Quality: " << initQuality << endl;
+  }
+  // tanks
+  BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
+    std::pair<Junction::sharedPointer, double> mjunc;
+    double minDistance = DBL_MAX;
+    double initQuality = 0;
+    BOOST_FOREACH(mjunc, measuredJunctions) {
+      double d = nodeDistanceXY(tank, mjunc.first);
+      if (d < minDistance) {
+        minDistance = d;
+        initQuality = mjunc.second;
+      }
+    }
+    // initialize the tank quality
+    tank->setInitialQuality(initQuality);
+//    cout << "Tank " << tank->name() << " Quality: " << initQuality << endl;
+  }
+  
+}
 
 #pragma mark - Protected Methods
 
@@ -547,12 +614,17 @@ void Model::setSimulationParameters(time_t time) {
     }
   }
   
-  // for reservoirs, set the boundary head condition
+  // for reservoirs, set the boundary head and quality conditions
   BOOST_FOREACH(Reservoir::sharedPointer reservoir, this->reservoirs()) {
     if (reservoir->doesHaveBoundaryHead()) {
       // get the head measurement parameter, and pass it through as a state.
       double headValue = Units::convertValue(reservoir->boundaryHead()->pointAtOrBefore(time).value, reservoir->boundaryHead()->units(), headUnits());
       setReservoirHead( reservoir->name(), headValue );
+    }
+    if (reservoir->doesHaveBoundaryQuality()) {
+      // get the quality measurement parameter, and pass it through as a state.
+      double qualityValue = Units::convertValue(reservoir->boundaryQuality()->pointAtOrBefore(time).value, reservoir->boundaryQuality()->units(), qualityUnits());
+      setReservoirQuality( reservoir->name(), qualityValue );
     }
   }
   
@@ -721,5 +793,10 @@ time_t Model::currentSimulationTime() {
   return _currentSimulationTime;
 }
 
+double Model::nodeDistanceXY(Node::sharedPointer n1, Node::sharedPointer n2) {
+  std::pair<double, double> x1 = n1->coordinates();
+  std::pair<double, double> x2 = n2->coordinates();
+  return sqrt( pow(x1.first - x2.first, 2) + pow(x1.second - x2.second, 2) );
+}
 
 
