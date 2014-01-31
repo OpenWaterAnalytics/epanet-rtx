@@ -34,6 +34,8 @@ namespace RTX {
     EpanetModel();
     ~EpanetModel();
     void loadModelFromFile(const std::string& filename) throw(std::exception);
+    virtual void initEngine();
+    virtual void closeEngine();
     void useEpanetFile(const std::string& filename);
     virtual void overrideControls() throw(RtxException);
     virtual std::ostream& toStream(std::ostream &stream);
@@ -87,6 +89,8 @@ namespace RTX {
 //    std::string _modelFile;
     
     void createRtxWrappers();
+    
+    bool _enOpened;
     
   };
   

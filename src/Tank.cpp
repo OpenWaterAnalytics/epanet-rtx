@@ -118,10 +118,14 @@ void Tank::setHeadMeasure(TimeSeries::sharedPointer head) {
   // assumption about elevation units is made here.
   // todo -- revise elevation units handling
   if (head) {
+    _levelMeasure->resetCache();
+    _volumeMeasure->resetCache();
+    _flowMeasure->resetCache();
+    
+    _levelMeasure->setClock(head->clock());
     _levelMeasure->setUnits(head->units());
     _levelMeasure->setSource(head);
     
-    _levelMeasure->setClock(head->clock());
     _volumeMeasure->setClock(head->clock());
     _flowMeasure->setClock(head->clock());
   }

@@ -13,6 +13,15 @@
 #include "Model.h"
 #include "Units.h"
 
+
+#include <boost/config.hpp>
+#include <vector>
+#include <algorithm>
+#include <utility>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/connected_components.hpp>
+#include <boost/range/adaptors.hpp>
+
 using namespace RTX;
 using namespace std;
 
@@ -46,6 +55,9 @@ Model::~Model() {
 std::ostream& RTX::operator<< (std::ostream &out, Model &model) {
   return model.toStream(out);
 }
+
+
+
 
 string Model::name() {
   return _name;
@@ -196,69 +208,97 @@ void Model::setParameterSource(PointRecord::sharedPointer record) {
 
 #pragma mark - Demand dmas
 
+
 void Model::initDMAs() {
   
   _dmas.clear();
   
-  // load up the node set
-  std::set<Junction::sharedPointer> nodeSet;
-  BOOST_FOREACH(Junction::sharedPointer junction, _junctions) {
-    nodeSet.insert(junction);
-  }
-  BOOST_FOREACH(Tank::sharedPointer tank, _tanks) {
-    nodeSet.insert(tank);
-  }
-  BOOST_FOREACH(Junction::sharedPointer reservoir, _reservoirs) {
-    nodeSet.insert(reservoir);
-  }
-  int iDma = 0;
-    
-  // if the set is not empty, then there's work to be done:
-  while (!nodeSet.empty()) {
-    iDma++;
-    
-    // pick a random node, and build out that dma.
-    set<Junction::sharedPointer>::iterator nodeIt;
-    nodeIt = nodeSet.begin();
-    Junction::sharedPointer rootNode = *nodeIt;
-    
-    string dmaName = boost::lexical_cast<string>(iDma);
-    Dma::sharedPointer newDma(new Dma(dmaName));
-    
-    
-    // specifiy the root node and populate the tree.
-    try {
-      newDma->enumerateJunctionsWithRootNode(rootNode,this->dmaShouldDetectClosedLinks(),this->dmaPipesToIgnore());
-    } catch (exception &e) {
-      cerr << "DMA could not be enumerated: " << e.what() << endl;
-    } catch (...) {
-      cerr << "DMA could not be enumerated, and I don't know why" << endl;
+  set<Pipe::sharedPointer> boundaryPipes;
+  
+  using namespace boost;
+  std::map<Node::sharedPointer, int> nodeIndexMap;
+  boost::adjacency_list <boost::vecS, boost::vecS, boost::undirectedS> G;
+  
+  typedef struct {
+    Link::sharedPointer link;
+    int fromIdx, toIdx;
+  } LinkDescriptor;
+  
+  // load up the link descriptor lookup table
+  vector<LinkDescriptor> linkDescriptors;
+  {
+    int iNode = 0;
+    BOOST_FOREACH(Node::sharedPointer node, _nodes | boost::adaptors::map_values) {
+      nodeIndexMap[node] = iNode;
+      ++iNode;
     }
-    
-    
-    // get the list of junctions that were just added.
-    vector<Junction::sharedPointer> addedJunctions = newDma->junctions();
-    
-    if (addedJunctions.size() < 1) {
-      cerr << "Could not add any junctions to dma " << iDma << endl;
+    BOOST_FOREACH(Link::sharedPointer link, _links | boost::adaptors::map_values) {
+      int from = nodeIndexMap[link->from()];
+      int to = nodeIndexMap[link->to()];
+      linkDescriptors.push_back((LinkDescriptor){link, from, to});
+    }
+  }
+  
+  //
+  // build a boost graph of the network, ignoring links that are dma boundaries or explicitly ignored
+  // is this faster than adapting the model to be BGL compliant? certainly faster dev time, but this should be tested in code.
+  //
+  vector<Pipe::sharedPointer> ignorePipes = this->dmaPipesToIgnore();
+  
+  BOOST_FOREACH(Link::sharedPointer link, _links | boost::adaptors::map_values) {
+    Pipe::sharedPointer pipe = boost::static_pointer_cast<Pipe>(link);
+    // flow measure?
+    if (pipe->doesHaveFlowMeasure()) {
+      boundaryPipes.insert(pipe);
+      continue;
+    }
+    // pipe closed? (and not a pump)
+    if (pipe->fixedStatus() == Pipe::CLOSED && pipe->type() != Element::PUMP) {
+      boundaryPipes.insert(pipe);
+      continue;
+    }
+    // pipe ignored?
+    if (find(ignorePipes.begin(), ignorePipes.end(), pipe) != ignorePipes.end()) {
       continue;
     }
     
-    // remove the added junctions from the nodeSet.
-    BOOST_FOREACH(Junction::sharedPointer addedJunction, addedJunctions) {
-      size_t changed = nodeSet.erase(addedJunction);
-      if (changed != 1) {
-        // whoops, something is wrong
-        cerr << "Could not find junction in set: " << addedJunction->name() << endl;
-      }
-    }
-    
-    cout << "adding dma: " << *newDma << endl;
-    this->addDma(newDma);
+    int from = nodeIndexMap[link->from()];
+    int to = nodeIndexMap[link->to()];
+    add_edge(from, to, G); // BGL add edge to graph
   }
   
+  // use the BGL to find the number of connected components and get the membership list
+  vector<int> componentMap(_nodes.size());
+  int nDmas = connected_components(G, &componentMap[0]);
   
+  // for each connected component, create a new dma.
+  vector<Dma::sharedPointer> newDmas;
+  for (int iDma = 0; iDma < nDmas; ++iDma) {
+    stringstream dmaNameStream("");
+    dmaNameStream << "dma " << iDma;
+    Dma::sharedPointer dma( new Dma(dmaNameStream.str()) );
+    newDmas.push_back(dma);
+  }
   
+  // now that we have the dma list, go through the node membership and add each node object to the appropriate dma.
+  vector<Node::sharedPointer> indexedNodes;
+  indexedNodes.reserve(_nodes.size());
+  BOOST_FOREACH(Node::sharedPointer j, _nodes | boost::adaptors::map_values) {
+    indexedNodes.push_back(j);
+  }
+  
+  for (int nodeIdx = 0; nodeIdx < _nodes.size(); ++nodeIdx) {
+    int dmaIdx = componentMap[nodeIdx];
+    Dma::sharedPointer dma = newDmas[dmaIdx];
+    dma->addJunction(boost::static_pointer_cast<Junction>(indexedNodes[nodeIdx]));
+  }
+  
+  // finally, let the dma assemble its aggregators
+  BOOST_FOREACH(const Dma::sharedPointer dma, newDmas) {
+    dma->initDemandTimeseries(boundaryPipes);
+    //cout << "adding dma: " << *dma << endl;
+    this->addDma(dma);
+  }
   
   
 }
@@ -341,7 +381,7 @@ void Model::addDma(Dma::sharedPointer dma) {
   _dmas.push_back(dma);
   dma->setJunctionFlowUnits(this->flowUnits());
   Clock::sharedPointer hydClock(new Clock(hydraulicTimeStep()));
-  dma->demand()->setClock(hydClock);
+  //dma->demand()->setClock(hydClock);
   
 }
 
@@ -669,7 +709,8 @@ void Model::setSimulationParameters(time_t time) {
     // status can affect settings and vice-versa; status rules
     Pipe::status_t status = Pipe::OPEN;
     if (pump->doesHaveStatusParameter()) {
-      status = Pipe::status_t((int)(pump->statusParameter()->pointAtOrBefore(time).value));
+      TimeSeries::sharedPointer statusTs = pump->statusParameter();
+      status = Pipe::status_t((int)(statusTs->pointAtOrBefore(time).value));
       setPumpStatus( pump->name(), status );
     }
     if (pump->doesHaveSettingParameter() && status) {

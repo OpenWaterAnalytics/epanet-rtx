@@ -7,13 +7,25 @@
 //
 
 #include <iostream>
-#include "ConfigFactory.h"
+#include "ConfigProject.h"
+#include "SqlitePointRecord.h"
+
 
 using namespace std;
 using namespace RTX;
 
 int main(int argc, const char * argv[])
 {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   time_t someTime = 1353330000; // unix-time 2012-11-19 8:00:00 EST
   long duration = 60 * 60 * 24 * 12; // 12 days
@@ -25,7 +37,8 @@ int main(int argc, const char * argv[])
   
   
   
-  ConfigFactory config;
+  
+  ConfigProject config;
   Model::sharedPointer model;
   
   try {

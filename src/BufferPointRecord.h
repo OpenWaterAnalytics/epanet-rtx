@@ -64,6 +64,7 @@ namespace RTX {
     PointBuffer_t::iterator _cacheIterator;
     std::map<std::string, BufferMutexPair_t > _keyedBufferMutex;
     size_t _defaultCapacity;
+    boost::signals2::mutex _bigMutex;
   };
   
   std::ostream& operator<< (std::ostream &out, BufferPointRecord &pr);

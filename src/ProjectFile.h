@@ -39,8 +39,8 @@ namespace RTX {
   public:
     RTX_SHARED_POINTER(ProjectFile);
     
-    virtual void loadFromPath(const string& path) = 0;
-    virtual void saveToPath(const string& path) = 0;
+    virtual void loadProjectFile(const string& path) = 0;
+    virtual void saveProjectFile(const string& path) = 0;
     virtual void clear() = 0;
     
     virtual RTX_LIST<TimeSeries::sharedPointer> timeSeries() = 0;

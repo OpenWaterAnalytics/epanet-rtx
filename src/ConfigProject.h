@@ -1,13 +1,13 @@
 //
-//  ConfigFactory.h
+//  ConfigProject.h
 //  epanet-rtx
 //
 //  Created by the EPANET-RTX Development Team
 //  See README.md and license.txt for more information
 //  
 
-#ifndef epanet_rtx_ConfigFactory_h
-#define epanet_rtx_ConfigFactory_h
+#ifndef epanet_rtx_ConfigProject_h
+#define epanet_rtx_ConfigProject_h
 
 #define CONFIGVERSION "1.0"
 
@@ -17,33 +17,33 @@
 
 namespace RTX {
   
-  /*! \class ConfigFactory 
+  /*! \class ConfigProject 
    \brief A factory for various elements, read from (or written to) a libconfig file.
  
-   \fn void ConfigFactory::loadConfigFile(const std::string& path)
+   \fn void ConfigProject::loadConfigFile(const std::string& path)
    \brief Create elements described in the libconfig file "path"
    \param path The path to the libconfig text file.
    
-   \fn void ConfigFactory::saveConfigFile(const std::string& path)
+   \fn void ConfigProject::saveConfigFile(const std::string& path)
    \brief Write the stored configuration to a text file
    \param path The path to the libconfig text file.
    
-   \fn void ConfigFactory::clear()
+   \fn void ConfigProject::clear()
    \brief Clear all configuration settings.
    
-   \fn std::map<std::string, TimeSeries::sharedPointer> ConfigFactory::timeSeries()
+   \fn std::map<std::string, TimeSeries::sharedPointer> ConfigProject::timeSeries()
    \brief Get a list of TimeSeries pointers held by the configuration object.
    \return The list of pointers.
    
-   \fn std::map<std::string, PointRecord::sharedPointer> ConfigFactory::pointRecords()
+   \fn std::map<std::string, PointRecord::sharedPointer> ConfigProject::pointRecords()
    \brief Get a list of PointRecord pointers held by the configuration object.
    \return The list of pointers.
    
-   \fn std::map<std::string, Clock::sharedPointer> ConfigFactory::clocks()
+   \fn std::map<std::string, Clock::sharedPointer> ConfigProject::clocks()
    \brief Get a list of Clock pointers held by the configuration object.
    \return The list of pointers.
    
-   \fn void ConfigFactory::addTimeSeries(TimeSeries::sharedPointer timeSeries)
+   \fn void ConfigProject::addTimeSeries(TimeSeries::sharedPointer timeSeries)
    \brief add a TimeSeries pointer to the configuration
    \param timeSeries A TimeSeries shared pointer
    
@@ -60,19 +60,20 @@ namespace RTX {
   
   // TODO - split this into separate factory classes (for pointrecords, timeseries, model, etc?)
   
-  class ConfigFactory : public ProjectFile {
+  class ConfigProject : public ProjectFile {
   public:
-    RTX_SHARED_POINTER(ConfigFactory);
-    ConfigFactory();
-    ~ConfigFactory();
+    RTX_SHARED_POINTER(ConfigProject);
+    ConfigProject();
+    ~ConfigProject();
     
     void loadProjectFile(const string& path);
     void saveProjectFile(const string& path);
     void clear();
     
-    //map<string, TimeSeries::sharedPointer> timeSeries();
-    //map<string, PointRecord::sharedPointer> pointRecords();
-    //map<string, Clock::sharedPointer> clocks();
+    RTX_LIST<TimeSeries::sharedPointer> timeSeries();
+    RTX_LIST<Clock::sharedPointer> clocks();
+    RTX_LIST<PointRecord::sharedPointer> records();
+    
     PointRecord::sharedPointer defaultRecord();
     Model::sharedPointer model();
     
@@ -125,9 +126,9 @@ namespace RTX {
     bool _doesHaveStateRecord;
     
     Config _configuration;
-    typedef TimeSeries::sharedPointer (ConfigFactory::*TimeSeriesFunctionPointer)(Setting&);
+    typedef TimeSeries::sharedPointer (ConfigProject::*TimeSeriesFunctionPointer)(Setting&);
     typedef PointRecord::sharedPointer (*PointRecordFunctionPointer)(Setting&);
-    typedef void (ConfigFactory::*ParameterFunction)(Setting&, Element::sharedPointer);
+    typedef void (ConfigProject::*ParameterFunction)(Setting&, Element::sharedPointer);
     map<string, PointRecordFunctionPointer> _pointRecordPointerMap;
     map<string, TimeSeriesFunctionPointer> _timeSeriesPointerMap;
     map<string, ParameterFunction> _parameterSetter;

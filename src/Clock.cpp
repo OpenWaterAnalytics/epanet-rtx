@@ -94,8 +94,19 @@ int Clock::period() {
   return _period;
 }
 
+void Clock::setPeriod(int p) {
+  _period = p;
+  if (p > 0) {
+    _isRegular = true;
+  }
+}
+
 time_t Clock::start() {
   return _start;
+}
+
+void Clock::setStart(time_t startTime) {
+  _start = startTime;
 }
 
 time_t Clock::validTime(time_t time) {

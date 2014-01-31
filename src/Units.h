@@ -64,6 +64,8 @@
 #define RTX_FOOT_PER_SECOND_SECOND  RTX::Units(.3048,        0,1,-2)
 #define RTX_FOOT_PER_HOUR_HOUR      RTX::Units(25.5185185E-9,0,1,-2)
 
+// temperature
+#define RTX_DEGREE_KELVIN           RTX::Units(1,            0,0,0,0,1,0,0)
 
 namespace RTX {
   

@@ -206,6 +206,11 @@ map<string, Units> Units::unitStringMap() {
   m["ft/s/s"] = RTX_FOOT_PER_SECOND_SECOND;
   m["ft/hr/hr"] = RTX_FOOT_PER_HOUR_HOUR;
 
+//  m["mgd/s"] = RTX_MILLION_GALLON_PER_DAY_PER_SECOND;
+  
+  // temperature
+  m["kelvin"] = RTX_DEGREE_KELVIN;
+  
   return m;
 }
 

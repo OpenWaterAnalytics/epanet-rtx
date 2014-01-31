@@ -228,15 +228,15 @@ std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sour
   time_t rangeStart = start, rangeEnd = end;
   
   int margin = this->margin();
-  Clock::sharedPointer myClock = this->clock();
+  Clock::sharedPointer otherClock = sourceTs->clock();
   
-  if (myClock->isRegular()) {
+  if (otherClock->isRegular()) {
     // much faster.
-    rangeStart = (myClock->isValid(rangeStart)) ? rangeStart : myClock->timeBefore(rangeStart);
-    rangeEnd = (myClock->isValid(rangeEnd)) ? rangeEnd : myClock->timeAfter(rangeEnd);
+    rangeStart = (otherClock->isValid(rangeStart)) ? rangeStart : otherClock->timeBefore(rangeStart);
+    rangeEnd = (otherClock->isValid(rangeEnd)) ? rangeEnd : otherClock->timeAfter(rangeEnd);
     
-    rangeStart -= myClock->period() * margin;
-    rangeEnd += myClock->period() * margin;
+    rangeStart -= otherClock->period() * margin;
+    rangeEnd += otherClock->period() * margin;
     
   }
   
@@ -263,11 +263,7 @@ std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sour
   }
   
   
-  pair<time_t, time_t> newRange(0,0);
-  
-  newRange.first = rangeStart;
-  newRange.second = rangeEnd;
-  
+  pair<time_t, time_t> newRange(rangeStart,rangeEnd);
   return newRange;
 }
 
@@ -314,6 +310,11 @@ bool Resampler::alignVectorIterators(pVec_cIt& start, pVec_cIt& end, pVec_cIt& p
   }
   
   bool success = (iForwards == marginDistance && iBackwards == marginDistance);
+  
+  if (!success) {
+    cerr << "cannot align" << endl;
+  }
+  
   return success;
   
   // ok, all done. everything is passed by ref.

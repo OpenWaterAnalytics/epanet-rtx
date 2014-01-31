@@ -30,7 +30,12 @@ Point MultiplierTimeSeries::filteredSingle(Point p, Units sourceU) {
   
   Point newP = Point::convertPoint(p, sourceU, units());  
   Point multiplierPoint = (this->multiplier()) ? this->multiplier()->point(p.time) : Point(p.time,1.);
-  newP *= multiplierPoint.value;
-
+  if (multiplierPoint.isValid) {
+    newP *= multiplierPoint.value;
+  }
+  else {
+    newP = Point();
+  }
+  
   return newP;
 }

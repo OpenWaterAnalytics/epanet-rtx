@@ -14,6 +14,8 @@
 
 #include "DbPointRecord.h"
 
+#include <boost/signals2/mutex.hpp>
+
 namespace RTX {
   
   class SqlitePointRecord : public DbPointRecord {
@@ -52,6 +54,10 @@ namespace RTX {
     
     std::string _path;
     bool _connected;
+    
+    bool _inTransaction;
+    
+    boost::shared_ptr<boost::signals2::mutex> _mutex;
     
     bool initTables();
     void logDbError();

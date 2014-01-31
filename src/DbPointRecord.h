@@ -31,7 +31,7 @@ namespace RTX {
     DbPointRecord();
     virtual ~DbPointRecord() {};
     
-    // end of the road for these guys
+    // end of the road for these guys; no virtuals.
     Point point(const string& id, time_t time);
     Point pointBefore(const string& id, time_t time);
     Point pointAfter(const string& id, time_t time);
@@ -40,22 +40,17 @@ namespace RTX {
     void addPoints(const string& id, std::vector<Point> points);
     void reset();
     void reset(const string& id);
+    virtual void truncate()=0;
     
     virtual std::vector<std::pair<std::string, Units> >availableData() {};
     
-    // pointRecord methods to override
-    //virtual std::string registerAndGetIdentifier(std::string recordName)=0;
-    //virtual std::vector<std::string> identifiers()=0;
-    
-    // db connection
-//    void setConnectionString(const std::string& connection);
-//    const std::string& connectionString();
     virtual void dbConnect() throw(RtxException){};
     virtual bool isConnected(){return true;};
     
     // db searching prefs
     void setSearchDistance(time_t time);
     time_t searchDistance();
+    
     
     //exceptions specific to this class family
     class RtxDbConnectException : public RtxException {
@@ -86,7 +81,7 @@ namespace RTX {
     virtual void insertSingle(const std::string& id, Point point)=0;
     virtual void insertRange(const std::string& id, std::vector<Point> points)=0;
     virtual void removeRecord(const std::string& id)=0;
-    virtual void truncate()=0;
+    
     
     class request_t {
     public:

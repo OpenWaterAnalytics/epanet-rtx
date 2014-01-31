@@ -115,25 +115,6 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
       points.push_back(aNewPoint);
     }
   }
-  
-  /*
-  Point aPoint;
-
-  time_t queryTime;
-
- 
-  
-  
-  queryTime = start;
-  while (queryTime <= end) {
-    aPoint = pointAfter(queryTime);
-    if (!aPoint) {
-      break;
-    }
-    points.push_back(aPoint);
-    queryTime = aPoint->time;
-  }
-   */
     
   return points;
 }
@@ -157,14 +138,6 @@ Point TimeSeries::pointBefore(time_t time) {
   if (timeBefore > 0) {
     myPoint = point(timeBefore);
   }
-  
-  
-  /* / if not, we depend on the PointRecord to tell us what the previous point is.
-  else {
-    myPoint = _points->pointBefore(time);
-    myPoint = point(myPoint->time);
-  }
-   */
   
   return myPoint;
 }

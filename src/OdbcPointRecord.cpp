@@ -11,35 +11,19 @@
 #include <boost/foreach.hpp>
 #include <boost/range/adaptors.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
 
 using namespace RTX;
 using namespace std;
 
-boost::posix_time::ptime _pTimeEpoch;
-
-OdbcPointRecord::OdbcPointRecord() : _timeFormat(UTC){
+OdbcPointRecord::OdbcPointRecord() {
   _connectionOk = false;
   _connectorType = NO_CONNECTOR;
-  
+  _timeFormat = PointRecordTime::UTC;
   _handles.SCADAenv = NULL;
   _handles.SCADAdbc = NULL;
   
-//  
-//  _tableName = "#TABLENAME#";
-//  _dateCol = "#DATECOL";
-//  _tagCol = "#TAGCOL";
-//  _valueCol = "#VALUECOL";
-//  _qualityCol = "#QUALITYCOL#";
-//  _SCADAdbc = NULL;
-//  _SCADAenv = NULL;
-//  _rangeStatement = NULL;
-  _pTimeEpoch = boost::posix_time::ptime(boost::gregorian::date(1970,1,1));
-  
-  
   this->initDsnList();
-  
 }
 
 
@@ -91,7 +75,7 @@ void OdbcPointRecord::initDsnList() {
     string thisDsn = string((char*)dsnChar);
     _dsnList.push_back(thisDsn);
     if (sqlRet == SQL_SUCCESS_WITH_INFO) {
-      printf("\tdata truncation\n");
+      cerr << "\tdata truncation\n" << endl;
     }
   }
   
@@ -107,7 +91,7 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::OdbcQuery> OdbcPointRecor
   wwQueries.connectorName = "wonderware_mssql";
   wwQueries.singleSelect = "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# = ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
   //wwQueries.rangeSelect =  "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# >= ?) AND (#DATECOL# <= ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC' ORDER BY #DATECOL# asc"; // experimentally, ORDER BY is much slower. wonderware always returns rows ordered by DateTime ascending, so this is not really necessary.
-  wwQueries.rangeSelect =  "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# > ?) AND (#DATECOL# < ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
+  wwQueries.rangeSelect =  "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# >= ?) AND (#DATECOL# <= ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC'";
   wwQueries.lowerBound = "";
   wwQueries.upperBound = "";
   wwQueries.timeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
@@ -123,7 +107,7 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::OdbcQuery> OdbcPointRecor
   OdbcQuery oraQueries;
   oraQueries.connectorName = "oracle";
   oraQueries.singleSelect = "";
-  oraQueries.rangeSelect = "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# > ?) AND (#DATECOL# < ?) AND #TAGCOL# = ? ORDER BY #DATECOL# asc";
+  oraQueries.rangeSelect = "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# >= ?) AND (#DATECOL# <= ?) AND #TAGCOL# = ? ORDER BY #DATECOL# asc";
   oraQueries.lowerBound = "";
   oraQueries.upperBound = "";
   oraQueries.timeQuery = "select sysdate from dual";
@@ -143,7 +127,7 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::OdbcQuery> OdbcPointRecor
   // "regular" mssql db...
   OdbcQuery mssqlQueries = wwQueries;
   mssqlQueries.connectorName = "mssql";
-  mssqlQueries.rangeSelect =  "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE #TAGCOL# = ? AND (#DATECOL# > ?) AND (#DATECOL# < ?)";// ORDER BY #DATECOL# asc";
+  mssqlQueries.rangeSelect =  "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE #TAGCOL# = ? AND (#DATECOL# >= ?) AND (#DATECOL# <= ?)"; // ORDER BY #DATECOL# asc";
   mssqlQueries.qualityMap = oraQualMap;
   
   
@@ -173,106 +157,6 @@ vector<string> OdbcPointRecord::dsnList() {
   return _dsnList;
 }
 
-
-#pragma mark - getters & setters
-
-string OdbcPointRecord::dsn() {
-  return _connection.dsn;
-}
-
-void OdbcPointRecord::setDsn(string dsn) {
-  _connection.dsn = dsn;
-}
-
-
-string OdbcPointRecord::uid() {
-  return _connection.uid;
-}
-
-void OdbcPointRecord::setUid(string uid) {
-  _connection.uid = uid;
-}
-
-
-string OdbcPointRecord::pwd() {
-  return _connection.pwd;
-}
-
-void OdbcPointRecord::setPwd(string pwd) {
-  _connection.pwd = pwd;
-}
-
-
-string OdbcPointRecord::dataTable() {
-  return _tableDescription.dataTable;
-}
-
-void OdbcPointRecord::setDataTable(string table) {
-  _tableDescription.dataTable = table;
-}
-
-
-string OdbcPointRecord::dataDateColumn() {
-  return _tableDescription.dataDateCol;
-}
-
-void OdbcPointRecord::setDataDateColumn(string col) {
-  _tableDescription.dataDateCol = col;
-}
-
-
-string OdbcPointRecord::dataNameColumn() {
-  return _tableDescription.dataNameCol;
-}
-
-void OdbcPointRecord::setDataNameColumn(string col) {
-  _tableDescription.dataNameCol = col;
-}
-
-
-string OdbcPointRecord::dataValueColumn() {
-  return _tableDescription.dataValueCol;
-}
-
-void OdbcPointRecord::setDataValueColumn(string col) {
-  _tableDescription.dataValueCol = col;
-}
-
-
-string OdbcPointRecord::dataQualityColumn() {
-  return _tableDescription.dataQualityCol;
-}
-
-void OdbcPointRecord::setDataQualityColumn(string col) {
-  _tableDescription.dataQualityCol = col;
-}
-
-
-string OdbcPointRecord::tagTable() {
-  return _tableDescription.tagTable;
-}
-
-void OdbcPointRecord::setTagTable(string table) {
-  _tableDescription.tagTable = table;
-}
-
-
-string OdbcPointRecord::tagNameColumn() {
-  return _tableDescription.tagNameCol;
-}
-
-void OdbcPointRecord::setTagNameColumn(string col) {
-  _tableDescription.tagNameCol = col;
-}
-
-
-string OdbcPointRecord::tagUnitsColumn() {
-  return _tableDescription.tagUnitsCol;
-}
-
-void OdbcPointRecord::setTagUnitsColumn(string col) {
-  _tableDescription.tagUnitsCol = col;
-}
 
 
 OdbcPointRecord::Sql_Connector_t OdbcPointRecord::connectorType() {
@@ -315,11 +199,11 @@ void OdbcPointRecord::rebuildQueries() {
     querystrings.push_back(&_querySyntax.lowerBound);
     
     BOOST_FOREACH(string* str, querystrings) {
-      boost::replace_all(*str, "#TABLENAME#",  _tableDescription.dataTable);
-      boost::replace_all(*str, "#DATECOL#",    _tableDescription.dataDateCol);
-      boost::replace_all(*str, "#TAGCOL#",     _tableDescription.dataNameCol);
-      boost::replace_all(*str, "#VALUECOL#",   _tableDescription.dataValueCol);
-      boost::replace_all(*str, "#QUALITYCOL#", _tableDescription.dataQualityCol);
+      boost::replace_all(*str, "#TABLENAME#",  tableDescription.dataTable);
+      boost::replace_all(*str, "#DATECOL#",    tableDescription.dataDateCol);
+      boost::replace_all(*str, "#TAGCOL#",     tableDescription.dataNameCol);
+      boost::replace_all(*str, "#VALUECOL#",   tableDescription.dataValueCol);
+      boost::replace_all(*str, "#QUALITYCOL#", tableDescription.dataQualityCol);
     }
   }
   
@@ -330,9 +214,9 @@ void OdbcPointRecord::rebuildQueries() {
 
 void OdbcPointRecord::dbConnect() throw(RtxException) {
   _connectionOk = false;
-  if (RTX_STRINGS_ARE_EQUAL(this->dsn(), "") ||
-      RTX_STRINGS_ARE_EQUAL(this->uid(), "") ||
-      RTX_STRINGS_ARE_EQUAL(this->pwd(), "") ) {
+  if (RTX_STRINGS_ARE_EQUAL(this->connection.dsn, "") ||
+      RTX_STRINGS_ARE_EQUAL(this->connection.uid, "") ||
+      RTX_STRINGS_ARE_EQUAL(this->connection.pwd, "") ) {
     errorMessage = "Incomplete Login";
     return;
   }
@@ -346,71 +230,17 @@ void OdbcPointRecord::dbConnect() throw(RtxException) {
     SQLDisconnect(_handles.SCADAdbc);
   }
   
+  // timeouts
+  SQLUINTEGER timeout = 5;
+  sqlRet = SQL_CHECK(SQLSetConnectAttr(_handles.SCADAdbc, SQL_ATTR_LOGIN_TIMEOUT, &timeout, 0/*ignored*/), "SQLSetConnectAttr", _handles.SCADAdbc, SQL_HANDLE_DBC);
+  sqlRet = SQL_CHECK(SQLSetConnectAttr(_handles.SCADAdbc, SQL_ATTR_CONNECTION_TIMEOUT, &timeout, 0/*ignored*/), "SQLSetConnectAttr", _handles.SCADAdbc, SQL_HANDLE_DBC);
+
   
   try {
-    // make sure handles are free
-    //sqlRet = SQLFreeStmt(_handles.rangeStatement, SQL_CLOSE);
-    
-    // "DRIVER=TDS;SERVER=192.168.239.131;UID=EPA;PWD=rtAgent;DATABASE=Runtime;TDS_Version=8.0;Port=1433;"
-    //sqlRet = SQLDriverConnect(_SCADAdbc, NULL, (SQLCHAR*)(this->connectionString()).c_str(), SQL_NTS, NULL, 0, NULL, SQL_DRIVER_PROMPT);
-    //sqlRet = SQLConnect(_SCADAdbc, (SQLCHAR*)(this->connectionString()).c_str(), SQL_NTS, NULL, 0, NULL, 0);
-//    sqlRet = SQLConnect(_SCADAdbc, (SQLCHAR*)"TDS", SQL_NTS, (SQLCHAR*)"rtxagent", SQL_NTS, (SQLCHAR*)"rtxagentpw", SQL_NTS);
-//    sqlRet = SQLConnect(_SCADAdbc, (SQLCHAR*)"TDS", SQL_NTS, (SQLCHAR*)"rtx_user", SQL_NTS, (SQLCHAR*)"rtx_db_agent", SQL_NTS);
-
-    
-    sqlRet = SQLConnect(_handles.SCADAdbc, (SQLCHAR*)this->dsn().c_str(), SQL_NTS, (SQLCHAR*)this->uid().c_str(), SQL_NTS, (SQLCHAR*)this->pwd().c_str(), SQL_NTS);
-    
-    
+    sqlRet = SQLConnect(_handles.SCADAdbc, (SQLCHAR*)this->connection.dsn.c_str(), SQL_NTS, (SQLCHAR*)this->connection.uid.c_str(), SQL_NTS, (SQLCHAR*)this->connection.pwd.c_str(), SQL_NTS);
     SQL_CHECK(sqlRet, "SQLDriverConnect", _handles.SCADAdbc, SQL_HANDLE_DBC);
-    
-    /* allocate the statement handles for data aquisition */
-    SQL_CHECK(SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_handles.SCADAstmt), "SQLAllocHandle", _handles.SCADAstmt, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_handles.rangeStatement), "SQLAllocHandle", _handles.rangeStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_handles.lowerBoundStatement), "SQLAllocHandle", _handles.lowerBoundStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_handles.upperBoundStatement), "SQLAllocHandle", _handles.upperBoundStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_handles.SCADAtimestmt), "SQLAllocHandle", _handles.SCADAtimestmt, SQL_HANDLE_STMT);
-    
-    // bindings for single point statement
-    /* bind tempRecord members to SQL return columns */
-    bindOutputColumns(_handles.SCADAstmt, &_tempRecord);
-    // bind input parameters, so we can easily change them when we want to make requests.
-    sqlRet = SQLBindParameter(_handles.SCADAstmt, 1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd);
-    sqlRet = SQLBindParameter(_handles.SCADAstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd);
-    
-    // bindings for the range statement
-    bindOutputColumns(_handles.rangeStatement, &_tempRecord);
-    SQL_CHECK(SQLBindParameter(_handles.rangeStatement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd), "SQLBindParameter", _handles.rangeStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLBindParameter(_handles.rangeStatement, 3, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.end, sizeof(SQL_TIMESTAMP_STRUCT), &_query.endInd), "SQLBindParameter", _handles.rangeStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLBindParameter(_handles.rangeStatement, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd), "SQLBindParameter", _handles.rangeStatement, SQL_HANDLE_STMT);
-    
-    SQLUINTEGER timeout = 5;
-    // query timeout
-    SQL_CHECK(SQLSetStmtAttr(_handles.rangeStatement, SQL_ATTR_QUERY_TIMEOUT, &timeout, 0), "SQLSetStmtAttr", _handles.rangeStatement, SQL_HANDLE_STMT);
-    
-    // bindings for lower bound statement
-    bindOutputColumns(_handles.lowerBoundStatement, &_tempRecord);
-    SQL_CHECK(SQLBindParameter(_handles.lowerBoundStatement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd), "SQLBindParameter", _handles.lowerBoundStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLBindParameter(_handles.lowerBoundStatement, 3, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.end, sizeof(SQL_TIMESTAMP_STRUCT), &_query.endInd), "SQLBindParameter", _handles.lowerBoundStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLBindParameter(_handles.lowerBoundStatement, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd), "SQLBindParameter", _handles.lowerBoundStatement, SQL_HANDLE_STMT);
-    
-    // bindings for upper bound statement
-    bindOutputColumns(_handles.upperBoundStatement, &_tempRecord);
-    SQL_CHECK(SQLBindParameter(_handles.upperBoundStatement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.start, sizeof(SQL_TIMESTAMP_STRUCT), &_query.startInd), "SQLBindParameter", _handles.upperBoundStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLBindParameter(_handles.upperBoundStatement, 3, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, &_query.end, sizeof(SQL_TIMESTAMP_STRUCT), &_query.endInd), "SQLBindParameter", _handles.upperBoundStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLBindParameter(_handles.upperBoundStatement, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MAX_SCADA_TAG, 0, _query.tagName, 0, &_query.tagNameInd), "SQLBindParameter", _handles.upperBoundStatement, SQL_HANDLE_STMT);
-    
-    
-    // prepare the statements
-    //SQL_CHECK(SQLPrepare(_SCADAstmt, (SQLCHAR*)singleSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _SCADAstmt, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLPrepare(_handles.rangeStatement, (SQLCHAR*)_querySyntax.rangeSelect.c_str(), SQL_NTS), "SQLPrepare", _handles.rangeStatement, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLPrepare(_handles.SCADAtimestmt, (SQLCHAR*)_querySyntax.timeQuery.c_str(), SQL_NTS), "SQLPrepare", _handles.SCADAtimestmt, SQL_HANDLE_STMT);
-    //SQL_CHECK(SQLPrepare(_lowerBoundStatement, (SQLCHAR*)lowerBoundSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _lowerBoundStatement, SQL_HANDLE_STMT);
-    //SQL_CHECK(SQLPrepare(_upperBoundStatement, (SQLCHAR*)upperBoundSelectQuery().c_str(), SQL_NTS), "SQLPrepare", _upperBoundStatement, SQL_HANDLE_STMT);
-    
-    // if we made it this far...
     _connectionOk = true;
-    
-    errorMessage = "OK";
+    errorMessage = "Connected";
     
   } catch (string err) {
     errorMessage = err;
@@ -420,10 +250,16 @@ void OdbcPointRecord::dbConnect() throw(RtxException) {
   }
   
   // todo -- check time offset (dst?)
-
 }
 
 bool OdbcPointRecord::isConnected() {
+  return _connectionOk;
+}
+
+bool OdbcPointRecord::checkConnected() {
+  if (!_connectionOk) {
+    this->dbConnect();
+  }
   return _connectionOk;
 }
 
@@ -433,157 +269,8 @@ string OdbcPointRecord::registerAndGetIdentifier(string recordName, Units dataUn
 
 vector<string> OdbcPointRecord::identifiers() {
   vector<string> ids;
-  if (!isConnected()) {
-    return ids;
-  }
-
-  string tagQuery("");
-  tagQuery += "SELECT " + _tableDescription.tagNameCol;
-  if (!RTX_STRINGS_ARE_EQUAL(_tableDescription.tagUnitsCol,"")) {
-    tagQuery += ", " + _tableDescription.tagUnitsCol;
-  }
-  tagQuery += " FROM " + _tableDescription.tagTable + " ORDER BY " + _tableDescription.tagNameCol;
-  
-  SQLCHAR tagName[512];
-  SQLHSTMT tagStmt;
-  SQLRETURN retCode;
-  SQLLEN tagLengthInd;
-  
-  try {
-    SQL_CHECK(SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &tagStmt), "SQLAllocHandle", _handles.SCADAstmt, SQL_HANDLE_STMT);
-    SQL_CHECK(SQLPrepare(tagStmt, (SQLCHAR*)tagQuery.c_str(), SQL_NTS), "identifiers", _handles.SCADAdbc, SQL_HANDLE_DBC);
-    SQL_CHECK(SQLExecute(tagStmt), "SQLExecute", tagStmt, SQL_HANDLE_STMT);
-  } catch (string &e) {
-    return ids;
-  }
-  
-  
-  
-  while (true) {
-    retCode = SQLFetch(tagStmt);
-    if (retCode == SQL_ERROR || retCode == SQL_SUCCESS_WITH_INFO) {
-      //show_error();
-    }
-    if (retCode == SQL_SUCCESS || retCode == SQL_SUCCESS_WITH_INFO){
-      SQLGetData(tagStmt, 1, SQL_C_CHAR, tagName, 512, &tagLengthInd);
-      string newTag((char*)tagName);
-      ids.push_back(newTag);
-    } else {
-      break;
-    }
-  }
-  
   return ids;
 }
-
-
-
-#pragma mark -
-
-
-// fetch means cache the results
-/*
-void OdbcPointRecord::fetchRange(const string& id, time_t startTime, time_t endTime) {
-  // just call super
-  DbPointRecord::fetchRange(id, startTime, endTime);
-}
-
-void OdbcPointRecord::fetchNext(const string& id, time_t time) {
-  time_t margin = 60*60*12;
-  fetchRange(id, time-1, time+margin);
-}
-
-
-void OdbcPointRecord::fetchPrevious(const string& id, time_t time) {
-  time_t margin = 60*60*12;
-  fetchRange(id, time-margin, time+1);
-}
-*/
-
-
-// select just returns the results (no caching)
-vector<Point> OdbcPointRecord::selectRange(const string& id, time_t startTime, time_t endTime) {
-  return pointsWithStatement(id, _handles.rangeStatement, startTime, endTime);
-}
-
-
-Point OdbcPointRecord::selectNext(const string& id, time_t time) {
-  Point p;
-  time_t margin = 60*60*12;
-  vector<Point> points = pointsWithStatement(id, _handles.rangeStatement, time-1, time + margin);
-  
-  time_t max_margin = this->searchDistance();
-  time_t lookahead = time;
-  while (points.size() == 0 && lookahead < time + max_margin) {
-    //cout << "scada lookahead" << endl;
-    lookahead += margin;
-    points = pointsWithStatement(id, _handles.rangeStatement, time-1, lookahead+margin);
-  }
-  
-  if (points.size() > 0) {
-    p = points.front();
-    int i = 0;
-    while (p.time <= time && i < points.size()) {
-      p = points.at(i);
-      ++i;
-    }
-  }
-  if (points.empty()) {
-    //cerr << "no points found for " << id << " :: range " << time - 1 << " - " << lookahead + margin << endl;
-  }
-  return p;
-}
-
-
-Point OdbcPointRecord::selectPrevious(const string& id, time_t time) {
-  Point p;
-  time_t margin = 60*60*24*7; // one week?
-  vector<Point> points = pointsWithStatement(id, _handles.rangeStatement, time - margin, time+1);
-  
-  time_t max_margin = this->searchDistance();
-  time_t lookbehind = time;
-  while (points.size() == 0 && lookbehind > time - max_margin) {
-    //cout << "scada lookbehind" << endl;
-    lookbehind -= margin;
-    points = pointsWithStatement(id, _handles.rangeStatement, lookbehind-margin, time+1);
-  }
-  // sanity
-  while (!points.empty() && points.back().time > time) {
-    points.pop_back();
-  }
-  
-  if (points.size() > 0) {
-    p = points.back();
-  }
-  if (points.empty()) {
-    //cerr << "no points found for " << id << " :: range " << lookbehind-margin << " - " << time+1 << endl;
-  }
-  return p;
-}
-
-
-
-// insertions or alterations may choose to ignore / deny
-void OdbcPointRecord::insertSingle(const string& id, Point point) {
-  
-}
-
-
-void OdbcPointRecord::insertRange(const string& id, vector<Point> points) {
-  
-}
-
-
-void OdbcPointRecord::removeRecord(const string& id) {
-  
-}
-
-
-void OdbcPointRecord::truncate() {
-  
-}
-
-
 
 
 
@@ -597,34 +284,32 @@ ostream& OdbcPointRecord::toStream(ostream &stream) {
 
 
 
+
+void OdbcPointRecord::bindOutputColumns(SQLHSTMT statement, ScadaRecord* record) {
+  SQL_CHECK(SQLBindCol(statement, 1, SQL_TYPE_TIMESTAMP, &(record->time), NULL, &(record->timeInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
+  SQL_CHECK(SQLBindCol(statement, 2, SQL_DOUBLE, &(record->value), 0, &(record->valueInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
+  SQL_CHECK(SQLBindCol(statement, 3, SQL_INTEGER, &(record->quality), 0, &(record->qualityInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
+}
+
+
+
+
 #pragma mark - Internal (private) methods
 
+// get a collection of points out of the db using an active statement handle.
+// it is the caller's responsibility to execute something on the passed-in handle before calling this method.
 
-vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT statement, time_t startTime, time_t endTime) {
+std::vector<Point> OdbcPointRecord::pointsFromStatement(SQLHSTMT statement) {
+  vector<ScadaRecord> records;
+  vector<Point> points;
   
-  if (!_connectionOk) {
-    this->dbConnect();
-  }
-  
-  vector< Point > points;
-  points.clear();
-  
-  if (startTime == 0 || endTime == 0) {
-    // something smells
-    return points;
-  }
-  
-  // set up query-bound variables
-  _query.start = sqlTime(startTime-1);
-  _query.end = sqlTime(endTime+1); // add one second to get fractional times included
-  strcpy(_query.tagName, id.c_str());
-  list<ScadaRecord> records;
+  // make sure output columns are bound. we're not sure where this statement is coming from.
+  this->bindOutputColumns(statement, &_tempRecord);
   
   try {
     if (statement == NULL) {
       throw string("Connection not initialized.");
     }
-    SQL_CHECK(SQLExecute(statement), "SQLExecute", statement, SQL_HANDLE_STMT);    
     while (SQL_SUCCEEDED(SQLFetch(statement))) {
       records.push_back(_tempRecord);
     }
@@ -638,11 +323,10 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
     cerr << "Connection returned " << this->isConnected() << endl;
   }
   
-  
   BOOST_FOREACH(const ScadaRecord& record, records) {
     Point p;
     //time_t t = unixTime(record.time);
-    time_t t = sql_to_time_t(record.time);
+    time_t t = PointRecordTime::time(record.time);
     double v = record.value;
     int qu = record.quality;
     Point::Qual_t q = Point::missing;
@@ -664,103 +348,14 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
       // nothing
       //cout << "skipped invalid point. quality = " << _tempRecord.quality << endl;
     }
-
   }
   
   // make sure the points are sorted
   std::sort(points.begin(), points.end(), &Point::comparePointTime);
   
-  if (points.size() == 0) {
-    //cerr << "no points found" << endl;
-  }
-  else {
-    // make sure the request paramter cache is current. (super uses this)
-    request = request_t(id,points.front().time, points.back().time);
-  }
-  
   return points;
 }
 
-
-
-void OdbcPointRecord::bindOutputColumns(SQLHSTMT statement, ScadaRecord* record) {
-  SQL_CHECK(SQLBindCol(statement, 1, SQL_TYPE_TIMESTAMP, &(record->time), NULL, &(record->timeInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
-  //SQL_CHECK(SQLBindCol(statement, 2, SQL_C_CHAR, record->tagName, MAX_SCADA_TAG, &(record->tagNameInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
-  SQL_CHECK(SQLBindCol(statement, 2, SQL_DOUBLE, &(record->value), 0, &(record->valueInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
-  SQL_CHECK(SQLBindCol(statement, 3, SQL_INTEGER, &(record->quality), 0, &(record->qualityInd) ), "SQLBindCol", statement, SQL_HANDLE_STMT);
-}
-
-
-
-
-SQL_TIMESTAMP_STRUCT OdbcPointRecord::sqlTime(time_t unixTime) {
-  SQL_TIMESTAMP_STRUCT sqlTimestamp;
-  struct tm myTMstruct;
-  struct tm* pTMstruct = &myTMstruct;
-  
-  // time format (local/utc)
-  if (timeFormat() == UTC) {
-    pTMstruct = gmtime(&unixTime);
-  }
-  else if (timeFormat() == LOCAL) {
-    pTMstruct = localtime(&unixTime);
-  }
-	
-	sqlTimestamp.year = pTMstruct->tm_year + 1900;
-	sqlTimestamp.month = pTMstruct->tm_mon + 1;
-	sqlTimestamp.day = pTMstruct->tm_mday;
-	sqlTimestamp.hour = pTMstruct->tm_hour;
-  sqlTimestamp.minute = pTMstruct->tm_min;
-	sqlTimestamp.second = pTMstruct->tm_sec;
-	sqlTimestamp.fraction = (SQLUINTEGER)0;
-  
-  
-  
-  return sqlTimestamp;
-}
-
-
-time_t OdbcPointRecord::sql_to_time_t( const SQL_TIMESTAMP_STRUCT& sqlTime ) {
-  
-  time_t uTime;
-  struct tm tmTime;
-  
-  tmTime.tm_year = sqlTime.year - 1900;
-  tmTime.tm_mon = sqlTime.month -1;
-  tmTime.tm_mday = sqlTime.day;
-  tmTime.tm_hour = sqlTime.hour;
-  tmTime.tm_min = sqlTime.minute;
-  tmTime.tm_sec = sqlTime.second;
-  
-  // Portability note: mktime is essentially universally available. timegm is rather rare. fortunately, boost has some capabilities here.
-  // uTime = timegm(&tmTime);
-  
-  uTime = boost_convert_tm_to_time_t(tmTime);
-  
-  // back convert for a check
-  SQL_TIMESTAMP_STRUCT sqlTimeCheck = this->sqlTime(uTime);
-  if ( sqlTimeCheck.year == sqlTime.year &&
-       sqlTimeCheck.month == sqlTime.month &&
-       sqlTimeCheck.day == sqlTime.day &&
-       sqlTimeCheck.hour == sqlTime.hour &&
-       sqlTimeCheck.minute == sqlTime.minute &&
-       sqlTimeCheck.second == sqlTime.second) {
-    
-  }
-  else {
-    cerr << "time not formed correctly" << endl;
-  }
-   
-  
-  return uTime;
-}
-
-
-time_t OdbcPointRecord::boost_convert_tm_to_time_t(const struct tm &tmStruct) {  
-  boost::posix_time::ptime pt = boost::posix_time::ptime_from_tm(tmStruct);
-  boost::posix_time::time_duration::sec_type x = (pt - _pTimeEpoch).total_seconds();
-  return time_t(x);
-}
 
 
 

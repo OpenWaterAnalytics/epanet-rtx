@@ -12,7 +12,9 @@
 #include <string.h>
 #include <map>
 #include <time.h>
+
 #include <boost/foreach.hpp>
+
 #include "rtxExceptions.h"
 #include "Element.h"
 #include "Node.h"
@@ -46,8 +48,12 @@ namespace RTX {
   class Model {
   public:
     RTX_SHARED_POINTER(Model);
+    
+    
     Model();
     virtual ~Model();
+    virtual void initEngine() { };
+    virtual void closeEngine() { };
     std::string name();
     void setName(std::string name);
     virtual void loadModelFromFile(const string& filename) throw(std::exception);
@@ -170,6 +176,8 @@ namespace RTX {
 
     // element lists
     // master node/link lists
+//    std::vector<Node::sharedPointer> _nodes;
+//    std::vector<Link::sharedPointer> _links;
     std::map<string, Node::sharedPointer> _nodes;
     std::map<string, Link::sharedPointer> _links;
     // convenience lists for iterations

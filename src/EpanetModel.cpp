@@ -20,17 +20,11 @@ using namespace std;
 
 EpanetModel::EpanetModel() : Model() {
   // nothing to do, right?
-  
+  _enOpened = false;
 }
 
 EpanetModel::~EpanetModel() {
-  try {
-    ENcheck( ENcloseH(), "ENcloseH");
-    ENcheck( ENclose(), "ENclose");
-  } catch (...) {
-    cerr << "warning: epanet closed improperly" << endl;
-  }
-  
+  this->closeEngine();
 }
 
 #pragma mark - Loading
@@ -135,10 +129,7 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   
   this->setHydraulicTimeStep((int)enTimeStep);
   
-  ENcheck(ENopenH(), "ENopenH");
-  ENcheck(ENinitH(10), "ENinitH");
-  ENcheck(ENopenQ(), "ENopenQ");
-  ENcheck(ENinitQ(EN_NOSAVE), "ENinitQ");
+  
   
   
   int nodeCount, tankCount, linkCount;
@@ -163,6 +154,26 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   
   
   
+}
+
+void EpanetModel::initEngine() {
+  ENcheck(ENopenH(), "ENopenH");
+  ENcheck(ENinitH(10), "ENinitH");
+  ENcheck(ENopenQ(), "ENopenQ");
+  ENcheck(ENinitQ(EN_NOSAVE), "ENinitQ");
+  _enOpened = true;
+}
+
+void EpanetModel::closeEngine() {
+  if (_enOpened) {
+    try {
+      ENcheck( ENcloseH(), "ENcloseH");
+      ENcheck( ENclose(), "ENclose");
+    } catch (...) {
+      cerr << "warning: epanet closed improperly" << endl;
+    }
+    _enOpened = false;
+  }
 }
 
 
