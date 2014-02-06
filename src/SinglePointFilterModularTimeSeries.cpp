@@ -41,6 +41,9 @@ std::vector<Point> SinglePointFilterModularTimeSeries::filteredPoints(TimeSeries
     if (p.time < fromTime || p.time > toTime) {
       continue;
     }
+    if ( this->clock()->isRegular() && !this->clock()->isValid(p.time)) {
+      continue;
+    }
     Point newP = this->filteredSingle(p, sourceU);
     if (newP.isValid) {
       filteredPoints.push_back(newP);

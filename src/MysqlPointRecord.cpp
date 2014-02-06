@@ -519,7 +519,9 @@ void MysqlPointRecord::handleException(sql::SQLException &e) {
 
 
 
-
+bool MysqlPointRecord::supportsBoundedQueries() {
+  return true;
+}
 
 
 

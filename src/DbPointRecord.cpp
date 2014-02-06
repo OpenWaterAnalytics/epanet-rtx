@@ -145,6 +145,14 @@ Point DbPointRecord::pointAfter(const string& id, time_t time) {
   Point p = DB_PR_SUPER::pointAfter(id, time);
   
   if (!p.isValid) {
+    // lookahead prefetching
+    time_t distance = 60*60*12;
+    this->pointsInRange(id, time, time + distance);
+    p = DB_PR_SUPER::pointAfter(id, time);
+  }
+  
+  
+  if (!p.isValid) {
     // check if last request covered after
     if (request.contains(id, time+1)) {
       return Point();
@@ -244,6 +252,11 @@ void DbPointRecord::reset(const string& id) {
   //this->removeRecord(id);
   // wiped out the record completely, so re-initialize it.
   //this->registerAndGetIdentifier(id);
+}
+
+
+bool DbPointRecord::supportsBoundedQueries() {
+  return false;
 }
 
 /*

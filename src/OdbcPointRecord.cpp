@@ -23,26 +23,8 @@ OdbcPointRecord::OdbcPointRecord() {
   _handles.SCADAenv = NULL;
   _handles.SCADAdbc = NULL;
   
-  this->initDsnList();
-}
-
-
-OdbcPointRecord::~OdbcPointRecord() {
-  // make sure handles are free
-  if (_handles.SCADAdbc != NULL) {
-    SQLDisconnect(_handles.SCADAdbc);
-  }
-//  SQLFreeStmt(_handles.rangeStatement, SQL_CLOSE);
-  SQLFreeHandle(SQL_HANDLE_DBC, _handles.SCADAdbc);
-  SQLFreeHandle(SQL_HANDLE_ENV, _handles.SCADAenv);
-}
-
-void OdbcPointRecord::initDsnList() {
   
   SQLRETURN sqlRet;
-  
-  sqlRet = SQLFreeHandle(SQL_HANDLE_DBC, _handles.SCADAdbc);
-  sqlRet = SQLFreeHandle(SQL_HANDLE_ENV, _handles.SCADAenv);
   
   /* Allocate an environment handle */
   SQL_CHECK(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &_handles.SCADAenv), "SQLAllocHandle", _handles.SCADAenv, SQL_HANDLE_ENV);
@@ -62,6 +44,26 @@ void OdbcPointRecord::initDsnList() {
   sqlRet = SQL_CHECK(SQLSetConnectAttr(_handles.SCADAdbc, SQL_ATTR_LOGIN_TIMEOUT, &timeout, 0/*ignored*/), "SQLSetConnectAttr", _handles.SCADAdbc, SQL_HANDLE_DBC);
   sqlRet = SQL_CHECK(SQLSetConnectAttr(_handles.SCADAdbc, SQL_ATTR_CONNECTION_TIMEOUT, &timeout, 0/*ignored*/), "SQLSetConnectAttr", _handles.SCADAdbc, SQL_HANDLE_DBC);
   
+
+  
+  
+  this->initDsnList();
+}
+
+
+OdbcPointRecord::~OdbcPointRecord() {
+  // make sure handles are free
+  if (_handles.SCADAdbc != NULL) {
+    SQLDisconnect(_handles.SCADAdbc);
+  }
+//  SQLFreeStmt(_handles.rangeStatement, SQL_CLOSE);
+  SQLFreeHandle(SQL_HANDLE_DBC, _handles.SCADAdbc);
+  SQLFreeHandle(SQL_HANDLE_ENV, _handles.SCADAenv);
+}
+
+void OdbcPointRecord::initDsnList() {
+  
+  SQLRETURN sqlRet;
   
   _dsnList.clear();
   
@@ -129,6 +131,9 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::OdbcQuery> OdbcPointRecor
   mssqlQueries.connectorName = "mssql";
   mssqlQueries.rangeSelect =  "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE #TAGCOL# = ? AND (#DATECOL# >= ?) AND (#DATECOL# <= ?)"; // ORDER BY #DATECOL# asc";
   mssqlQueries.qualityMap = oraQualMap;
+  
+//  mssqlQueries.lowerBound = "SELECT TOP(1) #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE #TAGCOL# = ? AND (#DATECOL# < ?) ORDER BY #DATECOL# ASC";
+//  mssqlQueries.upperBound = "SELECT TOP(1) #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE #TAGCOL# = ? AND (#DATECOL# > ?) ORDER BY #DATECOL# DESC";
   
   
   list[mssql] = mssqlQueries;
@@ -213,6 +218,16 @@ void OdbcPointRecord::rebuildQueries() {
 }
 
 void OdbcPointRecord::dbConnect() throw(RtxException) {
+  
+  if (_connectionOk) {
+    SQLDisconnect(_handles.SCADAdbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, _handles.SCADAdbc);
+    /* Allocate a connection handle */
+    SQL_CHECK(SQLAllocHandle(SQL_HANDLE_DBC, _handles.SCADAenv, &_handles.SCADAdbc), "SQLAllocHandle", _handles.SCADAenv, SQL_HANDLE_ENV);
+    SQLUINTEGER mode = SQL_MODE_READ_ONLY;
+    SQL_CHECK(SQLSetConnectAttr(_handles.SCADAdbc, SQL_ATTR_ACCESS_MODE, &mode, SQL_IS_UINTEGER), "SQLSetConnectAttr", _handles.SCADAdbc, SQL_HANDLE_DBC);
+  }
+  
   _connectionOk = false;
   if (RTX_STRINGS_ARE_EQUAL(this->connection.dsn, "") ||
       RTX_STRINGS_ARE_EQUAL(this->connection.uid, "") ||
@@ -221,20 +236,9 @@ void OdbcPointRecord::dbConnect() throw(RtxException) {
     return;
   }
   
-  
   this->rebuildQueries();
   
   SQLRETURN sqlRet;
-  
-  if (_handles.SCADAdbc != NULL) {
-    SQLDisconnect(_handles.SCADAdbc);
-  }
-  
-  // timeouts
-  SQLUINTEGER timeout = 5;
-  sqlRet = SQL_CHECK(SQLSetConnectAttr(_handles.SCADAdbc, SQL_ATTR_LOGIN_TIMEOUT, &timeout, 0/*ignored*/), "SQLSetConnectAttr", _handles.SCADAdbc, SQL_HANDLE_DBC);
-  sqlRet = SQL_CHECK(SQLSetConnectAttr(_handles.SCADAdbc, SQL_ATTR_CONNECTION_TIMEOUT, &timeout, 0/*ignored*/), "SQLSetConnectAttr", _handles.SCADAdbc, SQL_HANDLE_DBC);
-
   
   try {
     sqlRet = SQLConnect(_handles.SCADAdbc, (SQLCHAR*)this->connection.dsn.c_str(), SQL_NTS, (SQLCHAR*)this->connection.uid.c_str(), SQL_NTS, (SQLCHAR*)this->connection.pwd.c_str(), SQL_NTS);
@@ -357,7 +361,9 @@ std::vector<Point> OdbcPointRecord::pointsFromStatement(SQLHSTMT statement) {
 }
 
 
-
+bool OdbcPointRecord::supportsBoundedQueries() {
+  return (!RTX_STRINGS_ARE_EQUAL(_querySyntax.upperBound, "") && !RTX_STRINGS_ARE_EQUAL(_querySyntax.lowerBound, ""));
+}
 
 
 

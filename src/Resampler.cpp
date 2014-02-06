@@ -107,6 +107,9 @@ std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs,
   // get the source points
   std::vector<Point> sourcePoints = sourceTs->points(sourceRange.first, sourceRange.second);
   
+  if (sourcePoints.size() > 0 && sourcePoints.front().time != sourceRange.first) {
+    cerr << "points returned don't match range" << endl;
+  }
   
   // check that it's ordered.
   if (sourcePoints.size() > 0) {

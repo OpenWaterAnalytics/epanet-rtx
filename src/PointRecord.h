@@ -71,8 +71,8 @@ namespace RTX {
     virtual std::vector<Point> pointsInRange(const string& identifier, time_t startTime, time_t endTime);
     virtual void addPoint(const string& identifier, Point point);
     virtual void addPoints(const string& identifier, std::vector<Point> points);
-    virtual void reset();
-    virtual void reset(const string& identifier);
+    virtual void reset(); // clear memcache for all ids
+    virtual void reset(const string& identifier); // clear memcache for just this id
     virtual Point firstPoint(const string& id);
     virtual Point lastPoint(const string& id);
     virtual time_pair_t range(const string& id);

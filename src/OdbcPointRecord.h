@@ -105,6 +105,8 @@ namespace RTX {
     void setTimeFormat(PointRecordTime::time_format_t timeFormat) { _timeFormat = timeFormat;};
     PointRecordTime::time_format_t timeFormat() { return _timeFormat; };
     
+    virtual bool supportsBoundedQueries();
+    
   protected:
     void initDsnList();
     
@@ -157,7 +159,8 @@ namespace RTX {
     std::vector<Point> pointsFromStatement(SQLHSTMT statement);
     std::string extract_error(std::string function, SQLHANDLE handle, SQLSMALLINT type);
     
-  protected:
+    
+    
     boost::signals2::mutex _odbcMutex;
     
   private:

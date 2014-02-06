@@ -1,11 +1,21 @@
 #include "ValidRangeTimeSeries.h"
 
+#include "IrregularClock.h"
+
 using namespace std;
 using namespace RTX;
 
 ValidRangeTimeSeries::ValidRangeTimeSeries() {
   _mode = drop;
   _range = make_pair(0, 1);
+}
+
+
+void ValidRangeTimeSeries::setClock(Clock::sharedPointer clock) {
+  if (_mode == drop) {
+    return;
+  }
+  RTX_VRTS_SUPER::setClock(clock);
 }
 
 pair<double,double> ValidRangeTimeSeries::range() {
@@ -19,7 +29,12 @@ ValidRangeTimeSeries::filterMode_t ValidRangeTimeSeries::mode() {
   return _mode;
 }
 void ValidRangeTimeSeries::setMode(filterMode_t mode) {
+  if (mode == drop) {
+    Clock::sharedPointer c( new IrregularClock(this->record(), this->name()) );
+    this->setClock(c);
+  }
   _mode = mode;
+
 }
 
 Point ValidRangeTimeSeries::pointBefore(time_t time) {

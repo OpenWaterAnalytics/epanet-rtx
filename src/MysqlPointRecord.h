@@ -68,6 +68,7 @@ namespace RTX {
     virtual time_pair_t range(const string& id);
     virtual std::ostream& toStream(std::ostream &stream);
     
+    virtual bool supportsBoundedQueries();
     
   protected:
     virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);

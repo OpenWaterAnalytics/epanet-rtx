@@ -35,7 +35,8 @@ namespace RTX {
     std::string path();
     void setPath(std::string path);
     
-    
+    virtual bool supportsBoundedQueries();
+
     
   protected:
     virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);
@@ -44,6 +45,7 @@ namespace RTX {
     
     // insertions or alterations may choose to ignore / deny
     virtual void insertSingle(const std::string& id, Point point);
+    void insertSingleInTransaction(const std::string &id, Point point);
     virtual void insertRange(const std::string& id, std::vector<Point> points);
     virtual void removeRecord(const std::string& id);
     virtual void truncate();
@@ -56,6 +58,9 @@ namespace RTX {
     bool _connected;
     
     bool _inTransaction;
+    int _transactionStackCount;
+    int _maxTransactionStackCount;
+    void checkTransactions(bool forceEndTranaction);
     
     boost::shared_ptr<boost::signals2::mutex> _mutex;
     

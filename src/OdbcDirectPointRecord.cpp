@@ -94,18 +94,48 @@ Point OdbcDirectPointRecord::selectNext(const std::string& id, time_t time) {
   scoped_lock<mutex> lock(_odbcMutex);
   this->checkConnected();
   
+  if (this->supportsBoundedQueries()) {
+    vector<Point> points;
+    SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directStatment);
+    string q = stringQueryForSinglyBoundedRange(id, time, OdbcQueryBoundLower);
+    if (SQL_SUCCEEDED(SQLExecDirect(_directStatment, (SQLCHAR*)q.c_str(), SQL_NTS))) {
+      points = pointsFromStatement(_directStatment);
+    }
+    else {
+      cerr << "query did not succeed: " << q << endl;
+    }
+    
+    if (points.size() > 0) {
+      return points.back();
+    }
+    else {
+      cerr << "no points found for " << id << endl;
+    }
+    
+  }
+  else {
+    return this->selectNextIteratively(id, time);
+  }
+  
+  return Point();
+}
+
+Point OdbcDirectPointRecord::selectNextIteratively(const std::string &id, time_t time) {
   Point p;
   vector<Point> points;
   time_t margin = 60*60*12;
   time_t max_margin = this->searchDistance();
   time_t lookahead = time;
-
   
-  string q = this->stringQueryForRange(id, time, time+margin);
+  
+  string q;
   
   SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directStatment);
   
   while (points.size() == 0 && lookahead < time + max_margin) {
+    
+    q = this->stringQueryForRange(id, lookahead, lookahead+margin);
+    
     if (SQL_SUCCEEDED(SQLExecDirect(_directStatment, (SQLCHAR*)q.c_str(), SQL_NTS))) {
       points = pointsFromStatement(_directStatment);
     }
@@ -116,7 +146,7 @@ Point OdbcDirectPointRecord::selectNext(const std::string& id, time_t time) {
   }
   
   SQLFreeHandle(SQL_HANDLE_STMT, _directStatment);
-
+  
   
   if (points.size() > 0) {
     p = points.front();
@@ -137,17 +167,53 @@ Point OdbcDirectPointRecord::selectPrevious(const std::string& id, time_t time) 
   scoped_lock<mutex> lock(_odbcMutex);
   this->checkConnected();
   
+  
+  
+  if (this->supportsBoundedQueries()) {
+    
+    vector<Point> points;
+    
+    SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directStatment);
+    string q = stringQueryForSinglyBoundedRange(id, time, OdbcQueryBoundUpper);
+    if (SQL_SUCCEEDED(SQLExecDirect(_directStatment, (SQLCHAR*)q.c_str(), SQL_NTS))) {
+      points = pointsFromStatement(_directStatment);
+    }
+    else {
+      cerr << "query did not succeed: " << q << endl;
+    }
+    
+    if (points.size() > 0) {
+      return points.back();
+    }
+    else {
+      cerr << "no points found for " << id << endl;
+    }
+    
+  }
+  else {
+    
+    return this->selectPreviousIteratively(id, time);
+    
+  }
+  
+  return Point();
+}
+
+Point OdbcDirectPointRecord::selectPreviousIteratively(const std::string &id, time_t time) {
   Point p;
   vector<Point> points;
   time_t margin = 60*60*12;
   time_t max_margin = this->searchDistance();
   time_t lookBehind = time;
   
-  string q = this->stringQueryForRange(id, time-margin, time+1);
+  string q;
   
   SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directStatment);
   
   while (points.size() == 0 && lookBehind > time - max_margin) {
+    
+    q = this->stringQueryForRange(id, lookBehind-margin, lookBehind+1);
+    
     if (SQL_SUCCEEDED(SQLExecDirect(_directStatment, (SQLCHAR*)q.c_str(), SQL_NTS))) {
       points = pointsFromStatement(_directStatment);
     }
@@ -168,7 +234,7 @@ Point OdbcDirectPointRecord::selectPrevious(const std::string& id, time_t time) 
     }
   }
   else {
-    //cerr << "no points found for " << id << " :: range " << time - 1 << " - " << lookahead + margin << endl;
+    cerr << "no points found for " << id << endl;
   }
   
   return p;
@@ -190,4 +256,28 @@ std::string OdbcDirectPointRecord::stringQueryForRange(const std::string& id, ti
   return query;
   
 }
+
+std::string OdbcDirectPointRecord::stringQueryForSinglyBoundedRange(const string& id, time_t bound, OdbcQueryBoundType boundType) {
+  
+  string query("");
+  
+  switch (boundType) {
+    case OdbcQueryBoundLower:
+      query = _querySyntax.lowerBound;
+      break;
+    case OdbcQueryBoundUpper:
+      query = _querySyntax.upperBound;
+    default:
+      break;
+  }
+  
+  string idStr = "'" + id + "'";
+  string boundDateStr = "'" + PointRecordTime::utcDateStringFromUnix(bound) + "'";
+  
+  boost::replace_first(query, "?", idStr);
+  boost::replace_first(query, "?", boundDateStr);
+  
+  return query;
+}
+
 

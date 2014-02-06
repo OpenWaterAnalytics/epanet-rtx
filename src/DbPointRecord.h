@@ -15,6 +15,7 @@
 #include "BufferPointRecord.h"
 #include "rtxExceptions.h"
 
+
 namespace RTX {
   
   /*! \class DbPointRecord
@@ -36,16 +37,19 @@ namespace RTX {
     Point pointBefore(const string& id, time_t time);
     Point pointAfter(const string& id, time_t time);
     std::vector<Point> pointsInRange(const string& id, time_t startTime, time_t endTime);
+    
     void addPoint(const string& id, Point point);
     void addPoints(const string& id, std::vector<Point> points);
     void reset();
     void reset(const string& id);
-    virtual void truncate()=0;
+    virtual void truncate()=0; // specific implementation must override this
     
     virtual std::vector<std::pair<std::string, Units> >availableData() {};
     
     virtual void dbConnect() throw(RtxException){};
-    virtual bool isConnected(){return true;};
+    virtual bool isConnected(){return false;} // abstract base can't have a connection;
+    
+    virtual bool supportsBoundedQueries();
     
     // db searching prefs
     void setSearchDistance(time_t time);
@@ -83,6 +87,8 @@ namespace RTX {
     virtual void removeRecord(const std::string& id)=0;
     
     
+    
+    
     class request_t {
     public:
       PointRecord::time_pair_t range;
@@ -96,6 +102,7 @@ namespace RTX {
   private:
     std::string _connectionString;
     time_t _searchDistance;
+    
     
     
   };

@@ -37,7 +37,11 @@ static string selectNamesStr = "select name from meta order by name asc";
 SqlitePointRecord::SqlitePointRecord() {
   _path = "";
   _connected = false;
+  
   _inTransaction = false;
+  _transactionStackCount = 0;
+  _maxTransactionStackCount = 500;
+  
   _mutex.reset(new boost::signals2::mutex );
 }
 
@@ -203,6 +207,8 @@ PointRecord::time_pair_t SqlitePointRecord::range(const string& id) {
   if (isConnected()) {
     scoped_lock<mutex> lock(*_mutex);
     
+//    checkTransactions(true);
+    
     sqlite3_bind_text(_selectFirstStmt, 1, id.c_str(), -1, NULL);
     points = pointsFromPreparedStatement(_selectFirstStmt);
     if (points.size() > 0) {
@@ -230,6 +236,9 @@ std::vector<Point> SqlitePointRecord::selectRange(const std::string& id, time_t 
   if (isConnected()) {
     // SELECT time, value, quality, confidence FROM points INNER JOIN meta USING (series_id) WHERE name = ? AND time >= ? AND time <= ? order by time asc
     scoped_lock<mutex> lock(*_mutex);
+    
+//    checkTransactions(true);
+    
     sqlite3_bind_text(_selectRangeStmt, 1, id.c_str(), -1, NULL);
     sqlite3_bind_int(_selectRangeStmt, 2, (int)startTime);
     sqlite3_bind_int(_selectRangeStmt, 3, (int)endTime);
@@ -240,7 +249,6 @@ std::vector<Point> SqlitePointRecord::selectRange(const std::string& id, time_t 
 }
 
 Point SqlitePointRecord::selectNext(const std::string& id, time_t time) {
-  
   Point p;
   
   if (!isConnected()) {
@@ -248,6 +256,8 @@ Point SqlitePointRecord::selectNext(const std::string& id, time_t time) {
   }
   if (isConnected()) {
     scoped_lock<mutex> lock(*_mutex);
+    
+//    checkTransactions(true);
     
     sqlite3_bind_text(_selectNextStmt, 1, id.c_str(), -1, NULL);
     sqlite3_bind_int(_selectNextStmt, 2, (int)time);
@@ -274,6 +284,8 @@ Point SqlitePointRecord::selectPrevious(const std::string& id, time_t time) {
   if (isConnected()) {
     scoped_lock<mutex> lock(*_mutex);
     
+//    checkTransactions(true);
+    
     sqlite3_bind_text(_selectPreviousStmt, 1, id.c_str(), -1, NULL);
     sqlite3_bind_int(_selectPreviousStmt, 2, (int)time);
     
@@ -290,8 +302,16 @@ Point SqlitePointRecord::selectPrevious(const std::string& id, time_t time) {
 }
 
 
+void SqlitePointRecord::insertSingle(const std::string &id, RTX::Point point) {
+  
+  this->checkTransactions(false);
+  this->insertSingleInTransaction(id, point);
+  
+  
+}
+
 // insertions or alterations may choose to ignore / deny
-void SqlitePointRecord::insertSingle(const std::string& id, Point point) {
+void SqlitePointRecord::insertSingleInTransaction(const std::string& id, Point point) {
   
   if (!isConnected()) {
     dbConnect();
@@ -332,6 +352,7 @@ void SqlitePointRecord::insertRange(const std::string& id, std::vector<Point> po
     
     {
       scoped_lock<mutex> lock(*_mutex);
+      checkTransactions(true); // any tranactions currently? tell them to quit.
       ret = sqlite3_exec(_dbHandle, "begin exclusive transaction", NULL, NULL, &errmsg);
       if (ret != SQLITE_OK) {
         logDbError();
@@ -344,7 +365,7 @@ void SqlitePointRecord::insertRange(const std::string& id, std::vector<Point> po
     // this is within a transaction
     
     BOOST_FOREACH(const Point &p, points) {
-      this->insertSingle(id, p);
+      this->insertSingleInTransaction(id, p);
     }
     
     
@@ -363,7 +384,9 @@ void SqlitePointRecord::removeRecord(const std::string& id) {
 }
 
 void SqlitePointRecord::truncate() {
-  
+  if (!_connected) {
+    return;
+  }
   char *errmsg;
   int ret = sqlite3_exec(_dbHandle, "delete from points", NULL, NULL, &errmsg);
   if (ret != SQLITE_OK) {
@@ -401,4 +424,47 @@ Point SqlitePointRecord::pointFromStatment(sqlite3_stmt *stmt) {
   
   return Point(time, value, qual);
 }
+
+
+bool SqlitePointRecord::supportsBoundedQueries() {
+  return true;
+}
+
+
+void SqlitePointRecord::checkTransactions(bool forceEndTranaction) {
+  
+  // forcing to end?
+  if (forceEndTranaction) {
+    if (_inTransaction) {
+      _transactionStackCount = 0;
+      sqlite3_exec(_dbHandle, "END", 0, 0, 0);
+      _inTransaction = false;
+      return;
+    }
+    else {
+      // do nothing
+      return;
+    }
+  }
+  
+  
+  if (_inTransaction) {
+    if (_transactionStackCount >= _maxTransactionStackCount) {
+      // reset the stack, commit the stack
+      _transactionStackCount = 0;
+      sqlite3_exec(_dbHandle, "END", 0, 0, 0);
+      _inTransaction = false;
+    }
+    else {
+      // increment the stack count.
+      ++_transactionStackCount;
+    }
+  }
+  else {
+    sqlite3_exec(_dbHandle, "BEGIN", 0, 0, 0);
+    _inTransaction = true;
+  }
+  
+}
+
 
