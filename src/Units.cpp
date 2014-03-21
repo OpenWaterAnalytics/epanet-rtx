@@ -17,7 +17,7 @@ using namespace RTX;
 using namespace std;
 
 
-Units::Units(double conversion, int mass, int length, int time, int current, int temperature, int amount, int intensity) {
+Units::Units(double conversion, int mass, int length, int time, int current, int temperature, int amount, int intensity, double offset) {
   _mass         = mass;
   _length       = length;
   _time         = time;
@@ -26,6 +26,7 @@ Units::Units(double conversion, int mass, int length, int time, int current, int
   _amount       = amount;
   _intensity    = intensity;
   _conversion   = conversion;
+  _offset       = offset;
 }
 
 double Units::conversion() const {
@@ -143,7 +144,7 @@ string Units::unitString() {
 // class methods
 double Units::convertValue(double value, const Units& fromUnits, const Units& toUnits) {
   if (fromUnits.isSameDimensionAs(toUnits)) {
-    return (value * fromUnits._conversion / toUnits._conversion);
+    return ((value + fromUnits._offset) * fromUnits._conversion / toUnits._conversion) - toUnits._offset;
   }
   else {
     cerr << "Units are not dimensionally consistent" << endl;
@@ -210,6 +211,9 @@ map<string, Units> Units::unitStringMap() {
   
   // temperature
   m["kelvin"] = RTX_DEGREE_KELVIN;
+  m["rankine"] = RTX_DEGREE_RANKINE;
+  m["celsius"] = RTX_DEGREE_CELSIUS;
+  m["farenheit"] = RTX_DEGREE_FARENHEIT;
   
   return m;
 }
