@@ -354,7 +354,14 @@ Point Resampler::filteredSingle(pVec_cIt& vecStart, pVec_cIt& vecEnd, pVec_cIt& 
     p1 = *back_it;
     p2 = *fwd_it;
     
-    sourceInterp = (_mode == step) ? Point(t, p1.value, Point::good, p1.confidence) : Point::linearInterpolate(p1, p2, t);
+    if (_mode == linear) {
+      sourceInterp = Point::linearInterpolate(p1, p2, t);
+    }
+    else { // step
+      sourceInterp = Point(t, p1.value, p1.quality, p1.confidence);
+      p1.addQualFlag(Point::lastKnown);
+    }
+    
     return Point::convertPoint(sourceInterp, fromUnits, this->units());
   }
   

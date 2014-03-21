@@ -42,6 +42,7 @@ namespace RTX {
     void addPoints(const string& id, std::vector<Point> points);
     void reset();
     void reset(const string& id);
+    virtual void invalidate(const string& identifier);
     virtual void truncate()=0; // specific implementation must override this
     
     virtual std::vector<std::pair<std::string, Units> >availableData() {};

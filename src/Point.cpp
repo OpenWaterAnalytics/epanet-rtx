@@ -22,7 +22,7 @@ Point::Point() : time(0),value(0),quality(Point::missing),isValid(false),confide
 }
 
 
-Point::Point(time_t t, double v, Qual_t q, double c) : time(t),value(v),quality(q),isValid((q == missing)||(isnan(v)) ? false : true),confidence(c) {
+Point::Point(time_t t, double v, Qual_t q, double c) : time(t),value(v),quality(q),isValid((q & missing)||(isnan(v)) ? false : true),confidence(c) {
   if (isnan(v)) {
     cout << "nan" << endl;
   }
@@ -31,6 +31,18 @@ Point::Point(time_t t, double v, Qual_t q, double c) : time(t),value(v),quality(
 Point::~Point() {
   
 }
+
+
+bool Point::hasQual(Qual_t qual) {
+  return (this->quality & qual);
+}
+
+void Point::addQualFlag(Qual_t qual) {
+  this->quality = (Qual_t)(this->quality | qual);
+  if (this->hasQual(Point::bad)) {
+    this->isValid = false;
+  }
+};
 
 
 #pragma mark - Operators
@@ -105,7 +117,8 @@ Point Point::linearInterpolate(const Point& p1, const Point& p2, const time_t& t
     double dv2 = dv * dt2 / dt;
     double newValue = p1.value + dv2;
     double newConfidence = (p1.confidence + p2.confidence) / 2; // TODO -- more elegant confidence estimation
-    p = Point(t, newValue, Point::good, newConfidence);
+    p = Point(t, newValue, (Qual_t)(p1.quality | p2.quality), newConfidence);
+    p.addQualFlag(Point::interpolated);
   }
   return p;
 }
@@ -116,11 +129,11 @@ std::ostream& RTX::operator<< (std::ostream &out, Point &point) {
   return point.toStream(out);
 }
 */
-
-std::ostream& Point::toStream(std::ostream &stream) {
-  stream << "(" << time << "," << value << "," << quality << "," << confidence << ")";
-  return stream;
-}
+//
+//std::ostream& Point::toStream(std::ostream &stream) {
+//  stream << "(" << time << "," << value << "," << quality << "," << confidence << ")";
+//  return stream;
+//}
 
 
 

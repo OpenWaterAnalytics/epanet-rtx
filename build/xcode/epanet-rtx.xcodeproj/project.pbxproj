@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		220324CB18AC05A800BD7790 /* FailoverTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220324C918AC05A800BD7790 /* FailoverTimeSeries.cpp */; };
+		220324CC18AC05A800BD7790 /* FailoverTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 220324CA18AC05A800BD7790 /* FailoverTimeSeries.h */; };
 		220500D217B984470062D02B /* RunTimeStatusModularTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220500D017B984470062D02B /* RunTimeStatusModularTimeSeries.cpp */; };
 		220500D417B984470062D02B /* RunTimeStatusModularTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 220500D117B984470062D02B /* RunTimeStatusModularTimeSeries.h */; };
 		22067EAC1873303D00BAFF61 /* OdbcDirectPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22067EAA1873303D00BAFF61 /* OdbcDirectPointRecord.cpp */; };
@@ -234,6 +236,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		220324C918AC05A800BD7790 /* FailoverTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FailoverTimeSeries.cpp; path = ../../src/FailoverTimeSeries.cpp; sourceTree = "<group>"; };
+		220324CA18AC05A800BD7790 /* FailoverTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FailoverTimeSeries.h; path = ../../src/FailoverTimeSeries.h; sourceTree = "<group>"; };
 		220500D017B984470062D02B /* RunTimeStatusModularTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RunTimeStatusModularTimeSeries.cpp; path = ../../src/RunTimeStatusModularTimeSeries.cpp; sourceTree = "<group>"; };
 		220500D117B984470062D02B /* RunTimeStatusModularTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RunTimeStatusModularTimeSeries.h; path = ../../src/RunTimeStatusModularTimeSeries.h; sourceTree = "<group>"; };
 		22067EAA1873303D00BAFF61 /* OdbcDirectPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OdbcDirectPointRecord.cpp; path = ../../src/OdbcDirectPointRecord.cpp; sourceTree = "<group>"; };
@@ -655,7 +659,6 @@
 				22D9830C17F4AF9F00DD7EB4 /* rtxNetSim */,
 				22B8A7971603CA1300EECAA5 /* demos */,
 				22C62AEF143A0E1600841E60 /* test application */,
-				22C678A4152A427000519E1B /* object factories */,
 				22C62B05143A196400841E60 /* include */,
 				22DDAD8214436AE200C1F188 /* time classes */,
 				22DDAD7D1443682300C1F188 /* model */,
@@ -692,6 +695,8 @@
 				226AC14A1733FE56009B7C90 /* Synthetic */,
 				221E2EFD149A42F0000860C2 /* ModularTimeSeries.h */,
 				221E2EFF149A43A3000860C2 /* ModularTimeSeries.cpp */,
+				220324CA18AC05A800BD7790 /* FailoverTimeSeries.h */,
+				220324C918AC05A800BD7790 /* FailoverTimeSeries.cpp */,
 				226AC1451733F8ED009B7C90 /* Single Point Filters */,
 				220AE463145AFB3C002F07B4 /* CurveFunction.h */,
 				22253D8D16022FB6002F7256 /* CurveFunction.cpp */,
@@ -760,13 +765,6 @@
 				22BF02D215EBCABC00F66465 /* Point.cpp */,
 			);
 			name = points;
-			sourceTree = "<group>";
-		};
-		22C678A4152A427000519E1B /* object factories */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = "object factories";
 			sourceTree = "<group>";
 		};
 		22CE31EA173993ED008AC1F9 /* csv */ = {
@@ -886,6 +884,7 @@
 				22CE31EE17399403008AC1F9 /* CsvPointRecord.h in Headers */,
 				22A842D6173BF446009CE769 /* GainTimeSeries.h in Headers */,
 				22E2A624177DC57F008D139A /* TsdbPointRecord.h in Headers */,
+				220324CC18AC05A800BD7790 /* FailoverTimeSeries.h in Headers */,
 				22B0546E17F1D7E400625F4D /* ProjectFile.h in Headers */,
 				220500D417B984470062D02B /* RunTimeStatusModularTimeSeries.h in Headers */,
 			);
@@ -1161,6 +1160,7 @@
 				22707A9616309D4100FEB4DD /* OffsetTimeSeries.cpp in Sources */,
 				2251DCA6168105AA00515EBF /* IrregularClock.cpp in Sources */,
 				227CEC9F16BADD6000E8E7C8 /* DbPointRecord.cpp in Sources */,
+				220324CB18AC05A800BD7790 /* FailoverTimeSeries.cpp in Sources */,
 				22F63D3716C5735100A15368 /* SineTimeSeries.cpp in Sources */,
 				227510E816D4231800B2BA62 /* BufferPointRecord.cpp in Sources */,
 				223F52C716D51F330086DC8F /* MapPointRecord.cpp in Sources */,

@@ -254,6 +254,10 @@ void DbPointRecord::reset(const string& id) {
   //this->registerAndGetIdentifier(id);
 }
 
+void DbPointRecord::invalidate(const string &identifier) {
+  this->removeRecord(identifier);
+  this->reset(identifier);
+}
 
 bool DbPointRecord::supportsBoundedQueries() {
   return false;

@@ -58,6 +58,8 @@ namespace RTX {
     virtual std::vector< Point > points(time_t start, time_t end);
     virtual void setUnits(Units newUnits);
     
+    virtual void resetCache();
+    
     virtual std::ostream& toStream(std::ostream &stream);
     
   protected:

@@ -18,8 +18,8 @@ using boost::signals2::mutex;
 using boost::interprocess::scoped_lock;
 
 
-BufferPointRecord::BufferPointRecord() {
-  _defaultCapacity = RTX_BUFFER_DEFAULT_CACHESIZE;
+BufferPointRecord::BufferPointRecord(int defaultCapacity) {
+  _defaultCapacity = defaultCapacity;
 }
 
 

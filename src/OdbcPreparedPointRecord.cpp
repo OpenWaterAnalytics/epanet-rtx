@@ -511,7 +511,7 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
       q = Point::bad;
     }
     
-    if (record.valueInd > 0 && q != Point::missing) {
+    if (record.valueInd > 0 && !(q & Point::missing)) {
       // ok
       p = Point(t, v, q);
       points.push_back(p);

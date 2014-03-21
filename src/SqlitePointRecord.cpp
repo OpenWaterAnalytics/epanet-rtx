@@ -101,16 +101,11 @@ void SqlitePointRecord::dbConnect() throw(RtxException) {
       return;
     }
   }
-  
+  errorMessage = "OK";
+  _connected = true;
   BOOST_FOREACH(const string &name, DB_PR_SUPER::identifiers()) {
     this->registerAndGetIdentifier(name, Units());
   }
-  
-  
-  
-  errorMessage = "OK";
-  _connected = true;
-  
 }
 
 bool SqlitePointRecord::initTables() {
@@ -345,7 +340,6 @@ void SqlitePointRecord::insertRange(const std::string& id, std::vector<Point> po
     dbConnect();
   }
   if (isConnected()) {
-//    scoped_lock<mutex> lock(*_mutex);
     
     int ret;
     char *errmsg;
@@ -360,14 +354,10 @@ void SqlitePointRecord::insertRange(const std::string& id, std::vector<Point> po
       }
     }
     
-    
-    
-    // this is within a transaction
-    
+    // this is always within a transaction
     BOOST_FOREACH(const Point &p, points) {
       this->insertSingleInTransaction(id, p);
     }
-    
     
     ret = sqlite3_exec(_dbHandle, "end transaction", NULL, NULL, &errmsg);
     if (ret != SQLITE_OK) {
@@ -381,6 +371,19 @@ void SqlitePointRecord::insertRange(const std::string& id, std::vector<Point> po
 
 void SqlitePointRecord::removeRecord(const std::string& id) {
   
+  if (!_connected) {
+    return;
+  }
+  char *errmsg;
+  string sqlStr = "delete from points where series_id = (SELECT series_id FROM meta where name = \'" + id + "\')";
+  const char *sql = sqlStr.c_str();
+  int ret = sqlite3_exec(_dbHandle, sql, NULL, NULL, &errmsg);
+  if (ret != SQLITE_OK) {
+    logDbError();
+    return;
+  }
+  
+  // INSERT INTO points (time, series_id, value, quality, confidence) SELECT ?,series_id,?,?,? FROM meta WHERE name = ?
 }
 
 void SqlitePointRecord::truncate() {

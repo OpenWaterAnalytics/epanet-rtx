@@ -750,13 +750,13 @@ void Model::saveNetworkStates(time_t time) {
   BOOST_FOREACH(Junction::sharedPointer junction, junctions()) {
     double head;
     head = Units::convertValue(junctionHead(junction->name()), headUnits(), junction->head()->units());
-    Point headPoint(time, head, Point::good);
+    Point headPoint(time, head);
     junction->head()->insert(headPoint);
     
     // todo - more fine-grained quality data? at wq step resolution...
     double quality;
     quality = Units::convertValue(junctionQuality(junction->name()), this->qualityUnits(), junction->quality()->units());
-    Point qualityPoint(time, quality, Point::good);
+    Point qualityPoint(time, quality);
     junction->quality()->insert(qualityPoint);
   }
   
@@ -765,7 +765,7 @@ void Model::saveNetworkStates(time_t time) {
     BOOST_FOREACH(Junction::sharedPointer junction, junctions()) {
       double demand;
       demand = Units::convertValue(junctionDemand(junction->name()), flowUnits(), junction->demand()->units());
-      Point demandPoint(time, demand, Point::good);
+      Point demandPoint(time, demand);
       junction->demand()->insert(demandPoint);
     }
   }
@@ -773,20 +773,20 @@ void Model::saveNetworkStates(time_t time) {
   BOOST_FOREACH(Reservoir::sharedPointer reservoir, reservoirs()) {
     double head;
     head = Units::convertValue(junctionHead(reservoir->name()), headUnits(), reservoir->head()->units());
-    Point headPoint(time, head, Point::good);
+    Point headPoint(time, head);
     reservoir->head()->insert(headPoint);
   }
   
   BOOST_FOREACH(Tank::sharedPointer tank, tanks()) {
     double head;
     head = Units::convertValue(junctionHead(tank->name()), headUnits(), tank->head()->units());
-    Point headPoint(time, head, Point::good);
+    Point headPoint(time, head);
     tank->head()->insert(headPoint);
     tank->level()->point(headPoint.time);
     
     double quality;
     quality = Units::convertValue(junctionQuality(tank->name()), this->qualityUnits(), tank->quality()->units());
-    Point qualityPoint(time, quality, Point::good);
+    Point qualityPoint(time, quality);
     tank->quality()->insert(qualityPoint);
     
   }
@@ -795,14 +795,14 @@ void Model::saveNetworkStates(time_t time) {
   BOOST_FOREACH(Pipe::sharedPointer pipe, pipes()) {
     double flow;
     flow = Units::convertValue(pipeFlow(pipe->name()), flowUnits(), pipe->flow()->units());
-    Point aPoint(time, flow, Point::good);
+    Point aPoint(time, flow);
     pipe->flow()->insert(aPoint);
   }
   
   BOOST_FOREACH(Valve::sharedPointer valve, valves()) {
     double flow;
     flow = Units::convertValue(pipeFlow(valve->name()), flowUnits(), valve->flow()->units());
-    Point aPoint(time, flow, Point::good);
+    Point aPoint(time, flow);
     valve->flow()->insert(aPoint);
   }
   
@@ -810,12 +810,12 @@ void Model::saveNetworkStates(time_t time) {
   BOOST_FOREACH(Pump::sharedPointer pump, pumps()) {
     double flow;
     flow = Units::convertValue(pipeFlow(pump->name()), flowUnits(), pump->flow()->units());
-    Point flowPoint(time, flow, Point::good);
+    Point flowPoint(time, flow);
     pump->flow()->insert(flowPoint);
     
     double energy;
     energy = pumpEnergy(pump->name());
-    Point energyPoint(time, energy, Point::good);
+    Point energyPoint(time, energy);
     pump->energy()->insert(energyPoint);
   }
   

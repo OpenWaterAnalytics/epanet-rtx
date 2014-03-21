@@ -37,7 +37,7 @@ namespace RTX {
     typedef std::map<std::string, BufferMutexPair_t> KeyedBufferMutexMap_t;
     
     RTX_SHARED_POINTER(BufferPointRecord);
-    BufferPointRecord();
+    BufferPointRecord(int defaultCapacity = RTX_BUFFER_DEFAULT_CACHESIZE);
     virtual ~BufferPointRecord() {};
     
     virtual std::string registerAndGetIdentifier(std::string recordName, Units dataUnits);    // registering record names.

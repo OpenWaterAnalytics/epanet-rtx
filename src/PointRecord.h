@@ -73,6 +73,7 @@ namespace RTX {
     virtual void addPoints(const string& identifier, std::vector<Point> points);
     virtual void reset(); // clear memcache for all ids
     virtual void reset(const string& identifier); // clear memcache for just this id
+    virtual void invalidate(const string& identifier) {reset(identifier);}; // alias here, override for database implementations
     virtual Point firstPoint(const string& id);
     virtual Point lastPoint(const string& id);
     virtual time_pair_t range(const string& id);

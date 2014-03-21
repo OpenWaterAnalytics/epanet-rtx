@@ -114,14 +114,14 @@ void Tank::setHeadMeasure(TimeSeries::sharedPointer head) {
   // base class method first
   Junction::setHeadMeasure(head);
   
+  _levelMeasure->resetCache();
+  _volumeMeasure->resetCache();
+  _flowMeasure->resetCache();
+  
   // now hook it up to the "measured" level->volume->flow chain.
   // assumption about elevation units is made here.
   // todo -- revise elevation units handling
   if (head) {
-    _levelMeasure->resetCache();
-    _volumeMeasure->resetCache();
-    _flowMeasure->resetCache();
-    
     _levelMeasure->setClock(head->clock());
     _levelMeasure->setUnits(head->units());
     _levelMeasure->setSource(head);
@@ -129,7 +129,11 @@ void Tank::setHeadMeasure(TimeSeries::sharedPointer head) {
     _volumeMeasure->setClock(head->clock());
     _flowMeasure->setClock(head->clock());
   }
-  
+  else {
+    // invalidate tank flow timeseries.
+    TimeSeries::sharedPointer blank;
+    _levelMeasure->setSource(blank);
+  }
 
 }
 

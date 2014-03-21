@@ -32,7 +32,7 @@ MovingAverage::~MovingAverage() {
 #pragma mark - Added Methods
 
 void MovingAverage::setWindowSize(int numberOfPoints) {
-  //resetCache();
+  this->record()->invalidate(this->name());
   _windowSize = numberOfPoints;
 }
 
@@ -80,10 +80,14 @@ Point MovingAverage::filteredSingle(pVec_cIt &vecStart, pVec_cIt &vecEnd, pVec_c
   accumulator_set<double, stats<tag::mean> > meanAccumulator;
   accumulator_set<double, stats<tag::mean> > confidenceAccum;
   int nAccumulated = 0;
+  
+  Point meanPoint(t);
+  
   while (back_it != fwd_it+1 && nAccumulated++ < this->windowSize()) {
     Point p = *back_it;
     meanAccumulator(p.value);
     confidenceAccum(p.confidence);
+    meanPoint.addQualFlag(p.quality);
     ++back_it;
 //    ++iPoints;
 //    cout << p;
@@ -93,10 +97,10 @@ Point MovingAverage::filteredSingle(pVec_cIt &vecStart, pVec_cIt &vecEnd, pVec_c
 //    cout << endl;
   }
   
-  double meanValue = mean(meanAccumulator);
-  double confidenceMean = mean(confidenceAccum);
-  //meanValue = Units::convertValue(meanValue, fromUnits, this->units());
-  Point meanPoint(t, meanValue, Point::good, confidenceMean);
+  meanPoint.value = mean(meanAccumulator);
+  meanPoint.confidence = mean(confidenceAccum);
+  meanPoint.addQualFlag(Point::averaged);
+  
   Point filtered = Point::convertPoint(meanPoint, fromUnits, this->units());
   return filtered;
 }
