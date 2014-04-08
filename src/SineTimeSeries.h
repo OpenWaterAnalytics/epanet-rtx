@@ -17,10 +17,15 @@ namespace RTX {
     
   public:
     RTX_SHARED_POINTER(SineTimeSeries);
-    SineTimeSeries(time_t period = 86400);
+    SineTimeSeries(double magnitude = 1., time_t period = 86400);
     virtual Point point(time_t time);
+    
+    time_t period();
+    double magnitude();
+    
   private:
     time_t _period;
+    double _magnitude;
   };
   
 }

@@ -251,8 +251,8 @@ void TimeSeries::setUnits(Units newUnits) {
   // changing units means the values here are no good anymore.
   if (!newUnits.isSameDimensionAs(this->units())) {
     this->resetCache();
-    _units = newUnits;
   }
+  _units = newUnits;
 }
 
 Units TimeSeries::units() {

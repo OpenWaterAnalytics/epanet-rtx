@@ -22,12 +22,16 @@
 		220AE471145B29F7002F07B4 /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE470145B29F7002F07B4 /* Node.cpp */; };
 		220AE473145B2A0D002F07B4 /* Link.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE472145B2A0C002F07B4 /* Link.cpp */; };
 		220AE475145B2A28002F07B4 /* Dma.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE474145B2A28002F07B4 /* Dma.cpp */; };
+		22190A2A18EC9B3700E5715D /* TimeOffsetTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22190A2818EC9B3700E5715D /* TimeOffsetTimeSeries.cpp */; };
+		22190A2B18EC9B3700E5715D /* TimeOffsetTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22190A2918EC9B3700E5715D /* TimeOffsetTimeSeries.h */; };
 		221A19CC1579111A00F0699E /* EpanetSyntheticModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 221A19CB1579111900F0699E /* EpanetSyntheticModel.h */; };
 		221A19CF1579112B00F0699E /* EpanetSyntheticModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221A19CE1579112B00F0699E /* EpanetSyntheticModel.cpp */; };
 		221C06C316077FB300B8969C /* timeseries_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221C06C216077FB300B8969C /* timeseries_demo.cpp */; };
 		221C06C516077FC100B8969C /* validator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221C06C416077FC100B8969C /* validator.cpp */; };
 		221E2EFE149A42F0000860C2 /* ModularTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 221E2EFD149A42F0000860C2 /* ModularTimeSeries.h */; };
 		221E2F00149A43A3000860C2 /* ModularTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221E2EFF149A43A3000860C2 /* ModularTimeSeries.cpp */; };
+		221F3CD718F467AD00D63C5A /* WarpingTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221F3CD518F467AD00D63C5A /* WarpingTimeSeries.cpp */; };
+		221F3CD818F467AD00D63C5A /* WarpingTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 221F3CD618F467AD00D63C5A /* WarpingTimeSeries.h */; };
 		22253D8F16022FB6002F7256 /* CurveFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22253D8D16022FB6002F7256 /* CurveFunction.cpp */; };
 		222FDDD615C1BC2F0065DAF6 /* FirstDerivative.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */; };
 		223F52C716D51F330086DC8F /* MapPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223F52C516D51F330086DC8F /* MapPointRecord.cpp */; };
@@ -253,6 +257,8 @@
 		220AE472145B2A0C002F07B4 /* Link.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Link.cpp; path = ../../src/Link.cpp; sourceTree = "<group>"; };
 		220AE474145B2A28002F07B4 /* Dma.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Dma.cpp; path = ../../src/Dma.cpp; sourceTree = "<group>"; };
 		220D3B62161259050029A041 /* libboost_regex.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_regex.dylib; path = /usr/local/lib/libboost_regex.dylib; sourceTree = "<absolute>"; };
+		22190A2818EC9B3700E5715D /* TimeOffsetTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeOffsetTimeSeries.cpp; path = ../../src/TimeOffsetTimeSeries.cpp; sourceTree = "<group>"; };
+		22190A2918EC9B3700E5715D /* TimeOffsetTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeOffsetTimeSeries.h; path = ../../src/TimeOffsetTimeSeries.h; sourceTree = "<group>"; };
 		221A19CB1579111900F0699E /* EpanetSyntheticModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EpanetSyntheticModel.h; path = ../../src/EpanetSyntheticModel.h; sourceTree = "<group>"; };
 		221A19CE1579112B00F0699E /* EpanetSyntheticModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetSyntheticModel.cpp; path = ../../src/EpanetSyntheticModel.cpp; sourceTree = "<group>"; };
 		221C06C216077FB300B8969C /* timeseries_demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = timeseries_demo.cpp; path = ../../examples/conceptual/timeseries_demo.cpp; sourceTree = "<group>"; };
@@ -263,6 +269,8 @@
 		221C06C916077FD200B8969C /* sampletown.inp */ = {isa = PBXFileReference; lastKnownFileType = text; name = sampletown.inp; path = ../../examples/validator/sampletown.inp; sourceTree = "<group>"; };
 		221E2EFD149A42F0000860C2 /* ModularTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ModularTimeSeries.h; path = ../../src/ModularTimeSeries.h; sourceTree = "<group>"; };
 		221E2EFF149A43A3000860C2 /* ModularTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ModularTimeSeries.cpp; path = ../../src/ModularTimeSeries.cpp; sourceTree = "<group>"; };
+		221F3CD518F467AD00D63C5A /* WarpingTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WarpingTimeSeries.cpp; path = ../../src/WarpingTimeSeries.cpp; sourceTree = "<group>"; };
+		221F3CD618F467AD00D63C5A /* WarpingTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WarpingTimeSeries.h; path = ../../src/WarpingTimeSeries.h; sourceTree = "<group>"; };
 		22211AD0173C2E9700309C2F /* libboost_date_time.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_date_time.a; path = /usr/local/lib/libboost_date_time.a; sourceTree = "<absolute>"; };
 		22211AD1173C2E9700309C2F /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = /usr/local/lib/libboost_filesystem.a; sourceTree = "<absolute>"; };
 		22211AD2173C2E9700309C2F /* libboost_regex.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_regex.a; path = /usr/local/lib/libboost_regex.a; sourceTree = "<absolute>"; };
@@ -533,6 +541,8 @@
 				226AC1411733F5CE009B7C90 /* SinglePointFilterModularTimeSeries.cpp */,
 				22707A9516309D4100FEB4DD /* OffsetTimeSeries.h */,
 				22707A9416309D4000FEB4DD /* OffsetTimeSeries.cpp */,
+				22190A2918EC9B3700E5715D /* TimeOffsetTimeSeries.h */,
+				22190A2818EC9B3700E5715D /* TimeOffsetTimeSeries.cpp */,
 				43627EC9171F27E3007AE0F5 /* ThresholdTimeSeries.h */,
 				43627ECF171F286C007AE0F5 /* ThresholdTimeSeries.cpp */,
 				226AC1471733F996009B7C90 /* ValidRangeTimeSeries.h */,
@@ -698,6 +708,8 @@
 				220324CA18AC05A800BD7790 /* FailoverTimeSeries.h */,
 				220324C918AC05A800BD7790 /* FailoverTimeSeries.cpp */,
 				226AC1451733F8ED009B7C90 /* Single Point Filters */,
+				221F3CD618F467AD00D63C5A /* WarpingTimeSeries.h */,
+				221F3CD518F467AD00D63C5A /* WarpingTimeSeries.cpp */,
 				220AE463145AFB3C002F07B4 /* CurveFunction.h */,
 				22253D8D16022FB6002F7256 /* CurveFunction.cpp */,
 				22B7154F14DC802300041167 /* Resampler.h */,
@@ -847,6 +859,7 @@
 				22067EB41873318900BAFF61 /* OdbcPreparedPointRecord.h in Headers */,
 				22C62B04143A10A500841E60 /* rtxExceptions.h in Headers */,
 				22DDAD811443684B00C1F188 /* Element.h in Headers */,
+				221F3CD818F467AD00D63C5A /* WarpingTimeSeries.h in Headers */,
 				22DDAD941443750600C1F188 /* Model.h in Headers */,
 				220AE464145AFB3C002F07B4 /* CurveFunction.h in Headers */,
 				220AE466145B0A8F002F07B4 /* Dma.h in Headers */,
@@ -868,6 +881,7 @@
 				22ED77D015878804002D67F1 /* Tank.h in Headers */,
 				22804097158F827F004222DA /* Pipe.h in Headers */,
 				22804099158F82CB004222DA /* Pump.h in Headers */,
+				22190A2B18EC9B3700E5715D /* TimeOffsetTimeSeries.h in Headers */,
 				2280409D158F8326004222DA /* Valve.h in Headers */,
 				22E2962C16010A65003D378A /* Units.h in Headers */,
 				22707A9716309D4100FEB4DD /* OffsetTimeSeries.h in Headers */,
@@ -1135,6 +1149,7 @@
 				220AE468145B0D15002F07B4 /* Model.cpp in Sources */,
 				220AE46B145B0EDC002F07B4 /* OdbcPointRecord.cpp in Sources */,
 				22067EAC1873303D00BAFF61 /* OdbcDirectPointRecord.cpp in Sources */,
+				221F3CD718F467AD00D63C5A /* WarpingTimeSeries.cpp in Sources */,
 				220AE46F145B283C002F07B4 /* Element.cpp in Sources */,
 				220AE471145B29F7002F07B4 /* Node.cpp in Sources */,
 				220AE473145B2A0D002F07B4 /* Link.cpp in Sources */,
@@ -1161,6 +1176,7 @@
 				2251DCA6168105AA00515EBF /* IrregularClock.cpp in Sources */,
 				227CEC9F16BADD6000E8E7C8 /* DbPointRecord.cpp in Sources */,
 				220324CB18AC05A800BD7790 /* FailoverTimeSeries.cpp in Sources */,
+				22190A2A18EC9B3700E5715D /* TimeOffsetTimeSeries.cpp in Sources */,
 				22F63D3716C5735100A15368 /* SineTimeSeries.cpp in Sources */,
 				227510E816D4231800B2BA62 /* BufferPointRecord.cpp in Sources */,
 				223F52C716D51F330086DC8F /* MapPointRecord.cpp in Sources */,

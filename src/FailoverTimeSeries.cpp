@@ -14,12 +14,18 @@
 using namespace RTX;
 using namespace std;
 
+
+bool FailoverTimeSeries::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
+  return (units().isDimensionless() || units().isSameDimensionAs(withTimeSeries->units()));
+  // it's ok if the clocks aren't compatible.
+}
+
 time_t FailoverTimeSeries::maximumStaleness() {
   return _stale;
 }
 
 void FailoverTimeSeries::setMaximumStaleness(time_t stale) {
-  if (this->clock()->period() < (int)stale) {
+  if (this->clock()->period() <= (int)stale) {
     _stale = stale;
   }
   else {
@@ -54,13 +60,19 @@ void FailoverTimeSeries::swapSourceWithFailover() {
 
 void FailoverTimeSeries::setSource(TimeSeries::sharedPointer source) {
   ModularTimeSeries::setSource(source);
-  if (source->clock()->isRegular() && this->maximumStaleness() < source->clock()->period()) {
-    this->setMaximumStaleness(source->clock()->period());
+  if (source) {
+    if (source->clock()->isRegular() && this->maximumStaleness() < source->clock()->period()) {
+      this->setMaximumStaleness(source->clock()->period());
+    }
   }
 }
 
 
 vector<Point> FailoverTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+  
+  if (!this->failoverTimeseries()) {
+    return ModularTimeSeries::filteredPoints(sourceTs, fromTime, toTime);
+  }
   
   Units sourceU = sourceTs->units();
   Units failoverUnits = this->failoverTimeseries()->units();
@@ -86,6 +98,15 @@ vector<Point> FailoverTimeSeries::filteredPoints(TimeSeries::sharedPointer sourc
   }
   
   
+  if (fromTime < prevTime) {
+    // this causes the next block of code to fill the leading gap (if any)
+    prevTime = fromTime;
+  }
+  if (sourcePoints.back().time < toTime) {
+    // this causes the next block of code to fill trailing gap (if any)
+    sourcePoints.push_back(Point(toTime+1,0));
+  }
+  
   BOOST_FOREACH(const Point& p, sourcePoints) {
     
     time_t now = p.time;
@@ -101,6 +122,7 @@ vector<Point> FailoverTimeSeries::filteredPoints(TimeSeries::sharedPointer sourc
     }
     prevTime = p.time;
   }
+  
   
   return thePoints;
 }

@@ -33,6 +33,7 @@ namespace RTX {
     
   protected:
     virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
+    virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
     
   private:
     TimeSeries::sharedPointer _failover;
