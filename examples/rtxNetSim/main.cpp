@@ -1,11 +1,3 @@
-//
-//  main.cpp
-//  rtxNetSim
-//
-//  Created by Sam Hatchett on 9/26/13.
-//
-//
-
 #include <iostream>
 #include "ConfigProject.h"
 #include "SqlitePointRecord.h"

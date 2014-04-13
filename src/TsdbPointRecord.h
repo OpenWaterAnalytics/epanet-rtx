@@ -2,8 +2,8 @@
 //  TsdbPointRecord.h
 //  epanet-rtx
 //
-//  Created by Sam Hatchett on 6/28/13.
-//
+//  Open Water Analytics [wateranalytics.org]
+//  See README.md and license.txt for more information
 //
 
 #ifndef __epanet_rtx__TsdbPointRecord__

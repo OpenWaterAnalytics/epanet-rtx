@@ -1,11 +1,3 @@
-//
-//  OffsetTimeSeries.cpp
-//  epanet-rtx
-//
-//  Created by Sam Hatchett on 10/18/12.
-//
-//
-
 #include <boost/foreach.hpp>
 
 #include "OffsetTimeSeries.h"

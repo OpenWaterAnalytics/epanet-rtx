@@ -2,7 +2,7 @@
 //  ConfigProject.h
 //  epanet-rtx
 //
-//  Created by the EPANET-RTX Development Team
+//  Open Water Analytics [wateranalytics.org]
 //  See README.md and license.txt for more information
 //  
 

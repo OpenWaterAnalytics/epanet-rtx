@@ -2,9 +2,10 @@
 //  DbPointRecord.cpp
 //  epanet-rtx
 //
-//  Created by Sam Hatchett on 1/31/13.
+//  Open Water Analytics [wateranalytics.org]
+//  See README.md and license.txt for more information
 //
-//
+
 
 #include "DbPointRecord.h"
 

@@ -38,6 +38,7 @@ void printPoints(vector<Point> pointVector);
 int main(int argc, const char * argv[])
 {
   
+
   
   /*
   Units deg_f = RTX_DEGREE_FARENHEIT;

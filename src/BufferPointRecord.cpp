@@ -62,7 +62,7 @@ std::vector<std::string> BufferPointRecord::identifiers() {
 
 Point BufferPointRecord::point(const string& identifier, time_t time) {
   
-  scoped_lock<mutex> bigLock(_bigMutex);
+  scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
   
   bool isAvailable = false;
   bool idsMatch = RTX_STRINGS_ARE_EQUAL_CS(_cachedPointId, identifier);
@@ -87,7 +87,7 @@ Point BufferPointRecord::point(const string& identifier, time_t time) {
   }
   
   // lock the buffer
-  scoped_lock<mutex> lock(*mtx);
+  scoped_lock<boost::signals2::mutex> lock(*mtx);
   //mtx->lock();
   
   Point pFirst = buffer.front();
@@ -144,7 +144,7 @@ Point BufferPointRecord::point(const string& identifier, time_t time) {
 
 Point BufferPointRecord::pointBefore(const string& identifier, time_t time) {
   
-  scoped_lock<mutex> bigLock(_bigMutex);
+  scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
   
   Point foundPoint;
   //TimePointPair_t finder(time, PointPair_t(0,0));
@@ -156,7 +156,7 @@ Point BufferPointRecord::pointBefore(const string& identifier, time_t time) {
     boost::signals2::mutex *mtx = (it->second.second.get());
     PointBuffer_t& buffer = (it->second.first);
     // lock the buffer
-    scoped_lock<mutex> lock(*mtx);
+    scoped_lock<boost::signals2::mutex> lock(*mtx);
 //    mtx->lock();
     
     PointBuffer_t::const_iterator it  = lower_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
@@ -187,7 +187,7 @@ Point BufferPointRecord::pointBefore(const string& identifier, time_t time) {
 
 Point BufferPointRecord::pointAfter(const string& identifier, time_t time) {
   
-  scoped_lock<mutex> bigLock(_bigMutex);
+  scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
   
   Point foundPoint;
   //TimePointPair_t finder(time, PointPair_t(0,0));
@@ -200,7 +200,7 @@ Point BufferPointRecord::pointAfter(const string& identifier, time_t time) {
     PointBuffer_t& buffer = (it->second.first);
     // lock the buffer
 //    mtx->lock();
-    scoped_lock<mutex> lock(*mtx);
+    scoped_lock<boost::signals2::mutex> lock(*mtx);
     
     PointBuffer_t::const_iterator it = upper_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
     if (it != buffer.end()) {
@@ -237,7 +237,7 @@ std::vector<Point> BufferPointRecord::pointsInRange(const string& identifier, ti
     PointBuffer_t& buffer = (it->second.first);
     // lock the buffer
 //    mtx->lock();
-    scoped_lock<mutex> lock(*mtx);
+    scoped_lock<boost::signals2::mutex> lock(*mtx);
     
     PointBuffer_t::const_iterator it = lower_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
     while ( (it != buffer.end()) && (it->time <= endTime) ) {
@@ -269,7 +269,7 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
     return;
   }
   
-  scoped_lock<mutex> bigLock(_bigMutex);
+  scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
   
   // check the cache size, and upgrade if needed.
   KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
@@ -369,7 +369,7 @@ void BufferPointRecord::reset() {
 
 void BufferPointRecord::reset(const string& identifier) {
   
-  scoped_lock<mutex> bigLock(_bigMutex);
+  scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
   
   KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
   if (it != _keyedBufferMutex.end()) {

@@ -2,8 +2,8 @@
 //  SqlitePointRecord.h
 //  epanet-rtx
 //
-//  Created by Sam Hatchett on 12/4/13.
-//
+//  Open Water Analytics [wateranalytics.org]
+//  See README.md and license.txt for more information
 //
 
 #ifndef __epanet_rtx__SqlitePointRecord__

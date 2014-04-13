@@ -1,11 +1,3 @@
-//
-//  OdbcPreparedPointRecord.cpp
-//  epanet-rtx
-//
-//  Created by Sam Hatchett on 12/31/13.
-//
-//
-
 #include "OdbcPreparedPointRecord.h"
 
 #include <boost/foreach.hpp>

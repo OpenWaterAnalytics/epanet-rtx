@@ -22,8 +22,11 @@ namespace RTX {
     TimeSeries::sharedPointer multiplier();
     void setMultiplier(TimeSeries::sharedPointer ts);
     
+    void setSource(TimeSeries::sharedPointer ts);
+    
   protected:
     virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
+    void checkUnits();
     
   private:
     Point filteredSingle(Point p, Units sourceU);

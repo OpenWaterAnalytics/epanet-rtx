@@ -1,11 +1,3 @@
-//
-//  PointRecordTime.cpp
-//  epanet-rtx
-//
-//  Created by Sam Hatchett on 1/6/14.
-//
-//
-
 #include "PointRecordTime.h"
 #include <boost/date_time/posix_time/posix_time.hpp>
 

@@ -54,8 +54,13 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   
   Units volumeUnits(0);
   long enTimeStep;
+  try {
+    ENcheck( ENopen((char*)filename.c_str(), (char*)"", (char*)""), "ENopen" );
+  } catch (...) {
+    cerr << "cannot open epanet file" << endl;;
+    return;
+  }
   
-  ENcheck( ENopen((char*)filename.c_str(), (char*)"", (char*)""), "ENopen" );
   
   // get units from epanet
   int flowUnitType = 0;

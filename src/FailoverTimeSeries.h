@@ -2,8 +2,8 @@
 //  FailoverTimeSeries.h
 //  epanet-rtx
 //
-//  Created by Sam Hatchett on 2/12/14.
-//
+//  Open Water Analytics [wateranalytics.org]
+//  See README.md and license.txt for more information
 //
 
 #ifndef __epanet_rtx__FailoverTimeSeries__

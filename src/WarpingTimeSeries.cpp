@@ -1,11 +1,3 @@
-//
-//  WarpingTimeSeries.cpp
-//  epanet-rtx
-//
-//  Created by Sam Hatchett on 4/8/14.
-//
-//
-
 #include <boost/foreach.hpp>
 #include <cmath>
 #include "WarpingTimeSeries.h"

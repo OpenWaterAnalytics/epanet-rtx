@@ -65,10 +65,14 @@ namespace RTX {
     bool hasQual(Qual_t qual);
     void addQualFlag(Qual_t qual);
     
+    Point inverse();
+    
     // static class methods
     static Point convertPoint(const Point& point, const Units& fromUnits, const Units& toUnits);
     static bool comparePointTime(const Point& left, const Point& right);
     static Point linearInterpolate(const Point& p1, const Point& p2, const time_t& t);
+    
+    
     
     friend std::ostream& operator<<(std::ostream& outputStream, const Point& p)
     {

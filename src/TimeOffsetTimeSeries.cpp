@@ -1,11 +1,3 @@
-//
-//  TimeOffsetTimeSeries.cpp
-//  epanet-rtx
-//
-//  Created by Sam Hatchett on 4/2/14.
-//
-//
-
 #include "TimeOffsetTimeSeries.h"
 
 

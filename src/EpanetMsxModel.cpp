@@ -2,9 +2,10 @@
 //  EpanetMsxModel.cpp
 //  epanet-rtx
 //
-//  Created by Sam Hatchett on 12/20/13.
+//  Open Water Analytics [wateranalytics.org]
+//  See README.md and license.txt for more information
 //
-//
+
 
 #include "EpanetMsxModel.h"
 

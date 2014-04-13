@@ -1,20 +1,14 @@
-//
-//  OdbcDirectPointRecord.cpp
-//  epanet-rtx
-//
-//  Created by Sam Hatchett on 12/31/13.
-//
-//
-
 #include "OdbcDirectPointRecord.h"
 
 #include <boost/algorithm/string.hpp>
 
 #include <iostream>
 
-
 using namespace RTX;
 using namespace std;
+
+using boost::signals2::mutex;
+
 
 OdbcDirectPointRecord::OdbcDirectPointRecord() {
   
@@ -66,7 +60,7 @@ vector<string> OdbcDirectPointRecord::identifiers() {
 
 std::vector<Point> OdbcDirectPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
   
-  scoped_lock<mutex> lock(_odbcMutex);
+  scoped_lock<boost::signals2::mutex> lock(_odbcMutex);
   
   this->checkConnected();
   
@@ -91,7 +85,7 @@ std::vector<Point> OdbcDirectPointRecord::selectRange(const std::string& id, tim
 }
 
 Point OdbcDirectPointRecord::selectNext(const std::string& id, time_t time) {
-  scoped_lock<mutex> lock(_odbcMutex);
+  scoped_lock<boost::signals2::mutex> lock(_odbcMutex);
   this->checkConnected();
   
   if (this->supportsBoundedQueries()) {
@@ -164,7 +158,7 @@ Point OdbcDirectPointRecord::selectNextIteratively(const std::string &id, time_t
 }
 
 Point OdbcDirectPointRecord::selectPrevious(const std::string& id, time_t time) {
-  scoped_lock<mutex> lock(_odbcMutex);
+  scoped_lock<boost::signals2::mutex> lock(_odbcMutex);
   this->checkConnected();
   
   

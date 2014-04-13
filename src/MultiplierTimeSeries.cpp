@@ -11,9 +11,24 @@ MultiplierTimeSeries::MultiplierTimeSeries() {
 
 void MultiplierTimeSeries::setMultiplier(TimeSeries::sharedPointer ts) {
   _multiplierBasis = ts;
+  this->checkUnits();
 }
 TimeSeries::sharedPointer MultiplierTimeSeries::multiplier() {
   return _multiplierBasis;
+}
+
+void MultiplierTimeSeries::setSource(TimeSeries::sharedPointer ts) {
+  ModularTimeSeries::setSource(ts);
+  this->checkUnits();
+}
+
+void MultiplierTimeSeries::checkUnits() {
+  if (_multiplierBasis && this->source()) {
+    Units derivedUnits = _multiplierBasis->units() * this->source()->units();
+    if (!derivedUnits.isSameDimensionAs(this->units())) {
+      TimeSeries::setUnits(derivedUnits); // base class implementation does not check for source consistency.
+    }
+  }
 }
 
 std::vector<Point> MultiplierTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {

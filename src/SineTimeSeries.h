@@ -23,6 +23,9 @@ namespace RTX {
     time_t period();
     double magnitude();
     
+    void setPeriod(time_t p) {_period = p;};
+    void setMagnitude(double m) {_magnitude = m;};
+    
   private:
     time_t _period;
     double _magnitude;

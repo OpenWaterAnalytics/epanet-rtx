@@ -124,6 +124,31 @@ Point Point::linearInterpolate(const Point& p1, const Point& p2, const time_t& t
 }
 
 
+Point Point::inverse() {
+  double value;
+  double confidence;
+  time_t time;
+  Qual_t q = this->quality;
+  
+  
+  if (this->value != 0.) {
+    value = (1 / this->value);
+  }
+  else {
+    q = Point::bad;
+  }
+  
+  if (this->confidence != 0.) {
+    confidence = (1 / this->confidence);  // TODO -- figure out confidence intervals.
+  }
+  
+  time = this->time;
+  
+  return Point(time, value, q, confidence);
+}
+
+
+
 /*
 std::ostream& RTX::operator<< (std::ostream &out, Point &point) {
   return point.toStream(out);

@@ -24,7 +24,7 @@ namespace RTX {
     
     virtual void setClock(Clock::sharedPointer clock);
     
-    typedef enum {saturate,drop} filterMode_t;
+    typedef enum {saturate=0,drop=1} filterMode_t;
     filterMode_t mode();
     void setMode(filterMode_t mode);
     

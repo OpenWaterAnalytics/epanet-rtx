@@ -1,11 +1,3 @@
-//
-//  SqlitePointRecord.cpp
-//  epanet-rtx
-//
-//  Created by Sam Hatchett on 12/4/13.
-//
-//
-
 #include "SqlitePointRecord.h"
 #include <boost/foreach.hpp>
 
@@ -145,7 +137,7 @@ std::string SqlitePointRecord::registerAndGetIdentifier(std::string recordName, 
   }
   
   if (this->isConnected()) {
-    scoped_lock<mutex> lock(*_mutex);
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
     
     // insert a name here.
     // INSERT IGNORE INTO meta (name,units) VALUES (?,?)
@@ -172,7 +164,7 @@ std::vector<std::string> SqlitePointRecord::identifiers() {
   vector<string> names;
   
   if (this->isConnected()) {
-    scoped_lock<mutex> lock(*_mutex);
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
     int ret = sqlite3_step(_selectNamesStmt);
     while (ret == SQLITE_ROW) {
       sqltext row = sqlite3_column_text(_selectNamesStmt, 0);
@@ -200,7 +192,7 @@ PointRecord::time_pair_t SqlitePointRecord::range(const string& id) {
     this->dbConnect();
   }
   if (isConnected()) {
-    scoped_lock<mutex> lock(*_mutex);
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
     
 //    checkTransactions(true);
     
@@ -230,7 +222,7 @@ std::vector<Point> SqlitePointRecord::selectRange(const std::string& id, time_t 
   }
   if (isConnected()) {
     // SELECT time, value, quality, confidence FROM points INNER JOIN meta USING (series_id) WHERE name = ? AND time >= ? AND time <= ? order by time asc
-    scoped_lock<mutex> lock(*_mutex);
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
     
 //    checkTransactions(true);
     
@@ -250,7 +242,7 @@ Point SqlitePointRecord::selectNext(const std::string& id, time_t time) {
     this->dbConnect();
   }
   if (isConnected()) {
-    scoped_lock<mutex> lock(*_mutex);
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
     
 //    checkTransactions(true);
     
@@ -277,7 +269,7 @@ Point SqlitePointRecord::selectPrevious(const std::string& id, time_t time) {
     this->dbConnect();
   }
   if (isConnected()) {
-    scoped_lock<mutex> lock(*_mutex);
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
     
 //    checkTransactions(true);
     
@@ -312,7 +304,7 @@ void SqlitePointRecord::insertSingleInTransaction(const std::string& id, Point p
     dbConnect();
   }
   if (isConnected()) {
-    scoped_lock<mutex> lock(*_mutex);
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
     
     int ret;
     
@@ -345,7 +337,7 @@ void SqlitePointRecord::insertRange(const std::string& id, std::vector<Point> po
     char *errmsg;
     
     {
-      scoped_lock<mutex> lock(*_mutex);
+      scoped_lock<boost::signals2::mutex> lock(*_mutex);
       checkTransactions(true); // any tranactions currently? tell them to quit.
       ret = sqlite3_exec(_dbHandle, "begin exclusive transaction", NULL, NULL, &errmsg);
       if (ret != SQLITE_OK) {

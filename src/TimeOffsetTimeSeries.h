@@ -2,8 +2,8 @@
 //  TimeOffsetTimeSeries.h
 //  epanet-rtx
 //
-//  Created by Sam Hatchett on 4/2/14.
-//
+//  Open Water Analytics [wateranalytics.org]
+//  See README.md and license.txt for more information
 //
 
 #ifndef __epanet_rtx__TimeOffsetTimeSeries__
