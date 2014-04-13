@@ -1,20 +1,34 @@
-//
-//  SqliteProjectFile.cpp
-//  epanet-rtx
-//
-//  Created by Sam Hatchett on 9/24/13.
-//
-//
-
 #include "SqliteProjectFile.h"
 
-#include "OdbcPointRecord.h"
+#include "OdbcDirectPointRecord.h"
 #include "MysqlPointRecord.h"
+#include "SqlitePointRecord.h"
 
-#include "OffsetTimeSeries.h"
+#include "TimeSeries.h"
 #include "ConstantTimeSeries.h"
-#include "ValidRangeTimeSeries.h"
+#include "SineTimeSeries.h"
 #include "Resampler.h"
+#include "MovingAverage.h"
+#include "FirstDerivative.h"
+#include "AggregatorTimeSeries.h"
+#include "FirstDerivative.h"
+#include "OffsetTimeSeries.h"
+#include "CurveFunction.h"
+#include "ThresholdTimeSeries.h"
+#include "ValidRangeTimeSeries.h"
+#include "GainTimeSeries.h"
+#include "MultiplierTimeSeries.h"
+#include "InversionTimeSeries.h"
+#include "FailoverTimeSeries.h"
+#include "TimeOffsetTimeSeries.h"
+#include "WarpingTimeSeries.h"
+
+#include "EpanetModel.h"
+
+#include <boost/range/adaptors.hpp>
+
+#define typeEquals(x) RTX_STRINGS_ARE_EQUAL(type,x)
+
 
 typedef const unsigned char* sqltext;
 
@@ -25,26 +39,36 @@ using namespace std;
 /////////////////////////////////////////////////////////////
 //---------------------------------------------------------//
 static string sqlSelectRecords =    "select id,name,type from point_records";
-static string sqlSelectTimeseries = "select id,type time_series";
+static string sqlSelectTimeseries = "select id,type from time_series";
 static string sqlGetTsById =        "select name,units,record,clock from time_series where id=?";
-static string sqlGetTsModularById = "select * from time_series_modular left join time_series_extended using (id) where id=?";
-static string sqlGetTsExtendedById = "select type,value_1,value_2,value_3 from time_series left join time_series_extended using (id) where id=?";
+//static string sqlGetTsModularById = "select * from time_series_modular left join time_series_extended using (id) where id=?";
+//static string sqlGetTsExtendedById = "select type,value_1,value_2,value_3 from time_series left join time_series_extended using (id) where id=?";
+static string sqlGetTsSourceById = "select key,value from sources where id=?";
+static string sqlGetTsPropertiesById = "select key,value from time_series_properties where id=?";
+static string sqlGetTsUpstreamById = "select key,value from time_series_sources where id=?";
+static string sqlGetAggregatorSourcesById = "select time_series,multiplier from time_series_aggregator where aggregator_id=?";
 //---------------------------------------------------------//
-static string dbTimseriesName =  "TimeSeries";
-static string dbResamplerName =  "Resampler";
+static string dbTimeseriesName =  "TimeSeries";
 static string dbConstantName =   "Constant";
-static string dbOffsetName =     "Offset";
-static string dbValidrangeName = "ValidRange";
-static string dbThresholdName =  "Threshold";
-static string dbMultiplierName = "Multiplier";
-static string dbGainName =       "Gain";
-static string dbCurveName =      "Curve";
+static string dbSineName = "Sine";
+static string dbResamplerName =  "Resampler";
 static string dbMovingaverageName = "MovingAverage";
-static string dbDerivativeName = "Derivative";
 static string dbAggregatorName = "Aggregator";
+static string dbDerivativeName = "FirstDerivative";
+static string dbOffsetName =     "Offset";
+static string dbCurveName =      "Curve";
+static string dbThresholdName =  "Threshold";
+static string dbValidrangeName = "ValidRange";
+static string dbGainName =       "Gain";
+static string dbMultiplierName = "Multiplier";
+static string dbInversionName = "Inversion";
+static string dbFailoverName = "Failover";
+static string dbLagName = "Lag";
+static string dbWarpName = "Warp";
 //---------------------------------------------------------//
 static string dbOdbcRecordName =  "odbc";
 static string dbMysqlRecordName = "mysql";
+static string dbSqliteRecordName = "sqlite";
 //---------------------------------------------------------//
 /////////////////////////////////////////////////////////////
 
@@ -54,9 +78,34 @@ static map<int,int> mapping() {
   return m;
 }
 
+// local convenience classes
+typedef struct {
+  TimeSeries::sharedPointer ts;
+  int uid;
+  string type;
+} tsListEntry;
+
+typedef struct {
+  PointRecord::sharedPointer record;
+  int uid;
+  string type;
+} pointRecordEntity;
 
 
-
+// optional compile-in databases
+namespace RTX {
+  class PointRecordFactory {
+  public:
+    static PointRecord::sharedPointer createSqliteRecordFromRow(sqlite3_stmt *stmt);
+    static PointRecord::sharedPointer createCsvPointRecordFromRow(sqlite3_stmt *stmt);
+#ifndef RTX_NO_ODBC
+    static PointRecord::sharedPointer createOdbcRecordFromRow(sqlite3_stmt *stmt);
+#endif
+#ifndef RTX_NO_MYSQL
+    static PointRecord::sharedPointer createMysqlRecordFromRow(sqlite3_stmt *stmt);
+#endif
+  };
+}
 
 
 
@@ -64,7 +113,7 @@ void SqliteProjectFile::loadProjectFile(const string& path) {
   _path = path;
   char *zErrMsg = 0;
   int returnCode;
-  returnCode = sqlite3_open(_path.c_str(), &_dbHandle);
+  returnCode = sqlite3_open_v2(_path.c_str(), &_dbHandle, SQLITE_OPEN_READONLY, NULL);
   if( returnCode ){
     fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(_dbHandle));
     sqlite3_close(_dbHandle);
@@ -73,22 +122,17 @@ void SqliteProjectFile::loadProjectFile(const string& path) {
   
   
   // do stuff
-  loadRecordsFromDb(_dbHandle);
-  loadTimeseriesFromDb(_dbHandle);
-
+  loadRecordsFromDb();
+  loadTimeseriesFromDb();
+  loadModelFromDb();
   
-  //rc = sqlite3_exec(db, argv[2], callback, 0, &zErrMsg);
-  if( returnCode != SQLITE_OK ){
-    fprintf(stderr, "SQL error: %s\n", zErrMsg);
-    sqlite3_free(zErrMsg);
-  }
   
   // close db
   sqlite3_close(_dbHandle);
 }
 
 void SqliteProjectFile::saveProjectFile(const string& path) {
-  
+  // nope
 }
 
 void SqliteProjectFile::clear() {
@@ -101,132 +145,393 @@ PointRecord::sharedPointer SqliteProjectFile::defaultRecord() {
 }
 
 Model::sharedPointer SqliteProjectFile::model() {
-  
+  return _model;
 }
 
+RTX_LIST<TimeSeries::sharedPointer> SqliteProjectFile::timeSeries() {
+  RTX_LIST<TimeSeries::sharedPointer> list;
+  BOOST_FOREACH(TimeSeries::sharedPointer ts, _timeseries | boost::adaptors::map_values) {
+    list.push_back(ts);
+  }
+  return list;
+}
+
+RTX_LIST<Clock::sharedPointer> SqliteProjectFile::clocks() {
+  RTX_LIST<Clock::sharedPointer> list;
+  BOOST_FOREACH(Clock::sharedPointer c, _clocks | boost::adaptors::map_values) {
+    list.push_back(c);
+  }
+  return list;
+}
+
+RTX_LIST<PointRecord::sharedPointer> SqliteProjectFile::records() {
+  RTX_LIST<PointRecord::sharedPointer> list;
+  BOOST_FOREACH(PointRecord::sharedPointer pr, _records | boost::adaptors::map_values) {
+    list.push_back(pr);
+  }
+  return list;
+}
 
 
 
 
 #pragma mark - private methods
 
-void SqliteProjectFile::loadRecordsFromDb(sqlite3 *db) {
+void SqliteProjectFile::loadRecordsFromDb() {
+  
+  RTX_LIST<pointRecordEntity> recordEntities;
   
   // set up the function pointers for creating the new records.
   typedef PointRecord::sharedPointer (*PointRecordFp)(sqlite3_stmt*);
   map<string,PointRecordFp> prCreators;
-  prCreators[dbOdbcRecordName] = SqliteProjectFile::createOdbcRecordFromRow;
-  prCreators[dbMysqlRecordName] = SqliteProjectFile::createMysqlRecordFromRow;
+  
+#ifndef RTX_NO_ODBC
+  prCreators[dbOdbcRecordName] = PointRecordFactory::createOdbcRecordFromRow;
+#endif
+#ifndef RTX_NO_MYSQL
+  prCreators[dbMysqlRecordName] = PointRecordFactory::createMysqlRecordFromRow;
+#endif
+  
+  prCreators[dbSqliteRecordName] = PointRecordFactory::createSqliteRecordFromRow;
+  
   
   sqlite3_stmt *stmt;
   
-  int retCode = sqlite3_prepare_v2(db, sqlSelectRecords.c_str(), -1, &stmt, NULL);
+  int retCode = sqlite3_prepare_v2(_dbHandle, sqlSelectRecords.c_str(), -1, &stmt, NULL);
   if (retCode != SQLITE_OK) {
-    cerr << "can't prepare statement: " << sqlSelectRecords << " -- error: " << sqlite3_errmsg(db) << endl;
+    cerr << "can't prepare statement: " << sqlSelectRecords << " -- error: " << sqlite3_errmsg(_dbHandle) << endl;
     return;
   }
   
-  retCode = sqlite3_step(stmt);
-  while (retCode == SQLITE_ROW) {
+  while (sqlite3_step(stmt) == SQLITE_ROW) {
     // we have a row ready
     int uid = sqlite3_column_int(stmt, 0);
-    sqltext name = sqlite3_column_text(stmt, 1);
-    sqltext type = sqlite3_column_text(stmt, 2);
+    string name = string((char*)sqlite3_column_text(stmt, 1));
+    string type = string((char*)sqlite3_column_text(stmt, 2));
     
-    cout << "record: " << uid << " " << name << " " << type << endl;
+    cout << "record: " << uid << " \"" << name << "\" (" << type << ")" << endl;
     
     // find the right function to create this type of record
-    PointRecordFp creator = prCreators[(char*)type];
-    PointRecord::sharedPointer record = creator(stmt);
+    PointRecordFp creator = prCreators[type];
+    PointRecord::sharedPointer record;
+    if (creator) {
+      record = creator(stmt);
+    }
     
     if (record) {
+      record->setName(name);
       _records[uid] = record;
+      pointRecordEntity entity;
+      entity.record = record;
+      entity.type = type;
+      entity.uid = uid;
+      recordEntities.push_back(entity);
     }
     else {
-      cerr << "could not create point record. check type?" << endl;
+      cerr << "could not create point record. type \"" << type << "\" not supported." << endl;
     }
     
-    // get the next row, or end
-    retCode = sqlite3_step(stmt);
   }
   
-  if (retCode != SQLITE_DONE) {
-    cerr << "prepared statement failed" << endl;
+  sqlite3_finalize(stmt);
+  
+  
+  
+  
+  // now load up each point record's connection attributes.
+  BOOST_FOREACH(const pointRecordEntity& entity, recordEntities) {
+    
+    if (RTX_STRINGS_ARE_EQUAL(entity.type, "sqlite")) {
+      string sqlGetSqliteAttr = "select dbPath from point_records where id=?";
+      sqlite3_prepare_v2(_dbHandle, sqlGetSqliteAttr.c_str(), -1, &stmt, NULL);
+      sqlite3_bind_int(stmt, 1, entity.uid);
+      if (sqlite3_step(stmt) == SQLITE_ROW) {
+        string dbPath = string((char*)sqlite3_column_text(stmt, 0));
+        boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->setPath(dbPath);
+      }
+      sqlite3_reset(stmt);
+      sqlite3_finalize(stmt);
+    }
     
   }
+  
+  
+  
+  
+  
 }
 
 
-void SqliteProjectFile::loadTimeseriesFromDb(sqlite3 *db) {
+void SqliteProjectFile::loadTimeseriesFromDb() {
   
+  RTX_LIST<tsListEntry> tsList;
   sqlite3_stmt *stmt;
   
-  int retCode = sqlite3_prepare_v2(db, sqlSelectTimeseries.c_str(), -1, &stmt, NULL);
+  int retCode = sqlite3_prepare_v2(_dbHandle, sqlSelectTimeseries.c_str(), -1, &stmt, NULL);
   if (retCode != SQLITE_OK) {
-    cerr << "can't prepare statement: " << sqlSelectTimeseries << " -- error: " << sqlite3_errmsg(db) << endl;
+    cerr << "can't prepare statement: " << sqlSelectTimeseries << " -- error: " << sqlite3_errmsg(_dbHandle) << endl;
     return;
   }
   
-  retCode = sqlite3_step(stmt);
-  while (retCode == SQLITE_ROW) {
+  // CREATE ALL THE TIME SERIES
+  while (sqlite3_step(stmt) == SQLITE_ROW) {
     // we have a row ready
     int uid = sqlite3_column_int(stmt, 0);
-    sqltext typeChar = sqlite3_column_text(stmt, 2);
+    sqltext typeChar = sqlite3_column_text(stmt, 1);
     string type((char*)typeChar);
-    
-    cout << "ts: " << uid << " " << type << endl;
-    
-    TimeSeries::sharedPointer ts;
-    if (RTX_STRINGS_ARE_EQUAL(type, dbTimseriesName)) {
-      ts = createTimeSeriesWithUid(uid);
-    }
-    else if (RTX_STRINGS_ARE_EQUAL(type, dbResamplerName)) {
-      ts = createResamplerWithUid(uid);
-    }
-    else {
-      cerr << "did not recognize type: " << type << " -- timeseries not created" << endl;
-    }
-    
+    TimeSeries::sharedPointer ts = newTimeseriesWithType(type);
     if (ts) {
-      // store it locally
-      _timeseries[uid] = ts;
+      tsListEntry entry;
+      entry.ts = ts;
+      entry.uid = uid;
+      entry.type = type;
+      tsList.push_back(entry);
     }
-    
-    
-    // get the next row, or end
-    retCode = sqlite3_step(stmt);
+  }
+  sqlite3_finalize(stmt);
+  
+  // cache them, keyed by uid
+  BOOST_FOREACH(tsListEntry entry, tsList) {
+    _timeseries[entry.uid] = entry.ts;
   }
   
-  if (retCode != SQLITE_DONE) {
-    cerr << "prepared statement failed" << endl;
-    
+  // setting units, record, clock...
+  BOOST_FOREACH(tsListEntry entry, tsList) {
+    this->setBaseProperties(entry.ts, entry.uid);
   }
+  
+  
+  
+  // SET PROPERTIES
+  retCode = sqlite3_prepare_v2(_dbHandle, sqlGetTsPropertiesById.c_str(), -1, &stmt, NULL);
+  if (retCode != SQLITE_OK) {
+    cerr << "can't prepare statement: " << sqlGetTsPropertiesById << " -- error: " << sqlite3_errmsg(_dbHandle) << endl;
+    return;
+  }
+  BOOST_FOREACH(tsListEntry entry, tsList) {
+    sqlite3_bind_int(stmt, 1, entry.uid);
+    // get k-v pairs and use a setter function
+    retCode = sqlite3_step(stmt);
+    while (retCode == SQLITE_ROW) {
+      string key((char*)sqlite3_column_text(stmt, 0));
+      double val = sqlite3_column_double(stmt, 1);
+      this->setPropertyValuesForTimeSeriesWithType(entry.ts, entry.type, key, val);
+      retCode = sqlite3_step(stmt);
+    }
+    sqlite3_reset(stmt);
+  }
+  retCode = sqlite3_finalize(stmt);
+  
+  // SET SOURCES
+  /*** ---> TODO :: 
+          need to figure out a smart way to ensure that downstream modules are affected by upstream setters.
+          that is, make sure we're working from left to right.
+          do we need a responder chain?
+   ***/
+  retCode = sqlite3_prepare_v2(_dbHandle, sqlGetTsUpstreamById.c_str(), -1, &stmt, NULL);
+  if (retCode != SQLITE_OK) {
+    cerr << "can't prepare statement: " << sqlGetTsUpstreamById << " -- error: " << sqlite3_errmsg(_dbHandle) << endl;
+    return;
+  }
+  BOOST_FOREACH(tsListEntry entry, tsList) {
+    // if it doesn't take a source, then move on.
+    ModularTimeSeries::sharedPointer mod = boost::dynamic_pointer_cast<ModularTimeSeries>(entry.ts);
+    if (!mod) {
+      continue;
+    }
+    
+    // query for any upstream sources / secondary sources
+    sqlite3_bind_int(stmt, 1, entry.uid);
+    // for each row, find out what key it's setting and set it on this time series.
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+      string key = (char*)sqlite3_column_text(stmt, 0);
+      int idx = sqlite3_column_int(stmt, 1);
+      TimeSeries::sharedPointer upstreamTs = _timeseries[idx];
+      if (!upstreamTs) {
+        continue;
+      }
+      
+      // possibilites for key: source, failover, multiplier, warp
+      if (RTX_STRINGS_ARE_EQUAL(key, "source")) {
+        mod->setSource(upstreamTs);
+      }
+      else if (RTX_STRINGS_ARE_EQUAL(key, "failover")) {
+        boost::dynamic_pointer_cast<FailoverTimeSeries>(mod)->setFailoverTimeseries(upstreamTs);
+      }
+      else if (RTX_STRINGS_ARE_EQUAL(key, "multiplier")) {
+        boost::dynamic_pointer_cast<MultiplierTimeSeries>(mod)->setMultiplier(upstreamTs);
+      }
+      else if (RTX_STRINGS_ARE_EQUAL(key, "warp")) {
+        boost::dynamic_pointer_cast<WarpingTimeSeries>(mod)->setWarp(upstreamTs);
+      }
+      else {
+        cerr << "unknown key: " << key << endl;
+      }
+    }
+    sqlite3_reset(stmt); // get ready for next bind
+  }
+  retCode = sqlite3_finalize(stmt);
+  
+  
+  // ANY AGGREGATORS?
+  sqlite3_prepare_v2(_dbHandle, sqlGetAggregatorSourcesById.c_str(), -1, &stmt, NULL);
+  BOOST_FOREACH(tsListEntry entry, tsList) {
+    if (RTX_STRINGS_ARE_EQUAL(entry.type, "Aggregator")) {
+      AggregatorTimeSeries::sharedPointer agg = boost::dynamic_pointer_cast<AggregatorTimeSeries>(entry.ts);
+      if (!agg) {
+        cerr << "not an aggregator" << endl;
+        continue;
+      }
+      // get sources.
+      sqlite3_bind_int(stmt, 1, entry.uid);
+      while (sqlite3_step(stmt) == SQLITE_ROW) {
+        int idx = sqlite3_column_int(stmt, 1);
+        double multiplier = sqlite3_column_double(stmt, 2);
+        TimeSeries::sharedPointer upstream = _timeseries[idx];
+        agg->addSource(upstream, multiplier);
+      }
+      sqlite3_reset(stmt);
+    }
+
+  }
+  
+  
+  
   
   retCode = sqlite3_finalize(stmt);
   
   
-  
 }
 
+
+
+void SqliteProjectFile::loadModelFromDb() {
+  int ret;
+  string modelFilePath;
+  EpanetModel::sharedPointer enModel( new EpanetModel );
+  
+  sqlite3_stmt *stmt;
+  string selectModelFileStr = "select value from meta where key = \"model_name\"";
+  ret = sqlite3_prepare_v2(_dbHandle, selectModelFileStr.c_str(), -1, &stmt, NULL);
+  if (ret != SQLITE_OK) {
+    cerr << "can't prepare statement: " << selectModelFileStr << " -- error: " << sqlite3_errmsg(_dbHandle) << endl;
+  }
+  if (sqlite3_step(stmt) == SQLITE_ROW) {
+    modelFilePath = string((char*)sqlite3_column_text(stmt, 0));
+    enModel->useEpanetFile(modelFilePath);
+  }
+  else {
+    cerr << "can't step sqlite -- error: " << sqlite3_errmsg(_dbHandle) << endl;
+  }
+  sqlite3_finalize(stmt);
+  
+  _model = enModel;
+}
 
 
 
 
 #pragma mark - point record creators
-
-PointRecord::sharedPointer SqliteProjectFile::createOdbcRecordFromRow(sqlite3_stmt *stmt) {
-  OdbcPointRecord::sharedPointer pr( new OdbcPointRecord );
-  
+#ifndef RTX_NO_ODBC
+PointRecord::sharedPointer PointRecordFactory::createOdbcRecordFromRow(sqlite3_stmt *stmt) {
+  OdbcPointRecord::sharedPointer pr( new OdbcDirectPointRecord );
   return pr;
 }
-
-PointRecord::sharedPointer SqliteProjectFile::createMysqlRecordFromRow(sqlite3_stmt *stmt) {
+#endif
+#ifndef RTX_NO_MYSQL
+PointRecord::sharedPointer PointRecordFactory::createMysqlRecordFromRow(sqlite3_stmt *stmt) {
   MysqlPointRecord::sharedPointer pr( new MysqlPointRecord );
-  
   return pr;
 }
+#endif
+PointRecord::sharedPointer PointRecordFactory::createSqliteRecordFromRow(sqlite3_stmt *stmt) {
+  SqlitePointRecord::sharedPointer pr( new SqlitePointRecord );
+  return pr;
+}
+
+
 
 #pragma mark - timeseries creators
+
+TimeSeries::sharedPointer SqliteProjectFile::newTimeseriesWithType(const string& type) {
+  
+  if (typeEquals(dbTimeseriesName)) {
+    // just the base class
+    TimeSeries::sharedPointer ts(new TimeSeries);
+    return ts;
+  }
+  else if (typeEquals(dbConstantName)) {
+    ConstantTimeSeries::sharedPointer ts(new ConstantTimeSeries);
+    return ts;
+  }
+  else if (typeEquals(dbSineName)) {
+    SineTimeSeries::sharedPointer ts(new SineTimeSeries);
+    return ts;
+  }
+  else if (typeEquals(dbResamplerName)) {
+    Resampler::sharedPointer ts(new Resampler);
+    return ts;
+  }
+  else if (typeEquals(dbMovingaverageName)) {
+    MovingAverage::sharedPointer ts(new MovingAverage);
+    return ts;
+  }
+  else if (typeEquals(dbAggregatorName)) {
+    AggregatorTimeSeries::sharedPointer ts(new AggregatorTimeSeries);
+    return ts;
+  }
+  else if (typeEquals(dbDerivativeName)) {
+    FirstDerivative::sharedPointer ts(new FirstDerivative);
+    return ts;
+  }
+  else if (typeEquals(dbOffsetName)) {
+    OffsetTimeSeries::sharedPointer ts(new OffsetTimeSeries);
+    return ts;
+  }
+  else if (typeEquals(dbCurveName)) {
+    CurveFunction::sharedPointer ts(new CurveFunction);
+    return ts;
+  }
+  else if (typeEquals(dbThresholdName)) {
+    ThresholdTimeSeries::sharedPointer ts(new ThresholdTimeSeries);
+    return ts;
+  }
+  else if (typeEquals(dbValidrangeName)) {
+    ValidRangeTimeSeries::sharedPointer ts(new ValidRangeTimeSeries);
+    return ts;
+  }
+  else if (typeEquals(dbGainName)) {
+    GainTimeSeries::sharedPointer ts(new GainTimeSeries);
+    return ts;
+  }
+  else if (typeEquals(dbMultiplierName)) {
+    MultiplierTimeSeries::sharedPointer ts(new MultiplierTimeSeries);
+    return ts;
+  }
+  else if (typeEquals(dbInversionName)) {
+    InversionTimeSeries::sharedPointer ts(new InversionTimeSeries);
+    return ts;
+  }
+  else if (typeEquals(dbFailoverName)) {
+    FailoverTimeSeries::sharedPointer ts(new FailoverTimeSeries);
+    return ts;
+  }
+  else if (typeEquals(dbLagName)) {
+    TimeOffsetTimeSeries::sharedPointer ts(new TimeOffsetTimeSeries);
+    return ts;
+  }
+  else if (typeEquals(dbWarpName)) {
+    WarpingTimeSeries::sharedPointer ts(new WarpingTimeSeries);
+    return ts;
+  }
+  
+  else {
+    return TimeSeries::sharedPointer(); // nada
+  }
+  
+}
+
+#pragma mark TimeSeries setters
 
 // sets name, clock, record, units
 void SqliteProjectFile::setBaseProperties(TimeSeries::sharedPointer ts, int uid) {
@@ -269,11 +574,13 @@ void SqliteProjectFile::setBaseProperties(TimeSeries::sharedPointer ts, int uid)
     }
   }
   
+  sqlite3_finalize(stmt);
+  
 }
-
+/*
 void SqliteProjectFile::setExtendedProperties(TimeSeries::sharedPointer ts, int uid) {
   sqlite3_stmt *stmt;
-  sqlite3_prepare_v2(_dbHandle, sqlGetTsExtendedById.c_str(), -1, &stmt, NULL);
+//  sqlite3_prepare_v2(_dbHandle, sqlGetTsExtendedById.c_str(), -1, &stmt, NULL);
   sqlite3_bind_int(stmt, 1, uid);
   if (sqlite3_step(stmt) != SQLITE_ROW) {
     cerr << "could not get extended properties" << endl;
@@ -305,28 +612,113 @@ void SqliteProjectFile::setExtendedProperties(TimeSeries::sharedPointer ts, int 
   }
   
 }
+*/
 
-void SqliteProjectFile::setModularProperties(ModularTimeSeries::sharedPointer mts, int uid) {
+
+
+void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::sharedPointer ts, const string& type, string key, double val) {
+
+  
+  /*** stupidly long chain of if-else statements to set k-v properties ***/
+  /*** broken down first by type name, then by key name ***/
+  if (typeEquals(dbTimeseriesName)) {
+    // base class keys... none.
+  }
+  else if (typeEquals(dbConstantName)) {
+    // keys: value
+    if (RTX_STRINGS_ARE_EQUAL(key, "value")) {
+      boost::dynamic_pointer_cast<ConstantTimeSeries>(ts)->setValue(val);
+    }
+  }
+  else if (typeEquals(dbSineName)) {
+    SineTimeSeries::sharedPointer sine = boost::dynamic_pointer_cast<SineTimeSeries>(ts);
+    if (RTX_STRINGS_ARE_EQUAL(key, "magnitude")) {
+      sine->setMagnitude(val);
+    }
+    else if (RTX_STRINGS_ARE_EQUAL(key, "period")) {
+      sine->setPeriod((time_t)val);
+    }
+  }
+  else if (typeEquals(dbResamplerName)) {
+    Resampler::sharedPointer rs = boost::dynamic_pointer_cast<Resampler>(ts);
+    if (RTX_STRINGS_ARE_EQUAL(key, "interpolationMode")) {
+      rs->setMode((Resampler::interpolateMode_t)val);
+    }
+  }
+  else if (typeEquals(dbMovingaverageName)) {
+    MovingAverage::sharedPointer ma = boost::dynamic_pointer_cast<MovingAverage>(ts);
+    if (RTX_STRINGS_ARE_EQUAL(key, "window")) {
+      ma->setWindowSize((int)val);
+    }
+  }
+  else if (typeEquals(dbAggregatorName)) {
+    // nothing
+  }
+  else if (typeEquals(dbDerivativeName)) {
+    // nothing
+  }
+  else if (typeEquals(dbOffsetName)) {
+    OffsetTimeSeries::sharedPointer os = boost::dynamic_pointer_cast<OffsetTimeSeries>(ts);
+    if (RTX_STRINGS_ARE_EQUAL(key, "offset")) {
+      os->setOffset(val);
+    }
+  }
+  else if (typeEquals(dbCurveName)) {
+  }
+  else if (typeEquals(dbThresholdName)) {
+    ThresholdTimeSeries::sharedPointer th = boost::dynamic_pointer_cast<ThresholdTimeSeries>(ts);
+    if (RTX_STRINGS_ARE_EQUAL(key, "threshold")) {
+      th->setThreshold(val);
+    }
+    else if (RTX_STRINGS_ARE_EQUAL(key, "value")) {
+      th->setValue(val);
+    }
+  }
+  else if (typeEquals(dbValidrangeName)) {
+    ValidRangeTimeSeries::sharedPointer vr = boost::dynamic_pointer_cast<ValidRangeTimeSeries>(ts);
+    if (RTX_STRINGS_ARE_EQUAL(key, "mode")) {
+      vr->setMode((ValidRangeTimeSeries::filterMode_t)val);
+    }
+    else if (RTX_STRINGS_ARE_EQUAL(key, "max")) {
+      vr->setRange(vr->range().first, val);
+    }
+    else if (RTX_STRINGS_ARE_EQUAL(key, "min")) {
+      vr->setRange(val, vr->range().second);
+    }
+  }
+  else if (typeEquals(dbGainName)) {
+    GainTimeSeries::sharedPointer gn = boost::dynamic_pointer_cast<GainTimeSeries>(ts);
+    if (RTX_STRINGS_ARE_EQUAL(key, "gain")) {
+      gn->setGain(val);
+    }
+  }
+  else if (typeEquals(dbMultiplierName)) {
+    //
+  }
+  else if (typeEquals(dbInversionName)) {
+    //
+  }
+  else if (typeEquals(dbFailoverName)) {
+    FailoverTimeSeries::sharedPointer fo = boost::dynamic_pointer_cast<FailoverTimeSeries>(ts);
+    if (RTX_STRINGS_ARE_EQUAL(key, "maximumStaleness")) {
+      fo->setMaximumStaleness((time_t)val);
+    }
+  }
+  else if (typeEquals(dbLagName)) {
+    TimeOffsetTimeSeries::sharedPointer os = boost::dynamic_pointer_cast<TimeOffsetTimeSeries>(ts);
+    if (RTX_STRINGS_ARE_EQUAL(key, "lag")) {
+      os->setOffset((time_t)val);
+    }
+  }
+  else if (typeEquals(dbWarpName)) {
+    //
+  }
+  else {
+    cerr << "unknown type name: " << type << endl;
+  }
   
 }
 
-void SqliteProjectFile::setAggregatorProperties(AggregatorTimeSeries::sharedPointer agg, int uid) {
-  
-}
 
 
 
-
-TimeSeries::sharedPointer SqliteProjectFile::createTimeSeriesWithUid(int uid) {
-  TimeSeries::sharedPointer ts(new TimeSeries);
-  setBaseProperties(ts, uid);
-  
-  return ts;
-}
-
-TimeSeries::sharedPointer SqliteProjectFile::createResamplerWithUid(int uid) {
-  Resampler::sharedPointer ts(new Resampler);
-  setBaseProperties(ts, uid);
-  setExtendedProperties(ts, uid);
-  return ts;
-}

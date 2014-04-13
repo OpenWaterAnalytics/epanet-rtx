@@ -2,8 +2,8 @@
 //  SqliteProjectFile.h
 //  epanet-rtx
 //
-//  Created by Sam Hatchett on 9/24/13.
-//
+//  Open Water Analytics [wateranalytics.org]
+//  See README.md and license.txt for more information
 //
 
 #ifndef __epanet_rtx__SqliteProjectFile__
@@ -34,6 +34,9 @@ namespace RTX {
     
     PointRecord::sharedPointer defaultRecord();
     
+    void insertTimeSeries(TimeSeries::sharedPointer ts) {};
+    void insertClock(Clock::sharedPointer clock) {};
+    void insertRecord(PointRecord::sharedPointer record) {};
     
   private:
     // maps are keyed by uuid from database
@@ -44,21 +47,15 @@ namespace RTX {
     sqlite3 *_dbHandle;
     string _path;
     
-    void loadRecordsFromDb(sqlite3 *db);
-    void loadTimeseriesFromDb(sqlite3 *db);
-    
-    static PointRecord::sharedPointer createOdbcRecordFromRow(sqlite3_stmt *stmt);
-    static PointRecord::sharedPointer createMysqlRecordFromRow(sqlite3_stmt *stmt);
-    
+    void loadRecordsFromDb();
+    void loadTimeseriesFromDb();
+    void loadModelFromDb();
+        
+    TimeSeries::sharedPointer newTimeseriesWithType(const std::string& type);
     void setBaseProperties(TimeSeries::sharedPointer ts, int uid);
-    void setExtendedProperties(TimeSeries::sharedPointer ts, int uid);
-    void setModularProperties(ModularTimeSeries::sharedPointer mts, int uid);
-    void setAggregatorProperties(AggregatorTimeSeries::sharedPointer agg, int uid);
-    TimeSeries::sharedPointer createTimeSeriesWithUid(int uid);
-    TimeSeries::sharedPointer createResamplerWithUid(int uid);
+    void setPropertyValuesForTimeSeriesWithType(TimeSeries::sharedPointer ts, const string& type, string key, double value);
     
   };
-  
 }
 
 #endif /* defined(__epanet_rtx__SqliteProjectFile__) */
