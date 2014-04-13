@@ -6,8 +6,13 @@
 //  See README.md and license.txt for more information
 //  
 
+#ifdef _WIN32
+  #define isnan(x) (x!=x)
+#endif
+
 #include "Point.h"
 #include <math.h>
+#include <iostream>
 
 using namespace std;
 using namespace RTX;
@@ -17,14 +22,27 @@ Point::Point() : time(0),value(0),quality(Point::missing),isValid(false),confide
 }
 
 
-Point::Point(time_t t, double v, Qual_t q, double c) : time(t),value(v),quality(q),isValid((q == missing)||(isnan(v)) ? false : true),confidence(c) {
+Point::Point(time_t t, double v, Qual_t q, double c) : time(t),value(v),quality(q),isValid((q & missing)||(isnan(v)) ? false : true),confidence(c) {
   if (isnan(v)) {
     cout << "nan" << endl;
   }
 }
 
 Point::~Point() {
+  
 }
+
+
+bool Point::hasQual(Qual_t qual) {
+  return (this->quality & qual);
+}
+
+void Point::addQualFlag(Qual_t qual) {
+  this->quality = (Qual_t)(this->quality | qual);
+  if (this->hasQual(Point::bad)) {
+    this->isValid = false;
+  }
+};
 
 
 #pragma mark - Operators
@@ -60,6 +78,13 @@ Point Point::operator*(const double factor) const {
   return Point(time, value, Point::good, confidence);
 }
 
+Point& Point::operator*=(const double factor) {
+  this->value *= factor;
+  this->confidence *= factor;
+  return *this;
+}
+
+
 Point Point::operator/(const double factor) const {
   double value;
   double confidence;
@@ -77,15 +102,63 @@ bool Point::comparePointTime(const Point& left, const Point& right) {
   return left.time < right.time;
 }
 
+Point Point::linearInterpolate(const Point& p1, const Point& p2, const time_t& t) {
+  Point p;
+  if (p1.time == t) {
+    p = p1;
+  }
+  else if (p2.time == t) {
+    p = p2;
+  }
+  else {
+    time_t dt = p2.time - p1.time;
+    double dv = p2.value - p1.value;
+    time_t dt2 = t - p1.time;
+    double dv2 = dv * dt2 / dt;
+    double newValue = p1.value + dv2;
+    double newConfidence = (p1.confidence + p2.confidence) / 2; // TODO -- more elegant confidence estimation
+    p = Point(t, newValue, (Qual_t)(p1.quality | p2.quality), newConfidence);
+    p.addQualFlag(Point::interpolated);
+  }
+  return p;
+}
 
+
+Point Point::inverse() {
+  double value;
+  double confidence;
+  time_t time;
+  Qual_t q = this->quality;
+  
+  
+  if (this->value != 0.) {
+    value = (1 / this->value);
+  }
+  else {
+    q = Point::bad;
+  }
+  
+  if (this->confidence != 0.) {
+    confidence = (1 / this->confidence);  // TODO -- figure out confidence intervals.
+  }
+  
+  time = this->time;
+  
+  return Point(time, value, q, confidence);
+}
+
+
+
+/*
 std::ostream& RTX::operator<< (std::ostream &out, Point &point) {
   return point.toStream(out);
 }
-
-std::ostream& Point::toStream(std::ostream &stream) {
-  stream << "(" << time << "," << value << "," << quality << ")";
-  return stream;
-}
+*/
+//
+//std::ostream& Point::toStream(std::ostream &stream) {
+//  stream << "(" << time << "," << value << "," << quality << "," << confidence << ")";
+//  return stream;
+//}
 
 
 
@@ -94,7 +167,7 @@ std::ostream& Point::toStream(std::ostream &stream) {
 Point Point::convertPoint(const Point& point, const Units& fromUnits, const Units& toUnits) {
   double value = Units::convertValue(point.value, fromUnits, toUnits);
   double confidence = Units::convertValue(point.confidence, fromUnits, toUnits);
-  return Point(point.time, value, Point::good, confidence);
+  return Point(point.time, value, point.quality, confidence);
 }
 
 

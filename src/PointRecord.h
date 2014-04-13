@@ -58,7 +58,10 @@ namespace RTX {
     PointRecord();
     virtual ~PointRecord() {};
     
-    virtual std::string registerAndGetIdentifier(std::string recordName);    // registering record names.
+    std::string name();
+    void setName(std::string name);
+    
+    virtual std::string registerAndGetIdentifier(std::string recordName, Units dataUnits);    // registering record names.
     virtual std::vector<std::string> identifiers();
     
     //virtual bool isPointAvailable(const string& identifier, time_t time);
@@ -68,8 +71,9 @@ namespace RTX {
     virtual std::vector<Point> pointsInRange(const string& identifier, time_t startTime, time_t endTime);
     virtual void addPoint(const string& identifier, Point point);
     virtual void addPoints(const string& identifier, std::vector<Point> points);
-    virtual void reset();
-    virtual void reset(const string& identifier);
+    virtual void reset(); // clear memcache for all ids
+    virtual void reset(const string& identifier); // clear memcache for just this id
+    virtual void invalidate(const string& identifier) {reset(identifier);}; // alias here, override for database implementations
     virtual Point firstPoint(const string& id);
     virtual Point lastPoint(const string& id);
     virtual time_pair_t range(const string& id);
@@ -79,6 +83,11 @@ namespace RTX {
   protected:
     std::string _cachedPointId;
     Point _cachedPoint;
+    
+    std::map<std::string,Point> _pointCache;
+    
+  private:
+    std::string _name;
   
   };
   

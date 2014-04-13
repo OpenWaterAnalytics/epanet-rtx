@@ -29,6 +29,9 @@ namespace RTX {
     void setLength(double length);
     void setDiameter(double diameter);
     
+    status_t fixedStatus();
+    void setFixedStatus(status_t status);
+    
     // states
     TimeSeries::sharedPointer flow();
     
@@ -36,18 +39,24 @@ namespace RTX {
     bool doesHaveStatusParameter();
     TimeSeries::sharedPointer statusParameter();
     void setStatusParameter(TimeSeries::sharedPointer status);
-    
+    bool doesHaveSettingParameter();
+    TimeSeries::sharedPointer settingParameter();
+    void setSettingParameter(TimeSeries::sharedPointer setting);
+
     // measurements
     bool doesHaveFlowMeasure();
     TimeSeries::sharedPointer flowMeasure();
     void setFlowMeasure(TimeSeries::sharedPointer flow);
     
   private:
+    status_t _fixedStatus;
     double _length;
     double _diameter;
     TimeSeries::sharedPointer _flowState;
     TimeSeries::sharedPointer _flowMeasure;
     TimeSeries::sharedPointer _status;
+    TimeSeries::sharedPointer _setting;
+    bool _doesHaveSettingParameter;
     bool _doesHaveStatusParameter;
     bool _doesHaveFlowMeasure;
   };

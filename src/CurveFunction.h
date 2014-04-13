@@ -4,13 +4,14 @@
 //
 //  Created by the EPANET-RTX Development Team
 //  See README.md and license.txt for more information
-//  
+//
 
 #ifndef epanet_rtx_CurveFunctionTimeSeries_h
 #define epanet_rtx_CurveFunctionTimeSeries_h
 
 #include <vector>
 #include "ModularTimeSeries.h"
+#include <boost/foreach.hpp>
 
 namespace RTX {
   
@@ -32,9 +33,17 @@ namespace RTX {
     
     // added functionality.
     void setInputUnits(Units inputUnits);
+    Units inputUnits();
     void addCurveCoordinate(double inputValue, double outputValue);
+    void setCurve( std::vector<std::pair<double,double> > curve);
+    void clearCurve();
+    std::vector<std::pair<double,double> > curve();
+    
+  protected:
+    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
     
   private:
+    Point convertWithCurve(Point p, Units sourceU);
     std::vector< std::pair<double,double> > _curve;  // list of points for interpolation (x,y)
     Units _inputUnits;
   };

@@ -53,6 +53,20 @@ namespace RTX {
   
   class TimeSeries {    
   public:
+    
+    // public internal class description for the summary
+    class Summary {
+    public:
+      std::vector<Point> points;
+      std::vector<Point> gaps;
+      double mean;
+      double variance;
+      size_t count;
+      double min;
+      double max;
+    };
+    
+    
     RTX_SHARED_POINTER(TimeSeries);
     
     // ctor & dtor
@@ -67,20 +81,30 @@ namespace RTX {
     virtual Point point(time_t time);
     virtual Point pointBefore(time_t time);
     virtual Point pointAfter(time_t time);
+    virtual Point pointAtOrBefore(time_t time);
     virtual std::vector< Point > points(time_t start, time_t end); // points in range
     virtual std::pair< Point, Point > adjacentPoints(time_t time); // adjacent points
     virtual time_t period();                              //! 1/frequency (# seconds between data points)
     virtual std::string name();
+    PointRecord::sharedPointer record();
+    
+    TimeSeries::Summary summary(time_t start, time_t end);
     
     // setters
     virtual void setName(const std::string& name);
     void setRecord(PointRecord::sharedPointer record);
-    PointRecord::sharedPointer record();
-    void resetCache();
-    void setClock(Clock::sharedPointer clock);
+    virtual void resetCache();
+    virtual void setClock(Clock::sharedPointer clock);
     Clock::sharedPointer clock();
+    
     virtual void setUnits(Units newUnits);
     Units units();
+    
+    
+    void setFirstTime(time_t time);
+    void setLastTime(time_t time);
+    time_t firstTime();
+    time_t lastTime();
     
     // tests
     //virtual bool isPointAvailable(time_t time);
@@ -99,6 +123,7 @@ namespace RTX {
     //TimeSeries::sharedPointer _source;
     // TODO -- units
     Units _units;
+    std::pair<time_t, time_t> _validTimeRange;
   
   };
 

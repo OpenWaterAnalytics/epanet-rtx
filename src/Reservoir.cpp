@@ -19,7 +19,15 @@ Reservoir::~Reservoir() {
   
 }
 
-// for the following methods, default to the headMeasure Junction:: methods, 
+void Reservoir::setFixedLevel(double level) {
+  _fixedLevel = level;
+}
+
+double Reservoir::fixedLevel() {
+  return _fixedLevel;
+}
+
+// for the following methods, default to the headMeasure Junction:: methods,
 // since if a reservoir has a measurement, it simply must be a boundary condition.
 
 void Reservoir::setBoundaryHead(TimeSeries::sharedPointer head) {
@@ -32,4 +40,19 @@ bool Reservoir::doesHaveBoundaryHead() {
 
 TimeSeries::sharedPointer Reservoir::boundaryHead() {
   return headMeasure();
+}
+
+// for the following methods, default to the qualityMeasure Junction:: methods,
+// since if a reservoir has a source, it simply must be a boundary condition.
+
+void Reservoir::setBoundaryQuality(TimeSeries::sharedPointer quality) {
+  setQualitySource(quality);
+}
+
+bool Reservoir::doesHaveBoundaryQuality() {
+  return doesHaveQualitySource();
+}
+
+TimeSeries::sharedPointer Reservoir::boundaryQuality() {
+  return qualitySource();
 }

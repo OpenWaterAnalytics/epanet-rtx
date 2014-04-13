@@ -16,12 +16,22 @@ Pipe::Pipe(const std::string& name, Node::sharedPointer startNode, Node::sharedP
   setType(PIPE);
   _doesHaveFlowMeasure = false;
   _doesHaveStatusParameter = false;
+  _doesHaveSettingParameter = false;
   _flowState.reset( new TimeSeries() );
   _flowState->setUnits(RTX_LITER_PER_SECOND);
   _flowState->setName("L " + name + " flow");
+  _fixedStatus = Pipe::OPEN;
 }
 Pipe::~Pipe() {
   
+}
+
+Pipe::status_t Pipe::fixedStatus() {
+  return _fixedStatus;
+}
+
+void Pipe::setFixedStatus(status_t status) {
+  _fixedStatus = status;
 }
 
 void Pipe::setRecord(PointRecord::sharedPointer record) {
@@ -67,6 +77,23 @@ TimeSeries::sharedPointer Pipe::flowMeasure() {
   return _flowMeasure;
 }
 void Pipe::setFlowMeasure(TimeSeries::sharedPointer flow) {
+  if (flow && !flow->units().isSameDimensionAs(RTX_LITER_PER_SECOND)) {
+    // not units of flow
+    return;
+  }
   _doesHaveFlowMeasure = (flow ? true : false);
   _flowMeasure = flow;
+}
+
+bool Pipe::doesHaveSettingParameter() {
+  return _doesHaveSettingParameter;
+}
+
+TimeSeries::sharedPointer Pipe::settingParameter() {
+  return _setting;
+}
+
+void Pipe::setSettingParameter(TimeSeries::sharedPointer setting) {
+  _doesHaveSettingParameter = (setting ? true : false);
+  _setting = setting;
 }

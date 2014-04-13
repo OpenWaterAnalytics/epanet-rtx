@@ -26,14 +26,15 @@ namespace RTX {
   */
   class Element {
   public:
-    typedef enum { JUNCTION, TANK, RESERVOIR, PIPE, PUMP, VALVE, ZONE } element_t;  
+    typedef enum { JUNCTION, TANK, RESERVOIR, PIPE, PUMP, VALVE, DMA } element_t;
       // please don't misuse this type enumeration!!!
     RTX_SHARED_POINTER(Element);
+    virtual std::ostream& toStream(std::ostream &stream);
     element_t type();
     void setName(const std::string& newName);
     std::string name();
     virtual void setRecord(PointRecord::sharedPointer record);
-  
+
   protected:
     Element(const std::string& name);
     virtual ~Element();
@@ -43,6 +44,8 @@ namespace RTX {
     std::string _name;
     element_t _type;
   };
+  
+  std::ostream& operator<< (std::ostream &out, Element &e);
 }
 
 #endif

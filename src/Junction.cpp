@@ -9,6 +9,8 @@
 #include <iostream>
 
 #include "Junction.h"
+#include "OffsetTimeSeries.h"
+#include "GainTimeSeries.h"
 
 using namespace RTX;
 
@@ -36,6 +38,7 @@ Junction::Junction(const std::string& name) : Node(name) {
   _demandState->setName("N " + name + " demand");
   
   _baseDemand = 0;
+  _initialQuality = 0;
 }
 Junction::~Junction() {
   
@@ -47,6 +50,14 @@ double Junction::baseDemand() {
 
 void Junction::setBaseDemand(double demand) {
   _baseDemand = demand;
+}
+
+double Junction::initialQuality() {
+  return _initialQuality;
+}
+
+void Junction::setInitialQuality(double quality) {
+  _initialQuality = quality;
 }
 
 void Junction::setRecord(PointRecord::sharedPointer record) {
@@ -90,9 +101,27 @@ TimeSeries::sharedPointer Junction::headMeasure() {
   return _headMeasure;
 }
 
+void Junction::setPressureMeasure(TimeSeries::sharedPointer pressure) {
+  // pressure depends on elevation --> head = mx(pressure) + elev
+  GainTimeSeries::sharedPointer gainTs( new GainTimeSeries() );
+  gainTs->setUnits(RTX_METER);
+  gainTs->setGainUnits( RTX_METER / RTX_PASCAL );
+  gainTs->setGain(0.0001019977334);
+  gainTs->setSource(pressure);
+  
+  OffsetTimeSeries::sharedPointer headMeas( new OffsetTimeSeries() );
+  headMeas->setUnits(this->head()->units());
+  headMeas->setOffset(this->elevation());
+  headMeas->setSource(gainTs);
+  
+  this->setHeadMeasure(headMeas);
+}
+
+
+
 // quality measurement
 bool Junction::doesHaveQualityMeasure() {
-  return _doesHaveQualitySource;
+  return _doesHaveQualityMeasure;
 }
 void Junction::setQualityMeasure(TimeSeries::sharedPointer quality) {
   _doesHaveQualityMeasure = (quality ? true : false);

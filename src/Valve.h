@@ -16,15 +16,8 @@ namespace RTX {
   public:
     RTX_SHARED_POINTER(Valve);
     Valve(const std::string& name, Node::sharedPointer startNode, Node::sharedPointer endNode);
-    virtual ~Valve();
-    
-    bool doesHaveSettingParameter();
-    TimeSeries::sharedPointer settingParameter();
-    void setSettingParameter(TimeSeries::sharedPointer setting);
-    
-  private:
-    TimeSeries::sharedPointer _setting;
-    bool _doesHaveSettingParameter;
+    virtual ~Valve();    
+
   };
 }
 

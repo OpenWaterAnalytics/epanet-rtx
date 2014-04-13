@@ -23,11 +23,21 @@ namespace RTX {
     Tank(const std::string& name);
     virtual ~Tank();
     
-    void setGeometry(std::vector< std::pair<double,double> > levelVolumePoints, Units levelUnits, Units volumeUnits); 
+    void setMinMaxLevel(double minLevel, double maxLevel);
+    double minLevel();
+    double maxLevel();
+    
+    void setGeometry(std::vector< std::pair<double,double> > levelVolumePoints, Units levelUnits, Units volumeUnits);
+    std::vector< std::pair<double,double> > geometry();
+    std::pair<Units,Units> geometryUnits();
+    std::string geometryName;
+    
     void setElevation(double elevation);
-    bool doesResetLevel();
+    bool doesResetLevelUsingClock();
     void setLevelResetClock(Clock::sharedPointer clock);
     Clock::sharedPointer levelResetClock();
+    void setResetLevelNextTime(bool reset);
+    bool resetLevelNextTime();
     
     // parameters
     void setLevelMeasure(TimeSeries::sharedPointer level);
@@ -46,8 +56,12 @@ namespace RTX {
     CurveFunction::sharedPointer _volumeMeasure;
     FirstDerivative::sharedPointer _flowMeasure;
     Clock::sharedPointer _resetLevel;
-    double _minimumHead, _maximumHead;
+    double _minLevel, _maxLevel;
     bool _doesResetLevel;
+    std::vector< std::pair<double,double> > _geometry;
+    Units _geometryLevelUnits;
+    Units _geometryVolumeUnits;
+    bool _resetLevelNextTime;
     
   }; // Tank
   

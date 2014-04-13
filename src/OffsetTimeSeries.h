@@ -2,30 +2,28 @@
 //  OffsetTimeSeries.h
 //  epanet-rtx
 //
-//  Created by Sam Hatchett on 10/18/12.
-//
+//  Open Water Analytics [wateranalytics.org]
+//  See README.md and license.txt for more information
 //
 
 #ifndef __epanet_rtx__OffsetTimeSeries__
 #define __epanet_rtx__OffsetTimeSeries__
 
 #include <iostream>
-#include "ModularTimeSeries.h"
+#include "SinglePointFilterModularTimeSeries.h"
 
 namespace RTX {
-  class OffsetTimeSeries : public ModularTimeSeries {
+  class OffsetTimeSeries : public SinglePointFilterModularTimeSeries {
   
   public:
     RTX_SHARED_POINTER(OffsetTimeSeries);
     OffsetTimeSeries();
-    virtual Point point(time_t time);
-    virtual std::vector<Point> points(time_t start, time_t end);
     void setOffset(double offset);
     double offset();
+  protected:
+    Point filteredSingle(Point p, Units sourceU);
   private:
-    Point convertWithOffset(Point p, Units sourceU);
     double _offset;
-  
   };
 }
 #endif /* defined(__epanet_rtx__OffsetTimeSeries__) */

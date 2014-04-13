@@ -2,9 +2,10 @@
 //  DbPointRecord.cpp
 //  epanet-rtx
 //
-//  Created by Sam Hatchett on 1/31/13.
+//  Open Water Analytics [wateranalytics.org]
+//  See README.md and license.txt for more information
 //
-//
+
 
 #include "DbPointRecord.h"
 
@@ -27,15 +28,16 @@ bool DbPointRecord::request_t::contains(std::string id, time_t t) {
 
 DbPointRecord::DbPointRecord() : request("",0,0) {
   _searchDistance = 60*60*24*7; // 1-week
+  errorMessage = "Not Connected";
 }
 
 
-void DbPointRecord::setConnectionString(const std::string& connection) {
-  _connectionString = connection;
-}
-const std::string& DbPointRecord::connectionString() {
-  return _connectionString;
-}
+//void DbPointRecord::setConnectionString(const std::string& connection) {
+//  _connectionString = connection;
+//}
+//const std::string& DbPointRecord::connectionString() {
+//  return _connectionString;
+//}
 
 void DbPointRecord::setSearchDistance(time_t time) {
   _searchDistance = time;
@@ -78,8 +80,15 @@ Point DbPointRecord::point(const string& id, time_t time) {
     time_t start = time - margin, end = time + margin;
     
     // do the request, and cache the request parameters.
-    request = request_t(id, start, end);
+    
     vector<Point> pVec = this->selectRange(id, start, end);
+    if (pVec.size() > 0) {
+      request = request_t(id, pVec.front().time, pVec.back().time);
+    }
+    else {
+      request = request_t(id,0,0);
+    }
+    
     
     vector<Point>::const_iterator pIt = pVec.begin();
     while (pIt != pVec.end()) {
@@ -106,12 +115,19 @@ Point DbPointRecord::pointBefore(const string& id, time_t time) {
   Point p = DB_PR_SUPER::pointBefore(id, time);
   
   if (!p.isValid) {
-    if (request.contains(id, time)) {
+    // check if last request covered before
+    if (request.contains(id, time-1)) {
       return Point();
     }
     PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
     request = request_t(id, time, time);
     p = this->selectPrevious(id, time);
+    // cache it
+    if (p.isValid) {
+      _cachedPointId = id;
+      _cachedPoint = p;
+    }
+    
     if (range.first <= time && time <= range.second) {
       // then we know this is continuous. add the point.
       DB_PR_SUPER::addPoint(id, p);
@@ -130,12 +146,27 @@ Point DbPointRecord::pointAfter(const string& id, time_t time) {
   Point p = DB_PR_SUPER::pointAfter(id, time);
   
   if (!p.isValid) {
-    if (request.contains(id, time)) {
+    // lookahead prefetching
+    time_t distance = 60*60*12;
+    this->pointsInRange(id, time, time + distance);
+    p = DB_PR_SUPER::pointAfter(id, time);
+  }
+  
+  
+  if (!p.isValid) {
+    // check if last request covered after
+    if (request.contains(id, time+1)) {
       return Point();
     }
     PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
     request = request_t(id, time, time);
     p = this->selectNext(id, time);
+    // cache it
+    if (p.isValid) {
+      _cachedPointId = id;
+      _cachedPoint = p;
+    }
+    
     if (range.first <= time && time <= range.second) {
       // then we know this is continuous. add the point.
       DB_PR_SUPER::addPoint(id, p);
@@ -185,6 +216,8 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, time_t startTi
     merged.insert(merged.end(), newPoints.begin(), newPoints.end());
     merged.insert(merged.end(), right.begin(), right.end());
     
+    request = (merged.size() > 0) ? request_t(id, merged.front().time, merged.back().time) : request_t(id,0,0);
+    
     DB_PR_SUPER::addPoints(id, merged);
     
     return merged;
@@ -209,15 +242,26 @@ void DbPointRecord::addPoints(const string& id, std::vector<Point> points) {
 
 void DbPointRecord::reset() {
   DB_PR_SUPER::reset();
-  this->truncate();
+  //this->truncate();
 }
 
 
 void DbPointRecord::reset(const string& id) {
+  // deprecate?
+  //cout << "Whoops - don't use this" << endl;
   DB_PR_SUPER::reset(id);
-  this->removeRecord(id);
+  //this->removeRecord(id);
   // wiped out the record completely, so re-initialize it.
-  this->registerAndGetIdentifier(id);
+  //this->registerAndGetIdentifier(id);
+}
+
+void DbPointRecord::invalidate(const string &identifier) {
+  this->removeRecord(identifier);
+  this->reset(identifier);
+}
+
+bool DbPointRecord::supportsBoundedQueries() {
+  return false;
 }
 
 /*
