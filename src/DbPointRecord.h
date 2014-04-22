@@ -45,7 +45,7 @@ namespace RTX {
     virtual void invalidate(const string& identifier);
     virtual void truncate()=0; // specific implementation must override this
     
-    virtual std::vector<std::pair<std::string, Units> >availableData() {};
+    virtual std::vector<std::pair<std::string, Units> >availableData() {std::vector<std::pair<std::string,Units> > blank; return blank;};
     
     virtual void dbConnect() throw(RtxException){};
     virtual bool isConnected(){return false;} // abstract base can't have a connection;

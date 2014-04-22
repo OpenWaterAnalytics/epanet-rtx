@@ -12,7 +12,7 @@ using boost::interprocess::scoped_lock;
 typedef const unsigned char* sqltext;
 
 /******************************************************************************************/
-static string initTablesStr = "CREATE TABLE 'meta' ('series_id' INTEGER PRIMARY KEY ASC AUTOINCREMENT, 'name' TEXT UNIQUE ON CONFLICT ABORT, 'units' TEXT, 'regular_period' INTEGER, 'regular_offset' INTEGER); CREATE TABLE 'points' ('time' INTEGER, 'series_id' INTEGER REFERENCES 'meta'('series_id'), 'value' REAL, 'confidence' REAL, 'quality' INTEGER, UNIQUE (series_id, time) ON CONFLICT IGNORE)";
+static string initTablesStr = "CREATE TABLE 'meta' ('series_id' INTEGER PRIMARY KEY ASC AUTOINCREMENT, 'name' TEXT UNIQUE ON CONFLICT ABORT, 'units' TEXT, 'regular_period' INTEGER, 'regular_offset' INTEGER); CREATE TABLE 'points' ('time' INTEGER, 'series_id' INTEGER REFERENCES 'meta'('series_id'), 'value' REAL, 'confidence' REAL, 'quality' INTEGER, UNIQUE (series_id, time asc) ON CONFLICT IGNORE)";
 static string selectPreamble = "SELECT time, value, quality, confidence FROM points INNER JOIN meta USING (series_id) WHERE name = ? AND ";
 static string singleSelectStr = selectPreamble + "time = ? order by time asc";
 static string rangeSelectStr = selectPreamble + "time >= ? AND time <= ? order by time asc";
@@ -238,18 +238,34 @@ std::vector<Point> SqlitePointRecord::selectRange(const std::string& id, time_t 
 Point SqlitePointRecord::selectNext(const std::string& id, time_t time) {
   Point p;
   
+  const time_t timeMargin = 60*60*24;
+  const int maxLookahead = 100; // 100 days
+  
   if (!isConnected()) {
     this->dbConnect();
   }
   if (isConnected()) {
-    scoped_lock<boost::signals2::mutex> lock(*_mutex);
+    //scoped_lock<boost::signals2::mutex> lock(*_mutex);
     
 //    checkTransactions(true);
-    
+    /*
     sqlite3_bind_text(_selectNextStmt, 1, id.c_str(), -1, NULL);
     sqlite3_bind_int(_selectNextStmt, 2, (int)time);
     
     vector<Point> points = pointsFromPreparedStatement(_selectNextStmt);
+    */
+    
+    vector<Point> points;
+    time_t searchStartTime = time;
+    int lookaheadsLeft = maxLookahead;
+    
+    while (points.size() == 0 && lookaheadsLeft > 0) {
+      points = this->selectRange(id, searchStartTime, searchStartTime + timeMargin);
+      searchStartTime += timeMargin;
+      --lookaheadsLeft;
+    }
+    
+    
     
     if (points.size() > 0) {
       return points.front();
@@ -265,18 +281,34 @@ Point SqlitePointRecord::selectPrevious(const std::string& id, time_t time) {
   
   Point p;
   
+  const time_t timeMargin = 60*60*24;
+  const int maxLookBehinds = 100; // 100 days
+  
   if (!isConnected()) {
     this->dbConnect();
   }
   if (isConnected()) {
-    scoped_lock<boost::signals2::mutex> lock(*_mutex);
+    //scoped_lock<boost::signals2::mutex> lock(*_mutex);
     
 //    checkTransactions(true);
-    
+    /*
     sqlite3_bind_text(_selectPreviousStmt, 1, id.c_str(), -1, NULL);
     sqlite3_bind_int(_selectPreviousStmt, 2, (int)time);
     
     vector<Point> points = pointsFromPreparedStatement(_selectPreviousStmt);
+    */
+    
+    
+    vector<Point> points;
+    time_t searchEndTime = time;
+    int lookbehandsLeft = maxLookBehinds;
+    
+    while (points.size() == 0 && lookbehandsLeft > 0) {
+      points = this->selectRange(id, searchEndTime - timeMargin, searchEndTime);
+      searchEndTime -= timeMargin;
+      --lookbehandsLeft;
+    }
+    
     
     if (points.size() > 0) {
       return points.front();

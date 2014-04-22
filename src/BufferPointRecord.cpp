@@ -258,7 +258,7 @@ void BufferPointRecord::addPoint(const string& identifier, Point point) {
   
   // no-op. do something more interesting in your derived class.
   // why no-op? because how can you ensure that a point you want to insert here is contiguous?
-  // there's now way without knowing about clocks and all that business.
+  // there's no way without knowing about clocks and all that business.
 //  cout << "BufferPointRecord::addPoint() -- no point added for TimeSeries " << identifier << endl;
   
 }

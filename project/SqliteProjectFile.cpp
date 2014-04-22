@@ -1,7 +1,11 @@
 #include "SqliteProjectFile.h"
 
+#ifndef RTX_NO_ODBC
 #include "OdbcDirectPointRecord.h"
+#endif
+#ifndef RTX_NO_MYSQL
 #include "MysqlPointRecord.h"
+#endif
 #include "SqlitePointRecord.h"
 
 #include "TimeSeries.h"
@@ -39,6 +43,7 @@ using namespace std;
 /////////////////////////////////////////////////////////////
 //---------------------------------------------------------//
 static string sqlSelectRecords =    "select id,name,type from point_records";
+static string sqlSelectClocks = "select id,name,type,period,offset from clocks";
 static string sqlSelectTimeseries = "select id,type from time_series";
 static string sqlGetTsById =        "select name,units,record,clock from time_series where id=?";
 //static string sqlGetTsModularById = "select * from time_series_modular left join time_series_extended using (id) where id=?";
@@ -47,6 +52,9 @@ static string sqlGetTsSourceById = "select key,value from sources where id=?";
 static string sqlGetTsPropertiesById = "select key,value from time_series_properties where id=?";
 static string sqlGetTsUpstreamById = "select key,value from time_series_sources where id=?";
 static string sqlGetAggregatorSourcesById = "select time_series,multiplier from time_series_aggregator where aggregator_id=?";
+static string sqlGetCurveCoordinatesByTsId = "select x,y from ( select curve,name,curve_id,time_series_curves.id as tsId from time_series_curves left join curves on (curve = curve_id) ) left join curve_data using (curve_id) where tsId=?"
+static string sqlGetModelElementParams = "select time_series, model_element, parameter from element_parameters";
+static string sqlGetModelNameAndTypeByUid = "select name,type from model_elements where uid=?";
 //---------------------------------------------------------//
 static string dbTimeseriesName =  "TimeSeries";
 static string dbConstantName =   "Constant";
@@ -91,6 +99,21 @@ typedef struct {
   string type;
 } pointRecordEntity;
 
+typedef struct {
+  int tsUid;
+  int modelUid;
+  string param;
+} modelInputEntry;
+
+enum SqliteModelParameterType {
+  ParameterTypeJunction  = 0,
+  ParameterTypeTank      = 1,
+  ParameterTypeReservoir = 2,
+  ParameterTypePipe      = 3,
+  ParameterTypePump      = 4,
+  ParameterTypeValve     = 5
+};
+
 
 // optional compile-in databases
 namespace RTX {
@@ -121,10 +144,13 @@ void SqliteProjectFile::loadProjectFile(const string& path) {
   }
   
   
-  // do stuff
+  // load everything
   loadRecordsFromDb();
+  loadClocksFromDb();
   loadTimeseriesFromDb();
   loadModelFromDb();
+  
+  setModelInputParameters();
   
   
   // close db
@@ -261,6 +287,32 @@ void SqliteProjectFile::loadRecordsFromDb() {
   
 }
 
+void SqliteProjectFile::loadClocksFromDb() {
+  
+  sqlite3_stmt *stmt;
+  int retCode = sqlite3_prepare_v2(_dbHandle, sqlSelectClocks.c_str(), -1, &stmt, NULL);
+  if (retCode != SQLITE_OK) {
+    cerr << "can't prepare statement: " << sqlSelectClocks << " -- error: " << sqlite3_errmsg(_dbHandle) << endl;
+    return;
+  }
+  
+  while (sqlite3_step(stmt) == SQLITE_ROW) {
+    //static string sqlSelectClocks = "select id,name,type,period,offset from clocks";
+    int uid = sqlite3_column_int(stmt, 0);
+    string name = string((char*)sqlite3_column_text(stmt, 1));
+    string type = string((char*)sqlite3_column_text(stmt, 2));
+    int period = sqlite3_column_int(stmt, 3);
+    int offset = sqlite3_column_int(stmt, 4);
+    
+    if (RTX_STRINGS_ARE_EQUAL(type, "Regular")) {
+      Clock::sharedPointer clock( new Clock(period,offset) );
+      clock->setName(name);
+      _clocks[uid] = clock;
+    }
+    
+  }
+  
+}
 
 void SqliteProjectFile::loadTimeseriesFromDb() {
   
@@ -323,10 +375,10 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
   retCode = sqlite3_finalize(stmt);
   
   // SET SOURCES
-  /*** ---> TODO :: 
-          need to figure out a smart way to ensure that downstream modules are affected by upstream setters.
-          that is, make sure we're working from left to right.
-          do we need a responder chain?
+  /*** ---> TODO ::
+   need to figure out a smart way to ensure that downstream modules are affected by upstream setters.
+   that is, make sure we're working from left to right.
+   do we need a responder chain?
    ***/
   retCode = sqlite3_prepare_v2(_dbHandle, sqlGetTsUpstreamById.c_str(), -1, &stmt, NULL);
   if (retCode != SQLITE_OK) {
@@ -392,10 +444,36 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
       }
       sqlite3_reset(stmt);
     }
-
+    
   }
   
   
+  // ANY CURVE TIME SERIES?
+  int curveId = 0;
+  string curveName();
+  
+  BOOST_FOREACH(tsListEntry tsEntry, tsList) {
+    if (RTX_STRINGS_ARE_EQUAL(tsEntry.type, "Curve")) {
+      
+      CurveFunction::sharedPointer curveTs = boost::dynamic_pointer_cast<CurveFunction>(tsEntry.ts);
+      if (!curveTs) {
+        cerr << "not an actual curve function object" << endl;
+        continue;
+      }
+      
+      // get the curve id
+      sqlite3_stmt *getCurveIdStmt;
+      sqlite3_prepare_v2(_dbHandle, sqlGetCurveCoordinatesByTsId.c_str(), -1, &stmt, NULL);
+      sqlite3_bind_int(stmt, 1, tsEntry.uid);
+      while (sqlite3_step(stmt) == SQLITE_ROW) {
+        double x = sqlite3_column_double(stmt, 0);
+        double y = sqlite3_column_double(stmt, 1);
+        curveTs->addCurveCoordinate(x, y);
+      }
+    }
+    
+    
+  }
   
   
   retCode = sqlite3_finalize(stmt);
@@ -418,7 +496,12 @@ void SqliteProjectFile::loadModelFromDb() {
   }
   if (sqlite3_step(stmt) == SQLITE_ROW) {
     modelFilePath = string((char*)sqlite3_column_text(stmt, 0));
-    enModel->useEpanetFile(modelFilePath);
+    try {
+      enModel->loadModelFromFile(modelFilePath);
+    } catch (std::exception &e) {
+      cerr << e.what();
+    }
+    
   }
   else {
     cerr << "can't step sqlite -- error: " << sqlite3_errmsg(_dbHandle) << endl;
@@ -544,7 +627,7 @@ void SqliteProjectFile::setBaseProperties(TimeSeries::sharedPointer ts, int uid)
     return;
   }
   
-    
+  
   sqltext name =      sqlite3_column_text(stmt, 0);
   sqltext unitsText = sqlite3_column_text(stmt, 1);
   int recordUid =     sqlite3_column_int(stmt, 2);
@@ -572,52 +655,55 @@ void SqliteProjectFile::setBaseProperties(TimeSeries::sharedPointer ts, int uid)
     if (clock) {
       ts->setClock(clock);
     }
+    else {
+      cerr << "could not find clock uid " << clockUid << endl;
+    }
   }
   
   sqlite3_finalize(stmt);
   
 }
 /*
-void SqliteProjectFile::setExtendedProperties(TimeSeries::sharedPointer ts, int uid) {
-  sqlite3_stmt *stmt;
-//  sqlite3_prepare_v2(_dbHandle, sqlGetTsExtendedById.c_str(), -1, &stmt, NULL);
-  sqlite3_bind_int(stmt, 1, uid);
-  if (sqlite3_step(stmt) != SQLITE_ROW) {
-    cerr << "could not get extended properties" << endl;
-    return;
-  }
-  
-  string type = string((char*)sqlite3_column_text(stmt, 0));
-  double v1 = sqlite3_column_double(stmt, 1);
-  double v2 = sqlite3_column_double(stmt, 2);
-  double v3 = sqlite3_column_double(stmt, 3);
-  
-  //std::function<bool(string)> typeEquals = [=](string x) {return RTX_STRINGS_ARE_EQUAL(type, x);}; // woot c++11
-  
-  #define typeEquals(x) RTX_STRINGS_ARE_EQUAL(type,x)
-  
-  if (typeEquals(dbOffsetName)) {
-    boost::static_pointer_cast<OffsetTimeSeries>(ts)->setOffset(v1);
-  }
-  else if (typeEquals(dbConstantName)) {
-    boost::static_pointer_cast<ConstantTimeSeries>(ts)->setValue(v1);
-  }
-  else if (typeEquals(dbValidrangeName)) {
-    boost::static_pointer_cast<ValidRangeTimeSeries>(ts)->setRange(v1, v2);
-    ValidRangeTimeSeries::filterMode_t mode = (v3 > 0) ? ValidRangeTimeSeries::drop : ValidRangeTimeSeries::saturate;
-    boost::static_pointer_cast<ValidRangeTimeSeries>(ts)->setMode(mode);
-  }
-  else if (typeEquals(dbResamplerName)) {
-//    boost::static_pointer_cast<Resampler>(ts)->setMode(mode);
-  }
-  
-}
-*/
+ void SqliteProjectFile::setExtendedProperties(TimeSeries::sharedPointer ts, int uid) {
+ sqlite3_stmt *stmt;
+ //  sqlite3_prepare_v2(_dbHandle, sqlGetTsExtendedById.c_str(), -1, &stmt, NULL);
+ sqlite3_bind_int(stmt, 1, uid);
+ if (sqlite3_step(stmt) != SQLITE_ROW) {
+ cerr << "could not get extended properties" << endl;
+ return;
+ }
+ 
+ string type = string((char*)sqlite3_column_text(stmt, 0));
+ double v1 = sqlite3_column_double(stmt, 1);
+ double v2 = sqlite3_column_double(stmt, 2);
+ double v3 = sqlite3_column_double(stmt, 3);
+ 
+ //std::function<bool(string)> typeEquals = [=](string x) {return RTX_STRINGS_ARE_EQUAL(type, x);}; // woot c++11
+ 
+ #define typeEquals(x) RTX_STRINGS_ARE_EQUAL(type,x)
+ 
+ if (typeEquals(dbOffsetName)) {
+ boost::static_pointer_cast<OffsetTimeSeries>(ts)->setOffset(v1);
+ }
+ else if (typeEquals(dbConstantName)) {
+ boost::static_pointer_cast<ConstantTimeSeries>(ts)->setValue(v1);
+ }
+ else if (typeEquals(dbValidrangeName)) {
+ boost::static_pointer_cast<ValidRangeTimeSeries>(ts)->setRange(v1, v2);
+ ValidRangeTimeSeries::filterMode_t mode = (v3 > 0) ? ValidRangeTimeSeries::drop : ValidRangeTimeSeries::saturate;
+ boost::static_pointer_cast<ValidRangeTimeSeries>(ts)->setMode(mode);
+ }
+ else if (typeEquals(dbResamplerName)) {
+ //    boost::static_pointer_cast<Resampler>(ts)->setMode(mode);
+ }
+ 
+ }
+ */
 
 
 
 void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::sharedPointer ts, const string& type, string key, double val) {
-
+  
   
   /*** stupidly long chain of if-else statements to set k-v properties ***/
   /*** broken down first by type name, then by key name ***/
@@ -721,4 +807,122 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::share
 
 
 
+void SqliteProjectFile::setModelInputParameters() {
+  
+  // input params are defined by matched timeseries db-uid and model db-uid, so get that info first.
+  vector<modelInputEntry> modelInputs;
+  
+  sqlite3_stmt *stmt;
+  int ret = sqlite3_prepare_v2(_dbHandle, sqlGetModelElementParams.c_str(), -1, &stmt, NULL);
+  
+  if (ret != SQLITE_OK) {
+    cerr << "could not prepare statement: " << sqlGetModelElementParams << endl;
+    return;
+  }
+  
+  while (sqlite3_step(stmt) == SQLITE_ROW) {
+    modelInputEntry entry;
+    entry.tsUid = sqlite3_column_int(stmt, 0);
+    entry.modelUid = sqlite3_column_int(stmt, 1);
+    entry.param = string((char*)sqlite3_column_text(stmt, 2));
+    modelInputs.push_back(entry);
+  }
+  sqlite3_finalize(stmt);
+  
+  ret = sqlite3_prepare_v2(_dbHandle, sqlGetModelNameAndTypeByUid.c_str(), -1, &stmt, NULL);
+  if (ret != SQLITE_OK) {
+    cerr << "could not prepare statement: " << sqlGetModelNameAndTypeByUid << endl;
+    return;
+  }
+  
+  BOOST_FOREACH(const modelInputEntry& entry, modelInputs) {
+    // first, check if it's a valid time series
+    TimeSeries::sharedPointer ts = _timeseries[entry.tsUid];
+    if (!ts) {
+      cerr << "Invalid time series: " << entry.tsUid << endl;
+      continue;
+    }
+    
+    // get a row for this model element
+    sqlite3_bind_int(stmt, 1, entry.modelUid);
+    if (sqlite3_step(stmt) != SQLITE_ROW) {
+      cerr << "could not get model element " << entry.modelUid << endl;
+      continue;
+    }
+    // fetch the name and type of element.
+    string elementName = string((char*) sqlite3_column_text(stmt, 0));
+    SqliteModelParameterType elementType = (SqliteModelParameterType)sqlite3_column_int(stmt, 1);
+    
+    switch ((int)elementType) {
+      case ParameterTypeJunction:
+      case ParameterTypeTank:
+      case ParameterTypeReservoir:
+      {
+        /// do junctioney things
+        Junction::sharedPointer j = boost::dynamic_pointer_cast<Junction>(this->model()->nodeWithName(elementName));
+        this->setJunctionParameter(j, entry.param, ts);
+        break;
+      }
+      case ParameterTypePipe:
+      case ParameterTypePump:
+      case ParameterTypeValve:
+      {
+        // do pipey things
+        Pipe::sharedPointer p = boost::dynamic_pointer_cast<Pipe>(this->model()->linkWithName(elementName));
+        this->setPipeParameter(p, entry.param, ts);
+        break;
+      }
+      default:
+        break;
+    }
+    
+    sqlite3_reset(stmt);
+  }
+  sqlite3_finalize(stmt);
+  
+}
+
+
+void SqliteProjectFile::setJunctionParameter(Junction::sharedPointer j, string paramName, TimeSeries::sharedPointer ts) {
+  
+  if (RTX_STRINGS_ARE_EQUAL(paramName, "demandBoundary")) {
+    j->setBoundaryFlow(ts);
+  }
+  else if (RTX_STRINGS_ARE_EQUAL(paramName, "headBoundary")) {
+    j->setHeadMeasure(ts);
+  }
+  else if (RTX_STRINGS_ARE_EQUAL(paramName, "qualityBoundary")) {
+    j->setQualitySource(ts);
+  }
+  else if (RTX_STRINGS_ARE_EQUAL(paramName, "headMeasure")) {
+    j->setHeadMeasure(ts);
+  }
+  else if (RTX_STRINGS_ARE_EQUAL(paramName, "levelMeasure")) {
+    boost::dynamic_pointer_cast<Tank>(j)->setLevelMeasure(ts);
+  }
+  else if (RTX_STRINGS_ARE_EQUAL(paramName, "qualityMeasure")) {
+    j->setQualityMeasure(ts);
+  }
+  else {
+    cerr << "Unknown parameter type: " << paramName << endl;
+  }
+  
+}
+
+void SqliteProjectFile::setPipeParameter(Pipe::sharedPointer p, string paramName, TimeSeries::sharedPointer ts) {
+  
+  if (RTX_STRINGS_ARE_EQUAL(paramName, "statusBoundary")) {
+    p->setStatusParameter(ts);
+  }
+  else if (RTX_STRINGS_ARE_EQUAL(paramName, "settingBoundary")) {
+    p->setSettingParameter(ts);
+  }
+  else if (RTX_STRINGS_ARE_EQUAL(paramName, "flowMeasure")) {
+    p->setFlowMeasure(ts);
+  }
+  else {
+    cerr << "Unknown parameter type: " << paramName << endl;
+  }
+  
+}
 

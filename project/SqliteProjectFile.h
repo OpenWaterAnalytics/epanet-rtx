@@ -48,9 +48,13 @@ namespace RTX {
     string _path;
     
     void loadRecordsFromDb();
+    void loadClocksFromDb();
     void loadTimeseriesFromDb();
     void loadModelFromDb();
-        
+    void setModelInputParameters();
+    void setJunctionParameter(Junction::sharedPointer j, string paramName, TimeSeries::sharedPointer ts);
+    void setPipeParameter(Pipe::sharedPointer p, string paramName, TimeSeries::sharedPointer ts);
+    
     TimeSeries::sharedPointer newTimeseriesWithType(const std::string& type);
     void setBaseProperties(TimeSeries::sharedPointer ts, int uid);
     void setPropertyValuesForTimeSeriesWithType(TimeSeries::sharedPointer ts, const string& type, string key, double value);

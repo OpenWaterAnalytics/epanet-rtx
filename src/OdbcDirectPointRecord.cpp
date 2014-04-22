@@ -239,8 +239,8 @@ std::string OdbcDirectPointRecord::stringQueryForRange(const std::string& id, ti
   
   string query = _querySyntax.rangeSelect;
   
-  string startDateStr = "'" + PointRecordTime::utcDateStringFromUnix(start) + "'";
-  string endDateStr = "'" + PointRecordTime::utcDateStringFromUnix(end) + "'";
+  string startDateStr = "'" + PointRecordTime::utcDateStringFromUnix(start-1) + "'"; // minus one because of wonderware's bullshit "initial value" in delta retrieval.
+  string endDateStr = "'" + PointRecordTime::utcDateStringFromUnix(end+1) + "'"; // because wonderware does fractional seconds
   string idStr = "'" + id + "'";
   
   boost::replace_first(query, "?", idStr);

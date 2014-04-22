@@ -6,6 +6,7 @@ using namespace std;
 ConstantTimeSeries::ConstantTimeSeries() {
   _value = 0.;
   Clock::sharedPointer reg( new Clock(3600) );
+  reg->setName("RTX CONSTANT 3600s");
   this->setClock(reg);
 }
 
