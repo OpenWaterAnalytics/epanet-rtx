@@ -57,7 +57,7 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   try {
     ENcheck( ENopen((char*)filename.c_str(), (char*)"", (char*)""), "ENopen" );
   } catch (...) {
-    cerr << "cannot open epanet file" << endl;;
+    cerr << "cannot open epanet file" << endl;
     return;
   }
   
@@ -162,10 +162,17 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
 }
 
 void EpanetModel::initEngine() {
-  ENcheck(ENopenH(), "ENopenH");
-  ENcheck(ENinitH(10), "ENinitH");
-  ENcheck(ENopenQ(), "ENopenQ");
-  ENcheck(ENinitQ(EN_NOSAVE), "ENinitQ");
+  if (_enOpened) {
+    return;
+  }
+  try {
+    ENcheck(ENopenH(), "ENopenH");
+    ENcheck(ENinitH(10), "ENinitH");
+    ENcheck(ENopenQ(), "ENopenQ");
+    ENcheck(ENinitQ(EN_NOSAVE), "ENinitQ");
+  } catch (...) {
+    cerr << "warning: epanet opened improperly" << endl;
+  }
   _enOpened = true;
 }
 

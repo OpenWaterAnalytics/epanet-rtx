@@ -35,10 +35,33 @@ SqlitePointRecord::SqlitePointRecord() {
   _maxTransactionStackCount = 500;
   
   _mutex.reset(new boost::signals2::mutex );
+  
+  _insertSingleStmt = NULL;
+  _selectFirstStmt = NULL;
+  _selectLastStmt = NULL;
+  _selectNamesStmt = NULL;
+  _selectNextStmt = NULL;
+  _selectPreviousStmt = NULL;
+  _selectRangeStmt = NULL;
+  _selectSingleStmt = NULL;
+  _dbHandle = NULL;
+  
 }
 
 SqlitePointRecord::~SqlitePointRecord() {
   this->setPath("");
+  
+  sqlite3_finalize(_insertSingleStmt);
+  sqlite3_finalize(_selectFirstStmt);
+  sqlite3_finalize(_selectLastStmt);
+  sqlite3_finalize(_selectNamesStmt);
+  sqlite3_finalize(_selectNextStmt);
+  sqlite3_finalize(_selectPreviousStmt);
+  sqlite3_finalize(_selectRangeStmt);
+  sqlite3_finalize(_selectSingleStmt);
+  
+  sqlite3_close(_dbHandle);
+  
 }
 
 
@@ -152,6 +175,7 @@ std::string SqlitePointRecord::registerAndGetIdentifier(std::string recordName, 
       logDbError();
     }
     sqlite3_reset(stmt);
+    sqlite3_finalize(stmt);
   }
   
   
@@ -194,24 +218,58 @@ PointRecord::time_pair_t SqlitePointRecord::range(const string& id) {
   if (isConnected()) {
     scoped_lock<boost::signals2::mutex> lock(*_mutex);
     
-//    checkTransactions(true);
+    // some optimizations here.
+    const bool optimized(true);
     
-    sqlite3_bind_text(_selectFirstStmt, 1, id.c_str(), -1, NULL);
-    points = pointsFromPreparedStatement(_selectFirstStmt);
-    if (points.size() > 0) {
-      first = points.front();
+    if (optimized) {
+      time_t minTime = 0, maxTime = 0;
+      int ret;
+      sqlite3_stmt *selectFirstStmt;
+      string selectFirst("select min(time) from points where series_id=(select series_id from meta where name=?)");
+      ret = sqlite3_prepare_v2(_dbHandle, selectFirst.c_str(), -1, &selectFirstStmt, NULL);
+      ret = sqlite3_bind_text(selectFirstStmt, 1, id.c_str(), -1, NULL);
+      if (sqlite3_step(selectFirstStmt) == SQLITE_ROW) {
+        minTime = (time_t)sqlite3_column_int(selectFirstStmt, 0);
+      }
+      sqlite3_reset(selectFirstStmt);
+      sqlite3_finalize(selectFirstStmt);
+      
+      sqlite3_stmt *selectLastStmt;
+      string selectLast("select max(time) from points where series_id=(select series_id from meta where name=?)");
+      ret = sqlite3_prepare_v2(_dbHandle, selectLast.c_str(), -1, &selectLastStmt, NULL);
+      ret = sqlite3_bind_text(selectLastStmt, 1, id.c_str(), -1, NULL);
+      if (sqlite3_step(selectLastStmt) == SQLITE_ROW) {
+        maxTime = (time_t)sqlite3_column_int(selectLastStmt, 0);
+      }
+      sqlite3_reset(selectLastStmt);
+      sqlite3_finalize(selectLastStmt);
+      
+      return make_pair(minTime, maxTime);
     }
     
-    sqlite3_bind_text(_selectLastStmt, 1, id.c_str(), -1, NULL);
-    points = pointsFromPreparedStatement(_selectLastStmt);
-    if (points.size() > 0) {
-      last = points.front();
+    // non-optimized code -- deprecate
+    else {
+      sqlite3_bind_text(_selectFirstStmt, 1, id.c_str(), -1, NULL);
+      points = pointsFromPreparedStatement(_selectFirstStmt);
+      if (points.size() > 0) {
+        first = points.front();
+      }
+      
+      sqlite3_bind_text(_selectLastStmt, 1, id.c_str(), -1, NULL);
+      points = pointsFromPreparedStatement(_selectLastStmt);
+      if (points.size() > 0) {
+        last = points.front();
+      }
     }
+    /*
+    
+     */
     
   }
   
   
-  return make_pair(first.time, last.time);
+//  return make_pair(first.time, last.time);
+  return make_pair(0, 0);
 }
 
 std::vector<Point> SqlitePointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
@@ -245,26 +303,26 @@ Point SqlitePointRecord::selectNext(const std::string& id, time_t time) {
     this->dbConnect();
   }
   if (isConnected()) {
-    //scoped_lock<boost::signals2::mutex> lock(*_mutex);
-    
-//    checkTransactions(true);
-    /*
-    sqlite3_bind_text(_selectNextStmt, 1, id.c_str(), -1, NULL);
-    sqlite3_bind_int(_selectNextStmt, 2, (int)time);
-    
-    vector<Point> points = pointsFromPreparedStatement(_selectNextStmt);
-    */
     
     vector<Point> points;
-    time_t searchStartTime = time;
-    int lookaheadsLeft = maxLookahead;
     
+    // iterative lookahead, faster than unbounded query
+    time_t searchStartTime = time + 1;
+    int lookaheadsLeft = maxLookahead;
     while (points.size() == 0 && lookaheadsLeft > 0) {
       points = this->selectRange(id, searchStartTime, searchStartTime + timeMargin);
       searchStartTime += timeMargin;
       --lookaheadsLeft;
     }
     
+    // if iterative search fails, there still may be points here.
+    // suffer then long execution of the unbounded query.
+    if (points.size() == 0) {
+      // slow query
+      sqlite3_bind_text(_selectNextStmt, 1, id.c_str(), -1, NULL);
+      sqlite3_bind_int(_selectNextStmt, 2, (int)time);
+      vector<Point> points = pointsFromPreparedStatement(_selectNextStmt);
+    }
     
     
     if (points.size() > 0) {
@@ -288,30 +346,29 @@ Point SqlitePointRecord::selectPrevious(const std::string& id, time_t time) {
     this->dbConnect();
   }
   if (isConnected()) {
-    //scoped_lock<boost::signals2::mutex> lock(*_mutex);
-    
-//    checkTransactions(true);
-    /*
-    sqlite3_bind_text(_selectPreviousStmt, 1, id.c_str(), -1, NULL);
-    sqlite3_bind_int(_selectPreviousStmt, 2, (int)time);
-    
-    vector<Point> points = pointsFromPreparedStatement(_selectPreviousStmt);
-    */
-    
     
     vector<Point> points;
-    time_t searchEndTime = time;
-    int lookbehandsLeft = maxLookBehinds;
     
+    
+    // iterative lookbehind is faster than unbounded lookup
+    time_t searchEndTime = time - 1;
+    int lookbehandsLeft = maxLookBehinds;
     while (points.size() == 0 && lookbehandsLeft > 0) {
       points = this->selectRange(id, searchEndTime - timeMargin, searchEndTime);
       searchEndTime -= timeMargin;
       --lookbehandsLeft;
     }
     
+    // if the iterative lookbehind did not work
+    if (points.size() == 0) {
+      // slow query
+      sqlite3_bind_text(_selectPreviousStmt, 1, id.c_str(), -1, NULL);
+      sqlite3_bind_int(_selectPreviousStmt, 2, (int)time);
+      points = pointsFromPreparedStatement(_selectPreviousStmt);
+    }
     
     if (points.size() > 0) {
-      return points.front();
+      return points.back();
     }
     return Point();
   }

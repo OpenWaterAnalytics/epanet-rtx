@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+#define RTX_ODBCDIRECT_MAX_RETRY 5
+
 using namespace RTX;
 using namespace std;
 
@@ -64,22 +66,35 @@ std::vector<Point> OdbcDirectPointRecord::selectRange(const std::string& id, tim
   
   this->checkConnected();
   
-  vector<Point> points;
-  
   // construct the static query text
   string q = this->stringQueryForRange(id, startTime, endTime);
+  vector<Point> points;
   
-  // execute the query and get a result set
-  SQLRETURN retcode = SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directStatment);
-  retcode = SQLExecDirect(_directStatment, (SQLCHAR*)q.c_str(), SQL_NTS);
-  if (SQL_SUCCEEDED(retcode)) {
-    points = this->pointsFromStatement(_directStatment);
-  }
-  else {
-    cerr << extract_error("SQLExecDirect", _directStatment, SQL_HANDLE_STMT) << endl;
-    cerr << "query did not succeed: " << q << endl;
-  }
-  SQLFreeHandle(SQL_HANDLE_STMT, _directStatment);
+  
+  bool fetchSuccess = false;
+  int iFetchAttempt = 0;
+  do {
+    // execute the query and get a result set
+    SQLRETURN retcode = SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directStatment);
+    if (SQL_SUCCEEDED(SQLExecDirect(_directStatment, (SQLCHAR*)q.c_str(), SQL_NTS))) {
+      fetchSuccess = true;
+      points = this->pointsFromStatement(_directStatment);
+    }
+    else {
+      cerr << extract_error("SQLExecDirect", _directStatment, SQL_HANDLE_STMT) << endl;
+      cerr << "query did not succeed: " << q << endl;
+      // do something more intelligent here. re-check connection?
+      this->dbConnect();
+    }
+    
+    ++iFetchAttempt;
+    SQLFreeHandle(SQL_HANDLE_STMT, _directStatment);
+    
+  } while (!fetchSuccess && iFetchAttempt < RTX_ODBCDIRECT_MAX_RETRY);
+  
+  
+  
+  
   
   return points;
 }
@@ -90,14 +105,28 @@ Point OdbcDirectPointRecord::selectNext(const std::string& id, time_t time) {
   
   if (this->supportsBoundedQueries()) {
     vector<Point> points;
-    SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directStatment);
-    string q = stringQueryForSinglyBoundedRange(id, time, OdbcQueryBoundLower);
-    if (SQL_SUCCEEDED(SQLExecDirect(_directStatment, (SQLCHAR*)q.c_str(), SQL_NTS))) {
-      points = pointsFromStatement(_directStatment);
-    }
-    else {
-      cerr << "query did not succeed: " << q << endl;
-    }
+    
+    bool fetchSuccess = false;
+    int iFetchAttempt = 0;
+
+    do {
+      SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directStatment);
+      string q = stringQueryForSinglyBoundedRange(id, time, OdbcQueryBoundLower);
+      if (SQL_SUCCEEDED(SQLExecDirect(_directStatment, (SQLCHAR*)q.c_str(), SQL_NTS))) {
+        fetchSuccess = true;
+        points = pointsFromStatement(_directStatment);
+      }
+      else {
+        cerr << "query did not succeed: " << q << endl;
+        this->dbConnect();
+      }
+      
+      ++iFetchAttempt;
+      SQLFreeHandle(SQL_HANDLE_STMT, _directStatment);
+
+    } while (!fetchSuccess && iFetchAttempt < RTX_ODBCDIRECT_MAX_RETRY);
+    
+    
     
     if (points.size() > 0) {
       return points.back();
