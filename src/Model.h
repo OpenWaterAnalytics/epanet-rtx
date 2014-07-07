@@ -12,7 +12,9 @@
 #include <string.h>
 #include <map>
 #include <time.h>
+
 #include <boost/foreach.hpp>
+
 #include "rtxExceptions.h"
 #include "Element.h"
 #include "Node.h"
@@ -46,8 +48,12 @@ namespace RTX {
   class Model {
   public:
     RTX_SHARED_POINTER(Model);
+    
+    
     Model();
     virtual ~Model();
+    virtual void initEngine() { };
+    virtual void closeEngine() { };
     std::string name();
     void setName(std::string name);
     virtual void loadModelFromFile(const string& filename) throw(std::exception);
@@ -93,26 +99,37 @@ namespace RTX {
     
     virtual void setQualityTimeStep(int seconds);
     int qualityTimeStep();
-    
+    void setInitialJunctionUniformQuality(double qual);
+    void setInitialJunctionQualityFromMeasurements(time_t time);
+    virtual void setInitialModelQuality() { };
+
     virtual time_t currentSimulationTime();
     TimeSeries::sharedPointer iterations() {return _iterations;}
     TimeSeries::sharedPointer relativeError() {return _relativeError;}
     
+    bool tanksNeedReset();
+    void setTanksNeedReset(bool needReset);
+    
     virtual std::ostream& toStream(std::ostream &stream);
 
-  protected:
-    
-    void setSimulationParameters(time_t time);
-    void saveNetworkStates(time_t time);
     
     // units
     Units flowUnits();
     Units headUnits();
     Units qualityUnits();
+    Units volumeUnits();
     
     void setFlowUnits(Units units);
     void setHeadUnits(Units units);
     void setQualityUnits(Units units);
+    void setVolumeUnits(Units units);
+    
+  protected:
+    
+    void setSimulationParameters(time_t time);
+    void saveNetworkStates(time_t time);
+    
+    
     
     // model parameter setting
     // recreating or wrapping basic api functionality here.
@@ -121,17 +138,20 @@ namespace RTX {
     virtual double junctionHead(const string& junction) { return 0; };
     virtual double junctionDemand(const string& junctionName) { return 0; };
     virtual double junctionQuality(const string& junctionName) { return 0; };
+    virtual double junctionInitialQuality(const string& junctionName) { return 0; };
     // link elements
     virtual double pipeFlow(const string& pipe) { return 0; };
     virtual double pumpEnergy(const string& pump) { return 0; };
     
     virtual void setReservoirHead(const string& reservoir, double level) { };
+    virtual void setReservoirQuality(const string& reservoir, double quality) { };
     virtual void setTankLevel(const string& tank, double level) { };
     virtual void setJunctionDemand(const string& junction, double demand) { };
     virtual void setJunctionQuality(const string& junction, double quality) { };
     
     virtual void setPipeStatus(const string& pipe, Pipe::status_t status) { };
     virtual void setPumpStatus(const string& pump, Pipe::status_t status) { };
+    virtual void setPumpSetting(const std::string& pump, double setting) { };
     virtual void setValveSetting(const string& valve, double setting) { };
     
     virtual void solveSimulation(time_t time) { };
@@ -142,18 +162,22 @@ namespace RTX {
     
     virtual void setCurrentSimulationTime(time_t time);
     
+    double nodeDistanceXY(Node::sharedPointer n1, Node::sharedPointer n2);
     
     
   private:
     string _name;
     string _modelFile;
     bool _shouldRunWaterQuality;
+    bool _tanksNeedReset;
     // master list access
     void add(Junction::sharedPointer newJunction);
     void add(Pipe::sharedPointer newPipe);
 
     // element lists
     // master node/link lists
+//    std::vector<Node::sharedPointer> _nodes;
+//    std::vector<Link::sharedPointer> _links;
     std::map<string, Node::sharedPointer> _nodes;
     std::map<string, Link::sharedPointer> _links;
     // convenience lists for iterations
@@ -178,7 +202,7 @@ namespace RTX {
     
     time_t _currentSimulationTime;
     
-    Units _flowUnits, _headUnits, _qualityUnits;
+    Units _flowUnits, _headUnits, _qualityUnits, _volumeUnits;
 
     
   };

@@ -94,8 +94,19 @@ int Clock::period() {
   return _period;
 }
 
+void Clock::setPeriod(int p) {
+  _period = p;
+  if (p > 0) {
+    _isRegular = true;
+  }
+}
+
 time_t Clock::start() {
   return _start;
+}
+
+void Clock::setStart(time_t startTime) {
+  _start = startTime;
 }
 
 time_t Clock::validTime(time_t time) {
@@ -139,7 +150,7 @@ std::vector< time_t > Clock::timeValuesInRange(time_t start, time_t end) {
   if (!isValid(start)) {
     start = timeAfter(start);
   }
-  for (time_t thisTime = start; thisTime < end; thisTime = timeAfter(thisTime)) {
+  for (time_t thisTime = start; thisTime <= end; thisTime = timeAfter(thisTime)) {
     if (thisTime == 0) {
       break;
     }

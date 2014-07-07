@@ -6,12 +6,14 @@ using namespace std;
 ConstantTimeSeries::ConstantTimeSeries() {
   _value = 0.;
   Clock::sharedPointer reg( new Clock(3600) );
+  reg->setName("RTX CONSTANT 3600s");
   this->setClock(reg);
 }
 
 Point ConstantTimeSeries::point(time_t time)  {
-  return Point(time, _value);
+  return Point(time, _value, Point::constant);
 }
+
 
 void ConstantTimeSeries::setValue(double value) {
   _value = value;

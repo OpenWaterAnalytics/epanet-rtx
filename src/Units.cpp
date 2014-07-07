@@ -17,7 +17,7 @@ using namespace RTX;
 using namespace std;
 
 
-Units::Units(double conversion, int mass, int length, int time, int current, int temperature, int amount, int intensity) {
+Units::Units(double conversion, int mass, int length, int time, int current, int temperature, int amount, int intensity, double offset) {
   _mass         = mass;
   _length       = length;
   _time         = time;
@@ -26,6 +26,7 @@ Units::Units(double conversion, int mass, int length, int time, int current, int
   _amount       = amount;
   _intensity    = intensity;
   _conversion   = conversion;
+  _offset       = offset;
 }
 
 double Units::conversion() const {
@@ -58,7 +59,7 @@ Units Units::operator/(const Units& unit) const {
 }
 
 bool Units::operator==(const RTX::Units &unit) const {
-  if (_conversion == unit._conversion && this->isSameDimensionAs(unit)) {
+  if (_conversion == unit._conversion && this->isSameDimensionAs(unit) && _offset == unit._offset) {
     return true;
   }
   return false;
@@ -143,7 +144,7 @@ string Units::unitString() {
 // class methods
 double Units::convertValue(double value, const Units& fromUnits, const Units& toUnits) {
   if (fromUnits.isSameDimensionAs(toUnits)) {
-    return (value * fromUnits._conversion / toUnits._conversion);
+    return ((value + fromUnits._offset) * fromUnits._conversion / toUnits._conversion) - toUnits._offset;
   }
   else {
     cerr << "Units are not dimensionally consistent" << endl;
@@ -197,7 +198,23 @@ map<string, Units> Units::unitStringMap() {
   m["mg/l"]= RTX_MILLIGRAMS_PER_LITER;
   // conductance
   m["us/cm"]=RTX_MICROSIEMENS_PER_CM;
+  // velocity
+  m["m/s"] = RTX_METER_PER_SECOND;
+  m["fps"] = RTX_FOOT_PER_SECOND;
+  m["ft/hr"] = RTX_FOOT_PER_HOUR;
+  // acceleration
+  m["m/s/s"] = RTX_METER_PER_SECOND_SECOND;
+  m["ft/s/s"] = RTX_FOOT_PER_SECOND_SECOND;
+  m["ft/hr/hr"] = RTX_FOOT_PER_HOUR_HOUR;
 
+//  m["mgd/s"] = RTX_MILLION_GALLON_PER_DAY_PER_SECOND;
+  
+  // temperature
+  m["kelvin"] = RTX_DEGREE_KELVIN;
+  m["rankine"] = RTX_DEGREE_RANKINE;
+  m["celsius"] = RTX_DEGREE_CELSIUS;
+  m["farenheit"] = RTX_DEGREE_FARENHEIT;
+  
   return m;
 }
 

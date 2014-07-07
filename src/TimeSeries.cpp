@@ -45,7 +45,7 @@ std::ostream& RTX::operator<< (std::ostream &out, TimeSeries &ts) {
 
 void TimeSeries::setName(const std::string& name) {
   _name = name;
-  _points->registerAndGetIdentifier(name);
+  _points->registerAndGetIdentifier(name, this->units());
   if (_clock && !_clock->isRegular()) {
     // reset the clock to point to the new record ID, but only if we start with an irregular clock.
     _clock.reset( new IrregularClock(_points, name) );
@@ -115,25 +115,6 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
       points.push_back(aNewPoint);
     }
   }
-  
-  /*
-  Point aPoint;
-
-  time_t queryTime;
-
- 
-  
-  
-  queryTime = start;
-  while (queryTime <= end) {
-    aPoint = pointAfter(queryTime);
-    if (!aPoint) {
-      break;
-    }
-    points.push_back(aPoint);
-    queryTime = aPoint->time;
-  }
-   */
     
   return points;
 }
@@ -157,14 +138,6 @@ Point TimeSeries::pointBefore(time_t time) {
   if (timeBefore > 0) {
     myPoint = point(timeBefore);
   }
-  
-  
-  /* / if not, we depend on the PointRecord to tell us what the previous point is.
-  else {
-    myPoint = _points->pointBefore(time);
-    myPoint = point(myPoint->time);
-  }
-   */
   
   return myPoint;
 }
@@ -248,7 +221,7 @@ void TimeSeries::setRecord(PointRecord::sharedPointer record) {
   }
   
   _points = record;
-  record->registerAndGetIdentifier(name());
+  record->registerAndGetIdentifier(this->name(), this->units());
   
   // if my clock is irregular, then re-set it with the current pointRecord as the master synchronizer.
   if (!_clock || !_clock->isRegular()) {
@@ -262,7 +235,7 @@ PointRecord::sharedPointer TimeSeries::record() {
 
 void TimeSeries::resetCache() {
   _points->reset(name());
-  _points->registerAndGetIdentifier(name());
+  //_points->registerAndGetIdentifier(this->name(), this->units());
 }
 
 void TimeSeries::setClock(Clock::sharedPointer clock) {
@@ -276,7 +249,9 @@ Clock::sharedPointer TimeSeries::clock() {
 
 void TimeSeries::setUnits(Units newUnits) {
   // changing units means the values here are no good anymore.
-  //this->resetCache();
+  if (!newUnits.isSameDimensionAs(this->units())) {
+    this->resetCache();
+  }
   _units = newUnits;
 }
 

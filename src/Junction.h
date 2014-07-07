@@ -29,6 +29,9 @@ namespace RTX {
     double baseDemand();
     void setBaseDemand(double demand);
     
+    double initialQuality();
+    void setInitialQuality(double quality);
+    
     TimeSeries::sharedPointer head();
     TimeSeries::sharedPointer pressure();
     TimeSeries::sharedPointer demand();
@@ -69,6 +72,7 @@ namespace RTX {
     bool _doesHaveHeadMeasure;
     bool _doesHaveQualityMeasure;
     double _baseDemand;
+    double _initialQuality;
     
   }; // Junction
   

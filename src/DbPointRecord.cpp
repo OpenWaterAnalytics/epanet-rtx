@@ -2,9 +2,10 @@
 //  DbPointRecord.cpp
 //  epanet-rtx
 //
-//  Created by Sam Hatchett on 1/31/13.
+//  Open Water Analytics [wateranalytics.org]
+//  See README.md and license.txt for more information
 //
-//
+
 
 #include "DbPointRecord.h"
 
@@ -27,15 +28,16 @@ bool DbPointRecord::request_t::contains(std::string id, time_t t) {
 
 DbPointRecord::DbPointRecord() : request("",0,0) {
   _searchDistance = 60*60*24*7; // 1-week
+  errorMessage = "Not Connected";
 }
 
 
-void DbPointRecord::setConnectionString(const std::string& connection) {
-  _connectionString = connection;
-}
-const std::string& DbPointRecord::connectionString() {
-  return _connectionString;
-}
+//void DbPointRecord::setConnectionString(const std::string& connection) {
+//  _connectionString = connection;
+//}
+//const std::string& DbPointRecord::connectionString() {
+//  return _connectionString;
+//}
 
 void DbPointRecord::setSearchDistance(time_t time) {
   _searchDistance = time;
@@ -113,7 +115,8 @@ Point DbPointRecord::pointBefore(const string& id, time_t time) {
   Point p = DB_PR_SUPER::pointBefore(id, time);
   
   if (!p.isValid) {
-    if (request.contains(id, time)) {
+    // check if last request covered before
+    if (request.contains(id, time-1)) {
       return Point();
     }
     PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
@@ -143,7 +146,16 @@ Point DbPointRecord::pointAfter(const string& id, time_t time) {
   Point p = DB_PR_SUPER::pointAfter(id, time);
   
   if (!p.isValid) {
-    if (request.contains(id, time)) {
+    // lookahead prefetching
+    time_t distance = 60*60*12;
+    this->pointsInRange(id, time, time + distance);
+    p = DB_PR_SUPER::pointAfter(id, time);
+  }
+  
+  
+  if (!p.isValid) {
+    // check if last request covered after
+    if (request.contains(id, time+1)) {
       return Point();
     }
     PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
@@ -230,15 +242,26 @@ void DbPointRecord::addPoints(const string& id, std::vector<Point> points) {
 
 void DbPointRecord::reset() {
   DB_PR_SUPER::reset();
-  this->truncate();
+  //this->truncate();
 }
 
 
 void DbPointRecord::reset(const string& id) {
+  // deprecate?
+  //cout << "Whoops - don't use this" << endl;
   DB_PR_SUPER::reset(id);
-  this->removeRecord(id);
+  //this->removeRecord(id);
   // wiped out the record completely, so re-initialize it.
-  this->registerAndGetIdentifier(id);
+  //this->registerAndGetIdentifier(id);
+}
+
+void DbPointRecord::invalidate(const string &identifier) {
+  this->removeRecord(identifier);
+  this->reset(identifier);
+}
+
+bool DbPointRecord::supportsBoundedQueries() {
+  return false;
 }
 
 /*

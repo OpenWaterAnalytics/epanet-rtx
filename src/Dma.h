@@ -10,6 +10,7 @@
 #define epanet_rtx_Dma_h
 
 #include <vector>
+#include <set>
 #include "rtxMacros.h"
 #include "TimeSeries.h"
 #include "Junction.h"
@@ -17,6 +18,8 @@
 #include "Link.h"
 #include "Pipe.h"
 #include "Units.h"
+
+//#include "networkGraph.h"
 
 namespace RTX {
 
@@ -60,22 +63,30 @@ namespace RTX {
   class Dma : public Element {
   public:
     RTX_SHARED_POINTER(Dma);
+    typedef std::pair<Pipe::sharedPointer, Pipe::direction_t> pipeDirPair_t;
+    
     virtual std::ostream& toStream(std::ostream &stream);
     Dma(const std::string& name);
     ~Dma();
     
+    // static class methods
+//    static std::list<Dma::sharedPointer> enumerateDmas(std::vector<Node::sharedPointer> nodes);
+    
+    
     virtual void setRecord(PointRecord::sharedPointer record);
+    
+    void initDemandTimeseries(const std::set<Pipe::sharedPointer> &boundarySet);
     
     // node accessors
     void addJunction(Junction::sharedPointer junction);
     void removeJunction(Junction::sharedPointer junction);
-    void enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool stopAtClosedLinks = false, std::vector<Pipe::sharedPointer> ignorePipes = std::vector<Pipe::sharedPointer>() );
+//    void enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool stopAtClosedLinks = false, std::vector<Pipe::sharedPointer> ignorePipes = std::vector<Pipe::sharedPointer>() );
     Junction::sharedPointer findJunction(std::string name);
     bool doesHaveJunction(Junction::sharedPointer j);
-    std::vector<Junction::sharedPointer> junctions();
-    std::vector<Tank::sharedPointer> tanks();
-    std::map<Pipe::sharedPointer, Pipe::direction_t> measuredBoundaryPipes();
-    std::map<Pipe::sharedPointer, Pipe::direction_t> closedBoundaryPipes();
+    std::set<Junction::sharedPointer> junctions();
+    std::set<Tank::sharedPointer> tanks();
+    std::vector<Dma::pipeDirPair_t> measuredBoundaryPipes();
+    std::vector<Dma::pipeDirPair_t> closedBoundaryPipes();
     std::vector<Pipe::sharedPointer> closedInteriorPipes();
     std::vector<Pipe::sharedPointer> measuredInteriorPipes();
     bool isMeasuredPipe(Pipe::sharedPointer pipe);
@@ -96,10 +107,10 @@ namespace RTX {
     bool isAlwaysClosed(Pipe::sharedPointer pipe);
     
     std::vector<Junction::sharedPointer> _boundaryFlowJunctions;
-    std::vector<Tank::sharedPointer> _tanks;
-    std::map< std::string, Junction::sharedPointer> _junctions;
-    std::map<Pipe::sharedPointer, Pipe::direction_t> _measuredBoundaryPipesDirectional;
-    std::map<Pipe::sharedPointer, Pipe::direction_t> _closedBoundaryPipesDirectional;
+    std::set<Tank::sharedPointer> _tanks;
+    std::set<Junction::sharedPointer> _junctions;
+    std::vector<Dma::pipeDirPair_t> _measuredBoundaryPipesDirectional;
+    std::vector<Dma::pipeDirPair_t> _closedBoundaryPipesDirectional;
     std::vector<Pipe::sharedPointer> _closedInteriorPipes;
     std::vector<Pipe::sharedPointer> _measuredInteriorPipes;
 

@@ -13,6 +13,11 @@
 #include "ConstantTimeSeries.h"
 #include "AggregatorTimeSeries.h"
 
+#include <boost/config.hpp>
+#include <algorithm>
+#include <utility>
+#include <boost/graph/adjacency_list.hpp>
+
 using namespace RTX;
 using namespace std;
 using std::cout;
@@ -63,120 +68,257 @@ void Dma::setJunctionFlowUnits(RTX::Units units) {
 }
 
 void Dma::addJunction(Junction::sharedPointer junction) {
-  if (_junctions.find(junction->name()) != _junctions.end()) {
+  
+  if (false) { //this->doesHaveJunction(junction)) {
     //cerr << "err: junction already exists" << endl;
   }
   else {
-    _junctions.insert(make_pair(junction->name(), junction));
+    _junctions.insert(junction);
+    if (isTank(junction)) {
+      _tanks.insert(boost::static_pointer_cast<Tank>(junction));
+    }
+    if (isBoundaryFlowJunction(junction)) {
+      //this->removeJunction(j);
+      _boundaryFlowJunctions.push_back(junction);
+      //cout << "found boundary flow: " << j->name() << endl;
+    }
   }
 }
 
 void Dma::removeJunction(Junction::sharedPointer junction) {
-  map<string, Junction::sharedPointer>::iterator jIt = _junctions.find(junction->name());
-  if (jIt != _junctions.end()) {
-    _junctions.erase(jIt);
-    cout << "removed junction: " << junction->name() << endl;
-  }
+//  map<string, Junction::sharedPointer>::iterator jIt = _junctions.find(junction->name());
+//  if (jIt != _junctions.end()) {
+//    _junctions.erase(jIt);
+//    cout << "removed junction: " << junction->name() << endl;
+//  }
 }
 
-void Dma::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool stopAtClosedLinks, vector<Pipe::sharedPointer> ignorePipes) {
+//
+//list<Dma::sharedPointer> Dma::enumerateDmas(std::vector<Node::sharedPointer> nodes) {
+//  
+//  list<Dma::sharedPointer> dmas;
+//  
+//  bool stopForClosedPipes = true;
+//  bool stopForMeasuredPipes = true;
+//  bool stopForPumps = false;
+//  
+//  
+//  // construct a boost::graph representation of the network graph
+//  typedef boost::adjacency_list <boost::vecS, boost::vecS, boost::undirectedS> NetworkGraph;
+//  NetworkGraph netGraph;
+//  add_edge(0, 1, netGraph);
+//  add_edge(1, 4, netGraph);
+//  add_edge(4, 0, netGraph);
+//  add_edge(2, 5, netGraph);
+//  
+//  
+//  
+//  return dmas;
+//}
+//
+
+
+//void Dma::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool stopAtClosedLinks, vector<Pipe::sharedPointer> ignorePipes) {
+//  
+//  bool doesContainReservoir = false;
+//  
+//  //cout << "Starting At Root Junction: " << junction->name() << endl;
+//  
+//  // breadth-first search.
+//  deque<Junction::sharedPointer> candidateJunctions;
+//  candidateJunctions.push_back(junction);
+//  
+//  while (!candidateJunctions.empty()) {
+//    Junction::sharedPointer thisJ = candidateJunctions.front();
+//    //cout << " - adding: " << thisJ->name() << endl;
+//    this->addJunction(thisJ);
+//    vector<Link::sharedPointer> connectedLinks = thisJ->links();
+//    BOOST_FOREACH(Link::sharedPointer l, connectedLinks) {
+//      // follow this link?
+//      Pipe::sharedPointer p = boost::static_pointer_cast<Pipe>(l);
+//      if (p->doesHaveFlowMeasure()) {
+//        // look here - it's a potential dma perimeter pipe.
+//        
+//        // capture the pipe and direction - this list will be pruned later
+//        Link::direction_t dir = p->directionRelativeToNode(thisJ);
+//        _measuredBoundaryPipesDirectional.insert(make_pair(p, dir));
+//        // should we ignore it?
+//        if (std::find(ignorePipes.begin(), ignorePipes.end(), p) == ignorePipes.end()) { // not ignored
+//          // not on the ignore list - so we assume that the pipe could actually be a boundary pipe. do not go through the pipe.
+//          // if the pipe IS on the ignore list, then follow it with the BFS.
+//          continue;
+//        }
+//        
+//      }
+//      else if ( stopAtClosedLinks && isAlwaysClosed(p) ) {
+//        // stop here as well - a potential closed perimeter pipe
+//        Pipe::direction_t dir = p->directionRelativeToNode(thisJ);
+//        _closedBoundaryPipesDirectional.insert(make_pair(p, dir));
+//        if (std::find(ignorePipes.begin(), ignorePipes.end(), p) == ignorePipes.end()) { // not ignored
+//          continue;
+//        }
+//      }
+//      
+//      pair<Node::sharedPointer, Node::sharedPointer> nodes = l->nodes();
+//      vector<Junction::sharedPointer> juncs;
+//      juncs.push_back(boost::static_pointer_cast<Junction>(nodes.first));
+//      juncs.push_back(boost::static_pointer_cast<Junction>(nodes.second));
+//      BOOST_FOREACH(Junction::sharedPointer candidateJ, juncs) {
+//        if (candidateJ != thisJ && !this->doesHaveJunction(candidateJ)) {
+//          // add to follow list
+//          candidateJunctions.push_back(candidateJ);
+//        }
+//      }
+//    } // foreach connected link
+//    candidateJunctions.pop_front();
+//  }
+//  
+//  // cleanup orphaned pipes (pipes which have been identified as perimeters, but have both start/end nodes listed inside the dma)
+//  // this set may include "ignored" pipes.
+//  
+//  map<Pipe::sharedPointer, Pipe::direction_t> measuredBoundaryPipesDirectional = measuredBoundaryPipes();
+//  BOOST_FOREACH(Pipe::sharedPointer p, measuredBoundaryPipesDirectional | boost::adaptors::map_keys) {
+//    if (this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->to()))) {
+//      //cout << "removing orphaned pipe: " << p->name() << endl;
+//      _measuredBoundaryPipesDirectional.erase(p);
+//      _measuredInteriorPipes.push_back(p);
+//    }
+//  }
+//  map<Pipe::sharedPointer, Pipe::direction_t> closedBoundaryPipesDirectional = closedBoundaryPipes();
+//  BOOST_FOREACH(Pipe::sharedPointer p, closedBoundaryPipesDirectional | boost::adaptors::map_keys) {
+//    if (this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->to()))) {
+//      //cout << "removing orphaned pipe: " << p->name() << endl;
+//      _closedBoundaryPipesDirectional.erase(p);
+//      _closedInteriorPipes.push_back(p);
+//    }
+//  }
+//
+//  // separate junctions into:
+//  // -- demand junctions
+//  // -- boundary flow junctions
+//  // -- storage tanks
+//  
+//  
+//  BOOST_FOREACH(Junction::sharedPointer j, _junctions) {
+//    // is this a reservoir? if so, that's bad news -- we can't compute a control volume. the volume is infinite.
+//    if (j->type() == Element::RESERVOIR) {
+//      doesContainReservoir = true;
+//    }
+//    // check if it's a tank or metered junction
+//    if (isTank(j)) {
+//      //this->removeJunction(j);
+//      _tanks.push_back(boost::static_pointer_cast<Tank>(j));
+//      //cout << "found tank: " << j->name() << endl;
+//    }
+//    else if (isBoundaryFlowJunction(j)) {
+//      //this->removeJunction(j);
+//      _boundaryFlowJunctions.push_back(j);
+//      //cout << "found boundary flow: " << j->name() << endl;
+//    }
+//    
+//  }
+//  
+//  
+//  if (!doesContainReservoir) {
+//    // assemble the aggregated demand time series
+//    
+//    AggregatorTimeSeries::sharedPointer dmaDemand( new AggregatorTimeSeries() );
+//    dmaDemand->setUnits(RTX_GALLON_PER_MINUTE);
+//    dmaDemand->setName("DMA " + this->name() + " demand");
+//    BOOST_FOREACH(Tank::sharedPointer t, _tanks) {
+//      dmaDemand->addSource(t->flowMeasure(), -1.);
+//    }
+//    /* boundary flows are accounted for in the allocation method
+//     BOOST_FOREACH(Junction::sharedPointer j, _boundaryFlowJunctions) {
+//     dmaDemand->addSource(j->boundaryFlow(), -1.);
+//     }
+//     */
+//    
+//    BOOST_FOREACH(pipeDirPair_t pd, _measuredBoundaryPipesDirectional) {
+//      Pipe::sharedPointer p = pd.first;
+//      Pipe::direction_t dir = pd.second;
+//      double dirMult = ( dir == Pipe::inDirection ? 1. : -1. );
+//      dmaDemand->addSource(p->flowMeasure(), dirMult);
+//    }
+//    
+//    this->setDemand(dmaDemand);
+//  }
+//  else {
+//    ConstantTimeSeries::sharedPointer constDma(new ConstantTimeSeries());
+//    constDma->setName("Zero Demand");
+//    constDma->setValue(0.);
+//    constDma->setUnits(RTX_GALLON_PER_MINUTE);
+//    this->setDemand(constDma);
+//  }
+//  
+//  
+//  
+//  //cout << this->name() << " dma Description:" << endl;
+//  //cout << *this->demand() << endl;
+//  
+//}
+
+
+void Dma::initDemandTimeseries(const set<Pipe::sharedPointer> &boundarySet) {
   
-  bool doesContainReservoir = false;
-  
-  //cout << "Starting At Root Junction: " << junction->name() << endl;
-  
-  // breadth-first search.
-  deque<Junction::sharedPointer> candidateJunctions;
-  candidateJunctions.push_back(junction);
-  
-  while (!candidateJunctions.empty()) {
-    Junction::sharedPointer thisJ = candidateJunctions.front();
-    //cout << " - adding: " << thisJ->name() << endl;
-    this->addJunction(thisJ);
-    vector<Link::sharedPointer> connectedLinks = thisJ->links();
-    BOOST_FOREACH(Link::sharedPointer l, connectedLinks) {
-      // follow this link?
-      Pipe::sharedPointer p = boost::static_pointer_cast<Pipe>(l);
-      if (p->doesHaveFlowMeasure()) {
-        // look here - it's a potential dma perimeter pipe.
+  // we've supplied a list of candidate boundary pipes. prune the list of pipes that don't connect to this dma.
+  BOOST_FOREACH(const Pipe::sharedPointer p, boundarySet) {
+    Junction::sharedPointer j1, j2;
+    j1 = boost::static_pointer_cast<Junction>(p->from());
+    j2 = boost::static_pointer_cast<Junction>(p->to());
+    
+    bool j1member = this->doesHaveJunction(j1);
+    bool j2member = this->doesHaveJunction(j2);
+    
+    if (j1member || j2member) {
+      if (!j1member || !j2member) {
+        // only one side connects to me. it's a boundary
+        Junction::sharedPointer myJ = j1member ? j1 : j2;
+        Pipe::direction_t jDir = p->directionRelativeToNode(myJ);
         
-        // capture the pipe and direction - this list will be pruned later
-        Link::direction_t dir = p->directionRelativeToNode(thisJ);
-        _measuredBoundaryPipesDirectional.insert(make_pair(p, dir));
-        // should we ignore it?
-        if (std::find(ignorePipes.begin(), ignorePipes.end(), p) == ignorePipes.end()) { // not ignored
-          // not on the ignore list - so we assume that the pipe could actually be a boundary pipe. do not go through the pipe.
-          // if the pipe IS on the ignore list, then follow it with the BFS.
-          continue;
+        // figure out why this pipe is included here. is it flow measured? is it closed?
+        if (p->doesHaveFlowMeasure()) {
+          _measuredBoundaryPipesDirectional.push_back(make_pair(p, jDir));
+        }
+        else if (p->fixedStatus() == Pipe::CLOSED) {
+          _closedBoundaryPipesDirectional.push_back(make_pair(p, jDir));
+        }
+        else {
+          cerr << "could not resolve reason for boundary pipe inclusion" << endl;
         }
         
       }
-      else if ( stopAtClosedLinks && isAlwaysClosed(p) ) {
-        // stop here as well - a potential closed perimeter pipe
-        Pipe::direction_t dir = p->directionRelativeToNode(thisJ);
-        _closedBoundaryPipesDirectional.insert(make_pair(p, dir));
-        if (std::find(ignorePipes.begin(), ignorePipes.end(), p) == ignorePipes.end()) { // not ignored
-          continue;
+      else {  // completely internal
+        if (p->doesHaveFlowMeasure()) {
+          _measuredInteriorPipes.push_back(p);
+        }
+        else if (p->fixedStatus() == Pipe::CLOSED) {
+          _closedInteriorPipes.push_back(p);
+        }
+        else {
+          cerr << "could not resolve reason for internal pipe inclusion" << endl;
         }
       }
       
-      pair<Node::sharedPointer, Node::sharedPointer> nodes = l->nodes();
-      vector<Junction::sharedPointer> juncs;
-      juncs.push_back(boost::static_pointer_cast<Junction>(nodes.first));
-      juncs.push_back(boost::static_pointer_cast<Junction>(nodes.second));
-      BOOST_FOREACH(Junction::sharedPointer candidateJ, juncs) {
-        if (candidateJ != thisJ && !this->doesHaveJunction(candidateJ)) {
-          // add to follow list
-          candidateJunctions.push_back(candidateJ);
-        }
-      }
-    } // foreach connected link
-    candidateJunctions.pop_front();
-  }
+    } // pipe --> no junctions are members of this dma
+  } // for each candidate boundary pipe
   
-  // cleanup orphaned pipes (pipes which have been identified as perimeters, but have both start/end nodes listed inside the dma)
-  // this set may include "ignored" pipes.
   
-  map<Pipe::sharedPointer, Pipe::direction_t> measuredBoundaryPipesDirectional = measuredBoundaryPipes();
-  BOOST_FOREACH(Pipe::sharedPointer p, measuredBoundaryPipesDirectional | boost::adaptors::map_keys) {
-    if (this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->to()))) {
-      //cout << "removing orphaned pipe: " << p->name() << endl;
-      _measuredBoundaryPipesDirectional.erase(p);
-      _measuredInteriorPipes.push_back(p);
-    }
-  }
-  map<Pipe::sharedPointer, Pipe::direction_t> closedBoundaryPipesDirectional = closedBoundaryPipes();
-  BOOST_FOREACH(Pipe::sharedPointer p, closedBoundaryPipesDirectional | boost::adaptors::map_keys) {
-    if (this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->to()))) {
-      //cout << "removing orphaned pipe: " << p->name() << endl;
-      _closedBoundaryPipesDirectional.erase(p);
-      _closedInteriorPipes.push_back(p);
-    }
-  }
-
+  
+  
+  
   // separate junctions into:
   // -- demand junctions
   // -- boundary flow junctions
   // -- storage tanks
   
+  bool doesContainReservoir = false;
   
-  BOOST_FOREACH(Junction::sharedPointer j, _junctions | boost::adaptors::map_values) {
+  BOOST_FOREACH(Junction::sharedPointer j, _junctions) {
     // is this a reservoir? if so, that's bad news -- we can't compute a control volume. the volume is infinite.
     if (j->type() == Element::RESERVOIR) {
       doesContainReservoir = true;
     }
-    // check if it's a tank or metered junction
-    if (isTank(j)) {
-      //this->removeJunction(j);
-      _tanks.push_back(boost::static_pointer_cast<Tank>(j));
-      //cout << "found tank: " << j->name() << endl;
-    }
-    else if (isBoundaryFlowJunction(j)) {
-      //this->removeJunction(j);
-      _boundaryFlowJunctions.push_back(j);
-      //cout << "found boundary flow: " << j->name() << endl;
-    }
-    
   }
   
   
@@ -195,7 +337,6 @@ void Dma::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool 
      }
      */
     
-    typedef pair<Pipe::sharedPointer, Pipe::direction_t> pipeDirPair_t;
     BOOST_FOREACH(pipeDirPair_t pd, _measuredBoundaryPipesDirectional) {
       Pipe::sharedPointer p = pd.first;
       Pipe::direction_t dir = pd.second;
@@ -214,23 +355,15 @@ void Dma::enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool 
   }
   
   
-  
-  //cout << this->name() << " dma Description:" << endl;
-  //cout << *this->demand() << endl;
-  
 }
+
 
 bool Dma::isAlwaysClosed(Pipe::sharedPointer pipe) {
   return ((pipe->fixedStatus() == Pipe::CLOSED) && (pipe->type() != Element::PUMP));
 }
 
 bool Dma::isTank(Junction::sharedPointer junction) {
-  if (junction->type() == Element::TANK) {
-    return true;
-  }
-  else {
-    return false;
-  }
+  return (junction->type() == Element::TANK);
 }
 
 bool Dma::isBoundaryFlowJunction(Junction::sharedPointer junction) {
@@ -303,38 +436,35 @@ void Dma::followJunction(Junction::sharedPointer junction) {
 */
 
 Junction::sharedPointer Dma::findJunction(std::string name) {
-  Junction::sharedPointer aJunction;
-  if (_junctions.find(name) != _junctions.end() ) {
-    aJunction = _junctions[name];
+  BOOST_FOREACH(Junction::sharedPointer j, _junctions) {
+    if (RTX_STRINGS_ARE_EQUAL(j->name(), name)) {
+      return j;
+    }
   }
+  
+  Junction::sharedPointer aJunction;
   return aJunction;
 }
 
 bool Dma::doesHaveJunction(Junction::sharedPointer j) {
-  if (_junctions.find(j->name()) != _junctions.end()) {
-    return true;
-  }
-  return false;
+//  return (find(_junctions.begin(), _junctions.end(), j) != _junctions.end());
+  return _junctions.find(j) != _junctions.end();
 }
 
-std::vector<Junction::sharedPointer> Dma::junctions() {
-  typedef std::map<std::string, Junction::sharedPointer> JunctionMap;
-  std::vector<Junction::sharedPointer> theJunctions;
-  BOOST_FOREACH(const JunctionMap::value_type& junctionPair, _junctions) {
-    theJunctions.push_back(junctionPair.second);
-  }
-  return theJunctions;
+std::set<Junction::sharedPointer> Dma::junctions() {
+
+  return _junctions;
 }
 
-std::vector<Tank::sharedPointer> Dma::tanks() {
+std::set<Tank::sharedPointer> Dma::tanks() {
   return _tanks;
 }
 
-std::map<Pipe::sharedPointer, Pipe::direction_t> Dma::measuredBoundaryPipes() {
+std::vector<Dma::pipeDirPair_t> Dma::measuredBoundaryPipes() {
   return _measuredBoundaryPipesDirectional;
 }
 
-std::map<Pipe::sharedPointer, Pipe::direction_t> Dma::closedBoundaryPipes() {
+std::vector<Dma::pipeDirPair_t> Dma::closedBoundaryPipes() {
   return _closedBoundaryPipesDirectional;
 }
 
@@ -347,7 +477,12 @@ std::vector<Pipe::sharedPointer> Dma::measuredInteriorPipes() {
 }
 
 bool Dma::isMeasuredPipe(Pipe::sharedPointer pipe) {
-  if (_measuredBoundaryPipesDirectional.count(pipe) > 0) return true;
+  
+  BOOST_FOREACH(const pipeDirPair_t& pdp, _measuredBoundaryPipesDirectional) {
+    if (pdp.first == pipe) {
+      return true;
+    }
+  }
   
   std::vector<Pipe::sharedPointer>::iterator it;
   for (it = _measuredInteriorPipes.begin(); it != _measuredInteriorPipes.end(); ++it) {
@@ -360,7 +495,12 @@ bool Dma::isMeasuredPipe(Pipe::sharedPointer pipe) {
 }
 
 bool Dma::isClosedPipe(Pipe::sharedPointer pipe) {
-  if (_closedBoundaryPipesDirectional.count(pipe) > 0) return true;
+
+  BOOST_FOREACH(const pipeDirPair_t& pdp, _closedBoundaryPipesDirectional) {
+    if (pdp.first == pipe) {
+      return true;
+    }
+  }
   
   std::vector<Pipe::sharedPointer>::iterator it;
   for (it = _closedInteriorPipes.begin(); it != _closedInteriorPipes.end(); ++it) {
@@ -405,8 +545,7 @@ void Dma::allocateDemandToJunctions(time_t time) {
   
   // if the junction has a boundary flow condition, add it to the "known" demand pool.
   // otherwise, add the nominal base demand to the totalBaseDemand pool.
-  BOOST_FOREACH(JunctionMapType::value_type& junctionPair, _junctions) {
-    Junction::sharedPointer junction = junctionPair.second;
+  BOOST_FOREACH(Junction::sharedPointer junction, _junctions) {
     
     if ( junction->doesHaveBoundaryFlow() ) {
       Point dp = junction->boundaryFlow()->point(time);
@@ -437,8 +576,7 @@ void Dma::allocateDemandToJunctions(time_t time) {
   cout << "dma base demand: " << totalBaseDemand << endl;
   */
   // set the demand values for unmetered junctions, according to their base demands.
-  BOOST_FOREACH(JunctionMapType::value_type& junctionPair, _junctions) {
-    Junction::sharedPointer junction = junctionPair.second;
+  BOOST_FOREACH(Junction::sharedPointer junction, _junctions) {
     if (junction->doesHaveBoundaryFlow()) {
       // junction does have boundary flow...
       // just need to copy the boundary flow into the junction's demand time series

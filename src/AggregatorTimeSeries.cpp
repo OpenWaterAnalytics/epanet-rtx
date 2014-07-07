@@ -16,9 +16,9 @@ using namespace RTX;
 using namespace std;
 
 TimeSeries::sharedPointer AggregatorTimeSeries::source() {
-  vector< pair<TimeSeries::sharedPointer,double> > sourceVec = this->sources();
+  vector< AggregatorSource > sourceVec = this->sources();
   if (sourceVec.size() > 0) {
-    return sourceVec.front().first;
+    return sourceVec.front().timeseries;
   }
   else {
     TimeSeries::sharedPointer empty;
@@ -37,11 +37,9 @@ ostream& AggregatorTimeSeries::toStream(ostream &stream) {
   stream << "Connected to: " << _tsList.size() << " time series:" << "\n";
   
   typedef std::pair<TimeSeries::sharedPointer,double> tsMultPair_t;
-  BOOST_FOREACH(const tsMultPair_t& tsmult, _tsList) {
-    double multiplier = tsmult.second;
-    TimeSeries::sharedPointer ts = tsmult.first;
-    string dir = (multiplier > 0)? "(+)" : "(-)";
-    stream << "    " << dir << " " << ts->name() << endl;
+  BOOST_FOREACH(const AggregatorSource& aggSource, _tsList) {
+    string dir = (aggSource.multiplier > 0)? "(+)" : "(-)";
+    stream << "    " << dir << " " << aggSource.timeseries->name() << endl;
   }
   return stream;
 }
@@ -59,8 +57,7 @@ void AggregatorTimeSeries::addSource(TimeSeries::sharedPointer timeSeries, doubl
     this->setUnits(timeSeries->units());
   }
   
-  std::pair<TimeSeries::sharedPointer,double> aggregatorItem(timeSeries, multiplier);
-  _tsList.push_back(aggregatorItem);
+  _tsList.push_back((AggregatorSource){timeSeries,multiplier});
   
   // set my clock to the lesser-period of any source.
   if (this->clock()->period() < timeSeries->clock()->period()) {
@@ -71,23 +68,22 @@ void AggregatorTimeSeries::addSource(TimeSeries::sharedPointer timeSeries, doubl
 
 void AggregatorTimeSeries::removeSource(TimeSeries::sharedPointer timeSeries) {
   
-  typedef std::pair<TimeSeries::sharedPointer,double> tsDoublePairType;
-  std::vector< tsDoublePairType > newSourceList;
+  std::vector< AggregatorSource > newSourceList;
   
   // find the index of the requested time series
-  BOOST_FOREACH(tsDoublePairType ts, _tsList) {
-    if (timeSeries == ts.first) {
+  BOOST_FOREACH(AggregatorSource aggSource, _tsList) {
+    if (timeSeries == aggSource.timeseries) {
       // don't copy
     }
     else {
-      newSourceList.push_back(ts);
+      newSourceList.push_back(aggSource);
     }
   }
   // save the new source list
   _tsList = newSourceList;
 }
 
-std::vector< std::pair<TimeSeries::sharedPointer,double> > AggregatorTimeSeries::sources() {
+std::vector< AggregatorTimeSeries::AggregatorSource > AggregatorTimeSeries::sources() {
   return _tsList;
 }
 
@@ -95,10 +91,9 @@ void AggregatorTimeSeries::setMultiplierForSource(TimeSeries::sharedPointer time
   // _tsList[x].first == TimeSeries, _tsList[x].second == multipier
   // (private) std::vector< std::pair<TimeSeries::sharedPointer,double> > _tsList;
   typedef std::pair<TimeSeries::sharedPointer, double> tsDoublePair_t;
-  BOOST_FOREACH(tsDoublePair_t& item, _tsList) {
-    TimeSeries::sharedPointer ts = item.first;
-    if (ts == timeSeries) {
-      item.second = multiplier;
+  BOOST_FOREACH(AggregatorSource& item, _tsList) {
+    if (item.timeseries == timeSeries) {
+      item.multiplier = multiplier;
       // todo -- reset pointrecord backing store?
     }
   }
@@ -119,14 +114,12 @@ Point AggregatorTimeSeries::point(time_t time) {
     // start at zero, and sum other TS's values.
     //std::vector< std::pair<TimeSeries::sharedPointer,double> >::iterator it;
     typedef std::pair< TimeSeries::sharedPointer, double > tsPair_t;
-    BOOST_FOREACH(tsPair_t tsPair , _tsList) {
-      double multiplier;
-      Point sourcePoint = tsPair.first->point(time);
-      Units sourceUnits = tsPair.first->units();
+    BOOST_FOREACH(AggregatorSource aggSource , _tsList) {
+      Point sourcePoint = aggSource.timeseries->point(time);
+      Units sourceUnits = aggSource.timeseries->units();
       Units myUnits = units();
       Point thisPoint = Point::convertPoint(sourcePoint, sourceUnits, myUnits);
-      multiplier = tsPair.second;
-      aPoint += ( thisPoint * multiplier );
+      aPoint += ( thisPoint * aggSource.multiplier );
     }
     this->insert(aPoint);
   }
@@ -166,22 +159,19 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
   }
   
   typedef std::pair< TimeSeries::sharedPointer, double > tsPair_t;
-  BOOST_FOREACH(tsPair_t tsPair , _tsList) {
-    double multiplier = tsPair.second;
-    TimeSeries::sharedPointer ts = tsPair.first;
-    
+  BOOST_FOREACH(AggregatorSource aggSource , _tsList) {
     // resample the source if needed.
     // this also converts to local units, so we don't have to worry about that here.
-    vector<Point> thisSourcePoints = Resampler::filteredPoints(ts, fromTime, toTime);
+    vector<Point> thisSourcePoints = Resampler::filteredPoints(aggSource.timeseries, fromTime, toTime);
     if (thisSourcePoints.size() == 0) {
-      cerr << "no points found for : " << ts->name() << "(" << fromTime << " - " << toTime << ")" << endl;
+      cerr << "no points found for : " << aggSource.timeseries->name() << "(" << fromTime << " - " << toTime << ")" << endl;
       continue;
     }
     vector<Point>::const_iterator pIt = thisSourcePoints.begin();
     // add in the new points.
     BOOST_FOREACH(Point& p, aggregated) {
       // just make sure we're at the right time.
-      while ((*pIt).time < p.time) {
+      while (pIt != thisSourcePoints.end() && (*pIt).time < p.time) {
         ++pIt;
       }
       if (pIt == thisSourcePoints.end()) {
@@ -193,7 +183,7 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
       }
       
       // add it in.
-      p += (*pIt) * multiplier;
+      p += (*pIt) * aggSource.multiplier;
       if ((*pIt).quality != Point::good) {
         p.quality = (*pIt).quality;
       }

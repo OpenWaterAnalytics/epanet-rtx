@@ -27,13 +27,17 @@ namespace RTX {
     double minLevel();
     double maxLevel();
     
-    void setGeometry(std::vector< std::pair<double,double> > levelVolumePoints, Units levelUnits, Units volumeUnits); 
+    void setGeometry(std::vector< std::pair<double,double> > levelVolumePoints, Units levelUnits, Units volumeUnits);
+    std::vector< std::pair<double,double> > geometry();
+    std::pair<Units,Units> geometryUnits();
+    std::string geometryName;
+    
     void setElevation(double elevation);
     bool doesResetLevelUsingClock();
-    void setResetLevelNextTime(bool reset);
-    bool resetLevelNextTime();
     void setLevelResetClock(Clock::sharedPointer clock);
     Clock::sharedPointer levelResetClock();
+    void setResetLevelNextTime(bool reset);
+    bool resetLevelNextTime();
     
     // parameters
     void setLevelMeasure(TimeSeries::sharedPointer level);
@@ -54,6 +58,9 @@ namespace RTX {
     Clock::sharedPointer _resetLevel;
     double _minLevel, _maxLevel;
     bool _doesResetLevel;
+    std::vector< std::pair<double,double> > _geometry;
+    Units _geometryLevelUnits;
+    Units _geometryVolumeUnits;
     bool _resetLevelNextTime;
     
   }; // Tank

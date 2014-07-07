@@ -93,11 +93,14 @@ namespace RTX {
     // setters
     virtual void setName(const std::string& name);
     void setRecord(PointRecord::sharedPointer record);
-    void resetCache();
+    virtual void resetCache();
     virtual void setClock(Clock::sharedPointer clock);
     Clock::sharedPointer clock();
+    
     virtual void setUnits(Units newUnits);
     Units units();
+    
+    
     void setFirstTime(time_t time);
     void setLastTime(time_t time);
     time_t firstTime();

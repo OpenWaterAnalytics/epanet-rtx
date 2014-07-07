@@ -29,7 +29,7 @@ std::ostream& MapPointRecord::toStream(std::ostream &stream) {
 }
 
 
-std::string MapPointRecord::registerAndGetIdentifier(std::string recordName) {
+std::string MapPointRecord::registerAndGetIdentifier(std::string recordName, Units dataUnits) {
   // register the recordName internally and generate a unique key identifier
   
   // check to see if it's there first
@@ -95,8 +95,9 @@ bool MapPointRecord::isPointAvailable(const string& identifier, time_t time) {
 Point MapPointRecord::point(const string& identifier, time_t time) {
   Point p;
   
-  if (_cachedPoint.time == time && RTX_STRINGS_ARE_EQUAL_CS(_cachedPointId, identifier) ) {
-    return _cachedPoint;
+  p = PointRecord::point(identifier,time);
+  if (p.isValid) {
+    return p;
   }
   
   keyedPointMap_t::iterator it = _points.find(identifierForName(identifier));
@@ -110,9 +111,8 @@ Point MapPointRecord::point(const string& identifier, time_t time) {
       return Point();
     }
     else {
-      _cachedPointId = identifier;
-      _cachedPoint = (*pointIt).second;
-      return _cachedPoint;
+      PointRecord::addPoint(identifier, (*pointIt).second);
+      return (*pointIt).second;
     }
   }
   

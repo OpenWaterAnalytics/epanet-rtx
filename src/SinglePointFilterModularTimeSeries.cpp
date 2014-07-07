@@ -6,7 +6,9 @@ using namespace std;
 
 
 Point SinglePointFilterModularTimeSeries::point(time_t time){
-  
+  if (!source()) {
+    return Point();
+  }
   Point newPoint = TimeSeries::point(time);
   if (newPoint.isValid) {
     return newPoint;
@@ -37,6 +39,9 @@ std::vector<Point> SinglePointFilterModularTimeSeries::filteredPoints(TimeSeries
   
   BOOST_FOREACH(const Point& p, sourcePoints) {
     if (p.time < fromTime || p.time > toTime) {
+      continue;
+    }
+    if ( this->clock()->isRegular() && !this->clock()->isValid(p.time)) {
       continue;
     }
     Point newP = this->filteredSingle(p, sourceU);

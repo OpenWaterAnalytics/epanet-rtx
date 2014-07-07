@@ -38,7 +38,11 @@ std::ostream& PointRecord::toStream(std::ostream &stream) {
 }
 
 
-std::string PointRecord::registerAndGetIdentifier(std::string recordName) {
+std::string PointRecord::registerAndGetIdentifier(std::string recordName, Units dataUnits) {
+  
+  if (_pointCache.find(recordName) == _pointCache.end()) {
+    _pointCache[recordName] = Point();
+  }
   
   return recordName;
 }
@@ -59,13 +63,20 @@ bool PointRecord::isPointAvailable(const string& identifier, time_t time) {
 
 Point PointRecord::point(const string& identifier, time_t time) {
   // return the cached point if it is valid
+  
   if (_cachedPointId == identifier && _cachedPoint.time == time) {
     return _cachedPoint;
   }
-  else {
-//    cout << "Unable to return Point for ID " << identifier << endl;
-    return Point();
+  
+  if (_pointCache.find(identifier) != _pointCache.end()) {
+    Point p = _pointCache[identifier];
+    if (p.time == time) {
+      return p;
+    }
   }
+  
+  return Point();
+  
 }
 
 
@@ -93,7 +104,7 @@ Point PointRecord::lastPoint(const string &id) {
 }
 
 PointRecord::time_pair_t PointRecord::range(const string& id) {
-  return make_pair(this->firstPoint(id).time, this->lastPoint(id).time);
+  return make_pair(this->firstPoint(id).time, this->lastPoint(id).time); // mostly for subclasses
 }
 
 
@@ -101,6 +112,11 @@ void PointRecord::addPoint(const string& identifier, Point point) {
   // Cache this single point
   _cachedPointId = identifier;
   _cachedPoint = point;
+  
+  if (_pointCache.find(identifier) != _pointCache.end()) {
+    _pointCache[identifier] = point;
+  }
+  
 }
 
 

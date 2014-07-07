@@ -1,6 +1,7 @@
 #include <boost/foreach.hpp>
 
 #include "ThresholdTimeSeries.h"
+#include <cmath>
 
 using namespace std;
 using namespace RTX;
@@ -8,6 +9,7 @@ using namespace RTX;
 ThresholdTimeSeries::ThresholdTimeSeries() {
   _threshold = 0;
   _fixedValue = 1;
+  _mode = thresholdModeNormal;
 }
 
 void ThresholdTimeSeries::setThreshold(double threshold) {
@@ -24,6 +26,14 @@ void ThresholdTimeSeries::setValue(double val) {
 
 double ThresholdTimeSeries::value() {
   return _fixedValue;
+}
+
+void ThresholdTimeSeries::setMode(thresholdMode_t mode) {
+  _mode = mode;
+}
+
+ThresholdTimeSeries::thresholdMode_t ThresholdTimeSeries::mode() {
+  return _mode;
 }
 
 void ThresholdTimeSeries::setSource(TimeSeries::sharedPointer source) {
@@ -46,7 +56,13 @@ void ThresholdTimeSeries::setUnits(Units newUnits) {
 
 Point ThresholdTimeSeries::filteredSingle(RTX::Point p, RTX::Units sourceU) {
   // we don't care about units.
-  double pointValue = (p.value > _threshold) ? _fixedValue : 0.;
+  double pointValue;
+  if (_mode == thresholdModeAbsolute) {
+    pointValue = (abs(p.value) > _threshold) ? _fixedValue : 0.;
+  }
+  else {
+    pointValue = (p.value > _threshold) ? _fixedValue : 0.;
+  }
   Point newPoint(p.time, pointValue, p.quality, p.confidence);
   return newPoint;
 }

@@ -15,6 +15,7 @@
 #include "BufferPointRecord.h"
 #include "rtxExceptions.h"
 
+
 namespace RTX {
   
   /*! \class DbPointRecord
@@ -31,29 +32,30 @@ namespace RTX {
     DbPointRecord();
     virtual ~DbPointRecord() {};
     
-    // end of the road for these guys
+    // end of the road for these guys; no virtuals.
     Point point(const string& id, time_t time);
     Point pointBefore(const string& id, time_t time);
     Point pointAfter(const string& id, time_t time);
     std::vector<Point> pointsInRange(const string& id, time_t startTime, time_t endTime);
+    
     void addPoint(const string& id, Point point);
     void addPoints(const string& id, std::vector<Point> points);
     void reset();
     void reset(const string& id);
+    virtual void invalidate(const string& identifier);
+    virtual void truncate()=0; // specific implementation must override this
     
-    // pointRecord methods to override
-    //virtual std::string registerAndGetIdentifier(std::string recordName)=0;
-    //virtual std::vector<std::string> identifiers()=0;
+    virtual std::vector<std::pair<std::string, Units> >availableData() {std::vector<std::pair<std::string,Units> > blank; return blank;};
     
-    // db connection
-    void setConnectionString(const std::string& connection);
-    const std::string& connectionString();
     virtual void dbConnect() throw(RtxException){};
-    virtual bool isConnected(){return true;};
+    virtual bool isConnected(){return false;} // abstract base can't have a connection;
+    
+    virtual bool supportsBoundedQueries();
     
     // db searching prefs
     void setSearchDistance(time_t time);
     time_t searchDistance();
+    
     
     //exceptions specific to this class family
     class RtxDbConnectException : public RtxException {
@@ -65,6 +67,8 @@ namespace RTX {
       virtual const char* what() const throw()
       { return "Could not retrieve data.\n"; }
     };
+    
+    std::string errorMessage;
     
   protected:
     // fetch means cache the results
@@ -82,7 +86,9 @@ namespace RTX {
     virtual void insertSingle(const std::string& id, Point point)=0;
     virtual void insertRange(const std::string& id, std::vector<Point> points)=0;
     virtual void removeRecord(const std::string& id)=0;
-    virtual void truncate()=0;
+    
+    
+    
     
     class request_t {
     public:
@@ -97,6 +103,7 @@ namespace RTX {
   private:
     std::string _connectionString;
     time_t _searchDistance;
+    
     
     
   };

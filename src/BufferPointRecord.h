@@ -37,10 +37,10 @@ namespace RTX {
     typedef std::map<std::string, BufferMutexPair_t> KeyedBufferMutexMap_t;
     
     RTX_SHARED_POINTER(BufferPointRecord);
-    BufferPointRecord();
+    BufferPointRecord(int defaultCapacity = RTX_BUFFER_DEFAULT_CACHESIZE);
     virtual ~BufferPointRecord() {};
     
-    virtual std::string registerAndGetIdentifier(std::string recordName);    // registering record names.
+    virtual std::string registerAndGetIdentifier(std::string recordName, Units dataUnits);    // registering record names.
     virtual std::vector<std::string> identifiers();
     
     virtual Point point(const string& identifier, time_t time);
@@ -61,8 +61,10 @@ namespace RTX {
   protected:
     
   private:
+    PointBuffer_t::iterator _cacheIterator;
     std::map<std::string, BufferMutexPair_t > _keyedBufferMutex;
     size_t _defaultCapacity;
+    boost::signals2::mutex _bigMutex;
   };
   
   std::ostream& operator<< (std::ostream &out, BufferPointRecord &pr);

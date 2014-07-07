@@ -34,6 +34,9 @@ namespace RTX {
     EpanetModel();
     ~EpanetModel();
     void loadModelFromFile(const std::string& filename) throw(std::exception);
+    virtual void initEngine();
+    virtual void closeEngine();
+    void useEpanetFile(const std::string& filename);
     virtual void overrideControls() throw(RtxException);
     virtual std::ostream& toStream(std::ostream &stream);
 
@@ -51,10 +54,12 @@ namespace RTX {
     
     // hydraulic
     void setReservoirHead(const std::string& reservoir, double level);
+    void setReservoirQuality(const string& reservoir, double quality);
     void setTankLevel(const std::string& tank, double level);
     void setJunctionDemand(const std::string& junction, double demand);
     void setPipeStatus(const std::string& pipe, Pipe::status_t status);
     void setPumpStatus(const std::string& pump, Pipe::status_t status);
+    void setPumpSetting(const std::string& pump, double setting);
     void setValveSetting(const std::string& valve, double setting);
     
     // quality
@@ -68,6 +73,7 @@ namespace RTX {
     virtual int relativeError(time_t time);
     virtual void setHydraulicTimeStep(int seconds);
     virtual void setQualityTimeStep(int seconds);
+    virtual void setInitialModelQuality();
     void ENcheck(int errorCode, std::string externalFunction) throw(std::string);
     
     // protected accessors
@@ -80,7 +86,12 @@ namespace RTX {
     std::map<std::string, int> _nodeIndex;
     std::map<std::string, int> _linkIndex;
     // TODO - use boost filesystem instead of std::string path
-    std::string _modelFile;
+//    std::string _modelFile;
+    
+    void createRtxWrappers();
+    
+    bool _enOpened;
+    
   };
   
 }

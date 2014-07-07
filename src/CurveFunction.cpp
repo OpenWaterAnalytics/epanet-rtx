@@ -44,6 +44,10 @@ void CurveFunction::setInputUnits(Units inputUnits) {
   _inputUnits = inputUnits;
 }
 
+Units CurveFunction::inputUnits() {
+  return _inputUnits;
+}
+
 void CurveFunction::addCurveCoordinate(double inputValue, double outputValue) {
   std::pair<double,double> newCoord(inputValue,outputValue);
   _curve.push_back(newCoord);

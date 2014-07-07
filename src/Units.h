@@ -55,6 +55,21 @@
 #define RTX_MILLIGRAMS_PER_LITER    RTX::Units(.001,         1,-3,0)
 // conductance
 #define RTX_MICROSIEMENS_PER_CM     RTX::Units(.0001,        -1,-3,3,2)
+// velocity
+#define RTX_METER_PER_SECOND        RTX::Units(1,            0,1,-1)
+#define RTX_FOOT_PER_SECOND         RTX::Units(.3048,        0,1,-1)
+#define RTX_FOOT_PER_HOUR           RTX::Units(84.6666667E-6,0,1,-1)
+// acceleration
+#define RTX_METER_PER_SECOND_SECOND RTX::Units(1,            0,1,-2)
+#define RTX_FOOT_PER_SECOND_SECOND  RTX::Units(.3048,        0,1,-2)
+#define RTX_FOOT_PER_HOUR_HOUR      RTX::Units(25.5185185E-9,0,1,-2)
+
+// temperature
+#define RTX_DEGREE_KELVIN           RTX::Units(1,            0,0,0,0,1,0,0)
+#define RTX_DEGREE_RANKINE          RTX::Units(0.55555555555,0,0,0,0,1,0,0) //  K = R * 5/9
+#define RTX_DEGREE_CELSIUS          RTX::Units(1,            0,0,0,0,1,0,0,273.15)
+#define RTX_DEGREE_FARENHEIT        RTX::Units(0.55555555555,0,0,0,0,1,0,0,459.67)
+
 
 
 namespace RTX {
@@ -92,7 +107,7 @@ namespace RTX {
   
   class Units {
   public:
-    Units(double conversion = 1., int mass = 0, int length = 0, int time = 0, int current = 0, int temperature = 0, int amount = 0, int intensity = 0);
+    Units(double conversion = 1., int mass = 0, int length = 0, int time = 0, int current = 0, int temperature = 0, int amount = 0, int intensity = 0, double offset = 0);
     
     Units operator*(const Units& unit) const;
     Units operator/(const Units& unit) const;
@@ -117,6 +132,7 @@ namespace RTX {
     int _amount;
     int _intensity;
     double _conversion;
+    double _offset;
   };
   
   std::ostream& operator<< (std::ostream &out, Units &unit);

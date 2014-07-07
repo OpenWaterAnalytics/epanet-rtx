@@ -41,19 +41,19 @@ void ModularTimeSeries::setSource(TimeSeries::sharedPointer sourceTimeSeries) {
   }
   
   if( isCompatibleWith(sourceTimeSeries) ) {
-    _source = sourceTimeSeries;
     
-    _doesHaveSource = true;
-    //resetCache();
     // if this is an irregular time series, then set this clock to the same as that guy's clock.
     // but only if it's irregular.
-    if (!clock()->isRegular()) {
-      setClock(source()->clock());
+    if (!this->clock()->isRegular()) {
+      setClock(sourceTimeSeries->clock());
     }
     // and if i don't have units, just borrow from the source.
     if (units().isDimensionless()) {
-      setUnits(_source->units());
+      setUnits(sourceTimeSeries->units());
     }
+    
+    _source = sourceTimeSeries;
+    _doesHaveSource = true;
   }
   else {
     cerr << "Incompatible. Could not set source for:\n";
@@ -151,7 +151,7 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
   }
   if (!clock()->isRegular()) {
     // if the clock is irregular, there's no easy way around this.
-    vector<Point> filtered = this->filteredPoints(source(), start, end);
+    vector<Point> filtered = this->filteredPoints(this->source(), start, end);
     this->insertPoints(filtered);
     return filtered;
   }
@@ -162,7 +162,7 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
   
   // make sure the times are aligned with the clock.
   time_t newStart = (clock()->isValid(start)) ? start : clock()->timeAfter(start);
-  time_t newEnd = (clock()->isValid(end)) ? end : clock()->timeBefore(end);
+  time_t newEnd   = (clock()->isValid(end))   ? end   : clock()->timeBefore(end);
   
   PointRecord::time_pair_t prRange = record()->range(name());
   if (prRange.first <= newStart && newEnd <= prRange.second) {
@@ -170,11 +170,12 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
     // the record may not be continuous -- so check it.
     time_t now = newStart;
     vector<Point> rpVec = record()->pointsInRange(name(), newStart, newEnd);
-    if (rpVec.size() == 0) {
-      // fully internal
+    if (rpVec.size() <= 1) {
       // like this:
       // ppppp---[--- req ---]---ppppp
-      
+      // pppppppp[p---req----]---ppppp
+      // ppppp---[----req---p]pppppppp
+      rpVec.clear();
       rpVec.push_back(record()->pointBefore(name(), newStart));
       rpVec.push_back(record()->pointAfter(name(), newEnd));
       
@@ -202,6 +203,7 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
         
         gapStart = now;
         gapEnd = recordPoint.time;
+        gapEnd = RTX_MIN(gapEnd, newEnd); // very large gap?
         
         vector<Point> gapPoints = filteredPoints(source(), gapStart, gapEnd);
         if (gapPoints.size() > 0) {
@@ -277,3 +279,16 @@ vector<Point> ModularTimeSeries::filteredPoints(TimeSeries::sharedPointer source
   
   return filtered;
 }
+
+
+
+void ModularTimeSeries::resetCache()
+{
+  if (this->source()) {
+    this->source()->resetCache();
+  }
+  TimeSeries::resetCache();
+}
+
+
+
