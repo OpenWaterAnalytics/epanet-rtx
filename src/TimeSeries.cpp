@@ -235,7 +235,7 @@ PointRecord::sharedPointer TimeSeries::record() {
 
 void TimeSeries::resetCache() {
   _points->reset(name());
-  _points->registerAndGetIdentifier(this->name(), this->units());
+  //_points->registerAndGetIdentifier(this->name(), this->units());
 }
 
 void TimeSeries::setClock(Clock::sharedPointer clock) {

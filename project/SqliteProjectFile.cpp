@@ -487,9 +487,9 @@ void SqliteProjectFile::loadModelFromDb() {
   int ret;
   string modelFilePath;
   EpanetModel::sharedPointer enModel( new EpanetModel );
-  
+  // error here? implement the new version of this.
+  // de-serialize the model file from meta.key="model_contents"
   sqlite3_stmt *stmt;
-  string selectModelFileStr = "select value from meta where key = \"model_name\"";
   ret = sqlite3_prepare_v2(_dbHandle, selectModelFileStr.c_str(), -1, &stmt, NULL);
   if (ret != SQLITE_OK) {
     cerr << "can't prepare statement: " << selectModelFileStr << " -- error: " << sqlite3_errmsg(_dbHandle) << endl;

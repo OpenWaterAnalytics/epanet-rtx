@@ -59,7 +59,7 @@ Units Units::operator/(const Units& unit) const {
 }
 
 bool Units::operator==(const RTX::Units &unit) const {
-  if (_conversion == unit._conversion && this->isSameDimensionAs(unit)) {
+  if (_conversion == unit._conversion && this->isSameDimensionAs(unit) && _offset == unit._offset) {
     return true;
   }
   return false;
