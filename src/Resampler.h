@@ -17,7 +17,7 @@ namespace RTX {
   class Resampler : public ModularTimeSeries {
     
   public:
-    typedef boost::circular_buffer<Point> pointBuffer_t;
+    //typedef boost::circular_buffer<Point> pointBuffer_t;
     typedef std::vector<Point>::const_iterator pVec_cIt;
     typedef enum {linear,step} interpolateMode_t;
     RTX_SHARED_POINTER(Resampler);
