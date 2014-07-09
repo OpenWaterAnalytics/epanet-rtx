@@ -207,6 +207,10 @@
 		22B8A7A61603CA8D00EECAA5 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22C62AC01439ED6300841E60 /* libepanet-rtx.dylib */; };
 		22BEDD1F187E0BE300855B68 /* libepanetmsx-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BEDCF4187E09A100855B68 /* libepanetmsx-static.a */; };
 		22BF02D315EBCABC00F66465 /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BF02D215EBCABC00F66465 /* Point.cpp */; };
+		22BFAB01196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */; };
+		22BFAB02196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */; };
+		22BFAB03196AFBD800B5B77C /* OutlierExclusionTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22BFAB00196AFBD800B5B77C /* OutlierExclusionTimeSeries.h */; };
+		22BFAB04196AFBD800B5B77C /* OutlierExclusionTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22BFAB00196AFBD800B5B77C /* OutlierExclusionTimeSeries.h */; };
 		22C0AE56184F86190013D51F /* SqlitePointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C0AE54184F86190013D51F /* SqlitePointRecord.cpp */; };
 		22C0AE57184F86190013D51F /* SqlitePointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C0AE55184F86190013D51F /* SqlitePointRecord.h */; };
 		22C13DED18F9EFAE008DF7DA /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 220F9E4C18F9E68B00BB842C /* libepanet-rtx.dylib */; };
@@ -507,6 +511,8 @@
 		22B7155114DC813800041167 /* Resampler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Resampler.cpp; path = ../../src/Resampler.cpp; sourceTree = "<group>"; };
 		22B8A79C1603CA6100EECAA5 /* timeseries_demo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = timeseries_demo; sourceTree = BUILT_PRODUCTS_DIR; };
 		22BF02D215EBCABC00F66465 /* Point.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Point.cpp; path = ../../src/Point.cpp; sourceTree = "<group>"; };
+		22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OutlierExclusionTimeSeries.cpp; path = ../../src/OutlierExclusionTimeSeries.cpp; sourceTree = "<group>"; };
+		22BFAB00196AFBD800B5B77C /* OutlierExclusionTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OutlierExclusionTimeSeries.h; path = ../../src/OutlierExclusionTimeSeries.h; sourceTree = "<group>"; };
 		22C0AE54184F86190013D51F /* SqlitePointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SqlitePointRecord.cpp; path = ../../src/SqlitePointRecord.cpp; sourceTree = "<group>"; };
 		22C0AE55184F86190013D51F /* SqlitePointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SqlitePointRecord.h; path = ../../src/SqlitePointRecord.h; sourceTree = "<group>"; };
 		22C34350187D9426000100A4 /* EpanetMsxModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetMsxModel.cpp; path = ../../src/EpanetMsxModel.cpp; sourceTree = "<group>"; };
@@ -917,6 +923,8 @@
 				22C62ACB1439EE0B00841E60 /* AggregatorTimeSeries.cpp */,
 				220500D017B984470062D02B /* RunTimeStatusModularTimeSeries.cpp */,
 				220500D117B984470062D02B /* RunTimeStatusModularTimeSeries.h */,
+				22BFAB00196AFBD800B5B77C /* OutlierExclusionTimeSeries.h */,
+				22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */,
 			);
 			name = "time series classes";
 			sourceTree = "<group>";
@@ -1069,6 +1077,7 @@
 				228EFAC0191C0AE300342E6E /* TempoDbPointRecord.h in Headers */,
 				229FBEA5190807B3004FE5A4 /* InfluxDbPointRecord.h in Headers */,
 				220F9E3118F9E68B00BB842C /* PointRecordTime.h in Headers */,
+				22BFAB04196AFBD800B5B77C /* OutlierExclusionTimeSeries.h in Headers */,
 				220F9E3218F9E68B00BB842C /* Tank.h in Headers */,
 				220F9E3318F9E68B00BB842C /* Pipe.h in Headers */,
 				220F9E3418F9E68B00BB842C /* Pump.h in Headers */,
@@ -1136,6 +1145,7 @@
 				228EFABF191C0AE300342E6E /* TempoDbPointRecord.h in Headers */,
 				229FBEA4190807B3004FE5A4 /* InfluxDbPointRecord.h in Headers */,
 				22AB0230187B1BF000706EEA /* PointRecordTime.h in Headers */,
+				22BFAB03196AFBD800B5B77C /* OutlierExclusionTimeSeries.h in Headers */,
 				22ED77D015878804002D67F1 /* Tank.h in Headers */,
 				22804097158F827F004222DA /* Pipe.h in Headers */,
 				22804099158F82CB004222DA /* Pump.h in Headers */,
@@ -1425,6 +1435,7 @@
 				220F9DE518F9E68B00BB842C /* WarpingTimeSeries.cpp in Sources */,
 				220F9DE618F9E68B00BB842C /* Element.cpp in Sources */,
 				220F9DE718F9E68B00BB842C /* Node.cpp in Sources */,
+				22BFAB02196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp in Sources */,
 				220F9DE818F9E68B00BB842C /* Link.cpp in Sources */,
 				220F9DE918F9E68B00BB842C /* Dma.cpp in Sources */,
 				220F9DEA18F9E68B00BB842C /* InversionTimeSeries.cpp in Sources */,
@@ -1528,6 +1539,7 @@
 				2280409F158F8352004222DA /* Valve.cpp in Sources */,
 				222FDDD615C1BC2F0065DAF6 /* FirstDerivative.cpp in Sources */,
 				22253D8F16022FB6002F7256 /* CurveFunction.cpp in Sources */,
+				22BFAB01196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp in Sources */,
 				22707A9616309D4100FEB4DD /* OffsetTimeSeries.cpp in Sources */,
 				2251DCA6168105AA00515EBF /* IrregularClock.cpp in Sources */,
 				227CEC9F16BADD6000E8E7C8 /* DbPointRecord.cpp in Sources */,
@@ -1786,8 +1798,7 @@
 		22B8A7A41603CA6100EECAA5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libstdc++";
+				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
@@ -1803,8 +1814,7 @@
 		22B8A7A51603CA6100EECAA5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libstdc++";
+				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
