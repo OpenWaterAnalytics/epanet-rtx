@@ -398,7 +398,7 @@ vector<Point> OdbcPointRecord::pointsWithStatement(const string& id, SQLHSTMT st
       time_t t = sql_to_tm(_tempRecord.time);
       double v = _tempRecord.value;
       int qu = _tempRecord.quality;
-      Point::Qual_t q = Point::Qual_t::good; // todo -- map to rtx quality types
+      Point::Qual_t q = Point::good; // todo -- map to rtx quality types
       
       if (_tempRecord.valueInd > 0 && qu == 0) {
         // ok
