@@ -50,7 +50,6 @@ static string sqlGetTsById =        "select name,units,record,clock from time_se
 //static string sqlGetTsExtendedById = "select type,value_1,value_2,value_3 from time_series left join time_series_extended using (id) where id=?";
 static string sqlGetTsSourceById = "select key,value from sources where id=?";
 static string sqlGetTsPropertiesById = "select key,value from time_series_properties where id=?";
-static string sqlGetTsUpstreamById = "select key,value from time_series_sources where id=?";
 static string sqlGetAggregatorSourcesById = "select time_series,multiplier from time_series_aggregator where aggregator_id=?";
 static string sqlGetCurveCoordinatesByTsId = "select x,y from ( select curve,name,curve_id,time_series_curves.id as tsId from time_series_curves left join curves on (curve = curve_id) ) left join curve_data using (curve_id) where tsId=?"
 static string sqlGetModelElementParams = "select time_series, model_element, parameter from element_parameters";
@@ -380,6 +379,9 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
    that is, make sure we're working from left to right.
    do we need a responder chain?
    ***/
+  
+  // compile error? fix this to use the time_series_properties table instead.
+  
   retCode = sqlite3_prepare_v2(_dbHandle, sqlGetTsUpstreamById.c_str(), -1, &stmt, NULL);
   if (retCode != SQLITE_OK) {
     cerr << "can't prepare statement: " << sqlGetTsUpstreamById << " -- error: " << sqlite3_errmsg(_dbHandle) << endl;

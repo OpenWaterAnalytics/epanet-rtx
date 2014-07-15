@@ -74,13 +74,15 @@ namespace RTX {
     virtual void setHydraulicTimeStep(int seconds);
     virtual void setQualityTimeStep(int seconds);
     virtual void setInitialModelQuality();
-    void ENcheck(int errorCode, std::string externalFunction) throw(std::string);
+    void OW_API_CHECK(int errorCode, std::string externalFunction) throw(std::string);
     
     // protected accessors
     double getNodeValue(int epanetCode, const std::string& node);
     void setNodeValue(int epanetCode, const std::string& node, double value);
     double getLinkValue(int epanetCode, const std::string& link);
     void setLinkValue(int epanetCode, const std::string& link, double value);
+    
+    OW_Model *_enModel; // protected scope so subclasses can use epanet api
     
   private:
     std::map<std::string, int> _nodeIndex;
@@ -91,6 +93,7 @@ namespace RTX {
     void createRtxWrappers();
     
     bool _enOpened;
+    
     
   };
   
