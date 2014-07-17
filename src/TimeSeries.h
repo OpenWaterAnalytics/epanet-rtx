@@ -59,11 +59,10 @@ namespace RTX {
     public:
       std::vector<Point> points;
       std::vector<Point> gaps;
-      double mean;
-      double variance;
       size_t count;
-      double min;
-      double max;
+      double min,max;
+      double mean, variance;
+      double median, q25, q75;
     };
     
     
