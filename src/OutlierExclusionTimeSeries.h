@@ -10,11 +10,11 @@
 #define __epanet_rtx__OutlierExclusionTimeSeries__
 
 #include <iostream>
-#include "QuartileTimeSeries.h"
+#include "BaseStatsTimeSeries.h"
 
 namespace RTX {
   
-  class OutlierExclusionTimeSeries : public QuartileTimeSeries {
+  class OutlierExclusionTimeSeries : public BaseStatsTimeSeries {
     
   public:
     

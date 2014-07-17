@@ -18,6 +18,7 @@ using namespace std;
 OutlierExclusionTimeSeries::OutlierExclusionTimeSeries() {
   _exclusionMode = OutlierExclusionModeStdDeviation;
   _outlierMultiplier = 1.;
+  this->setSummaryOnly(true);
 }
 
 
@@ -40,67 +41,43 @@ double OutlierExclusionTimeSeries::outlierMultiplier() {
 
 
 vector<Point> OutlierExclusionTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+  
   double m = this->outlierMultiplier();
   vector<Point> goodPoints;
-  vector<Point> sourcePoints = sourceTs->points(fromTime, toTime);
+  double q25,q75,iqr,mean,stddev;
   
-  switch (this->exclusionMode()) {
-    case OutlierExclusionModeInterquartileRange:
-    {
-      vector<QuartilePoint> qPoints = this->filteredQuartilePoints(sourceTs, fromTime, toTime);
-      goodPoints.reserve(qPoints.size());
-      vector<Point>::const_iterator pIt = sourcePoints.begin();
-      
-      BOOST_FOREACH(const QuartilePoint& qp, qPoints) {
-        // get the corresponding point from the sources. fast forward if needed.
-        while (pIt != goodPoints.end() && pIt->time < qp.time) {
-          ++pIt;
-        }
-        
-        // final check. times should be fully registered
-        if (pIt->time != qp.time) {
-          cerr << "times not registered for IQR filtering" << endl;
-          continue;
-        }
-        
-        // check iqr
-        double iqr = qp.q75 - qp.q25;
-        if (/* NOT */!( (pIt->value < qp.q25 - m*iqr)/* less than iqr mult */ || (m*iqr + qp.q75 < pIt->value)/* or greater than iqr mult */ )) {
+  vector< pointSummaryPair_t > summaryCollection = this->filteredSummaryPoints(sourceTs, fromTime, toTime);
+  goodPoints.reserve(summaryCollection.size());
+  
+  BOOST_FOREACH(const pointSummaryPair_t& psp, summaryCollection) {
+    
+    // fetch pair values from the source summary collection
+    Point p = psp.first;
+    Summary s = psp.second;
+
+    switch (this->exclusionMode()) {
+      case OutlierExclusionModeInterquartileRange:
+      {
+        q25 = s.stats.quartiles.q25;
+        q75 = s.stats.quartiles.q75;
+        iqr = q75 - q25;
+        if ( !( (p.value < q25 - m*iqr) || (m*iqr + q75 < p.value) )) {
           // store the point if it's within bounds
-          goodPoints.push_back(Point::convertPoint(*pIt, sourceTs->units(), this->units()));
-        }
-      }
-      // all done with IQR
-    }
-      break;
-    case OutlierExclusionModeStdDeviation:
-    {
-      
-      time_t windowLen = this->window()->period();
-      
-      // force a pre-cache on the source time series
-      sourceTs->points(fromTime - windowLen, toTime);
-      
-      // TimeSeries::Summary already computes stats, so just use that info.
-      goodPoints.reserve(sourcePoints.size());
-      
-      BOOST_FOREACH(const Point& p, sourcePoints) {
-        TimeSeries::Summary s = sourceTs->summary( p.time - windowLen, p.time );
-        double stdDev = sqrt(s.stats.variance);
-        double mean = s.stats.mean;
-        if ( fabs(mean - p.value) <= (m * stdDev) ) {
           goodPoints.push_back(Point::convertPoint(p, sourceTs->units(), this->units()));
         }
-        
       }
-      
-    }
-      break;
-    default:
-      break;
-      
-  } // end switch
-  
+        break; // OutlierExclusionModeInterquartileRange
+      case OutlierExclusionModeStdDeviation:
+      {
+        mean = s.stats.mean;
+        stddev = sqrt(s.stats.variance);
+        if ( fabs(mean - p.value) <= (m * stddev) ) {
+          goodPoints.push_back(Point::convertPoint(p, sourceTs->units(), this->units()));
+        }
+      }
+        break; // OutlierExclusionModeStdDeviation
+    } // end switch mode
+  }// end for each summary
   
   return goodPoints;
 }
