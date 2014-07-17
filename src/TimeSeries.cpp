@@ -176,6 +176,10 @@ TimeSeries::Summary TimeSeries::summary(time_t start, time_t end) {
   Summary s;
   s.points = this->points(start, end);
   
+  if (s.points.size() == 0) {
+    return s;
+  }
+  
   // gaps
   s.gaps.reserve(s.points.size());
   time_t prior = this->pointBefore(s.points.front().time).time;
@@ -198,14 +202,14 @@ TimeSeries::Summary TimeSeries::summary(time_t start, time_t end) {
     quant_left(p.value);
   }
   
-  s.q25 = quantile(quant_left, quantile_probability = 0.25);
-  s.q75 = quantile(quant_right, quantile_probability = 0.75);
-  s.median    = extract::median(acc);
-  s.mean      = extract::mean(acc);
-  s.variance  = extract::variance(acc);
-  s.count     = extract::count(acc);
-  s.min       = extract::min(acc);
-  s.max       = extract::max(acc);
+  s.stats.quartiles.q25 = quantile(quant_left, quantile_probability = 0.25);
+  s.stats.quartiles.q75 = quantile(quant_right, quantile_probability = 0.75);
+  s.stats.quartiles.q50    = extract::median(acc);
+  s.stats.mean      = extract::mean(acc);
+  s.stats.variance  = extract::variance(acc);
+  s.stats.count     = extract::count(acc);
+  s.stats.min       = extract::min(acc);
+  s.stats.max       = extract::max(acc);
   
   return s;
 }

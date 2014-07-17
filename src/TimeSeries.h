@@ -57,12 +57,23 @@ namespace RTX {
     // public internal class description for the summary
     class Summary {
     public:
+      
+      class Stats {
+      public:
+        Stats() : count(0),min(0),max(0),mean(0),variance(0) { quartiles.q25 = 0; quartiles.q50 = 0; quartiles.q75 = 0; };
+        size_t count;
+        double min,max,mean, variance;
+        typedef struct {
+          double q25,q50,q75;
+        } quartiles_t;
+        quartiles_t quartiles;
+      };
+      
+      Summary() {};
       std::vector<Point> points;
       std::vector<Point> gaps;
-      size_t count;
-      double min,max;
-      double mean, variance;
-      double median, q25, q75;
+      Stats stats;
+      
     };
     
     
