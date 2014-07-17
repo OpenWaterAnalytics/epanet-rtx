@@ -82,7 +82,7 @@ namespace RTX {
     double getLinkValue(int epanetCode, const std::string& link);
     void setLinkValue(int epanetCode, const std::string& link, double value);
     
-    OW_Model *_enModel; // protected scope so subclasses can use epanet api
+    OW_Project *_enModel; // protected scope so subclasses can use epanet api
     
   private:
     std::map<std::string, int> _nodeIndex;

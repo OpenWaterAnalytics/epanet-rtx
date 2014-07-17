@@ -21,7 +21,7 @@ using namespace std;
 EpanetModel::EpanetModel() : Model() {
   // nothing to do, right?
   _enOpened = false;
-  OW_Model *newEpanetModel;
+  OW_Project *newEpanetModel;
   _enModel = newEpanetModel;
 }
 
