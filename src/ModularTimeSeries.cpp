@@ -131,7 +131,8 @@ Point ModularTimeSeries::point(time_t time) {
 Point ModularTimeSeries::pointBefore(time_t time) {
   time_t timeBefore = clock()->timeBefore(time);
   if (timeBefore == 0) {
-    timeBefore = source()->clock()->timeBefore(time);
+//    timeBefore = source()->clock()->timeBefore(time);
+    timeBefore = source()->pointBefore(time).time;
   }
   return point(timeBefore);
 }
@@ -139,7 +140,8 @@ Point ModularTimeSeries::pointBefore(time_t time) {
 Point ModularTimeSeries::pointAfter(time_t time) {
   time_t timeAfter = clock()->timeAfter(time);
   if (timeAfter == 0) {
-    timeAfter = source()->clock()->timeAfter(time);
+//    timeAfter = source()->clock()->timeAfter(time);
+    timeAfter = source()->pointAfter(time).time;
   }
   return point(timeAfter);
 }
