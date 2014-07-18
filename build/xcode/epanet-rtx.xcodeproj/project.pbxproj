@@ -158,6 +158,10 @@
 		224D40D819786C3000160BD5 /* BaseStatsTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224D40D519786C3000160BD5 /* BaseStatsTimeSeries.cpp */; };
 		224D40D919786C3000160BD5 /* BaseStatsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 224D40D619786C3000160BD5 /* BaseStatsTimeSeries.h */; };
 		224D40DA19786C3000160BD5 /* BaseStatsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 224D40D619786C3000160BD5 /* BaseStatsTimeSeries.h */; };
+		224E04801979431D0039E3F9 /* StatsTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224E047E1979431C0039E3F9 /* StatsTimeSeries.cpp */; };
+		224E04811979431D0039E3F9 /* StatsTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224E047E1979431C0039E3F9 /* StatsTimeSeries.cpp */; };
+		224E04821979431D0039E3F9 /* StatsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 224E047F1979431C0039E3F9 /* StatsTimeSeries.h */; };
+		224E04831979431D0039E3F9 /* StatsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 224E047F1979431C0039E3F9 /* StatsTimeSeries.h */; };
 		2251DCA6168105AA00515EBF /* IrregularClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2251DCA4168105AA00515EBF /* IrregularClock.cpp */; };
 		2251DCA7168105AA00515EBF /* IrregularClock.h in Headers */ = {isa = PBXBuildFile; fileRef = 2251DCA5168105AA00515EBF /* IrregularClock.h */; };
 		225D719F1497F96C00B90F6D /* MysqlPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */; };
@@ -464,6 +468,8 @@
 		224B19A1152CA7510051F408 /* ConfigProject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConfigProject.cpp; path = ../../src/ConfigProject.cpp; sourceTree = "<group>"; };
 		224D40D519786C3000160BD5 /* BaseStatsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BaseStatsTimeSeries.cpp; path = ../../src/BaseStatsTimeSeries.cpp; sourceTree = "<group>"; };
 		224D40D619786C3000160BD5 /* BaseStatsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BaseStatsTimeSeries.h; path = ../../src/BaseStatsTimeSeries.h; sourceTree = "<group>"; };
+		224E047E1979431C0039E3F9 /* StatsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StatsTimeSeries.cpp; path = ../../src/StatsTimeSeries.cpp; sourceTree = "<group>"; };
+		224E047F1979431C0039E3F9 /* StatsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StatsTimeSeries.h; path = ../../src/StatsTimeSeries.h; sourceTree = "<group>"; };
 		2251DCA4168105AA00515EBF /* IrregularClock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IrregularClock.cpp; path = ../../src/IrregularClock.cpp; sourceTree = "<group>"; };
 		2251DCA5168105AA00515EBF /* IrregularClock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IrregularClock.h; path = ../../src/IrregularClock.h; sourceTree = "<group>"; };
 		225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MysqlPointRecord.cpp; path = ../../src/MysqlPointRecord.cpp; sourceTree = "<group>"; };
@@ -931,6 +937,8 @@
 				220500D117B984470062D02B /* RunTimeStatusModularTimeSeries.h */,
 				224D40D619786C3000160BD5 /* BaseStatsTimeSeries.h */,
 				224D40D519786C3000160BD5 /* BaseStatsTimeSeries.cpp */,
+				224E047F1979431C0039E3F9 /* StatsTimeSeries.h */,
+				224E047E1979431C0039E3F9 /* StatsTimeSeries.cpp */,
 				22BFAB00196AFBD800B5B77C /* OutlierExclusionTimeSeries.h */,
 				22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */,
 			);
@@ -1088,6 +1096,7 @@
 				220F9E3118F9E68B00BB842C /* PointRecordTime.h in Headers */,
 				22BFAB04196AFBD800B5B77C /* OutlierExclusionTimeSeries.h in Headers */,
 				220F9E3218F9E68B00BB842C /* Tank.h in Headers */,
+				224E04831979431D0039E3F9 /* StatsTimeSeries.h in Headers */,
 				220F9E3318F9E68B00BB842C /* Pipe.h in Headers */,
 				220F9E3418F9E68B00BB842C /* Pump.h in Headers */,
 				220F9E3518F9E68B00BB842C /* TimeOffsetTimeSeries.h in Headers */,
@@ -1157,6 +1166,7 @@
 				22AB0230187B1BF000706EEA /* PointRecordTime.h in Headers */,
 				22BFAB03196AFBD800B5B77C /* OutlierExclusionTimeSeries.h in Headers */,
 				22ED77D015878804002D67F1 /* Tank.h in Headers */,
+				224E04821979431D0039E3F9 /* StatsTimeSeries.h in Headers */,
 				22804097158F827F004222DA /* Pipe.h in Headers */,
 				22804099158F82CB004222DA /* Pump.h in Headers */,
 				22190A2B18EC9B3700E5715D /* TimeOffsetTimeSeries.h in Headers */,
@@ -1481,6 +1491,7 @@
 				224D40D819786C3000160BD5 /* BaseStatsTimeSeries.cpp in Sources */,
 				220F9E0718F9E68B00BB842C /* SqlitePointRecord.cpp in Sources */,
 				220F9E0818F9E68B00BB842C /* ConstantTimeSeries.cpp in Sources */,
+				224E04811979431D0039E3F9 /* StatsTimeSeries.cpp in Sources */,
 				220F9E0918F9E68B00BB842C /* SinglePointFilterModularTimeSeries.cpp in Sources */,
 				220F9E0A18F9E68B00BB842C /* ValidRangeTimeSeries.cpp in Sources */,
 				220F9E0B18F9E68B00BB842C /* MultiplierTimeSeries.cpp in Sources */,
@@ -1567,6 +1578,7 @@
 				226AC1431733F5CE009B7C90 /* SinglePointFilterModularTimeSeries.cpp in Sources */,
 				226AC1481733F996009B7C90 /* ValidRangeTimeSeries.cpp in Sources */,
 				226AC14D17340D06009B7C90 /* MultiplierTimeSeries.cpp in Sources */,
+				224E04801979431D0039E3F9 /* StatsTimeSeries.cpp in Sources */,
 				22A842D5173BF446009CE769 /* GainTimeSeries.cpp in Sources */,
 				220500D217B984470062D02B /* RunTimeStatusModularTimeSeries.cpp in Sources */,
 			);
