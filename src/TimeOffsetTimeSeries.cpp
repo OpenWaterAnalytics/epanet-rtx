@@ -18,8 +18,17 @@ time_t TimeOffsetTimeSeries::offset() {
 
 
 
-Point TimeOffsetTimeSeries::point(time_t time) {
-  return TIME_OFFSET_SUPER::point(time - _offset);
+//Point TimeOffsetTimeSeries::point(time_t time) {
+//  return TIME_OFFSET_SUPER::point(time - _offset);
+//}
+
+
+Point TimeOffsetTimeSeries::pointBefore(time_t time) {
+  return TIME_OFFSET_SUPER::pointBefore(time - _offset);
+}
+
+Point TimeOffsetTimeSeries::pointAfter(time_t time) {
+  return TIME_OFFSET_SUPER::pointAfter(time - _offset);
 }
 
 vector<Point> TimeOffsetTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {

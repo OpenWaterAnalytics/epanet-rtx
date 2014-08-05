@@ -59,6 +59,16 @@ vector<Point> StatsTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs
         break;
       case StatsTimeSeriesInterQuartileRange:
         v = s.stats.quartiles.q75 - s.stats.quartiles.q25;
+        break;
+      case StatsTimeSeriesMax:
+        v = s.stats.max;
+        break;
+      case StatsTimeSeriesMin:
+        v = s.stats.min;
+        break;
+      case StatsTimeSeriesCount:
+        v = s.stats.count;
+        break;
       default:
         break;
     }

@@ -22,7 +22,10 @@ namespace RTX {
       StatsTimeSeriesStdDev,
       StatsTimeSeriesQ25,
       StatsTimeSeriesQ75,
-      StatsTimeSeriesInterQuartileRange
+      StatsTimeSeriesInterQuartileRange,
+      StatsTimeSeriesMax,
+      StatsTimeSeriesMin,
+      StatsTimeSeriesCount
     } StatsTimeSeriesType;
     
     RTX_SHARED_POINTER(StatsTimeSeries);

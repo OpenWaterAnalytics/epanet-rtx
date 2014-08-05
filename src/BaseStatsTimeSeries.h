@@ -29,7 +29,7 @@ namespace RTX {
     void setSummaryOnly(bool summaryOnly);
     
     // overrides
-    void setClock(Clock::sharedPointer clock);
+//    void setClock(Clock::sharedPointer clock);
     
   protected:
     virtual std::vector< pointSummaryPair_t > filteredSummaryPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
