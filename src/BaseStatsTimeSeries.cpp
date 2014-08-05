@@ -20,10 +20,10 @@ BaseStatsTimeSeries::BaseStatsTimeSeries() {
 }
 
 
-void BaseStatsTimeSeries::setClock(Clock::sharedPointer clock) {
-  // not allowed
-  return;
-}
+//void BaseStatsTimeSeries::setClock(Clock::sharedPointer clock) {
+//  // not allowed
+//  return;
+//}
 
 
 void BaseStatsTimeSeries::setWindow(Clock::sharedPointer window) {
