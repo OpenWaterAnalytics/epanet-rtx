@@ -35,10 +35,13 @@ namespace RTX {
     void setStatsType(StatsTimeSeriesType type);
     
   protected:
+    virtual bool canAlterDimension() { return true; };
+    virtual bool canAlterClock() { return true; };
     virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
     
   private:
     StatsTimeSeriesType _statsType;
+    double valueFromSummary(TimeSeries::Summary s);
     
   };
 }

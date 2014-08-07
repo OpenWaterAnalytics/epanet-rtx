@@ -92,10 +92,6 @@ int Resampler::margin() {
   return 1;
 }
 
-bool Resampler::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
-  // this time series can resample, so override with true always.
-  return (units().isDimensionless() || units().isSameDimensionAs(withTimeSeries->units()));
-}
 
 std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
   Units sourceUnits = sourceTs->units();

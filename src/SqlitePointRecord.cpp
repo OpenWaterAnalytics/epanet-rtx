@@ -377,6 +377,7 @@ Point SqlitePointRecord::selectPrevious(const std::string& id, time_t time) {
   
 }
 
+#pragma mark FIXME :: this makes things slow
 
 void SqlitePointRecord::insertSingle(const std::string &id, RTX::Point point) {
   

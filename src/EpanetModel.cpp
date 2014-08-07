@@ -181,13 +181,14 @@ void EpanetModel::initEngine() {
 void EpanetModel::closeEngine() {
   if (_enOpened) {
     try {
+      OW_API_CHECK( OW_closeQ(_enModel), "OW_closeQ");
       OW_API_CHECK( OW_closeH(_enModel), "OW_closeH");
-      OW_API_CHECK( OW_close(_enModel), "OW_close");
     } catch (...) {
       cerr << "warning: epanet closed improperly" << endl;
     }
     _enOpened = false;
   }
+  OW_API_CHECK( OW_close(_enModel), "OW_close");
 }
 
 

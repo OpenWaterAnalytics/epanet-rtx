@@ -85,7 +85,7 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
   std::vector< Point > points;
   
   // sanity
-  if ((start == end) || (start < 0) || (end < 0)) {
+  if (start == 0 || end == 0 || (start < 0) || (end < 0)) {
     return points;
   }
   

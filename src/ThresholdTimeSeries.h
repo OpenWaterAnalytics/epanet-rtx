@@ -36,6 +36,7 @@ namespace RTX {
     thresholdMode_t mode();
     void setMode(thresholdMode_t mode);
 
+    virtual bool canAlterDimension() { return true; };
     
   private:
     Point filteredSingle(Point p, Units sourceU);
