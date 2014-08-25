@@ -52,7 +52,7 @@ static string sqlGetTsSourceById = "select key,value from sources where id=?";
 static string sqlGetTsPropertiesById = "select key,value from time_series_properties where id=?";
 static string sqlGetTsUpstreamById = "select key,value from time_series_sources where id=?";
 static string sqlGetAggregatorSourcesById = "select time_series,multiplier from time_series_aggregator where aggregator_id=?";
-static string sqlGetCurveCoordinatesByTsId = "select x,y from ( select curve,name,curve_id,time_series_curves.id as tsId from time_series_curves left join curves on (curve = curve_id) ) left join curve_data using (curve_id) where tsId=?"
+static string sqlGetCurveCoordinatesByTsId = "select x,y from ( select curve,name,curve_id,time_series_curves.id as tsId from time_series_curves left join curves on (curve = curve_id) ) left join curve_data using (curve_id) where tsId=?";
 static string sqlGetModelElementParams = "select time_series, model_element, parameter from element_parameters";
 static string sqlGetModelNameAndTypeByUid = "select name,type from model_elements where uid=?";
 //---------------------------------------------------------//
@@ -437,8 +437,8 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
       // get sources.
       sqlite3_bind_int(stmt, 1, entry.uid);
       while (sqlite3_step(stmt) == SQLITE_ROW) {
-        int idx = sqlite3_column_int(stmt, 1);
-        double multiplier = sqlite3_column_double(stmt, 2);
+        int idx = sqlite3_column_int(stmt, 0);
+        double multiplier = sqlite3_column_double(stmt, 1);
         TimeSeries::sharedPointer upstream = _timeseries[idx];
         agg->addSource(upstream, multiplier);
       }
