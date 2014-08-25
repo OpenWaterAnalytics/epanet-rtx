@@ -261,6 +261,11 @@ std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sour
     }
   }
   
+  // sanity
+  if (start < rangeStart || rangeEnd < end) {
+    cerr << "expanded range smaller than input" << endl;
+  }
+  
   
   pair<time_t, time_t> newRange(rangeStart,rangeEnd);
   return newRange;

@@ -54,7 +54,7 @@ Point ValidRangeTimeSeries::pointBefore(time_t time) {
       cout << "break" << endl;
     }
   }
-  std::cout << priorPoint << endl;
+//  std::cout << priorPoint << endl;
   return priorPoint;
 }
 
