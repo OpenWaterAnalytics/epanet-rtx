@@ -92,6 +92,19 @@ bool ModularTimeSeries::doesHaveSource() {
   }
 }
 
+
+TimeSeries::sharedPointer ModularTimeSeries::rootTimeSeries() {
+  
+  if (this->doesHaveSource()) {
+    return this->source()->rootTimeSeries();
+  }
+  
+  TimeSeries::sharedPointer empty;
+  return empty;
+}
+
+
+
 void ModularTimeSeries::setUnits(Units newUnits) {
   if (!doesHaveSource() || (doesHaveSource() && newUnits.isSameDimensionAs(source()->units())) || this->canAlterDimension()) {
     TimeSeries::setUnits(newUnits);
