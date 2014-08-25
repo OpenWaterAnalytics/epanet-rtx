@@ -9,6 +9,8 @@
 #ifndef epanet_rtx_timeseries_h
 #define epanet_rtx_timeseries_h
 
+#include <boost/enable_shared_from_this.hpp>
+
 #include <vector>
 #include <map>
 #include <iostream>
@@ -51,19 +53,29 @@ namespace RTX {
   
   
   
-  class TimeSeries {    
+  class TimeSeries : public boost::enable_shared_from_this<TimeSeries> {
   public:
     
     // public internal class description for the summary
     class Summary {
     public:
+      
+      class Stats {
+      public:
+        Stats() : count(0),min(0),max(0),mean(0),variance(0) { quartiles.q25 = 0; quartiles.q50 = 0; quartiles.q75 = 0; };
+        size_t count;
+        double min,max,mean, variance;
+        typedef struct {
+          double q25,q50,q75;
+        } quartiles_t;
+        quartiles_t quartiles;
+      };
+      
+      Summary() {};
       std::vector<Point> points;
       std::vector<Point> gaps;
-      double mean;
-      double variance;
-      size_t count;
-      double min;
-      double max;
+      Stats stats;
+      
     };
     
     
@@ -89,6 +101,8 @@ namespace RTX {
     PointRecord::sharedPointer record();
     
     TimeSeries::Summary summary(time_t start, time_t end);
+    
+    virtual TimeSeries::sharedPointer rootTimeSeries() { return shared_from_this(); };
     
     // setters
     virtual void setName(const std::string& name);

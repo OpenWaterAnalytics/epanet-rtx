@@ -92,10 +92,6 @@ int Resampler::margin() {
   return 1;
 }
 
-bool Resampler::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
-  // this time series can resample, so override with true always.
-  return (units().isDimensionless() || units().isSameDimensionAs(withTimeSeries->units()));
-}
 
 std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
   Units sourceUnits = sourceTs->units();
@@ -263,6 +259,11 @@ std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sour
         break;
       }
     }
+  }
+  
+  // sanity
+  if (start < rangeStart || rangeEnd < end) {
+    cerr << "expanded range smaller than input" << endl;
   }
   
   

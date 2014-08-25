@@ -39,6 +39,9 @@ namespace RTX {
     void clearCurve();
     std::vector<std::pair<double,double> > curve();
     
+    
+    virtual bool canAlterDimension() { return true; };
+    
   protected:
     virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
     

@@ -26,10 +26,16 @@
 #include "FailoverTimeSeries.h"
 #include "TimeOffsetTimeSeries.h"
 #include "WarpingTimeSeries.h"
+#include "StatsTimeSeries.h"
+#include "OutlierExclusionTimeSeries.h"
 
 #include "EpanetModel.h"
 
 #include <boost/range/adaptors.hpp>
+#include <boost/filesystem.hpp>
+
+#include <iostream>
+#include <fstream>
 
 #define typeEquals(x) RTX_STRINGS_ARE_EQUAL(type,x)
 
@@ -40,7 +46,11 @@ using namespace RTX;
 using namespace std;
 
 
+
+
 /////////////////////////////////////////////////////////////
+static int sqlRequiredUserVersion = 10;
+
 //---------------------------------------------------------//
 static string sqlSelectRecords =    "select id,name,type from point_records";
 static string sqlSelectClocks = "select id,name,type,period,offset from clocks";
@@ -48,13 +58,16 @@ static string sqlSelectTimeseries = "select id,type from time_series";
 static string sqlGetTsById =        "select name,units,record,clock from time_series where id=?";
 //static string sqlGetTsModularById = "select * from time_series_modular left join time_series_extended using (id) where id=?";
 //static string sqlGetTsExtendedById = "select type,value_1,value_2,value_3 from time_series left join time_series_extended using (id) where id=?";
-static string sqlGetTsSourceById = "select key,value from sources where id=?";
-static string sqlGetTsPropertiesById = "select key,value from time_series_properties where id=?";
-static string sqlGetTsUpstreamById = "select key,value from time_series_sources where id=?";
+static string sqlGetTsPropertiesById = "select key,value from time_series_properties where ref_table is null and id=?";
+static string sqlGetTsSourceById = "select key,value from time_series_properties where ref_table=\"time_series\" and id=?";
+static string sqlGetTsClockParameterById = "select key,value from time_series_properties where ref_table=\"clocks\" and id=?";
 static string sqlGetAggregatorSourcesById = "select time_series,multiplier from time_series_aggregator where aggregator_id=?";
 static string sqlGetCurveCoordinatesByTsId = "select x,y from ( select curve,name,curve_id,time_series_curves.id as tsId from time_series_curves left join curves on (curve = curve_id) ) left join curve_data using (curve_id) where tsId=?";
 static string sqlGetModelElementParams = "select time_series, model_element, parameter from element_parameters";
 static string sqlGetModelNameAndTypeByUid = "select name,type from model_elements where uid=?";
+
+static string selectModelFileStr = "select value from meta where key = \"model_contents\"";
+
 //---------------------------------------------------------//
 static string dbTimeseriesName =  "TimeSeries";
 static string dbConstantName =   "Constant";
@@ -73,6 +86,8 @@ static string dbInversionName = "Inversion";
 static string dbFailoverName = "Failover";
 static string dbLagName = "Lag";
 static string dbWarpName = "Warp";
+static string dbStatsName = "Stats";
+static string dbOutlierName = "OutlierExclusion";
 //---------------------------------------------------------//
 static string dbOdbcRecordName =  "odbc";
 static string dbMysqlRecordName = "mysql";
@@ -142,6 +157,22 @@ void SqliteProjectFile::loadProjectFile(const string& path) {
     sqlite3_close(_dbHandle);
     return;
   }
+  
+  
+  // check schema version
+  int databaseVersion = -1;
+  sqlite3_stmt *stmt_version;
+  if(sqlite3_prepare_v2(_dbHandle, "PRAGMA user_version;", -1, &stmt_version, NULL) == SQLITE_OK) {
+    while(sqlite3_step(stmt_version) == SQLITE_ROW) {
+      databaseVersion = sqlite3_column_int(stmt_version, 0);
+    }
+  }
+  
+  if (databaseVersion < sqlRequiredUserVersion) {
+    cerr << "Config Database Schema version not compatible. Require version " << sqlRequiredUserVersion << " or greater." << endl;
+    return;
+  }
+  
   
   
   // load everything
@@ -379,12 +410,17 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
    need to figure out a smart way to ensure that downstream modules are affected by upstream setters.
    that is, make sure we're working from left to right.
    do we need a responder chain?
+   
+   generally we would expect all this to be ordered by id, with id increasing from "left to right"
    ***/
-  retCode = sqlite3_prepare_v2(_dbHandle, sqlGetTsUpstreamById.c_str(), -1, &stmt, NULL);
+  
+  // get time series sources and secondary sources, for modular types.
+  retCode = sqlite3_prepare_v2(_dbHandle, sqlGetTsSourceById.c_str(), -1, &stmt, NULL);
   if (retCode != SQLITE_OK) {
-    cerr << "can't prepare statement: " << sqlGetTsUpstreamById << " -- error: " << sqlite3_errmsg(_dbHandle) << endl;
+    cerr << "can't prepare statement: " << sqlGetTsSourceById << " -- error: " << sqlite3_errmsg(_dbHandle) << endl;
     return;
   }
+  
   BOOST_FOREACH(tsListEntry entry, tsList) {
     // if it doesn't take a source, then move on.
     ModularTimeSeries::sharedPointer mod = boost::dynamic_pointer_cast<ModularTimeSeries>(entry.ts);
@@ -423,6 +459,36 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
     sqlite3_reset(stmt); // get ready for next bind
   }
   retCode = sqlite3_finalize(stmt);
+  
+  
+  
+  // get parameterized clocks
+  retCode = sqlite3_prepare_v2(_dbHandle, sqlGetTsClockParameterById.c_str(), -1, &stmt, NULL);
+  if (retCode != SQLITE_OK) {
+    cerr << "can't prepare statement: " << sqlGetTsClockParameterById << " -- error: " << sqlite3_errmsg(_dbHandle) << endl;
+    return;
+  }
+  BOOST_FOREACH(tsListEntry entry, tsList) {
+    // query for any upstream sources / secondary sources
+    sqlite3_bind_int(stmt, 1, entry.uid);
+    // if this returns a row, then this time series has a parameterized clock
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+      string key = (char*)sqlite3_column_text(stmt, 0);
+      int idx = sqlite3_column_int(stmt, 1);
+      Clock::sharedPointer clock = _clocks[idx];
+      if (!clock) {
+        continue;
+      }
+      if (RTX_STRINGS_ARE_EQUAL(key, "samplingWindow")) {
+        BaseStatsTimeSeries::sharedPointer bs = boost::dynamic_pointer_cast<BaseStatsTimeSeries>(entry.ts);
+        bs->setWindow(clock);
+      }
+    }
+    sqlite3_reset(stmt);
+  }
+  retCode = sqlite3_finalize(stmt);
+  
+  
   
   
   // ANY AGGREGATORS?
@@ -485,7 +551,7 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
 
 void SqliteProjectFile::loadModelFromDb() {
   int ret;
-  string modelFilePath;
+  string modelContents;
   EpanetModel::sharedPointer enModel( new EpanetModel );
   // error here? implement the new version of this.
   // de-serialize the model file from meta.key="model_contents"
@@ -495,9 +561,23 @@ void SqliteProjectFile::loadModelFromDb() {
     cerr << "can't prepare statement: " << selectModelFileStr << " -- error: " << sqlite3_errmsg(_dbHandle) << endl;
   }
   if (sqlite3_step(stmt) == SQLITE_ROW) {
-    modelFilePath = string((char*)sqlite3_column_text(stmt, 0));
+    modelContents = string((char*)sqlite3_column_text(stmt, 0));
     try {
-      enModel->loadModelFromFile(modelFilePath);
+      boost::filesystem::path tempFile = boost::filesystem::temp_directory_path();
+      boost::filesystem::path tempNameHash = boost::filesystem::unique_path();
+      const std::string tempstr    = tempNameHash.native();  // optional
+      
+      tempFile /= tempNameHash;
+      tempFile.replace_extension(".inp");
+      
+      // dump contents into file.
+      
+      ofstream modelFileStream;
+      modelFileStream.open(tempFile.string());
+      modelFileStream << modelContents;
+      modelFileStream.close();
+      
+      enModel->loadModelFromFile(tempFile.string());
     } catch (std::exception &e) {
       cerr << e.what();
     }
@@ -607,8 +687,17 @@ TimeSeries::sharedPointer SqliteProjectFile::newTimeseriesWithType(const string&
     WarpingTimeSeries::sharedPointer ts(new WarpingTimeSeries);
     return ts;
   }
+  else if (typeEquals(dbStatsName)) {
+    StatsTimeSeries::sharedPointer ts(new StatsTimeSeries);
+    return ts;
+  }
+  else if (typeEquals(dbOutlierName)) {
+    OutlierExclusionTimeSeries::sharedPointer ts(new OutlierExclusionTimeSeries);
+    return ts;
+  }
   
   else {
+    cerr << "Did not recognize type: " << type << endl;
     return TimeSeries::sharedPointer(); // nada
   }
   
@@ -798,6 +887,27 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::share
   }
   else if (typeEquals(dbWarpName)) {
     //
+  }
+  else if (typeEquals(dbStatsName)) {
+    StatsTimeSeries::sharedPointer st = boost::dynamic_pointer_cast<StatsTimeSeries>(ts);
+    if (RTX_STRINGS_ARE_EQUAL(key, "samplingMode")) {
+      st->setSamplingMode((StatsTimeSeries::StatsSamplingMode_t)val);
+    }
+    else if (RTX_STRINGS_ARE_EQUAL(key, "statsMode")) {
+      st->setStatsType((StatsTimeSeries::StatsTimeSeriesType)val);
+    }
+  }
+  else if (typeEquals(dbOutlierName)) {
+    OutlierExclusionTimeSeries::sharedPointer outl = boost::dynamic_pointer_cast<OutlierExclusionTimeSeries>(ts);
+    if (RTX_STRINGS_ARE_EQUAL(key, "samplingMode")) {
+      outl->setSamplingMode((StatsTimeSeries::StatsSamplingMode_t)val);
+    }
+    else if (RTX_STRINGS_ARE_EQUAL(key, "exclusionMode")) {
+      outl->setExclusionMode((OutlierExclusionTimeSeries::exclusion_mode_t)val);
+    }
+    else if (RTX_STRINGS_ARE_EQUAL(key, "outlierMultiplier")) {
+      outl->setOutlierMultiplier(val);
+    }
   }
   else {
     cerr << "unknown type name: " << type << endl;

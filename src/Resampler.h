@@ -17,7 +17,7 @@ namespace RTX {
   class Resampler : public ModularTimeSeries {
     
   public:
-    typedef boost::circular_buffer<Point> pointBuffer_t;
+    //typedef boost::circular_buffer<Point> pointBuffer_t;
     typedef std::vector<Point>::const_iterator pVec_cIt;
     typedef enum {linear,step} interpolateMode_t;
     RTX_SHARED_POINTER(Resampler);
@@ -30,8 +30,8 @@ namespace RTX {
     void setMode(interpolateMode_t mode);
     
   protected:
+    virtual bool canAlterClock() { return true; }; // i can change clocks, obviously
     virtual int margin(); // override this for specific subclass implementation -- default is 1
-    virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
     virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
     //virtual Point filteredSingle(const pointBuffer_t& window, time_t t, Units fromUnits);
     virtual Point filteredSingle(pVec_cIt& vecStart, pVec_cIt& vecEnd, pVec_cIt& vecPos, time_t t, Units fromUnits);

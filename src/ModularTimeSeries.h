@@ -50,6 +50,8 @@ namespace RTX {
     virtual void setSource(TimeSeries::sharedPointer source);
     virtual bool doesHaveSource();
     
+    virtual TimeSeries::sharedPointer rootTimeSeries();
+    
     // overridden methods from parent class
     //virtual bool isPointAvailable(time_t time);
     virtual Point point(time_t time);
@@ -62,9 +64,15 @@ namespace RTX {
     
     virtual std::ostream& toStream(std::ostream &stream);
     
-  protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
+    // essentially these are delegate methods, up the the subclass to override
+    virtual bool canAlterDimension() { return false; };
+    virtual bool canAlterClock() { return false; };
     
+  protected:
+    
+    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
+    virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
+
   private:
     TimeSeries::sharedPointer _source;
     bool _doesHaveSource;

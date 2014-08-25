@@ -48,7 +48,7 @@ void ModularTimeSeries::setSource(TimeSeries::sharedPointer sourceTimeSeries) {
       setClock(sourceTimeSeries->clock());
     }
     // and if i don't have units, just borrow from the source.
-    if (units().isDimensionless()) {
+    if (units().isDimensionless() && !this->canAlterDimension()) {
       setUnits(sourceTimeSeries->units());
     }
     
@@ -61,6 +61,23 @@ void ModularTimeSeries::setSource(TimeSeries::sharedPointer sourceTimeSeries) {
     // TODO -- throw something?
   }
 }
+
+bool ModularTimeSeries::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
+  
+  // first section is essentially the same as base TimeSeries class
+  Clock::sharedPointer theirClock = withTimeSeries->clock(), myClock = this->clock();
+  bool clocksCompatible = myClock->isCompatibleWith(theirClock);
+  bool unitsCompatible = units().isDimensionless() || units().isSameDimensionAs(withTimeSeries->units());
+  
+  // now make special allowances for specific subclass behavior
+  clocksCompatible = ( clocksCompatible || this->canAlterClock() );
+  unitsCompatible = ( unitsCompatible || this->canAlterDimension() );
+  
+  return (clocksCompatible && unitsCompatible);
+}
+
+
+
 
 TimeSeries::sharedPointer ModularTimeSeries::source() {
   return _source;
@@ -75,8 +92,21 @@ bool ModularTimeSeries::doesHaveSource() {
   }
 }
 
+
+TimeSeries::sharedPointer ModularTimeSeries::rootTimeSeries() {
+  
+  if (this->doesHaveSource()) {
+    return this->source()->rootTimeSeries();
+  }
+  
+  TimeSeries::sharedPointer empty;
+  return empty;
+}
+
+
+
 void ModularTimeSeries::setUnits(Units newUnits) {
-  if (!doesHaveSource() || (doesHaveSource() && newUnits.isSameDimensionAs(source()->units()))) {
+  if (!doesHaveSource() || (doesHaveSource() && newUnits.isSameDimensionAs(source()->units())) || this->canAlterDimension()) {
     TimeSeries::setUnits(newUnits);
   }
   else {
@@ -131,7 +161,8 @@ Point ModularTimeSeries::point(time_t time) {
 Point ModularTimeSeries::pointBefore(time_t time) {
   time_t timeBefore = clock()->timeBefore(time);
   if (timeBefore == 0) {
-    timeBefore = source()->clock()->timeBefore(time);
+//    timeBefore = source()->clock()->timeBefore(time);
+    timeBefore = source()->pointBefore(time).time;
   }
   return point(timeBefore);
 }
@@ -139,7 +170,8 @@ Point ModularTimeSeries::pointBefore(time_t time) {
 Point ModularTimeSeries::pointAfter(time_t time) {
   time_t timeAfter = clock()->timeAfter(time);
   if (timeAfter == 0) {
-    timeAfter = source()->clock()->timeAfter(time);
+//    timeAfter = source()->clock()->timeAfter(time);
+    timeAfter = source()->pointAfter(time).time;
   }
   return point(timeAfter);
 }

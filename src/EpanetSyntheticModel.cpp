@@ -50,12 +50,12 @@ void EpanetSyntheticModel::solveSimulation(time_t time) {
   setCurrentSimulationTime( time );
   
   // don't do this. only the real-time epanetmodel does this.
-  //ENcheck(ENsettimeparam(EN_HTIME, 0), "ENsettimeparam(EN_HTIME)");
+  //OW_API_CHECK(ENsettimeparam(EN_HTIME, 0), "ENsettimeparam(EN_HTIME)");
   
   // solve the hydraulics
-  ENcheck(ENrunH(&timestep), "ENrunH");
+  OW_API_CHECK(OW_runH(_enModel, &timestep), "OW_runH");
   if (this->shouldRunWaterQuality()) {
-    ENcheck(ENrunQ(&timestep), "ENrunQ");
+    OW_API_CHECK(OW_runQ(_enModel, &timestep), "OW_runQ");
   }
 }
 
@@ -63,11 +63,11 @@ void EpanetSyntheticModel::solveSimulation(time_t time) {
 time_t EpanetSyntheticModel::nextHydraulicStep(time_t time) {
   
   long duration = 0;
-  ENcheck(ENgettimeparam(EN_DURATION, &duration), "ENgettimeparam(EN_DURATION)");
+  OW_API_CHECK(OW_gettimeparam(_enModel, EN_DURATION, &duration), "OW_gettimeparam(EN_DURATION)");
   
   if (duration <= (time - _startTime) ) {
     //std::cerr << "had to adjust the sim duration to accomodate the requested step" << std::endl;
-    ENcheck(ENsettimeparam(EN_DURATION, (duration + hydraulicTimeStep()) ), "ENsettimeparam(EN_DURATION)");
+    OW_API_CHECK(OW_settimeparam(_enModel, EN_DURATION, (duration + hydraulicTimeStep()) ), "OW_settimeparam(EN_DURATION)");
   }
   
   // call base class method

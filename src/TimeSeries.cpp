@@ -15,6 +15,7 @@
 
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics.hpp>
+#include <boost/accumulators/statistics/tail_quantile.hpp>
 
 
 using namespace RTX;
@@ -84,7 +85,7 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
   std::vector< Point > points;
   
   // sanity
-  if ((start == end) || (start < 0) || (end < 0)) {
+  if (start == 0 || end == 0 || (start < 0) || (end < 0)) {
     return points;
   }
   
@@ -175,6 +176,10 @@ TimeSeries::Summary TimeSeries::summary(time_t start, time_t end) {
   Summary s;
   s.points = this->points(start, end);
   
+  if (s.points.size() == 0) {
+    return s;
+  }
+  
   // gaps
   s.gaps.reserve(s.points.size());
   time_t prior = this->pointBefore(s.points.front().time).time;
@@ -186,16 +191,25 @@ TimeSeries::Summary TimeSeries::summary(time_t start, time_t end) {
   }
   
   // stats
-  accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::variance(lazy)> > acc;
+  int cacheSize = (int)s.points.size();
+  using namespace boost::accumulators;
+  accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
+  accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::right> > > quant_right( tag::tail<boost::accumulators::right>::cache_size = cacheSize );
+  accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::left> > > quant_left( tag::tail<boost::accumulators::left>::cache_size = cacheSize );
   BOOST_FOREACH(const Point& p, s.points) {
     acc(p.value);
+    quant_right(p.value);
+    quant_left(p.value);
   }
   
-  s.mean = mean(acc);
-  s.variance = variance(acc);
-  s.count = extract::count(acc);
-  s.min = extract::min(acc);
-  s.max = extract::max(acc);
+  s.stats.quartiles.q25 = quantile(quant_left, quantile_probability = 0.25);
+  s.stats.quartiles.q75 = quantile(quant_right, quantile_probability = 0.75);
+  s.stats.quartiles.q50    = extract::median(acc);
+  s.stats.mean      = extract::mean(acc);
+  s.stats.variance  = extract::variance(acc);
+  s.stats.count     = extract::count(acc);
+  s.stats.min       = extract::min(acc);
+  s.stats.max       = extract::max(acc);
   
   return s;
 }
