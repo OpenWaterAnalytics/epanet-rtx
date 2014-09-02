@@ -6,16 +6,19 @@ using namespace std;
 using namespace RTX;
 
 RunTimeStatusModularTimeSeries::RunTimeStatusModularTimeSeries() {
-  _threshold = 0.0;
+  _ratioThreshold = 0.9;
+  _timeThreshold = 60;
   _resetTolerance = 0.0;
+  _timeErrorTolerance = 0.0;
   _resetCeiling = 0.0;
   _resetFloor = 0.0;
-  _statusPointShelfLife = 12*60*60*24*7;
-  _windowSize = 2;
 }
 
-void RunTimeStatusModularTimeSeries::setThreshold(double threshold) {
-  _threshold = threshold;
+void RunTimeStatusModularTimeSeries::setRatioThreshold(double threshold) {
+  _ratioThreshold = threshold;
+}
+void RunTimeStatusModularTimeSeries::setTimeThreshold(double threshold) {
+  _timeThreshold = threshold;
 }
 void RunTimeStatusModularTimeSeries::setResetCeiling(double ceiling) {
   _resetCeiling = ceiling;
@@ -25,6 +28,9 @@ void RunTimeStatusModularTimeSeries::setResetFloor(double floor) {
 }
 void RunTimeStatusModularTimeSeries::setResetTolerance(double tolerance) {
   _resetTolerance = tolerance;
+}
+void RunTimeStatusModularTimeSeries::setTimeErrorTolerance(double tolerance) {
+  _timeErrorTolerance = tolerance;
 }
 
 Point RunTimeStatusModularTimeSeries::point(time_t time){
@@ -49,8 +55,11 @@ Point RunTimeStatusModularTimeSeries::pointBefore(time_t time) {
 
 Point RunTimeStatusModularTimeSeries::pointAfter(time_t time) {
   
-  Point afterPoint = pointNext(time, after);
-  
+  Point afterPoint = pointNext(time);
+  if (afterPoint.isValid) {
+    vector< Point > aPoint(1,afterPoint);
+    this->insertPoints(aPoint); // should be able to use insert()
+  }
   return afterPoint;
 }
 
@@ -59,177 +68,199 @@ void RunTimeStatusModularTimeSeries::setClock(Clock::sharedPointer clock) {
   std::cerr << "RunTimeStatusModularTimeSeries clock can not be set\n";
 }
 
-Point RunTimeStatusModularTimeSeries::pointNext(time_t time, searchDirection_t dir) {
-  
-//  cout << endl << endl << "PointAfter: " << time << endl;
-  
-  Point lastPoint, nextPoint, newPoint;
-  Units sourceU = source()->units();
-  
-  // Get a starting source and status point
-  std::pair< Point, Point > startPoints = beginningStatus(time, dir, sourceU);
-  Point sourcePoint = startPoints.first;
-  Point statusPoint = startPoints.second;
-  
-  _cachedSourcePoint = sourcePoint;
-  lastPoint = sourcePoint;
-  double lastTime = (double)statusPoint.time;
-  double lastStatus = statusPoint.value;
-  double changeTime = lastTime;
-  
-//  cout << "<<t=" << lastTime << " v=" << lastPoint.value << endl;
-  
-  // have a valid starting point and status -- move forward to detect a status change
-  bool changeStatus = false;
-  double dT = 0, dR = 0, accumTime = 0, accumRuntime = 0;
-  while (!changeStatus) {
-    
-    // get the next point
-    nextPoint = (dir == after) ? source()->pointAfter((time_t)lastTime) : source()->pointBefore((time_t)lastTime);
-    if (!nextPoint.isValid) {
-      return newPoint; // no change in status so return nothing
-    }
-    nextPoint = Point::convertPoint(nextPoint, sourceU, RTX_SECOND);
-    
-//    if (nextPoint.time <= time) {
-//      cout << "<<t=" << nextPoint.time << " v=" << nextPoint.value << endl;
-//    }
-//    else {
-//      cout << "  t=" << nextPoint.time << " v=" << nextPoint.value << endl;
-//    }
+Point RunTimeStatusModularTimeSeries::pointNext(time_t time) {
 
-    // update the cumulative time
-    dT = (double)nextPoint.time - lastTime;
+//  cout << endl << endl << "PointNext: " << time << endl;
+
+  Point lastStatusPoint, nextStatusPoint, lastSourcePoint, nextSourcePoint;
+  Units sourceU = source()->units();
+
+  // Get a beginning status point at current time
+  lastStatusPoint = beginningStatus(time);
+  if (!lastStatusPoint.isValid) {
+    return Point(); // Can't find the current status; return nothing
+  }
+  // Interpolate a starting source point
+  lastSourcePoint = beginningSource(lastStatusPoint);
+  if (!lastSourcePoint.isValid) {
+    return Point(); // Can't get any source points; return nothing
+  }
+
+//  cout << "t=" << lastSourcePoint.time << " v=" << lastSourcePoint.value << endl;
+
+  // have a valid starting point and status -- move forward to detect the next status change
+  bool changeStatus = false;
+  double dR = 0, accumRuntime = 0;
+  time_t dT = 0, accumTime = 0;
+  while (!changeStatus) {
+
+    // get the next point
+    nextSourcePoint = source()->pointAfter(lastSourcePoint.time);
+    if (!nextSourcePoint.isValid) {
+      return Point(); // no change in status so return nothing
+    }
+    nextSourcePoint = Point::convertPoint(nextSourcePoint, sourceU, RTX_SECOND);
+
+//    cout << "t=" << nextSourcePoint.time << " v=" << nextSourcePoint.value << endl;
+
+    // update the cumulative time and runtime
+    dT = nextSourcePoint.time - lastSourcePoint.time;
     accumTime += dT;
-    
-    // update the cumulative runtime
-    dR = nextPoint.value - lastPoint.value;
+    dR = nextSourcePoint.value - lastSourcePoint.value;
     if (dR < -_resetTolerance) {
-      if (lastStatus) {
-        dR = min(dT, (_resetCeiling - lastPoint.value) + (nextPoint.value - _resetFloor));
-        dR = (dR >= -_resetTolerance) ? dR : 0; // only way to handle non-reset RT value error
+      // handle runtime resets - hard to distinguish between valid reset and bad value
+      if (lastStatusPoint.value) {
+        // reset model is value-based - bounces from a ceiling down to a floor value
+        // (this happens in NKWD data; not sure where else!) If _resetCeiling=_resetFloor=0 (default) then dR=0
+        dR = min((double)dT, (_resetCeiling - lastSourcePoint.value) + (nextSourcePoint.value - _resetFloor));
+        if (dR < -_resetTolerance) {
+          // bad value, so skip the point
+          dR = dT;
+//          nextSourcePoint.value = lastSourcePoint.value;
+        }
       }
       else {
+        // bad value, so skip the point
         dR = 0; // possible to skip some 'on' time for certain resets?
+//        nextSourcePoint.value = lastSourcePoint.value;
+      }
+//      cout << "Runtime Reset ::: " << this->name() << " ::: time = " << nextSourcePoint.time << " ::: dR = " << dR << endl;
+    }
+    else if (dR > dT + _timeErrorTolerance) {
+      // just shouldn't happen
+      if (lastStatusPoint.value) {
+        dR = dT;
+      }
+      else {
+        dR = 0;
       }
     }
     accumRuntime += dR;
-    
+
 //    cout << "    dT=" << dT << "; dR=" << dR << "; sumT=" << accumTime << "; sumR=" << accumRuntime << endl;
     
-    // detect a new status point
-    if (lastStatus) {
+    // detect a status change
+    if (lastStatusPoint.value) {
       // was on
-      if ( (accumTime - accumRuntime) > _threshold ) {
+      if ( dR/(double)dT < 1 - _ratioThreshold ) {
+//      if ((double)accumTime - accumRuntime > 60) {
         // now off - new status point
-        lastStatus = 0;
-        changeTime += accumRuntime;
-        if ((time_t)changeTime > time) changeStatus = true;
-        newPoint = Point((time_t)changeTime, (double)lastStatus, Point::good, _threshold);
-        _cachedPoint = newPoint;
-        // new source point
-        double runtime = _cachedSourcePoint.value;
-        if ( accumRuntime >= (_resetCeiling - runtime) && (_resetCeiling > _resetFloor) ) {
-          runtime = _resetFloor + fmod( (accumRuntime - (_resetCeiling - runtime)), (_resetCeiling - _resetFloor) );
+        changeStatus = true;
+        time_t changeStatusTime = lastStatusPoint.time + (time_t)accumRuntime;
+        if (changeStatusTime <= lastStatusPoint.time) {
+          // guard against rounding
+          changeStatusTime = lastStatusPoint.time+1;
         }
-        else {
-          runtime += accumRuntime;
-        }
-        _cachedSourcePoint = Point((time_t)changeTime, runtime, Point::good, _threshold);
-        // update accumulators
-        accumRuntime = 0;
-        accumTime = (double)nextPoint.time - changeTime;
-//        cout <<  "  *** 1->0 Status Change: t=" << (time_t)changeTime << endl;
+        // insert the new status change at the time consistent with accumulated runtime
+        nextStatusPoint = Point(changeStatusTime, 0., Point::good, 0.);
+        vector< Point > aPoint(1,nextStatusPoint);
+        this->insertPoints(aPoint); // should be able to use insert()
+        // but return the status when the change was detected
+        nextStatusPoint = Point(max(lastStatusPoint.time + accumTime, changeStatusTime), 0., Point::good, 0.);
+//        cout <<  "  *** 1->0 Status Change: t=" << lastStatusPoint.time + accumRuntime << endl;
       }
     }
     else {
       // was off
-      if ( accumRuntime > _threshold ) {
-        // now on - determine the status change
-        lastStatus = 1;
-        changeTime += accumTime - accumRuntime;
-        if ((time_t)changeTime > time) changeStatus = true;
-        newPoint = Point((time_t)changeTime, (double)lastStatus, Point::good, _threshold);
-        _cachedPoint = newPoint;
-        _cachedSourcePoint = Point((time_t)changeTime, _cachedSourcePoint.value, Point::good, _threshold);
-        accumTime = accumRuntime;
-//        cout <<  "  *** 0->1 Status Change: t=" << (time_t)changeTime << endl;
+      if ( dR/(double)dT > _ratioThreshold ) {
+        // now on - new status point
+        changeStatus = true;
+        time_t changeStatusTime = lastStatusPoint.time + accumTime - (time_t)accumRuntime;
+        if (changeStatusTime <= lastStatusPoint.time) {
+          // status change is bogus - maybe a bad value or a bad last status
+          changeStatusTime = lastStatusPoint.time+1;
+//          cout << "  *** bad status change >>> " << endl;
+        }
+        // insert the new status change at the time corrected for accumulated runtime
+        nextStatusPoint = Point(changeStatusTime, 1., Point::good, 0.);
+        vector< Point > aPoint(1,nextStatusPoint);
+        this->insertPoints(aPoint); // should be able to use insert()
+        // but return the status when the change was detected
+        nextStatusPoint = Point(max(lastStatusPoint.time + accumTime, changeStatusTime), 1., Point::good, 0.);
+//        cout <<  "  *** 0->1 Status Change: t=" << changeStatusTime << endl;
       }
     }
     
-    lastPoint = nextPoint;
-    lastTime = (double)nextPoint.time;
+    lastSourcePoint = nextSourcePoint;
   }
   
   // found a new status point
-  return newPoint;
+  return nextStatusPoint;
 }
 
-std::vector<Point> RunTimeStatusModularTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+Point RunTimeStatusModularTimeSeries::beginningSource(Point lastStatusPoint) {
+  // Interpolate a starting source point - assume that lastStatusPoint is right; create consistent source point at same time
   
-  vector<Point> statusPoints;
+  Units sourceU = source()->units();
+  Point lastSourcePoint;
   
-  Point tempPoint = _cachedPoint;
-  Point tempSourcePoint = _cachedSourcePoint;
-  Point aPoint = pointAfter(fromTime - 1);
-  
-  while ( aPoint.isValid && (aPoint.time <= toTime) ) {
-    statusPoints.push_back(aPoint);
-    tempPoint = _cachedPoint;
-    tempSourcePoint = _cachedSourcePoint;
-    aPoint = pointAfter(aPoint.time);
+  Point p1 = source()->pointBefore(lastStatusPoint.time);
+  if (!p1.isValid) {
+    return Point(); // no source points - return nothing
   }
+  p1 = Point::convertPoint(p1, sourceU, RTX_SECOND);
   
-  _cachedPoint = tempPoint;
-  _cachedSourcePoint = tempSourcePoint;
-  return statusPoints;
-}
+  Point p2 = source()->pointAfter(lastStatusPoint.time-1);
+  if (!p2.isValid) {
+    return Point(); // no source points - return nothing
+  }
+  p2 = Point::convertPoint(p2, sourceU, RTX_SECOND);
+  
+  // try to detect and handle runtime resets
+  if (p2.value < p1.value) {
+    p2.value = p2.value; // too simple?
+  }
 
-std::pair< Point, Point > RunTimeStatusModularTimeSeries::beginningStatus(time_t time, searchDirection_t dir, Units sourceU) {
-  
-  Point statusPoint, sourcePoint;
-  bool cachedPointIsValid;
-  if (dir == after) {
-    cachedPointIsValid =  (_cachedPoint.isValid && _cachedPoint.time <= time && _cachedPoint.time > (time - _statusPointShelfLife) );
+  double rt;
+  if (lastStatusPoint.value) {
+    // On
+    rt = p2.value + (double)(lastStatusPoint.time - p2.time);
+    rt = max(rt,p1.value);
   }
   else {
-    cachedPointIsValid =  (_cachedPoint.isValid && _cachedPoint.time >= time && _cachedPoint.time < (time + _statusPointShelfLife) );
+    // Off
+    rt = p1.value + (double)(lastStatusPoint.time - p1.time);
+    rt = min(rt,p2.value);
   }
-  
-  if ( cachedPointIsValid ) {
-    // start with a known prior status point
-    statusPoint = _cachedPoint;
-    sourcePoint = _cachedSourcePoint;
-  }
-  else {
-    // start a few points back so we can figure out the status
-    time_t lastTime = time;
-    Point aPoint, lastPoint;
-    for (int iBack = 0; iBack < _windowSize; iBack++) {
-      aPoint = (dir == after) ? source()->pointBefore(lastTime) : source()->pointAfter(lastTime);
-      if (!aPoint.isValid) {
-        break; // failed - can't start from before
-      }
-      lastPoint = aPoint;
-      lastTime = lastPoint.time;
-    }
-    if (!lastPoint.isValid) {
-      // Failed to look backward; try the current time and after
-      aPoint = source()->point(time);
-      if (!aPoint.isValid) {
-        aPoint = (dir == after) ? source()->pointAfter(time) : source()->pointBefore(time);
-      }
-      lastPoint = aPoint;
-    }
-    sourcePoint = Point::convertPoint(lastPoint, sourceU, RTX_SECOND);
-    if (sourcePoint.isValid) {
-      statusPoint = Point(sourcePoint.time, 0.0, Point::good, _threshold);
-    }
-    else {
-      statusPoint = Point(sourcePoint.time, 0.0, Point::bad, _threshold);
-    }
-  }
-  
-  return std::make_pair(sourcePoint, statusPoint);
+
+  return lastSourcePoint = Point(lastStatusPoint.time, rt, Point::good, 0.);
 }
 
+Point RunTimeStatusModularTimeSeries::beginningStatus(time_t time) {
+
+  Units sourceU = source()->units();
+
+  // trying to figure out the status now, preliminary to determining the next change
+  
+  Point statusPoint = TimeSeries::point(time);
+  if (statusPoint.isValid) {
+    return statusPoint;  // time is a known status change
+  }
+  
+  // find a bracketing source point interval [p1,p2] where p1 <= time (hopefully) && p2.time > time
+  Point p1 = source()->pointAtOrBefore(time);
+  if (!p1.isValid) {
+    p1 = source()->pointAfter(time);
+    if (!p1.isValid) {
+      return Point(); // no source points!
+    }
+  }
+  Point p2 = source()->pointAfter(p1.time);
+  if (!p2.isValid) {
+    return Point(); // no source points!
+  }
+  p1 = Point::convertPoint(p1, sourceU, RTX_SECOND);
+  p2 = Point::convertPoint(p2, sourceU, RTX_SECOND);
+
+  // OK we have the interval [p1,p2] - let's figure out a status
+  double dR = p2.value - p1.value;
+  time_t dT = p2.time - p1.time;
+  if (dR/(double)dT >= _ratioThreshold) {
+    statusPoint = Point(time, 1.0, Point::good); // on
+  }
+  else {
+    statusPoint = Point(time, 0.0, Point::good); // off
+  }
+  
+  return statusPoint;
+}

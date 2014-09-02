@@ -503,8 +503,8 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
       // get sources.
       sqlite3_bind_int(stmt, 1, entry.uid);
       while (sqlite3_step(stmt) == SQLITE_ROW) {
-        int idx = sqlite3_column_int(stmt, 1);
-        double multiplier = sqlite3_column_double(stmt, 2);
+        int idx = sqlite3_column_int(stmt, 0);
+        double multiplier = sqlite3_column_double(stmt, 1);
         TimeSeries::sharedPointer upstream = _timeseries[idx];
         agg->addSource(upstream, multiplier);
       }
