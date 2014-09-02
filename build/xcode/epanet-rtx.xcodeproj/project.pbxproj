@@ -166,6 +166,10 @@
 		2251DCA7168105AA00515EBF /* IrregularClock.h in Headers */ = {isa = PBXBuildFile; fileRef = 2251DCA5168105AA00515EBF /* IrregularClock.h */; };
 		225D719F1497F96C00B90F6D /* MysqlPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */; };
 		226861C914716D2A000DDDEF /* Units.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 226861C814716D2A000DDDEF /* Units.cpp */; };
+		226936CF19AD1ED600B4BCDB /* ForecastTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 226936CD19AD1ED600B4BCDB /* ForecastTimeSeries.cpp */; };
+		226936D019AD1ED600B4BCDB /* ForecastTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 226936CD19AD1ED600B4BCDB /* ForecastTimeSeries.cpp */; };
+		226936D119AD1ED600B4BCDB /* ForecastTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 226936CE19AD1ED600B4BCDB /* ForecastTimeSeries.h */; };
+		226936D219AD1ED600B4BCDB /* ForecastTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 226936CE19AD1ED600B4BCDB /* ForecastTimeSeries.h */; };
 		226AC1431733F5CE009B7C90 /* SinglePointFilterModularTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 226AC1411733F5CE009B7C90 /* SinglePointFilterModularTimeSeries.cpp */; };
 		226AC1441733F5CE009B7C90 /* SinglePointFilterModularTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 226AC1421733F5CE009B7C90 /* SinglePointFilterModularTimeSeries.h */; };
 		226AC1481733F996009B7C90 /* ValidRangeTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 226AC1461733F996009B7C90 /* ValidRangeTimeSeries.cpp */; };
@@ -176,6 +180,11 @@
 		22707A9716309D4100FEB4DD /* OffsetTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22707A9516309D4100FEB4DD /* OffsetTimeSeries.h */; };
 		2272393B1908374400FDE879 /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2272393A1908374400FDE879 /* libcurl.dylib */; };
 		227239421908374D00FDE879 /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2272393A1908374400FDE879 /* libcurl.dylib */; };
+		2274872619AE236200A48475 /* PythonInterpreter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2274872419AE236200A48475 /* PythonInterpreter.cpp */; };
+		2274872719AE236200A48475 /* PythonInterpreter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2274872419AE236200A48475 /* PythonInterpreter.cpp */; };
+		2274872819AE236200A48475 /* PythonInterpreter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2274872519AE236200A48475 /* PythonInterpreter.h */; };
+		2274872919AE236200A48475 /* PythonInterpreter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2274872519AE236200A48475 /* PythonInterpreter.h */; };
+		2274872F19AE794F00A48475 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2274872E19AE794F00A48475 /* Python.framework */; };
 		227510E816D4231800B2BA62 /* BufferPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227510E616D4231800B2BA62 /* BufferPointRecord.cpp */; };
 		227510E916D4231800B2BA62 /* BufferPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 227510E716D4231800B2BA62 /* BufferPointRecord.h */; };
 		227CEC9F16BADD6000E8E7C8 /* DbPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227CEC9E16BADD6000E8E7C8 /* DbPointRecord.cpp */; };
@@ -469,6 +478,8 @@
 		2251DCA5168105AA00515EBF /* IrregularClock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IrregularClock.h; path = ../../src/IrregularClock.h; sourceTree = "<group>"; };
 		225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MysqlPointRecord.cpp; path = ../../src/MysqlPointRecord.cpp; sourceTree = "<group>"; };
 		226861C814716D2A000DDDEF /* Units.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Units.cpp; path = ../../src/Units.cpp; sourceTree = "<group>"; };
+		226936CD19AD1ED600B4BCDB /* ForecastTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ForecastTimeSeries.cpp; path = ../../src/ForecastTimeSeries.cpp; sourceTree = "<group>"; };
+		226936CE19AD1ED600B4BCDB /* ForecastTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ForecastTimeSeries.h; path = ../../src/ForecastTimeSeries.h; sourceTree = "<group>"; };
 		2269BDFC1896CF1D007899B6 /* libiodbc.2.1.18.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiodbc.2.1.18.dylib; path = ../../../../../../../usr/lib/libiodbc.2.1.18.dylib; sourceTree = "<group>"; };
 		226AC1411733F5CE009B7C90 /* SinglePointFilterModularTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SinglePointFilterModularTimeSeries.cpp; path = ../../src/SinglePointFilterModularTimeSeries.cpp; sourceTree = "<group>"; };
 		226AC1421733F5CE009B7C90 /* SinglePointFilterModularTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SinglePointFilterModularTimeSeries.h; path = ../../src/SinglePointFilterModularTimeSeries.h; sourceTree = "<group>"; };
@@ -479,6 +490,9 @@
 		22707A9416309D4000FEB4DD /* OffsetTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OffsetTimeSeries.cpp; path = ../../src/OffsetTimeSeries.cpp; sourceTree = "<group>"; };
 		22707A9516309D4100FEB4DD /* OffsetTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OffsetTimeSeries.h; path = ../../src/OffsetTimeSeries.h; sourceTree = "<group>"; };
 		2272393A1908374400FDE879 /* libcurl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.dylib; path = usr/lib/libcurl.dylib; sourceTree = SDKROOT; };
+		2274872419AE236200A48475 /* PythonInterpreter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PythonInterpreter.cpp; path = ../../src/PythonInterpreter.cpp; sourceTree = "<group>"; };
+		2274872519AE236200A48475 /* PythonInterpreter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PythonInterpreter.h; path = ../../src/PythonInterpreter.h; sourceTree = "<group>"; };
+		2274872E19AE794F00A48475 /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = /Library/Frameworks/Python.framework; sourceTree = "<absolute>"; };
 		227510E616D4231800B2BA62 /* BufferPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BufferPointRecord.cpp; path = ../../src/BufferPointRecord.cpp; sourceTree = "<group>"; };
 		227510E716D4231800B2BA62 /* BufferPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BufferPointRecord.h; path = ../../src/BufferPointRecord.h; sourceTree = "<group>"; };
 		227CEC9E16BADD6000E8E7C8 /* DbPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DbPointRecord.cpp; path = ../../src/DbPointRecord.cpp; sourceTree = "<group>"; };
@@ -571,6 +585,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2274872F19AE794F00A48475 /* Python.framework in Frameworks */,
 				22E5AC0119141E0200FD7F36 /* libboost_timer.dylib in Frameworks */,
 				2272393B1908374400FDE879 /* libcurl.dylib in Frameworks */,
 				220F9E0F18F9E68B00BB842C /* libboost_date_time.dylib in Frameworks */,
@@ -776,6 +791,16 @@
 			name = Synthetic;
 			sourceTree = "<group>";
 		};
+		2274871E19AE234200A48475 /* Python Interpreter */ = {
+			isa = PBXGroup;
+			children = (
+				2274872E19AE794F00A48475 /* Python.framework */,
+				2274872419AE236200A48475 /* PythonInterpreter.cpp */,
+				2274872519AE236200A48475 /* PythonInterpreter.h */,
+			);
+			name = "Python Interpreter";
+			sourceTree = "<group>";
+		};
 		228040A0158F8392004222DA /* Link Classes */ = {
 			isa = PBXGroup;
 			children = (
@@ -881,6 +906,7 @@
 				22DDAD8214436AE200C1F188 /* time classes */,
 				22DDAD7D1443682300C1F188 /* model */,
 				22C62B02143A107D00841E60 /* exceptions */,
+				2274871E19AE234200A48475 /* Python Interpreter */,
 				22C62AC91439ED9300841E60 /* time series classes */,
 				22D9831A17F62B4A00DD7EB4 /* testLemonTiger */,
 				22C62AC11439ED6300841E60 /* Products */,
@@ -938,6 +964,8 @@
 				224E047E1979431C0039E3F9 /* StatsTimeSeries.cpp */,
 				22BFAB00196AFBD800B5B77C /* OutlierExclusionTimeSeries.h */,
 				22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */,
+				226936CE19AD1ED600B4BCDB /* ForecastTimeSeries.h */,
+				226936CD19AD1ED600B4BCDB /* ForecastTimeSeries.cpp */,
 			);
 			name = "time series classes";
 			sourceTree = "<group>";
@@ -1070,6 +1098,7 @@
 				220F9E1D18F9E68B00BB842C /* rtxExceptions.h in Headers */,
 				224D40DA19786C3000160BD5 /* BaseStatsTimeSeries.h in Headers */,
 				220F9E1E18F9E68B00BB842C /* Element.h in Headers */,
+				2274872919AE236200A48475 /* PythonInterpreter.h in Headers */,
 				220F9E1F18F9E68B00BB842C /* WarpingTimeSeries.h in Headers */,
 				220F9E2018F9E68B00BB842C /* Model.h in Headers */,
 				220F9E2118F9E68B00BB842C /* CurveFunction.h in Headers */,
@@ -1080,6 +1109,7 @@
 				220F9E2618F9E68B00BB842C /* ModularTimeSeries.h in Headers */,
 				220F9E2718F9E68B00BB842C /* Resampler.h in Headers */,
 				220F9E2818F9E68B00BB842C /* OdbcDirectPointRecord.h in Headers */,
+				226936D219AD1ED600B4BCDB /* ForecastTimeSeries.h in Headers */,
 				220F9E2918F9E68B00BB842C /* Clock.h in Headers */,
 				220F9E2A18F9E68B00BB842C /* Node.h in Headers */,
 				220F9E2B18F9E68B00BB842C /* SqlitePointRecord.h in Headers */,
@@ -1140,6 +1170,7 @@
 				22C62B04143A10A500841E60 /* rtxExceptions.h in Headers */,
 				224D40D919786C3000160BD5 /* BaseStatsTimeSeries.h in Headers */,
 				22DDAD811443684B00C1F188 /* Element.h in Headers */,
+				2274872819AE236200A48475 /* PythonInterpreter.h in Headers */,
 				221F3CD818F467AD00D63C5A /* WarpingTimeSeries.h in Headers */,
 				22DDAD941443750600C1F188 /* Model.h in Headers */,
 				220AE464145AFB3C002F07B4 /* CurveFunction.h in Headers */,
@@ -1150,6 +1181,7 @@
 				221E2EFE149A42F0000860C2 /* ModularTimeSeries.h in Headers */,
 				22B7155014DC802300041167 /* Resampler.h in Headers */,
 				22067EAD1873303D00BAFF61 /* OdbcDirectPointRecord.h in Headers */,
+				226936D119AD1ED600B4BCDB /* ForecastTimeSeries.h in Headers */,
 				22A4B41914E1B93D006D01C3 /* Clock.h in Headers */,
 				2246439E150BD6E0005EA3BA /* Node.h in Headers */,
 				22C0AE57184F86190013D51F /* SqlitePointRecord.h in Headers */,
@@ -1470,6 +1502,7 @@
 				220F9DF718F9E68B00BB842C /* Pipe.cpp in Sources */,
 				220F9DF818F9E68B00BB842C /* PointRecordTime.cpp in Sources */,
 				220F9DF918F9E68B00BB842C /* Pump.cpp in Sources */,
+				226936D019AD1ED600B4BCDB /* ForecastTimeSeries.cpp in Sources */,
 				228EFABE191C0AE300342E6E /* TempoDbPointRecord.cpp in Sources */,
 				220F9DFA18F9E68B00BB842C /* Valve.cpp in Sources */,
 				220F9DFB18F9E68B00BB842C /* FirstDerivative.cpp in Sources */,
@@ -1481,6 +1514,7 @@
 				220F9E0118F9E68B00BB842C /* TimeOffsetTimeSeries.cpp in Sources */,
 				220F9E0218F9E68B00BB842C /* SineTimeSeries.cpp in Sources */,
 				220F9E0318F9E68B00BB842C /* BufferPointRecord.cpp in Sources */,
+				2274872719AE236200A48475 /* PythonInterpreter.cpp in Sources */,
 				220F9E0418F9E68B00BB842C /* MapPointRecord.cpp in Sources */,
 				220F9E0518F9E68B00BB842C /* DequePointRecord.cpp in Sources */,
 				220F9E0618F9E68B00BB842C /* ThresholdTimeSeries.cpp in Sources */,
@@ -1539,6 +1573,7 @@
 				220AE473145B2A0D002F07B4 /* Link.cpp in Sources */,
 				220AE475145B2A28002F07B4 /* Dma.cpp in Sources */,
 				223AF33018F6E4C0002E846F /* InversionTimeSeries.cpp in Sources */,
+				2274872619AE236200A48475 /* PythonInterpreter.cpp in Sources */,
 				226861C914716D2A000DDDEF /* Units.cpp in Sources */,
 				22909B3C147DDE2A00945449 /* EpanetModel.cpp in Sources */,
 				225D719F1497F96C00B90F6D /* MysqlPointRecord.cpp in Sources */,
@@ -1566,6 +1601,7 @@
 				22190A2A18EC9B3700E5715D /* TimeOffsetTimeSeries.cpp in Sources */,
 				22F63D3716C5735100A15368 /* SineTimeSeries.cpp in Sources */,
 				227510E816D4231800B2BA62 /* BufferPointRecord.cpp in Sources */,
+				226936CF19AD1ED600B4BCDB /* ForecastTimeSeries.cpp in Sources */,
 				223F52C716D51F330086DC8F /* MapPointRecord.cpp in Sources */,
 				223F52D516D55D090086DC8F /* DequePointRecord.cpp in Sources */,
 				43627ED0171F286C007AE0F5 /* ThresholdTimeSeries.cpp in Sources */,
@@ -1643,12 +1679,17 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"EN_API_FLOAT_TYPE=double",
 					RTX_NO_ODBC,
 					RTX_NO_MYSQL,
 				);
 				HEADER_SEARCH_PATHS = (
+					/usr/include/python2.7,
 					/usr/local/include,
 					"${SRCROOT}/../../../epanet/src",
 					"${SRCROOT}/../../../epanet/include",
@@ -1672,12 +1713,17 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"EN_API_FLOAT_TYPE=double",
 					RTX_NO_ODBC,
 					RTX_NO_MYSQL,
 				);
 				HEADER_SEARCH_PATHS = (
+					/usr/include/python2.7,
 					/usr/local/include,
 					"${SRCROOT}/../../../epanet/src",
 					"${SRCROOT}/../../../epanet/include",

@@ -35,6 +35,8 @@
 
 #include "SqlitePointRecord.h"
 
+#include "PythonInterpreter.h"
+
 using namespace RTX;
 using namespace std;
 
@@ -42,6 +44,22 @@ void printPoints(vector<Point> pointVector);
 
 int main(int argc, const char * argv[])
 {
+  
+  
+  PythonInterpreter::sharedPointer py = PythonInterpreter::sharedInterpreter();
+  
+  py->identifier = 12;
+  
+  
+  PythonInterpreter::sharedPointer py2 = PythonInterpreter::sharedInterpreter();
+  
+  
+  cout << "blah:: " << py2->identifier << endl;
+  
+  
+  
+  
+  
   
   BufferPointRecord::sharedPointer buff(new BufferPointRecord());
   
