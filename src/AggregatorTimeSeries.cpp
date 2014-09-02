@@ -137,17 +137,46 @@ Point AggregatorTimeSeries::point(time_t time) {
   
   return aPoint;
 }
-/*
-std::vector< Point > AggregatorTimeSeries::points(time_t start, time_t end) {
-  typedef std::pair< TimeSeries::sharedPointer, double > tsPair_t;
-  BOOST_FOREACH(tsPair_t tsPair , _tsList) {
-    // run the query, so that the source time series are ready
-    tsPair.first->points(start, end);
+
+Point AggregatorTimeSeries::pointBefore(time_t time) {
+
+  std::set<time_t> timeSet;
+  
+  BOOST_FOREACH(AggregatorSource& item, _tsList) {
+    time_t thisBefore = item.timeseries->pointBefore(time).time;
+    timeSet.insert(thisBefore);
   }
   
-  return TimeSeries::points(start, end);
+  if (timeSet.empty()) {
+    return Point();
+  }
+  
+  set<time_t>::reverse_iterator rIt = timeSet.rbegin();
+  time_t before = *rIt;
+  
+  return this->point(before);
 }
-*/
+
+
+Point AggregatorTimeSeries::pointAfter(time_t time) {
+  
+  std::set<time_t> timeSet;
+  
+  BOOST_FOREACH(AggregatorSource& item, _tsList) {
+    time_t thisAfter = item.timeseries->pointAfter(time).time;
+    timeSet.insert(thisAfter);
+  }
+  
+  if (timeSet.empty()) {
+    return Point();
+  }
+  
+  set<time_t>::iterator rIt = timeSet.begin();
+  time_t after = *rIt;
+  
+  return this->point(after);
+}
+
 
 
 
@@ -206,7 +235,7 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
     // get the set of times from the aggregator sources
     std::set<time_t> aggregatedTimes;
     BOOST_FOREACH(AggregatorSource aggSource, _tsList) {
-      vector<Point> thisSourcePoints = ModularTimeSeries::filteredPoints(aggSource.timeseries, fromTime, toTime);
+      vector<Point> thisSourcePoints = aggSource.timeseries->points(fromTime, toTime);
       BOOST_FOREACH(Point p, thisSourcePoints) {
         aggregatedTimes.insert(p.time);
       }
@@ -243,7 +272,10 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
       Point trailingPoint = *cursorPoint;
       ++cursorPoint;
       if (cursorPoint == upstreamPoints.end()) {
-        cerr << "not enough upstream data" << endl;
+        // possibility that trailing point is perfectly aligned.
+        if (trailingPoint.time != aggregated.front().time) {
+          cerr << "not enough upstream data" << endl;
+        }
       }
       
       // add in the new points.
@@ -270,12 +302,17 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
         }
         
         
+        else if (trailingPoint.time == p.time) {
+          p += trailingPoint * aggSource.multiplier;
+          continue;
+          // you are perfect.
+        }
+        
         // the following block gets evaluated when we've gone outside the trailing---cursor range:
         //   trailing <-------------------------> cursor
         //                                                 ^
         //                                                 p
-        
-        if (cursorPoint->time < p.time) {
+        else if (cursorPoint->time < p.time) {
           // move both markers forward
           trailingPoint = *cursorPoint;
           ++cursorPoint;

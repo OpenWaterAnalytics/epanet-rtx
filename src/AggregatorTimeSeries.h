@@ -52,6 +52,9 @@ namespace RTX {
     // points is handled by ModularTimeSeries, which calls filteredPoints (see below)
     //virtual std::vector< Point > points(time_t start, time_t end);
 
+    virtual Point pointBefore(time_t time);
+    virtual Point pointAfter(time_t time);
+    
   protected:
     virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
 
