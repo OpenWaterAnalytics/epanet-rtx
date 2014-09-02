@@ -343,6 +343,7 @@ Point Resampler::filteredSingle(pVec_cIt& vecStart, pVec_cIt& vecEnd, pVec_cIt& 
   // however, we may have been unable to accomplish this task.
   bool notValid = (_mode == step) ? (t < back_it->time) : ( !success );
   if (notValid) {
+    // Note: we won't find a point on the edge of the PR data range, even if we ask for that time
     return Point(); // missing some source points
   }
   

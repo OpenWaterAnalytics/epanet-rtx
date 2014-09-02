@@ -104,24 +104,34 @@ Point AggregatorTimeSeries::point(time_t time) {
   // call the base class method first, to see if the point is accessible via cache.
   Point aPoint = TimeSeries::point(time);
   
-  if (!this->clock()->isValid(time)) {
-    return Point();
+  if (this->clock()->isRegular()) {
+    
+    if (!this->clock()->isValid(time)) {
+      return Point();
+    }
+    
+    if (!aPoint.isValid || aPoint.quality == Point::missing) {
+      vector<Point> aggP = filteredPoints(source(), time, time);
+      if (aggP.size() != 1) {
+        cerr << "ERR: times not registered in aggregator" << endl;
+        return Point();
+      }
+      aPoint = aggP.front();
+      this->insert(aPoint);
+    }
   }
   
-  // if not, we construct it.
-  if (!aPoint.isValid || aPoint.quality == Point::missing) {
-    aPoint = Point(time, 0, Point::good);
-    // start at zero, and sum other TS's values.
-    //std::vector< std::pair<TimeSeries::sharedPointer,double> >::iterator it;
-    typedef std::pair< TimeSeries::sharedPointer, double > tsPair_t;
-    BOOST_FOREACH(AggregatorSource aggSource , _tsList) {
-      Point sourcePoint = aggSource.timeseries->point(time);
-      Units sourceUnits = aggSource.timeseries->units();
-      Units myUnits = units();
-      Point thisPoint = Point::convertPoint(sourcePoint, sourceUnits, myUnits);
-      aPoint += ( thisPoint * aggSource.multiplier );
+  else {
+    
+    if (!aPoint.isValid || aPoint.quality == Point::missing) {
+      vector<Point> aggP = filteredPoints(source(), time, time);
+      if (aggP.size() != 1) {
+        return Point();
+      }
+      aPoint = aggP.front();
+      this->insert(aPoint);
     }
-    this->insert(aPoint);
+
   }
   
   return aPoint;
@@ -142,54 +152,116 @@ std::vector< Point > AggregatorTimeSeries::points(time_t start, time_t end) {
 
 std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
   
-  // align the query with the clock
-  fromTime = (clock()->isValid(fromTime)) ? fromTime : clock()->timeAfter(fromTime);
-  toTime = (clock()->isValid(toTime)) ? toTime : clock()->timeBefore(toTime);
-  
   vector<Point> aggregated;
   if (clock()->isRegular()) {
-    aggregated.reserve((toTime-fromTime)/(clock()->period()));
+    // align the query with the clock
+    fromTime = (clock()->isValid(fromTime)) ? fromTime : clock()->timeAfter(fromTime);
+    toTime = (clock()->isValid(toTime)) ? toTime : clock()->timeBefore(toTime);
+    
+    // get the set of times from the clock
+    aggregated.reserve(1 + (toTime-fromTime)/(clock()->period()));
     for (time_t t = fromTime; t <= toTime; t += clock()->period()) {
       Point p(t, 0);
       aggregated.push_back(p);
     }
-  }
-  else {
-    cerr << "Aggregator must have a regular clock" << endl;
+
+    BOOST_FOREACH(AggregatorSource aggSource , _tsList) {
+      // resample the source if needed.
+      // this also converts to local units, so we don't have to worry about that here.
+      vector<Point> thisSourcePoints = Resampler::filteredPoints(aggSource.timeseries, fromTime, toTime);
+      if (thisSourcePoints.size() == 0) {
+        cerr << "no points found for : " << aggSource.timeseries->name() << "(" << fromTime << " - " << toTime << ")" << endl;
+        continue;
+      }
+      vector<Point>::const_iterator pIt = thisSourcePoints.begin();
+      // add in the new points.
+      BOOST_FOREACH(Point& p, aggregated) {
+        // just make sure we're at the right time.
+        while (pIt != thisSourcePoints.end() && (*pIt).time < p.time) {
+          ++pIt;
+        }
+        if (pIt == thisSourcePoints.end()) {
+          cerr << "ERR: times not registered in aggregator" << endl;
+          break;
+        }
+        //
+        if ((*pIt).time != p.time) {
+          cerr << "ERR: times not registered in aggregator" << endl;
+        }
+        
+        // add it in.
+        p += (*pIt) * aggSource.multiplier;
+        if ((*pIt).quality != Point::good) {
+          p.quality = (*pIt).quality;
+        }
+        
+      }
+    }
+    
   }
   
-  typedef std::pair< TimeSeries::sharedPointer, double > tsPair_t;
-  BOOST_FOREACH(AggregatorSource aggSource , _tsList) {
-    // resample the source if needed.
-    // this also converts to local units, so we don't have to worry about that here.
-    vector<Point> thisSourcePoints = Resampler::filteredPoints(aggSource.timeseries, fromTime, toTime);
-    if (thisSourcePoints.size() == 0) {
-      cerr << "no points found for : " << aggSource.timeseries->name() << "(" << fromTime << " - " << toTime << ")" << endl;
-      continue;
+  else {
+    
+    // get the set of times from the aggregator sources
+    std::set<time_t> aggregatedTimes;
+    BOOST_FOREACH(AggregatorSource aggSource, _tsList) {
+      vector<Point> thisSourcePoints = ModularTimeSeries::filteredPoints(aggSource.timeseries, fromTime, toTime);
+      BOOST_FOREACH(Point p, thisSourcePoints) {
+        aggregatedTimes.insert(p.time);
+      }
     }
-    vector<Point>::const_iterator pIt = thisSourcePoints.begin();
-    // add in the new points.
-    BOOST_FOREACH(Point& p, aggregated) {
-      // just make sure we're at the right time.
-      while (pIt != thisSourcePoints.end() && (*pIt).time < p.time) {
-        ++pIt;
-      }
-      if (pIt == thisSourcePoints.end()) {
-        break;
-      }
-      //
-      if ((*pIt).time != p.time) {
-        cerr << "ERR: times not registered in aggregator" << endl;
-      }
-      
-      // add it in.
-      p += (*pIt) * aggSource.multiplier;
-      if ((*pIt).quality != Point::good) {
-        p.quality = (*pIt).quality;
-      }
-      
+    BOOST_FOREACH(time_t t, aggregatedTimes) {
+      Point p(t, 0);
+      aggregated.push_back(p);
     }
+    
+    if (aggregated.size() == 0) {
+      // no points in range
+      return aggregated;
+    }
+    
+    BOOST_FOREACH(AggregatorSource aggSource , _tsList) {
+      // Try to expand the point range
+      pair<time_t,time_t> sourceRange = expandedRange(aggSource.timeseries, fromTime, toTime);
+      // get the source points
+      vector<Point> thisSourcePoints = ModularTimeSeries::filteredPoints(aggSource.timeseries, sourceRange.first, sourceRange.second);
+      if (thisSourcePoints.size() == 0) {
+        continue;
+      }
+      vector<Point>::const_iterator pIt = thisSourcePoints.begin();
+      // add in the new points.
+      BOOST_FOREACH(Point& p, aggregated) {
+        if ((*pIt).time > p.time) {
+          continue;
+        }
+        // position the iterator to bracket the current time
+        while (pIt != thisSourcePoints.end() && (*pIt).time < p.time) {
+          ++pIt;
+        }
+        if (pIt == thisSourcePoints.end()) {
+          cerr << "ERR: times not registered in aggregator" << endl;
+          break;
+        }
+        // construct the point, interpolate if needed
+        Point aggP;
+        if ((*pIt).time > p.time) {
+          Point p1, p2;
+          p1 = *(pIt-1);
+          p2 = *pIt;
+          aggP = Point::linearInterpolate(p1, p2, p.time);
+        }
+        else {
+          aggP = *pIt;
+        }
+        
+        // add it in.
+        p += aggP * aggSource.multiplier;
+        
+      }
+    }
+    
   }
+  
   
   return aggregated;
 }

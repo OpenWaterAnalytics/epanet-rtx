@@ -297,7 +297,8 @@ vector<Point> ModularTimeSeries::filteredPoints(TimeSeries::sharedPointer source
   */
   std::vector<Point> sourcePoints = sourceTs->points(fromTime, toTime);
 
-  if (sourcePoints.size() < 2) {
+//  if (sourcePoints.size() < 2) { // what's the reason not to filter a single point?
+  if (sourcePoints.size() == 0) {
     return filtered;
   }
   
