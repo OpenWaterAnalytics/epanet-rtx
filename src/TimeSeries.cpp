@@ -171,6 +171,16 @@ Point TimeSeries::pointAtOrBefore(time_t time) {
   return p;
 }
 
+Point TimeSeries::interpolatedPoint(time_t time) {
+  
+  Point p1,p2;
+  
+  p1 = this->pointAtOrBefore(time);
+  p2 = this->pointAfter(time - 1);
+  
+  return Point::linearInterpolate(p1, p2, time);
+}
+
 
 TimeSeries::Summary TimeSeries::summary(time_t start, time_t end) {
   Summary s;
