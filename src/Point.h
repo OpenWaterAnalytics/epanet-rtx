@@ -62,7 +62,7 @@ namespace RTX {
     bool isValid;
     
     // convenience
-    bool hasQual(Qual_t qual);
+    const bool hasQual(Qual_t qual) const;
     void addQualFlag(Qual_t qual);
     
     Point inverse();

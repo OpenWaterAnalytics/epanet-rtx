@@ -33,7 +33,7 @@ Point::~Point() {
 }
 
 
-bool Point::hasQual(Qual_t qual) {
+const bool Point::hasQual(Qual_t qual) const {
   return (this->quality & qual);
 }
 

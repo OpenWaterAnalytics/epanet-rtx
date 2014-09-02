@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		220324CB18AC05A800BD7790 /* FailoverTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220324C918AC05A800BD7790 /* FailoverTimeSeries.cpp */; };
 		220324CC18AC05A800BD7790 /* FailoverTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 220324CA18AC05A800BD7790 /* FailoverTimeSeries.h */; };
+		22039AE019B61A9C00622FFA /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2274872E19AE794F00A48475 /* Python.framework */; };
 		220500D217B984470062D02B /* RunTimeStatusModularTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220500D017B984470062D02B /* RunTimeStatusModularTimeSeries.cpp */; };
 		220500D417B984470062D02B /* RunTimeStatusModularTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 220500D117B984470062D02B /* RunTimeStatusModularTimeSeries.h */; };
 		22067EAC1873303D00BAFF61 /* OdbcDirectPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22067EAA1873303D00BAFF61 /* OdbcDirectPointRecord.cpp */; };
@@ -632,6 +633,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22039AE019B61A9C00622FFA /* Python.framework in Frameworks */,
 				2230FC5A1920FEE700C66708 /* libmysqlclient.a in Frameworks */,
 				227239421908374D00FDE879 /* libcurl.dylib in Frameworks */,
 				22D308E018FEC3ED0004E1DC /* libmysqlcppconn-static.a in Frameworks */,
@@ -1942,8 +1944,13 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_PREPROCESSOR_DEFINITIONS = "EN_API_FLOAT_TYPE=double";
 				HEADER_SEARCH_PATHS = (
+					/usr/include/python2.7,
 					/usr/local/include,
 					"${SRCROOT}/../../../epanet/src",
 					"${SRCROOT}/../../../epanet/include",
@@ -1969,8 +1976,13 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_PREPROCESSOR_DEFINITIONS = "EN_API_FLOAT_TYPE=double";
 				HEADER_SEARCH_PATHS = (
+					/usr/include/python2.7,
 					/usr/local/include,
 					"${SRCROOT}/../../../epanet/src",
 					"${SRCROOT}/../../../epanet/include",

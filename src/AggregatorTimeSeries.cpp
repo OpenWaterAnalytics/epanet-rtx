@@ -60,10 +60,11 @@ void AggregatorTimeSeries::addSource(TimeSeries::sharedPointer timeSeries, doubl
   _tsList.push_back((AggregatorSource){timeSeries,multiplier});
   
   // set my clock to the lesser-period of any source.
+  /*
   if (this->clock()->period() < timeSeries->clock()->period()) {
     this->setClock(timeSeries->clock());
   }
-  
+  */
 }
 
 void AggregatorTimeSeries::removeSource(TimeSeries::sharedPointer timeSeries) {
@@ -191,7 +192,7 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
         
         // add it in.
         p += (*pIt) * aggSource.multiplier;
-        if ((*pIt).quality != Point::good) {
+        if (! pIt->hasQual(Point::good) ) {
           p.quality = (*pIt).quality;
         }
         
@@ -222,40 +223,70 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
     
     BOOST_FOREACH(AggregatorSource aggSource , _tsList) {
       // Try to expand the point range
-      pair<time_t,time_t> sourceRange = expandedRange(aggSource.timeseries, fromTime, toTime);
+      pair<time_t,time_t> sourceRange; // = expandedRange(aggSource.timeseries, fromTime, toTime);
+      sourceRange.first = aggSource.timeseries->pointAtOrBefore(fromTime).time;
+      sourceRange.second = aggSource.timeseries->pointAfter(toTime-1).time;
+      
+      // check for coverage. does the upstream source contain the needed range?
+      if (fromTime < sourceRange.first || sourceRange.second < toTime) {
+        cerr << "Aggregation range not covered" << endl;
+//        return aggregated;
+      }
+      
+      
       // get the source points
-      vector<Point> thisSourcePoints = ModularTimeSeries::filteredPoints(aggSource.timeseries, sourceRange.first, sourceRange.second);
-      if (thisSourcePoints.size() == 0) {
+      vector<Point> upstreamPoints = aggSource.timeseries->points(sourceRange.first, sourceRange.second);
+      if (upstreamPoints.size() == 0) {
         continue;
       }
-      vector<Point>::const_iterator pIt = thisSourcePoints.begin();
+      vector<Point>::const_iterator cursorPoint = upstreamPoints.begin();
+      Point trailingPoint = *cursorPoint;
+      ++cursorPoint;
+      if (cursorPoint == upstreamPoints.end()) {
+        cerr << "not enough upstream data" << endl;
+      }
+      
       // add in the new points.
       BOOST_FOREACH(Point& p, aggregated) {
-        if ((*pIt).time > p.time) {
-          continue;
-        }
-        // position the iterator to bracket the current time
-        while (pIt != thisSourcePoints.end() && (*pIt).time < p.time) {
-          ++pIt;
-        }
-        if (pIt == thisSourcePoints.end()) {
-          cerr << "ERR: times not registered in aggregator" << endl;
-          break;
-        }
-        // construct the point, interpolate if needed
-        Point aggP;
-        if ((*pIt).time > p.time) {
-          Point p1, p2;
-          p1 = *(pIt-1);
-          p2 = *pIt;
-          aggP = Point::linearInterpolate(p1, p2, p.time);
-        }
-        else {
-          aggP = *pIt;
+        
+        // crawl along the upstream vector, interpolating as needed.
+        // as long as the current aggregation point is within the range set by the trailing point and the cursor,
+        // there's no problem. otherwise, let's skip ahead.
+        
+        // *** this is OK:
+        //   trailing <-------------------------> cursor
+        //                    ^
+        //                    p
+        
+        
+        // the following block gets evaluated when we're not yet within the correct range:
+        //        trailing <-------------------------> cursor
+        //   ^
+        //   p
+        if (p.time < trailingPoint.time) {
+          cerr << "aggregator skipping ahead" << endl;
+          // this is error
+          continue; // get to the next point.
         }
         
-        // add it in.
-        p += aggP * aggSource.multiplier;
+        
+        // the following block gets evaluated when we've gone outside the trailing---cursor range:
+        //   trailing <-------------------------> cursor
+        //                                                 ^
+        //                                                 p
+        
+        if (cursorPoint->time < p.time) {
+          // move both markers forward
+          trailingPoint = *cursorPoint;
+          ++cursorPoint;
+          if (cursorPoint == upstreamPoints.end()) {
+            continue;
+          }
+        }
+        
+        // if we've gotten this far, then we're in good shape.
+        Point aggregationPoint = Point::linearInterpolate(trailingPoint, *cursorPoint, p.time);
+        p += aggregationPoint * aggSource.multiplier;
         
       }
     }
