@@ -142,11 +142,16 @@ Point AggregatorTimeSeries::pointBefore(time_t time) {
 
   std::set<time_t> timeSet;
   
-  BOOST_FOREACH(AggregatorSource& item, _tsList) {
-    time_t thisBefore = item.timeseries->pointBefore(time).time;
-    timeSet.insert(thisBefore);
+  if (this->clock()->isRegular()) {
+    timeSet.insert(this->clock()->timeBefore(time));
   }
-  
+  else {
+    BOOST_FOREACH(AggregatorSource& item, _tsList) {
+      time_t thisBefore = item.timeseries->pointBefore(time).time;
+      timeSet.insert(thisBefore);
+    }
+  }
+    
   if (timeSet.empty()) {
     return Point();
   }
@@ -162,9 +167,14 @@ Point AggregatorTimeSeries::pointAfter(time_t time) {
   
   std::set<time_t> timeSet;
   
-  BOOST_FOREACH(AggregatorSource& item, _tsList) {
-    time_t thisAfter = item.timeseries->pointAfter(time).time;
-    timeSet.insert(thisAfter);
+  if (this->clock()->isRegular()) {
+    timeSet.insert(this->clock()->timeAfter(time));
+  }
+  else {
+    BOOST_FOREACH(AggregatorSource& item, _tsList) {
+      time_t thisAfter = item.timeseries->pointAfter(time).time;
+      timeSet.insert(thisAfter);
+    }
   }
   
   if (timeSet.empty()) {
