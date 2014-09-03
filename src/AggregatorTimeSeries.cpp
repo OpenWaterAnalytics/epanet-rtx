@@ -200,42 +200,9 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
     
     // get the set of times from the clock
     aggregated.reserve(1 + (toTime-fromTime)/(clock()->period()));
-    for (time_t t = fromTime; t <= toTime; t += clock()->period()) {
-      Point p(t, 0);
+    for (time_t thisTime = fromTime; thisTime <= toTime; thisTime = this->clock()->timeAfter(thisTime)) {
+      Point p(thisTime, 0);
       aggregated.push_back(p);
-    }
-
-    BOOST_FOREACH(AggregatorSource aggSource , _tsList) {
-      // resample the source if needed.
-      // this also converts to local units, so we don't have to worry about that here.
-      vector<Point> thisSourcePoints = Resampler::filteredPoints(aggSource.timeseries, fromTime, toTime);
-      if (thisSourcePoints.size() == 0) {
-        cerr << "no points found for : " << aggSource.timeseries->name() << "(" << fromTime << " - " << toTime << ")" << endl;
-        continue;
-      }
-      vector<Point>::const_iterator pIt = thisSourcePoints.begin();
-      // add in the new points.
-      BOOST_FOREACH(Point& p, aggregated) {
-        // just make sure we're at the right time.
-        while (pIt != thisSourcePoints.end() && (*pIt).time < p.time) {
-          ++pIt;
-        }
-        if (pIt == thisSourcePoints.end()) {
-          cerr << "ERR: times not registered in aggregator" << endl;
-          break;
-        }
-        //
-        if ((*pIt).time != p.time) {
-          cerr << "ERR: times not registered in aggregator" << endl;
-        }
-        
-        // add it in.
-        p += (*pIt) * aggSource.multiplier;
-        if (! pIt->hasQual(Point::good) ) {
-          p.quality = (*pIt).quality;
-        }
-        
-      }
     }
     
   }
@@ -254,7 +221,8 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
       Point p(t, 0);
       aggregated.push_back(p);
     }
-    
+  }
+  
     if (aggregated.size() == 0) {
       // no points in range
       return aggregated;
@@ -322,7 +290,7 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
         //   trailing <-------------------------> cursor
         //                                                 ^
         //                                                 p
-        else if (cursorPoint->time < p.time) {
+        else while (cursorPoint->time < p.time) {
           // move both markers forward
           trailingPoint = *cursorPoint;
           ++cursorPoint;
@@ -338,7 +306,7 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
       }
     }
     
-  }
+  
   
   
   return aggregated;

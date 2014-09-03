@@ -264,7 +264,12 @@ void TimeSeries::resetCache() {
 
 void TimeSeries::setClock(Clock::sharedPointer clock) {
   //_hasClock = (clock ? true : false);
-  _clock = clock;
+  if (clock) {
+    _clock = clock;
+  }
+  else {
+    _clock.reset( new IrregularClock(_points, this->name()) );
+  }
 }
 
 Clock::sharedPointer TimeSeries::clock() {
