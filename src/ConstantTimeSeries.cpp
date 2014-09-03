@@ -11,7 +11,14 @@ ConstantTimeSeries::ConstantTimeSeries() {
 }
 
 Point ConstantTimeSeries::point(time_t time)  {
-  return Point(time, _value, Point::constant);
+  bool regular = this->clock()->isRegular();
+  
+  if ( !regular || (regular && this->clock()->isValid(time)) ) {
+    return Point(time, _value, Point::constant);
+  }
+  else {
+    return Point();
+  }
 }
 
 
