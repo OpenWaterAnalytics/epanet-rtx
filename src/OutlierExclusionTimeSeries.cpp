@@ -39,8 +39,49 @@ double OutlierExclusionTimeSeries::outlierMultiplier() {
   return _outlierMultiplier;
 }
 
+Point OutlierExclusionTimeSeries::pointBefore(time_t searchTime) {
+  Point priorPoint;
+  time_t priorTime = this->source()->pointBefore(searchTime).time;
+  if (priorTime == 0) {
+    return priorPoint;
+  }
+  
+  priorPoint = this->filteredSingle(priorTime);
+  while (!priorPoint.isValid && priorPoint.time > 0) {
+    priorTime = this->source()->pointBefore(priorTime).time;
+    priorPoint = this->filteredSingle(priorTime);
+  }
+  
+  return priorPoint;
+}
 
-vector<Point> OutlierExclusionTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+Point OutlierExclusionTimeSeries::pointAfter(time_t searchTime) {
+  time_t afterTime = this->source()->pointAfter(searchTime).time;
+  if (afterTime == 0) {
+    return Point();
+  }
+  
+  Point afterPoint = this->filteredSingle(afterTime);
+  while (!afterPoint.isValid && afterPoint.time > 0) {
+    afterTime = this->source()->pointAfter(afterTime).time;
+    afterPoint = this->filteredSingle(afterTime);
+  }
+  return afterPoint;
+}
+
+
+Point OutlierExclusionTimeSeries::filteredSingle(time_t time) {
+  
+  vector<Point> candidates = this->filteredPointsWithMissing(this->source(), time, time, true);
+  if (candidates.size() == 0) {
+    candidates.push_back(Point());
+  }
+  
+  return candidates.front();
+}
+
+
+vector<Point> OutlierExclusionTimeSeries::filteredPointsWithMissing(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime, bool returnMissing) {
   
   double m = this->outlierMultiplier();
   vector<Point> goodPoints;
@@ -54,7 +95,7 @@ vector<Point> OutlierExclusionTimeSeries::filteredPoints(TimeSeries::sharedPoint
     // fetch pair values from the source summary collection
     Point p = psp.first;
     Summary s = psp.second;
-
+    
     switch (this->exclusionMode()) {
       case OutlierExclusionModeInterquartileRange:
       {
@@ -65,6 +106,9 @@ vector<Point> OutlierExclusionTimeSeries::filteredPoints(TimeSeries::sharedPoint
           // store the point if it's within bounds
           goodPoints.push_back(Point::convertPoint(p, sourceTs->units(), this->units()));
         }
+        else if (returnMissing) {
+          goodPoints.push_back(Point(p.time, 0, Point::missing)); // bad point placeholder for searching
+        }
       }
         break; // OutlierExclusionModeInterquartileRange
       case OutlierExclusionModeStdDeviation:
@@ -74,12 +118,23 @@ vector<Point> OutlierExclusionTimeSeries::filteredPoints(TimeSeries::sharedPoint
         if ( fabs(mean - p.value) <= (m * stddev) ) {
           goodPoints.push_back(Point::convertPoint(p, sourceTs->units(), this->units()));
         }
+        else if (returnMissing) {
+          goodPoints.push_back(Point(p.time, 0, Point::missing)); // bad point placeholder for searching
+        }
       }
         break; // OutlierExclusionModeStdDeviation
     } // end switch mode
   }// end for each summary
   
   return goodPoints;
+  
+}
+
+
+vector<Point> OutlierExclusionTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+  
+  return this->filteredPointsWithMissing(sourceTs, fromTime, toTime, false);
+  
 }
 
 

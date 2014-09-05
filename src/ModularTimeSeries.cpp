@@ -132,6 +132,48 @@ bool ModularTimeSeries::isPointAvailable(time_t time) {
 }
 */
 Point ModularTimeSeries::point(time_t time) {
+  if (!this->source()) {
+    return Point();
+  }
+  
+  Point aPoint = TimeSeries::point(time);
+  
+  if (this->clock()->isRegular()) {
+    
+    if (!this->clock()->isValid(time)) {
+      return Point();
+    }
+    
+    if (!aPoint.isValid || aPoint.quality == Point::missing) {
+      vector<Point> myPoints = filteredPoints(this->source(), time, time);
+      if (myPoints.size() != 1) {
+        cerr << "ERR: times not registered in modular time series" << endl;
+        return Point();
+      }
+      aPoint = myPoints.front();
+      this->insert(aPoint);
+    }
+  }
+  
+  else {
+    
+    if (!aPoint.isValid || aPoint.quality == Point::missing) {
+      vector<Point> myPoints = filteredPoints(this->source(), time, time);
+      if (myPoints.size() != 1) {
+        return Point();
+      }
+      aPoint = myPoints.front();
+      this->insert(aPoint);
+    }
+    
+  }
+  
+  return aPoint;
+  
+  
+  
+  
+  /*
   // check the base-class availability. if it's cached or stored here locally, then send it on.
   // otherwise, check the upstream availability. if it's there, store it locally and pass it on.
   
@@ -155,25 +197,42 @@ Point ModularTimeSeries::point(time_t time) {
       Point point;
       return point;
     }
-  }
+  } */
 }
 
 Point ModularTimeSeries::pointBefore(time_t time) {
+  Point thePoint;
+  
   time_t timeBefore = clock()->timeBefore(time);
-  if (timeBefore == 0) {
-//    timeBefore = source()->clock()->timeBefore(time);
-    timeBefore = source()->pointBefore(time).time;
+  if (this->clock()->isRegular()) {
+    thePoint = this->point(timeBefore);
   }
-  return point(timeBefore);
+  else {
+    timeBefore = time;
+    while (timeBefore > 0 && !thePoint.isValid) {
+      timeBefore = source()->pointBefore(timeBefore).time;
+      thePoint = this->point(timeBefore);
+    }
+  }
+  
+  return thePoint;
 }
 
 Point ModularTimeSeries::pointAfter(time_t time) {
-  time_t timeAfter = clock()->timeAfter(time);
-  if (timeAfter == 0) {
-//    timeAfter = source()->clock()->timeAfter(time);
-    timeAfter = source()->pointAfter(time).time;
+  Point thePoint;
+  time_t timeAfter;
+  if (this->clock()->isRegular()) {
+    thePoint = this->point(this->clock()->timeAfter(time));
   }
-  return point(timeAfter);
+  else {
+    timeAfter = time; // temporary assignment to pass initial test and enter the while loop.
+    while (timeAfter > 0 && !thePoint.isValid) {
+      timeAfter = source()->pointAfter(timeAfter).time;
+      thePoint = this->point(timeAfter);
+    }
+  }
+  
+  return thePoint;
 }
 
 vector< Point > ModularTimeSeries::points(time_t start, time_t end) {

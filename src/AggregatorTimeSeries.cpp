@@ -101,42 +101,6 @@ void AggregatorTimeSeries::setMultiplierForSource(TimeSeries::sharedPointer time
 }
 
 
-Point AggregatorTimeSeries::point(time_t time) {
-  // call the base class method first, to see if the point is accessible via cache.
-  Point aPoint = TimeSeries::point(time);
-  
-  if (this->clock()->isRegular()) {
-    
-    if (!this->clock()->isValid(time)) {
-      return Point();
-    }
-    
-    if (!aPoint.isValid || aPoint.quality == Point::missing) {
-      vector<Point> aggP = filteredPoints(source(), time, time);
-      if (aggP.size() != 1) {
-        cerr << "ERR: times not registered in aggregator" << endl;
-        return Point();
-      }
-      aPoint = aggP.front();
-      this->insert(aPoint);
-    }
-  }
-  
-  else {
-    
-    if (!aPoint.isValid || aPoint.quality == Point::missing) {
-      vector<Point> aggP = filteredPoints(source(), time, time);
-      if (aggP.size() != 1) {
-        return Point();
-      }
-      aPoint = aggP.front();
-      this->insert(aPoint);
-    }
-
-  }
-  
-  return aPoint;
-}
 
 Point AggregatorTimeSeries::pointBefore(time_t time) {
 
@@ -188,7 +152,9 @@ Point AggregatorTimeSeries::pointAfter(time_t time) {
 }
 
 
-
+Point AggregatorTimeSeries::point(time_t time) {
+  return ModularTimeSeries::point(time);
+}
 
 std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
   
@@ -237,7 +203,8 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
       // check for coverage. does the upstream source contain the needed range?
       if (fromTime < sourceRange.first || sourceRange.second < toTime) {
         cerr << "Aggregation range not covered" << endl;
-//        return aggregated;
+        
+        sourceRange.second = aggSource.timeseries->pointAfter(toTime-1).time;
       }
       
       
@@ -246,6 +213,11 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
       if (upstreamPoints.size() == 0) {
         continue;
       }
+      
+      if (sourceRange.first != upstreamPoints.front().time || sourceRange.second != upstreamPoints.back().time) {
+        cerr << "source points not what expected" << endl;
+      }
+      
       vector<Point>::const_iterator cursorPoint = upstreamPoints.begin();
       Point trailingPoint = *cursorPoint;
       ++cursorPoint;

@@ -62,8 +62,8 @@ Point ValidRangeTimeSeries::pointAfter(time_t time) {
   
   Point afterPoint = RTX_VRTS_SUPER::pointAfter(time);
   
-  // If baseclass pointBefore returns an invalid point,
-  // then keep searching backwards
+  // If baseclass pointAfter returns an invalid point,
+  // then keep searching 
   while (!afterPoint.isValid && afterPoint.time > 0) {
     afterPoint = RTX_VRTS_SUPER::pointAfter(afterPoint.time);
   }

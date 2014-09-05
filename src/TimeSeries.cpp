@@ -190,6 +190,7 @@ TimeSeries::Summary TimeSeries::summary(time_t start, time_t end) {
     return s;
   }
   
+  
   // gaps
   s.gaps.reserve(s.points.size());
   time_t prior = this->pointBefore(s.points.front().time).time;
@@ -220,6 +221,12 @@ TimeSeries::Summary TimeSeries::summary(time_t start, time_t end) {
   s.stats.count     = extract::count(acc);
   s.stats.min       = extract::min(acc);
   s.stats.max       = extract::max(acc);
+    
+  if (s.stats.quartiles.q50 < s.stats.min) { // weird edge case with accumulators. small populations sometimes return values of zero.
+    s.stats.quartiles.q50 = NAN;
+    s.stats.quartiles.q25 = NAN;
+    s.stats.quartiles.q75 = NAN;
+  }
   
   return s;
 }
