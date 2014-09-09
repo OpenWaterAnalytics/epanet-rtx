@@ -195,6 +195,7 @@
 		2280409B158F82EF004222DA /* Pump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409A158F82EE004222DA /* Pump.cpp */; };
 		2280409D158F8326004222DA /* Valve.h in Headers */ = {isa = PBXBuildFile; fileRef = 2280409C158F8326004222DA /* Valve.h */; };
 		2280409F158F8352004222DA /* Valve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409E158F8351004222DA /* Valve.cpp */; };
+		22826AD319BE107A004FC11F /* libboost_python.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22826AD219BE107A004FC11F /* libboost_python.dylib */; };
 		228A770218450F1500905D8E /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22B0547617F1DEF300625F4D /* libsqlite3.dylib */; };
 		228A837B16DBE644008E9C35 /* data_access.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228A837A16DBE644008E9C35 /* data_access.cpp */; };
 		228A837D16DBE69C008E9C35 /* libboost_system.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 229D1BD915FE3E0F000B4C94 /* libboost_system.dylib */; };
@@ -507,6 +508,7 @@
 		2281A75D15A744E60018EC0F /* DbPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DbPointRecord.h; path = ../../src/DbPointRecord.h; sourceTree = "<group>"; };
 		2281A75E15A7451F0018EC0F /* MysqlPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MysqlPointRecord.h; path = ../../src/MysqlPointRecord.h; sourceTree = "<group>"; };
 		2281A75F15A745520018EC0F /* OdbcPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = OdbcPointRecord.h; path = ../../src/OdbcPointRecord.h; sourceTree = "<group>"; };
+		22826AD219BE107A004FC11F /* libboost_python.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_python.dylib; path = ../../../../../../../usr/local/lib/libboost_python.dylib; sourceTree = "<group>"; };
 		228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libepanet-rtx-project.dylib"; sourceTree = BUILT_PRODUCTS_DIR; };
 		228A836E16DBE5E7008E9C35 /* data_access_profiling */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = data_access_profiling; sourceTree = BUILT_PRODUCTS_DIR; };
 		228A837A16DBE644008E9C35 /* data_access.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = data_access.cpp; path = ../../examples/data_access_profiling/data_access.cpp; sourceTree = "<group>"; };
@@ -633,6 +635,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22826AD319BE107A004FC11F /* libboost_python.dylib in Frameworks */,
 				22039AE019B61A9C00622FFA /* Python.framework in Frameworks */,
 				2230FC5A1920FEE700C66708 /* libmysqlclient.a in Frameworks */,
 				227239421908374D00FDE879 /* libcurl.dylib in Frameworks */,
@@ -797,8 +800,8 @@
 			isa = PBXGroup;
 			children = (
 				2274872E19AE794F00A48475 /* Python.framework */,
-				2274872419AE236200A48475 /* PythonInterpreter.cpp */,
 				2274872519AE236200A48475 /* PythonInterpreter.h */,
+				2274872419AE236200A48475 /* PythonInterpreter.cpp */,
 			);
 			name = "Python Interpreter";
 			sourceTree = "<group>";
@@ -894,6 +897,7 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
+				22826AD219BE107A004FC11F /* libboost_python.dylib */,
 				2230FC591920FEE700C66708 /* libmysqlclient.a */,
 				2272393A1908374400FDE879 /* libcurl.dylib */,
 				2269BDFC1896CF1D007899B6 /* libiodbc.2.1.18.dylib */,
@@ -1962,6 +1966,7 @@
 					/usr/lib,
 					"/usr/local/mysql-5.5.28-osx10.6-x86_64/lib",
 					"/usr/local/mysql-5.5.14-osx10.6-x86_64/lib",
+					/Library/Frameworks,
 				);
 				OTHER_LDFLAGS = "-liodbc";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1994,6 +1999,7 @@
 					/usr/lib,
 					"/usr/local/mysql-5.5.28-osx10.6-x86_64/lib",
 					"/usr/local/mysql-5.5.14-osx10.6-x86_64/lib",
+					/Library/Frameworks,
 				);
 				OTHER_LDFLAGS = "-liodbc";
 				PRODUCT_NAME = "$(TARGET_NAME)";

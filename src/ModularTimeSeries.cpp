@@ -208,6 +208,9 @@ Point ModularTimeSeries::pointBefore(time_t time) {
     thePoint = this->point(timeBefore);
   }
   else {
+    if (!source()) {
+      return thePoint;
+    }
     timeBefore = time;
     while (timeBefore > 0 && !thePoint.isValid) {
       timeBefore = source()->pointBefore(timeBefore).time;
@@ -225,6 +228,9 @@ Point ModularTimeSeries::pointAfter(time_t time) {
     thePoint = this->point(this->clock()->timeAfter(time));
   }
   else {
+    if (!source()) {
+      return thePoint;
+    }
     timeAfter = time; // temporary assignment to pass initial test and enter the while loop.
     while (timeAfter > 0 && !thePoint.isValid) {
       timeAfter = source()->pointAfter(timeAfter).time;

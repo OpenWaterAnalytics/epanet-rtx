@@ -41,6 +41,10 @@ double OutlierExclusionTimeSeries::outlierMultiplier() {
 
 Point OutlierExclusionTimeSeries::pointBefore(time_t searchTime) {
   Point priorPoint;
+  if (!this->source()) {
+    return priorPoint;
+  }
+  
   time_t priorTime = this->source()->pointBefore(searchTime).time;
   if (priorTime == 0) {
     return priorPoint;
@@ -56,6 +60,9 @@ Point OutlierExclusionTimeSeries::pointBefore(time_t searchTime) {
 }
 
 Point OutlierExclusionTimeSeries::pointAfter(time_t searchTime) {
+  if (!this->source()) {
+    return Point();
+  }
   time_t afterTime = this->source()->pointAfter(searchTime).time;
   if (afterTime == 0) {
     return Point();

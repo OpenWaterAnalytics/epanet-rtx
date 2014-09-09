@@ -17,6 +17,32 @@
 //! singleton python interpreter object
 
 namespace RTX {
+  
+  /*!
+   \class PythonInterpreter
+   \brief A singleton python interpreter supporting the EPANET-RTX library
+   */
+  
+  /*!
+   \fn static PythonInterpreter::sharedPointer sharedInterpreter()
+   \brief Get the shared interpreter instance.
+   \return a shared pointer to the instance.
+   */
+  /*!
+   \fn void exec(std::string execStr)
+   \brief Execute a python command
+   \param execStr the command to execute
+   \return none
+   */
+  /*!
+   \fn double doubleValueFromEval(std::string evalStr)
+   \brief Get a double from evaluating a python string.
+   \param evalStr The python string to evaluate
+   \return The evaluated value
+  */
+  
+  
+  
   class PythonInterpreter {
   public:
     RTX_SHARED_POINTER(PythonInterpreter);
@@ -26,7 +52,10 @@ namespace RTX {
     };
     
     void exec(std::string execStr);
-    int identifier;
+    double doubleValueFromEval(std::string evalStr);
+    long int longIntValueFromEval(std::string evalStr);
+    int intValueFromEval(std::string evalStr);
+    
     
   private:
     PythonInterpreter();
