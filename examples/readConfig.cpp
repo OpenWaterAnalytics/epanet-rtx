@@ -2,7 +2,6 @@
 #include <time.h>
 #include <boost/foreach.hpp>
 
-#include "EpanetModel.h"
 #include "SqliteProjectFile.h"
 
 using namespace std;
@@ -11,18 +10,17 @@ using namespace RTX;
 
 int main (int argc, const char * argv[])
 {
-
   
-  {
-    
-    ProjectFile::sharedPointer project( new SqliteProjectFile);
-    project->loadProjectFile("/Users/sam/Desktop/milford.rtx");
-    
-    
+  
+  SqliteProjectFile::sharedPointer proj( new SqliteProjectFile() );
+  
+  proj->loadProjectFile("testdb.rtx");
+  
+  RTX_LIST<TimeSeries::sharedPointer> tsList = proj->timeSeries();
+  
+  
+  BOOST_FOREACH(TimeSeries::sharedPointer ts, tsList) {
+    cout << *ts << endl;
   }
-  cout << "done" << endl;
-  
 
-  
-  return 0;
 }
