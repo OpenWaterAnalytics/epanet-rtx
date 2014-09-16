@@ -64,6 +64,13 @@ vector<Point> ForecastTimeSeries::filteredPoints(TimeSeries::sharedPointer sourc
     vector<Point> nextModelPoints = this->filteredPoints(sourceTs, nextFit, toTime);
     
     vector<Point> combined; // == combine them
+    BOOST_FOREACH(const Point& p, priorModelPoints) {
+      combined.push_back(p);
+    }
+    BOOST_FOREACH(const Point& p, nextModelPoints) {
+      combined.push_back(p);
+    }
+    
     return combined;
   }
   
@@ -71,11 +78,17 @@ vector<Point> ForecastTimeSeries::filteredPoints(TimeSeries::sharedPointer sourc
   // use whatever model params we've figured out, and do the estimation.
   
   
+  vector<Point> sourcePoints = sourceTs->points(fromTime, toTime);
+  
+  stringstream pandasName;
+  pandasName << "ts__pd_ts";
+  
+  this->pointsToPandas(sourcePoints, pandasName.str());
   
   
+  vector<Point> resultPoints = this->pointsFromPandas(pandasName.str());
   
-  
-  
+  return resultPoints;
   
 }
 

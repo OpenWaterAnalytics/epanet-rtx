@@ -7,10 +7,7 @@
 
 
 #include <iostream>
-#include <stdlib.h>
-
 #include <boost/foreach.hpp>
-#include <boost/random.hpp>
 
 #include "Point.h"
 #include "TimeSeries.h"
@@ -26,16 +23,12 @@
 #include "TimeOffsetTimeSeries.h"
 #include "WarpingTimeSeries.h"
 
-#include "OutlierExclusionTimeSeries.h"
-
 #include "BufferPointRecord.h"
 #include "MysqlPointRecord.h"
 
 //#include "SqliteProjectFile.h"
 
 #include "SqlitePointRecord.h"
-
-#include "PythonInterpreter.h"
 
 using namespace RTX;
 using namespace std;
@@ -45,56 +38,7 @@ void printPoints(vector<Point> pointVector);
 int main(int argc, const char * argv[])
 {
   
-  
-  PythonInterpreter::sharedPointer py = PythonInterpreter::sharedInterpreter();
-  
-  py->identifier = 12;
-  
-  
-  PythonInterpreter::sharedPointer py2 = PythonInterpreter::sharedInterpreter();
-  
-  
-  cout << "blah:: " << py2->identifier << endl;
-  
-  
-  
-  
-  
-  
-  BufferPointRecord::sharedPointer buff(new BufferPointRecord());
-  
-  TimeSeries::sharedPointer dirtyTs(new TimeSeries);
-  dirtyTs->setName("dirty");
-  dirtyTs->setRecord(buff);
-  
-  
-  vector<Point> range;
-  
-  boost::random::mt19937 rng;         // produces randomness out of thin air
-  boost::random::uniform_real_distribution<> oneToOneHundred(1,100);
-  
-  for (time_t t = 100; t < 10000; t+= 60) {
-    range.push_back(Point(t, oneToOneHundred(rng)));
-  }
-  
-  dirtyTs->insertPoints(range);
-  
-  Clock::sharedPointer windowClock( new Clock(600) );
-  windowClock->setPeriod(1200);
-  
-  OutlierExclusionTimeSeries::sharedPointer outlierTs( new OutlierExclusionTimeSeries() );
-  outlierTs->setSource(dirtyTs);
-  outlierTs->setWindow(windowClock);
-  outlierTs->setExclusionMode(OutlierExclusionTimeSeries::OutlierExclusionModeStdDeviation);
-  outlierTs->setOutlierMultiplier(1.);
-  
-  vector<Point> excluded = outlierTs->points(1000, 3000);
-  
-  printPoints(range);
-  cout << ":::::::::::::::::::::::::::::::::" << endl;
-  
-  printPoints(excluded);
-  
+
   
   /*
   Units deg_f = RTX_DEGREE_FARENHEIT;
@@ -165,7 +109,27 @@ int main(int argc, const char * argv[])
   backupTs->setClock(reg10s);
   
   
+  BufferPointRecord::sharedPointer buff(new BufferPointRecord());
   
+  TimeSeries::sharedPointer dirtyTs(new TimeSeries);
+  dirtyTs->setName("dirty");
+  dirtyTs->setRecord(buff);
+  
+  
+  vector<Point> range;
+  range.push_back(Point(101,1.));
+  range.push_back(Point(102,1.));
+  range.push_back(Point(103,1.));
+  range.push_back(Point(104,1.));
+  range.push_back(Point(105,1.));
+  /******** missing data ***********/
+  range.push_back(Point(206,1.));
+  range.push_back(Point(207,1.));
+  range.push_back(Point(208,1.));
+  range.push_back(Point(209,1.));
+  range.push_back(Point(210,1.));
+  
+  dirtyTs->insertPoints(range);
   
   FailoverTimeSeries::sharedPointer failover(new FailoverTimeSeries);
   failover->setName("failover");
