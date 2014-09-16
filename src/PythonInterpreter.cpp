@@ -8,7 +8,7 @@
 
 #include "PythonInterpreter.h"
 
-#include <boost/python/detail/wrap_python.hpp>
+
 #include <boost/python.hpp>
 
 

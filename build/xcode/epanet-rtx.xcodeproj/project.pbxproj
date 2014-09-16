@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		220324CB18AC05A800BD7790 /* FailoverTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220324C918AC05A800BD7790 /* FailoverTimeSeries.cpp */; };
 		220324CC18AC05A800BD7790 /* FailoverTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 220324CA18AC05A800BD7790 /* FailoverTimeSeries.h */; };
-		22039AE019B61A9C00622FFA /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2274872E19AE794F00A48475 /* Python.framework */; };
 		220500D217B984470062D02B /* RunTimeStatusModularTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220500D017B984470062D02B /* RunTimeStatusModularTimeSeries.cpp */; };
 		220500D417B984470062D02B /* RunTimeStatusModularTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 220500D117B984470062D02B /* RunTimeStatusModularTimeSeries.h */; };
 		22067EAC1873303D00BAFF61 /* OdbcDirectPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22067EAA1873303D00BAFF61 /* OdbcDirectPointRecord.cpp */; };
@@ -165,6 +164,7 @@
 		224E04831979431D0039E3F9 /* StatsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 224E047F1979431C0039E3F9 /* StatsTimeSeries.h */; };
 		2251DCA6168105AA00515EBF /* IrregularClock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2251DCA4168105AA00515EBF /* IrregularClock.cpp */; };
 		2251DCA7168105AA00515EBF /* IrregularClock.h in Headers */ = {isa = PBXBuildFile; fileRef = 2251DCA5168105AA00515EBF /* IrregularClock.h */; };
+		225C3A6C19C234750084D8B7 /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 225C3A6B19C234750084D8B7 /* Python */; };
 		225D719F1497F96C00B90F6D /* MysqlPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */; };
 		226861C914716D2A000DDDEF /* Units.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 226861C814716D2A000DDDEF /* Units.cpp */; };
 		226936CF19AD1ED600B4BCDB /* ForecastTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 226936CD19AD1ED600B4BCDB /* ForecastTimeSeries.cpp */; };
@@ -185,7 +185,6 @@
 		2274872719AE236200A48475 /* PythonInterpreter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2274872419AE236200A48475 /* PythonInterpreter.cpp */; };
 		2274872819AE236200A48475 /* PythonInterpreter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2274872519AE236200A48475 /* PythonInterpreter.h */; };
 		2274872919AE236200A48475 /* PythonInterpreter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2274872519AE236200A48475 /* PythonInterpreter.h */; };
-		2274872F19AE794F00A48475 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2274872E19AE794F00A48475 /* Python.framework */; };
 		227510E816D4231800B2BA62 /* BufferPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227510E616D4231800B2BA62 /* BufferPointRecord.cpp */; };
 		227510E916D4231800B2BA62 /* BufferPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 227510E716D4231800B2BA62 /* BufferPointRecord.h */; };
 		227CEC9F16BADD6000E8E7C8 /* DbPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227CEC9E16BADD6000E8E7C8 /* DbPointRecord.cpp */; };
@@ -478,6 +477,7 @@
 		224E047F1979431C0039E3F9 /* StatsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StatsTimeSeries.h; path = ../../src/StatsTimeSeries.h; sourceTree = "<group>"; };
 		2251DCA4168105AA00515EBF /* IrregularClock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IrregularClock.cpp; path = ../../src/IrregularClock.cpp; sourceTree = "<group>"; };
 		2251DCA5168105AA00515EBF /* IrregularClock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IrregularClock.h; path = ../../src/IrregularClock.h; sourceTree = "<group>"; };
+		225C3A6B19C234750084D8B7 /* Python */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = Python; path = ../../../../../../../Library/Frameworks/Python.framework/Versions/2.7/Python; sourceTree = "<group>"; };
 		225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MysqlPointRecord.cpp; path = ../../src/MysqlPointRecord.cpp; sourceTree = "<group>"; };
 		226861C814716D2A000DDDEF /* Units.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Units.cpp; path = ../../src/Units.cpp; sourceTree = "<group>"; };
 		226936CD19AD1ED600B4BCDB /* ForecastTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ForecastTimeSeries.cpp; path = ../../src/ForecastTimeSeries.cpp; sourceTree = "<group>"; };
@@ -588,7 +588,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2274872F19AE794F00A48475 /* Python.framework in Frameworks */,
 				22E5AC0119141E0200FD7F36 /* libboost_timer.dylib in Frameworks */,
 				2272393B1908374400FDE879 /* libcurl.dylib in Frameworks */,
 				220F9E0F18F9E68B00BB842C /* libboost_date_time.dylib in Frameworks */,
@@ -635,8 +634,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				225C3A6C19C234750084D8B7 /* Python in Frameworks */,
 				22826AD319BE107A004FC11F /* libboost_python.dylib in Frameworks */,
-				22039AE019B61A9C00622FFA /* Python.framework in Frameworks */,
 				2230FC5A1920FEE700C66708 /* libmysqlclient.a in Frameworks */,
 				227239421908374D00FDE879 /* libcurl.dylib in Frameworks */,
 				22D308E018FEC3ED0004E1DC /* libmysqlcppconn-static.a in Frameworks */,
@@ -897,6 +896,7 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
+				225C3A6B19C234750084D8B7 /* Python */,
 				22826AD219BE107A004FC11F /* libboost_python.dylib */,
 				2230FC591920FEE700C66708 /* libmysqlclient.a */,
 				2272393A1908374400FDE879 /* libcurl.dylib */,
@@ -1967,6 +1967,7 @@
 					"/usr/local/mysql-5.5.28-osx10.6-x86_64/lib",
 					"/usr/local/mysql-5.5.14-osx10.6-x86_64/lib",
 					/Library/Frameworks,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
 				OTHER_LDFLAGS = "-liodbc";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2000,6 +2001,7 @@
 					"/usr/local/mysql-5.5.28-osx10.6-x86_64/lib",
 					"/usr/local/mysql-5.5.14-osx10.6-x86_64/lib",
 					/Library/Frameworks,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
 				OTHER_LDFLAGS = "-liodbc";
 				PRODUCT_NAME = "$(TARGET_NAME)";
