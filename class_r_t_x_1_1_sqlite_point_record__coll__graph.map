@@ -1,0 +1,9 @@
+<map id="RTX::SqlitePointRecord" name="RTX::SqlitePointRecord">
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_db_point_record.html" title="A persistence layer for databases. " alt="" coords="98,478,243,503"/>
+<area shape="rect" id="node3" href="$class_r_t_x_1_1_buffer_point_record.html" title="RTX::BufferPointRecord" alt="" coords="226,401,389,426"/>
+<area shape="rect" id="node4" href="$class_r_t_x_1_1_point_record.html" title="A Point Record Class for storing and retrieving Points. " alt="" coords="301,313,429,338"/>
+<area shape="rect" id="node6" title="STL class. " alt="" coords="162,97,240,122"/>
+<area shape="rect" id="node9" href="$class_r_t_x_1_1_db_point_record_1_1request__t.html" title="RTX::DbPointRecord\l::request_t" alt="" coords="5,249,149,287"/>
+<area shape="rect" id="node7" title="STL class. " alt="" coords="139,6,264,45"/>
+<area shape="rect" id="node8" href="$class_r_t_x_1_1_point.html" title="A Point Class to store data tuples (date, value, quality, confidence) " alt="" coords="452,97,537,122"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$class_r_t_x_1_1_point_record.html" title="A Point Record Class for storing and retrieving Points. " alt="" coords="5,103,134,129"/>
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_buffer_point_record.html" title="RTX::BufferPointRecord" alt="" coords="183,54,347,79"/>
+<area shape="rect" id="node9" href="$class_r_t_x_1_1_deque_point_record.html" title="RTX::DequePointRecord" alt="" coords="181,103,349,129"/>
+<area shape="rect" id="node10" href="$class_r_t_x_1_1_map_point_record.html" title="RTX::MapPointRecord" alt="" coords="188,153,343,178"/>
+<area shape="rect" id="node3" href="$class_r_t_x_1_1_db_point_record.html" title="A persistence layer for databases. " alt="" coords="401,54,546,79"/>
+<area shape="rect" id="node4" href="$class_r_t_x_1_1_mysql_point_record.html" title="A persistence layer for MySQL databases. " alt="" coords="598,5,762,30"/>
+<area shape="rect" id="node5" href="$class_r_t_x_1_1_odbc_point_record.html" title="A persistence class for SCADA databases. " alt="" coords="600,54,760,79"/>
+<area shape="rect" id="node8" href="$class_r_t_x_1_1_sqlite_point_record.html" title="RTX::SqlitePointRecord" alt="" coords="599,103,761,129"/>
+<area shape="rect" id="node6" href="$class_r_t_x_1_1_odbc_direct_point_record.html" title="RTX::OdbcDirectPointRecord" alt="" coords="821,30,1016,55"/>
+<area shape="rect" id="node7" href="$class_r_t_x_1_1_odbc_prepared_point_record.html" title="RTX::OdbcPreparedPointRecord" alt="" coords="811,79,1026,105"/>
+<area shape="rect" id="node11" href="$class_r_t_x_1_1_csv_point_record.html" title="RTX::CsvPointRecord" alt="" coords="398,153,549,178"/>
+</map>

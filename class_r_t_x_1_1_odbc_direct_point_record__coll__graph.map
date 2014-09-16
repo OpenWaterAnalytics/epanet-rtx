@@ -1,0 +1,16 @@
+<map id="RTX::OdbcDirectPointRecord" name="RTX::OdbcDirectPointRecord">
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_odbc_point_record.html" title="A persistence class for SCADA databases. " alt="" coords="1816,351,1976,377"/>
+<area shape="rect" id="node3" href="$class_r_t_x_1_1_db_point_record.html" title="A persistence layer for databases. " alt="" coords="1530,430,1675,455"/>
+<area shape="rect" id="node4" href="$class_r_t_x_1_1_buffer_point_record.html" title="RTX::BufferPointRecord" alt="" coords="1150,286,1314,311"/>
+<area shape="rect" id="node5" href="$class_r_t_x_1_1_point_record.html" title="A Point Record Class for storing and retrieving Points. " alt="" coords="813,245,942,270"/>
+<area shape="rect" id="node7" title="STL class. " alt="" coords="208,379,288,405"/>
+<area shape="rect" id="node10" href="$class_r_t_x_1_1_db_point_record_1_1request__t.html" title="RTX::DbPointRecord\l::request_t" alt="" coords="643,429,789,467"/>
+<area shape="rect" id="node14" href="$class_r_t_x_1_1_odbc_point_record_1_1_odbc_connection.html" title="RTX::OdbcPointRecord\l::OdbcConnection" alt="" coords="965,373,1126,411"/>
+<area shape="rect" id="node15" href="$class_r_t_x_1_1_odbc_point_record_1_1_odbc_query.html" title="RTX::OdbcPointRecord\l::OdbcQuery" alt="" coords="458,102,619,141"/>
+<area shape="rect" id="node18" href="$class_r_t_x_1_1_odbc_point_record_1_1_odbc_table_description.html" title="RTX::OdbcPointRecord\l::OdbcTableDescription" alt="" coords="1338,590,1499,629"/>
+<area shape="rect" id="node8" title="STL class. " alt="" coords="5,373,131,411"/>
+<area shape="rect" id="node9" href="$class_r_t_x_1_1_point.html" title="A Point Class to store data tuples (date, value, quality, confidence) " alt="" coords="205,183,291,209"/>
+<area shape="rect" id="node11" href="$class_r_t_x_1_1_odbc_point_record_1_1_odbc_sql_handle.html" title="RTX::OdbcPointRecord\l::OdbcSqlHandle" alt="" coords="1522,190,1683,229"/>
+<area shape="rect" id="node12" href="$struct_r_t_x_1_1_odbc_point_record_1_1_scada_query.html" title="RTX::OdbcPointRecord\l::ScadaQuery" alt="" coords="1522,253,1683,291"/>
+<area shape="rect" id="node13" href="$class_r_t_x_1_1_odbc_point_record_1_1_scada_record.html" title="RTX::OdbcPointRecord\l::ScadaRecord" alt="" coords="1522,315,1683,354"/>
+</map>

@@ -1,4 +1,7 @@
 <map id="RTX::Resampler" name="RTX::Resampler">
-<area shape="rect" id="node2" href="$class_r_t_x_1_1_modular_time_series.html" title="A Time Series class that allows a single upstream TimeSeries." alt="" coords="4,83,173,111"/>
-<area shape="rect" id="node4" href="$class_r_t_x_1_1_time_series.html" title="An abstraction of Points ordered in time." alt="" coords="28,6,149,34"/>
+<area shape="rect" id="node5" href="$class_r_t_x_1_1_aggregator_time_series.html" title="Aggregates (and optionally scales) arbitrary many input time series. " alt="" coords="5,318,192,343"/>
+<area shape="rect" id="node6" href="$class_r_t_x_1_1_first_derivative.html" title="RTX::FirstDerivative" alt="" coords="216,318,356,343"/>
+<area shape="rect" id="node7" href="$class_r_t_x_1_1_moving_average.html" title="RTX::MovingAverage" alt="" coords="381,318,528,343"/>
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_modular_time_series.html" title="A Time Series class that allows a single upstream TimeSeries. " alt="" coords="202,169,371,194"/>
+<area shape="rect" id="node3" href="$class_r_t_x_1_1_time_series.html" title="An abstraction of Points ordered in time. " alt="" coords="226,94,347,119"/>
 </map>

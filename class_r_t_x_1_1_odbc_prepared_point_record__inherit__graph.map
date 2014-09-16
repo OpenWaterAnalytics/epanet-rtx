@@ -1,0 +1,6 @@
+<map id="RTX::OdbcPreparedPointRecord" name="RTX::OdbcPreparedPointRecord">
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_odbc_point_record.html" title="A persistence class for SCADA databases. " alt="" coords="32,230,192,255"/>
+<area shape="rect" id="node3" href="$class_r_t_x_1_1_db_point_record.html" title="A persistence layer for databases. " alt="" coords="39,155,184,181"/>
+<area shape="rect" id="node4" href="$class_r_t_x_1_1_buffer_point_record.html" title="RTX::BufferPointRecord" alt="" coords="30,81,193,106"/>
+<area shape="rect" id="node5" href="$class_r_t_x_1_1_point_record.html" title="A Point Record Class for storing and retrieving Points. " alt="" coords="48,6,176,31"/>
+</map>

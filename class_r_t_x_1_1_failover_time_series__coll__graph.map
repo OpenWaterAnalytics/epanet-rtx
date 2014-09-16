@@ -1,0 +1,4 @@
+<map id="RTX::FailoverTimeSeries" name="RTX::FailoverTimeSeries">
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_modular_time_series.html" title="A Time Series class that allows a single upstream TimeSeries. " alt="" coords="6,169,175,194"/>
+<area shape="rect" id="node3" href="$class_r_t_x_1_1_time_series.html" title="An abstraction of Points ordered in time. " alt="" coords="30,94,151,119"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="RTX::OutlierExclusionTimeSeries" name="RTX::OutlierExclusionTimeSeries">
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_base_stats_time_series.html" title="RTX::BaseStatsTimeSeries" alt="" coords="5,243,187,269"/>
+<area shape="rect" id="node3" href="$class_r_t_x_1_1_modular_time_series.html" title="A Time Series class that allows a single upstream TimeSeries. " alt="" coords="11,169,180,194"/>
+<area shape="rect" id="node4" href="$class_r_t_x_1_1_time_series.html" title="An abstraction of Points ordered in time. " alt="" coords="35,94,156,119"/>
+</map>
