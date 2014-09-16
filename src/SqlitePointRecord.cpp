@@ -280,10 +280,11 @@ std::vector<Point> SqlitePointRecord::selectRange(const std::string& id, time_t 
   }
   if (isConnected()) {
     // SELECT time, value, quality, confidence FROM points INNER JOIN meta USING (series_id) WHERE name = ? AND time >= ? AND time <= ? order by time asc
-    scoped_lock<boost::signals2::mutex> lock(*_mutex);
     
 //    checkTransactions(true);
     
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
+
     sqlite3_bind_text(_selectRangeStmt, 1, id.c_str(), -1, NULL);
     sqlite3_bind_int(_selectRangeStmt, 2, (int)startTime);
     sqlite3_bind_int(_selectRangeStmt, 3, (int)endTime);
@@ -427,8 +428,8 @@ void SqlitePointRecord::insertRange(const std::string& id, std::vector<Point> po
     char *errmsg;
     
     {
-      scoped_lock<boost::signals2::mutex> lock(*_mutex);
       checkTransactions(true); // any tranactions currently? tell them to quit.
+      scoped_lock<boost::signals2::mutex> lock(*_mutex);
       ret = sqlite3_exec(_dbHandle, "begin exclusive transaction", NULL, NULL, &errmsg);
       if (ret != SQLITE_OK) {
         logDbError();
@@ -517,7 +518,7 @@ bool SqlitePointRecord::supportsBoundedQueries() {
 
 
 void SqlitePointRecord::checkTransactions(bool forceEndTranaction) {
-  
+  scoped_lock<boost::signals2::mutex> lock(*_mutex);
   // forcing to end?
   if (forceEndTranaction) {
     if (_inTransaction) {
