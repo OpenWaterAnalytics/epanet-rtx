@@ -16,7 +16,7 @@ using namespace std;
 
 StatsTimeSeries::StatsTimeSeries() {
   _statsType = StatsTimeSeriesMean;
-  this->setSummaryOnly(true);
+  this->setSummaryOnly(false);
 }
 
 
@@ -61,8 +61,10 @@ vector<Point> StatsTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs
         cursor = this->clock()->timeAfter(cursor);
       }
       
-      tempCacheSummary = pIt->second;
       ++pIt;
+      if (pIt != summaryCollection.end()) {
+        tempCacheSummary = pIt->second;
+      }
     }
   }
   else {

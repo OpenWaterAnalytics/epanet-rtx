@@ -207,6 +207,7 @@ TimeSeries::Summary TimeSeries::summary(time_t start, time_t end) {
   accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
   accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::right> > > quant_right( tag::tail<boost::accumulators::right>::cache_size = cacheSize );
   accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::left> > > quant_left( tag::tail<boost::accumulators::left>::cache_size = cacheSize );
+  
   BOOST_FOREACH(const Point& p, s.points) {
     acc(p.value);
     quant_right(p.value);

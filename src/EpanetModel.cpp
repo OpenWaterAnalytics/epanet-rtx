@@ -42,9 +42,9 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
     this->createRtxWrappers();
     
   }
-  catch(string error) {
-    std::cerr << "ERROR: " << error;
-    throw RtxException(error);
+  catch(...) {
+    std::cerr << "ERROR: ";
+    throw RtxException("File Loading");
   }
   
 }
@@ -60,7 +60,7 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
     OW_API_CHECK( OW_open((char*)filename.c_str(), &_enModel, (char*)"", (char*)""), "OW_open" );
   } catch (...) {
     cerr << "cannot open epanet file" << endl;
-    return;
+    throw "cannot open epanet file";
   }
   
   
@@ -196,9 +196,14 @@ void EpanetModel::createRtxWrappers() {
   
   int nodeCount, tankCount, linkCount;
   
-  OW_API_CHECK( OW_getcount(_enModel, EN_NODECOUNT, &nodeCount), "OW_getcount EN_NODECOUNT" );
-  OW_API_CHECK( OW_getcount(_enModel, EN_TANKCOUNT, &tankCount), "OW_getcount EN_TANKCOUNT" );
-  OW_API_CHECK( OW_getcount(_enModel, EN_LINKCOUNT, &linkCount), "OW_getcount EN_LINKCOUNT" );
+  try {
+    OW_API_CHECK( OW_getcount(_enModel, EN_NODECOUNT, &nodeCount), "OW_getcount EN_NODECOUNT" );
+    OW_API_CHECK( OW_getcount(_enModel, EN_TANKCOUNT, &tankCount), "OW_getcount EN_TANKCOUNT" );
+    OW_API_CHECK( OW_getcount(_enModel, EN_LINKCOUNT, &linkCount), "OW_getcount EN_LINKCOUNT" );
+  } catch (...) {
+    throw "Could not create wrappers";
+  }
+  
   
   // create nodes
   for (int iNode=1; iNode <= nodeCount; iNode++) {
