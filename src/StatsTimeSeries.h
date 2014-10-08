@@ -17,15 +17,15 @@ namespace RTX {
     
   public:
     typedef enum {
-      StatsTimeSeriesMean,
-      StatsTimeSeriesMedian,
-      StatsTimeSeriesStdDev,
-      StatsTimeSeriesQ25,
-      StatsTimeSeriesQ75,
-      StatsTimeSeriesInterQuartileRange,
-      StatsTimeSeriesMax,
-      StatsTimeSeriesMin,
-      StatsTimeSeriesCount
+      StatsTimeSeriesMean = 0,
+      StatsTimeSeriesStdDev = 1,
+      StatsTimeSeriesMedian = 2,
+      StatsTimeSeriesQ25 = 3,
+      StatsTimeSeriesQ75 = 4,
+      StatsTimeSeriesInterQuartileRange = 5,
+      StatsTimeSeriesMax = 6,
+      StatsTimeSeriesMin = 7,
+      StatsTimeSeriesCount = 8
     } StatsTimeSeriesType;
     
     RTX_SHARED_POINTER(StatsTimeSeries);
