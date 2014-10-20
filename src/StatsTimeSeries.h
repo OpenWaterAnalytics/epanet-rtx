@@ -25,7 +25,9 @@ namespace RTX {
       StatsTimeSeriesInterQuartileRange = 5,
       StatsTimeSeriesMax = 6,
       StatsTimeSeriesMin = 7,
-      StatsTimeSeriesCount = 8
+      StatsTimeSeriesCount = 8,
+      StatsTimeSeriesVar = 9,
+      StatsTimeSeriesRMSE = 10
     } StatsTimeSeriesType;
     
     RTX_SHARED_POINTER(StatsTimeSeries);

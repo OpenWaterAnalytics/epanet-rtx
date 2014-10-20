@@ -114,6 +114,12 @@ double StatsTimeSeries::valueFromSummary(TimeSeries::Summary s) {
     case StatsTimeSeriesCount:
       return s.stats.count;
       break;
+    case StatsTimeSeriesVar:
+      return s.stats.variance;
+      break;
+    case StatsTimeSeriesRMSE:
+      return sqrt(s.stats.variance + s.stats.mean*s.stats.mean);
+      break;
     default:
       break;
   }
