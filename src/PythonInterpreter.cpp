@@ -22,15 +22,28 @@ boost::python::object main_module, main_namespace;
 PythonInterpreter::PythonInterpreter() {
   // private constructor
   
-  Py_Initialize();
-  main_module = import("__main__");
-  main_namespace = main_module.attr("__dict__");
+  try {
+    Py_Initialize();
+    //main_module(handle<>(borrowed(PyImport_AddModule("__main__"))));
+    main_module = import("__main__");
+    main_namespace = main_module.attr("__dict__");
+  }
+  catch (error_already_set) {
+    PyErr_Print();
+  }
   
 }
 
 void PythonInterpreter::exec(std::string execStr) {
   
-  cout << "EXECUTING PYTHON: " << execStr << endl;
+  try {
+    cout << "EXECUTING PYTHON: " << execStr << endl;
+    boost::python::exec((boost::python::str) execStr);
+  }
+  catch (error_already_set) {
+    cerr << "exception :: " << execStr << endl;
+    PyErr_Print();
+  }
   
 }
 

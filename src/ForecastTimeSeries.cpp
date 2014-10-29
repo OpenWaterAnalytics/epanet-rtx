@@ -15,11 +15,11 @@ using namespace RTX;
 using namespace std;
 
 
-ForecastTimeSeries::ForecastTimeSeries() {
-  _ar = 0;
-  _ma = 0;
+ForecastTimeSeries::ForecastTimeSeries() : _order(0,0,0) {
   
   _fitTime = 0;
+  _refitClock = Clock::sharedPointer( new Clock(60) );
+  
   
   _python = PythonInterpreter::sharedInterpreter();
   
@@ -30,6 +30,22 @@ ForecastTimeSeries::ForecastTimeSeries() {
   _python->exec("import statsmodels.api as sm");
   
 }
+
+
+
+ForecastTimeSeries::ArimaOrder ForecastTimeSeries::order() {
+  return _order;
+}
+
+void ForecastTimeSeries::setOrder(ForecastTimeSeries::ArimaOrder order) {
+  _order = order;
+}
+
+void ForecastTimeSeries::setOrder(int ar, int i, int ma) {
+  ArimaOrder theOrder(ar,i,ma);
+  this->setOrder(theOrder);
+}
+
 
 
 vector<Point> ForecastTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
