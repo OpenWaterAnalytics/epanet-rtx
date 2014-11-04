@@ -89,6 +89,7 @@ namespace RTX {
     std::vector<Dma::pipeDirPair_t> closedBoundaryPipes();
     std::vector<Pipe::sharedPointer> closedInteriorPipes();
     std::vector<Pipe::sharedPointer> measuredInteriorPipes();
+    bool isMeasuredBoundaryPipe(Pipe::sharedPointer pipe);
     bool isMeasuredPipe(Pipe::sharedPointer pipe);
     bool isClosedPipe(Pipe::sharedPointer pipe);
 

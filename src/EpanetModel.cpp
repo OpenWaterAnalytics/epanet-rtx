@@ -450,6 +450,8 @@ void EpanetModel::overrideControls() throw(RTX::RtxException) {
     for( int iControl = 1; iControl <= controlCount; iControl++ ) {
       OW_API_CHECK( OW_setcontrol(_enModel, iControl, 0, 0, 0, 0, 0 ), "OW_setcontrol" );
     }
+    
+    // disregard rules (don't have a way to do that yet)
   }
   catch(string error) {
     std::cerr << "ERROR: " << error;

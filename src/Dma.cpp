@@ -476,6 +476,17 @@ std::vector<Pipe::sharedPointer> Dma::measuredInteriorPipes() {
   return _measuredInteriorPipes;
 }
 
+bool Dma::isMeasuredBoundaryPipe(Pipe::sharedPointer pipe) {
+  
+  BOOST_FOREACH(const pipeDirPair_t& pdp, _measuredBoundaryPipesDirectional) {
+    if (pdp.first == pipe) {
+      return true;
+    }
+  }
+  
+  return false;
+}
+
 bool Dma::isMeasuredPipe(Pipe::sharedPointer pipe) {
   
   BOOST_FOREACH(const pipeDirPair_t& pdp, _measuredBoundaryPipesDirectional) {

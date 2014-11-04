@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include "BaseStatsTimeSeries.h"
+#include "Units.h"
 
 namespace RTX {
   class StatsTimeSeries : public BaseStatsTimeSeries {
@@ -27,7 +28,7 @@ namespace RTX {
       StatsTimeSeriesMin = 7,
       StatsTimeSeriesCount = 8,
       StatsTimeSeriesVar = 9,
-      StatsTimeSeriesRMSE = 10
+      StatsTimeSeriesRMS = 10,
     } StatsTimeSeriesType;
     
     RTX_SHARED_POINTER(StatsTimeSeries);
@@ -36,6 +37,9 @@ namespace RTX {
     StatsTimeSeriesType statsType();
     void setStatsType(StatsTimeSeriesType type);
     
+    virtual void setSource(TimeSeries::sharedPointer source);
+    virtual void setUnits(Units newUnits);
+
   protected:
     virtual bool canAlterDimension() { return true; };
     virtual bool canAlterClock() { return true; };
@@ -43,8 +47,9 @@ namespace RTX {
     
   private:
     StatsTimeSeriesType _statsType;
-    double valueFromSummary(TimeSeries::Summary s);
-    
+    double valueFromSummary(TimeSeries::Stats s);
+    Units statsUnits(Units sourceUnits, StatsTimeSeriesType type);
+
   };
 }
 

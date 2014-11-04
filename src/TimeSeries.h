@@ -56,28 +56,17 @@ namespace RTX {
   class TimeSeries : public boost::enable_shared_from_this<TimeSeries> {
   public:
     
-    // public internal class description for the summary
-    class Summary {
+    // public internal class description for summary statistics
+    class Stats {
     public:
-      
-      class Stats {
-      public:
-        Stats() : count(0),min(0),max(0),mean(0),variance(0) { quartiles.q25 = 0; quartiles.q50 = 0; quartiles.q75 = 0; };
-        size_t count;
-        double min,max,mean, variance;
-        typedef struct {
-          double q25,q50,q75;
-        } quartiles_t;
-        quartiles_t quartiles;
-      };
-      
-      Summary() {};
-      std::vector<Point> points;
-      std::vector<Point> gaps;
-      Stats stats;
-      
+      Stats() : count(0),min(0),max(0),mean(0),variance(0) { quartiles.q25 = 0; quartiles.q50 = 0; quartiles.q75 = 0; };
+      size_t count;
+      double min,max,mean,variance;
+      typedef struct {
+        double q25,q50,q75;
+      } quartiles_t;
+      quartiles_t quartiles;
     };
-    
     
     RTX_SHARED_POINTER(TimeSeries);
     
@@ -101,7 +90,9 @@ namespace RTX {
     virtual std::string name();
     PointRecord::sharedPointer record();
     
-    TimeSeries::Summary summary(time_t start, time_t end);
+    TimeSeries::Stats summary(time_t start, time_t end);
+    TimeSeries::Stats gapsSummary(time_t start, time_t end);
+    std::vector<Point> gaps(time_t start, time_t end);
     
     virtual TimeSeries::sharedPointer rootTimeSeries() { return shared_from_this(); };
     
@@ -139,6 +130,7 @@ namespace RTX {
     // TODO -- units
     Units _units;
     std::pair<time_t, time_t> _validTimeRange;
+    TimeSeries::Stats accumStats(std::vector<Point> points);
   
   };
 
