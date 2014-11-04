@@ -38,6 +38,22 @@ namespace RTX {
   
   class ProjectFile {
   public:
+    
+    // public internal class description for project summary
+    typedef enum { B_NONE, B_HEAD, B_STATUS, B_SETTING, B_QUALITY, B_DEMAND } boundary_t;
+    typedef enum { M_NONE, M_HEAD, M_FLOW, M_DMA_FLOW, M_QUALITY } measure_t;
+
+    class ElementSummary {
+    public:
+      ElementSummary() : count(0),minGap(0),maxGap(0),medianGap(0) { };
+      Element::sharedPointer element;
+      TimeSeries::sharedPointer data;
+      boundary_t boundaryType;
+      measure_t measureType;
+      size_t count;
+      double minGap,maxGap,medianGap;
+    };
+    
     RTX_SHARED_POINTER(ProjectFile);
     
     virtual void loadProjectFile(const string& path) = 0;
@@ -52,6 +68,8 @@ namespace RTX {
     virtual void insertTimeSeries(TimeSeries::sharedPointer ts) = 0;
     virtual void insertClock(Clock::sharedPointer clock) = 0;
     virtual void insertRecord(PointRecord::sharedPointer record) = 0;
+    
+    std::vector<ElementSummary> projectSummary(time_t start, time_t end);
     
   };
   

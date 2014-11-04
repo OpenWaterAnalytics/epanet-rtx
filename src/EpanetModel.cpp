@@ -209,7 +209,7 @@ void EpanetModel::createRtxWrappers() {
   for (int iNode=1; iNode <= nodeCount; iNode++) {
     char enName[RTX_MAX_CHAR_STRING];
     double x,y,z;         // rtx coordinates
-    int nodeType;         // epanet node type code
+    EN_NodeType nodeType;         // epanet node type code
     string nodeName;
     Junction::sharedPointer newJunction;
     Reservoir::sharedPointer newReservoir;
@@ -450,6 +450,8 @@ void EpanetModel::overrideControls() throw(RTX::RtxException) {
     for( int iControl = 1; iControl <= controlCount; iControl++ ) {
       OW_API_CHECK( OW_setcontrol(_enModel, iControl, 0, 0, 0, 0, 0 ), "OW_setcontrol" );
     }
+    
+    // disregard rules (don't have a way to do that yet)
   }
   catch(string error) {
     std::cerr << "ERROR: " << error;

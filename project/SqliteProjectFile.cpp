@@ -148,7 +148,8 @@ namespace RTX {
 
 
 void SqliteProjectFile::loadProjectFile(const string& path) {
-  _path = path;
+  boost::filesystem::path p(path);
+  _path = boost::filesystem::absolute(p).string();
   char *zErrMsg = 0;
   int returnCode;
   returnCode = sqlite3_open_v2(_path.c_str(), &_dbHandle, SQLITE_OPEN_READONLY, NULL);
@@ -296,6 +297,7 @@ void SqliteProjectFile::loadRecordsFromDb() {
   
   
   // now load up each point record's connection attributes.
+  boost::filesystem::path projPath(_path);
   BOOST_FOREACH(const pointRecordEntity& entity, recordEntities) {
     
     if (RTX_STRINGS_ARE_EQUAL(entity.type, "sqlite")) {
@@ -303,8 +305,9 @@ void SqliteProjectFile::loadRecordsFromDb() {
       sqlite3_prepare_v2(_dbHandle, sqlGetSqliteAttr.c_str(), -1, &stmt, NULL);
       sqlite3_bind_int(stmt, 1, entity.uid);
       if (sqlite3_step(stmt) == SQLITE_ROW) {
-        string dbPath = string((char*)sqlite3_column_text(stmt, 0));
-        boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->setPath(dbPath);
+        boost::filesystem::path dbPath(string((char*)sqlite3_column_text(stmt, 0)));
+        string absDbPath = boost::filesystem::absolute(dbPath,projPath.parent_path()).string();
+        boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->setPath(absDbPath);
       }
       sqlite3_reset(stmt);
       sqlite3_finalize(stmt);
@@ -313,7 +316,7 @@ void SqliteProjectFile::loadRecordsFromDb() {
   }
   
   
-  
+
   
   
 }
