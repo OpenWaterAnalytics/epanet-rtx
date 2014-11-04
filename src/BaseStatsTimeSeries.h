@@ -25,7 +25,7 @@ namespace RTX {
     } StatsSamplingMode_t;
     
     
-    typedef std::pair< Point, Stats > pointSummaryPair_t;
+    typedef std::pair< Point, Statistics > pointSummaryPair_t;
     
     RTX_SHARED_POINTER(BaseStatsTimeSeries);
     BaseStatsTimeSeries();

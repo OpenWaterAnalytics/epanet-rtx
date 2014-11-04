@@ -209,7 +209,7 @@ void EpanetModel::createRtxWrappers() {
   for (int iNode=1; iNode <= nodeCount; iNode++) {
     char enName[RTX_MAX_CHAR_STRING];
     double x,y,z;         // rtx coordinates
-    int nodeType;         // epanet node type code
+    EN_NodeType nodeType;         // epanet node type code
     string nodeName;
     Junction::sharedPointer newJunction;
     Reservoir::sharedPointer newReservoir;

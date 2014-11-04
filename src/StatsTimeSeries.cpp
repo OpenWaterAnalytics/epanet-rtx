@@ -45,7 +45,7 @@ vector<Point> StatsTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs
   // use these only for regular time series access, otherwise use the source points to set the intervals.
   bool isRegular = this->clock()->isRegular();
   time_t cursor = fromTime;
-  Stats tempCacheSummary;
+  Statistics tempCacheSummary;
   
   vector<pointSummaryPair_t>::const_iterator pIt = summaryCollection.begin();
   
@@ -78,7 +78,7 @@ vector<Point> StatsTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs
     // irregular time series. just pass through.
     while (pIt != summaryCollection.end()) {
       Point p = pIt->first;
-      Stats s = pIt->second;
+      Statistics s = pIt->second;
       double v = this->valueFromSummary(s);
       Point outPoint(p.time, v);
       if (outPoint.isValid) {
@@ -92,7 +92,7 @@ vector<Point> StatsTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs
 }
 
 
-double StatsTimeSeries::valueFromSummary(TimeSeries::Stats s) {
+double StatsTimeSeries::valueFromSummary(TimeSeries::Statistics s) {
   double v;
   switch (_statsType) {
     case StatsTimeSeriesMean:

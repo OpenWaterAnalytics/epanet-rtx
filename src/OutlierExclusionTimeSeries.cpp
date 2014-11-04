@@ -101,7 +101,7 @@ vector<Point> OutlierExclusionTimeSeries::filteredPointsWithMissing(TimeSeries::
     
     // fetch pair values from the source summary collection
     Point p = psp.first;
-    Stats s = psp.second;
+    Statistics s = psp.second;
     
     switch (this->exclusionMode()) {
       case OutlierExclusionModeInterquartileRange:
