@@ -22,7 +22,7 @@ void TimeGapTimeSeries::setUnits(Units newUnits) {
   
   // TimeGap requires time units
   if (newUnits.isSameDimensionAs(RTX_SECOND)) {
-    TimeSeries::setUnits(newUnits);
+    RTX_TIME_GAP_SUPER::setUnits(newUnits);
   }
   else {
     std::cerr << "Time Gap requires time units" << std::endl;
