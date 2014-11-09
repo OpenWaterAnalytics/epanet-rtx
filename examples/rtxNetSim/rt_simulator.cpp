@@ -13,7 +13,7 @@ int main(int argc, const char * argv[])
   
   ProjectFile::sharedPointer project( new SqliteProjectFile());
   
-  project->loadProjectFile("/Users/sam/Desktop/test_reimport.rtx");
+  project->loadProjectFile("/Users/sam/Desktop/milly.rtx");
   
   Model::sharedPointer model = project->model();
   
