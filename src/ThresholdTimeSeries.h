@@ -23,6 +23,11 @@ namespace RTX {
   class ThresholdTimeSeries : public SinglePointFilterModularTimeSeries {
     
   public:
+    typedef enum {
+      thresholdModeNormal   = 0,
+      thresholdModeAbsolute = 1
+    } thresholdMode_t;
+    
     RTX_SHARED_POINTER(ThresholdTimeSeries);
     ThresholdTimeSeries();
     
@@ -32,7 +37,7 @@ namespace RTX {
     double value();
     virtual void setSource(TimeSeries::sharedPointer source);
     virtual void setUnits(Units newUnits);
-    typedef enum {thresholdModeNormal, thresholdModeAbsolute} thresholdMode_t;
+    
     thresholdMode_t mode();
     void setMode(thresholdMode_t mode);
 

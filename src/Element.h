@@ -34,7 +34,10 @@ namespace RTX {
     void setName(const std::string& newName);
     std::string name();
     virtual void setRecord(PointRecord::sharedPointer record);
-
+    
+    std::string userDescription();
+    void setUserDescription(const std::string& description);
+    
   protected:
     Element(const std::string& name);
     virtual ~Element();
@@ -43,6 +46,7 @@ namespace RTX {
   private:
     std::string _name;
     element_t _type;
+    std::string _userDescription;
   };
   
   std::ostream& operator<< (std::ostream &out, Element &e);

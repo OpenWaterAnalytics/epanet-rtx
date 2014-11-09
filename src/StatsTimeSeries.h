@@ -14,6 +14,48 @@
 #include "Units.h"
 
 namespace RTX {
+  
+  /*!
+   \class StatsTimeSeries
+   \brief A modular timeseries class for delivering statistical information.
+   
+   The StatsTimeSeries class is designed to provide a moving window (in the form of a Clock), evaluated at regular intervals (also as a Clock), over which statistical measures are taken. The full list of statistical options is below.
+   
+   
+   */
+  
+  /*!
+   \fn StatsTimeSeries::StatsTimeSeriesType StatsTimeSeries::statsType()
+   \brief Get the statistic type.
+   \return The type of statistic that this object is configured to return.
+   \sa StatsTimeSeries::setStatsType
+   */
+  /*!
+   \fn void StatsTimeSeries::setStatsType(StatsTimeSeriesType type)
+   \brief Set the statistic type.
+   \param type The type of statistic to return.
+   
+   Types of statistics:
+   
+   - Mean
+   - Standard Deviation
+   - Median
+   - 25th and 75th percentile
+   - Interquartile Range
+   - Max, Min, Count
+   - Variance
+   - Root Mean Squared
+   
+   \sa StatsTimeSeries::statsType
+   */
+  
+  
+  
+  
+  
+  
+  
+  
   class StatsTimeSeries : public BaseStatsTimeSeries {
     
   public:

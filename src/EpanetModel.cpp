@@ -341,7 +341,8 @@ void EpanetModel::createRtxWrappers() {
   // create links
   for (int iLink = 1; iLink <= linkCount; iLink++) {
     char enLinkName[RTX_MAX_CHAR_STRING], enFromName[RTX_MAX_CHAR_STRING], enToName[RTX_MAX_CHAR_STRING];
-    int linkType, enFrom, enTo;
+    int enFrom, enTo;
+    EN_LinkType linkType;
     double length, diameter, status;
     string linkName;
     Node::sharedPointer startNode, endNode;

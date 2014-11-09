@@ -590,7 +590,7 @@
 		22CE31EB17399403008AC1F9 /* CsvPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CsvPointRecord.cpp; path = ../../src/CsvPointRecord.cpp; sourceTree = "<group>"; };
 		22CE31EC17399403008AC1F9 /* CsvPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CsvPointRecord.h; path = ../../src/CsvPointRecord.h; sourceTree = "<group>"; };
 		22D4D32118F8298300DA1648 /* readConfigTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = readConfigTest; sourceTree = BUILT_PRODUCTS_DIR; };
-		22D982F017F4A3CD00DD7EB4 /* rtxNetSim */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rtxNetSim; sourceTree = BUILT_PRODUCTS_DIR; };
+		22D982F017F4A3CD00DD7EB4 /* rt_simulator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rt_simulator; sourceTree = BUILT_PRODUCTS_DIR; };
 		22D9830D17F4AFDE00DD7EB4 /* rt_simulator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rt_simulator.cpp; path = ../../examples/rtxNetSim/rt_simulator.cpp; sourceTree = "<group>"; };
 		22D9831917F62B4A00DD7EB4 /* testLemonTiger */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = testLemonTiger; sourceTree = BUILT_PRODUCTS_DIR; };
 		22D9831B17F62B4A00DD7EB4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -963,7 +963,7 @@
 				22C62AF4143A0E3300841E60 /* rtx-validator */,
 				22B8A79C1603CA6100EECAA5 /* timeseries_demo */,
 				228A836E16DBE5E7008E9C35 /* data_access_profiling */,
-				22D982F017F4A3CD00DD7EB4 /* rtxNetSim */,
+				22D982F017F4A3CD00DD7EB4 /* rt_simulator */,
 				22D9831917F62B4A00DD7EB4 /* testLemonTiger */,
 				228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */,
 				22D4D32118F8298300DA1648 /* readConfigTest */,
@@ -1409,7 +1409,7 @@
 			);
 			name = rt_simulator;
 			productName = rtxNetSim;
-			productReference = 22D982F017F4A3CD00DD7EB4 /* rtxNetSim */;
+			productReference = 22D982F017F4A3CD00DD7EB4 /* rt_simulator */;
 			productType = "com.apple.product-type.tool";
 		};
 		22D9831817F62B4900DD7EB4 /* testLemonTiger */ = {

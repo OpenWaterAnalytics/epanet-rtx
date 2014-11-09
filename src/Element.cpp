@@ -12,6 +12,7 @@ using namespace RTX;
 
 Element::Element(const std::string& name) {
   setName(name);
+  setUserDescription("");
 }
 Element::~Element() {
   
@@ -23,6 +24,13 @@ std::string Element::name() {
 
 void Element::setName(const std::string& name) {
   _name = name;
+}
+
+void Element::setUserDescription(const std::string &description) {
+  _userDescription = description;
+}
+std::string Element::userDescription() {
+  return _userDescription;
 }
 
 Element::element_t Element::type() {
