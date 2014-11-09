@@ -104,6 +104,12 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
           s.data = pipe->settingParameter()->rootTimeSeries();
           s.boundaryType = B_SETTING;
           s.measureType = M_NONE;
+          BOOST_FOREACH(Dma::sharedPointer dma, Dmas) {
+            if (dma->isClosedBoundaryPipe(pipe) && !dma->isMeasuredBoundaryPipe(pipe)) {
+              s.boundaryType = B_DMA_SETTING;
+              break;
+            }
+          }
           summary.push_back(s);
         }
         if (pipe->doesHaveStatusParameter()) {
@@ -112,6 +118,12 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
           s.data = pipe->statusParameter()->rootTimeSeries();
           s.boundaryType = B_STATUS;
           s.measureType = M_NONE;
+          BOOST_FOREACH(Dma::sharedPointer dma, Dmas) {
+            if (dma->isClosedBoundaryPipe(pipe) && !dma->isMeasuredBoundaryPipe(pipe)) {
+              s.boundaryType = B_DMA_STATUS;
+              break;
+            }
+          }
           summary.push_back(s);
         }
         break;

@@ -40,7 +40,7 @@ namespace RTX {
   public:
     
     // public internal class description for project summary
-    typedef enum { B_NONE, B_HEAD, B_STATUS, B_SETTING, B_QUALITY, B_DEMAND } boundary_t;
+    typedef enum { B_NONE, B_HEAD, B_STATUS, B_DMA_STATUS, B_SETTING, B_DMA_SETTING, B_QUALITY, B_DEMAND } boundary_t;
     typedef enum { M_NONE, M_HEAD, M_FLOW, M_DMA_FLOW, M_QUALITY } measure_t;
 
     class ElementSummary {
