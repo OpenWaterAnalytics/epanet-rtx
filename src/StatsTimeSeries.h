@@ -47,7 +47,7 @@ namespace RTX {
     
   private:
     StatsTimeSeriesType _statsType;
-    double valueFromSummary(TimeSeries::Stats s);
+    double valueFromSummary(TimeSeries::Statistics s);
     Units statsUnits(Units sourceUnits, StatsTimeSeriesType type);
 
   };

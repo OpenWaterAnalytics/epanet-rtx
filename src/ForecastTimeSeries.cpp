@@ -15,11 +15,11 @@ using namespace RTX;
 using namespace std;
 
 
-ForecastTimeSeries::ForecastTimeSeries() {
-  _ar = 0;
-  _ma = 0;
+ForecastTimeSeries::ForecastTimeSeries() : _order(0,0,0) {
   
   _fitTime = 0;
+  _refitClock = Clock::sharedPointer( new Clock(60) );
+  
   
   _python = PythonInterpreter::sharedInterpreter();
   
@@ -30,6 +30,22 @@ ForecastTimeSeries::ForecastTimeSeries() {
   _python->exec("import statsmodels.api as sm");
   
 }
+
+
+
+ForecastTimeSeries::ArimaOrder ForecastTimeSeries::order() {
+  return _order;
+}
+
+void ForecastTimeSeries::setOrder(ForecastTimeSeries::ArimaOrder order) {
+  _order = order;
+}
+
+void ForecastTimeSeries::setOrder(int ar, int i, int ma) {
+  ArimaOrder theOrder(ar,i,ma);
+  this->setOrder(theOrder);
+}
+
 
 
 vector<Point> ForecastTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
@@ -101,17 +117,22 @@ vector<Point> ForecastTimeSeries::pointsFromPandas(std::string varName) {
   evalStr << "len(" << varName << ".index)";
   int nPts = _python->intValueFromEval(evalStr.str());
   
+  
+  
   for (int i=0; i < nPts; ++i) {
     
     stringstream tStr, vStr;
-    tStr << varName << ".index[" << i << "]";
-    vStr << varName << ".values[" << i << "]";
+    tStr << "long((" << varName << ".index[" << i << "] - datetime(1970, 1, 1)).total_seconds())";
+    vStr << varName << ".values[" << i << ",0]";
     
-    Point p;
-    p.time = _python->longIntValueFromEval(tStr.str());
-    p.value = _python->doubleValueFromEval(vStr.str());
+    time_t time = (time_t)_python->longIntValueFromEval(tStr.str());
+    double value = _python->doubleValueFromEval(vStr.str());
     
-    points.push_back(p);
+    if (time == 0) {
+      continue;
+    }
+    
+    points.push_back(Point(time,value));
   }
   
   return points;
@@ -120,7 +141,17 @@ vector<Point> ForecastTimeSeries::pointsFromPandas(std::string varName) {
 void ForecastTimeSeries::pointsToPandas(std::vector<Point> points, std::string pandasVarName) {
   
   
+  
+  
+  stringstream delVal, delTime;
+  delVal << pandasVarName << "_values = None";
+  delTime << pandasVarName << "_times = None";
+  _python->exec(delVal.str());
+  _python->exec(delTime.str());
+  
+  
   stringstream newVal, newTm;
+  
   newVal << pandasVarName << "_values = list()";
   newTm << pandasVarName << "_times = list()";
   _python->exec(newVal.str());

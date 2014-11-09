@@ -190,7 +190,6 @@ vector<Point> TimeSeries::gaps(time_t start, time_t end) {
   }
   
   vector<Point> gaps;
-  // gaps
   gaps.reserve(points.size());
   time_t prior = this->pointBefore(points.front().time).time;
   BOOST_FOREACH(const Point& p, points) {
@@ -203,18 +202,18 @@ vector<Point> TimeSeries::gaps(time_t start, time_t end) {
   return gaps;
 }
 
-TimeSeries::Stats TimeSeries::summary(time_t start, time_t end) {
+TimeSeries::Statistics TimeSeries::summary(time_t start, time_t end) {
   vector<Point> points = this->points(start, end);
-  return accumStats(points);
+  return getStats(points);
 }
 
-TimeSeries::Stats TimeSeries::gapsSummary(time_t start, time_t end) {
+TimeSeries::Statistics TimeSeries::gapsSummary(time_t start, time_t end) {
   vector<Point> points = this->gaps(start, end);
-  return accumStats(points);
+  return getStats(points);
 }
 
-TimeSeries::Stats TimeSeries::accumStats(vector<Point> points) {
-  Stats s;
+TimeSeries::Statistics TimeSeries::getStats(vector<Point> points) {
+  Statistics s;
   
   if (points.size() == 0) {
     return s;

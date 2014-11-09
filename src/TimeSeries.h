@@ -57,9 +57,9 @@ namespace RTX {
   public:
     
     // public internal class description for summary statistics
-    class Stats {
+    class Statistics {
     public:
-      Stats() : count(0),min(0),max(0),mean(0),variance(0) { quartiles.q25 = 0; quartiles.q50 = 0; quartiles.q75 = 0; };
+      Statistics() : count(0),min(0),max(0),mean(0),variance(0) { quartiles.q25 = 0; quartiles.q50 = 0; quartiles.q75 = 0; };
       size_t count;
       double min,max,mean,variance;
       typedef struct {
@@ -90,8 +90,8 @@ namespace RTX {
     virtual std::string name();
     PointRecord::sharedPointer record();
     
-    TimeSeries::Stats summary(time_t start, time_t end);
-    TimeSeries::Stats gapsSummary(time_t start, time_t end);
+    TimeSeries::Statistics summary(time_t start, time_t end);
+    TimeSeries::Statistics gapsSummary(time_t start, time_t end);
     std::vector<Point> gaps(time_t start, time_t end);
     
     virtual TimeSeries::sharedPointer rootTimeSeries() { return shared_from_this(); };
@@ -130,7 +130,7 @@ namespace RTX {
     // TODO -- units
     Units _units;
     std::pair<time_t, time_t> _validTimeRange;
-    TimeSeries::Stats accumStats(std::vector<Point> points);
+    TimeSeries::Statistics getStats(std::vector<Point> points);
   
   };
 

@@ -700,7 +700,7 @@ TimeSeries::sharedPointer SqliteProjectFile::newTimeseriesWithType(const string&
   }
   
   else {
-    cerr << "Did not recognize type: " << type << endl;
+    // cerr << "Did not recognize type: " << type << endl;
     return TimeSeries::sharedPointer(); // nada
   }
   
