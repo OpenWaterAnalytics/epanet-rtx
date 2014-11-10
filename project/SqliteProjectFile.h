@@ -43,6 +43,10 @@ namespace RTX {
     map<int, TimeSeries::sharedPointer> _timeseries;
     map<int, PointRecord::sharedPointer> _records;
     map<int, Clock::sharedPointer> _clocks;
+    
+    map<int, Element::sharedPointer> _elementUidLookup;
+    map<int, std::pair<int, std::string> > _elementOutput;
+    
     Model::sharedPointer _model;
     sqlite3 *_dbHandle;
     string _path;
@@ -52,8 +56,13 @@ namespace RTX {
     void loadTimeseriesFromDb();
     void loadModelFromDb();
     void setModelInputParameters();
+    void setModelOutputSeries();
+    
+    void loadModelOutputMapping();
+    
     void setJunctionParameter(Junction::sharedPointer j, string paramName, TimeSeries::sharedPointer ts);
     void setPipeParameter(Pipe::sharedPointer p, string paramName, TimeSeries::sharedPointer ts);
+    TimeSeries::sharedPointer tsPropertyForElementWithKey(Element::sharedPointer, std::string key);
     
     TimeSeries::sharedPointer newTimeseriesWithType(const std::string& type);
     void setBaseProperties(TimeSeries::sharedPointer ts, int uid);
