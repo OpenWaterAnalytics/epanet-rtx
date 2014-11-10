@@ -1173,45 +1173,52 @@ TimeSeries::sharedPointer SqliteProjectFile::tsPropertyForElementWithKey(Element
   
   // TO_DO :: add support for the full set of read-only timeseries keys
   
-  if (boost::static_pointer_cast<Node>(element)) {
-   
-    if (RTX_STRINGS_ARE_EQUAL(key, "tankFlow")) {
-      return boost::static_pointer_cast<Tank>(element)->flowMeasure();
+  switch (element->type()) {
+    case Element::JUNCTION:
+    case Element::TANK:
+    case Element::RESERVOIR:
+    {
+      if (RTX_STRINGS_ARE_EQUAL(key, "tankFlow")) {
+        return boost::static_pointer_cast<Tank>(element)->flowMeasure();
+      }
+      else if (RTX_STRINGS_ARE_EQUAL(key, "level")) {
+        return boost::static_pointer_cast<Tank>(element)->level();
+      }
+      else if (RTX_STRINGS_ARE_EQUAL(key, "head")) {
+        return boost::static_pointer_cast<Junction>(element)->head();
+      }
+      else if (RTX_STRINGS_ARE_EQUAL(key, "quality")) {
+        return boost::static_pointer_cast<Junction>(element)->quality();
+      }
+      else {
+        cerr << "Warning unknown Node key: " << key << endl;
+        return blank;
+      }
     }
-    else if (RTX_STRINGS_ARE_EQUAL(key, "level")) {
-      return boost::static_pointer_cast<Tank>(element)->level();
+      break;
+      
+    case Element::PIPE:
+    case Element::PUMP:
+    case Element::VALVE:
+    {
+      if (RTX_STRINGS_ARE_EQUAL(key, "flow")) {
+        return boost::static_pointer_cast<Pipe>(element)->flow();
+      }
+      else {
+        cerr << "Warning unknown Link key: " << key << endl;
+        return blank;
+      }
     }
-    else if (RTX_STRINGS_ARE_EQUAL(key, "head")) {
-      return boost::static_pointer_cast<Junction>(element)->head();
-    }
-    else if (RTX_STRINGS_ARE_EQUAL(key, "quality")) {
-      return boost::static_pointer_cast<Junction>(element)->quality();
-    }
-    else {
-      cerr << "Warning unknown Node key: " << key << endl;
+      break;
+      
+    default:
+    {
+      // unknown element class
+      cerr << "Warning unknown element class" << endl;
       return blank;
     }
+      break;
   }
-  else if (boost::static_pointer_cast<Link>(element)) {
-    
-    if (RTX_STRINGS_ARE_EQUAL(key, "flow")) {
-      return boost::static_pointer_cast<Pipe>(element)->flow();
-    }
-    else {
-      cerr << "Warning unknown Link key: " << key << endl;
-      return blank;
-    }
-    
-  }
-  else {
-    // unknown element class
-    cerr << "Warning unknown element class" << endl;
-    return blank;
-  }
-  
-
-  
-  
 }
 
 
