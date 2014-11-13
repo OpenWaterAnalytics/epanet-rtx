@@ -21,8 +21,7 @@ using namespace std;
 EpanetModel::EpanetModel() : Model() {
   // nothing to do, right?
   _enOpened = false;
-  OW_Project *newEpanetModel;
-  _enModel = newEpanetModel;
+  OW_API_CHECK( OW_newModel(&_enModel), "OW_newModel");
 }
 
 EpanetModel::~EpanetModel() {
