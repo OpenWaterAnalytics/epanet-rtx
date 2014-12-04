@@ -970,6 +970,7 @@ void ConfigProject::createSaveOptions(libconfig::Setting &saveGroup) {
           BOOST_FOREACH(Junction::sharedPointer j, junctions) {
             if (j->doesHaveHeadMeasure()) {
               j->head()->setRecord(_defaultRecord);
+              j->pressure()->setRecord(_defaultRecord);
             }
             if (j->doesHaveQualityMeasure()) {
               j->quality()->setRecord(_defaultRecord);
