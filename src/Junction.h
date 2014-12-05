@@ -65,6 +65,7 @@ namespace RTX {
     // States
     TimeSeries::sharedPointer _demandState;
     TimeSeries::sharedPointer _headState;
+    TimeSeries::sharedPointer _pressureState;
     TimeSeries::sharedPointer _qualityState;
     // properties
     bool _doesHaveQualitySource;

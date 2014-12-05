@@ -26,6 +26,8 @@ namespace RTX {
     virtual void setUnits(Units u);
     virtual bool isCompatibleWith(TimeSeries::sharedPointer ts);
     
+    virtual bool canAlterDimension() { return true; };
+    
   protected:
     Point filteredSingle(Point p, Units sourceU);
     

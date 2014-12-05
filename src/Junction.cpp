@@ -26,6 +26,7 @@ Junction::Junction(const std::string& name) : Node(name) {
   _doesHaveQualityMeasure = false;
   
   _headState.reset(new TimeSeries());
+  _pressureState.reset(new TimeSeries());
   _qualityState.reset(new TimeSeries());
   _demandState.reset(new TimeSeries());
   
@@ -62,6 +63,7 @@ void Junction::setInitialQuality(double quality) {
 
 void Junction::setRecord(PointRecord::sharedPointer record) {
   _headState->setRecord(record);
+  _pressureState->setRecord(record);
   _qualityState->setRecord(record);
   _demandState->setRecord(record);
 }
@@ -69,6 +71,9 @@ void Junction::setRecord(PointRecord::sharedPointer record) {
 // states - these recieve simulation results from the Model containing class
 TimeSeries::sharedPointer Junction::head() {
   return _headState;
+}
+TimeSeries::sharedPointer Junction::pressure() {
+  return _pressureState;
 }
 TimeSeries::sharedPointer Junction::quality() {
   return _qualityState;
