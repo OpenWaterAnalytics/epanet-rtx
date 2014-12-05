@@ -967,6 +967,18 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::share
     if (RTX_STRINGS_ARE_EQUAL(key, "gain")) {
       gn->setGain(val);
     }
+    else if (RTX_STRINGS_ARE_EQUAL(key, "gainUnits")) {
+      unsigned int idx;
+      unsigned int desiredValue = (unsigned int)val;
+      map<string,Units> uMap = Units::unitStringMap();
+      map<string,Units>::const_iterator it;
+      for(it=uMap.begin();it!=uMap.end();it++) {
+        if (idx == desiredValue) { // indices match
+          gn->setUnits(it->second);
+          break; // map iteration
+        }
+      }
+    }
   }
   else if (typeEquals(dbMultiplierName)) {
     //
