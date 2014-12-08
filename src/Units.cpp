@@ -9,9 +9,14 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <vector>
+#include <deque>
 #include "Units.h"
+#include "rtxMacros.h"
 
 #include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/foreach.hpp>
 
 using namespace RTX;
 using namespace std;
@@ -117,6 +122,7 @@ ostream& Units::toStream(ostream &stream) {
   if (_temperature != 0) { stream << "*kelvin^" << _temperature; }
   if (_amount != 0) { stream << "*mole^" << _amount; }
   if (_intensity != 0) { stream << "*candela^" << _intensity; }
+  if (_offset != 0) { stream << "*offset^" << _offset; }
   
   return stream;
 }
@@ -135,7 +141,10 @@ string Units::unitString() {
     ++it;
   }
   
-  return "UNKNOWN UNITS";
+  stringstream str;
+  this->toStream(str);
+  string unitsStr = str.str();
+  return unitsStr;
   
 }
 
@@ -220,14 +229,61 @@ map<string, Units> Units::unitStringMap() {
 
 // factory for string input
 Units Units::unitOfType(const string& unitString) {
+  
+  double conversionFactor = 1;
+  int mass=0, length=0, time=0, current=0, temperature=0, amount=0, intensity=0, offset=0;
+  
+  
   map<string, Units> unitMap = Units::unitStringMap();
   string uStr = boost::algorithm::to_lower_copy(unitString);
   if (unitMap.find(uStr) != unitMap.end()) {
     return unitMap[uStr];
   }
   else {
-    cerr << "WARNING: Units not recognized: " << uStr << " - defaulting to dimensionless." << endl;
-    return RTX_DIMENSIONLESS;
+    // attempt to deserialize the streamed format of the unit conversion and dimension.
+    deque<string> components;
+    boost::split(components, unitString, boost::is_any_of("*")); // split on multiplier
+    
+    if (components.size() < 1) {
+      cerr << "WARNING: Units not recognized: " << uStr << " - defaulting to dimensionless." << endl;
+      return RTX_DIMENSIONLESS;
+    }
+    
+    // first component will be the unit conversion, so cast that into a number.
+    conversionFactor = boost::lexical_cast<double>(components.front());
+    components.pop_front();
+    
+    // get each dimensional power and set it.
+    BOOST_FOREACH(const string& part, components) {
+      
+      vector<string> dimensionPower;
+      boost::split(dimensionPower, part, boost::is_any_of("^"));
+      
+      int power = boost::lexical_cast<int>(dimensionPower.back());
+      dimensionPower.pop_back();
+      string dim = dimensionPower.back();
+      
+      // match the SI dimension name
+      if (RTX_STRINGS_ARE_EQUAL(dim, "kilograms")) {
+        mass = power;
+      } else if (RTX_STRINGS_ARE_EQUAL(dim, "meters")) {
+        length = power;
+      } else if (RTX_STRINGS_ARE_EQUAL(dim, "seconds")) {
+        time = power;
+      } else if (RTX_STRINGS_ARE_EQUAL(dim, "ampere")) {
+        current = power;
+      } else if (RTX_STRINGS_ARE_EQUAL(dim, "kelvin")) {
+        temperature = power;
+      } else if (RTX_STRINGS_ARE_EQUAL(dim, "mole")) {
+        amount = power;
+      } else if (RTX_STRINGS_ARE_EQUAL(dim, "candela")) {
+        intensity = power;
+      } else if (RTX_STRINGS_ARE_EQUAL(dim, "offset")) {
+        offset = power;
+      }
+    }
+    
+    return Units::Units(conversionFactor, mass, length, time, current, temperature, amount, intensity, offset);
   }
 }
 

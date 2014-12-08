@@ -90,8 +90,12 @@ namespace RTX {
     std::vector<Pipe::sharedPointer> closedInteriorPipes();
     std::vector<Pipe::sharedPointer> measuredInteriorPipes();
     bool isMeasuredBoundaryPipe(Pipe::sharedPointer pipe);
+    bool isMeasuredInteriorPipe(Pipe::sharedPointer pipe);
     bool isMeasuredPipe(Pipe::sharedPointer pipe);
+    bool isClosedBoundaryPipe(Pipe::sharedPointer pipe);
+    bool isClosedInteriorPipe(Pipe::sharedPointer pipe);
     bool isClosedPipe(Pipe::sharedPointer pipe);
+    bool isBoundaryPipe(Pipe::sharedPointer pipe);
 
     // time series accessors
     TimeSeries::sharedPointer demand();
