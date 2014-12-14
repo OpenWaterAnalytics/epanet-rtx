@@ -1,5 +1,5 @@
 <map id="RTX::AggregatorTimeSeries" name="RTX::AggregatorTimeSeries">
-<area shape="rect" id="node2" href="$class_r_t_x_1_1_resampler.html" title="RTX::Resampler" alt="" coords="39,243,157,269"/>
-<area shape="rect" id="node3" href="$class_r_t_x_1_1_modular_time_series.html" title="A Time Series class that allows a single upstream TimeSeries. " alt="" coords="14,169,183,194"/>
-<area shape="rect" id="node4" href="$class_r_t_x_1_1_time_series.html" title="An abstraction of Points ordered in time. " alt="" coords="38,94,159,119"/>
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_resampler.html" title="RTX::Resampler" alt="" coords="39,254,157,282"/>
+<area shape="rect" id="node4" href="$class_r_t_x_1_1_modular_time_series.html" title="A Time Series class that allows a single upstream TimeSeries. " alt="" coords="14,177,183,205"/>
+<area shape="rect" id="node6" href="$class_r_t_x_1_1_time_series.html" title="An abstraction of Points ordered in time. " alt="" coords="38,99,159,127"/>
 </map>

@@ -94,59 +94,60 @@
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordtype">double</span> tankLevel(<span class="keyword">const</span> std::string&amp; tank);</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keywordtype">double</span> junctionDemand(<span class="keyword">const</span> std::string&amp; junction);</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordtype">double</span> junctionHead(<span class="keyword">const</span> std::string&amp; junction);</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordtype">double</span> junctionQuality(<span class="keyword">const</span> std::string&amp; junction);</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="comment">// link elements</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">double</span> pipeFlow(<span class="keyword">const</span> std::string&amp; pipe);</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordtype">double</span> pumpEnergy(<span class="keyword">const</span> std::string&amp; pump);</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    </div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="comment">// hydraulic</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordtype">void</span> setReservoirHead(<span class="keyword">const</span> std::string&amp; reservoir, <span class="keywordtype">double</span> level);</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">void</span> setReservoirQuality(<span class="keyword">const</span> <span class="keywordtype">string</span>&amp; reservoir, <span class="keywordtype">double</span> quality);</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordtype">void</span> setTankLevel(<span class="keyword">const</span> std::string&amp; tank, <span class="keywordtype">double</span> level);</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordtype">void</span> setJunctionDemand(<span class="keyword">const</span> std::string&amp; junction, <span class="keywordtype">double</span> demand);</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordtype">void</span> setPipeStatus(<span class="keyword">const</span> std::string&amp; pipe, Pipe::status_t status);</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">void</span> setPumpStatus(<span class="keyword">const</span> std::string&amp; pump, Pipe::status_t status);</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordtype">void</span> setPumpSetting(<span class="keyword">const</span> std::string&amp; pump, <span class="keywordtype">double</span> setting);</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">void</span> setValveSetting(<span class="keyword">const</span> std::string&amp; valve, <span class="keywordtype">double</span> setting);</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    </div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="comment">// quality</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordtype">void</span> setJunctionQuality(<span class="keyword">const</span> std::string&amp; junction, <span class="keywordtype">double</span> quality);</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    </div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="comment">// simulation methods</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> solveSimulation(time_t time);</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keyword">virtual</span> time_t nextHydraulicStep(time_t time);</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> stepSimulation(time_t time);</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">int</span> iterations(time_t time);</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">int</span> relativeError(time_t time);</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> setHydraulicTimeStep(<span class="keywordtype">int</span> seconds);</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> setQualityTimeStep(<span class="keywordtype">int</span> seconds);</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> setInitialModelQuality();</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordtype">void</span> OW_API_CHECK(<span class="keywordtype">int</span> errorCode, std::string externalFunction) <span class="keywordflow">throw</span>(std::string);</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    </div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="comment">// protected accessors</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordtype">double</span> getNodeValue(<span class="keywordtype">int</span> epanetCode, <span class="keyword">const</span> std::string&amp; node);</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordtype">void</span> setNodeValue(<span class="keywordtype">int</span> epanetCode, <span class="keyword">const</span> std::string&amp; node, <span class="keywordtype">double</span> value);</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordtype">double</span> getLinkValue(<span class="keywordtype">int</span> epanetCode, <span class="keyword">const</span> std::string&amp; link);</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordtype">void</span> setLinkValue(<span class="keywordtype">int</span> epanetCode, <span class="keyword">const</span> std::string&amp; link, <span class="keywordtype">double</span> value);</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    </div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    OW_Project *_enModel; <span class="comment">// protected scope so subclasses can use epanet api</span></div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    </div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    std::map&lt;std::string, int&gt; _nodeIndex;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    std::map&lt;std::string, int&gt; _linkIndex;</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="comment">// TODO - use boost filesystem instead of std::string path</span></div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="comment">//    std::string _modelFile;</span></div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    </div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordtype">void</span> createRtxWrappers();</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    </div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    <span class="keywordtype">bool</span> _enOpened;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    </div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordtype">double</span> junctionPressure(<span class="keyword">const</span> std::string&amp; junction);</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">double</span> junctionQuality(<span class="keyword">const</span> std::string&amp; junction);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="comment">// link elements</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordtype">double</span> pipeFlow(<span class="keyword">const</span> std::string&amp; pipe);</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keywordtype">double</span> pumpEnergy(<span class="keyword">const</span> std::string&amp; pump);</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    </div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="comment">// hydraulic</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">void</span> setReservoirHead(<span class="keyword">const</span> std::string&amp; reservoir, <span class="keywordtype">double</span> level);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordtype">void</span> setReservoirQuality(<span class="keyword">const</span> <span class="keywordtype">string</span>&amp; reservoir, <span class="keywordtype">double</span> quality);</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordtype">void</span> setTankLevel(<span class="keyword">const</span> std::string&amp; tank, <span class="keywordtype">double</span> level);</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordtype">void</span> setJunctionDemand(<span class="keyword">const</span> std::string&amp; junction, <span class="keywordtype">double</span> demand);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">void</span> setPipeStatus(<span class="keyword">const</span> std::string&amp; pipe, Pipe::status_t status);</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordtype">void</span> setPumpStatus(<span class="keyword">const</span> std::string&amp; pump, Pipe::status_t status);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">void</span> setPumpSetting(<span class="keyword">const</span> std::string&amp; pump, <span class="keywordtype">double</span> setting);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordtype">void</span> setValveSetting(<span class="keyword">const</span> std::string&amp; valve, <span class="keywordtype">double</span> setting);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    </div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="comment">// quality</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordtype">void</span> setJunctionQuality(<span class="keyword">const</span> std::string&amp; junction, <span class="keywordtype">double</span> quality);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    </div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="comment">// simulation methods</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> solveSimulation(time_t time);</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keyword">virtual</span> time_t nextHydraulicStep(time_t time);</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> stepSimulation(time_t time);</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">int</span> iterations(time_t time);</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">int</span> relativeError(time_t time);</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> setHydraulicTimeStep(<span class="keywordtype">int</span> seconds);</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> setQualityTimeStep(<span class="keywordtype">int</span> seconds);</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> setInitialModelQuality();</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keywordtype">void</span> OW_API_CHECK(<span class="keywordtype">int</span> errorCode, std::string externalFunction) <span class="keywordflow">throw</span>(std::string);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    </div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="comment">// protected accessors</span></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordtype">double</span> getNodeValue(<span class="keywordtype">int</span> epanetCode, <span class="keyword">const</span> std::string&amp; node);</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordtype">void</span> setNodeValue(<span class="keywordtype">int</span> epanetCode, <span class="keyword">const</span> std::string&amp; node, <span class="keywordtype">double</span> value);</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordtype">double</span> getLinkValue(<span class="keywordtype">int</span> epanetCode, <span class="keyword">const</span> std::string&amp; link);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keywordtype">void</span> setLinkValue(<span class="keywordtype">int</span> epanetCode, <span class="keyword">const</span> std::string&amp; link, <span class="keywordtype">double</span> value);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    </div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    OW_Project *_enModel; <span class="comment">// protected scope so subclasses can use epanet api</span></div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    </div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;  <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    std::map&lt;std::string, int&gt; _nodeIndex;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    std::map&lt;std::string, int&gt; _linkIndex;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="comment">// TODO - use boost filesystem instead of std::string path</span></div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="comment">//    std::string _modelFile;</span></div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    </div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keywordtype">void</span> createRtxWrappers();</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    </div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="keywordtype">bool</span> _enOpened;</div>
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    </div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  };</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  </div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;}</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    </div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  };</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  </div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;}</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="class_r_t_x_1_1_rtx_exception_html"><div class="ttname"><a href="class_r_t_x_1_1_rtx_exception.html">RTX::RtxException</a></div><div class="ttdef"><b>Definition:</b> rtxExceptions.h:16</div></div>
 <div class="ttc" id="namespace_r_t_x_html"><div class="ttname"><a href="namespace_r_t_x.html">RTX</a></div><div class="ttdoc">singleton python interpreter object </div><div class="ttdef"><b>Definition:</b> AggregatorTimeSeries.h:18</div></div>
 <div class="ttc" id="class_r_t_x_1_1_model_html"><div class="ttname"><a href="class_r_t_x_1_1_model.html">RTX::Model</a></div><div class="ttdoc">A hydraulic / water quality model abstraction. </div><div class="ttdef"><b>Definition:</b> Model.h:48</div></div>

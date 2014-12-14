@@ -53,7 +53,10 @@
 <div class="line"></div>
 <div class="line"></div>
 <div class="line"><span class="preprocessor">#include &lt;iostream&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;stdlib.h&gt;</span></div>
+<div class="line"></div>
 <div class="line"><span class="preprocessor">#include &lt;boost/foreach.hpp&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;boost/random.hpp&gt;</span></div>
 <div class="line"></div>
 <div class="line"><span class="preprocessor">#include &quot;Point.h&quot;</span></div>
 <div class="line"><span class="preprocessor">#include &quot;TimeSeries.h&quot;</span></div>
@@ -68,6 +71,9 @@
 <div class="line"><span class="preprocessor">#include &quot;FailoverTimeSeries.h&quot;</span></div>
 <div class="line"><span class="preprocessor">#include &quot;TimeOffsetTimeSeries.h&quot;</span></div>
 <div class="line"><span class="preprocessor">#include &quot;WarpingTimeSeries.h&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;ForecastTimeSeries.h&quot;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &quot;OutlierExclusionTimeSeries.h&quot;</span></div>
 <div class="line"></div>
 <div class="line"><span class="preprocessor">#include &quot;BufferPointRecord.h&quot;</span></div>
 <div class="line"><span class="preprocessor">#include &quot;MysqlPointRecord.h&quot;</span></div>
@@ -75,6 +81,8 @@
 <div class="line"><span class="comment">//#include &quot;SqliteProjectFile.h&quot;</span></div>
 <div class="line"></div>
 <div class="line"><span class="preprocessor">#include &quot;SqlitePointRecord.h&quot;</span></div>
+<div class="line"></div>
+<div class="line"><span class="preprocessor">#include &quot;PythonInterpreter.h&quot;</span></div>
 <div class="line"></div>
 <div class="line"><span class="keyword">using namespace </span><a class="code" href="namespace_r_t_x.html">RTX</a>;</div>
 <div class="line"><span class="keyword">using namespace </span><a class="code" href="namespacestd.html">std</a>;</div>
@@ -84,107 +92,21 @@
 <div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keyword">const</span> <span class="keywordtype">char</span> * argv[])</div>
 <div class="line">{</div>
 <div class="line">  </div>
-<div class="line"></div>
+<div class="line">  SineTimeSeries::sharedPointer sineWave(<span class="keyword">new</span> <a class="code" href="class_r_t_x_1_1_sine_time_series.html">SineTimeSeries</a>());</div>
 <div class="line">  </div>
-<div class="line">  <span class="comment">/*</span></div>
-<div class="line"><span class="comment">  Units deg_f = RTX_DEGREE_FARENHEIT;</span></div>
-<div class="line"><span class="comment">  Units deg_c = RTX_DEGREE_CELSIUS;</span></div>
-<div class="line"><span class="comment">  </span></div>
-<div class="line"><span class="comment">  cout &lt;&lt; &quot; 32 degrees f == &quot; &lt;&lt; Units::convertValue(32, RTX_DEGREE_FARENHEIT, RTX_DEGREE_CELSIUS) &lt;&lt; &quot; degrees C&quot; &lt;&lt; endl;</span></div>
-<div class="line"><span class="comment">  cout &lt;&lt; &quot; 212 degrees f == &quot; &lt;&lt; Units::convertValue(212, RTX_DEGREE_FARENHEIT, RTX_DEGREE_CELSIUS) &lt;&lt; &quot; degrees C&quot; &lt;&lt; endl;</span></div>
-<div class="line"><span class="comment">  cout &lt;&lt; &quot; 0 degrees c == &quot; &lt;&lt; Units::convertValue(0, RTX_DEGREE_CELSIUS, RTX_DEGREE_FARENHEIT) &lt;&lt; &quot; degrees f&quot; &lt;&lt; endl;</span></div>
-<div class="line"><span class="comment">  cout &lt;&lt; &quot; 0 degrees c == &quot; &lt;&lt; Units::convertValue(0, RTX_DEGREE_CELSIUS, RTX_DEGREE_KELVIN) &lt;&lt; &quot; degrees K&quot; &lt;&lt; endl;</span></div>
-<div class="line"><span class="comment">  cout &lt;&lt; &quot; 0 degrees R == &quot; &lt;&lt; Units::convertValue(0, RTX_DEGREE_FARENHEIT, RTX_DEGREE_RANKINE) &lt;&lt; &quot; degrees R&quot; &lt;&lt; endl;</span></div>
-<div class="line"><span class="comment">  */</span></div>
+<div class="line">  sineWave-&gt;setName(<span class="stringliteral">&quot;sine&quot;</span>);</div>
 <div class="line">  </div>
+<div class="line">  ForecastTimeSeries::sharedPointer pythonTestTs(<span class="keyword">new</span> <a class="code" href="class_r_t_x_1_1_forecast_time_series.html">ForecastTimeSeries</a>());</div>
 <div class="line">  </div>
+<div class="line">  pythonTestTs-&gt;setSource(sineWave);</div>
 <div class="line">  </div>
-<div class="line">  Clock::sharedPointer reg10s(<span class="keyword">new</span> <a class="code" href="class_r_t_x_1_1_clock.html">Clock</a>(10));</div>
+<div class="line">  vector&lt;Point&gt; testPoints = pythonTestTs-&gt;points(1000, 3000);</div>
 <div class="line">  </div>
-<div class="line">  TimeSeries::sharedPointer sine( <span class="keyword">new</span> <a class="code" href="class_r_t_x_1_1_sine_time_series.html">SineTimeSeries</a>(20, 3600) );</div>
-<div class="line">  sine-&gt;setUnits(RTX_SECOND);</div>
-<div class="line">  sine-&gt;setClock(reg10s);</div>
-<div class="line">  </div>
-<div class="line">  TimeSeries::sharedPointer signal( <span class="keyword">new</span> <a class="code" href="class_r_t_x_1_1_sine_time_series.html">SineTimeSeries</a> );</div>
-<div class="line">  signal-&gt;setClock(reg10s);</div>
-<div class="line">  signal-&gt;setUnits(RTX_MILLION_GALLON_PER_DAY);</div>
-<div class="line">  </div>
-<div class="line">  WarpingTimeSeries::sharedPointer warping(<span class="keyword">new</span> <a class="code" href="class_r_t_x_1_1_warping_time_series.html">WarpingTimeSeries</a>);</div>
-<div class="line">  warping-&gt;setWarp(sine);</div>
-<div class="line">  warping-&gt;setSource(signal);</div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  printPoints(warping-&gt;points(1000, 2000));</div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line"><span class="comment">//  SineTimeSeries::sharedPointer sine( new SineTimeSeries() );</span></div>
-<div class="line">  </div>
-<div class="line">  TimeOffsetTimeSeries::sharedPointer offset( <span class="keyword">new</span> <a class="code" href="class_r_t_x_1_1_time_offset_time_series.html">TimeOffsetTimeSeries</a>() );</div>
-<div class="line">  offset-&gt;setName(<span class="stringliteral">&quot;offsetTime&quot;</span>);</div>
-<div class="line">  offset-&gt;setOffset(3600);</div>
-<div class="line">  offset-&gt;setSource(sine);</div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  time_t now = time(NULL);</div>
-<div class="line">  time_t oneHour = 60*60;</div>
-<div class="line">  </div>
-<div class="line">  cout &lt;&lt; <span class="stringliteral">&quot;sine:&quot;</span> &lt;&lt; endl;</div>
-<div class="line">  printPoints(sine-&gt;points(now, now + 5*oneHour));</div>
-<div class="line">  </div>
-<div class="line">  cout &lt;&lt; <span class="stringliteral">&quot;offset:&quot;</span> &lt;&lt; endl;</div>
-<div class="line">  printPoints(offset-&gt;points(now, now + 5*oneHour));</div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  ConstantTimeSeries::sharedPointer backupTs(<span class="keyword">new</span> <a class="code" href="class_r_t_x_1_1_constant_time_series.html">ConstantTimeSeries</a>);</div>
-<div class="line">  backupTs-&gt;setName(<span class="stringliteral">&quot;backup&quot;</span>);</div>
-<div class="line">  backupTs-&gt;setValue(12.);</div>
-<div class="line">  backupTs-&gt;setClock(reg10s);</div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  BufferPointRecord::sharedPointer buff(<span class="keyword">new</span> <a class="code" href="class_r_t_x_1_1_buffer_point_record.html">BufferPointRecord</a>());</div>
-<div class="line">  </div>
-<div class="line">  TimeSeries::sharedPointer dirtyTs(<span class="keyword">new</span> <a class="code" href="class_r_t_x_1_1_time_series.html">TimeSeries</a>);</div>
-<div class="line">  dirtyTs-&gt;setName(<span class="stringliteral">&quot;dirty&quot;</span>);</div>
-<div class="line">  dirtyTs-&gt;setRecord(buff);</div>
+<div class="line">  printPoints(testPoints);</div>
 <div class="line">  </div>
 <div class="line">  </div>
 <div class="line">  vector&lt;Point&gt; range;</div>
-<div class="line">  range.push_back(<a class="code" href="class_r_t_x_1_1_point.html">Point</a>(101,1.));</div>
-<div class="line">  range.push_back(<a class="code" href="class_r_t_x_1_1_point.html">Point</a>(102,1.));</div>
-<div class="line">  range.push_back(<a class="code" href="class_r_t_x_1_1_point.html">Point</a>(103,1.));</div>
-<div class="line">  range.push_back(<a class="code" href="class_r_t_x_1_1_point.html">Point</a>(104,1.));</div>
-<div class="line">  range.push_back(<a class="code" href="class_r_t_x_1_1_point.html">Point</a>(105,1.));</div>
-<div class="line">  <span class="comment">/******** missing data ***********/</span></div>
-<div class="line">  range.push_back(<a class="code" href="class_r_t_x_1_1_point.html">Point</a>(206,1.));</div>
-<div class="line">  range.push_back(<a class="code" href="class_r_t_x_1_1_point.html">Point</a>(207,1.));</div>
-<div class="line">  range.push_back(<a class="code" href="class_r_t_x_1_1_point.html">Point</a>(208,1.));</div>
-<div class="line">  range.push_back(<a class="code" href="class_r_t_x_1_1_point.html">Point</a>(209,1.));</div>
-<div class="line">  range.push_back(<a class="code" href="class_r_t_x_1_1_point.html">Point</a>(210,1.));</div>
 <div class="line">  </div>
-<div class="line">  dirtyTs-&gt;insertPoints(range);</div>
-<div class="line">  </div>
-<div class="line">  FailoverTimeSeries::sharedPointer failover(<span class="keyword">new</span> <a class="code" href="class_r_t_x_1_1_failover_time_series.html">FailoverTimeSeries</a>);</div>
-<div class="line">  failover-&gt;setName(<span class="stringliteral">&quot;failover&quot;</span>);</div>
-<div class="line">  failover-&gt;setSource(dirtyTs);</div>
-<div class="line">  failover-&gt;setFailoverTimeseries(backupTs);</div>
-<div class="line">  </div>
-<div class="line">  failover-&gt;setMaximumStaleness(25); <span class="comment">// 25-second staleness</span></div>
-<div class="line">  </div>
-<div class="line">  printPoints(failover-&gt;points(104, 210));</div>
 <div class="line">  </div>
 <div class="line">  </div>
 <div class="line">  </div>

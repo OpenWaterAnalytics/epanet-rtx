@@ -1,6 +1,6 @@
 <map id="RTX::OdbcDirectPointRecord" name="RTX::OdbcDirectPointRecord">
-<area shape="rect" id="node2" href="$class_r_t_x_1_1_odbc_point_record.html" title="A persistence class for SCADA databases. " alt="" coords="22,230,183,255"/>
-<area shape="rect" id="node3" href="$class_r_t_x_1_1_db_point_record.html" title="A persistence layer for databases. " alt="" coords="30,155,175,181"/>
-<area shape="rect" id="node4" href="$class_r_t_x_1_1_buffer_point_record.html" title="RTX::BufferPointRecord" alt="" coords="21,81,184,106"/>
-<area shape="rect" id="node5" href="$class_r_t_x_1_1_point_record.html" title="A Point Record Class for storing and retrieving Points. " alt="" coords="38,6,167,31"/>
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_odbc_point_record.html" title="A persistence class for SCADA databases. " alt="" coords="22,238,183,266"/>
+<area shape="rect" id="node4" href="$class_r_t_x_1_1_db_point_record.html" title="A persistence layer for databases. " alt="" coords="30,161,175,189"/>
+<area shape="rect" id="node6" href="$class_r_t_x_1_1_buffer_point_record.html" title="RTX::BufferPointRecord" alt="" coords="21,83,184,111"/>
+<area shape="rect" id="node8" href="$class_r_t_x_1_1_point_record.html" title="A Point Record Class for storing and retrieving Points. " alt="" coords="38,6,167,34"/>
 </map>

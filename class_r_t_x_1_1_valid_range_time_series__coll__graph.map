@@ -1,5 +1,5 @@
 <map id="RTX::ValidRangeTimeSeries" name="RTX::ValidRangeTimeSeries">
-<area shape="rect" id="node2" href="$class_r_t_x_1_1_single_point_filter_modular_time_series.html" title="RTX::SinglePointFilterModular\lTimeSeries" alt="" coords="5,243,205,282"/>
-<area shape="rect" id="node3" href="$class_r_t_x_1_1_modular_time_series.html" title="A Time Series class that allows a single upstream TimeSeries. " alt="" coords="20,169,189,194"/>
-<area shape="rect" id="node4" href="$class_r_t_x_1_1_time_series.html" title="An abstraction of Points ordered in time. " alt="" coords="44,94,165,119"/>
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_single_point_filter_modular_time_series.html" title="RTX::SinglePointFilterModular\lTimeSeries" alt="" coords="5,254,205,298"/>
+<area shape="rect" id="node4" href="$class_r_t_x_1_1_modular_time_series.html" title="A Time Series class that allows a single upstream TimeSeries. " alt="" coords="20,177,189,205"/>
+<area shape="rect" id="node6" href="$class_r_t_x_1_1_time_series.html" title="An abstraction of Points ordered in time. " alt="" coords="44,99,165,127"/>
 </map>

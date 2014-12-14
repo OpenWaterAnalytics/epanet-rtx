@@ -69,13 +69,13 @@
 <div class="dynheader">
 Inheritance diagram for RTX::ConfigProject:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="class_r_t_x_1_1_config_project__inherit__graph.svg" width="144" height="112"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+<div class="center"><iframe scrolling="no" frameborder="0" src="class_r_t_x_1_1_config_project__inherit__graph.svg" width="144" height="118"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
 </div>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
 Collaboration diagram for RTX::ConfigProject:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="class_r_t_x_1_1_config_project__coll__graph.svg" width="144" height="112"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+<div class="center"><iframe scrolling="no" frameborder="0" src="class_r_t_x_1_1_config_project__coll__graph.svg" width="144" height="118"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
 </div>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -86,6 +86,29 @@ typedef boost::shared_ptr<br class="typebreak" />
 &lt; <a class="el" href="class_r_t_x_1_1_config_project.html">ConfigProject</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>sharedPointer</b></td></tr>
 <tr class="separator:ac26849d53a46f591ff466db8cd066ba4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_types_class_r_t_x_1_1_project_file"><td colspan="2" onclick="javascript:toggleInherit('pub_types_class_r_t_x_1_1_project_file')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="class_r_t_x_1_1_project_file.html">RTX::ProjectFile</a></td></tr>
+<tr class="memitem:a57396c5c8606247d96405dd90190ce85 inherit pub_types_class_r_t_x_1_1_project_file"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a57396c5c8606247d96405dd90190ce85"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>boundary_t</b> { <br />
+&#160;&#160;<b>B_NONE</b>, 
+<b>B_HEAD</b>, 
+<b>B_STATUS</b>, 
+<b>B_DMA_STATUS</b>, 
+<br />
+&#160;&#160;<b>B_SETTING</b>, 
+<b>B_DMA_SETTING</b>, 
+<b>B_QUALITY</b>, 
+<b>B_DEMAND</b>
+<br />
+ }</td></tr>
+<tr class="separator:a57396c5c8606247d96405dd90190ce85 inherit pub_types_class_r_t_x_1_1_project_file"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa27f892f962c3b2ab31e4d42d3ff7f7d inherit pub_types_class_r_t_x_1_1_project_file"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa27f892f962c3b2ab31e4d42d3ff7f7d"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>measure_t</b> { <br />
+&#160;&#160;<b>M_NONE</b>, 
+<b>M_HEAD</b>, 
+<b>M_FLOW</b>, 
+<b>M_DMA_FLOW</b>, 
+<br />
+&#160;&#160;<b>M_QUALITY</b>
+<br />
+ }</td></tr>
+<tr class="separator:aa27f892f962c3b2ab31e4d42d3ff7f7d inherit pub_types_class_r_t_x_1_1_project_file"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a76237e5b2ddb745c1de395bd6b48ee81 inherit pub_types_class_r_t_x_1_1_project_file"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a76237e5b2ddb745c1de395bd6b48ee81"></a>
 typedef boost::shared_ptr<br class="typebreak" />
 &lt; <a class="el" href="class_r_t_x_1_1_project_file.html">ProjectFile</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>sharedPointer</b></td></tr>
@@ -133,6 +156,9 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>insertClock</
 <tr class="memitem:ad9e3c3475e976c67681a8a01829f13ab inherit pub_methods_class_r_t_x_1_1_project_file"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad9e3c3475e976c67681a8a01829f13ab"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>insertRecord</b> (PointRecord::sharedPointer record)=0</td></tr>
 <tr class="separator:ad9e3c3475e976c67681a8a01829f13ab inherit pub_methods_class_r_t_x_1_1_project_file"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52bd3cf413e4d83a3c389af8593a761c inherit pub_methods_class_r_t_x_1_1_project_file"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a52bd3cf413e4d83a3c389af8593a761c"></a>
+std::vector&lt; <a class="el" href="class_r_t_x_1_1_project_file_1_1_element_summary.html">ElementSummary</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>projectSummary</b> (time_t start, time_t end)</td></tr>
+<tr class="separator:a52bd3cf413e4d83a3c389af8593a761c inherit pub_methods_class_r_t_x_1_1_project_file"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>

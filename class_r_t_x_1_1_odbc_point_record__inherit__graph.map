@@ -1,7 +1,7 @@
 <map id="RTX::OdbcPointRecord" name="RTX::OdbcPointRecord">
-<area shape="rect" id="node5" href="$class_r_t_x_1_1_odbc_direct_point_record.html" title="RTX::OdbcDirectPointRecord" alt="" coords="5,305,200,330"/>
-<area shape="rect" id="node6" href="$class_r_t_x_1_1_odbc_prepared_point_record.html" title="RTX::OdbcPreparedPointRecord" alt="" coords="224,305,439,330"/>
-<area shape="rect" id="node2" href="$class_r_t_x_1_1_db_point_record.html" title="A persistence layer for databases. " alt="" coords="145,155,289,181"/>
-<area shape="rect" id="node3" href="$class_r_t_x_1_1_buffer_point_record.html" title="RTX::BufferPointRecord" alt="" coords="135,81,299,106"/>
-<area shape="rect" id="node4" href="$class_r_t_x_1_1_point_record.html" title="A Point Record Class for storing and retrieving Points. " alt="" coords="153,6,281,31"/>
+<area shape="rect" id="node9" href="$class_r_t_x_1_1_odbc_direct_point_record.html" title="RTX::OdbcDirectPointRecord" alt="" coords="5,315,200,343"/>
+<area shape="rect" id="node11" href="$class_r_t_x_1_1_odbc_prepared_point_record.html" title="RTX::OdbcPreparedPointRecord" alt="" coords="224,315,439,343"/>
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_db_point_record.html" title="A persistence layer for databases. " alt="" coords="145,161,289,189"/>
+<area shape="rect" id="node4" href="$class_r_t_x_1_1_buffer_point_record.html" title="RTX::BufferPointRecord" alt="" coords="135,83,299,111"/>
+<area shape="rect" id="node6" href="$class_r_t_x_1_1_point_record.html" title="A Point Record Class for storing and retrieving Points. " alt="" coords="153,6,281,34"/>
 </map>

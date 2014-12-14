@@ -1,8 +1,8 @@
 <map id="RTX::DbPointRecord" name="RTX::DbPointRecord">
-<area shape="rect" id="node2" href="$class_r_t_x_1_1_buffer_point_record.html" title="RTX::BufferPointRecord" alt="" coords="226,401,389,426"/>
-<area shape="rect" id="node3" href="$class_r_t_x_1_1_point_record.html" title="A Point Record Class for storing and retrieving Points. " alt="" coords="301,313,429,338"/>
-<area shape="rect" id="node5" title="STL class. " alt="" coords="162,97,240,122"/>
-<area shape="rect" id="node8" href="$class_r_t_x_1_1_db_point_record_1_1request__t.html" title="RTX::DbPointRecord\l::request_t" alt="" coords="5,249,149,287"/>
-<area shape="rect" id="node6" title="STL class. " alt="" coords="139,6,264,45"/>
-<area shape="rect" id="node7" href="$class_r_t_x_1_1_point.html" title="A Point Class to store data tuples (date, value, quality, confidence) " alt="" coords="452,97,537,122"/>
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_buffer_point_record.html" title="RTX::BufferPointRecord" alt="" coords="226,427,389,455"/>
+<area shape="rect" id="node4" href="$class_r_t_x_1_1_point_record.html" title="A Point Record Class for storing and retrieving Points. " alt="" coords="301,334,429,362"/>
+<area shape="rect" id="node8" title="STL class. " alt="" coords="162,102,240,130"/>
+<area shape="rect" id="node16" href="$class_r_t_x_1_1_db_point_record_1_1request__t.html" title="RTX::DbPointRecord\l::request_t" alt="" coords="5,265,149,309"/>
+<area shape="rect" id="node10" title="STL class. " alt="" coords="139,6,264,50"/>
+<area shape="rect" id="node12" href="$class_r_t_x_1_1_point.html" title="A Point Class to store data tuples (date, value, quality, confidence) " alt="" coords="452,102,537,130"/>
 </map>

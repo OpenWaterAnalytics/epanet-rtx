@@ -1,5 +1,0 @@
-<map id="RTX::TimeSeries::Summary" name="RTX::TimeSeries::Summary">
-<area shape="rect" id="node2" href="$class_r_t_x_1_1_time_series_1_1_summary_1_1_stats.html" title="RTX::TimeSeries::Summary\l::Stats" alt="" coords="4,107,189,146"/>
-<area shape="rect" id="node3" href="$struct_r_t_x_1_1_time_series_1_1_summary_1_1_stats_1_1quartiles__t.html" title="RTX::TimeSeries::Summary\l::Stats::quartiles_t" alt="" coords="4,6,189,45"/>
-<area shape="rect" id="node5" href="$class_r_t_x_1_1_point.html" title="A Point Class to store data tuples (date, value, quality, confidence) " alt="" coords="257,13,343,38"/>
-</map>

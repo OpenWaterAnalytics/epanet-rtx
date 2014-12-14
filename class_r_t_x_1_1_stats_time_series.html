@@ -61,33 +61,40 @@
 <div class="title">RTX::StatsTimeSeries Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>A modular timeseries class for delivering statistical information.  
+ <a href="class_r_t_x_1_1_stats_time_series.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="_stats_time_series_8h_source.html">StatsTimeSeries.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for RTX::StatsTimeSeries:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="class_r_t_x_1_1_stats_time_series__inherit__graph.svg" width="192" height="350"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+<div class="center"><iframe scrolling="no" frameborder="0" src="class_r_t_x_1_1_stats_time_series__inherit__graph.svg" width="192" height="366"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
 </div>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
 Collaboration diagram for RTX::StatsTimeSeries:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="class_r_t_x_1_1_stats_time_series__coll__graph.svg" width="192" height="350"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+<div class="center"><iframe scrolling="no" frameborder="0" src="class_r_t_x_1_1_stats_time_series__coll__graph.svg" width="192" height="366"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
 </div>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a7847d1412eb812fd8591f41f54278388"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7847d1412eb812fd8591f41f54278388"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>StatsTimeSeriesType</b> { <br />
-&#160;&#160;<b>StatsTimeSeriesMean</b>, 
-<b>StatsTimeSeriesMedian</b>, 
-<b>StatsTimeSeriesStdDev</b>, 
-<b>StatsTimeSeriesQ25</b>, 
+&#160;&#160;<b>StatsTimeSeriesMean</b> = 0, 
+<b>StatsTimeSeriesStdDev</b> = 1, 
+<b>StatsTimeSeriesMedian</b> = 2, 
+<b>StatsTimeSeriesQ25</b> = 3, 
 <br />
-&#160;&#160;<b>StatsTimeSeriesQ75</b>, 
-<b>StatsTimeSeriesInterQuartileRange</b>, 
-<b>StatsTimeSeriesMax</b>, 
-<b>StatsTimeSeriesMin</b>, 
+&#160;&#160;<b>StatsTimeSeriesQ75</b> = 4, 
+<b>StatsTimeSeriesInterQuartileRange</b> = 5, 
+<b>StatsTimeSeriesMax</b> = 6, 
+<b>StatsTimeSeriesMin</b> = 7, 
 <br />
-&#160;&#160;<b>StatsTimeSeriesCount</b>
+&#160;&#160;<b>StatsTimeSeriesCount</b> = 8, 
+<b>StatsTimeSeriesVar</b> = 9, 
+<b>StatsTimeSeriesRMS</b> = 10
 <br />
  }</td></tr>
 <tr class="separator:a7847d1412eb812fd8591f41f54278388"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -101,9 +108,10 @@ typedef boost::shared_ptr<br class="typebreak" />
 <b>StatsSamplingModeCentered</b> = 2
  }</td></tr>
 <tr class="separator:af9649c36ec1d49710a2eb8d94ff4b973 inherit pub_types_class_r_t_x_1_1_base_stats_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d6c71401490ed54a9536e2c17d1a0df inherit pub_types_class_r_t_x_1_1_base_stats_time_series"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3d6c71401490ed54a9536e2c17d1a0df"></a>
-typedef std::pair&lt; <a class="el" href="class_r_t_x_1_1_point.html">Point</a>, <a class="el" href="class_r_t_x_1_1_time_series_1_1_summary.html">Summary</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>pointSummaryPair_t</b></td></tr>
-<tr class="separator:a3d6c71401490ed54a9536e2c17d1a0df inherit pub_types_class_r_t_x_1_1_base_stats_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ac1c25ad988f46272d30c1601909943 inherit pub_types_class_r_t_x_1_1_base_stats_time_series"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8ac1c25ad988f46272d30c1601909943"></a>
+typedef std::pair&lt; <a class="el" href="class_r_t_x_1_1_point.html">Point</a>, <br class="typebreak" />
+<a class="el" href="class_r_t_x_1_1_time_series_1_1_statistics.html">Statistics</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>pointSummaryPair_t</b></td></tr>
+<tr class="separator:a8ac1c25ad988f46272d30c1601909943 inherit pub_types_class_r_t_x_1_1_base_stats_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1b6bf2494832a11d8225bf1aa2d39c43 inherit pub_types_class_r_t_x_1_1_base_stats_time_series"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1b6bf2494832a11d8225bf1aa2d39c43"></a>
 typedef boost::shared_ptr<br class="typebreak" />
 &lt; <a class="el" href="class_r_t_x_1_1_base_stats_time_series.html">BaseStatsTimeSeries</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>sharedPointer</b></td></tr>
@@ -121,12 +129,18 @@ typedef boost::shared_ptr<br class="typebreak" />
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:abeb3e7ec5ac265b247e563ed2adbbb46"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abeb3e7ec5ac265b247e563ed2adbbb46"></a>
-StatsTimeSeriesType&#160;</td><td class="memItemRight" valign="bottom"><b>statsType</b> ()</td></tr>
-<tr class="separator:abeb3e7ec5ac265b247e563ed2adbbb46"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1fbce857c7a5bc0aa3ae4f0dde177a64"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1fbce857c7a5bc0aa3ae4f0dde177a64"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setStatsType</b> (StatsTimeSeriesType type)</td></tr>
-<tr class="separator:a1fbce857c7a5bc0aa3ae4f0dde177a64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22d415640d08b1f6b3f77f935a0f3a97"><td class="memItemLeft" align="right" valign="top">StatsTimeSeriesType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_r_t_x_1_1_stats_time_series.html#a22d415640d08b1f6b3f77f935a0f3a97">statsType</a> ()</td></tr>
+<tr class="memdesc:a22d415640d08b1f6b3f77f935a0f3a97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the statistic type.  <a href="#a22d415640d08b1f6b3f77f935a0f3a97">More...</a><br /></td></tr>
+<tr class="separator:a22d415640d08b1f6b3f77f935a0f3a97"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1edd878962b5a74aaf95b2bb2b492a8d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_r_t_x_1_1_stats_time_series.html#a1edd878962b5a74aaf95b2bb2b492a8d">setStatsType</a> (StatsTimeSeriesType type)</td></tr>
+<tr class="memdesc:a1edd878962b5a74aaf95b2bb2b492a8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the statistic type.  <a href="#a1edd878962b5a74aaf95b2bb2b492a8d">More...</a><br /></td></tr>
+<tr class="separator:a1edd878962b5a74aaf95b2bb2b492a8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb3b3b33173b2c6f90b45311d8c215e1"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_r_t_x_1_1_stats_time_series.html#acb3b3b33173b2c6f90b45311d8c215e1">setSource</a> (TimeSeries::sharedPointer <a class="el" href="class_r_t_x_1_1_modular_time_series.html#a609532c959b0761c336c0266b77ea837">source</a>)</td></tr>
+<tr class="memdesc:acb3b3b33173b2c6f90b45311d8c215e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the upstream <a class="el" href="class_r_t_x_1_1_time_series.html" title="An abstraction of Points ordered in time. ">TimeSeries</a> object.  <a href="#acb3b3b33173b2c6f90b45311d8c215e1">More...</a><br /></td></tr>
+<tr class="separator:acb3b3b33173b2c6f90b45311d8c215e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0354a66074ae10df095a4c631c03a4f9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0354a66074ae10df095a4c631c03a4f9"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setUnits</b> (<a class="el" href="class_r_t_x_1_1_units.html">Units</a> newUnits)</td></tr>
+<tr class="separator:a0354a66074ae10df095a4c631c03a4f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_r_t_x_1_1_base_stats_time_series"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_r_t_x_1_1_base_stats_time_series')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_r_t_x_1_1_base_stats_time_series.html">RTX::BaseStatsTimeSeries</a></td></tr>
 <tr class="memitem:a07b7dcb74f6e67e0adea6c1a00768c0d inherit pub_methods_class_r_t_x_1_1_base_stats_time_series"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a07b7dcb74f6e67e0adea6c1a00768c0d"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setWindow</b> (Clock::sharedPointer window)</td></tr>
@@ -150,9 +164,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setSummaryOnly</b> (b
 <tr class="memitem:a609532c959b0761c336c0266b77ea837 inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="memItemLeft" align="right" valign="top">virtual TimeSeries::sharedPointer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_r_t_x_1_1_modular_time_series.html#a609532c959b0761c336c0266b77ea837">source</a> ()</td></tr>
 <tr class="memdesc:a609532c959b0761c336c0266b77ea837 inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the source of this time series.  <a href="#a609532c959b0761c336c0266b77ea837">More...</a><br /></td></tr>
 <tr class="separator:a609532c959b0761c336c0266b77ea837 inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a030f53a1f379f964474dfb00413ec162 inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_r_t_x_1_1_modular_time_series.html#a030f53a1f379f964474dfb00413ec162">setSource</a> (TimeSeries::sharedPointer <a class="el" href="class_r_t_x_1_1_modular_time_series.html#a609532c959b0761c336c0266b77ea837">source</a>)</td></tr>
-<tr class="memdesc:a030f53a1f379f964474dfb00413ec162 inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the upstream <a class="el" href="class_r_t_x_1_1_time_series.html" title="An abstraction of Points ordered in time. ">TimeSeries</a> object.  <a href="#a030f53a1f379f964474dfb00413ec162">More...</a><br /></td></tr>
-<tr class="separator:a030f53a1f379f964474dfb00413ec162 inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a941b553fdfc9ed3fdc4eea2a1103737e inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_r_t_x_1_1_modular_time_series.html#a941b553fdfc9ed3fdc4eea2a1103737e">doesHaveSource</a> ()</td></tr>
 <tr class="memdesc:a941b553fdfc9ed3fdc4eea2a1103737e inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="mdescLeft">&#160;</td><td class="mdescRight">Does this Modular time series have an upstream source?  <a href="#a941b553fdfc9ed3fdc4eea2a1103737e">More...</a><br /></td></tr>
 <tr class="separator:a941b553fdfc9ed3fdc4eea2a1103737e inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -171,9 +182,6 @@ virtual <a class="el" href="class_r_t_x_1_1_point.html">Point</a>&#160;</td><td 
 <tr class="memitem:a577b9f6546c9824d92c9631d0629b1e2 inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; <a class="el" href="class_r_t_x_1_1_point.html">Point</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_r_t_x_1_1_modular_time_series.html#a577b9f6546c9824d92c9631d0629b1e2">points</a> (time_t start, time_t end)</td></tr>
 <tr class="memdesc:a577b9f6546c9824d92c9631d0629b1e2 inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a vector of Points within a specific time range.  <a href="#a577b9f6546c9824d92c9631d0629b1e2">More...</a><br /></td></tr>
 <tr class="separator:a577b9f6546c9824d92c9631d0629b1e2 inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8ee856fc1c4a444f9970adab518e9058 inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8ee856fc1c4a444f9970adab518e9058"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setUnits</b> (<a class="el" href="class_r_t_x_1_1_units.html">Units</a> newUnits)</td></tr>
-<tr class="separator:a8ee856fc1c4a444f9970adab518e9058 inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6dbcb42191e1b3813091166d17f7742e inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6dbcb42191e1b3813091166d17f7742e"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>resetCache</b> ()</td></tr>
 <tr class="separator:a6dbcb42191e1b3813091166d17f7742e inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -206,9 +214,15 @@ virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class=
 <tr class="memitem:a62f215b158d34a966910ab644d81f9b4 inherit pub_methods_class_r_t_x_1_1_time_series"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a62f215b158d34a966910ab644d81f9b4"></a>
 PointRecord::sharedPointer&#160;</td><td class="memItemRight" valign="bottom"><b>record</b> ()</td></tr>
 <tr class="separator:a62f215b158d34a966910ab644d81f9b4 inherit pub_methods_class_r_t_x_1_1_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab3eaef710c138a2064b3bba357e2902e inherit pub_methods_class_r_t_x_1_1_time_series"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab3eaef710c138a2064b3bba357e2902e"></a>
-<a class="el" href="class_r_t_x_1_1_time_series_1_1_summary.html">TimeSeries::Summary</a>&#160;</td><td class="memItemRight" valign="bottom"><b>summary</b> (time_t start, time_t end)</td></tr>
-<tr class="separator:ab3eaef710c138a2064b3bba357e2902e inherit pub_methods_class_r_t_x_1_1_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20859751893bd5f477eac4857b8e7a1c inherit pub_methods_class_r_t_x_1_1_time_series"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a20859751893bd5f477eac4857b8e7a1c"></a>
+<a class="el" href="class_r_t_x_1_1_time_series_1_1_statistics.html">TimeSeries::Statistics</a>&#160;</td><td class="memItemRight" valign="bottom"><b>summary</b> (time_t start, time_t end)</td></tr>
+<tr class="separator:a20859751893bd5f477eac4857b8e7a1c inherit pub_methods_class_r_t_x_1_1_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b5a18cd28cd9eead34c9f851b08cf65 inherit pub_methods_class_r_t_x_1_1_time_series"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b5a18cd28cd9eead34c9f851b08cf65"></a>
+<a class="el" href="class_r_t_x_1_1_time_series_1_1_statistics.html">TimeSeries::Statistics</a>&#160;</td><td class="memItemRight" valign="bottom"><b>gapsSummary</b> (time_t start, time_t end)</td></tr>
+<tr class="separator:a0b5a18cd28cd9eead34c9f851b08cf65 inherit pub_methods_class_r_t_x_1_1_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a129f905f48d11bac3efb7adf25139a74 inherit pub_methods_class_r_t_x_1_1_time_series"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a129f905f48d11bac3efb7adf25139a74"></a>
+std::vector&lt; <a class="el" href="class_r_t_x_1_1_point.html">Point</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>gaps</b> (time_t start, time_t end)</td></tr>
+<tr class="separator:a129f905f48d11bac3efb7adf25139a74 inherit pub_methods_class_r_t_x_1_1_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af7ead4c41896e604b4fad4ab1e7e58d9 inherit pub_methods_class_r_t_x_1_1_time_series"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af7ead4c41896e604b4fad4ab1e7e58d9"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setName</b> (const std::string &amp;<a class="el" href="class_r_t_x_1_1_time_series.html#a4473990de8ff06d99aeb42746f08bc93">name</a>)</td></tr>
 <tr class="separator:af7ead4c41896e604b4fad4ab1e7e58d9 inherit pub_methods_class_r_t_x_1_1_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -258,6 +272,99 @@ virtual std::vector<br class="typebreak" />
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>isCompatibleWith</b> (TimeSeries::sharedPointer withTimeSeries)</td></tr>
 <tr class="separator:ae22c5842cc72a46831279ae8f9bbe080 inherit pro_methods_class_r_t_x_1_1_modular_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>A modular timeseries class for delivering statistical information. </p>
+<p>The <a class="el" href="class_r_t_x_1_1_stats_time_series.html" title="A modular timeseries class for delivering statistical information. ">StatsTimeSeries</a> class is designed to provide a moving window (in the form of a <a class="el" href="class_r_t_x_1_1_clock.html" title="A simple clock class for keeping time synchronized. ">Clock</a>), evaluated at regular intervals (also as a <a class="el" href="class_r_t_x_1_1_clock.html" title="A simple clock class for keeping time synchronized. ">Clock</a>), over which statistical measures are taken. The full list of statistical options is below. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="acb3b3b33173b2c6f90b45311d8c215e1"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void StatsTimeSeries::setSource </td>
+          <td>(</td>
+          <td class="paramtype">TimeSeries::sharedPointer&#160;</td>
+          <td class="paramname"><em>source</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Set the upstream <a class="el" href="class_r_t_x_1_1_time_series.html" title="An abstraction of Points ordered in time. ">TimeSeries</a> object. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">source</td><td>A shared pointer to the intended upstream <a class="el" href="class_r_t_x_1_1_time_series.html" title="An abstraction of Points ordered in time. ">TimeSeries</a> object. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Reimplemented from <a class="el" href="class_r_t_x_1_1_modular_time_series.html#a030f53a1f379f964474dfb00413ec162">RTX::ModularTimeSeries</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a1edd878962b5a74aaf95b2bb2b492a8d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void RTX::StatsTimeSeries::setStatsType </td>
+          <td>(</td>
+          <td class="paramtype">StatsTimeSeriesType&#160;</td>
+          <td class="paramname"><em>type</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the statistic type. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">type</td><td>The type of statistic to return.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Types of statistics:</p>
+<ul>
+<li>Mean</li>
+<li>Standard Deviation</li>
+<li>Median</li>
+<li>25th and 75th percentile</li>
+<li>Interquartile Range</li>
+<li>Max, Min, Count</li>
+<li>Variance</li>
+<li>Root Mean Squared</li>
+</ul>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="class_r_t_x_1_1_stats_time_series.html#a22d415640d08b1f6b3f77f935a0f3a97" title="Get the statistic type. ">StatsTimeSeries::statsType</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a22d415640d08b1f6b3f77f935a0f3a97"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">StatsTimeSeries::StatsTimeSeriesType RTX::StatsTimeSeries::statsType </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the statistic type. </p>
+<dl class="section return"><dt>Returns</dt><dd>The type of statistic that this object is configured to return. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="class_r_t_x_1_1_stats_time_series.html#a1edd878962b5a74aaf95b2bb2b492a8d" title="Set the statistic type. ">StatsTimeSeries::setStatsType</a> </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="_stats_time_series_8h_source.html">StatsTimeSeries.h</a></li>
 <li>StatsTimeSeries.cpp</li>

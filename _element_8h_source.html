@@ -86,21 +86,25 @@
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keywordtype">void</span> setName(<span class="keyword">const</span> std::string&amp; newName);</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    std::string name();</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> setRecord(PointRecord::sharedPointer record);</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <a class="code" href="class_r_t_x_1_1_element.html">Element</a>(<span class="keyword">const</span> std::string&amp; name);</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_r_t_x_1_1_element.html">Element</a>();</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordtype">void</span> setType(element_t type);</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  </div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    std::string _name;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    element_t _type;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  };</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  </div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  std::ostream&amp; operator&lt;&lt; (std::ostream &amp;out, <a class="code" href="class_r_t_x_1_1_element.html">Element</a> &amp;e);</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;}</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    </div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    std::string userDescription();</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keywordtype">void</span> setUserDescription(<span class="keyword">const</span> std::string&amp; description);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    </div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <a class="code" href="class_r_t_x_1_1_element.html">Element</a>(<span class="keyword">const</span> std::string&amp; name);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_r_t_x_1_1_element.html">Element</a>();</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordtype">void</span> setType(element_t type);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  </div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    std::string _name;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    element_t _type;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    std::string _userDescription;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  };</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  </div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  std::ostream&amp; operator&lt;&lt; (std::ostream &amp;out, <a class="code" href="class_r_t_x_1_1_element.html">Element</a> &amp;e);</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;}</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="namespace_r_t_x_html"><div class="ttname"><a href="namespace_r_t_x.html">RTX</a></div><div class="ttdoc">singleton python interpreter object </div><div class="ttdef"><b>Definition:</b> AggregatorTimeSeries.h:18</div></div>
 <div class="ttc" id="class_r_t_x_1_1_element_html"><div class="ttname"><a href="class_r_t_x_1_1_element.html">RTX::Element</a></div><div class="ttdoc">Element Base Class. </div><div class="ttdef"><b>Definition:</b> Element.h:27</div></div>
 </div><!-- fragment --></div><!-- contents -->

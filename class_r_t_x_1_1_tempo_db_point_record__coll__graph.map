@@ -1,0 +1,9 @@
+<map id="RTX::TempoDbPointRecord" name="RTX::TempoDbPointRecord">
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_db_point_record.html" title="A persistence layer for databases. " alt="" coords="405,571,549,599"/>
+<area shape="rect" id="node4" href="$class_r_t_x_1_1_buffer_point_record.html" title="RTX::BufferPointRecord" alt="" coords="295,491,459,519"/>
+<area shape="rect" id="node6" href="$class_r_t_x_1_1_point_record.html" title="A Point Record Class for storing and retrieving Points. " alt="" coords="244,334,372,362"/>
+<area shape="rect" id="node10" title="STL class. " alt="" coords="350,102,428,130"/>
+<area shape="rect" id="node18" href="$class_r_t_x_1_1_db_point_record_1_1request__t.html" title="RTX::DbPointRecord\l::request_t" alt="" coords="94,265,239,309"/>
+<area shape="rect" id="node12" title="STL class. " alt="" coords="327,6,452,50"/>
+<area shape="rect" id="node14" href="$class_r_t_x_1_1_point.html" title="A Point Class to store data tuples (date, value, quality, confidence) " alt="" coords="5,102,91,130"/>
+</map>

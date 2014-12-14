@@ -81,17 +81,19 @@
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> setUnits(<a class="code" href="class_r_t_x_1_1_units.html">Units</a> u);</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> isCompatibleWith(TimeSeries::sharedPointer ts);</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    </div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  <span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <a class="code" href="class_r_t_x_1_1_point.html">Point</a> filteredSingle(<a class="code" href="class_r_t_x_1_1_point.html">Point</a> p, <a class="code" href="class_r_t_x_1_1_units.html">Units</a> sourceU);</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    </div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keywordtype">double</span> _gain;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <a class="code" href="class_r_t_x_1_1_units.html">Units</a> _gainUnits;</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    </div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  };</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;}</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* defined(__epanet_rtx__GainTimeSeries__) */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> canAlterDimension() { <span class="keywordflow">return</span> <span class="keyword">true</span>; };</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    </div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <a class="code" href="class_r_t_x_1_1_point.html">Point</a> filteredSingle(<a class="code" href="class_r_t_x_1_1_point.html">Point</a> p, <a class="code" href="class_r_t_x_1_1_units.html">Units</a> sourceU);</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    </div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keywordtype">double</span> _gain;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <a class="code" href="class_r_t_x_1_1_units.html">Units</a> _gainUnits;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    </div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  };</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;}</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* defined(__epanet_rtx__GainTimeSeries__) */</span><span class="preprocessor"></span></div>
 <div class="ttc" id="namespace_r_t_x_html"><div class="ttname"><a href="namespace_r_t_x.html">RTX</a></div><div class="ttdoc">singleton python interpreter object </div><div class="ttdef"><b>Definition:</b> AggregatorTimeSeries.h:18</div></div>
 <div class="ttc" id="class_r_t_x_1_1_single_point_filter_modular_time_series_html"><div class="ttname"><a href="class_r_t_x_1_1_single_point_filter_modular_time_series.html">RTX::SinglePointFilterModularTimeSeries</a></div><div class="ttdef"><b>Definition:</b> SinglePointFilterModularTimeSeries.h:16</div></div>
 <div class="ttc" id="class_r_t_x_1_1_gain_time_series_html"><div class="ttname"><a href="class_r_t_x_1_1_gain_time_series.html">RTX::GainTimeSeries</a></div><div class="ttdef"><b>Definition:</b> GainTimeSeries.h:15</div></div>

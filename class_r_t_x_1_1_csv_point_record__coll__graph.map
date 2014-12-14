@@ -1,7 +1,7 @@
 <map id="RTX::CsvPointRecord" name="RTX::CsvPointRecord">
-<area shape="rect" id="node2" href="$class_r_t_x_1_1_map_point_record.html" title="RTX::MapPointRecord" alt="" coords="117,363,271,389"/>
-<area shape="rect" id="node3" href="$class_r_t_x_1_1_point_record.html" title="A Point Record Class for storing and retrieving Points. " alt="" coords="130,286,259,311"/>
-<area shape="rect" id="node5" title="STL class. " alt="" coords="28,97,107,122"/>
-<area shape="rect" id="node6" title="STL class. " alt="" coords="5,6,131,45"/>
-<area shape="rect" id="node7" href="$class_r_t_x_1_1_point.html" title="A Point Class to store data tuples (date, value, quality, confidence) " alt="" coords="196,97,281,122"/>
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_map_point_record.html" title="RTX::MapPointRecord" alt="" coords="117,385,271,413"/>
+<area shape="rect" id="node4" href="$class_r_t_x_1_1_point_record.html" title="A Point Record Class for storing and retrieving Points. " alt="" coords="130,305,259,333"/>
+<area shape="rect" id="node8" title="STL class. " alt="" coords="28,102,107,130"/>
+<area shape="rect" id="node10" title="STL class. " alt="" coords="5,6,131,50"/>
+<area shape="rect" id="node12" href="$class_r_t_x_1_1_point.html" title="A Point Class to store data tuples (date, value, quality, confidence) " alt="" coords="196,102,281,130"/>
 </map>
