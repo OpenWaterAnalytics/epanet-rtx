@@ -306,6 +306,7 @@ void Model::initDMAs() {
   // finally, let the dma assemble its aggregators
   BOOST_FOREACH(const Dma::sharedPointer dma, newDmas) {
     dma->initDemandTimeseries(boundaryPipes);
+    dma->demand()->setUnits(this->flowUnits());
     //cout << "adding dma: " << *dma << endl;
     this->addDma(dma);
   }
