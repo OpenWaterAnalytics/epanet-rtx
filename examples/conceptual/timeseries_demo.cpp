@@ -26,6 +26,7 @@
 #include "TimeOffsetTimeSeries.h"
 #include "WarpingTimeSeries.h"
 #include "ForecastTimeSeries.h"
+#include "TimeOffsetTimeSeries.h"
 
 #include "OutlierExclusionTimeSeries.h"
 
@@ -46,9 +47,28 @@ void printPoints(vector<Point> pointVector);
 int main(int argc, const char * argv[])
 {
   
-  SineTimeSeries::sharedPointer sineWave(new SineTimeSeries());
+  Clock::sharedPointer clock(new Clock(900));
   
+  SineTimeSeries::sharedPointer sineWave(new SineTimeSeries());
   sineWave->setName("sine");
+  sineWave->setClock(clock);
+  
+  TimeOffsetTimeSeries::sharedPointer lag(new TimeOffsetTimeSeries());
+  lag->setOffset(900);
+  lag->setSource(sineWave);
+  
+  time_t t1 = 1400004000; //time(NULL);
+  time_t t2 = t1 + 3600;
+  vector<Point> points = lag->points(t1, t2);
+  
+  printPoints(sineWave->points(t1, t2));
+  cout << endl;
+  printPoints(points);
+  
+  
+  
+  /*
+  
   
   ForecastTimeSeries::sharedPointer pythonTestTs(new ForecastTimeSeries());
   
@@ -61,7 +81,7 @@ int main(int argc, const char * argv[])
   
   vector<Point> range;
   
-  
+  */
   
   
   return 0;
