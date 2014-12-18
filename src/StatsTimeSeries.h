@@ -19,9 +19,9 @@ namespace RTX {
    \class StatsTimeSeries
    \brief A modular timeseries class for delivering statistical information.
    
-   The StatsTimeSeries class is designed to provide a moving window (in the form of a Clock), evaluated at regular intervals (also as a Clock), over which statistical measures are taken. The full list of statistical options is below.
+   The StatsTimeSeries class is designed to provide a moving window (specified by the period length of a Clock in base-class parameter BaseStatsTimeSeries::window ), evaluated at regular intervals (also as a Clock), over which statistical measures are taken. The full list of statistical options is below.
    
-   
+   \sa BaseStatsTimeSeries::window
    */
   
   /*!
@@ -33,19 +33,7 @@ namespace RTX {
   /*!
    \fn void StatsTimeSeries::setStatsType(StatsTimeSeriesType type)
    \brief Set the statistic type.
-   \param type The type of statistic to return.
-   
-   Types of statistics:
-   
-   - Mean
-   - Standard Deviation
-   - Median
-   - 25th and 75th percentile
-   - Interquartile Range
-   - Max, Min, Count
-   - Variance
-   - Root Mean Squared
-   
+   \param type The type of statistic to calculate.
    \sa StatsTimeSeries::statsType
    */
   
@@ -54,23 +42,21 @@ namespace RTX {
   
   
   
-  
-  
   class StatsTimeSeries : public BaseStatsTimeSeries {
-    
   public:
+    /*! Statistic summary types */
     typedef enum {
-      StatsTimeSeriesMean = 0,
-      StatsTimeSeriesStdDev = 1,
-      StatsTimeSeriesMedian = 2,
-      StatsTimeSeriesQ25 = 3,
-      StatsTimeSeriesQ75 = 4,
-      StatsTimeSeriesInterQuartileRange = 5,
-      StatsTimeSeriesMax = 6,
-      StatsTimeSeriesMin = 7,
-      StatsTimeSeriesCount = 8,
-      StatsTimeSeriesVar = 9,
-      StatsTimeSeriesRMS = 10,
+      StatsTimeSeriesMean   = 0,  /*!< Mean value of population. */
+      StatsTimeSeriesStdDev = 1,  /*!< Std Deviation of population. */
+      StatsTimeSeriesMedian = 2,  /*!< A 2nd quartile estimate. Low populations may result in bad estimates. */
+      StatsTimeSeriesQ25    = 3,  /*!< A 1st quartile estimate. */
+      StatsTimeSeriesQ75    = 4,  /*!< A 3rd quartile estimate. */
+      StatsTimeSeriesInterQuartileRange = 5,  /*!< IQR == Q75 - Q25 */
+      StatsTimeSeriesMax    = 6,  /*!< Maximum value in a population. */
+      StatsTimeSeriesMin    = 7,  /*!< Minimum value in a population. */
+      StatsTimeSeriesCount  = 8,  /*!< The number of points in the stats window. */
+      StatsTimeSeriesVar    = 9,  /*!< The variance of the values in the population. */
+      StatsTimeSeriesRMS    = 10  /*!< Root mean squared. */
     } StatsTimeSeriesType;
     
     RTX_SHARED_POINTER(StatsTimeSeries);

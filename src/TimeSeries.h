@@ -56,7 +56,7 @@ namespace RTX {
   class TimeSeries : public boost::enable_shared_from_this<TimeSeries> {
   public:
     
-    // public internal class description for summary statistics
+    //! A summary of a collection of points.
     class Statistics {
     public:
       Statistics() : count(0),min(0),max(0),mean(0),variance(0) { quartiles.q25 = 0; quartiles.q50 = 0; quartiles.q75 = 0; };
