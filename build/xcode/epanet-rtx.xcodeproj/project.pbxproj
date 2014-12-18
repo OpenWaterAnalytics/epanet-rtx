@@ -153,6 +153,10 @@
 		2246439E150BD6E0005EA3BA /* Node.h in Headers */ = {isa = PBXBuildFile; fileRef = 2246439D150BD6E0005EA3BA /* Node.h */; };
 		224643A1150BD72E005EA3BA /* Link.h in Headers */ = {isa = PBXBuildFile; fileRef = 224643A0150BD72E005EA3BA /* Link.h */; };
 		224B19A0152CA1760051F408 /* ConfigProject.h in Headers */ = {isa = PBXBuildFile; fileRef = 224B199F152CA1760051F408 /* ConfigProject.h */; };
+		224C41991A434FCB008852C4 /* ModelPerformance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224C41971A434FCB008852C4 /* ModelPerformance.cpp */; };
+		224C419A1A434FCB008852C4 /* ModelPerformance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224C41971A434FCB008852C4 /* ModelPerformance.cpp */; };
+		224C419B1A434FCB008852C4 /* ModelPerformance.h in Headers */ = {isa = PBXBuildFile; fileRef = 224C41981A434FCB008852C4 /* ModelPerformance.h */; };
+		224C419C1A434FCB008852C4 /* ModelPerformance.h in Headers */ = {isa = PBXBuildFile; fileRef = 224C41981A434FCB008852C4 /* ModelPerformance.h */; };
 		224D40D719786C3000160BD5 /* BaseStatsTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224D40D519786C3000160BD5 /* BaseStatsTimeSeries.cpp */; };
 		224D40D819786C3000160BD5 /* BaseStatsTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224D40D519786C3000160BD5 /* BaseStatsTimeSeries.cpp */; };
 		224D40D919786C3000160BD5 /* BaseStatsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 224D40D619786C3000160BD5 /* BaseStatsTimeSeries.h */; };
@@ -509,6 +513,8 @@
 		224643A0150BD72E005EA3BA /* Link.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Link.h; path = ../../src/Link.h; sourceTree = "<group>"; };
 		224B199F152CA1760051F408 /* ConfigProject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConfigProject.h; path = ../../src/ConfigProject.h; sourceTree = "<group>"; };
 		224B19A1152CA7510051F408 /* ConfigProject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConfigProject.cpp; path = ../../src/ConfigProject.cpp; sourceTree = "<group>"; };
+		224C41971A434FCB008852C4 /* ModelPerformance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ModelPerformance.cpp; path = ../../src/ModelPerformance.cpp; sourceTree = "<group>"; };
+		224C41981A434FCB008852C4 /* ModelPerformance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ModelPerformance.h; path = ../../src/ModelPerformance.h; sourceTree = "<group>"; };
 		224D40D519786C3000160BD5 /* BaseStatsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BaseStatsTimeSeries.cpp; path = ../../src/BaseStatsTimeSeries.cpp; sourceTree = "<group>"; };
 		224D40D619786C3000160BD5 /* BaseStatsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BaseStatsTimeSeries.h; path = ../../src/BaseStatsTimeSeries.h; sourceTree = "<group>"; };
 		224E047E1979431C0039E3F9 /* StatsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StatsTimeSeries.cpp; path = ../../src/StatsTimeSeries.cpp; sourceTree = "<group>"; };
@@ -784,6 +790,15 @@
 			name = db;
 			sourceTree = "<group>";
 		};
+		224C418E1A434F9F008852C4 /* Model Performance */ = {
+			isa = PBXGroup;
+			children = (
+				224C41981A434FCB008852C4 /* ModelPerformance.h */,
+				224C41971A434FCB008852C4 /* ModelPerformance.cpp */,
+			);
+			name = "Model Performance";
+			sourceTree = "<group>";
+		};
 		226861C414715E53000DDDEF /* units */ = {
 			isa = PBXGroup;
 			children = (
@@ -956,6 +971,7 @@
 				22C62B05143A196400841E60 /* include */,
 				22DDAD8214436AE200C1F188 /* time classes */,
 				22DDAD7D1443682300C1F188 /* model */,
+				224C418E1A434F9F008852C4 /* Model Performance */,
 				22C62B02143A107D00841E60 /* exceptions */,
 				2274871E19AE234200A48475 /* Python Interpreter */,
 				22C62AC91439ED9300841E60 /* time series classes */,
@@ -1145,6 +1161,7 @@
 				220F9E1718F9E68B00BB842C /* AggregatorTimeSeries.h in Headers */,
 				220F9E1818F9E68B00BB842C /* MovingAverage.h in Headers */,
 				220F9E1918F9E68B00BB842C /* Point.h in Headers */,
+				224C419C1A434FCB008852C4 /* ModelPerformance.h in Headers */,
 				220F9E1A18F9E68B00BB842C /* TimeSeries.h in Headers */,
 				220F9E1B18F9E68B00BB842C /* InversionTimeSeries.h in Headers */,
 				220F9E1C18F9E68B00BB842C /* OdbcPreparedPointRecord.h in Headers */,
@@ -1218,6 +1235,7 @@
 				22C62ADC1439EE0B00841E60 /* AggregatorTimeSeries.h in Headers */,
 				22C62AE31439EE0B00841E60 /* MovingAverage.h in Headers */,
 				22C62AE51439EE0B00841E60 /* Point.h in Headers */,
+				224C419B1A434FCB008852C4 /* ModelPerformance.h in Headers */,
 				22C62AEA1439EE0B00841E60 /* TimeSeries.h in Headers */,
 				223AF33118F6E4C0002E846F /* InversionTimeSeries.h in Headers */,
 				22067EB41873318900BAFF61 /* OdbcPreparedPointRecord.h in Headers */,
@@ -1598,6 +1616,7 @@
 				220F9E0918F9E68B00BB842C /* SinglePointFilterModularTimeSeries.cpp in Sources */,
 				220F9E0A18F9E68B00BB842C /* ValidRangeTimeSeries.cpp in Sources */,
 				220F9E0B18F9E68B00BB842C /* MultiplierTimeSeries.cpp in Sources */,
+				224C419A1A434FCB008852C4 /* ModelPerformance.cpp in Sources */,
 				220F9E0C18F9E68B00BB842C /* GainTimeSeries.cpp in Sources */,
 				220F9E0D18F9E68B00BB842C /* RunTimeStatusModularTimeSeries.cpp in Sources */,
 			);
@@ -1669,6 +1688,7 @@
 				22253D8F16022FB6002F7256 /* CurveFunction.cpp in Sources */,
 				22BFAB01196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp in Sources */,
 				22707A9616309D4100FEB4DD /* OffsetTimeSeries.cpp in Sources */,
+				224C41991A434FCB008852C4 /* ModelPerformance.cpp in Sources */,
 				2251DCA6168105AA00515EBF /* IrregularClock.cpp in Sources */,
 				227CEC9F16BADD6000E8E7C8 /* DbPointRecord.cpp in Sources */,
 				220324CB18AC05A800BD7790 /* FailoverTimeSeries.cpp in Sources */,
