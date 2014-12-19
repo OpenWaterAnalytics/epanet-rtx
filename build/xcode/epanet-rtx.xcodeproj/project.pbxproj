@@ -303,9 +303,6 @@
 			remoteGlobalIDString = 228A76F918450CBD00905D8E;
 			remoteInfo = "epanet-rtx-project";
 		};
-<<<<<<< HEAD
-		22A4B5731909CCCD0085B75E /* PBXContainerItemProxy */ = {
-=======
 		2251FFF51A0A7E9D00C4D483 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
@@ -314,7 +311,6 @@
 			remoteInfo = "epanet-rtx";
 		};
 		22A1CBC71A325948009F58FC /* PBXContainerItemProxy */ = {
->>>>>>> model-performance
 			isa = PBXContainerItemProxy;
 			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
 			proxyType = 1;
@@ -1769,16 +1765,12 @@
 			target = 228A76F918450CBD00905D8E /* epanet-rtx-project */;
 			targetProxy = 2251FFF31A0A7E3500C4D483 /* PBXContainerItemProxy */;
 		};
-<<<<<<< HEAD
-		22A4B5741909CCCD0085B75E /* PBXTargetDependency */ = {
-=======
 		2251FFF61A0A7E9D00C4D483 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 22C62ABF1439ED6300841E60 /* epanet-rtx */;
 			targetProxy = 2251FFF51A0A7E9D00C4D483 /* PBXContainerItemProxy */;
 		};
 		22A1CBC81A325948009F58FC /* PBXTargetDependency */ = {
->>>>>>> model-performance
 			isa = PBXTargetDependency;
 			target = 22C62ABF1439ED6300841E60 /* epanet-rtx */;
 			targetProxy = 22A1CBC71A325948009F58FC /* PBXContainerItemProxy */;
