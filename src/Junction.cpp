@@ -137,6 +137,9 @@ void Junction::setPressureMeasure(TimeSeries::sharedPointer pressure) {
   _headMeasure = headMeas;
 }
 
+TimeSeries::sharedPointer Junction::pressureMeasure() {
+  return _pressureMeasure;
+}
 
 
 // quality measurement
