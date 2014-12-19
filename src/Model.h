@@ -119,11 +119,13 @@ namespace RTX {
     // units
     Units flowUnits();
     Units headUnits();
+    Units pressureUnits();
     Units qualityUnits();
     Units volumeUnits();
     
     void setFlowUnits(Units units);
     void setHeadUnits(Units units);
+    void setPressureUnits(Units units);
     void setQualityUnits(Units units);
     void setVolumeUnits(Units units);
     
@@ -139,6 +141,7 @@ namespace RTX {
     virtual double reservoirLevel(const string& reservoirName) { return 0; };
     virtual double tankLevel(const string& tankName) { return 0; };
     virtual double junctionHead(const string& junction) { return 0; };
+    virtual double junctionPressure(const string& junction) { return 0; };
     virtual double junctionDemand(const string& junctionName) { return 0; };
     virtual double junctionQuality(const string& junctionName) { return 0; };
     virtual double junctionInitialQuality(const string& junctionName) { return 0; };
@@ -205,7 +208,7 @@ namespace RTX {
     
     time_t _currentSimulationTime;
     
-    Units _flowUnits, _headUnits, _qualityUnits, _volumeUnits;
+    Units _flowUnits, _headUnits, _pressureUnits, _qualityUnits, _volumeUnits;
 
     
   };

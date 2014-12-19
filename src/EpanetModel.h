@@ -47,6 +47,7 @@ namespace RTX {
     double tankLevel(const std::string& tank);
     double junctionDemand(const std::string& junction);
     double junctionHead(const std::string& junction);
+    double junctionPressure(const std::string& junction);
     double junctionQuality(const std::string& junction);
     // link elements
     double pipeFlow(const std::string& pipe);

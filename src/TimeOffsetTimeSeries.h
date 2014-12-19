@@ -24,7 +24,7 @@ namespace RTX {
     void setOffset(time_t offset);
     time_t offset();
     
-//    Point point(time_t time);
+    virtual Point point(time_t time);
     virtual Point pointBefore(time_t time);
     virtual Point pointAfter(time_t time);
     

@@ -116,10 +116,13 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   
   if (isSI) {
     setHeadUnits(RTX_METER);
+    setPressureUnits(RTX_KILOPASCAL);
     volumeUnits = RTX_LITER;
+    
   }
   else {
     setHeadUnits(RTX_FOOT);
+    setPressureUnits(RTX_PSI);
     volumeUnits = RTX_CUBIC_FOOT;
   }
   
@@ -305,6 +308,7 @@ void EpanetModel::createRtxWrappers() {
     
     // set units for new element
     newJunction->head()->setUnits(headUnits());
+    newJunction->pressure()->setUnits(pressureUnits());
     newJunction->demand()->setUnits(flowUnits());
     newJunction->quality()->setUnits(qualityUnits());
     
@@ -530,6 +534,9 @@ double EpanetModel::junctionDemand(const string &junction) {
 
 double EpanetModel::junctionHead(const string &junction) {
   return getNodeValue(EN_HEAD, junction);
+}
+double EpanetModel::junctionPressure(const string &junction) {
+  return getNodeValue(EN_PRESSURE, junction);
 }
 
 double EpanetModel::junctionQuality(const string &junction) {

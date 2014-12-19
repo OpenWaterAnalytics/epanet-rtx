@@ -26,7 +26,7 @@ using namespace RTX;
 using namespace std;
 
 
-Model::Model() : _flowUnits(1), _headUnits(1) {
+Model::Model() : _flowUnits(1), _headUnits(1), _pressureUnits(1) {
   // default reset clock is 24 hours, default reporting clock is 1 hour.
   // TODO -- configure boundary reset clock in a smarter way?
   _regularMasterClock.reset( new Clock(3600) );
@@ -44,6 +44,7 @@ Model::Model() : _flowUnits(1), _headUnits(1) {
   
   // defaults
   setFlowUnits(RTX_LITER_PER_SECOND);
+  setPressureUnits(RTX_PASCAL);
   setHeadUnits(RTX_METER);
   _name = "Model";
   
@@ -87,6 +88,9 @@ void Model::setShouldRunWaterQuality(bool run) {
 #pragma mark - Units
 Units Model::flowUnits()    {
   return _flowUnits;
+}
+Units Model::pressureUnits()    {
+  return _pressureUnits;
 }
 Units Model::headUnits()    {
   return _headUnits;
@@ -134,6 +138,12 @@ void Model::setHeadUnits(Units units)    {
     r->head()->setUnits(units);
   }
   
+}
+void Model::setPressureUnits(Units units) {
+  _pressureUnits = units;
+  BOOST_FOREACH(Junction::sharedPointer j, this->junctions()) {
+    j->pressure()->setUnits(units);
+  }
 }
 void Model::setQualityUnits(Units units) {
   _qualityUnits = units;
@@ -296,6 +306,7 @@ void Model::initDMAs() {
   // finally, let the dma assemble its aggregators
   BOOST_FOREACH(const Dma::sharedPointer dma, newDmas) {
     dma->initDemandTimeseries(boundaryPipes);
+    dma->demand()->setUnits(this->flowUnits());
     //cout << "adding dma: " << *dma << endl;
     this->addDma(dma);
   }
@@ -897,6 +908,9 @@ void Model::saveNetworkStates(time_t time) {
     head = Units::convertValue(junctionHead(junction->name()), headUnits(), junction->head()->units());
     Point headPoint(time, head);
     junction->head()->insert(headPoint);
+    
+    double pressure;
+    pressure = Units::convertValue(junctionPressure(junction->name()), pressureUnits(), junction->pressure()->units());
     
     // todo - more fine-grained quality data? at wq step resolution...
     double quality;

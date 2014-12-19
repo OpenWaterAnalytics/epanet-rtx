@@ -20,12 +20,8 @@ Junction::Junction(const std::string& name) : Node(name) {
   setType(JUNCTION);
   
   // we have nothing yet
-  _doesHaveQualitySource = false;
-  _doesHaveBoundaryFlow = false;
-  _doesHaveHeadMeasure = false;
-  _doesHaveQualityMeasure = false;
-  
   _headState.reset(new TimeSeries());
+  _pressureState.reset(new TimeSeries());
   _qualityState.reset(new TimeSeries());
   _demandState.reset(new TimeSeries());
   
@@ -62,6 +58,7 @@ void Junction::setInitialQuality(double quality) {
 
 void Junction::setRecord(PointRecord::sharedPointer record) {
   _headState->setRecord(record);
+  _pressureState->setRecord(record);
   _qualityState->setRecord(record);
   _demandState->setRecord(record);
 }
@@ -69,6 +66,9 @@ void Junction::setRecord(PointRecord::sharedPointer record) {
 // states - these recieve simulation results from the Model containing class
 TimeSeries::sharedPointer Junction::head() {
   return _headState;
+}
+TimeSeries::sharedPointer Junction::pressure() {
+  return _pressureState;
 }
 TimeSeries::sharedPointer Junction::quality() {
   return _qualityState;
@@ -79,10 +79,9 @@ TimeSeries::sharedPointer Junction::demand() {
 
 // measured demand (boundary flow condition)
 bool Junction::doesHaveBoundaryFlow() {
-  return _doesHaveBoundaryFlow;
+  return (this->boundaryFlow() ? true : false);
 }
 void Junction::setBoundaryFlow(TimeSeries::sharedPointer flow) {
-  _doesHaveBoundaryFlow = (flow ? true : false);
   _boundaryFlow = flow;
 }
 TimeSeries::sharedPointer Junction::boundaryFlow() {
@@ -91,20 +90,41 @@ TimeSeries::sharedPointer Junction::boundaryFlow() {
 
 // head measurement
 bool Junction::doesHaveHeadMeasure() {
-  return _doesHaveHeadMeasure;
+  return (this->headMeasure() ? true : false);
 }
-void Junction::setHeadMeasure(TimeSeries::sharedPointer headMeasure) {
-  _doesHaveHeadMeasure = (headMeasure ? true : false);
-  _headMeasure = headMeasure;
+void Junction::setHeadMeasure(TimeSeries::sharedPointer headMeas) {
+  if (!headMeas || !headMeas->units().isSameDimensionAs(RTX_METER)) {
+    return;
+  }
+  
+  _headMeasure = headMeas;
+  
+  OffsetTimeSeries::sharedPointer relativeHead( new OffsetTimeSeries() );
+  relativeHead->setUnits(this->head()->units());
+  relativeHead->setOffset(this->elevation() * -1.);
+  relativeHead->setSource(headMeas);
+  
+  // pressure depends on elevation --> head = mx(pressure) + elev
+  GainTimeSeries::sharedPointer gainTs( new GainTimeSeries() );
+  gainTs->setUnits(RTX_PASCAL);
+  gainTs->setGainUnits( RTX_PASCAL / RTX_METER);
+  gainTs->setGain(9804.13943198467193);
+  gainTs->setSource(relativeHead);
+  
+  _pressureMeasure = gainTs;
 }
 TimeSeries::sharedPointer Junction::headMeasure() {
   return _headMeasure;
 }
 
 void Junction::setPressureMeasure(TimeSeries::sharedPointer pressure) {
+  if (!pressure || !pressure->units().isSameDimensionAs(RTX_PASCAL)) {
+    return;
+  }
+  _pressureMeasure = pressure;
   // pressure depends on elevation --> head = mx(pressure) + elev
   GainTimeSeries::sharedPointer gainTs( new GainTimeSeries() );
-  gainTs->setUnits(RTX_METER);
+  gainTs->setUnits(this->head()->units());
   gainTs->setGainUnits( RTX_METER / RTX_PASCAL );
   gainTs->setGain(0.0001019977334);
   gainTs->setSource(pressure);
@@ -114,17 +134,16 @@ void Junction::setPressureMeasure(TimeSeries::sharedPointer pressure) {
   headMeas->setOffset(this->elevation());
   headMeas->setSource(gainTs);
   
-  this->setHeadMeasure(headMeas);
+  _headMeasure = headMeas;
 }
 
 
 
 // quality measurement
 bool Junction::doesHaveQualityMeasure() {
-  return _doesHaveQualityMeasure;
+  return (this->qualityMeasure() ? true : false);
 }
 void Junction::setQualityMeasure(TimeSeries::sharedPointer quality) {
-  _doesHaveQualityMeasure = (quality ? true : false);
   _qualityMeasure = quality;
 }
 TimeSeries::sharedPointer Junction::qualityMeasure() {
@@ -133,10 +152,9 @@ TimeSeries::sharedPointer Junction::qualityMeasure() {
 
 // quality boundary condition
 bool Junction::doesHaveQualitySource() {
-  return _doesHaveQualitySource;
+  return (this->qualitySource() ? true : false);
 }
 void Junction::setQualitySource(TimeSeries::sharedPointer quality) {
-  _doesHaveQualitySource = (quality ? true : false);
   _qualityBoundary = quality;
 }
 TimeSeries::sharedPointer Junction::qualitySource() {
