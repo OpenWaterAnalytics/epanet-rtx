@@ -28,10 +28,9 @@ void EpanetMsxModel::loadMsxFile(std::string file) {
 }
 
 
-void EpanetMsxModel::solveSimulation(time_t time) {
-  EpanetModel::solveSimulation(time);
-  
-  
+bool EpanetMsxModel::solveSimulation(time_t time) {
+  bool success = EpanetModel::solveSimulation(time);
+  return success;  
   
 }
 

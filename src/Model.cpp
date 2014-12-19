@@ -468,6 +468,7 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
   time_t nextClockTime = start;
   time_t nextSimulationTime = start;
   time_t stepToTime = start;
+  bool success;
   
   while (simulationTime < end) {
     
@@ -482,18 +483,91 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
     // get parameters from the RTX elements, and pull them into the simulation
     setSimulationParameters(simulationTime);
     // simulate this period, find the next timestep boundary.
-    solveSimulation(simulationTime);
-    // tell each element to update its derived states (simulation-computed values)
-    saveNetworkStates(simulationTime);
-    // get time to next simulation period
-    nextSimulationTime = nextHydraulicStep(simulationTime);
-    nextClockTime = _regularMasterClock->timeAfter(simulationTime);
-    stepToTime = RTX_MIN(nextClockTime, nextSimulationTime);
-    
-    // and step the simulation to that time.
-    stepSimulation(stepToTime);
-    simulationTime = currentSimulationTime();
+    success = solveSimulation(simulationTime);
+    if (success) {
+      // simulation succeeded
+      
+//      // debugging the DMA demands
+//      BOOST_FOREACH(Dma::sharedPointer dma, this->dmas()) {
+//        cout << endl << "*** DMA " << dma->name() << " ***" << endl;
+//        
+//        double dmaDemand = 0.0;
+//        double dmaInflow = 0.0;
+//        double dmaOutflow = 0.0;
+//        double tankDemand = 0.0;
+//        double reservoirDemand = 0.0;
+//        
+//        // what should be there
+//        Units myUnits = dma->demand()->units();
+//        Units modelUnits = _flowUnits;
+//        Point dPoint = dma->demand()->pointAtOrBefore(simulationTime);
+//        double dmaDemandFromData = Units::convertValue(dPoint.value, myUnits, modelUnits);
+//        
+//        // demand accumulation by element type
+//        set<Junction::sharedPointer> juncs = dma->junctions();
+//        BOOST_FOREACH(Junction::sharedPointer junc, juncs) {
+//          double juncDemand = junctionDemand(junc->name());
+//          if (junc->type() == Element::JUNCTION) {
+//            //          cout << "      " << junc->name() << ": " << juncDemand << endl;
+//            dmaDemand += juncDemand;
+//          }
+//          else if (junc->type() == Element::RESERVOIR) {
+//            //          cout << "      RESERVOIR " << junc->name() << ": " << juncDemand << endl;
+//            reservoirDemand += juncDemand;
+//          }
+//          else if (junc->type() == Element::TANK) {
+//                      cout << "      TANK " << junc->name() << ": " << juncDemand << endl;
+//            tankDemand += juncDemand;
+//          }
+//        }
+//        
+//        // accumulate the boundary flows
+//        vector<Dma::pipeDirPair_t> boundaryPipes = dma->measuredBoundaryPipes();
+//        BOOST_FOREACH(const Dma::pipeDirPair_t& pd, boundaryPipes) {
+//          Pipe::sharedPointer p = pd.first;
+//          double q = pipeFlow(p->name());
+//          Pipe::direction_t dir = pd.second;
+//          if (dir == Pipe::inDirection) {
+//            dmaInflow += q;
+//          }
+//          else {
+//            dmaOutflow += q;
+//          }
+//        }
+//        
+//        cout << "TOTAL DMA DEMAND (SCADA): " << dmaDemandFromData << endl;
+//        cout << "TOTAL DMA DEMAND (EPANET): " << dmaDemand << endl;
+//        cout << "   Inflow: " << dmaInflow << endl;
+//        cout << "   Outflow: " << dmaOutflow << endl;
+//        cout << "   Tank Demand: " << tankDemand << endl;
+//        cout << "   Reservoir Demand: " << reservoirDemand << endl;
+//        cout << "   NET Demand (In - Out - Demand): " << dmaInflow - dmaOutflow - tankDemand - reservoirDemand - dmaDemand << endl;
+//      }
+      
+      // tell each element to update its derived states (simulation-computed values)
+      if (_regularMasterClock->isValid(simulationTime)) {
+        saveNetworkStates(simulationTime);
+      }
+      // get time to next simulation period
+      nextSimulationTime = nextHydraulicStep(simulationTime);
+      nextClockTime = _regularMasterClock->timeAfter(simulationTime);
+      stepToTime = RTX_MIN(nextClockTime, nextSimulationTime);
+      
+      // and step the simulation to that time.
+      stepSimulation(stepToTime);
+      simulationTime = currentSimulationTime();
+      
+      cout << "Simulation time :: " << (double)(simulationTime-start)/60./60. << " hours" << endl;
     }
+    else {
+      // simulation failed -- advance the time and restart
+      nextClockTime = _regularMasterClock->timeAfter(simulationTime);
+      simulationTime = nextClockTime;
+      setCurrentSimulationTime(simulationTime);
+      _tanksNeedReset = true;
+    }
+    
+  } // simulation loop
   
   
 }
@@ -643,13 +717,26 @@ void Model::setSimulationParameters(time_t time) {
     // hydraulic junctions - set demand values.
     BOOST_FOREACH(Junction::sharedPointer junction, this->junctions()) {
       if (junction->doesHaveBoundaryFlow()) {
-        // junction is separate from the allocation scheme
-        double demandValue = Units::convertValue(junction->boundaryFlow()->pointAtOrBefore(time).value, junction->boundaryFlow()->units(), flowUnits());
-        setJunctionDemand(junction->name(), demandValue);
+        // junction is separate from the allocation scheme (but allocateDemandToJunctions already inserts this into demand() series?)
+        Point p = junction->boundaryFlow()->pointAtOrBefore(time);
+        if (p.isValid) {
+          double demandValue = Units::convertValue(p.value, junction->boundaryFlow()->units(), flowUnits());
+          setJunctionDemand(junction->name(), demandValue);
+        }
+        else {
+          cerr << "ERR: Invalid boundary flow point for Junction " << junction->name() << " at time " << time << endl;
+        }
       }
       else {
-        double demandValue = Units::convertValue(junction->demand()->pointAtOrBefore(time).value, junction->demand()->units(), flowUnits());
-        setJunctionDemand(junction->name(), demandValue);
+        Point p = junction->demand()->pointAtOrBefore(time);
+        if (p.isValid) {
+          double demandValue = Units::convertValue(p.value, junction->demand()->units(), flowUnits());
+          setJunctionDemand(junction->name(), demandValue);
+        }
+        else {
+          // default when allocation doesn't/can't set demand -- should this happen?
+          setJunctionDemand(junction->name(), 0.0);
+        }
       }
     }
   }
@@ -658,36 +745,60 @@ void Model::setSimulationParameters(time_t time) {
   BOOST_FOREACH(Reservoir::sharedPointer reservoir, this->reservoirs()) {
     if (reservoir->doesHaveBoundaryHead()) {
       // get the head measurement parameter, and pass it through as a state.
-      double headValue = Units::convertValue(reservoir->boundaryHead()->pointAtOrBefore(time).value, reservoir->boundaryHead()->units(), headUnits());
-      setReservoirHead( reservoir->name(), headValue );
+      Point p = reservoir->boundaryHead()->pointAtOrBefore(time);
+      if (p.isValid) {
+        double headValue = Units::convertValue(p.value, reservoir->boundaryHead()->units(), headUnits());
+        setReservoirHead( reservoir->name(), headValue );
+      }
+      else {
+        cerr << "ERR: Invalid head point for Reservoir " << reservoir->name() << " at time " << time << endl;
+      }
     }
     if (reservoir->doesHaveBoundaryQuality()) {
       // get the quality measurement parameter, and pass it through as a state.
-      double qualityValue = Units::convertValue(reservoir->boundaryQuality()->pointAtOrBefore(time).value, reservoir->boundaryQuality()->units(), qualityUnits());
-      setReservoirQuality( reservoir->name(), qualityValue );
+      Point p = reservoir->boundaryQuality()->pointAtOrBefore(time);
+      if (p.isValid) {
+        double qualityValue = Units::convertValue(p.value, reservoir->boundaryQuality()->units(), qualityUnits());
+        setReservoirQuality( reservoir->name(), qualityValue );
+      }
+      else {
+        cerr << "ERR: Invalid quality point for Reservoir " << reservoir->name() << " at time " << time << endl;
+      }
     }
   }
   
   // for tanks, set the boundary head, but only if the tank reset clock has fired.
   BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
     if (tank->doesResetLevelUsingClock() && tank->levelResetClock()->isValid(time) && tank->doesHaveHeadMeasure()) {
-      double levelValue = Units::convertValue(tank->levelMeasure()->pointAtOrBefore(time).value, tank->levelMeasure()->units(), headUnits());
-      // adjust for model limits (epanet rejects otherwise, for example)
-      levelValue = (levelValue <= tank->maxLevel()) ? levelValue : tank->maxLevel();
-      levelValue = (levelValue >= tank->minLevel()) ? levelValue : tank->minLevel();
-      setTankLevel(tank->name(), levelValue);
+      Point p = tank->levelMeasure()->pointAtOrBefore(time);
+      if (p.isValid) {
+        double levelValue = Units::convertValue(p.value, tank->levelMeasure()->units(), headUnits());
+        // adjust for model limits (epanet rejects otherwise, for example)
+        levelValue = (levelValue <= tank->maxLevel()) ? levelValue : tank->maxLevel();
+        levelValue = (levelValue >= tank->minLevel()) ? levelValue : tank->minLevel();
+        setTankLevel(tank->name(), levelValue);
+      }
+      else {
+        cerr << "ERR: Invalid head point for Tank " << tank->name() << " at time " << time << endl;
+      }
     }
   }
 
   // or, set the boundary head if someone has specifically requested it
   BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
     if (tank->resetLevelNextTime() && tank->doesHaveHeadMeasure()) {
-      double levelValue = Units::convertValue(tank->levelMeasure()->pointAtOrBefore(time).value, tank->levelMeasure()->units(), headUnits());
-      // adjust for model limits (epanet rejects otherwise, for example)
-      levelValue = (levelValue <= tank->maxLevel()) ? levelValue : tank->maxLevel();
-      levelValue = (levelValue >= tank->minLevel()) ? levelValue : tank->minLevel();
-      setTankLevel(tank->name(), levelValue);
-      tank->setResetLevelNextTime(false);      
+      Point p = tank->levelMeasure()->pointAtOrBefore(time);
+      if (p.isValid) {
+        double levelValue = Units::convertValue(p.value, tank->levelMeasure()->units(), headUnits());
+        // adjust for model limits (epanet rejects otherwise, for example)
+        levelValue = (levelValue <= tank->maxLevel()) ? levelValue : tank->maxLevel();
+        levelValue = (levelValue >= tank->minLevel()) ? levelValue : tank->minLevel();
+        setTankLevel(tank->name(), levelValue);
+        tank->setResetLevelNextTime(false);
+      }
+      else {
+        cerr << "ERR: Invalid head point for Tank " << tank->name() << " at time " << time << endl;
+      }
     }
   }
 
@@ -696,11 +807,23 @@ void Model::setSimulationParameters(time_t time) {
     // status can affect settings and vice-versa; status rules
     Pipe::status_t status = Pipe::OPEN;
     if (valve->doesHaveStatusParameter()) {
-      status = Pipe::status_t((int)(valve->statusParameter()->pointAtOrBefore(time).value));
-      setPipeStatus( valve->name(), status );
+      Point p = valve->statusParameter()->pointAtOrBefore(time);
+      if (p.isValid) {
+        setPipeStatus( valve->name(), Pipe::status_t((int)(p.value)) );
+      }
+      else {
+        cerr << "ERR: Invalid status point for Valve " << valve->name() << " at time " << time << endl;
+      }
     }
     if (valve->doesHaveSettingParameter() && status) {
-      setValveSetting( valve->name(), valve->settingParameter()->pointAtOrBefore(time).value );
+      Point p = valve->settingParameter()->pointAtOrBefore(time);
+      if (p.isValid) {
+        // TODO -- set units based on type of valve (pressure or flow model units)
+        setValveSetting( valve->name(), p.value );
+      }
+      else {
+        cerr << "ERR: Invalid setting point for Valve " << valve->name() << " at time " << time << endl;
+      }
     }
   }
   
@@ -709,19 +832,35 @@ void Model::setSimulationParameters(time_t time) {
     // status can affect settings and vice-versa; status rules
     Pipe::status_t status = Pipe::OPEN;
     if (pump->doesHaveStatusParameter()) {
-      TimeSeries::sharedPointer statusTs = pump->statusParameter();
-      status = Pipe::status_t((int)(statusTs->pointAtOrBefore(time).value));
-      setPumpStatus( pump->name(), status );
+      Point p = pump->statusParameter()->pointAtOrBefore(time);
+      if (p.isValid) {
+        setPumpStatus( pump->name(), Pipe::status_t((int)(p.value)) );
+      }
+      else {
+        cerr << "ERR: Invalid status point for Pump " << pump->name() << " at time " << time << endl;
+      }
     }
     if (pump->doesHaveSettingParameter() && status) {
-      setPumpSetting( pump->name(), pump->settingParameter()->pointAtOrBefore(time).value );
+      Point p = pump->settingParameter()->pointAtOrBefore(time);
+      if (p.isValid) {
+        setPumpSetting( pump->name(), p.value );
+      }
+      else {
+        cerr << "ERR: Invalid setting point for Pump " << pump->name() << " at time " << time << endl;
+      }
     }
   }
   
   // for pipes, set status
   BOOST_FOREACH(Pipe::sharedPointer pipe, this->pipes()) {
     if (pipe->doesHaveStatusParameter()) {
-      setPipeStatus( pipe->name(), Pipe::status_t((int)(pipe->statusParameter()->pointAtOrBefore(time).value)) );
+      Point p = pipe->statusParameter()->pointAtOrBefore(time);
+      if (p.isValid) {
+        setPipeStatus(pipe->name(), Pipe::status_t((int)(p.value)));
+      }
+      else {
+        cerr << "ERR: Invalid status point for Pipe " << pipe->name() << " at time " << time << endl;
+      }
     }
   }
   
@@ -730,8 +869,14 @@ void Model::setSimulationParameters(time_t time) {
   //////////////////////////////
   BOOST_FOREACH(Junction::sharedPointer j, this->junctions()) {
     if (j->doesHaveQualitySource()) {
-      double quality = Units::convertValue(j->qualitySource()->pointAtOrBefore(time).value, j->qualitySource()->units(), qualityUnits());
-      setJunctionQuality(j->name(), quality);
+      Point p = j->qualitySource()->pointAtOrBefore(time);
+      if (p.isValid) {
+        double quality = Units::convertValue(p.value, j->qualitySource()->units(), qualityUnits());
+        setJunctionQuality(j->name(), quality);
+      }
+      else {
+        cerr << "ERR: Invalid quality source point for junction " << j->name() << " at time " << time << endl;
+      }
     }
   }
   
@@ -840,4 +985,141 @@ double Model::nodeDistanceXY(Node::sharedPointer n1, Node::sharedPointer n2) {
   return sqrt( pow(x1.first - x2.first, 2) + pow(x1.second - x2.second, 2) );
 }
 
+vector<TimeSeries::sharedPointer> Model::networkStatesWithMeasures() {
+  vector<TimeSeries::sharedPointer> measures;
+  vector<Element::sharedPointer> modelElements;
+  modelElements = this->elements();
+  
+  BOOST_FOREACH(Element::sharedPointer element, modelElements) {
+    switch (element->type()) {
+      case Element::JUNCTION:
+      case Element::TANK:
+      case Element::RESERVOIR: {
+        Junction::sharedPointer junc;
+        junc = boost::static_pointer_cast<Junction>(element);
+        if (junc->doesHaveHeadMeasure()) {
+          measures.push_back(junc->head());
+        }
+        if (junc->doesHaveQualityMeasure()) {
+          measures.push_back(junc->quality());
+        }
+        break;
+      }
+        
+      case Element::PIPE:
+      case Element::VALVE:
+      case Element::PUMP: {
+        Pipe::sharedPointer pipe;
+        pipe = boost::static_pointer_cast<Pipe>(element);
+        if (pipe->doesHaveFlowMeasure()) {
+          measures.push_back(pipe->flow());
+        }
+        break;
+      }
+        
+      default:
+        break;
+    }
+  }
+  
+  return measures;
+}
+
+void Model::setRecordForNetworkStatesWithMeasures(PointRecord::sharedPointer pr) {
+  vector<Element::sharedPointer> modelElements;
+  modelElements = this->elements();
+  
+  BOOST_FOREACH(Element::sharedPointer element, modelElements) {
+    switch (element->type()) {
+      case Element::JUNCTION:
+      case Element::TANK:
+      case Element::RESERVOIR: {
+        Junction::sharedPointer junc;
+        junc = boost::static_pointer_cast<Junction>(element);
+        if (junc->doesHaveHeadMeasure()) {
+          TimeSeries::sharedPointer ts = junc->head();
+          ts->setRecord(pr);
+        }
+        if (junc->doesHaveQualityMeasure()) {
+          TimeSeries::sharedPointer ts = junc->quality();
+          ts->setRecord(pr);
+        }
+        break;
+      }
+        
+      case Element::PIPE:
+      case Element::VALVE:
+      case Element::PUMP: {
+        Pipe::sharedPointer pipe;
+        pipe = boost::static_pointer_cast<Pipe>(element);
+        if (pipe->doesHaveFlowMeasure()) {
+          TimeSeries::sharedPointer ts = pipe->flow();
+          ts->setRecord(pr);
+        }
+        break;
+      }
+        
+      default:
+        break;
+    }
+  }
+}
+
+void Model::setRecordForNetworkBoundariesAndMeasures(PointRecord::sharedPointer pr) {
+  vector<Element::sharedPointer> modelElements;
+  modelElements = this->elements();
+  
+  // connect the time series
+  BOOST_FOREACH(Element::sharedPointer element, modelElements) {
+    switch (element->type()) {
+      case Element::JUNCTION:
+      case Element::TANK:
+      case Element::RESERVOIR: {
+        Junction::sharedPointer junc;
+        junc = boost::static_pointer_cast<Junction>(element);
+        if (junc->doesHaveBoundaryFlow()) {
+          TimeSeries::sharedPointer ts = junc->boundaryFlow();
+          ts->setRecord(pr);
+        }
+        if (junc->doesHaveHeadMeasure()) {
+          TimeSeries::sharedPointer ts = junc->headMeasure();
+          ts->setRecord(pr);
+        }
+        if (junc->doesHaveQualityMeasure()) {
+          TimeSeries::sharedPointer ts = junc->qualityMeasure();
+          ts->setRecord(pr);
+        }
+        if (junc->doesHaveQualitySource()) {
+          TimeSeries::sharedPointer ts = junc->qualitySource();
+          ts->setRecord(pr);
+        }
+        break;
+      }
+        
+      case Element::PIPE:
+      case Element::VALVE:
+      case Element::PUMP: {
+        Pipe::sharedPointer pipe;
+        pipe = boost::static_pointer_cast<Pipe>(element);
+        if (pipe->doesHaveFlowMeasure()) {
+          TimeSeries::sharedPointer ts = pipe->flowMeasure();
+          ts->setRecord(pr);
+        }
+        if (pipe->doesHaveSettingParameter()) {
+          TimeSeries::sharedPointer ts = pipe->settingParameter();
+          ts->setRecord(pr);
+        }
+        if (pipe->doesHaveStatusParameter()) {
+          TimeSeries::sharedPointer ts = pipe->statusParameter();
+          ts->setRecord(pr);
+        }
+        break;
+      }
+        
+      default:
+        break;
+    }
+  }
+
+}
 
