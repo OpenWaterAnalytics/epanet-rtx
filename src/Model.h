@@ -9,7 +9,7 @@
 #ifndef epanet_rtx_Model_h
 #define epanet_rtx_Model_h
 
-#include <string.h>
+#include <string>
 #include <map>
 #include <time.h>
 
