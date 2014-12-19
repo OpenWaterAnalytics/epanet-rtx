@@ -74,7 +74,7 @@ namespace RTX {
     Clock::sharedPointer aggregationClock();          /*!< clock for aggregating all the error time series */
     void setAggregationClock(Clock::sharedPointer clock);
     
-    
+    void buildPerformanceCalculatorWithElements(std::vector<Element::sharedPointer> elements); /*!< rebuild calculation time series workflow with arbitrary elements */
     
   private:
     Model::sharedPointer _model;
@@ -85,8 +85,7 @@ namespace RTX {
     std::vector<std::pair<Element::sharedPointer, TimeSeries::sharedPointer> > _errorComponents;
     TimeSeries::sharedPointer _performance;
     
-    void rebuildPerformanceCalculation();
-    void buildPerformanceCalculatorWithElements(std::vector<Element::sharedPointer> elements);
+    void rebuildPerformanceCalculation();  /*!< rebuild calculation time series workflow */
     std::vector<Element::sharedPointer> elementsWithModelForLocationType(Model::sharedPointer model, LocationType locationType);
     std::pair<TimeSeries::sharedPointer, TimeSeries::sharedPointer> tsPairForElementWithLocationType(Element::sharedPointer e, ModelPerformance::LocationType location);
     TimeSeries::sharedPointer errorForPair(std::pair<TimeSeries::sharedPointer, TimeSeries::sharedPointer> tsPair);
