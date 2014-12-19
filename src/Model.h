@@ -112,6 +112,9 @@ namespace RTX {
     
     virtual std::ostream& toStream(std::ostream &stream);
 
+    vector<TimeSeries::sharedPointer> networkStatesWithMeasures();
+    void setRecordForNetworkStatesWithMeasures(PointRecord::sharedPointer pr);
+    void setRecordForNetworkBoundariesAndMeasures(PointRecord::sharedPointer pr);
     
     // units
     Units flowUnits();
@@ -157,11 +160,11 @@ namespace RTX {
     virtual void setPumpSetting(const std::string& pump, double setting) { };
     virtual void setValveSetting(const string& valve, double setting) { };
     
-    virtual void solveSimulation(time_t time) { };
+    virtual bool solveSimulation(time_t time) { return 1; };
     virtual time_t nextHydraulicStep(time_t time) { return 0; };
     virtual void stepSimulation(time_t time) { };
     virtual int iterations(time_t time) { return 0; };
-    virtual int relativeError(time_t time) { return 0; };
+    virtual double relativeError(time_t time) { return 0; };
     
     virtual void setCurrentSimulationTime(time_t time);
     

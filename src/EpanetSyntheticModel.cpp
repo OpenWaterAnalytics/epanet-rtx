@@ -34,7 +34,8 @@ void EpanetSyntheticModel::overrideControls() throw(RtxException) {
 // mostly copied from the epanetmodel class, but altered epanet clock-setting
 // so that the simulation evolves with its builtin controlls and patterns.
 
-void EpanetSyntheticModel::solveSimulation(time_t time) {
+bool EpanetSyntheticModel::solveSimulation(time_t time) {
+  bool success = true;
   // this should only fire once, at the first solution period.
   if (_startTime == 0) {
     _startTime = time;
@@ -57,6 +58,8 @@ void EpanetSyntheticModel::solveSimulation(time_t time) {
   if (this->shouldRunWaterQuality()) {
     OW_API_CHECK(OW_runQ(_enModel, &timestep), "OW_runQ");
   }
+  
+  return success;
 }
 
 // adjust duration of epanet toolkit simulation if necessary.

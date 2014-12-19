@@ -29,7 +29,7 @@ namespace RTX {
     virtual std::ostream& toStream(std::ostream &stream);
     
   protected:
-    virtual void solveSimulation(time_t time);
+    virtual bool solveSimulation(time_t time);
     virtual time_t nextHydraulicStep(time_t time);
   private:
     time_t _startTime;
