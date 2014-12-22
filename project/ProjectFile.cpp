@@ -47,33 +47,33 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
           ElementSummary s;
           s.element = element;
           s.data = junc->boundaryFlow()->rootTimeSeries();
-          s.boundaryType = B_DEMAND;
-          s.measureType = M_NONE;
+          s.boundaryType = BoundaryTypeDemand;
+          s.measureType = MeasureTypeNone;
           summary.push_back(s);
         }
         if (junc->doesHaveHeadMeasure()) {
           ElementSummary s;
           s.element = element;
           s.data = junc->headMeasure()->rootTimeSeries();
-          s.boundaryType = B_NONE;
-          s.measureType = M_NONE;
-          (element->type() == Element::RESERVOIR) ? (s.boundaryType = B_HEAD) : (s.measureType = M_HEAD);
+          s.boundaryType = BoundaryTypeNone;
+          s.measureType = MeasureTypeNone;
+          (element->type() == Element::RESERVOIR) ? (s.boundaryType = BoundaryTypeHead) : (s.measureType = MeasureTypeHead);
           summary.push_back(s);
         }
         if (junc->doesHaveQualityMeasure()) {
           ElementSummary s;
           s.element = element;
           s.data = junc->qualityMeasure()->rootTimeSeries();
-          s.boundaryType = B_NONE;
-          s.measureType = M_QUALITY;
+          s.boundaryType = BoundaryTypeNone;
+          s.measureType = MeasureTypeQuality;
           summary.push_back(s);
         }
         if (junc->doesHaveQualitySource()) {
           ElementSummary s;
           s.element = element;
           s.data = junc->qualitySource()->rootTimeSeries();
-          s.boundaryType = B_QUALITY;
-          s.measureType = M_NONE;
+          s.boundaryType = BoundaryTypeQuality;
+          s.measureType = MeasureTypeNone;
           summary.push_back(s);
         }
         break;
@@ -88,11 +88,11 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
           ElementSummary s;
           s.element = element;
           s.data = pipe->flowMeasure()->rootTimeSeries();
-          s.boundaryType = B_NONE;
-          s.measureType = M_FLOW;
+          s.boundaryType = BoundaryTypeNone;
+          s.measureType = MeasureTypeFlow;
           BOOST_FOREACH(Dma::sharedPointer dma, Dmas) {
             if (dma->isMeasuredBoundaryPipe(pipe)) {
-              s.measureType = M_DMA_FLOW;
+              s.measureType = MeasureTypeDmaFlow;
               break;
             }
           }
@@ -102,11 +102,11 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
           ElementSummary s;
           s.element = element;
           s.data = pipe->settingParameter()->rootTimeSeries();
-          s.boundaryType = B_SETTING;
-          s.measureType = M_NONE;
+          s.boundaryType = BoundaryTypeSetting;
+          s.measureType = MeasureTypeNone;
           BOOST_FOREACH(Dma::sharedPointer dma, Dmas) {
             if (dma->isClosedBoundaryPipe(pipe) && !dma->isMeasuredBoundaryPipe(pipe)) {
-              s.boundaryType = B_DMA_SETTING;
+              s.boundaryType = BoundaryTypeDmaSetting;
               break;
             }
           }
@@ -116,11 +116,11 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
           ElementSummary s;
           s.element = element;
           s.data = pipe->statusParameter()->rootTimeSeries();
-          s.boundaryType = B_STATUS;
-          s.measureType = M_NONE;
+          s.boundaryType = BoundaryTypeStatus;
+          s.measureType = MeasureTypeNone;
           BOOST_FOREACH(Dma::sharedPointer dma, Dmas) {
             if (dma->isClosedBoundaryPipe(pipe) && !dma->isMeasuredBoundaryPipe(pipe)) {
-              s.boundaryType = B_DMA_STATUS;
+              s.boundaryType = BoundaryTypeDmaStatus;
               break;
             }
           }
