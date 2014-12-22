@@ -29,6 +29,8 @@
 #include "StatsTimeSeries.h"
 #include "OutlierExclusionTimeSeries.h"
 
+#include "rtxMacros.h"
+
 #include "EpanetModel.h"
 
 #include <boost/range/adaptors.hpp>
@@ -148,7 +150,8 @@ namespace RTX {
 
 
 void SqliteProjectFile::loadProjectFile(const string& path) {
-  _path = path;
+  boost::filesystem::path p(path);
+  _path = boost::filesystem::absolute(p).string();
   char *zErrMsg = 0;
   int returnCode;
   returnCode = sqlite3_open_v2(_path.c_str(), &_dbHandle, SQLITE_OPEN_READONLY, NULL);
@@ -178,8 +181,10 @@ void SqliteProjectFile::loadProjectFile(const string& path) {
   // load everything
   loadRecordsFromDb();
   loadClocksFromDb();
-  loadTimeseriesFromDb();
   loadModelFromDb();
+  loadModelOutputMapping(); // for output series
+  
+  loadTimeseriesFromDb();
   
   setModelInputParameters();
   
@@ -296,6 +301,7 @@ void SqliteProjectFile::loadRecordsFromDb() {
   
   
   // now load up each point record's connection attributes.
+  boost::filesystem::path projPath(_path);
   BOOST_FOREACH(const pointRecordEntity& entity, recordEntities) {
     
     if (RTX_STRINGS_ARE_EQUAL(entity.type, "sqlite")) {
@@ -303,8 +309,9 @@ void SqliteProjectFile::loadRecordsFromDb() {
       sqlite3_prepare_v2(_dbHandle, sqlGetSqliteAttr.c_str(), -1, &stmt, NULL);
       sqlite3_bind_int(stmt, 1, entity.uid);
       if (sqlite3_step(stmt) == SQLITE_ROW) {
-        string dbPath = string((char*)sqlite3_column_text(stmt, 0));
-        boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->setPath(dbPath);
+        boost::filesystem::path dbPath(string((char*)sqlite3_column_text(stmt, 0)));
+        string absDbPath = boost::filesystem::absolute(dbPath,projPath.parent_path()).string();
+        boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->setPath(absDbPath);
       }
       sqlite3_reset(stmt);
       sqlite3_finalize(stmt);
@@ -313,7 +320,7 @@ void SqliteProjectFile::loadRecordsFromDb() {
   }
   
   
-  
+
   
   
 }
@@ -370,6 +377,42 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
       entry.type = type;
       tsList.push_back(entry);
     }
+    
+    else if (RTX_STRINGS_ARE_EQUAL(type, "element_output")) {
+      
+      // this time series already exists. it's an output of a model element.
+      // we should already have the info to find it in _elementOutput
+      
+      if (_elementOutput.find(uid) == _elementOutput.end()) {
+        cerr << "Warning: could not find output element specifed as UID " << uid << endl;
+        continue;
+      }
+      
+      pair<int,string> elementUidKeyName = _elementOutput[uid];
+      int modelElementUid = elementUidKeyName.first;
+      string modelElementKey = elementUidKeyName.second;
+      
+      Element::sharedPointer modelElement = _elementUidLookup[modelElementUid];
+      
+      if (!modelElement) {
+        cerr << "loading time series: could not find model element : " << modelElementUid << endl;
+      }
+      
+      TimeSeries::sharedPointer elementProp = tsPropertyForElementWithKey(modelElement, modelElementKey);
+      if (!elementProp) {
+        cerr << "could not retrieve element property: " << modelElementKey << endl;
+        continue;
+      }
+      
+      // we have found the model element, and retrieved the appropriate output parameter as a time series. save it for future use.
+      tsListEntry entry;
+      entry.ts = elementProp;
+      entry.uid = uid;
+      entry.type = type;
+      tsList.push_back(entry);
+      
+    }
+    
   }
   sqlite3_finalize(stmt);
   
@@ -578,6 +621,7 @@ void SqliteProjectFile::loadModelFromDb() {
       modelFileStream.close();
       
       enModel->loadModelFromFile(tempFile.string());
+      
     } catch (std::exception &e) {
       cerr << e.what();
     }
@@ -589,6 +633,63 @@ void SqliteProjectFile::loadModelFromDb() {
   sqlite3_finalize(stmt);
   
   _model = enModel;
+  
+  
+  // sorry, not done yet. we have to get a mapping of model element UID to the element pointer.
+  // this is in case the configuration uses these model elements as output.
+  
+  
+  
+  
+  static string sqlSelectModelElements = "select uid,name,type from model_elements";
+  
+  int retCode = sqlite3_prepare_v2(_dbHandle, sqlSelectModelElements.c_str(), -1, &stmt, NULL);
+  if (retCode != SQLITE_OK) {
+    cerr << "can't prepare statement: " << sqlSelectModelElements << " -- error: " << sqlite3_errmsg(_dbHandle) << endl;
+    return;
+  }
+  
+  while (sqlite3_step(stmt) == SQLITE_ROW) {
+    
+    int e_uid = sqlite3_column_int(stmt, 0);
+    string e_name = string((char*)sqlite3_column_text(stmt, 1));
+    int e_type = sqlite3_column_int(stmt, 2);
+    
+    switch (e_type) {
+      case 0:
+      case 1:
+      case 2:
+      {
+        // junction, tank, reservoir
+        Node::sharedPointer n = _model->nodeWithName(e_name);
+        if (n) {
+          _elementUidLookup[e_uid] = n;
+        }
+      }
+        break;
+        
+      case 3:
+      case 4:
+      case 5:
+      {
+        // pipe, valve, pump
+        Link::sharedPointer l = _model->linkWithName(e_name);
+        if (l) {
+          _elementUidLookup[e_uid] = l;
+        }
+      }
+        break;
+      default:
+        break;
+    }
+    
+  }
+  
+  sqlite3_finalize(stmt);
+
+  
+  
+  
 }
 
 
@@ -697,7 +798,7 @@ TimeSeries::sharedPointer SqliteProjectFile::newTimeseriesWithType(const string&
   }
   
   else {
-    cerr << "Did not recognize type: " << type << endl;
+    // cerr << "Did not recognize type: " << type << endl;
     return TimeSeries::sharedPointer(); // nada
   }
   
@@ -866,6 +967,18 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::share
     if (RTX_STRINGS_ARE_EQUAL(key, "gain")) {
       gn->setGain(val);
     }
+    else if (RTX_STRINGS_ARE_EQUAL(key, "gainUnits")) {
+      unsigned int idx;
+      unsigned int desiredValue = (unsigned int)val;
+      map<string,Units> uMap = Units::unitStringMap();
+      map<string,Units>::const_iterator it;
+      for(it=uMap.begin();it!=uMap.end();it++) {
+        if (idx == desiredValue) { // indices match
+          gn->setUnits(it->second);
+          break; // map iteration
+        }
+      }
+    }
   }
   else if (typeEquals(dbMultiplierName)) {
     //
@@ -993,6 +1106,33 @@ void SqliteProjectFile::setModelInputParameters() {
 }
 
 
+void SqliteProjectFile::loadModelOutputMapping() {
+  
+  static string sqlGetModelOutputMapping = "select ts_id, model_id, key from model_element_storage";
+  
+  // find model element storage data
+  sqlite3_stmt *stmt;
+  int ret = sqlite3_prepare_v2(_dbHandle, sqlGetModelOutputMapping.c_str(), -1, &stmt, NULL);
+  
+  if (ret != SQLITE_OK) {
+    cerr << "could not prepare statement: " << sqlGetModelOutputMapping << endl;
+    return;
+  }
+  
+  while (sqlite3_step(stmt) == SQLITE_ROW) {
+    
+    int tsUid = sqlite3_column_int(stmt, 0);
+    int modelUid = sqlite3_column_int(stmt, 1);
+    string key = string((char*)sqlite3_column_text(stmt, 2));
+    
+    _elementOutput[tsUid] = make_pair(modelUid,key);
+  }
+  sqlite3_finalize(stmt);
+  
+}
+
+
+
 void SqliteProjectFile::setJunctionParameter(Junction::sharedPointer j, string paramName, TimeSeries::sharedPointer ts) {
   
   if (RTX_STRINGS_ARE_EQUAL(paramName, "demandBoundary")) {
@@ -1035,4 +1175,63 @@ void SqliteProjectFile::setPipeParameter(Pipe::sharedPointer p, string paramName
   }
   
 }
+
+
+TimeSeries::sharedPointer SqliteProjectFile::tsPropertyForElementWithKey(Element::sharedPointer element, std::string key) {
+  
+  TimeSeries::sharedPointer blank;
+  
+  // @[@"flow",@"level",@"head",@"tankFlow",@"demand",@"quality"]
+  
+  // TO_DO :: add support for the full set of read-only timeseries keys
+  
+  switch (element->type()) {
+    case Element::JUNCTION:
+    case Element::TANK:
+    case Element::RESERVOIR:
+    {
+      if (RTX_STRINGS_ARE_EQUAL(key, "tankFlow")) {
+        return boost::static_pointer_cast<Tank>(element)->flowMeasure();
+      }
+      else if (RTX_STRINGS_ARE_EQUAL(key, "level")) {
+        return boost::static_pointer_cast<Tank>(element)->level();
+      }
+      else if (RTX_STRINGS_ARE_EQUAL(key, "head")) {
+        return boost::static_pointer_cast<Junction>(element)->head();
+      }
+      else if (RTX_STRINGS_ARE_EQUAL(key, "quality")) {
+        return boost::static_pointer_cast<Junction>(element)->quality();
+      }
+      else {
+        cerr << "Warning unknown Node key: " << key << endl;
+        return blank;
+      }
+    }
+      break;
+      
+    case Element::PIPE:
+    case Element::PUMP:
+    case Element::VALVE:
+    {
+      if (RTX_STRINGS_ARE_EQUAL(key, "flow")) {
+        return boost::static_pointer_cast<Pipe>(element)->flow();
+      }
+      else {
+        cerr << "Warning unknown Link key: " << key << endl;
+        return blank;
+      }
+    }
+      break;
+      
+    default:
+    {
+      // unknown element class
+      cerr << "Warning unknown element class" << endl;
+      return blank;
+    }
+      break;
+  }
+}
+
+
 

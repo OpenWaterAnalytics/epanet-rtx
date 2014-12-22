@@ -48,6 +48,7 @@ namespace RTX {
     
     bool doesHaveHeadMeasure();
     TimeSeries::sharedPointer headMeasure();
+    TimeSeries::sharedPointer pressureMeasure();
     virtual void setHeadMeasure(TimeSeries::sharedPointer head);
     virtual void setPressureMeasure(TimeSeries::sharedPointer pressure);
     
@@ -61,16 +62,13 @@ namespace RTX {
     TimeSeries::sharedPointer _boundaryFlow;
     // Measurements
     TimeSeries::sharedPointer _qualityMeasure;
-    TimeSeries::sharedPointer _headMeasure;
+    TimeSeries::sharedPointer _headMeasure, _pressureMeasure;
     // States
     TimeSeries::sharedPointer _demandState;
     TimeSeries::sharedPointer _headState;
+    TimeSeries::sharedPointer _pressureState;
     TimeSeries::sharedPointer _qualityState;
     // properties
-    bool _doesHaveQualitySource;
-    bool _doesHaveBoundaryFlow;
-    bool _doesHaveHeadMeasure;
-    bool _doesHaveQualityMeasure;
     double _baseDemand;
     double _initialQuality;
     

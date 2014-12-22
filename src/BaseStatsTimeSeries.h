@@ -13,19 +13,43 @@
 #include "ModularTimeSeries.h"
 
 namespace RTX {
+  
+  
+  /*!
+   \class BaseStatsTimeSeries
+   \brief An abstract timeseries class for computing statistical data from point values.
+   
+   The BaseStatsTimeSeries class is designed to provide a moving window (specified by the period length of a Clock in #window ), evaluated at regular intervals (also as a Clock), over which statistical measures are taken. The window can lead, lag, or be centered on the time series' clock.
+   
+   */
+  
+  /*!
+   \fn Clock::sharedPointer BaseStatsTimeSeries::window();
+   \brief Get the statistical sampling window clock.
+   \return A shared pointer to a Clock object.
+   \sa BaseStatsTimeSeries::setWindow
+   */
+  /*!
+   \fn void BaseStatsTimeSeries::setWindow(Clock::sharedPointer window);
+   \brief Set the moving statistical window.
+   \param window A moving window to use for statistical calculations
+   \sa BaseStatsTimeSeries::window
+   */
+
+  
     
   class BaseStatsTimeSeries : public ModularTimeSeries {
     
   public:
-    
+    //! sampling window mode (lead, lag, center)
     typedef enum {
-      StatsSamplingModeLeading = 0,
-      StatsSamplingModeLagging = 1,
-      StatsSamplingModeCentered = 2
+      StatsSamplingModeLeading  = 0,  /*!< Use a leading window about the time series' clock */
+      StatsSamplingModeLagging  = 1,  /*!< Use a lagging window */
+      StatsSamplingModeCentered = 2   /*!< Use a centered sampling window */
     } StatsSamplingMode_t;
     
     
-    typedef std::pair< Point, Summary > pointSummaryPair_t;
+    typedef std::pair< Point, Statistics > pointSummaryPair_t;
     
     RTX_SHARED_POINTER(BaseStatsTimeSeries);
     BaseStatsTimeSeries();

@@ -262,13 +262,13 @@ PointRecord::time_pair_t SqlitePointRecord::range(const string& id) {
       }
     }
     /*
-    
+     
      */
     
   }
   
   
-//  return make_pair(first.time, last.time);
+  //  return make_pair(first.time, last.time);
   return make_pair(0, 0);
 }
 
@@ -281,7 +281,9 @@ std::vector<Point> SqlitePointRecord::selectRange(const std::string& id, time_t 
   if (isConnected()) {
     // SELECT time, value, quality, confidence FROM points INNER JOIN meta USING (series_id) WHERE name = ? AND time >= ? AND time <= ? order by time asc
     
-//    checkTransactions(true);
+    //    checkTransactions(true);
+    
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
     
     scoped_lock<boost::signals2::mutex> lock(*_mutex);
 
@@ -552,5 +554,4 @@ void SqlitePointRecord::checkTransactions(bool forceEndTranaction) {
   }
   
 }
-
 

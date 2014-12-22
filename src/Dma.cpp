@@ -476,7 +476,7 @@ std::vector<Pipe::sharedPointer> Dma::measuredInteriorPipes() {
   return _measuredInteriorPipes;
 }
 
-bool Dma::isMeasuredPipe(Pipe::sharedPointer pipe) {
+bool Dma::isMeasuredBoundaryPipe(Pipe::sharedPointer pipe) {
   
   BOOST_FOREACH(const pipeDirPair_t& pdp, _measuredBoundaryPipesDirectional) {
     if (pdp.first == pipe) {
@@ -484,9 +484,48 @@ bool Dma::isMeasuredPipe(Pipe::sharedPointer pipe) {
     }
   }
   
-  std::vector<Pipe::sharedPointer>::iterator it;
-  for (it = _measuredInteriorPipes.begin(); it != _measuredInteriorPipes.end(); ++it) {
-    if (*it == pipe) {
+  return false;
+}
+
+bool Dma::isMeasuredInteriorPipe(Pipe::sharedPointer pipe) {
+  
+  BOOST_FOREACH(const Pipe::sharedPointer p, _measuredInteriorPipes) {
+    if (p == pipe) {
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+bool Dma::isMeasuredPipe(Pipe::sharedPointer pipe) {
+  
+  if (isMeasuredBoundaryPipe(pipe)) {
+    return true;
+  }
+
+  if (isMeasuredInteriorPipe(pipe)) {
+    return true;
+  }
+  
+  return false;
+}
+
+bool Dma::isClosedBoundaryPipe(Pipe::sharedPointer pipe) {
+  
+  BOOST_FOREACH(const pipeDirPair_t& pdp, _closedBoundaryPipesDirectional) {
+    if (pdp.first == pipe) {
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+bool Dma::isClosedInteriorPipe(Pipe::sharedPointer pipe) {
+  
+  BOOST_FOREACH(const Pipe::sharedPointer p, _closedInteriorPipes) {
+    if (p == pipe) {
       return true;
     }
   }
@@ -496,19 +535,27 @@ bool Dma::isMeasuredPipe(Pipe::sharedPointer pipe) {
 
 bool Dma::isClosedPipe(Pipe::sharedPointer pipe) {
 
-  BOOST_FOREACH(const pipeDirPair_t& pdp, _closedBoundaryPipesDirectional) {
-    if (pdp.first == pipe) {
-      return true;
-    }
+  if (isClosedBoundaryPipe(pipe)) {
+    return true;
   }
   
-  std::vector<Pipe::sharedPointer>::iterator it;
-  for (it = _closedInteriorPipes.begin(); it != _closedInteriorPipes.end(); ++it) {
-    if (*it == pipe) {
-      return true;
-    }
+  if (isClosedInteriorPipe(pipe)) {
+    return true;
   }
   
+  return false;
+}
+
+bool Dma::isBoundaryPipe(Pipe::sharedPointer pipe) {
+  
+  if (isClosedBoundaryPipe(pipe)) {
+    return true;
+  }
+  
+  if (isMeasuredBoundaryPipe(pipe)) {
+    return true;
+  }
+
   return false;
 }
 
@@ -549,9 +596,16 @@ void Dma::allocateDemandToJunctions(time_t time) {
     
     if ( junction->doesHaveBoundaryFlow() ) {
       Point dp = junction->boundaryFlow()->point(time);
-      double dval = dp.isValid ? dp.value : junction->boundaryFlow()->pointBefore(time).value;
-      double demand = Units::convertValue(dval, junction->boundaryFlow()->units(), myUnits);
-      meteredDemand += demand;
+      if (!dp.isValid) {
+        dp = junction->boundaryFlow()->pointBefore(time);
+      }
+      if (dp.isValid) {
+        double demand = Units::convertValue(dp.value, junction->boundaryFlow()->units(), myUnits);
+        meteredDemand += demand;
+      }
+      else {
+        cerr << "ERR: invalid junction boundary flow point -- " << this->name() << endl;
+      }
     }
     else {
       double demand = Units::convertValue(junction->baseDemand(), modelUnits, myUnits);
@@ -563,9 +617,17 @@ void Dma::allocateDemandToJunctions(time_t time) {
   // now we have the total (nominal) base demand for the dma.
   // total demand for the dma (includes metered and unmetered) -- already in myUnits.
   Point dPoint = this->demand()->pointAtOrBefore(time);
+  if (!dPoint.isValid) {
+    dPoint = this->demand()->pointBefore(time);
+  }
+  if (dPoint.isValid) {
+    dmaDemand = dPoint.value;
+    allocableDemand = dmaDemand - meteredDemand; // the total unmetered demand
+  }
+  else {
+    cerr << "ERR: invalid total demand point -- " << this->name() << endl;
+  }
   
-  dmaDemand = ( dPoint.isValid ? dPoint.value : this->demand()->pointBefore(time).value );
-  allocableDemand = dmaDemand - meteredDemand; // the total unmetered demand
   /*
   cout << "-------------------" << endl;
   cout << "dma: " << this->name() << endl;
@@ -581,8 +643,13 @@ void Dma::allocateDemandToJunctions(time_t time) {
       // junction does have boundary flow...
       // just need to copy the boundary flow into the junction's demand time series
       Point dp = junction->boundaryFlow()->pointAtOrBefore(time);
-      Point newDemandPoint = Point::convertPoint(dp, junction->boundaryFlow()->units(), junction->demand()->units());
-      junction->demand()->insert( newDemandPoint );
+      if (dp.isValid) {
+        Point newDemandPoint = Point::convertPoint(dp, junction->boundaryFlow()->units(), junction->demand()->units());
+        junction->demand()->insert( newDemandPoint );
+      }
+      else {
+        cerr << "ERR: invalid junction boundary flow point -- " << this->name() << endl;
+      }
     }
     else {
       // junction relies on us to set its demand value... but only set it if the total base demand > 0

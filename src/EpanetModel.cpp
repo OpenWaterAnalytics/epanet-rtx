@@ -21,8 +21,7 @@ using namespace std;
 EpanetModel::EpanetModel() : Model() {
   // nothing to do, right?
   _enOpened = false;
-  OW_Project *newEpanetModel;
-  _enModel = newEpanetModel;
+  OW_API_CHECK( OW_newModel(&_enModel), "OW_newModel");
 }
 
 EpanetModel::~EpanetModel() {
@@ -42,9 +41,9 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
     this->createRtxWrappers();
     
   }
-  catch(string error) {
-    std::cerr << "ERROR: " << error;
-    throw RtxException(error);
+  catch(...) {
+    std::cerr << "ERROR: ";
+    throw RtxException("File Loading");
   }
   
 }
@@ -60,7 +59,7 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
     OW_API_CHECK( OW_open((char*)filename.c_str(), &_enModel, (char*)"", (char*)""), "OW_open" );
   } catch (...) {
     cerr << "cannot open epanet file" << endl;
-    return;
+    throw "cannot open epanet file";
   }
   
   
@@ -117,10 +116,13 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   
   if (isSI) {
     setHeadUnits(RTX_METER);
+    setPressureUnits(RTX_KILOPASCAL);
     volumeUnits = RTX_LITER;
+    
   }
   else {
     setHeadUnits(RTX_FOOT);
+    setPressureUnits(RTX_PSI);
     volumeUnits = RTX_CUBIC_FOOT;
   }
   
@@ -196,15 +198,20 @@ void EpanetModel::createRtxWrappers() {
   
   int nodeCount, tankCount, linkCount;
   
-  OW_API_CHECK( OW_getcount(_enModel, EN_NODECOUNT, &nodeCount), "OW_getcount EN_NODECOUNT" );
-  OW_API_CHECK( OW_getcount(_enModel, EN_TANKCOUNT, &tankCount), "OW_getcount EN_TANKCOUNT" );
-  OW_API_CHECK( OW_getcount(_enModel, EN_LINKCOUNT, &linkCount), "OW_getcount EN_LINKCOUNT" );
+  try {
+    OW_API_CHECK( OW_getcount(_enModel, EN_NODECOUNT, &nodeCount), "OW_getcount EN_NODECOUNT" );
+    OW_API_CHECK( OW_getcount(_enModel, EN_TANKCOUNT, &tankCount), "OW_getcount EN_TANKCOUNT" );
+    OW_API_CHECK( OW_getcount(_enModel, EN_LINKCOUNT, &linkCount), "OW_getcount EN_LINKCOUNT" );
+  } catch (...) {
+    throw "Could not create wrappers";
+  }
+  
   
   // create nodes
   for (int iNode=1; iNode <= nodeCount; iNode++) {
     char enName[RTX_MAX_CHAR_STRING];
     double x,y,z;         // rtx coordinates
-    int nodeType;         // epanet node type code
+    EN_NodeType nodeType;         // epanet node type code
     string nodeName;
     Junction::sharedPointer newJunction;
     Reservoir::sharedPointer newReservoir;
@@ -301,6 +308,7 @@ void EpanetModel::createRtxWrappers() {
     
     // set units for new element
     newJunction->head()->setUnits(headUnits());
+    newJunction->pressure()->setUnits(pressureUnits());
     newJunction->demand()->setUnits(flowUnits());
     newJunction->quality()->setUnits(qualityUnits());
     
@@ -336,7 +344,8 @@ void EpanetModel::createRtxWrappers() {
   // create links
   for (int iLink = 1; iLink <= linkCount; iLink++) {
     char enLinkName[RTX_MAX_CHAR_STRING], enFromName[RTX_MAX_CHAR_STRING], enToName[RTX_MAX_CHAR_STRING];
-    int linkType, enFrom, enTo;
+    int enFrom, enTo;
+    EN_LinkType linkType;
     double length, diameter, status;
     string linkName;
     Node::sharedPointer startNode, endNode;
@@ -445,6 +454,8 @@ void EpanetModel::overrideControls() throw(RTX::RtxException) {
     for( int iControl = 1; iControl <= controlCount; iControl++ ) {
       OW_API_CHECK( OW_setcontrol(_enModel, iControl, 0, 0, 0, 0, 0 ), "OW_setcontrol" );
     }
+    
+    // disregard rules (don't have a way to do that yet)
   }
   catch(string error) {
     std::cerr << "ERROR: " << error;
@@ -524,6 +535,9 @@ double EpanetModel::junctionDemand(const string &junction) {
 double EpanetModel::junctionHead(const string &junction) {
   return getNodeValue(EN_HEAD, junction);
 }
+double EpanetModel::junctionPressure(const string &junction) {
+  return getNodeValue(EN_PRESSURE, junction);
+}
 
 double EpanetModel::junctionQuality(const string &junction) {
   return getNodeValue(EN_QUALITY, junction);
@@ -549,23 +563,46 @@ double EpanetModel::pumpEnergy(const string &pump) {
 
 #pragma mark Simulation Methods
 
-void EpanetModel::solveSimulation(time_t time) {
+bool EpanetModel::solveSimulation(time_t time) {
   // TODO -- 
   /*
       determine how to perform this function. maybe keep track of relative error for each simulation period
    so we know what simulation periods have been solved - as in a master simulation clock?
    
    */
+  bool success = true;
+  
   long timestep;
+  int errcode;
+  double accuracy;
+  
   // set the current epanet-time to zero, since we override epanet-time.
   setCurrentSimulationTime( time );
   OW_API_CHECK(OW_settimeparam(_enModel, EN_HTIME, 0), "OW_settimeparam(EN_HTIME)");
   OW_API_CHECK(OW_settimeparam(_enModel, EN_QTIME, 0), "OW_settimeparam(EN_QTIME)");
   // solve the hydraulics
-  OW_API_CHECK(OW_runH(_enModel, &timestep), "OW_runH");
+  OW_API_CHECK(errcode = OW_runH(_enModel, &timestep), "OW_runH");
+  // check for success
+  OW_API_CHECK( OW_getoption(_enModel, EN_ACCURACY, &accuracy), "OW_getoption");
+  bool illcondition = errcode == 101 || errcode == 110; // 101 is memory issue, 110 is illconditioning
+  bool unbalanced = relativeError(time) > accuracy;
+  if (illcondition || unbalanced) {
+    success = false;
+    cerr << "Simulation Failed: ";
+    if (illcondition) {
+      cerr << "Ill Conditioned" << endl;
+    }
+    if (unbalanced) {
+      cerr << "Unbalanced" << endl;
+    }
+  }
+  
+  // how to deal with lack of hydraulic convergence here - reset boundary/initial conditions?
   if (this->shouldRunWaterQuality()) {
     OW_API_CHECK(OW_runQ(_enModel, &timestep), "OW_runQ");
   }
+  
+  return success;
 }
 
 time_t EpanetModel::nextHydraulicStep(time_t time) {
@@ -619,7 +656,7 @@ int EpanetModel::iterations(time_t time) {
   return iterations;
 }
 
-int EpanetModel::relativeError(time_t time) {
+double EpanetModel::relativeError(time_t time) {
   double relativeError;
   OW_API_CHECK( OW_getstatistic(_enModel, EN_RELATIVEERROR, &relativeError), "OW_getstatistic(EN_RELATIVEERROR)");
   return relativeError;

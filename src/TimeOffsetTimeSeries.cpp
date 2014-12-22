@@ -18,9 +18,9 @@ time_t TimeOffsetTimeSeries::offset() {
 
 
 
-//Point TimeOffsetTimeSeries::point(time_t time) {
-//  return TIME_OFFSET_SUPER::point(time - _offset);
-//}
+Point TimeOffsetTimeSeries::point(time_t time) {
+  return TIME_OFFSET_SUPER::point(time - _offset);
+}
 
 
 /*

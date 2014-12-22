@@ -20,6 +20,12 @@ Units GainTimeSeries::gainUnits() {
 }
 void GainTimeSeries::setGainUnits(RTX::Units u) {
   _gainUnits = u;
+  
+  // need to alter dimension of my own units in response?
+  if (this->source() && !(this->units().isSameDimensionAs(u * this->source()->units()))) {
+    this->setUnits(u * this->source()->units());
+  }
+  
 }
 
 

@@ -29,7 +29,7 @@ namespace RTX {
     EpanetMsxModel();
     virtual ~EpanetMsxModel();
     
-    virtual void solveSimulation(time_t time);
+    virtual bool solveSimulation(time_t time);
 //    virtual time_t nextHydraulicStep(time_t time);
     virtual void stepSimulation(time_t time);
     

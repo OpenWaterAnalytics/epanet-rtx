@@ -200,11 +200,13 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
       sourceRange.first = aggSource.timeseries->pointAtOrBefore(fromTime).time;
       sourceRange.second = aggSource.timeseries->pointAfter(toTime-1).time;
       
-      // check for coverage. does the upstream source contain the needed range?
-      if (fromTime < sourceRange.first || sourceRange.second < toTime) {
-        cerr << "Aggregation range not covered" << endl;
-        
-        sourceRange.second = aggSource.timeseries->pointAfter(toTime-1).time;
+      
+      // the following is a case where we are asking for points outside a narrow bound of source points. TO_DO :: figure out a better way of sampling.
+      if (sourceRange.first == 0) {
+        sourceRange.first = aggSource.timeseries->pointAfter(fromTime).time;
+      }
+      if (sourceRange.second == 0) {
+        sourceRange.second = aggSource.timeseries->pointBefore(toTime).time;
       }
       
       
@@ -253,7 +255,8 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
         
         
         else if (trailingPoint.time == p.time) {
-          p += trailingPoint * aggSource.multiplier;
+          Point convertedPoint = Point::convertPoint(trailingPoint, aggSource.timeseries->units(), this->units());
+          p += convertedPoint * aggSource.multiplier;
           continue;
           // you are perfect.
         }
@@ -273,7 +276,8 @@ std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointe
         
         // if we've gotten this far, then we're in good shape.
         Point aggregationPoint = Point::linearInterpolate(trailingPoint, *cursorPoint, p.time);
-        p += aggregationPoint * aggSource.multiplier;
+        Point convertedPoint = Point::convertPoint(aggregationPoint, aggSource.timeseries->units(), this->units());
+        p += convertedPoint * aggSource.multiplier;
         
       }
     }

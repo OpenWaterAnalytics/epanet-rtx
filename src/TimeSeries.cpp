@@ -181,51 +181,70 @@ Point TimeSeries::interpolatedPoint(time_t time) {
   return Point::linearInterpolate(p1, p2, time);
 }
 
-
-TimeSeries::Summary TimeSeries::summary(time_t start, time_t end) {
-  Summary s;
-  s.points = this->points(start, end);
+vector<Point> TimeSeries::gaps(time_t start, time_t end) {
   
-  if (s.points.size() == 0) {
-    return s;
+  vector<Point> points = this->points(start, end);
+  
+  if (points.size() == 0) {
+    return points;
   }
   
-  
-  // gaps
-  s.gaps.reserve(s.points.size());
-  time_t prior = this->pointBefore(s.points.front().time).time;
-  BOOST_FOREACH(const Point& p, s.points) {
+  vector<Point> gaps;
+  gaps.reserve(points.size());
+  time_t prior = this->pointBefore(points.front().time).time;
+  BOOST_FOREACH(const Point& p, points) {
     time_t gapLength = p.time - prior;
     Point newPoint(p.time, (double)gapLength);
-    s.gaps.push_back(newPoint);
+    gaps.push_back(newPoint);
     prior = p.time;
   }
   
+  return gaps;
+}
+
+TimeSeries::Statistics TimeSeries::summary(time_t start, time_t end) {
+  vector<Point> points = this->points(start, end);
+  return getStats(points);
+}
+
+TimeSeries::Statistics TimeSeries::gapsSummary(time_t start, time_t end) {
+  vector<Point> points = this->gaps(start, end);
+  return getStats(points);
+}
+
+TimeSeries::Statistics TimeSeries::getStats(vector<Point> points) {
+  Statistics s;
+  
+  if (points.size() == 0) {
+    return s;
+  }
+  
   // stats
-  int cacheSize = (int)s.points.size();
+  int cacheSize = (int)points.size();
   using namespace boost::accumulators;
   accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
   accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::right> > > quant_right( tag::tail<boost::accumulators::right>::cache_size = cacheSize );
   accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::left> > > quant_left( tag::tail<boost::accumulators::left>::cache_size = cacheSize );
-  BOOST_FOREACH(const Point& p, s.points) {
+  
+  BOOST_FOREACH(const Point& p, points) {
     acc(p.value);
     quant_right(p.value);
     quant_left(p.value);
   }
   
-  s.stats.quartiles.q25 = quantile(quant_left, quantile_probability = 0.25);
-  s.stats.quartiles.q75 = quantile(quant_right, quantile_probability = 0.75);
-  s.stats.quartiles.q50    = extract::median(acc);
-  s.stats.mean      = extract::mean(acc);
-  s.stats.variance  = extract::variance(acc);
-  s.stats.count     = extract::count(acc);
-  s.stats.min       = extract::min(acc);
-  s.stats.max       = extract::max(acc);
-    
-  if (s.stats.quartiles.q50 < s.stats.min) { // weird edge case with accumulators. small populations sometimes return values of zero.
-    s.stats.quartiles.q50 = NAN;
-    s.stats.quartiles.q25 = NAN;
-    s.stats.quartiles.q75 = NAN;
+  s.quartiles.q25 = quantile(quant_left, quantile_probability = 0.25);
+  s.quartiles.q75 = quantile(quant_right, quantile_probability = 0.75);
+  s.quartiles.q50    = extract::median(acc);
+  s.mean      = extract::mean(acc);
+  s.variance  = extract::variance(acc);
+  s.count     = extract::count(acc);
+  s.min       = extract::min(acc);
+  s.max       = extract::max(acc);
+  
+  if (s.quartiles.q50 < s.min) { // weird edge case with accumulators. small populations sometimes return values of zero.
+    s.quartiles.q50 = NAN;
+    s.quartiles.q25 = NAN;
+    s.quartiles.q75 = NAN;
   }
   
   return s;

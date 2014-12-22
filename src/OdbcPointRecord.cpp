@@ -12,6 +12,9 @@
 #include <boost/range/adaptors.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include <iostream>     // std::cout, std::endl
+#include <iomanip>
+
 
 using namespace RTX;
 using namespace std;
@@ -329,18 +332,24 @@ std::vector<Point> OdbcPointRecord::pointsFromStatement(SQLHSTMT statement) {
   
   BOOST_FOREACH(const ScadaRecord& record, records) {
     Point p;
-    //time_t t = unixTime(record.time);
     time_t t = PointRecordTime::time(record.time);
     double v = record.value;
-    int qu = record.quality;
+    /*
+    int intQual = record.quality;
+    // report on the point retrieved
+    // 2013-01-02 23:09:00 | 120.3345 | q:1216   | 0000000100000000
+    string tStr = PointRecordTime::utcDateStringFromUnix(t);
+    std::bitset<16> bits(intQual);
+    cout << "#" << setw(20) << tStr << "| " << setw(10) << v << " | " << "Q: " << setw(6) << intQual << " | " << setw(16) << bits << endl;
+    */
     Point::Qual_t q = Point::missing;
     
     // map to rtx quality types
-    if (_querySyntax.qualityMap.count(qu) > 0) {
-      q = _querySyntax.qualityMap[qu];
+    if (_querySyntax.qualityMap.count(record.quality) > 0) {
+      q = _querySyntax.qualityMap[record.quality];
     }
     else {
-      q = Point::bad;
+      q = Point::questionable;
     }
     
     if (record.valueInd > 0 && !(q & Point::missing)) {

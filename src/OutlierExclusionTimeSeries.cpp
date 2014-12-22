@@ -101,13 +101,13 @@ vector<Point> OutlierExclusionTimeSeries::filteredPointsWithMissing(TimeSeries::
     
     // fetch pair values from the source summary collection
     Point p = psp.first;
-    Summary s = psp.second;
+    Statistics s = psp.second;
     
     switch (this->exclusionMode()) {
       case OutlierExclusionModeInterquartileRange:
       {
-        q25 = s.stats.quartiles.q25;
-        q75 = s.stats.quartiles.q75;
+        q25 = s.quartiles.q25;
+        q75 = s.quartiles.q75;
         iqr = q75 - q25;
         if ( !( (p.value < q25 - m*iqr) || (m*iqr + q75 < p.value) )) {
           // store the point if it's within bounds
@@ -120,8 +120,8 @@ vector<Point> OutlierExclusionTimeSeries::filteredPointsWithMissing(TimeSeries::
         break; // OutlierExclusionModeInterquartileRange
       case OutlierExclusionModeStdDeviation:
       {
-        mean = s.stats.mean;
-        stddev = sqrt(s.stats.variance);
+        mean = s.mean;
+        stddev = sqrt(s.variance);
         if ( fabs(mean - p.value) <= (m * stddev) ) {
           goodPoints.push_back(Point::convertPoint(p, sourceTs->units(), this->units()));
         }

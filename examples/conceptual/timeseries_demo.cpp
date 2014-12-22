@@ -22,6 +22,9 @@
 #include "FailoverTimeSeries.h"
 #include "TimeOffsetTimeSeries.h"
 #include "WarpingTimeSeries.h"
+#include "ForecastTimeSeries.h"
+#include "TimeOffsetTimeSeries.h"
+#include "OutlierExclusionTimeSeries.h"
 
 #include "BufferPointRecord.h"
 #include "MysqlPointRecord.h"
@@ -76,6 +79,28 @@ int main(int argc, const char * argv[])
   
   
 //  SineTimeSeries::sharedPointer sine( new SineTimeSeries() );
+  Clock::sharedPointer clock(new Clock(900));
+  
+  SineTimeSeries::sharedPointer sineWave(new SineTimeSeries());
+  sineWave->setName("sine");
+  sineWave->setClock(clock);
+  
+  TimeOffsetTimeSeries::sharedPointer lag(new TimeOffsetTimeSeries());
+  lag->setOffset(900);
+  lag->setSource(sineWave);
+  
+  time_t t1 = 1400004000; //time(NULL);
+  time_t t2 = t1 + 3600;
+  vector<Point> points = lag->points(t1, t2);
+  
+  printPoints(sineWave->points(t1, t2));
+  cout << endl;
+  printPoints(points);
+  
+  
+  
+  /*
+  
   
   TimeOffsetTimeSeries::sharedPointer offset( new TimeOffsetTimeSeries() );
   offset->setName("offsetTime");
@@ -140,6 +165,7 @@ int main(int argc, const char * argv[])
   
   printPoints(failover->points(104, 210));
   
+  */
   
   
   return 0;

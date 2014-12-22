@@ -94,11 +94,7 @@ vector< BaseStatsTimeSeries::pointSummaryPair_t > BaseStatsTimeSeries::filteredS
   sPoints.reserve(sourcePoints.size());
   
   BOOST_FOREACH(const Point& p, sourcePoints) {
-    TimeSeries::Summary s = sourceTs->summary( p.time - lagDistance, p.time + leadDistance);
-    if (this->summaryOnly()) {
-      s.points = vector<Point>();
-      s.gaps = vector<Point>();
-    }
+    TimeSeries::Statistics s = sourceTs->summary( p.time - lagDistance, p.time + leadDistance);
     sPoints.push_back(make_pair(p, s));
   }
   

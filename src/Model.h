@@ -9,7 +9,7 @@
 #ifndef epanet_rtx_Model_h
 #define epanet_rtx_Model_h
 
-#include <string.h>
+#include <string>
 #include <map>
 #include <time.h>
 
@@ -112,15 +112,20 @@ namespace RTX {
     
     virtual std::ostream& toStream(std::ostream &stream);
 
+    vector<TimeSeries::sharedPointer> networkStatesWithMeasures();
+    void setRecordForNetworkStatesWithMeasures(PointRecord::sharedPointer pr);
+    void setRecordForNetworkBoundariesAndMeasures(PointRecord::sharedPointer pr);
     
     // units
     Units flowUnits();
     Units headUnits();
+    Units pressureUnits();
     Units qualityUnits();
     Units volumeUnits();
     
     void setFlowUnits(Units units);
     void setHeadUnits(Units units);
+    void setPressureUnits(Units units);
     void setQualityUnits(Units units);
     void setVolumeUnits(Units units);
     
@@ -136,6 +141,7 @@ namespace RTX {
     virtual double reservoirLevel(const string& reservoirName) { return 0; };
     virtual double tankLevel(const string& tankName) { return 0; };
     virtual double junctionHead(const string& junction) { return 0; };
+    virtual double junctionPressure(const string& junction) { return 0; };
     virtual double junctionDemand(const string& junctionName) { return 0; };
     virtual double junctionQuality(const string& junctionName) { return 0; };
     virtual double junctionInitialQuality(const string& junctionName) { return 0; };
@@ -154,11 +160,11 @@ namespace RTX {
     virtual void setPumpSetting(const std::string& pump, double setting) { };
     virtual void setValveSetting(const string& valve, double setting) { };
     
-    virtual void solveSimulation(time_t time) { };
+    virtual bool solveSimulation(time_t time) { return 1; };
     virtual time_t nextHydraulicStep(time_t time) { return 0; };
     virtual void stepSimulation(time_t time) { };
     virtual int iterations(time_t time) { return 0; };
-    virtual int relativeError(time_t time) { return 0; };
+    virtual double relativeError(time_t time) { return 0; };
     
     virtual void setCurrentSimulationTime(time_t time);
     
@@ -202,7 +208,7 @@ namespace RTX {
     
     time_t _currentSimulationTime;
     
-    Units _flowUnits, _headUnits, _qualityUnits, _volumeUnits;
+    Units _flowUnits, _headUnits, _pressureUnits, _qualityUnits, _volumeUnits;
 
     
   };

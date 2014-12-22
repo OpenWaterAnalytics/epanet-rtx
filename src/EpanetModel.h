@@ -47,6 +47,7 @@ namespace RTX {
     double tankLevel(const std::string& tank);
     double junctionDemand(const std::string& junction);
     double junctionHead(const std::string& junction);
+    double junctionPressure(const std::string& junction);
     double junctionQuality(const std::string& junction);
     // link elements
     double pipeFlow(const std::string& pipe);
@@ -66,11 +67,11 @@ namespace RTX {
     void setJunctionQuality(const std::string& junction, double quality);
     
     // simulation methods
-    virtual void solveSimulation(time_t time);
+    virtual bool solveSimulation(time_t time);
     virtual time_t nextHydraulicStep(time_t time);
     virtual void stepSimulation(time_t time);
     virtual int iterations(time_t time);
-    virtual int relativeError(time_t time);
+    virtual double relativeError(time_t time);
     virtual void setHydraulicTimeStep(int seconds);
     virtual void setQualityTimeStep(int seconds);
     virtual void setInitialModelQuality();

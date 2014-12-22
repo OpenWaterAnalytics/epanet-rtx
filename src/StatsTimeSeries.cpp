@@ -16,7 +16,7 @@ using namespace std;
 
 StatsTimeSeries::StatsTimeSeries() {
   _statsType = StatsTimeSeriesMean;
-  this->setSummaryOnly(true);
+  this->setSummaryOnly(false);
 }
 
 
@@ -26,6 +26,13 @@ StatsTimeSeries::StatsTimeSeriesType StatsTimeSeries::statsType() {
 
 void StatsTimeSeries::setStatsType(StatsTimeSeriesType type) {
   _statsType = type;
+  Units originalUnits = this->units();
+  if (source()) {
+    Units newUnits = statsUnits(source()->units(), type);
+    if (!newUnits.isSameDimensionAs(originalUnits)) {
+      setUnits(newUnits);
+    }
+  }
 }
 
 vector<Point> StatsTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
@@ -38,7 +45,7 @@ vector<Point> StatsTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs
   // use these only for regular time series access, otherwise use the source points to set the intervals.
   bool isRegular = this->clock()->isRegular();
   time_t cursor = fromTime;
-  Summary tempCacheSummary;
+  Statistics tempCacheSummary;
   
   vector<pointSummaryPair_t>::const_iterator pIt = summaryCollection.begin();
   
@@ -61,15 +68,17 @@ vector<Point> StatsTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs
         cursor = this->clock()->timeAfter(cursor);
       }
       
-      tempCacheSummary = pIt->second;
       ++pIt;
+      if (pIt != summaryCollection.end()) {
+        tempCacheSummary = pIt->second;
+      }
     }
   }
   else {
     // irregular time series. just pass through.
     while (pIt != summaryCollection.end()) {
       Point p = pIt->first;
-      Summary s = pIt->second;
+      Statistics s = pIt->second;
       double v = this->valueFromSummary(s);
       Point outPoint(p.time, v);
       if (outPoint.isValid) {
@@ -83,38 +92,118 @@ vector<Point> StatsTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs
 }
 
 
-double StatsTimeSeries::valueFromSummary(TimeSeries::Summary s) {
+double StatsTimeSeries::valueFromSummary(TimeSeries::Statistics s) {
+  double v;
   switch (_statsType) {
     case StatsTimeSeriesMean:
-      return s.stats.mean;
+      v = s.mean;
       break;
     case StatsTimeSeriesStdDev:
-      return sqrt(s.stats.variance);
+      v = sqrt(s.variance);
       break;
     case StatsTimeSeriesMedian:
-      return s.stats.quartiles.q50;
+      v = s.quartiles.q50;
       break;
     case StatsTimeSeriesQ25:
-      return s.stats.quartiles.q25;
+      v = s.quartiles.q25;
       break;
     case StatsTimeSeriesQ75:
-      return s.stats.quartiles.q75;
+      v = s.quartiles.q75;
       break;
     case StatsTimeSeriesInterQuartileRange:
-      return s.stats.quartiles.q75 - s.stats.quartiles.q25;
+      v = s.quartiles.q75 - s.quartiles.q25;
       break;
     case StatsTimeSeriesMax:
-      return s.stats.max;
+      v = s.max;
       break;
     case StatsTimeSeriesMin:
-      return s.stats.min;
+      v = s.min;
       break;
     case StatsTimeSeriesCount:
-      return s.stats.count;
+      v = s.count;
+      break;
+    case StatsTimeSeriesVar:
+      v = s.variance;
+      break;
+    case StatsTimeSeriesRMS:
+      v = sqrt(s.variance + s.mean*s.mean);
+      break;      
+    default:
+      break;
+  }
+  return Units::convertValue(v, source()->units(), this->units());
+}
+
+void StatsTimeSeries::setSource(TimeSeries::sharedPointer source) {
+  Units originalUnits = this->units();
+  this->setUnits(RTX_DIMENSIONLESS);  // non-dimensionalize so that we can accept this source.
+  ModularTimeSeries::setSource(source);
+  if (source) {
+    Units units = statsUnits(source->units(), statsType());
+    
+    if (units.isSameDimensionAs(originalUnits)) {
+      units = originalUnits;
+    }
+    this->setUnits(units);
+  }
+
+}
+
+void StatsTimeSeries::setUnits(Units newUnits) {
+  
+  // only set the units if there is no source or the source's units are dimensionally consistent with the passed-in units.
+  if (!source()) {
+    // just use the base-est class method for this, since we don't really care
+    // if the new units are the same as the source units.
+    TimeSeries::setUnits(newUnits);
+  }
+  else {
+    Units units = statsUnits(source()->units(), statsType());
+    if (units.isSameDimensionAs(newUnits)) {
+      TimeSeries::setUnits(newUnits);
+    }
+    else {
+      std::cerr << "units are not dimensionally consistent" << std::endl;
+    }
+  }
+}
+
+Units StatsTimeSeries::statsUnits(Units sourceUnits, StatsTimeSeriesType type) {
+  switch (type) {
+    case StatsTimeSeriesMean:
+      return sourceUnits;
+      break;
+    case StatsTimeSeriesStdDev:
+      return sourceUnits;
+      break;
+    case StatsTimeSeriesMedian:
+      return sourceUnits;
+      break;
+    case StatsTimeSeriesQ25:
+      return sourceUnits;
+      break;
+    case StatsTimeSeriesQ75:
+      return sourceUnits;
+      break;
+    case StatsTimeSeriesInterQuartileRange:
+      return sourceUnits;
+      break;
+    case StatsTimeSeriesMax:
+      return sourceUnits;
+      break;
+    case StatsTimeSeriesMin:
+      return sourceUnits;
+      break;
+    case StatsTimeSeriesCount:
+      return RTX_DIMENSIONLESS;
+      break;
+    case StatsTimeSeriesVar:
+      return sourceUnits * sourceUnits;
+      break;
+    case StatsTimeSeriesRMS:
+      return sourceUnits;
       break;
     default:
       break;
   }
 }
-
-

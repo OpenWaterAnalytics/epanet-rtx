@@ -265,33 +265,42 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
   if (prRange.first <= newStart && newEnd <= prRange.second) {
     // the record's range covers it, but
     // the record may not be continuous -- so check it.
-    time_t now = newStart;
     vector<Point> rpVec = record()->pointsInRange(name(), newStart, newEnd);
-    if (rpVec.size() <= 1) {
-      // like this:
+    if (rpVec.size() == 0) {
       // ppppp---[--- req ---]---ppppp
-      // pppppppp[p---req----]---ppppp
-      // ppppp---[----req---p]pppppppp
-      rpVec.clear();
       rpVec.push_back(record()->pointBefore(name(), newStart));
       rpVec.push_back(record()->pointAfter(name(), newEnd));
-      
     }
-    
-    
+    else {
+      // just need to make sure we're covering the range for possible
+      // edge cases where the record is incomplete
+      // pppppppp[p---req----]---ppppp
+      // ppppp---[----req---p]pppppppp
+      // ppppp---[----req---p]
+      //         [p---req----]---ppppp
+      //              [p] (the one point in the record)
+      if (rpVec.front().time != newStart) {
+        rpVec.insert(rpVec.begin(), record()->pointBefore(name(), newStart));
+      }
+      if (rpVec.back().time != newEnd) {
+        rpVec.push_back(record()->pointAfter(name(), newEnd));
+      }
+    }
+
+    // at this point rpVec should contain all points in range in the record,
+    // extended as need to connect to the closest points on both sides
     vector<Point> stitchedPoints;
     vector<Point>::const_iterator it = rpVec.begin();
+    time_t now = (*it).time;
     while (it != rpVec.end()) {
       Point recordPoint = *it;
       // cout << "P: " << recordPoint << endl;
       
       if (recordPoint.time == now) {
-        stitchedPoints.push_back(recordPoint);
+        if (now >= newStart && now <= newEnd) {
+          stitchedPoints.push_back(recordPoint);
+        }
         now = clock()->timeAfter(now);
-      }
-      else if (recordPoint.time < now) {
-        ++it;
-        continue;
       }
       else {
         // aha, a gap.
@@ -300,19 +309,20 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
         
         gapStart = now;
         gapEnd = recordPoint.time;
-        gapEnd = RTX_MIN(gapEnd, newEnd); // very large gap?
         
         vector<Point> gapPoints = filteredPoints(source(), gapStart, gapEnd);
         if (gapPoints.size() > 0) {
           this->insertPoints(gapPoints);
           now = clock()->timeAfter(gapPoints.back().time);
           BOOST_FOREACH(Point p, gapPoints) {
-            stitchedPoints.push_back(p);
+            if (p.time >= newStart && p.time <= newEnd) {
+              stitchedPoints.push_back(p);
+            }
           }
         }
         else {
           // skipping the gap.
-          now = recordPoint.time;
+          now = gapEnd;
           continue; // skip the ++it
         }
         
@@ -320,7 +330,7 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
       
       ++it;
     }
-    
+
     return stitchedPoints;
   }
   
