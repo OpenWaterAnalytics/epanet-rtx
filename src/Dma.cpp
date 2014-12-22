@@ -337,14 +337,22 @@ void Dma::initDemandTimeseries(const set<Pipe::sharedPointer> &boundarySet) {
      }
      */
     
-    BOOST_FOREACH(pipeDirPair_t pd, _measuredBoundaryPipesDirectional) {
-      Pipe::sharedPointer p = pd.first;
-      Pipe::direction_t dir = pd.second;
-      double dirMult = ( dir == Pipe::inDirection ? 1. : -1. );
-      dmaDemand->addSource(p->flowMeasure(), dirMult);
+    if (_measuredBoundaryPipesDirectional.size() == 0) {
+      ConstantTimeSeries::sharedPointer zero( new ConstantTimeSeries() );
+      zero->setUnits(RTX_GALLON_PER_MINUTE);
+      zero->setValue(0.);
+      this->setDemand(zero);
     }
-    
-    this->setDemand(dmaDemand);
+    else {
+      BOOST_FOREACH(pipeDirPair_t pd, _measuredBoundaryPipesDirectional) {
+        Pipe::sharedPointer p = pd.first;
+        Pipe::direction_t dir = pd.second;
+        double dirMult = ( dir == Pipe::inDirection ? 1. : -1. );
+        dmaDemand->addSource(p->flowMeasure(), dirMult);
+      }
+      this->setDemand(dmaDemand);
+    }
+
   }
   else {
     ConstantTimeSeries::sharedPointer constDma(new ConstantTimeSeries());
