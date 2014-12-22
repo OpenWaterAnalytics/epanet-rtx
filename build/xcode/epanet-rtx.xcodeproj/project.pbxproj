@@ -150,6 +150,10 @@
 		223F52C816D51F330086DC8F /* MapPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 223F52C616D51F330086DC8F /* MapPointRecord.h */; };
 		223F52D516D55D090086DC8F /* DequePointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223F52D316D55D090086DC8F /* DequePointRecord.cpp */; };
 		223F52D616D55D090086DC8F /* DequePointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 223F52D416D55D090086DC8F /* DequePointRecord.h */; };
+		22459FA71A44C41800AFD0BD /* CorrelatorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */; };
+		22459FA81A44C41800AFD0BD /* CorrelatorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */; };
+		22459FA91A44C41800AFD0BD /* CorrelatorTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */; };
+		22459FAA1A44C41800AFD0BD /* CorrelatorTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */; };
 		2246439E150BD6E0005EA3BA /* Node.h in Headers */ = {isa = PBXBuildFile; fileRef = 2246439D150BD6E0005EA3BA /* Node.h */; };
 		224643A1150BD72E005EA3BA /* Link.h in Headers */ = {isa = PBXBuildFile; fileRef = 224643A0150BD72E005EA3BA /* Link.h */; };
 		224B19A0152CA1760051F408 /* ConfigProject.h in Headers */ = {isa = PBXBuildFile; fileRef = 224B199F152CA1760051F408 /* ConfigProject.h */; };
@@ -302,13 +306,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 228A76F918450CBD00905D8E;
 			remoteInfo = "epanet-rtx-project";
-		};
-		2251FFF51A0A7E9D00C4D483 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 22C62ABF1439ED6300841E60;
-			remoteInfo = "epanet-rtx";
 		};
 		22A1CBC71A325948009F58FC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -517,6 +514,8 @@
 		223F52C616D51F330086DC8F /* MapPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapPointRecord.h; path = ../../src/MapPointRecord.h; sourceTree = "<group>"; };
 		223F52D316D55D090086DC8F /* DequePointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DequePointRecord.cpp; path = ../../src/DequePointRecord.cpp; sourceTree = "<group>"; };
 		223F52D416D55D090086DC8F /* DequePointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DequePointRecord.h; path = ../../src/DequePointRecord.h; sourceTree = "<group>"; };
+		22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CorrelatorTimeSeries.cpp; path = ../../src/CorrelatorTimeSeries.cpp; sourceTree = "<group>"; };
+		22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CorrelatorTimeSeries.h; path = ../../src/CorrelatorTimeSeries.h; sourceTree = "<group>"; };
 		2246439D150BD6E0005EA3BA /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../../src/Node.h; sourceTree = "<group>"; };
 		224643A0150BD72E005EA3BA /* Link.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Link.h; path = ../../src/Link.h; sourceTree = "<group>"; };
 		224B199F152CA1760051F408 /* ConfigProject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConfigProject.h; path = ../../src/ConfigProject.h; sourceTree = "<group>"; };
@@ -1020,6 +1019,8 @@
 				221E2EFF149A43A3000860C2 /* ModularTimeSeries.cpp */,
 				220324CA18AC05A800BD7790 /* FailoverTimeSeries.h */,
 				220324C918AC05A800BD7790 /* FailoverTimeSeries.cpp */,
+				22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */,
+				22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */,
 				226AC1451733F8ED009B7C90 /* Single Point Filters */,
 				221F3CD618F467AD00D63C5A /* WarpingTimeSeries.h */,
 				221F3CD518F467AD00D63C5A /* WarpingTimeSeries.cpp */,
@@ -1215,6 +1216,7 @@
 				220F9E3B18F9E68B00BB842C /* BufferPointRecord.h in Headers */,
 				2251FFD41A09394B00C4D483 /* TimeGapTimeSeries.h in Headers */,
 				220F9E3C18F9E68B00BB842C /* MapPointRecord.h in Headers */,
+				22459FAA1A44C41800AFD0BD /* CorrelatorTimeSeries.h in Headers */,
 				220F9E3D18F9E68B00BB842C /* DequePointRecord.h in Headers */,
 				220F9E3E18F9E68B00BB842C /* ThresholdTimeSeries.h in Headers */,
 				220F9E3F18F9E68B00BB842C /* ConstantTimeSeries.h in Headers */,
@@ -1289,6 +1291,7 @@
 				227510E916D4231800B2BA62 /* BufferPointRecord.h in Headers */,
 				2251FFD31A09394B00C4D483 /* TimeGapTimeSeries.h in Headers */,
 				223F52C816D51F330086DC8F /* MapPointRecord.h in Headers */,
+				22459FA91A44C41800AFD0BD /* CorrelatorTimeSeries.h in Headers */,
 				223F52D616D55D090086DC8F /* DequePointRecord.h in Headers */,
 				43627ECA171F27E3007AE0F5 /* ThresholdTimeSeries.h in Headers */,
 				22E4ED111725C1C60076E93D /* ConstantTimeSeries.h in Headers */,
@@ -1619,6 +1622,7 @@
 				220F9E0518F9E68B00BB842C /* DequePointRecord.cpp in Sources */,
 				220F9E0618F9E68B00BB842C /* ThresholdTimeSeries.cpp in Sources */,
 				224D40D819786C3000160BD5 /* BaseStatsTimeSeries.cpp in Sources */,
+				22459FA81A44C41800AFD0BD /* CorrelatorTimeSeries.cpp in Sources */,
 				220F9E0718F9E68B00BB842C /* SqlitePointRecord.cpp in Sources */,
 				220F9E0818F9E68B00BB842C /* ConstantTimeSeries.cpp in Sources */,
 				224E04811979431D0039E3F9 /* StatsTimeSeries.cpp in Sources */,
@@ -1670,6 +1674,7 @@
 				220AE46B145B0EDC002F07B4 /* OdbcPointRecord.cpp in Sources */,
 				22067EAC1873303D00BAFF61 /* OdbcDirectPointRecord.cpp in Sources */,
 				224D40D719786C3000160BD5 /* BaseStatsTimeSeries.cpp in Sources */,
+				22459FA71A44C41800AFD0BD /* CorrelatorTimeSeries.cpp in Sources */,
 				221F3CD718F467AD00D63C5A /* WarpingTimeSeries.cpp in Sources */,
 				220AE46F145B283C002F07B4 /* Element.cpp in Sources */,
 				220AE471145B29F7002F07B4 /* Node.cpp in Sources */,
@@ -1764,11 +1769,6 @@
 			isa = PBXTargetDependency;
 			target = 228A76F918450CBD00905D8E /* epanet-rtx-project */;
 			targetProxy = 2251FFF31A0A7E3500C4D483 /* PBXContainerItemProxy */;
-		};
-		2251FFF61A0A7E9D00C4D483 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 22C62ABF1439ED6300841E60 /* epanet-rtx */;
-			targetProxy = 2251FFF51A0A7E9D00C4D483 /* PBXContainerItemProxy */;
 		};
 		22A1CBC81A325948009F58FC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
