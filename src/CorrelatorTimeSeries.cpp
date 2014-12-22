@@ -22,6 +22,12 @@ using namespace RTX;
 using namespace std;
 
 
+CorrelatorTimeSeries::CorrelatorTimeSeries() {
+  Clock::sharedPointer c( new Clock(3600) );
+  _corWindow = c;
+  
+}
+
 bool CorrelatorTimeSeries::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
   return (units().isDimensionless() || units().isSameDimensionAs(withTimeSeries->units()));
   // it's ok if the clocks aren't compatible.
@@ -60,12 +66,13 @@ void CorrelatorTimeSeries::setSource(TimeSeries::sharedPointer source) {
 vector<Point> CorrelatorTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
   
   std::vector<Point> thePoints;
-  if (!this->correlatorTimeSeries()) {
+  if (!this->correlatorTimeSeries() || !this->source()) {
     return thePoints;
   }
   
   // force pre-cache
   this->source()->points(fromTime - this->correlationWindow()->period(), toTime);
+  this->correlatorTimeSeries()->points(fromTime - this->correlationWindow()->period(), toTime);
   
   vector<time_t> times;
   if (this->clock()->isRegular()) {
@@ -98,9 +105,11 @@ vector<Point> CorrelatorTimeSeries::filteredPoints(TimeSeries::sharedPointer sou
     accumulator_set<double, stats<tag::mean, tag::variance> > acc2;
     accumulator_set<double, stats<tag::covariance<double, tag::covariate1> > > acc3;
     for (int i = 0; i < sourcePoints.size(); i++) {
-      acc1(sourcePoints.at(i).value);
-      acc2(secondaryPoints.at(i).value);
-      acc3(sourcePoints.at(i).value, covariate1 = secondaryPoints.at(i).value);
+      Point p1 = sourcePoints.at(i);
+      Point p2 = Point::convertPoint(secondaryPoints.at(i), sourceU, secondaryUnits);
+      acc1(p1.value);
+      acc2(p2.value);
+      acc3(p1.value, covariate1 = p2.value);
     }
     corrcoef = covariance(acc3)/sqrt(variance(acc1))/sqrt(variance(acc2));
     

@@ -19,6 +19,7 @@ namespace RTX {
   {
   public:
     RTX_SHARED_POINTER(CorrelatorTimeSeries);
+    CorrelatorTimeSeries();
     
     TimeSeries::sharedPointer correlatorTimeSeries();
     void setCorrelatorTimeSeries(TimeSeries::sharedPointer ts);
