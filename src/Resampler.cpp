@@ -219,7 +219,8 @@ std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sour
   
   // quick check for usage
   if (start == 0 || end == 0 || end < start) {
-    cerr << "ERR: Resampler::expandedRange -- check usage" << endl;
+    // can happen when aggregator is asked for a point at an invalid time
+//    cerr << "ERR: Resampler::expandedRange -- check usage" << endl;
     return make_pair(0,0);
   }
   

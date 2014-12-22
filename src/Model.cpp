@@ -820,7 +820,8 @@ void Model::setSimulationParameters(time_t time) {
     if (valve->doesHaveStatusParameter()) {
       Point p = valve->statusParameter()->pointAtOrBefore(time);
       if (p.isValid) {
-        setPipeStatus( valve->name(), Pipe::status_t((int)(p.value)) );
+        status = Pipe::status_t((int)(p.value));
+        setPipeStatus( valve->name(), status );
       }
       else {
         cerr << "ERR: Invalid status point for Valve " << valve->name() << " at time " << time << endl;
@@ -845,7 +846,8 @@ void Model::setSimulationParameters(time_t time) {
     if (pump->doesHaveStatusParameter()) {
       Point p = pump->statusParameter()->pointAtOrBefore(time);
       if (p.isValid) {
-        setPumpStatus( pump->name(), Pipe::status_t((int)(p.value)) );
+        status = Pipe::status_t((int)(p.value));
+        setPumpStatus( pump->name(), status );
       }
       else {
         cerr << "ERR: Invalid status point for Pump " << pump->name() << " at time " << time << endl;
