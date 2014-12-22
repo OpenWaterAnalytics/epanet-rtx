@@ -10,6 +10,7 @@
 
 #include "ModelPerformance.h"
 #include "AggregatorTimeSeries.h"
+#include "CorrelatorTimeSeries.h"
 #include "StatsTimeSeries.h"
 #include "GainTimeSeries.h"
 
@@ -239,7 +240,15 @@ TimeSeries::sharedPointer ModelPerformance::errorForPair(std::pair<TimeSeries::s
       err = rmse;
     }
       break;
-      
+    case ModelPerformanceStatsCorrelationCoefficient:
+    {
+      CorrelatorTimeSeries::sharedPointer corr(new CorrelatorTimeSeries());
+      corr->setClock(this->errorClock());
+      corr->setCorrelationWindow(this->samplingWindow());
+      corr->setSource(tsPair.first);
+      corr->setCorrelatorTimeSeries(tsPair.second);
+      err = corr;
+    }
     default:
       break;
   }
