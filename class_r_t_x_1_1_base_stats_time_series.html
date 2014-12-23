@@ -61,6 +61,11 @@
 <div class="title">RTX::BaseStatsTimeSeries Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>An abstract timeseries class for computing statistical data from point values.  
+ <a href="class_r_t_x_1_1_base_stats_time_series.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="_base_stats_time_series_8h_source.html">BaseStatsTimeSeries.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for RTX::BaseStatsTimeSeries:</div>
 <div class="dyncontent">
@@ -76,10 +81,11 @@ Collaboration diagram for RTX::BaseStatsTimeSeries:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:af9649c36ec1d49710a2eb8d94ff4b973"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af9649c36ec1d49710a2eb8d94ff4b973"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>StatsSamplingMode_t</b> { <b>StatsSamplingModeLeading</b> = 0, 
-<b>StatsSamplingModeLagging</b> = 1, 
-<b>StatsSamplingModeCentered</b> = 2
+<tr class="memitem:af9649c36ec1d49710a2eb8d94ff4b973"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_r_t_x_1_1_base_stats_time_series.html#af9649c36ec1d49710a2eb8d94ff4b973">StatsSamplingMode_t</a> { <a class="el" href="class_r_t_x_1_1_base_stats_time_series.html#af9649c36ec1d49710a2eb8d94ff4b973af4b23fadc8c4d13a6cd60fb7c839f723">StatsSamplingModeLeading</a> = 0, 
+<a class="el" href="class_r_t_x_1_1_base_stats_time_series.html#af9649c36ec1d49710a2eb8d94ff4b973a68cf8d925cc9fdb183dfb465be08b1fe">StatsSamplingModeLagging</a> = 1, 
+<a class="el" href="class_r_t_x_1_1_base_stats_time_series.html#af9649c36ec1d49710a2eb8d94ff4b973a799f7ef335bbe962df3ee9d2eab006a8">StatsSamplingModeCentered</a> = 2
  }</td></tr>
+<tr class="memdesc:af9649c36ec1d49710a2eb8d94ff4b973"><td class="mdescLeft">&#160;</td><td class="mdescRight">sampling window mode (lead, lag, center)  <a href="class_r_t_x_1_1_base_stats_time_series.html#af9649c36ec1d49710a2eb8d94ff4b973">More...</a><br /></td></tr>
 <tr class="separator:af9649c36ec1d49710a2eb8d94ff4b973"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8ac1c25ad988f46272d30c1601909943"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8ac1c25ad988f46272d30c1601909943"></a>
 typedef std::pair&lt; <a class="el" href="class_r_t_x_1_1_point.html">Point</a>, <br class="typebreak" />
@@ -102,17 +108,17 @@ typedef boost::shared_ptr<br class="typebreak" />
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a07b7dcb74f6e67e0adea6c1a00768c0d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a07b7dcb74f6e67e0adea6c1a00768c0d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setWindow</b> (Clock::sharedPointer window)</td></tr>
-<tr class="separator:a07b7dcb74f6e67e0adea6c1a00768c0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acbaea00ad89f02e07f289fa9b2ec47a8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acbaea00ad89f02e07f289fa9b2ec47a8"></a>
-Clock::sharedPointer&#160;</td><td class="memItemRight" valign="bottom"><b>window</b> ()</td></tr>
-<tr class="separator:acbaea00ad89f02e07f289fa9b2ec47a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf6d5506a2d5ffe86cf92f0d84ef0cd4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_r_t_x_1_1_base_stats_time_series.html#abf6d5506a2d5ffe86cf92f0d84ef0cd4">setWindow</a> (Clock::sharedPointer <a class="el" href="class_r_t_x_1_1_base_stats_time_series.html#aec70d94aee0806ae094a36a0d3fe2439">window</a>)</td></tr>
+<tr class="memdesc:abf6d5506a2d5ffe86cf92f0d84ef0cd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the moving statistical window.  <a href="#abf6d5506a2d5ffe86cf92f0d84ef0cd4">More...</a><br /></td></tr>
+<tr class="separator:abf6d5506a2d5ffe86cf92f0d84ef0cd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec70d94aee0806ae094a36a0d3fe2439"><td class="memItemLeft" align="right" valign="top">Clock::sharedPointer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_r_t_x_1_1_base_stats_time_series.html#aec70d94aee0806ae094a36a0d3fe2439">window</a> ()</td></tr>
+<tr class="memdesc:aec70d94aee0806ae094a36a0d3fe2439"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the statistical sampling window clock.  <a href="#aec70d94aee0806ae094a36a0d3fe2439">More...</a><br /></td></tr>
+<tr class="separator:aec70d94aee0806ae094a36a0d3fe2439"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abc9c85dc5bbb72aa150fae00a511eba7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abc9c85dc5bbb72aa150fae00a511eba7"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setSamplingMode</b> (StatsSamplingMode_t mode)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setSamplingMode</b> (<a class="el" href="class_r_t_x_1_1_base_stats_time_series.html#af9649c36ec1d49710a2eb8d94ff4b973">StatsSamplingMode_t</a> mode)</td></tr>
 <tr class="separator:abc9c85dc5bbb72aa150fae00a511eba7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea208106a590e9d9ceeccfd7fa9f2e88"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aea208106a590e9d9ceeccfd7fa9f2e88"></a>
-StatsSamplingMode_t&#160;</td><td class="memItemRight" valign="bottom"><b>samplingMode</b> ()</td></tr>
+<a class="el" href="class_r_t_x_1_1_base_stats_time_series.html#af9649c36ec1d49710a2eb8d94ff4b973">StatsSamplingMode_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>samplingMode</b> ()</td></tr>
 <tr class="separator:aea208106a590e9d9ceeccfd7fa9f2e88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae3a5d6af942249d9bc204e68fbb9635f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae3a5d6af942249d9bc204e68fbb9635f"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>summaryOnly</b> ()</td></tr>
@@ -237,6 +243,80 @@ virtual std::vector&lt; <a class="el" href="class_r_t_x_1_1_point.html">Point</a
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>isCompatibleWith</b> (TimeSeries::sharedPointer withTimeSeries)</td></tr>
 <tr class="separator:ae22c5842cc72a46831279ae8f9bbe080 inherit pro_methods_class_r_t_x_1_1_modular_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>An abstract timeseries class for computing statistical data from point values. </p>
+<p>The <a class="el" href="class_r_t_x_1_1_base_stats_time_series.html" title="An abstract timeseries class for computing statistical data from point values. ">BaseStatsTimeSeries</a> class is designed to provide a moving window (specified by the period length of a <a class="el" href="class_r_t_x_1_1_clock.html" title="A simple clock class for keeping time synchronized. ">Clock</a> in <a class="el" href="class_r_t_x_1_1_base_stats_time_series.html#aec70d94aee0806ae094a36a0d3fe2439" title="Get the statistical sampling window clock. ">window</a> ), evaluated at regular intervals (also as a <a class="el" href="class_r_t_x_1_1_clock.html" title="A simple clock class for keeping time synchronized. ">Clock</a>), over which statistical measures are taken. The window can lead, lag, or be centered on the time series' clock. </p>
+</div><h2 class="groupheader">Member Enumeration Documentation</h2>
+<a class="anchor" id="af9649c36ec1d49710a2eb8d94ff4b973"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="class_r_t_x_1_1_base_stats_time_series.html#af9649c36ec1d49710a2eb8d94ff4b973">RTX::BaseStatsTimeSeries::StatsSamplingMode_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>sampling window mode (lead, lag, center) </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a class="anchor" id="af9649c36ec1d49710a2eb8d94ff4b973af4b23fadc8c4d13a6cd60fb7c839f723"></a>StatsSamplingModeLeading&#160;</td><td class="fielddoc">
+<p>Use a leading window about the time series' clock </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="af9649c36ec1d49710a2eb8d94ff4b973a68cf8d925cc9fdb183dfb465be08b1fe"></a>StatsSamplingModeLagging&#160;</td><td class="fielddoc">
+<p>Use a lagging window </p>
+</td></tr>
+<tr><td class="fieldname"><a class="anchor" id="af9649c36ec1d49710a2eb8d94ff4b973a799f7ef335bbe962df3ee9d2eab006a8"></a>StatsSamplingModeCentered&#160;</td><td class="fielddoc">
+<p>Use a centered sampling window </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="abf6d5506a2d5ffe86cf92f0d84ef0cd4"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void RTX::BaseStatsTimeSeries::setWindow </td>
+          <td>(</td>
+          <td class="paramtype">Clock::sharedPointer&#160;</td>
+          <td class="paramname"><em>window</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the moving statistical window. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">window</td><td>A moving window to use for statistical calculations </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="class_r_t_x_1_1_base_stats_time_series.html#aec70d94aee0806ae094a36a0d3fe2439" title="Get the statistical sampling window clock. ">BaseStatsTimeSeries::window</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aec70d94aee0806ae094a36a0d3fe2439"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Clock::sharedPointer RTX::BaseStatsTimeSeries::window </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the statistical sampling window clock. </p>
+<dl class="section return"><dt>Returns</dt><dd>A shared pointer to a <a class="el" href="class_r_t_x_1_1_clock.html" title="A simple clock class for keeping time synchronized. ">Clock</a> object. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="class_r_t_x_1_1_base_stats_time_series.html#abf6d5506a2d5ffe86cf92f0d84ef0cd4" title="Set the moving statistical window. ">BaseStatsTimeSeries::setWindow</a> </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="_base_stats_time_series_8h_source.html">BaseStatsTimeSeries.h</a></li>
 <li>BaseStatsTimeSeries.cpp</li>

@@ -1,24 +1,25 @@
 <map id="RTX::ModularTimeSeries" name="RTX::ModularTimeSeries">
-<area shape="rect" id="node7" href="$class_r_t_x_1_1_base_stats_time_series.html" title="RTX::BaseStatsTimeSeries" alt="" coords="625,50,807,78"/>
-<area shape="rect" id="node13" href="$class_r_t_x_1_1_curve_function.html" title="A Curve Function Class to perform arbitrary mapping of values. " alt="" coords="645,102,787,130"/>
-<area shape="rect" id="node15" href="$class_r_t_x_1_1_failover_time_series.html" title="RTX::FailoverTimeSeries" alt="" coords="631,154,801,182"/>
-<area shape="rect" id="node17" href="$class_r_t_x_1_1_forecast_time_series.html" title="An arima &#45; based time series predictor/forecaster. " alt="" coords="629,206,803,234"/>
-<area shape="rect" id="node19" href="$class_r_t_x_1_1_resampler.html" title="RTX::Resampler" alt="" coords="656,258,776,286"/>
-<area shape="rect" id="node27" href="$class_r_t_x_1_1_run_time_status_modular_time_series.html" title="RTX::RunTimeStatusModular\lTimeSeries" alt="" coords="619,310,813,354"/>
-<area shape="rect" id="node29" href="$class_r_t_x_1_1_single_point_filter_modular_time_series.html" title="RTX::SinglePointFilterModular\lTimeSeries" alt="" coords="616,391,816,435"/>
-<area shape="rect" id="node45" href="$class_r_t_x_1_1_time_gap_time_series.html" title="A Class to map the input time series into a series whos values are the time gaps between successive p..." alt="" coords="628,459,804,487"/>
-<area shape="rect" id="node47" href="$class_r_t_x_1_1_warping_time_series.html" title="RTX::WarpingTimeSeries" alt="" coords="630,511,802,539"/>
-<area shape="rect" id="node2" href="$class_r_t_x_1_1_time_series.html" title="An abstraction of Points ordered in time. " alt="" coords="227,258,349,286"/>
+<area shape="rect" id="node7" href="$class_r_t_x_1_1_base_stats_time_series.html" title="An abstract timeseries class for computing statistical data from point values. " alt="" coords="625,42,807,70"/>
+<area shape="rect" id="node13" href="$class_r_t_x_1_1_correlator_time_series.html" title="RTX::CorrelatorTimeSeries" alt="" coords="625,94,807,122"/>
+<area shape="rect" id="node15" href="$class_r_t_x_1_1_curve_function.html" title="A Curve Function Class to perform arbitrary mapping of values. " alt="" coords="645,146,787,174"/>
+<area shape="rect" id="node17" href="$class_r_t_x_1_1_failover_time_series.html" title="RTX::FailoverTimeSeries" alt="" coords="631,198,801,226"/>
+<area shape="rect" id="node19" href="$class_r_t_x_1_1_forecast_time_series.html" title="An arima &#45; based time series predictor/forecaster. " alt="" coords="629,250,803,278"/>
+<area shape="rect" id="node21" href="$class_r_t_x_1_1_resampler.html" title="RTX::Resampler" alt="" coords="656,302,776,330"/>
+<area shape="rect" id="node29" href="$class_r_t_x_1_1_run_time_status_modular_time_series.html" title="RTX::RunTimeStatusModular\lTimeSeries" alt="" coords="619,354,813,398"/>
+<area shape="rect" id="node31" href="$class_r_t_x_1_1_single_point_filter_modular_time_series.html" title="RTX::SinglePointFilterModular\lTimeSeries" alt="" coords="616,435,816,479"/>
+<area shape="rect" id="node47" href="$class_r_t_x_1_1_time_gap_time_series.html" title="A Class to map the input time series into a series whos values are the time gaps between successive p..." alt="" coords="628,503,804,531"/>
+<area shape="rect" id="node49" href="$class_r_t_x_1_1_warping_time_series.html" title="RTX::WarpingTimeSeries" alt="" coords="630,555,802,583"/>
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_time_series.html" title="An abstraction of Points ordered in time. " alt="" coords="227,277,349,305"/>
 <area shape="rect" id="node9" href="$class_r_t_x_1_1_outlier_exclusion_time_series.html" title="RTX::OutlierExclusionTime\lSeries" alt="" coords="870,5,1050,49"/>
 <area shape="rect" id="node11" href="$class_r_t_x_1_1_stats_time_series.html" title="A modular timeseries class for delivering statistical information. " alt="" coords="884,73,1036,101"/>
-<area shape="rect" id="node21" href="$class_r_t_x_1_1_aggregator_time_series.html" title="Aggregates (and optionally scales) arbitrary many input time series. " alt="" coords="866,146,1054,174"/>
-<area shape="rect" id="node23" href="$class_r_t_x_1_1_first_derivative.html" title="RTX::FirstDerivative" alt="" coords="890,198,1030,226"/>
-<area shape="rect" id="node25" href="$class_r_t_x_1_1_moving_average.html" title="RTX::MovingAverage" alt="" coords="886,250,1034,278"/>
-<area shape="rect" id="node31" href="$class_r_t_x_1_1_gain_time_series.html" title="RTX::GainTimeSeries" alt="" coords="885,302,1035,330"/>
-<area shape="rect" id="node33" href="$class_r_t_x_1_1_inversion_time_series.html" title="RTX::InversionTimeSeries" alt="" coords="872,354,1048,382"/>
-<area shape="rect" id="node35" href="$class_r_t_x_1_1_multiplier_time_series.html" title="RTX::MultiplierTimeSeries" alt="" coords="872,406,1048,434"/>
-<area shape="rect" id="node37" href="$class_r_t_x_1_1_offset_time_series.html" title="RTX::OffsetTimeSeries" alt="" coords="881,458,1039,486"/>
-<area shape="rect" id="node39" href="$class_r_t_x_1_1_threshold_time_series.html" title="A Status Class to map the input time series into binary status based on a threshold. " alt="" coords="869,510,1051,538"/>
-<area shape="rect" id="node41" href="$class_r_t_x_1_1_time_offset_time_series.html" title="RTX::TimeOffsetTimeSeries" alt="" coords="867,562,1053,590"/>
-<area shape="rect" id="node43" href="$class_r_t_x_1_1_valid_range_time_series.html" title="RTX::ValidRangeTimeSeries" alt="" coords="865,614,1055,642"/>
+<area shape="rect" id="node23" href="$class_r_t_x_1_1_aggregator_time_series.html" title="Aggregates (and optionally scales) arbitrary many input time series. " alt="" coords="866,190,1054,218"/>
+<area shape="rect" id="node25" href="$class_r_t_x_1_1_first_derivative.html" title="RTX::FirstDerivative" alt="" coords="890,242,1030,270"/>
+<area shape="rect" id="node27" href="$class_r_t_x_1_1_moving_average.html" title="RTX::MovingAverage" alt="" coords="886,294,1034,322"/>
+<area shape="rect" id="node33" href="$class_r_t_x_1_1_gain_time_series.html" title="RTX::GainTimeSeries" alt="" coords="885,346,1035,374"/>
+<area shape="rect" id="node35" href="$class_r_t_x_1_1_inversion_time_series.html" title="RTX::InversionTimeSeries" alt="" coords="872,398,1048,426"/>
+<area shape="rect" id="node37" href="$class_r_t_x_1_1_multiplier_time_series.html" title="RTX::MultiplierTimeSeries" alt="" coords="872,450,1048,478"/>
+<area shape="rect" id="node39" href="$class_r_t_x_1_1_offset_time_series.html" title="RTX::OffsetTimeSeries" alt="" coords="881,502,1039,530"/>
+<area shape="rect" id="node41" href="$class_r_t_x_1_1_threshold_time_series.html" title="A Status Class to map the input time series into binary status based on a threshold. " alt="" coords="869,554,1051,582"/>
+<area shape="rect" id="node43" href="$class_r_t_x_1_1_time_offset_time_series.html" title="RTX::TimeOffsetTimeSeries" alt="" coords="867,606,1053,634"/>
+<area shape="rect" id="node45" href="$class_r_t_x_1_1_valid_range_time_series.html" title="RTX::ValidRangeTimeSeries" alt="" coords="865,658,1055,686"/>
 </map>

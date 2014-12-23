@@ -104,16 +104,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setOffset</b> (time_t
 <tr class="memitem:adcb60d3228456b53b2673b88b8e74f30"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adcb60d3228456b53b2673b88b8e74f30"></a>
 time_t&#160;</td><td class="memItemRight" valign="bottom"><b>offset</b> ()</td></tr>
 <tr class="separator:adcb60d3228456b53b2673b88b8e74f30"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56e00a46293c1757f7a2e83d4ece54cb"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_r_t_x_1_1_point.html">Point</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_r_t_x_1_1_time_offset_time_series.html#a56e00a46293c1757f7a2e83d4ece54cb">point</a> (time_t time)</td></tr>
+<tr class="memdesc:a56e00a46293c1757f7a2e83d4ece54cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">option to add lots of (un)ordered points all at once.  <a href="#a56e00a46293c1757f7a2e83d4ece54cb">More...</a><br /></td></tr>
+<tr class="separator:a56e00a46293c1757f7a2e83d4ece54cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa6bdebbb7d030ff4fb8137f096418ba7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa6bdebbb7d030ff4fb8137f096418ba7"></a>
 virtual <a class="el" href="class_r_t_x_1_1_point.html">Point</a>&#160;</td><td class="memItemRight" valign="bottom"><b>pointBefore</b> (time_t time)</td></tr>
 <tr class="separator:aa6bdebbb7d030ff4fb8137f096418ba7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a03c8fbe5657a93b6378de98128994703"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a03c8fbe5657a93b6378de98128994703"></a>
 virtual <a class="el" href="class_r_t_x_1_1_point.html">Point</a>&#160;</td><td class="memItemRight" valign="bottom"><b>pointAfter</b> (time_t time)</td></tr>
 <tr class="separator:a03c8fbe5657a93b6378de98128994703"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_class_r_t_x_1_1_single_point_filter_modular_time_series"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_r_t_x_1_1_single_point_filter_modular_time_series')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_r_t_x_1_1_single_point_filter_modular_time_series.html">RTX::SinglePointFilterModularTimeSeries</a></td></tr>
-<tr class="memitem:ada77dc0d632f26f16364d20103db193e inherit pub_methods_class_r_t_x_1_1_single_point_filter_modular_time_series"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_r_t_x_1_1_point.html">Point</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_r_t_x_1_1_single_point_filter_modular_time_series.html#ada77dc0d632f26f16364d20103db193e">point</a> (time_t time)</td></tr>
-<tr class="memdesc:ada77dc0d632f26f16364d20103db193e inherit pub_methods_class_r_t_x_1_1_single_point_filter_modular_time_series"><td class="mdescLeft">&#160;</td><td class="mdescRight">option to add lots of (un)ordered points all at once.  <a href="#ada77dc0d632f26f16364d20103db193e">More...</a><br /></td></tr>
-<tr class="separator:ada77dc0d632f26f16364d20103db193e inherit pub_methods_class_r_t_x_1_1_single_point_filter_modular_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_r_t_x_1_1_modular_time_series"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_r_t_x_1_1_modular_time_series')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_r_t_x_1_1_modular_time_series.html">RTX::ModularTimeSeries</a></td></tr>
 <tr class="memitem:a609532c959b0761c336c0266b77ea837 inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="memItemLeft" align="right" valign="top">virtual TimeSeries::sharedPointer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_r_t_x_1_1_modular_time_series.html#a609532c959b0761c336c0266b77ea837">source</a> ()</td></tr>
 <tr class="memdesc:a609532c959b0761c336c0266b77ea837 inherit pub_methods_class_r_t_x_1_1_modular_time_series"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the source of this time series.  <a href="#a609532c959b0761c336c0266b77ea837">More...</a><br /></td></tr>
@@ -221,6 +220,44 @@ std::vector&lt; <a class="el" href="class_r_t_x_1_1_point.html">Point</a> &gt;&#
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>isCompatibleWith</b> (TimeSeries::sharedPointer withTimeSeries)</td></tr>
 <tr class="separator:ae22c5842cc72a46831279ae8f9bbe080 inherit pro_methods_class_r_t_x_1_1_modular_time_series"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a56e00a46293c1757f7a2e83d4ece54cb"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_r_t_x_1_1_point.html">Point</a> TimeOffsetTimeSeries::point </td>
+          <td>(</td>
+          <td class="paramtype">time_t&#160;</td>
+          <td class="paramname"><em>time</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>option to add lots of (un)ordered points all at once. </p>
+<p>Get a <a class="el" href="class_r_t_x_1_1_point.html" title="A Point Class to store data tuples (date, value, quality, confidence) ">Point</a> at a specific time.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">time</td><td>The requested time. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The requested <a class="el" href="class_r_t_x_1_1_point.html" title="A Point Class to store data tuples (date, value, quality, confidence) ">Point</a>, or the <a class="el" href="class_r_t_x_1_1_point.html" title="A Point Class to store data tuples (date, value, quality, confidence) ">Point</a> just prior to the passed time value. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="class_r_t_x_1_1_point.html" title="A Point Class to store data tuples (date, value, quality, confidence) ">Point</a> </dd></dl>
+
+<p>Reimplemented from <a class="el" href="class_r_t_x_1_1_single_point_filter_modular_time_series.html#ada77dc0d632f26f16364d20103db193e">RTX::SinglePointFilterModularTimeSeries</a>.</p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="_time_offset_time_series_8h_source.html">TimeOffsetTimeSeries.h</a></li>
 <li>TimeOffsetTimeSeries.cpp</li>

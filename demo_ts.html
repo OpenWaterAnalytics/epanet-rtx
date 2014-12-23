@@ -72,6 +72,7 @@
 <div class="line"><span class="preprocessor">#include &quot;TimeOffsetTimeSeries.h&quot;</span></div>
 <div class="line"><span class="preprocessor">#include &quot;WarpingTimeSeries.h&quot;</span></div>
 <div class="line"><span class="preprocessor">#include &quot;ForecastTimeSeries.h&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;TimeOffsetTimeSeries.h&quot;</span></div>
 <div class="line"></div>
 <div class="line"><span class="preprocessor">#include &quot;OutlierExclusionTimeSeries.h&quot;</span></div>
 <div class="line"></div>
@@ -92,22 +93,41 @@
 <div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keyword">const</span> <span class="keywordtype">char</span> * argv[])</div>
 <div class="line">{</div>
 <div class="line">  </div>
+<div class="line">  Clock::sharedPointer clock(<span class="keyword">new</span> <a class="code" href="class_r_t_x_1_1_clock.html">Clock</a>(900));</div>
+<div class="line">  </div>
 <div class="line">  SineTimeSeries::sharedPointer sineWave(<span class="keyword">new</span> <a class="code" href="class_r_t_x_1_1_sine_time_series.html">SineTimeSeries</a>());</div>
-<div class="line">  </div>
 <div class="line">  sineWave-&gt;setName(<span class="stringliteral">&quot;sine&quot;</span>);</div>
+<div class="line">  sineWave-&gt;setClock(clock);</div>
 <div class="line">  </div>
-<div class="line">  ForecastTimeSeries::sharedPointer pythonTestTs(<span class="keyword">new</span> <a class="code" href="class_r_t_x_1_1_forecast_time_series.html">ForecastTimeSeries</a>());</div>
+<div class="line">  TimeOffsetTimeSeries::sharedPointer lag(<span class="keyword">new</span> <a class="code" href="class_r_t_x_1_1_time_offset_time_series.html">TimeOffsetTimeSeries</a>());</div>
+<div class="line">  lag-&gt;setOffset(900);</div>
+<div class="line">  lag-&gt;setSource(sineWave);</div>
 <div class="line">  </div>
-<div class="line">  pythonTestTs-&gt;setSource(sineWave);</div>
+<div class="line">  time_t t1 = 1400004000; <span class="comment">//time(NULL);</span></div>
+<div class="line">  time_t t2 = t1 + 3600;</div>
+<div class="line">  vector&lt;Point&gt; points = lag-&gt;points(t1, t2);</div>
 <div class="line">  </div>
-<div class="line">  vector&lt;Point&gt; testPoints = pythonTestTs-&gt;points(1000, 3000);</div>
-<div class="line">  </div>
-<div class="line">  printPoints(testPoints);</div>
-<div class="line">  </div>
-<div class="line">  </div>
-<div class="line">  vector&lt;Point&gt; range;</div>
+<div class="line">  printPoints(sineWave-&gt;points(t1, t2));</div>
+<div class="line">  cout &lt;&lt; endl;</div>
+<div class="line">  printPoints(points);</div>
 <div class="line">  </div>
 <div class="line">  </div>
+<div class="line">  </div>
+<div class="line">  <span class="comment">/*</span></div>
+<div class="line"><span class="comment">  </span></div>
+<div class="line"><span class="comment">  </span></div>
+<div class="line"><span class="comment">  ForecastTimeSeries::sharedPointer pythonTestTs(new ForecastTimeSeries());</span></div>
+<div class="line"><span class="comment">  </span></div>
+<div class="line"><span class="comment">  pythonTestTs-&gt;setSource(sineWave);</span></div>
+<div class="line"><span class="comment">  </span></div>
+<div class="line"><span class="comment">  vector&lt;Point&gt; testPoints = pythonTestTs-&gt;points(1000, 3000);</span></div>
+<div class="line"><span class="comment">  </span></div>
+<div class="line"><span class="comment">  printPoints(testPoints);</span></div>
+<div class="line"><span class="comment">  </span></div>
+<div class="line"><span class="comment">  </span></div>
+<div class="line"><span class="comment">  vector&lt;Point&gt; range;</span></div>
+<div class="line"><span class="comment">  </span></div>
+<div class="line"><span class="comment">  */</span></div>
 <div class="line">  </div>
 <div class="line">  </div>
 <div class="line">  <span class="keywordflow">return</span> 0;</div>

@@ -225,6 +225,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setTanksNeedReset</b>
 <tr class="memitem:a7487c943f7912d518b90684e7bf9a7bd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7487c943f7912d518b90684e7bf9a7bd"></a>
 virtual std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>toStream</b> (std::ostream &amp;stream)</td></tr>
 <tr class="separator:a7487c943f7912d518b90684e7bf9a7bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80ae83bd0ad023d6fbcb3e7eeda53e5f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a80ae83bd0ad023d6fbcb3e7eeda53e5f"></a>
+vector&lt; TimeSeries::sharedPointer &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>networkStatesWithMeasures</b> ()</td></tr>
+<tr class="separator:a80ae83bd0ad023d6fbcb3e7eeda53e5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4399f9da70d640df977ee0c32bea3633"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4399f9da70d640df977ee0c32bea3633"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setRecordForNetworkStatesWithMeasures</b> (PointRecord::sharedPointer pr)</td></tr>
+<tr class="separator:a4399f9da70d640df977ee0c32bea3633"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0dc338da09d7be782426544d219906a3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0dc338da09d7be782426544d219906a3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setRecordForNetworkBoundariesAndMeasures</b> (PointRecord::sharedPointer pr)</td></tr>
+<tr class="separator:a0dc338da09d7be782426544d219906a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc79be2e6636440a3fb0c92e398a5f5e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adc79be2e6636440a3fb0c92e398a5f5e"></a>
 <a class="el" href="class_r_t_x_1_1_units.html">Units</a>&#160;</td><td class="memItemRight" valign="bottom"><b>flowUnits</b> ()</td></tr>
 <tr class="separator:adc79be2e6636440a3fb0c92e398a5f5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -318,9 +327,9 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setPumpSettin
 <tr class="memitem:aa9760233c49f5e1cc2b98bd88ec5c694"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa9760233c49f5e1cc2b98bd88ec5c694"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setValveSetting</b> (const string &amp;valve, double setting)</td></tr>
 <tr class="separator:aa9760233c49f5e1cc2b98bd88ec5c694"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a891bf3f08f131c5269ea9dbd4a202b86"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a891bf3f08f131c5269ea9dbd4a202b86"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>solveSimulation</b> (time_t time)</td></tr>
-<tr class="separator:a891bf3f08f131c5269ea9dbd4a202b86"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b14f84b21eb8492d589fc5e836a7d3c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9b14f84b21eb8492d589fc5e836a7d3c"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>solveSimulation</b> (time_t time)</td></tr>
+<tr class="separator:a9b14f84b21eb8492d589fc5e836a7d3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace601f492dc0d5232c93f4a4052819e9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ace601f492dc0d5232c93f4a4052819e9"></a>
 virtual time_t&#160;</td><td class="memItemRight" valign="bottom"><b>nextHydraulicStep</b> (time_t time)</td></tr>
 <tr class="separator:ace601f492dc0d5232c93f4a4052819e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -330,9 +339,9 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>stepSimulatio
 <tr class="memitem:a091ab0301966b574c7a3f71b25f74112"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a091ab0301966b574c7a3f71b25f74112"></a>
 virtual int&#160;</td><td class="memItemRight" valign="bottom"><b>iterations</b> (time_t time)</td></tr>
 <tr class="separator:a091ab0301966b574c7a3f71b25f74112"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b4b1aca9aa53be63c54bc42634358cf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5b4b1aca9aa53be63c54bc42634358cf"></a>
-virtual int&#160;</td><td class="memItemRight" valign="bottom"><b>relativeError</b> (time_t time)</td></tr>
-<tr class="separator:a5b4b1aca9aa53be63c54bc42634358cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1b6717e7637b2e23d4f1165b4521861"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad1b6717e7637b2e23d4f1165b4521861"></a>
+virtual double&#160;</td><td class="memItemRight" valign="bottom"><b>relativeError</b> (time_t time)</td></tr>
+<tr class="separator:ad1b6717e7637b2e23d4f1165b4521861"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a209509ffe3f44b85de331ff48b46e4b0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a209509ffe3f44b85de331ff48b46e4b0"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setCurrentSimulationTime</b> (time_t time)</td></tr>
 <tr class="separator:a209509ffe3f44b85de331ff48b46e4b0"><td class="memSeparator" colspan="2">&#160;</td></tr>

@@ -11,10 +11,10 @@
 <polygon fill="white" stroke="white" points="-4,5 -4,-36 125,-36 125,5 -4,5"/>
 <!-- Node1 -->
 <g id="node1" class="node"><title>Node1</title>
-<a xlink:href="class_r_t_x_1_1_odbc_point_record_1_1_odbc_sql_handle.html" target="_top" xlink:title="RTX::OdbcPointRecord\l::OdbcSqlHandle">
+<a xlink:href="class_r_t_x_1_1_odbc_point_record_1_1_odbc_query.html" target="_top" xlink:title="RTX::OdbcPointRecord\l::OdbcQuery">
 <polygon fill="white" stroke="black" points="-0.155762,-0 -0.155762,-32 120.156,-32 120.156,-0 -0.155762,-0"/>
 <text text-anchor="start" x="7.84424" y="-18" font-family="Helvetica,sans-Serif" font-size="10.00">RTX::OdbcPointRecord</text>
-<text text-anchor="middle" x="60" y="-6" font-family="Helvetica,sans-Serif" font-size="10.00">::OdbcSqlHandle</text>
+<text text-anchor="middle" x="60" y="-6" font-family="Helvetica,sans-Serif" font-size="10.00">::OdbcQuery</text>
 </a>
 </g>
 </g>

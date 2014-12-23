@@ -91,9 +91,9 @@ typedef boost::shared_ptr&lt; <a class="el" href="class_r_t_x_1_1_model.html">Mo
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a7a4c58178d140516aa14ddc0116b1954"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7a4c58178d140516aa14ddc0116b1954"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>solveSimulation</b> (time_t time)</td></tr>
-<tr class="separator:a7a4c58178d140516aa14ddc0116b1954"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa8d7ebbda3c88a94a9858f09d3ce3df"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afa8d7ebbda3c88a94a9858f09d3ce3df"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>solveSimulation</b> (time_t time)</td></tr>
+<tr class="separator:afa8d7ebbda3c88a94a9858f09d3ce3df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a167051bd6d1d5c855464a5a5c9bc6453"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a167051bd6d1d5c855464a5a5c9bc6453"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>stepSimulation</b> (time_t time)</td></tr>
 <tr class="separator:a167051bd6d1d5c855464a5a5c9bc6453"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -243,6 +243,15 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>tanksNeedReset</b> ()
 <tr class="memitem:a5e609b33a817b13e0102e25143e019aa inherit pub_methods_class_r_t_x_1_1_model"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5e609b33a817b13e0102e25143e019aa"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setTanksNeedReset</b> (bool needReset)</td></tr>
 <tr class="separator:a5e609b33a817b13e0102e25143e019aa inherit pub_methods_class_r_t_x_1_1_model"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80ae83bd0ad023d6fbcb3e7eeda53e5f inherit pub_methods_class_r_t_x_1_1_model"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a80ae83bd0ad023d6fbcb3e7eeda53e5f"></a>
+vector&lt; TimeSeries::sharedPointer &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>networkStatesWithMeasures</b> ()</td></tr>
+<tr class="separator:a80ae83bd0ad023d6fbcb3e7eeda53e5f inherit pub_methods_class_r_t_x_1_1_model"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4399f9da70d640df977ee0c32bea3633 inherit pub_methods_class_r_t_x_1_1_model"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4399f9da70d640df977ee0c32bea3633"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setRecordForNetworkStatesWithMeasures</b> (PointRecord::sharedPointer pr)</td></tr>
+<tr class="separator:a4399f9da70d640df977ee0c32bea3633 inherit pub_methods_class_r_t_x_1_1_model"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0dc338da09d7be782426544d219906a3 inherit pub_methods_class_r_t_x_1_1_model"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0dc338da09d7be782426544d219906a3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setRecordForNetworkBoundariesAndMeasures</b> (PointRecord::sharedPointer pr)</td></tr>
+<tr class="separator:a0dc338da09d7be782426544d219906a3 inherit pub_methods_class_r_t_x_1_1_model"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc79be2e6636440a3fb0c92e398a5f5e inherit pub_methods_class_r_t_x_1_1_model"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adc79be2e6636440a3fb0c92e398a5f5e"></a>
 <a class="el" href="class_r_t_x_1_1_units.html">Units</a>&#160;</td><td class="memItemRight" valign="bottom"><b>flowUnits</b> ()</td></tr>
 <tr class="separator:adc79be2e6636440a3fb0c92e398a5f5e inherit pub_methods_class_r_t_x_1_1_model"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -334,9 +343,9 @@ virtual time_t&#160;</td><td class="memItemRight" valign="bottom"><b>nextHydraul
 <tr class="memitem:a09eb307e77e653ee35bd4a3614b5799f inherit pro_methods_class_r_t_x_1_1_epanet_model"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a09eb307e77e653ee35bd4a3614b5799f"></a>
 virtual int&#160;</td><td class="memItemRight" valign="bottom"><b>iterations</b> (time_t time)</td></tr>
 <tr class="separator:a09eb307e77e653ee35bd4a3614b5799f inherit pro_methods_class_r_t_x_1_1_epanet_model"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aad25db2c07072b328742031f241de48e inherit pro_methods_class_r_t_x_1_1_epanet_model"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aad25db2c07072b328742031f241de48e"></a>
-virtual int&#160;</td><td class="memItemRight" valign="bottom"><b>relativeError</b> (time_t time)</td></tr>
-<tr class="separator:aad25db2c07072b328742031f241de48e inherit pro_methods_class_r_t_x_1_1_epanet_model"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae241a88a2eb118afe157c5349c96d5ef inherit pro_methods_class_r_t_x_1_1_epanet_model"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae241a88a2eb118afe157c5349c96d5ef"></a>
+virtual double&#160;</td><td class="memItemRight" valign="bottom"><b>relativeError</b> (time_t time)</td></tr>
+<tr class="separator:ae241a88a2eb118afe157c5349c96d5ef inherit pro_methods_class_r_t_x_1_1_epanet_model"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f26c29cf7428e94a9910309cb40c215 inherit pro_methods_class_r_t_x_1_1_epanet_model"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5f26c29cf7428e94a9910309cb40c215"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setHydraulicTimeStep</b> (int seconds)</td></tr>
 <tr class="separator:a5f26c29cf7428e94a9910309cb40c215 inherit pro_methods_class_r_t_x_1_1_epanet_model"><td class="memSeparator" colspan="2">&#160;</td></tr>

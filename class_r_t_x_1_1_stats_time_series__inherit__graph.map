@@ -1,5 +1,5 @@
 <map id="RTX::StatsTimeSeries" name="RTX::StatsTimeSeries">
-<area shape="rect" id="node2" href="$class_r_t_x_1_1_base_stats_time_series.html" title="RTX::BaseStatsTimeSeries" alt="" coords="5,254,187,282"/>
+<area shape="rect" id="node2" href="$class_r_t_x_1_1_base_stats_time_series.html" title="An abstract timeseries class for computing statistical data from point values. " alt="" coords="5,254,187,282"/>
 <area shape="rect" id="node4" href="$class_r_t_x_1_1_modular_time_series.html" title="A Time Series class that allows a single upstream TimeSeries. " alt="" coords="11,177,180,205"/>
 <area shape="rect" id="node6" href="$class_r_t_x_1_1_time_series.html" title="An abstraction of Points ordered in time. " alt="" coords="35,99,156,127"/>
 </map>
