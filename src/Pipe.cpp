@@ -14,9 +14,6 @@ using namespace RTX;
 
 Pipe::Pipe(const std::string& name, Node::sharedPointer startNode, Node::sharedPointer endNode) : Link(name, startNode, endNode) {
   setType(PIPE);
-  _doesHaveFlowMeasure = false;
-  _doesHaveStatusParameter = false;
-  _doesHaveSettingParameter = false;
   _flowState.reset( new TimeSeries() );
   _flowState->setUnits(RTX_LITER_PER_SECOND);
   _flowState->setName("L " + name + " flow");
@@ -59,34 +56,35 @@ TimeSeries::sharedPointer Pipe::flow() {
 }
 
 bool Pipe::doesHaveStatusParameter() {
-  return _doesHaveStatusParameter;
+  return _status ? true : false;
 }
 
 TimeSeries::sharedPointer Pipe::statusParameter() {
   return _status;
 }
 void Pipe::setStatusParameter(TimeSeries::sharedPointer status) {
-  _doesHaveStatusParameter = (status ? true : false);
   _status = status;
 }
 
 bool Pipe::doesHaveFlowMeasure() {
-  return _doesHaveFlowMeasure;
+  return _flowMeasure ? true : false;
 }
 TimeSeries::sharedPointer Pipe::flowMeasure() {
   return _flowMeasure;
 }
 void Pipe::setFlowMeasure(TimeSeries::sharedPointer flow) {
-  if (flow && !flow->units().isSameDimensionAs(RTX_LITER_PER_SECOND)) {
-    // not units of flow
+  if (flow == NULL || !flow) {
+    _flowMeasure = TimeSeries::sharedPointer();
+  }
+  else if ( !(flow->units().isSameDimensionAs(RTX_GALLON_PER_MINUTE)) ) {
     return;
   }
-  _doesHaveFlowMeasure = (flow ? true : false);
   _flowMeasure = flow;
+  
 }
 
 bool Pipe::doesHaveSettingParameter() {
-  return _doesHaveSettingParameter;
+  return _setting ? true : false;
 }
 
 TimeSeries::sharedPointer Pipe::settingParameter() {
@@ -94,6 +92,5 @@ TimeSeries::sharedPointer Pipe::settingParameter() {
 }
 
 void Pipe::setSettingParameter(TimeSeries::sharedPointer setting) {
-  _doesHaveSettingParameter = (setting ? true : false);
   _setting = setting;
 }

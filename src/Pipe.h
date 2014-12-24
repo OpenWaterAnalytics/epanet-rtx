@@ -56,9 +56,6 @@ namespace RTX {
     TimeSeries::sharedPointer _flowMeasure;
     TimeSeries::sharedPointer _status;
     TimeSeries::sharedPointer _setting;
-    bool _doesHaveSettingParameter;
-    bool _doesHaveStatusParameter;
-    bool _doesHaveFlowMeasure;
   };
   
 }

@@ -82,6 +82,12 @@ bool Junction::doesHaveBoundaryFlow() {
   return (this->boundaryFlow() ? true : false);
 }
 void Junction::setBoundaryFlow(TimeSeries::sharedPointer flow) {
+  if (flow == NULL || !flow) {
+    _boundaryFlow = TimeSeries::sharedPointer();
+  }
+  else if ( !(flow->units().isSameDimensionAs(RTX_GALLON_PER_MINUTE)) ) {
+    return;
+  }
   _boundaryFlow = flow;
 }
 TimeSeries::sharedPointer Junction::boundaryFlow() {
@@ -93,7 +99,11 @@ bool Junction::doesHaveHeadMeasure() {
   return (this->headMeasure() ? true : false);
 }
 void Junction::setHeadMeasure(TimeSeries::sharedPointer headMeas) {
-  if (!headMeas || !headMeas->units().isSameDimensionAs(RTX_METER)) {
+  if (headMeas == NULL || !headMeas) {
+    _headMeasure = TimeSeries::sharedPointer();
+    _pressureMeasure = TimeSeries::sharedPointer();
+  }
+  else if ( !(headMeas->units().isSameDimensionAs(RTX_METER)) ) {
     return;
   }
   
@@ -118,9 +128,14 @@ TimeSeries::sharedPointer Junction::headMeasure() {
 }
 
 void Junction::setPressureMeasure(TimeSeries::sharedPointer pressure) {
-  if (!pressure || !pressure->units().isSameDimensionAs(RTX_PASCAL)) {
+  if (pressure == NULL || !pressure) {
+    _pressureMeasure = TimeSeries::sharedPointer();
+    _headMeasure = TimeSeries::sharedPointer();
+  }
+  else if ( !(pressure->units().isSameDimensionAs(RTX_PASCAL)) ) {
     return;
   }
+  
   _pressureMeasure = pressure;
   // pressure depends on elevation --> head = mx(pressure) + elev
   GainTimeSeries::sharedPointer gainTs( new GainTimeSeries() );
