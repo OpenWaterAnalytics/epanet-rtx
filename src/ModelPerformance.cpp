@@ -188,6 +188,11 @@ void ModelPerformance::buildPerformanceCalculatorWithElements(std::vector<Elemen
     
     // assemble the difference or correlator
     TimeSeries::sharedPointer error = this->errorForPair(tsPair);
+    string errName("");
+    errName += e->name();
+    errName += "_";
+    errName += "error";
+    error->setName(errName);
     components.push_back(make_pair(e, error));
   }
   
