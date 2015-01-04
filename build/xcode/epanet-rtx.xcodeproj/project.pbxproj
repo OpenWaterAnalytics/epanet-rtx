@@ -241,6 +241,7 @@
 		22BFAB04196AFBD800B5B77C /* OutlierExclusionTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22BFAB00196AFBD800B5B77C /* OutlierExclusionTimeSeries.h */; };
 		22C0AE56184F86190013D51F /* SqlitePointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C0AE54184F86190013D51F /* SqlitePointRecord.cpp */; };
 		22C0AE57184F86190013D51F /* SqlitePointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C0AE55184F86190013D51F /* SqlitePointRecord.h */; };
+		22C19D261A59B2E10038B70F /* libpython.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22C19D251A59B2E10038B70F /* libpython.dylib */; };
 		22C34352187D9426000100A4 /* EpanetMsxModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C34350187D9426000100A4 /* EpanetMsxModel.cpp */; };
 		22C34353187D9426000100A4 /* EpanetMsxModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C34351187D9426000100A4 /* EpanetMsxModel.h */; };
 		22C523FD19099FAB00C94BEB /* libboost_timer.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22EE08BA16DBCF9400B51366 /* libboost_timer.dylib */; };
@@ -255,7 +256,6 @@
 		22C62B04143A10A500841E60 /* rtxExceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C62B03143A10A500841E60 /* rtxExceptions.h */; };
 		22CAAEC019ED959E00E56141 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22C62AC01439ED6300841E60 /* libepanet-rtx.dylib */; };
 		22CAAECE19EDB28100E56141 /* libboost_python.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22826AD219BE107A004FC11F /* libboost_python.dylib */; };
-		22CAAED519EDC7B300E56141 /* libpython2.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22CAAED419EDC7B300E56141 /* libpython2.7.dylib */; };
 		22CE31EE17399403008AC1F9 /* CsvPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CE31EC17399403008AC1F9 /* CsvPointRecord.h */; };
 		22CE31EF1739A3A4008AC1F9 /* libboost_system.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 229D1BD915FE3E0F000B4C94 /* libboost_system.dylib */; };
 		22D308E018FEC3ED0004E1DC /* libmysqlcppconn-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22249A9B17C918D400874859 /* libmysqlcppconn-static.a */; };
@@ -501,7 +501,7 @@
 		22253D8D16022FB6002F7256 /* CurveFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CurveFunction.cpp; path = ../../src/CurveFunction.cpp; sourceTree = "<group>"; };
 		222FDDD315C1BBE90065DAF6 /* FirstDerivative.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FirstDerivative.h; path = ../../src/FirstDerivative.h; sourceTree = "<group>"; };
 		222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FirstDerivative.cpp; path = ../../src/FirstDerivative.cpp; sourceTree = "<group>"; };
-		2230FC591920FEE700C66708 /* libmysqlclient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmysqlclient.a; path = "../../../../../../../usr/local/mysql-5.5.28-osx10.6-x86_64/lib/libmysqlclient.a"; sourceTree = "<group>"; };
+		2230FC591920FEE700C66708 /* libmysqlclient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmysqlclient.a; path = ../../../../../../../usr/local/mysql/lib/libmysqlclient.a; sourceTree = "<group>"; };
 		223AF32E18F6E4C0002E846F /* InversionTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InversionTimeSeries.cpp; path = ../../src/InversionTimeSeries.cpp; sourceTree = "<group>"; };
 		223AF32F18F6E4C0002E846F /* InversionTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InversionTimeSeries.h; path = ../../src/InversionTimeSeries.h; sourceTree = "<group>"; };
 		223AF35218F7121F002E846F /* SqliteProjectFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SqliteProjectFile.cpp; path = ../../project/SqliteProjectFile.cpp; sourceTree = "<group>"; };
@@ -590,6 +590,7 @@
 		22BFAB00196AFBD800B5B77C /* OutlierExclusionTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OutlierExclusionTimeSeries.h; path = ../../src/OutlierExclusionTimeSeries.h; sourceTree = "<group>"; };
 		22C0AE54184F86190013D51F /* SqlitePointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SqlitePointRecord.cpp; path = ../../src/SqlitePointRecord.cpp; sourceTree = "<group>"; };
 		22C0AE55184F86190013D51F /* SqlitePointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SqlitePointRecord.h; path = ../../src/SqlitePointRecord.h; sourceTree = "<group>"; };
+		22C19D251A59B2E10038B70F /* libpython.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpython.dylib; path = ../../../../../../../usr/lib/libpython.dylib; sourceTree = "<group>"; };
 		22C34350187D9426000100A4 /* EpanetMsxModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetMsxModel.cpp; path = ../../src/EpanetMsxModel.cpp; sourceTree = "<group>"; };
 		22C34351187D9426000100A4 /* EpanetMsxModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EpanetMsxModel.h; path = ../../src/EpanetMsxModel.h; sourceTree = "<group>"; };
 		22C34357187D9441000100A4 /* epanetmsx.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = epanetmsx.xcodeproj; path = "../../../epanet-msx/build/Xcode/epanetmsx/epanetmsx.xcodeproj"; sourceTree = "<group>"; };
@@ -686,7 +687,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22CAAED519EDC7B300E56141 /* libpython2.7.dylib in Frameworks */,
+				22C19D261A59B2E10038B70F /* libpython.dylib in Frameworks */,
 				22A667A919E481B900CEB0BC /* libepanet-static.a in Frameworks */,
 				22826AD319BE107A004FC11F /* libboost_python.dylib in Frameworks */,
 				2230FC5A1920FEE700C66708 /* libmysqlclient.a in Frameworks */,
@@ -960,6 +961,7 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
+				22C19D251A59B2E10038B70F /* libpython.dylib */,
 				22A1CBC41A325917009F58FC /* libpython.dylib */,
 				22CAAED419EDC7B300E56141 /* libpython2.7.dylib */,
 				22826AD219BE107A004FC11F /* libboost_python.dylib */,
