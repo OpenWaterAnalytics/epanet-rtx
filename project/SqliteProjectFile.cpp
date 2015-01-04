@@ -1199,6 +1199,9 @@ TimeSeries::sharedPointer SqliteProjectFile::tsPropertyForElementWithKey(Element
       else if (RTX_STRINGS_ARE_EQUAL(key, "head")) {
         return boost::static_pointer_cast<Junction>(element)->head();
       }
+      else if (RTX_STRINGS_ARE_EQUAL(key, "pressure")) {
+        return boost::static_pointer_cast<Junction>(element)->pressure();
+      }
       else if (RTX_STRINGS_ARE_EQUAL(key, "quality")) {
         return boost::static_pointer_cast<Junction>(element)->quality();
       }
