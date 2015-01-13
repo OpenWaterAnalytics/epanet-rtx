@@ -95,6 +95,8 @@ namespace RTX {
     Sql_Connector_t connectorType();
     void setConnectorType(Sql_Connector_t connectorType);
     
+    virtual bool readonly() {return true;};
+    
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
     

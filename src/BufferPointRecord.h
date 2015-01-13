@@ -28,7 +28,7 @@ using std::string;
 
 namespace RTX {
   
-  class BufferPointRecord : public PointRecord{
+  class BufferPointRecord : public PointRecord {
     
   public:
     // types

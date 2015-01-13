@@ -32,6 +32,9 @@ namespace RTX {
     DbPointRecord();
     virtual ~DbPointRecord() {};
     
+    virtual bool readonly();
+    virtual void setReadonly(bool readOnly);
+    
     // end of the road for these guys; no virtuals.
     Point point(const string& id, time_t time);
     Point pointBefore(const string& id, time_t time);
@@ -103,7 +106,7 @@ namespace RTX {
   private:
     std::string _connectionString;
     time_t _searchDistance;
-    
+    bool _readOnly;
     
     
   };

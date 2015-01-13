@@ -39,6 +39,14 @@ DbPointRecord::DbPointRecord() : request("",0,0) {
 //  return _connectionString;
 //}
 
+bool DbPointRecord::readonly() {
+  return _readOnly;
+}
+void DbPointRecord::setReadonly(bool readOnly) {
+  _readOnly = readOnly;
+}
+
+
 void DbPointRecord::setSearchDistance(time_t time) {
   _searchDistance = time;
 }
@@ -229,35 +237,45 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, time_t startTi
 
 
 void DbPointRecord::addPoint(const string& id, Point point) {
-  DB_PR_SUPER::addPoint(id, point);
-  this->insertSingle(id, point);
+  if (this->readonly()) {
+    DB_PR_SUPER::addPoint(id, point);
+    this->insertSingle(id, point);
+  }
 }
 
 
 void DbPointRecord::addPoints(const string& id, std::vector<Point> points) {
-  DB_PR_SUPER::addPoints(id, points);
-  this->insertRange(id, points);
+  if (this->readonly()) {
+    DB_PR_SUPER::addPoints(id, points);
+    this->insertRange(id, points);
+  }
 }
 
 
 void DbPointRecord::reset() {
-  DB_PR_SUPER::reset();
-  //this->truncate();
+  if (this->readonly()) {
+    DB_PR_SUPER::reset();
+    //this->truncate();
+  }
 }
 
 
 void DbPointRecord::reset(const string& id) {
-  // deprecate?
-  //cout << "Whoops - don't use this" << endl;
-  DB_PR_SUPER::reset(id);
-  //this->removeRecord(id);
-  // wiped out the record completely, so re-initialize it.
-  //this->registerAndGetIdentifier(id);
+  if (this->readonly()) {
+    // deprecate?
+    //cout << "Whoops - don't use this" << endl;
+    DB_PR_SUPER::reset(id);
+    //this->removeRecord(id);
+    // wiped out the record completely, so re-initialize it.
+    //this->registerAndGetIdentifier(id);
+  }
 }
 
 void DbPointRecord::invalidate(const string &identifier) {
-  this->removeRecord(identifier);
-  this->reset(identifier);
+  if (this->readonly()) {
+    this->removeRecord(identifier);
+    this->reset(identifier);
+  }
 }
 
 bool DbPointRecord::supportsBoundedQueries() {
