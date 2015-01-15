@@ -32,12 +32,10 @@ namespace RTX {
    \fn virtual PointCollection TimeSeriesFilter::filterPointsInRange(PointCollection inputCollection, TimeRange outRange)
    \brief Perform a specific filtering operation on a collection of points
    \param inputCollection The points on which to perform the operation. These have been 
-   \param end The end of the requested time range.
-   \return The requested Points (as a vector)
+   \param outRange The time range being requested, which may be a subset of the time values of the points provided to this method.
+   \return The requested Points (as a PointCollection)
    
-   The base class provides some brute-force logic to retrieve points, by calling Point() repeatedly. For more efficient access, you may wish to override this method.
-   
-   \sa Point
+   Important: Derived classes are responsible for unit conversions.
    */
   
   
@@ -52,10 +50,12 @@ namespace RTX {
     Clock::_sp clock();
     void setClock(Clock::_sp clock);
     
-    // methods you must override to provide info to the base class
-    virtual TimeRange willGetRangeFromSource(TimeSeries::_sp source, TimeRange range) = 0;
-    virtual PointCollection filterPointsInRange(PointCollection inputCollection, TimeRange outRange) = 0;
+    std::vector< Point > points(time_t start, time_t end);
     
+    // methods you must override to provide info to the base class
+    virtual TimeRange willGetRangeFromSource(TimeSeries::_sp source, TimeRange range);
+    virtual PointCollection filterPointsInRange(PointCollection inputCollection, TimeRange outRange);
+    virtual bool canChangeToUnits(Units units);
     
   private:
     TimeSeries::_sp _source;

@@ -237,7 +237,7 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, time_t startTi
 
 
 void DbPointRecord::addPoint(const string& id, Point point) {
-  if (this->readonly()) {
+  if (!this->readonly()) {
     DB_PR_SUPER::addPoint(id, point);
     this->insertSingle(id, point);
   }
@@ -245,7 +245,7 @@ void DbPointRecord::addPoint(const string& id, Point point) {
 
 
 void DbPointRecord::addPoints(const string& id, std::vector<Point> points) {
-  if (this->readonly()) {
+  if (!this->readonly()) {
     DB_PR_SUPER::addPoints(id, points);
     this->insertRange(id, points);
   }
@@ -253,7 +253,7 @@ void DbPointRecord::addPoints(const string& id, std::vector<Point> points) {
 
 
 void DbPointRecord::reset() {
-  if (this->readonly()) {
+  if (!this->readonly()) {
     DB_PR_SUPER::reset();
     //this->truncate();
   }
@@ -261,7 +261,7 @@ void DbPointRecord::reset() {
 
 
 void DbPointRecord::reset(const string& id) {
-  if (this->readonly()) {
+  if (!this->readonly()) {
     // deprecate?
     //cout << "Whoops - don't use this" << endl;
     DB_PR_SUPER::reset(id);
@@ -272,7 +272,7 @@ void DbPointRecord::reset(const string& id) {
 }
 
 void DbPointRecord::invalidate(const string &identifier) {
-  if (this->readonly()) {
+  if (!this->readonly()) {
     this->removeRecord(identifier);
     this->reset(identifier);
   }

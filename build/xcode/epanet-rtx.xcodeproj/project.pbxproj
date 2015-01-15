@@ -262,6 +262,17 @@
 		22CF1C2A1A68094300161188 /* TimeSeriesFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22CF1C271A68094300161188 /* TimeSeriesFilter.cpp */; };
 		22CF1C2B1A68094300161188 /* TimeSeriesFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CF1C281A68094300161188 /* TimeSeriesFilter.h */; };
 		22CF1C2C1A68094300161188 /* TimeSeriesFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CF1C281A68094300161188 /* TimeSeriesFilter.h */; };
+		22CF1C3C1A6842DC00161188 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22CF1C3B1A6842DC00161188 /* main.cpp */; };
+		22CF1C401A68432E00161188 /* TimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C62AD91439EE0B00841E60 /* TimeSeries.cpp */; };
+		22CF1C411A68432E00161188 /* TimeSeriesFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22CF1C271A68094300161188 /* TimeSeriesFilter.cpp */; };
+		22CF1C421A68435000161188 /* Units.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 226861C814716D2A000DDDEF /* Units.cpp */; };
+		22CF1C431A68435000161188 /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BF02D215EBCABC00F66465 /* Point.cpp */; };
+		22CF1C441A68435000161188 /* PointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22DEE91B153F5C44008F75AE /* PointRecord.cpp */; };
+		22CF1C451A68435000161188 /* BufferPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227510E616D4231800B2BA62 /* BufferPointRecord.cpp */; };
+		22CF1C461A68435000161188 /* DbPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227CEC9E16BADD6000E8E7C8 /* DbPointRecord.cpp */; };
+		22CF1C471A68435000161188 /* SqlitePointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C0AE54184F86190013D51F /* SqlitePointRecord.cpp */; };
+		22CF1C481A68451600161188 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22B0547617F1DEF300625F4D /* libsqlite3.dylib */; };
+		22CF1C491A6856CB00161188 /* Clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B7154D14DC2C2C00041167 /* Clock.cpp */; };
 		22D308E018FEC3ED0004E1DC /* libmysqlcppconn-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22249A9B17C918D400874859 /* libmysqlcppconn-static.a */; };
 		22D982EA17F4A29C00DD7EB4 /* CsvPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22CE31EB17399403008AC1F9 /* CsvPointRecord.cpp */; };
 		22D9830E17F4AFDE00DD7EB4 /* rt_simulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22D9830D17F4AFDE00DD7EB4 /* rt_simulator.cpp */; };
@@ -430,6 +441,15 @@
 				22A7B70B16778A7A00538839 /* sampletown.inp in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
+		};
+		22CF1C371A6842DC00161188 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 		22D4D31F18F8298300DA1648 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -614,6 +634,8 @@
 		22CE31EC17399403008AC1F9 /* CsvPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CsvPointRecord.h; path = ../../src/CsvPointRecord.h; sourceTree = "<group>"; };
 		22CF1C271A68094300161188 /* TimeSeriesFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesFilter.cpp; path = ../../src/TimeSeriesFilter.cpp; sourceTree = "<group>"; };
 		22CF1C281A68094300161188 /* TimeSeriesFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeSeriesFilter.h; path = ../../src/TimeSeriesFilter.h; sourceTree = "<group>"; };
+		22CF1C391A6842DC00161188 /* testTsFilter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = testTsFilter; sourceTree = BUILT_PRODUCTS_DIR; };
+		22CF1C3B1A6842DC00161188 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		22D4D32118F8298300DA1648 /* readConfigTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = readConfigTest; sourceTree = BUILT_PRODUCTS_DIR; };
 		22D982F017F4A3CD00DD7EB4 /* rt_simulator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rt_simulator; sourceTree = BUILT_PRODUCTS_DIR; };
 		22D9830D17F4AFDE00DD7EB4 /* rt_simulator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rt_simulator.cpp; path = ../../examples/rtxNetSim/rt_simulator.cpp; sourceTree = "<group>"; };
@@ -714,6 +736,14 @@
 			files = (
 				229D1BEB15FE78B4000B4C94 /* libboost_system.dylib in Frameworks */,
 				22C62AFE143A0E3F00841E60 /* libepanet-rtx.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		22CF1C361A6842DC00161188 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22CF1C481A68451600161188 /* libsqlite3.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -979,6 +1009,7 @@
 				22C34357187D9441000100A4 /* epanetmsx.xcodeproj */,
 				228A76FE18450CC700905D8E /* RTX Project */,
 				22D9830C17F4AF9F00DD7EB4 /* simulator client */,
+				22CF1C3A1A6842DC00161188 /* testTsFilter */,
 				22B8A7971603CA1300EECAA5 /* demos */,
 				22C62AEF143A0E1600841E60 /* test application */,
 				22C62B05143A196400841E60 /* include */,
@@ -1006,6 +1037,7 @@
 				228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */,
 				22D4D32118F8298300DA1648 /* readConfigTest */,
 				220F9E4C18F9E68B00BB842C /* libepanet-rtx.dylib */,
+				22CF1C391A6842DC00161188 /* testTsFilter */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1116,6 +1148,14 @@
 				22CE31EB17399403008AC1F9 /* CsvPointRecord.cpp */,
 			);
 			name = csv;
+			sourceTree = "<group>";
+		};
+		22CF1C3A1A6842DC00161188 /* testTsFilter */ = {
+			isa = PBXGroup;
+			children = (
+				22CF1C3B1A6842DC00161188 /* main.cpp */,
+			);
+			path = testTsFilter;
 			sourceTree = "<group>";
 		};
 		22D9830C17F4AF9F00DD7EB4 /* simulator client */ = {
@@ -1421,6 +1461,23 @@
 			productReference = 22C62AF4143A0E3300841E60 /* rtx-validator */;
 			productType = "com.apple.product-type.tool";
 		};
+		22CF1C381A6842DC00161188 /* testTsFilter */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 22CF1C3D1A6842DC00161188 /* Build configuration list for PBXNativeTarget "testTsFilter" */;
+			buildPhases = (
+				22CF1C351A6842DC00161188 /* Sources */,
+				22CF1C361A6842DC00161188 /* Frameworks */,
+				22CF1C371A6842DC00161188 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = testTsFilter;
+			productName = testTsFilter;
+			productReference = 22CF1C391A6842DC00161188 /* testTsFilter */;
+			productType = "com.apple.product-type.tool";
+		};
 		22D4D32018F8298300DA1648 /* readConfigTest */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 22D4D32F18F8298300DA1648 /* Build configuration list for PBXNativeTarget "readConfigTest" */;
@@ -1483,6 +1540,11 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0610;
+				TargetAttributes = {
+					22CF1C381A6842DC00161188 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+				};
 			};
 			buildConfigurationList = 22C62ABA1439ED6300841E60 /* Build configuration list for PBXProject "epanet-rtx" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1515,6 +1577,7 @@
 				228A836D16DBE5E7008E9C35 /* data_access_profiling */,
 				22D982EF17F4A3CD00DD7EB4 /* rt_simulator */,
 				22D9831817F62B4900DD7EB4 /* testLemonTiger */,
+				22CF1C381A6842DC00161188 /* testTsFilter */,
 			);
 		};
 /* End PBXProject section */
@@ -1737,6 +1800,23 @@
 			buildActionMask = 2147483647;
 			files = (
 				221C06C516077FC100B8969C /* validator.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		22CF1C351A6842DC00161188 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22CF1C491A6856CB00161188 /* Clock.cpp in Sources */,
+				22CF1C421A68435000161188 /* Units.cpp in Sources */,
+				22CF1C431A68435000161188 /* Point.cpp in Sources */,
+				22CF1C441A68435000161188 /* PointRecord.cpp in Sources */,
+				22CF1C451A68435000161188 /* BufferPointRecord.cpp in Sources */,
+				22CF1C461A68435000161188 /* DbPointRecord.cpp in Sources */,
+				22CF1C471A68435000161188 /* SqlitePointRecord.cpp in Sources */,
+				22CF1C401A68432E00161188 /* TimeSeries.cpp in Sources */,
+				22CF1C411A68432E00161188 /* TimeSeriesFilter.cpp in Sources */,
+				22CF1C3C1A6842DC00161188 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2175,6 +2255,63 @@
 			};
 			name = Release;
 		};
+		22CF1C3E1A6842DC00161188 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = NO;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		22CF1C3F1A6842DC00161188 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = NO;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		22D4D32718F8298300DA1648 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2415,6 +2552,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		22CF1C3D1A6842DC00161188 /* Build configuration list for PBXNativeTarget "testTsFilter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				22CF1C3E1A6842DC00161188 /* Debug */,
+				22CF1C3F1A6842DC00161188 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 		22D4D32F18F8298300DA1648 /* Build configuration list for PBXNativeTarget "readConfigTest" */ = {
 			isa = XCConfigurationList;

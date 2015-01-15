@@ -11,6 +11,7 @@
 
 #include <time.h>
 #include <vector>
+#include <set>
 #include "rtxMacros.h"
 
 namespace RTX {
@@ -94,12 +95,13 @@ namespace RTX {
     virtual time_t timeAfter(time_t time);
     virtual time_t timeBefore(time_t time);
     
+    
     bool isRegular();
     int period();
     void setPeriod(int p);
     time_t start();
     void setStart(time_t startTime);
-    virtual std::vector< time_t > timeValuesInRange(time_t start, time_t end);
+    virtual std::set< time_t > timeValuesInRange(time_t start, time_t end);
     virtual std::ostream& toStream(std::ostream &stream);
     
   private:

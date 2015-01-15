@@ -145,8 +145,8 @@ time_t Clock::timeAfter(time_t time) {
   }
 }
 
-std::vector< time_t > Clock::timeValuesInRange(time_t start, time_t end) {
-  std::vector<time_t> timeList;
+std::set< time_t > Clock::timeValuesInRange(time_t start, time_t end) {
+  std::set<time_t> timeList;
   if (!isValid(start)) {
     start = timeAfter(start);
   }
@@ -154,7 +154,7 @@ std::vector< time_t > Clock::timeValuesInRange(time_t start, time_t end) {
     if (thisTime == 0) {
       break;
     }
-    timeList.push_back(thisTime);
+    timeList.insert(thisTime);
   }
   return timeList;
 }

@@ -12,6 +12,7 @@
 #include <boost/enable_shared_from_this.hpp>
 
 #include <vector>
+#include <set>
 #include <map>
 #include <iostream>
 
@@ -62,8 +63,10 @@ namespace RTX {
     class PointCollection {
     public:
       PointCollection(std::vector<Point> points, Units units);
-      const std::vector<Point> points;
-      const Units units;
+      PointCollection(); // null constructor
+      
+      std::vector<Point> points;
+      Units units;
       // statistical methods on the collection
       double min();
       double max();
@@ -74,6 +77,11 @@ namespace RTX {
     };
     
     
+    typedef enum {
+      TimeSeriesResampleModeLinear,
+      TimeSeriesResampleModeStep
+    } TimeSeriesResampleMode;
+    
     
     RTX_SHARED_POINTER(TimeSeries);
     
@@ -81,18 +89,19 @@ namespace RTX {
     TimeSeries();
     ~TimeSeries();
     
-    // methods
+
     virtual void insert(Point aPoint);
     virtual void insertPoints(std::vector<Point>);  /// option to add lots of (un)ordered points all at once.
     
-    // getters
     virtual Point point(time_t time);
     virtual Point pointBefore(time_t time);
     virtual Point pointAfter(time_t time);
     virtual Point pointAtOrBefore(time_t time);
     virtual Point interpolatedPoint(time_t time);
+    PointCollection points(TimeRange range);
     virtual std::vector< Point > points(time_t start, time_t end); // points in range
-    TimeSeries::PointCollection pointCollection(time_t start, time_t end);
+    PointCollection resampled(std::set<time_t>, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
+    PointCollection pointCollection(time_t start, time_t end);
     
     virtual std::string name();
     virtual void setName(const std::string& name);
@@ -102,7 +111,7 @@ namespace RTX {
     
     Units units();
     virtual void setUnits(Units newUnits);
-    
+    virtual bool canChangeToUnits(Units units) {return true;};
     /*
     TimeSeries::Statistics summary(time_t start, time_t end);
     TimeSeries::Statistics gapsSummary(time_t start, time_t end);
@@ -111,6 +120,7 @@ namespace RTX {
     
     virtual TimeSeries::_sp rootTimeSeries() { return shared_from_this(); };
     virtual void resetCache();
+    virtual void invalidate();
     
     virtual std::ostream& toStream(std::ostream &stream);
 
