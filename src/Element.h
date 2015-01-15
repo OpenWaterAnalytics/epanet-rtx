@@ -33,7 +33,7 @@ namespace RTX {
     element_t type();
     void setName(const std::string& newName);
     std::string name();
-    virtual void setRecord(PointRecord::sharedPointer record);
+    virtual void setRecord(PointRecord::_sp record);
     
     std::string userDescription();
     void setUserDescription(const std::string& description);

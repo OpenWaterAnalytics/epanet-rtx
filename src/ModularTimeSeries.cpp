@@ -33,9 +33,9 @@ ostream& ModularTimeSeries::toStream(ostream &stream) {
   return stream;
 }
 
-void ModularTimeSeries::setSource(TimeSeries::sharedPointer sourceTimeSeries) {
+void ModularTimeSeries::setSource(TimeSeries::_sp sourceTimeSeries) {
   if (!sourceTimeSeries) {
-    _source = TimeSeries::sharedPointer();
+    _source = TimeSeries::_sp();
     _doesHaveSource = false;
     return;
   }
@@ -62,10 +62,10 @@ void ModularTimeSeries::setSource(TimeSeries::sharedPointer sourceTimeSeries) {
   }
 }
 
-bool ModularTimeSeries::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
+bool ModularTimeSeries::isCompatibleWith(TimeSeries::_sp withTimeSeries) {
   
   // first section is essentially the same as base TimeSeries class
-  Clock::sharedPointer theirClock = withTimeSeries->clock(), myClock = this->clock();
+  Clock::_sp theirClock = withTimeSeries->clock(), myClock = this->clock();
   bool clocksCompatible = myClock->isCompatibleWith(theirClock);
   bool unitsCompatible = units().isDimensionless() || units().isSameDimensionAs(withTimeSeries->units());
   
@@ -79,7 +79,7 @@ bool ModularTimeSeries::isCompatibleWith(TimeSeries::sharedPointer withTimeSerie
 
 
 
-TimeSeries::sharedPointer ModularTimeSeries::source() {
+TimeSeries::_sp ModularTimeSeries::source() {
   return _source;
 }
 
@@ -93,13 +93,13 @@ bool ModularTimeSeries::doesHaveSource() {
 }
 
 
-TimeSeries::sharedPointer ModularTimeSeries::rootTimeSeries() {
+TimeSeries::_sp ModularTimeSeries::rootTimeSeries() {
   
   if (this->doesHaveSource()) {
     return this->source()->rootTimeSeries();
   }
   
-  TimeSeries::sharedPointer empty;
+  TimeSeries::_sp empty;
   return empty;
 }
 
@@ -352,7 +352,7 @@ vector< Point > ModularTimeSeries::points(time_t start, time_t end) {
 
 
 
-vector<Point> ModularTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+vector<Point> ModularTimeSeries::filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
   vector<Point> filtered;
   
   /*

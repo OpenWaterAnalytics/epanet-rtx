@@ -58,11 +58,11 @@ namespace RTX {
     RTX_SHARED_POINTER(ForecastTimeSeries);
     ForecastTimeSeries();
     
-    Clock::sharedPointer fitWindow();
-    void setFitWindow(Clock::sharedPointer clock);
+    Clock::_sp fitWindow();
+    void setFitWindow(Clock::_sp clock);
     
-    Clock::sharedPointer refitClock();
-    void setRefitClock(Clock::sharedPointer clock);
+    Clock::_sp refitClock();
+    void setRefitClock(Clock::_sp clock);
     
     
     ArimaOrder order();
@@ -71,13 +71,13 @@ namespace RTX {
     
     
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
+    virtual std::vector<Point> filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
     
   private:
     time_t _fitTime; // last time the model was fit
     ArimaOrder _order; // model order
-    Clock::sharedPointer _fitWindow, _refitClock;
-    PythonInterpreter::sharedPointer _python;
+    Clock::_sp _fitWindow, _refitClock;
+    PythonInterpreter::_sp _python;
     
     void reFitModelFromTime(time_t refitTime);
     

@@ -18,7 +18,7 @@ using namespace std;
 ForecastTimeSeries::ForecastTimeSeries() : _order(0,0,0) {
   
   _fitTime = 0;
-  _refitClock = Clock::sharedPointer( new Clock(60) );
+  _refitClock = Clock::_sp( new Clock(60) );
   
   
   _python = PythonInterpreter::sharedInterpreter();
@@ -48,7 +48,7 @@ void ForecastTimeSeries::setOrder(int ar, int i, int ma) {
 
 
 
-vector<Point> ForecastTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+vector<Point> ForecastTimeSeries::filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
   
   // these points you are requesting...
   // how does that compare to my last-fit model?

@@ -42,15 +42,15 @@ namespace RTX {
     
     RTX_SHARED_POINTER(ModelPerformance);
     
-    ModelPerformance(Model::sharedPointer model,
+    ModelPerformance(Model::_sp model,
                      StatsType statsType = ModelPerformanceStatsRMSE,
                      AggregationType aggregationType = ModelPerformanceAggregationMean,
                      LocationType locationType = ModelPerformanceLocationTank);
     
     // specify the model and get the important information
-    Model::sharedPointer model();
-    TimeSeries::sharedPointer performance();          /*!< read-only timeseries that represents model performance with settings specified */
-    std::vector<std::pair<Element::sharedPointer, TimeSeries::sharedPointer> > components(); /*!< constituent error time series. treat this as read-only */
+    Model::_sp model();
+    TimeSeries::_sp performance();          /*!< read-only timeseries that represents model performance with settings specified */
+    std::vector<std::pair<Element::_sp, TimeSeries::_sp> > components(); /*!< constituent error time series. treat this as read-only */
     
     // specify the source data and the way the statistics are computed.
     StatsType statsType();
@@ -65,30 +65,30 @@ namespace RTX {
     
     // properties for statistic computation
     
-    Clock::sharedPointer samplingWindow();            /*!< clock to be used as sampling window by each error time series */
-    void setSamplingWindow(Clock::sharedPointer clock);
+    Clock::_sp samplingWindow();            /*!< clock to be used as sampling window by each error time series */
+    void setSamplingWindow(Clock::_sp clock);
     
-    Clock::sharedPointer errorClock();                /*!< clock for each differencing or correlation time series (error) */
-    void setErrorClock(Clock::sharedPointer clock);
+    Clock::_sp errorClock();                /*!< clock for each differencing or correlation time series (error) */
+    void setErrorClock(Clock::_sp clock);
     
-    Clock::sharedPointer aggregationClock();          /*!< clock for aggregating all the error time series */
-    void setAggregationClock(Clock::sharedPointer clock);
+    Clock::_sp aggregationClock();          /*!< clock for aggregating all the error time series */
+    void setAggregationClock(Clock::_sp clock);
     
-    void buildPerformanceCalculatorWithElements(std::vector<Element::sharedPointer> elements); /*!< rebuild calculation time series workflow with arbitrary elements */
+    void buildPerformanceCalculatorWithElements(std::vector<Element::_sp> elements); /*!< rebuild calculation time series workflow with arbitrary elements */
     
   private:
-    Model::sharedPointer _model;
+    Model::_sp _model;
     StatsType _statsType;
     AggregationType _aggregationType;
     LocationType _locationType;
-    Clock::sharedPointer _samplingWindow, _errorClock, _aggregationClock;
-    std::vector<std::pair<Element::sharedPointer, TimeSeries::sharedPointer> > _errorComponents;
-    TimeSeries::sharedPointer _performance;
+    Clock::_sp _samplingWindow, _errorClock, _aggregationClock;
+    std::vector<std::pair<Element::_sp, TimeSeries::_sp> > _errorComponents;
+    TimeSeries::_sp _performance;
     
     void rebuildPerformanceCalculation();  /*!< rebuild calculation time series workflow */
-    std::vector<Element::sharedPointer> elementsWithModelForLocationType(Model::sharedPointer model, LocationType locationType);
-    std::pair<TimeSeries::sharedPointer, TimeSeries::sharedPointer> tsPairForElementWithLocationType(Element::sharedPointer e, ModelPerformance::LocationType location);
-    TimeSeries::sharedPointer errorForPair(std::pair<TimeSeries::sharedPointer, TimeSeries::sharedPointer> tsPair);
+    std::vector<Element::_sp> elementsWithModelForLocationType(Model::_sp model, LocationType locationType);
+    std::pair<TimeSeries::_sp, TimeSeries::_sp> tsPairForElementWithLocationType(Element::_sp e, ModelPerformance::LocationType location);
+    TimeSeries::_sp errorForPair(std::pair<TimeSeries::_sp, TimeSeries::_sp> tsPair);
 
   };
   

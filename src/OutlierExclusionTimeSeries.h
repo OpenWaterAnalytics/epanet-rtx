@@ -40,8 +40,8 @@ namespace RTX {
     virtual Point pointAfter(time_t time);
     
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
-    std::vector<Point> filteredPointsWithMissing(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime, bool returnMissing);
+    virtual std::vector<Point> filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
+    std::vector<Point> filteredPointsWithMissing(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime, bool returnMissing);
     
     Point filteredSingle(time_t time);
     

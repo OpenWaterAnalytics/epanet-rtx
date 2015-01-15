@@ -24,17 +24,17 @@ namespace RTX {
   public:
     RTX_SHARED_POINTER(Link);
     typedef enum {outDirection, inDirection} direction_t;
-    std::pair<Node::sharedPointer, Node::sharedPointer> nodes();
-    Node::sharedPointer from();
-    Node::sharedPointer to();
-    Link::direction_t directionRelativeToNode(Node::sharedPointer node);
+    std::pair<Node::_sp, Node::_sp> nodes();
+    Node::_sp from();
+    Node::_sp to();
+    Link::direction_t directionRelativeToNode(Node::_sp node);
     
   protected:
-    Link(const std::string& name, Node::sharedPointer startNode, Node::sharedPointer endNode);
+    Link(const std::string& name, Node::_sp startNode, Node::_sp endNode);
     virtual ~Link();
     
   private:
-    Node::sharedPointer _from, _to;
+    Node::_sp _from, _to;
     std::vector< std::pair<double, double> > _coordinates; // list of shape coordinates (ordered from-to)  
   };
   

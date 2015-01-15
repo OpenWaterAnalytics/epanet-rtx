@@ -35,7 +35,7 @@ void StatsTimeSeries::setStatsType(StatsTimeSeriesType type) {
   }
 }
 
-vector<Point> StatsTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+vector<Point> StatsTimeSeries::filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
   
   vector<pointSummaryPair_t> summaryCollection = this->filteredSummaryPoints(sourceTs, fromTime, toTime);
   
@@ -134,7 +134,7 @@ double StatsTimeSeries::valueFromSummary(TimeSeries::Statistics s) {
   return Units::convertValue(v, source()->units(), this->units());
 }
 
-void StatsTimeSeries::setSource(TimeSeries::sharedPointer source) {
+void StatsTimeSeries::setSource(TimeSeries::_sp source) {
   Units originalUnits = this->units();
   this->setUnits(RTX_DIMENSIONLESS);  // non-dimensionalize so that we can accept this source.
   ModularTimeSeries::setSource(source);

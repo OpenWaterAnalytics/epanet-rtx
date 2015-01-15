@@ -36,7 +36,7 @@ ThresholdTimeSeries::thresholdMode_t ThresholdTimeSeries::mode() {
   return _mode;
 }
 
-void ThresholdTimeSeries::setSource(TimeSeries::sharedPointer source) {
+void ThresholdTimeSeries::setSource(TimeSeries::_sp source) {
   Units originalUnits = this->units();
   this->setUnits(RTX_DIMENSIONLESS);  // non-dimensionalize so that we can accept this source.
   ModularTimeSeries::setSource(source);

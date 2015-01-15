@@ -11,7 +11,7 @@ ValidRangeTimeSeries::ValidRangeTimeSeries() {
 }
 
 
-void ValidRangeTimeSeries::setClock(Clock::sharedPointer clock) {
+void ValidRangeTimeSeries::setClock(Clock::_sp clock) {
   if (_mode == drop) {
     return;
   }
@@ -30,7 +30,7 @@ ValidRangeTimeSeries::filterMode_t ValidRangeTimeSeries::mode() {
 }
 void ValidRangeTimeSeries::setMode(filterMode_t mode) {
   if (mode == drop) {
-    Clock::sharedPointer c( new IrregularClock(this->record(), this->name()) );
+    Clock::_sp c( new IrregularClock(this->record(), this->name()) );
     this->setClock(c);
   }
   _mode = mode;

@@ -34,13 +34,13 @@ int main (int argc, const char * argv[])
   
   forwardSimulationConfig = "/Users/sam/Copy/Code/epanet-rtx/examples/validator/sampletown_synthetic.cfg";
   
-  EpanetModel::sharedPointer model( new EpanetModel );
+  EpanetModel::_sp model( new EpanetModel );
   model->loadModelFromFile("/Users/sam/Copy/Code/epanet-rtx/examples/validator/sampletown.inp");
   
-  vector<Pipe::sharedPointer> pipes = model->pipes();
-  BOOST_FOREACH(Pipe::sharedPointer p, pipes) {
+  vector<Pipe::_sp> pipes = model->pipes();
+  BOOST_FOREACH(Pipe::_sp p, pipes) {
     if (RTX_STRINGS_ARE_EQUAL(p->name(), "4")) {
-      TimeSeries::sharedPointer flow( new TimeSeries );
+      TimeSeries::_sp flow( new TimeSeries );
       flow->setUnits(RTX_GALLON_PER_MINUTE);
       p->setFlowMeasure(flow);
     }
@@ -66,7 +66,7 @@ int main (int argc, const char * argv[])
 //void runSimulationUsingConfig(const string& filePath, time_t someTime, long duration) {
 //  
 //  ConfigProject config;
-//  Model::sharedPointer model;
+//  Model::_sp model;
 //  
 //  try {
 //    config.loadConfigFile(filePath);
@@ -76,7 +76,7 @@ int main (int argc, const char * argv[])
 //    cout << "RTX: Running simulation for..." << endl;
 //    cout << *model;
 //    
-//    PointRecord::sharedPointer record = config.defaultRecord();
+//    PointRecord::_sp record = config.defaultRecord();
 //  
 //    model->runExtendedPeriod(someTime, someTime + duration);
 //    

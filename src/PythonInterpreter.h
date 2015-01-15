@@ -24,7 +24,7 @@ namespace RTX {
    */
   
   /*!
-   \fn static PythonInterpreter::sharedPointer sharedInterpreter()
+   \fn static PythonInterpreter::_sp sharedInterpreter()
    \brief Get the shared interpreter instance.
    \return a shared pointer to the instance.
    */
@@ -46,8 +46,8 @@ namespace RTX {
   class PythonInterpreter {
   public:
     RTX_SHARED_POINTER(PythonInterpreter);
-    static PythonInterpreter::sharedPointer sharedInterpreter() {
-      static PythonInterpreter::sharedPointer instance( new PythonInterpreter );
+    static PythonInterpreter::_sp sharedInterpreter() {
+      static PythonInterpreter::_sp instance( new PythonInterpreter );
       return instance;
     };
     

@@ -5,13 +5,13 @@
 using namespace std;
 using namespace RTX;
 
-TimeSeries::sharedPointer WarpingTimeSeries::warp() {
+TimeSeries::_sp WarpingTimeSeries::warp() {
   return _warpingBasis;
 }
 
-void WarpingTimeSeries::setWarp(TimeSeries::sharedPointer warp) {
+void WarpingTimeSeries::setWarp(TimeSeries::_sp warp) {
   if (!warp) {
-    _warpingBasis = TimeSeries::sharedPointer();
+    _warpingBasis = TimeSeries::_sp();
     return;
   }
   if (warp->units().isSameDimensionAs(RTX_SECOND)) {
@@ -21,7 +21,7 @@ void WarpingTimeSeries::setWarp(TimeSeries::sharedPointer warp) {
 
 
 
-vector<Point> WarpingTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+vector<Point> WarpingTimeSeries::filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
   // sanity
   if (!_warpingBasis) {
     return ModularTimeSeries::filteredPoints(sourceTs, fromTime, toTime);

@@ -29,14 +29,14 @@ namespace RTX {
     RTX_SHARED_POINTER(MovingAverage);
     MovingAverage();
     virtual ~MovingAverage();
-    //vector<Point> sourceTimeSeries(const std::string& nameSource, PointRecord::sharedPointer source, time_t tStart, long tEnd);
+    //vector<Point> sourceTimeSeries(const std::string& nameSource, PointRecord::_sp source, time_t tStart, long tEnd);
     
     // added functionality
     void setWindowSize(int numberOfPoints);   // set number of points to consider in the moving average calculation
     int windowSize();                         // return the window size (see above)
     
   protected:
-    virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
+    virtual bool isCompatibleWith(TimeSeries::_sp withTimeSeries);
     virtual int margin();
     //virtual Point filteredSingle(const pointBuffer_t& window, time_t t, Units fromUnits);
     virtual Point filteredSingle(pVec_cIt& vecStart, pVec_cIt& vecEnd, pVec_cIt& vecPos, time_t t, Units fromUnits);

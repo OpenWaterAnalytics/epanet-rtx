@@ -15,27 +15,27 @@ namespace RTX {
   class Pump : public Pipe {
   public:
     RTX_SHARED_POINTER(Pump);
-    Pump(const std::string& name, Node::sharedPointer startNode, Node::sharedPointer endNode);
+    Pump(const std::string& name, Node::_sp startNode, Node::_sp endNode);
     virtual ~Pump();
     
-    virtual void setRecord(PointRecord::sharedPointer record);
+    virtual void setRecord(PointRecord::_sp record);
     
     // states
-    TimeSeries::sharedPointer energy();
+    TimeSeries::_sp energy();
     
     // parameters
     bool doesHaveCurveParameter();
-    TimeSeries::sharedPointer curveParameter();
-    void setCurveParameter(TimeSeries::sharedPointer curve);
+    TimeSeries::_sp curveParameter();
+    void setCurveParameter(TimeSeries::_sp curve);
     
     bool doesHaveEnergyMeasure();
-    TimeSeries::sharedPointer energyMeasure();
-    void setEnergyMeasure(TimeSeries::sharedPointer energy);
+    TimeSeries::_sp energyMeasure();
+    void setEnergyMeasure(TimeSeries::_sp energy);
     
   private:
-    TimeSeries::sharedPointer _energyState;        // state
-    TimeSeries::sharedPointer _energyMeasure; // parameter
-    TimeSeries::sharedPointer _curve;
+    TimeSeries::_sp _energyState;        // state
+    TimeSeries::_sp _energyMeasure; // parameter
+    TimeSeries::_sp _curve;
     bool _doesHaveCurveParameter;
     bool _doesHaveEnergyParameter;
   };

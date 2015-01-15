@@ -11,7 +11,7 @@ using namespace RTX;
 using namespace std;
 
 SineTimeSeries::SineTimeSeries(double magnitude, time_t period) {
-  Clock::sharedPointer clock(new Clock(600));
+  Clock::_sp clock(new Clock(600));
   clock->setName("RTX SYNTHETIC 600s");
   setClock(clock);
   _period = period;

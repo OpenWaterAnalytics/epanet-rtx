@@ -213,9 +213,9 @@ void EpanetModel::createRtxWrappers() {
     double x,y,z;         // rtx coordinates
     EN_NodeType nodeType;         // epanet node type code
     string nodeName;
-    Junction::sharedPointer newJunction;
-    Reservoir::sharedPointer newReservoir;
-    Tank::sharedPointer newTank;
+    Junction::_sp newJunction;
+    Reservoir::_sp newReservoir;
+    Tank::_sp newTank;
     
     // get relevant info from EPANET toolkit
     OW_API_CHECK( OW_getnodeid(_enModel, iNode, enName), "OW_getnodeid" );
@@ -226,7 +226,7 @@ void EpanetModel::createRtxWrappers() {
     
     nodeName = string(enName);
     
-    //CurveFunction::sharedPointer volumeCurveTs;
+    //CurveFunction::_sp volumeCurveTs;
     vector< pair<double,double> > curveGeometry;
     double minLevel = 0, maxLevel = 0;
     
@@ -348,10 +348,10 @@ void EpanetModel::createRtxWrappers() {
     EN_LinkType linkType;
     double length, diameter, status;
     string linkName;
-    Node::sharedPointer startNode, endNode;
-    Pipe::sharedPointer newPipe;
-    Pump::sharedPointer newPump;
-    Valve::sharedPointer newValve;
+    Node::_sp startNode, endNode;
+    Pipe::_sp newPipe;
+    Pump::_sp newPump;
+    Valve::_sp newValve;
     
     // a bunch of epanet api calls to get properties from the link
     OW_API_CHECK(OW_getlinkid(_enModel, iLink, enLinkName), "OW_getlinkid");
@@ -683,14 +683,14 @@ void EpanetModel::setInitialModelQuality() {
   OW_API_CHECK(OW_openQ(_enModel), "OW_openQ");
 
   // Junctions
-  BOOST_FOREACH(Junction::sharedPointer junc, this->junctions()) {
+  BOOST_FOREACH(Junction::_sp junc, this->junctions()) {
     double qual = junc->initialQuality();
     int iNode = _nodeIndex[junc->name()];
     OW_API_CHECK(OW_setnodevalue(_enModel, iNode, EN_INITQUAL, qual), "OW_setnodevalue - EN_INITQUAL");
   }
   
   // Tanks
-  BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
+  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
     double qual = tank->initialQuality();
     int iNode = _nodeIndex[tank->name()];
     OW_API_CHECK(OW_setnodevalue(_enModel, iNode, EN_INITQUAL, qual), "OW_setnodevalue - EN_INITQUAL");

@@ -26,7 +26,7 @@ int main (int argc, const char * argv[])
   
   {
     
-    ProjectFile::sharedPointer project( new SqliteProjectFile);
+    ProjectFile::_sp project( new SqliteProjectFile);
     project->loadProjectFile("/Users/sam/Desktop/milford.rtx");
     
     

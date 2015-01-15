@@ -30,7 +30,7 @@ namespace RTX {
     
     
   protected:
-    std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
+    std::vector<Point> filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
     Point filteredSingle(Point p, Units sourceU); // override for extended functionality
 
   private:

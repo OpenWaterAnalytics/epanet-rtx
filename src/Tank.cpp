@@ -92,12 +92,12 @@ void Tank::setElevation(double elevation) {
   _levelMeasure->setOffset(-elevation);
 }
 
-void Tank::setLevelMeasure(TimeSeries::sharedPointer levelMeasure) {
+void Tank::setLevelMeasure(TimeSeries::_sp levelMeasure) {
   if (!levelMeasure) {
-    this->setHeadMeasure(TimeSeries::sharedPointer());
+    this->setHeadMeasure(TimeSeries::_sp());
   }
   else {
-    OffsetTimeSeries::sharedPointer offsetHeadMeasure( new OffsetTimeSeries() );
+    OffsetTimeSeries::_sp offsetHeadMeasure( new OffsetTimeSeries() );
     offsetHeadMeasure->setName(this->name() + " offset");
     offsetHeadMeasure->setSource(levelMeasure);
     offsetHeadMeasure->setOffset( (this->elevation()) );
@@ -106,11 +106,11 @@ void Tank::setLevelMeasure(TimeSeries::sharedPointer levelMeasure) {
   }
 }
 
-TimeSeries::sharedPointer Tank::levelMeasure() {
+TimeSeries::_sp Tank::levelMeasure() {
   return _levelMeasure;
 }
 
-void Tank::setHeadMeasure(TimeSeries::sharedPointer head) {
+void Tank::setHeadMeasure(TimeSeries::_sp head) {
   // base class method first
   Junction::setHeadMeasure(head);
   
@@ -131,20 +131,20 @@ void Tank::setHeadMeasure(TimeSeries::sharedPointer head) {
   }
   else {
     // invalidate tank flow timeseries.
-    TimeSeries::sharedPointer blank;
+    TimeSeries::_sp blank;
     _levelMeasure->setSource(blank);
   }
 
 }
 
 
-TimeSeries::sharedPointer Tank::level() {
+TimeSeries::_sp Tank::level() {
   return _level;
 }
-TimeSeries::sharedPointer Tank::flowMeasure() {
+TimeSeries::_sp Tank::flowMeasure() {
   return _flowMeasure;
 }
-TimeSeries::sharedPointer Tank::volumeMeasure() {
+TimeSeries::_sp Tank::volumeMeasure() {
   return _volumeMeasure;
 }
 
@@ -158,10 +158,10 @@ bool Tank::resetLevelNextTime() {
 bool Tank::doesResetLevelUsingClock() {
   return _doesResetLevel;
 }
-void Tank::setLevelResetClock(Clock::sharedPointer clock) {
+void Tank::setLevelResetClock(Clock::_sp clock) {
   _doesResetLevel = (clock ? true : false);
   _resetLevel = clock;
 }
-Clock::sharedPointer Tank::levelResetClock() {
+Clock::_sp Tank::levelResetClock() {
   return _resetLevel;
 }

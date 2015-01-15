@@ -19,21 +19,21 @@ namespace RTX {
     RTX_SHARED_POINTER(MultiplierTimeSeries);
     MultiplierTimeSeries();
     
-    TimeSeries::sharedPointer multiplier();
-    void setMultiplier(TimeSeries::sharedPointer ts);
+    TimeSeries::_sp multiplier();
+    void setMultiplier(TimeSeries::_sp ts);
     
-    void setSource(TimeSeries::sharedPointer ts);
-    bool isCompatibleWith(TimeSeries::sharedPointer ts);
+    void setSource(TimeSeries::_sp ts);
+    bool isCompatibleWith(TimeSeries::_sp ts);
     
     virtual void setUnits(Units u);
     
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
+    virtual std::vector<Point> filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
     void checkUnits();
     
   private:
     Point filteredSingle(Point p, Units sourceU);
-    TimeSeries::sharedPointer _multiplierBasis;
+    TimeSeries::_sp _multiplierBasis;
   };
 }
 

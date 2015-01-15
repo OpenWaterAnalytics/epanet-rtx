@@ -24,11 +24,11 @@ namespace RTX {
     
     // maybe?
     bool doesHaveBoundaryHead();
-    TimeSeries::sharedPointer boundaryHead();
-    void setBoundaryHead(TimeSeries::sharedPointer head);
+    TimeSeries::_sp boundaryHead();
+    void setBoundaryHead(TimeSeries::_sp head);
     bool doesHaveBoundaryQuality();
-    TimeSeries::sharedPointer boundaryQuality();
-    void setBoundaryQuality(TimeSeries::sharedPointer quality);
+    TimeSeries::_sp boundaryQuality();
+    void setBoundaryQuality(TimeSeries::_sp quality);
     
   private:
     double _fixedLevel;

@@ -6,25 +6,25 @@ using namespace std;
 
 
 MultiplierTimeSeries::MultiplierTimeSeries() {
-  _multiplierBasis = TimeSeries::sharedPointer(new TimeSeries());
+  _multiplierBasis = TimeSeries::_sp(new TimeSeries());
 }
 
-void MultiplierTimeSeries::setMultiplier(TimeSeries::sharedPointer ts) {
+void MultiplierTimeSeries::setMultiplier(TimeSeries::_sp ts) {
   _multiplierBasis = ts;
   this->checkUnits();
 }
-TimeSeries::sharedPointer MultiplierTimeSeries::multiplier() {
+TimeSeries::_sp MultiplierTimeSeries::multiplier() {
   return _multiplierBasis;
 }
 
-void MultiplierTimeSeries::setSource(TimeSeries::sharedPointer ts) {
+void MultiplierTimeSeries::setSource(TimeSeries::_sp ts) {
   ModularTimeSeries::setSource(ts);
   this->checkUnits();
 }
 
-bool MultiplierTimeSeries::isCompatibleWith(TimeSeries::sharedPointer otherSeries) {
+bool MultiplierTimeSeries::isCompatibleWith(TimeSeries::_sp otherSeries) {
   // basic check for compatible regular time series.
-  Clock::sharedPointer theirClock = otherSeries->clock(), myClock = this->clock();
+  Clock::_sp theirClock = otherSeries->clock(), myClock = this->clock();
   bool clocksCompatible = myClock->isCompatibleWith(theirClock);
 //  bool unitsCompatible = units().isDimensionless() || (units()*otherSeries->units()).isSameDimensionAs(otherSeries->units());
   bool unitsCompatible = true;
@@ -45,7 +45,7 @@ void MultiplierTimeSeries::checkUnits() {
   }
 }
 
-std::vector<Point> MultiplierTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+std::vector<Point> MultiplierTimeSeries::filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
   
   // call the multiplier basis method to cache points
   if (this->multiplier()) {

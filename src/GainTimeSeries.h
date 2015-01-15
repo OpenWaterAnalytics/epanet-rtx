@@ -24,7 +24,7 @@ namespace RTX {
     Units gainUnits();
     
     virtual void setUnits(Units u);
-    virtual bool isCompatibleWith(TimeSeries::sharedPointer ts);
+    virtual bool isCompatibleWith(TimeSeries::_sp ts);
     
     virtual bool canAlterDimension() { return true; };
     

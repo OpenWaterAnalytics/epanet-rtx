@@ -15,17 +15,17 @@
 using namespace RTX;
 using namespace std;
 
-TimeSeries::sharedPointer AggregatorTimeSeries::source() {
+TimeSeries::_sp AggregatorTimeSeries::source() {
   vector< AggregatorSource > sourceVec = this->sources();
   if (sourceVec.size() > 0) {
     return sourceVec.front().timeseries;
   }
   else {
-    TimeSeries::sharedPointer empty;
+    TimeSeries::_sp empty;
     return empty;
   }
 }
-void AggregatorTimeSeries::setSource(TimeSeries::sharedPointer source) {
+void AggregatorTimeSeries::setSource(TimeSeries::_sp source) {
   return;
 }
 bool AggregatorTimeSeries::doesHaveSource() {
@@ -36,7 +36,7 @@ ostream& AggregatorTimeSeries::toStream(ostream &stream) {
   TimeSeries::toStream(stream);
   stream << "Connected to: " << _tsList.size() << " time series:" << "\n";
   
-  typedef std::pair<TimeSeries::sharedPointer,double> tsMultPair_t;
+  typedef std::pair<TimeSeries::_sp,double> tsMultPair_t;
   BOOST_FOREACH(const AggregatorSource& aggSource, _tsList) {
     string dir = (aggSource.multiplier > 0)? "(+)" : "(-)";
     stream << "    " << dir << " " << aggSource.timeseries->name() << endl;
@@ -44,7 +44,7 @@ ostream& AggregatorTimeSeries::toStream(ostream &stream) {
   return stream;
 }
 
-void AggregatorTimeSeries::addSource(TimeSeries::sharedPointer timeSeries, double multiplier) throw(RtxException) {
+void AggregatorTimeSeries::addSource(TimeSeries::_sp timeSeries, double multiplier) throw(RtxException) {
   
   // check compatibility
   if (!isCompatibleWith(timeSeries)) {
@@ -67,7 +67,7 @@ void AggregatorTimeSeries::addSource(TimeSeries::sharedPointer timeSeries, doubl
   */
 }
 
-void AggregatorTimeSeries::removeSource(TimeSeries::sharedPointer timeSeries) {
+void AggregatorTimeSeries::removeSource(TimeSeries::_sp timeSeries) {
   
   std::vector< AggregatorSource > newSourceList;
   
@@ -88,10 +88,10 @@ std::vector< AggregatorTimeSeries::AggregatorSource > AggregatorTimeSeries::sour
   return _tsList;
 }
 
-void AggregatorTimeSeries::setMultiplierForSource(TimeSeries::sharedPointer timeSeries, double multiplier) {
+void AggregatorTimeSeries::setMultiplierForSource(TimeSeries::_sp timeSeries, double multiplier) {
   // _tsList[x].first == TimeSeries, _tsList[x].second == multipier
-  // (private) std::vector< std::pair<TimeSeries::sharedPointer,double> > _tsList;
-  typedef std::pair<TimeSeries::sharedPointer, double> tsDoublePair_t;
+  // (private) std::vector< std::pair<TimeSeries::_sp,double> > _tsList;
+  typedef std::pair<TimeSeries::_sp, double> tsDoublePair_t;
   BOOST_FOREACH(AggregatorSource& item, _tsList) {
     if (item.timeseries == timeSeries) {
       item.multiplier = multiplier;
@@ -156,7 +156,7 @@ Point AggregatorTimeSeries::point(time_t time) {
   return ModularTimeSeries::point(time);
 }
 
-std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
   
   vector<Point> aggregated;
   if (clock()->isRegular()) {

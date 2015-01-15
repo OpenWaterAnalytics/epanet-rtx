@@ -34,7 +34,7 @@ namespace RTX {
    \param period The regular period for the clock.
    \param start The start time (offset).
    
-   \fn bool Clock::isCompatibleWith(Clock::sharedPointer clock)
+   \fn bool Clock::isCompatibleWith(Clock::_sp clock)
    \brief Test for compatibility (passed clock parameter may be faster, but must fall on even steps)
    \param clock A shared pointer to another clock object.
    \return Boolean true/false value.
@@ -88,7 +88,7 @@ namespace RTX {
     std::string name();
     void setName(std::string name);
     
-    virtual bool isCompatibleWith(Clock::sharedPointer clock);
+    virtual bool isCompatibleWith(Clock::_sp clock);
     virtual bool isValid(time_t time);
     virtual time_t validTime(time_t time);
     virtual time_t timeAfter(time_t time);

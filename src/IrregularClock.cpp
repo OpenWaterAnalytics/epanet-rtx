@@ -13,7 +13,7 @@
 using namespace RTX;
 using namespace std;
 
-IrregularClock::IrregularClock(PointRecord::sharedPointer pointRecord, std::string name) : Clock(0,0), _name(name) {
+IrregularClock::IrregularClock(PointRecord::_sp pointRecord, std::string name) : Clock(0,0), _name(name) {
   if (pointRecord) {
     _pointRecord = pointRecord;
   }
@@ -29,7 +29,7 @@ IrregularClock::~IrregularClock() {
 
 #pragma mark - Public Methods
 
-bool IrregularClock::isCompatibleWith(Clock::sharedPointer clock) {
+bool IrregularClock::isCompatibleWith(Clock::_sp clock) {
   // we're irregular, so we're compatible with anything... TODO - but only if the PointRecord is read/write...
   return true;
 }

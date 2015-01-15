@@ -23,7 +23,7 @@ namespace RTX {
     Junction(const std::string& name);
     virtual ~Junction();
     
-    virtual void setRecord(PointRecord::sharedPointer record);
+    virtual void setRecord(PointRecord::_sp record);
     
     // states
     double baseDemand();
@@ -32,42 +32,42 @@ namespace RTX {
     double initialQuality();
     void setInitialQuality(double quality);
     
-    TimeSeries::sharedPointer head();
-    TimeSeries::sharedPointer pressure();
-    TimeSeries::sharedPointer demand();
-    TimeSeries::sharedPointer quality();
+    TimeSeries::_sp head();
+    TimeSeries::_sp pressure();
+    TimeSeries::_sp demand();
+    TimeSeries::_sp quality();
     
     // parameters
     bool doesHaveQualitySource();
-    TimeSeries::sharedPointer qualitySource();
-    void setQualitySource(TimeSeries::sharedPointer quality);
+    TimeSeries::_sp qualitySource();
+    void setQualitySource(TimeSeries::_sp quality);
     
     bool doesHaveBoundaryFlow();
-    TimeSeries::sharedPointer boundaryFlow(); // metered demand (+) or flow input (-)
-    void setBoundaryFlow(TimeSeries::sharedPointer flow);
+    TimeSeries::_sp boundaryFlow(); // metered demand (+) or flow input (-)
+    void setBoundaryFlow(TimeSeries::_sp flow);
     
     bool doesHaveHeadMeasure();
-    TimeSeries::sharedPointer headMeasure();
-    TimeSeries::sharedPointer pressureMeasure();
-    virtual void setHeadMeasure(TimeSeries::sharedPointer head);
-    virtual void setPressureMeasure(TimeSeries::sharedPointer pressure);
+    TimeSeries::_sp headMeasure();
+    TimeSeries::_sp pressureMeasure();
+    virtual void setHeadMeasure(TimeSeries::_sp head);
+    virtual void setPressureMeasure(TimeSeries::_sp pressure);
     
     bool doesHaveQualityMeasure();
-    TimeSeries::sharedPointer qualityMeasure();
-    void setQualityMeasure(TimeSeries::sharedPointer quality);
+    TimeSeries::_sp qualityMeasure();
+    void setQualityMeasure(TimeSeries::_sp quality);
     
   private:
     // Parameters
-    TimeSeries::sharedPointer _qualityBoundary;
-    TimeSeries::sharedPointer _boundaryFlow;
+    TimeSeries::_sp _qualityBoundary;
+    TimeSeries::_sp _boundaryFlow;
     // Measurements
-    TimeSeries::sharedPointer _qualityMeasure;
-    TimeSeries::sharedPointer _headMeasure, _pressureMeasure;
+    TimeSeries::_sp _qualityMeasure;
+    TimeSeries::_sp _headMeasure, _pressureMeasure;
     // States
-    TimeSeries::sharedPointer _demandState;
-    TimeSeries::sharedPointer _headState;
-    TimeSeries::sharedPointer _pressureState;
-    TimeSeries::sharedPointer _qualityState;
+    TimeSeries::_sp _demandState;
+    TimeSeries::_sp _headState;
+    TimeSeries::_sp _pressureState;
+    TimeSeries::_sp _qualityState;
     // properties
     double _baseDemand;
     double _initialQuality;

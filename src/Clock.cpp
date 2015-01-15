@@ -43,7 +43,7 @@ void Clock::setName(std::string name) {
   _name = name;
 }
 
-bool Clock::isCompatibleWith(Clock::sharedPointer clock) {
+bool Clock::isCompatibleWith(Clock::_sp clock) {
   // if this clock is irregular, it's compatible with anything!
   if (!isRegular()) {
     return true;

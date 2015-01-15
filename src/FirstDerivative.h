@@ -19,7 +19,7 @@ namespace RTX {
     FirstDerivative();
     virtual ~FirstDerivative();
     
-    virtual void setSource(TimeSeries::sharedPointer source);
+    virtual void setSource(TimeSeries::_sp source);
     virtual void setUnits(Units newUnits);
     virtual std::ostream& toStream(std::ostream &stream);
     

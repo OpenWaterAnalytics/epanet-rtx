@@ -24,9 +24,9 @@ using namespace std;
 vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, time_t end) {
   // should create dmas before using this method to get reliable summary information about dma boundary flows
   vector<ElementSummary> summary;
-  Model::sharedPointer projModel = model();
-  vector<Element::sharedPointer> modelElements;
-  vector<Dma::sharedPointer> Dmas;
+  Model::_sp projModel = model();
+  vector<Element::_sp> modelElements;
+  vector<Dma::_sp> Dmas;
   if (projModel) {
     modelElements = projModel->elements();
     Dmas = projModel->dmas();
@@ -36,12 +36,12 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
   }
   
   // record and categorize the connected time series
-  BOOST_FOREACH(Element::sharedPointer element, modelElements) {
+  BOOST_FOREACH(Element::_sp element, modelElements) {
     switch (element->type()) {
       case Element::JUNCTION:
       case Element::TANK:
       case Element::RESERVOIR: {
-        Junction::sharedPointer junc;
+        Junction::_sp junc;
         junc = boost::static_pointer_cast<Junction>(element);
         if (junc->doesHaveBoundaryFlow()) {
           ElementSummary s;
@@ -82,7 +82,7 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
       case Element::PIPE:
       case Element::VALVE:
       case Element::PUMP: {
-        Pipe::sharedPointer pipe;
+        Pipe::_sp pipe;
         pipe = boost::static_pointer_cast<Pipe>(element);
         if (pipe->doesHaveFlowMeasure()) {
           ElementSummary s;
@@ -90,7 +90,7 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
           s.data = pipe->flowMeasure()->rootTimeSeries();
           s.boundaryType = BoundaryTypeNone;
           s.measureType = MeasureTypeFlow;
-          BOOST_FOREACH(Dma::sharedPointer dma, Dmas) {
+          BOOST_FOREACH(Dma::_sp dma, Dmas) {
             if (dma->isMeasuredBoundaryPipe(pipe)) {
               s.measureType = MeasureTypeDmaFlow;
               break;
@@ -104,7 +104,7 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
           s.data = pipe->settingParameter()->rootTimeSeries();
           s.boundaryType = BoundaryTypeSetting;
           s.measureType = MeasureTypeNone;
-          BOOST_FOREACH(Dma::sharedPointer dma, Dmas) {
+          BOOST_FOREACH(Dma::_sp dma, Dmas) {
             if (dma->isClosedBoundaryPipe(pipe) && !dma->isMeasuredBoundaryPipe(pipe)) {
               s.boundaryType = BoundaryTypeDmaSetting;
               break;
@@ -118,7 +118,7 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
           s.data = pipe->statusParameter()->rootTimeSeries();
           s.boundaryType = BoundaryTypeStatus;
           s.measureType = MeasureTypeNone;
-          BOOST_FOREACH(Dma::sharedPointer dma, Dmas) {
+          BOOST_FOREACH(Dma::_sp dma, Dmas) {
             if (dma->isClosedBoundaryPipe(pipe) && !dma->isMeasuredBoundaryPipe(pipe)) {
               s.boundaryType = BoundaryTypeDmaStatus;
               break;

@@ -27,7 +27,7 @@ namespace RTX {
     RTX_SHARED_POINTER(CurveFunction);
     CurveFunction();
     // overridden methods from parent class
-    virtual void setSource(TimeSeries::sharedPointer source);
+    virtual void setSource(TimeSeries::_sp source);
     virtual Point point(time_t time);
     virtual void setUnits(Units newUnits);
     
@@ -43,7 +43,7 @@ namespace RTX {
     virtual bool canAlterDimension() { return true; };
     
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
+    virtual std::vector<Point> filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
     
   private:
     Point convertWithCurve(Point p, Units sourceU);

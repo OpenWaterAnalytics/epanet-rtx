@@ -20,10 +20,10 @@ namespace RTX {
   public:
     typedef enum {OPEN = true, CLOSED = false} status_t;
     RTX_SHARED_POINTER(Pipe);
-    Pipe(const std::string& name, Node::sharedPointer startNode, Node::sharedPointer endNode);
+    Pipe(const std::string& name, Node::_sp startNode, Node::_sp endNode);
     virtual ~Pipe();
     
-    virtual void setRecord(PointRecord::sharedPointer record);
+    virtual void setRecord(PointRecord::_sp record);
     double length();
     double diameter();
     void setLength(double length);
@@ -33,29 +33,29 @@ namespace RTX {
     void setFixedStatus(status_t status);
     
     // states
-    TimeSeries::sharedPointer flow();
+    TimeSeries::_sp flow();
     
     // parameters
     bool doesHaveStatusParameter();
-    TimeSeries::sharedPointer statusParameter();
-    void setStatusParameter(TimeSeries::sharedPointer status);
+    TimeSeries::_sp statusParameter();
+    void setStatusParameter(TimeSeries::_sp status);
     bool doesHaveSettingParameter();
-    TimeSeries::sharedPointer settingParameter();
-    void setSettingParameter(TimeSeries::sharedPointer setting);
+    TimeSeries::_sp settingParameter();
+    void setSettingParameter(TimeSeries::_sp setting);
 
     // measurements
     bool doesHaveFlowMeasure();
-    TimeSeries::sharedPointer flowMeasure();
-    void setFlowMeasure(TimeSeries::sharedPointer flow);
+    TimeSeries::_sp flowMeasure();
+    void setFlowMeasure(TimeSeries::_sp flow);
     
   private:
     status_t _fixedStatus;
     double _length;
     double _diameter;
-    TimeSeries::sharedPointer _flowState;
-    TimeSeries::sharedPointer _flowMeasure;
-    TimeSeries::sharedPointer _status;
-    TimeSeries::sharedPointer _setting;
+    TimeSeries::_sp _flowState;
+    TimeSeries::_sp _flowMeasure;
+    TimeSeries::_sp _status;
+    TimeSeries::_sp _setting;
   };
   
 }

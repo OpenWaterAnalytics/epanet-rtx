@@ -3,7 +3,7 @@
 using namespace RTX;
 using namespace std;
 
-void InversionTimeSeries::setSource(TimeSeries::sharedPointer ts) {
+void InversionTimeSeries::setSource(TimeSeries::_sp ts) {
   ModularTimeSeries::setSource(ts);
   this->checkUnits();
 }

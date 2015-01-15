@@ -29,7 +29,7 @@ void GainTimeSeries::setGainUnits(RTX::Units u) {
 }
 
 
-bool GainTimeSeries::isCompatibleWith(TimeSeries::sharedPointer ts) {
+bool GainTimeSeries::isCompatibleWith(TimeSeries::_sp ts) {
   return true;
 }
 

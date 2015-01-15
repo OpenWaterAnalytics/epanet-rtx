@@ -49,12 +49,12 @@ using namespace std;
 namespace RTX {
   class PointRecordFactory {
   public:
-    static PointRecord::sharedPointer createCsvPointRecord(Setting& setting);
+    static PointRecord::_sp createCsvPointRecord(Setting& setting);
 #ifndef RTX_NO_ODBC
-    static PointRecord::sharedPointer createOdbcPointRecord(Setting& setting);
+    static PointRecord::_sp createOdbcPointRecord(Setting& setting);
 #endif
 #ifndef RTX_NO_MYSQL
-    static PointRecord::sharedPointer createMySqlPointRecord(Setting& setting);
+    static PointRecord::_sp createMySqlPointRecord(Setting& setting);
 #endif
   };
 }
@@ -225,32 +225,32 @@ void ConfigProject::saveProjectFile(const string &path) {
 }
 
 
-RTX_LIST<TimeSeries::sharedPointer> ConfigProject::timeSeries() {
+RTX_LIST<TimeSeries::_sp> ConfigProject::timeSeries() {
   
 }
 
-RTX_LIST<Clock::sharedPointer> ConfigProject::clocks() {
+RTX_LIST<Clock::_sp> ConfigProject::clocks() {
   
 }
 
-RTX_LIST<PointRecord::sharedPointer> ConfigProject::records() {
+RTX_LIST<PointRecord::_sp> ConfigProject::records() {
   
 }
 
 
-map<string, TimeSeries::sharedPointer> ConfigProject::timeSeries() {
+map<string, TimeSeries::_sp> ConfigProject::timeSeries() {
   return _timeSeriesList;
 }
 
-map<string, PointRecord::sharedPointer> ConfigProject::pointRecords() {
+map<string, PointRecord::_sp> ConfigProject::pointRecords() {
   return _pointRecordList;
 }
 
-PointRecord::sharedPointer ConfigProject::defaultRecord() {
+PointRecord::_sp ConfigProject::defaultRecord() {
   return _defaultRecord;
 }
 
-map<string, Clock::sharedPointer> ConfigProject::clocks() {
+map<string, Clock::_sp> ConfigProject::clocks() {
   return _clockList;
 }
 
@@ -278,7 +278,7 @@ void ConfigProject::createPointRecords(Setting& records) {
     // the config file path onto the Setting& argument in case the pointrecord needs it (like the csv version will)
     record.add("configPath", libconfig::Setting::TypeString);
     record["configPath"] = _configPath;
-    PointRecord::sharedPointer pointRecord = createPointRecordOfType(record);
+    PointRecord::_sp pointRecord = createPointRecordOfType(record);
     if (pointRecord) {
       _pointRecordList[recordName] = pointRecord;
     }
@@ -295,7 +295,7 @@ void ConfigProject::createPointRecords(Setting& records) {
 // simple layer of indirection to make function pointer execution cleaner in the calling code.
 // this just executes a function pointer stored in a map, which is keyed with the string name of the type of pointrecord to create.
 // so access the "type" field of the passed setting, and execute the proper function to create the pointrecord.
-PointRecord::sharedPointer ConfigProject::createPointRecordOfType(libconfig::Setting &setting) {
+PointRecord::_sp ConfigProject::createPointRecordOfType(libconfig::Setting &setting) {
   // check if the map item exists first
   string type;
   if (setting.lookupValue("type", type) && (_pointRecordPointerMap.find(type) != _pointRecordPointerMap.end()) ) {
@@ -304,13 +304,13 @@ PointRecord::sharedPointer ConfigProject::createPointRecordOfType(libconfig::Set
   }
   
   cerr << "Point Record type [" << type << "] not supported" << endl;
-  PointRecord::sharedPointer empty;
+  PointRecord::_sp empty;
   return empty;
 }
 
 
-PointRecord::sharedPointer PointRecordFactory::createCsvPointRecord(Setting& setting) {
-  CsvPointRecord::sharedPointer csv(new CsvPointRecord());
+PointRecord::_sp PointRecordFactory::createCsvPointRecord(Setting& setting) {
+  CsvPointRecord::_sp csv(new CsvPointRecord());
   string csvDirPath, name, configPath;
   
   if (setting.lookupValue("name", name) && setting.lookupValue("path", csvDirPath) && setting.lookupValue("configPath", configPath) ) {
@@ -338,8 +338,8 @@ PointRecord::sharedPointer PointRecordFactory::createCsvPointRecord(Setting& set
 
 #ifndef RTX_NO_ODBC
 
-PointRecord::sharedPointer PointRecordFactory::createOdbcPointRecord(libconfig::Setting &setting) {
-  OdbcPointRecord::sharedPointer r( new OdbcPointRecord() );
+PointRecord::_sp PointRecordFactory::createOdbcPointRecord(libconfig::Setting &setting) {
+  OdbcPointRecord::_sp r( new OdbcPointRecord() );
   // create the initialization string for the scada point record.
   string initString, name;
   if ( !setting.lookupValue("connection", initString) || !setting.lookupValue("name", name) ) {
@@ -380,9 +380,9 @@ PointRecord::sharedPointer PointRecordFactory::createOdbcPointRecord(libconfig::
 
 #ifndef RTX_NO_MYSQL
 
-PointRecord::sharedPointer PointRecordFactory::createMySqlPointRecord(libconfig::Setting &setting) {
+PointRecord::_sp PointRecordFactory::createMySqlPointRecord(libconfig::Setting &setting) {
   string name = setting["name"];
-  MysqlPointRecord::sharedPointer record( new MysqlPointRecord() );
+  MysqlPointRecord::_sp record( new MysqlPointRecord() );
   string initString = setting["connection"];
 //  record->setConnectionString(initString);
   //record->setName(name);
@@ -403,7 +403,7 @@ void ConfigProject::createClocks(Setting& clockGroup) {
     Setting& clock = clockGroup[iClock];
     string clockName = clock["name"];
     int period = clock["period"];
-    Clock::sharedPointer aClock( new Clock(period) );
+    Clock::_sp aClock( new Clock(period) );
     _clockList[clockName] = aClock;
   }
   
@@ -420,7 +420,7 @@ void ConfigProject::createTimeSeriesList(Setting& timeSeriesGroup) {
   for (int iSeries = 0; iSeries < tsCount; ++iSeries) {
     Setting& series = timeSeriesGroup[iSeries];
     string seriesName = series["name"];
-    TimeSeries::sharedPointer theTimeSeries = createTimeSeriesOfType(series);
+    TimeSeries::_sp theTimeSeries = createTimeSeriesOfType(series);
     if (theTimeSeries != NULL) {
       _timeSeriesList[seriesName] = theTimeSeries;
     }
@@ -446,8 +446,8 @@ void ConfigProject::createTimeSeriesList(Setting& timeSeriesGroup) {
       continue;
     }
     
-    ModularTimeSeries::sharedPointer ts = boost::static_pointer_cast<ModularTimeSeries>(_timeSeriesList[tsName]);
-    TimeSeries::sharedPointer source = _timeSeriesList[sourceName];
+    ModularTimeSeries::_sp ts = boost::static_pointer_cast<ModularTimeSeries>(_timeSeriesList[tsName]);
+    TimeSeries::_sp source = _timeSeriesList[sourceName];
     
     ts->setSource(source);
     
@@ -455,9 +455,9 @@ void ConfigProject::createTimeSeriesList(Setting& timeSeriesGroup) {
   
   
   // connect multiplier time series sources
-  typedef map<TimeSeries::sharedPointer,string> multiplierMap_t;
+  typedef map<TimeSeries::_sp,string> multiplierMap_t;
   BOOST_FOREACH(multiplierMap_t::value_type& multPair, _multiplierBasisList) {
-    TimeSeries::sharedPointer ts = multPair.first;
+    TimeSeries::_sp ts = multPair.first;
     string basisName = multPair.second;
     
     if (_timeSeriesList.find(ts->name()) == _timeSeriesList.end()) {
@@ -465,7 +465,7 @@ void ConfigProject::createTimeSeriesList(Setting& timeSeriesGroup) {
       continue;
     }
     
-    MultiplierTimeSeries::sharedPointer mts = boost::static_pointer_cast<MultiplierTimeSeries>(ts);
+    MultiplierTimeSeries::_sp mts = boost::static_pointer_cast<MultiplierTimeSeries>(ts);
     if (mts) {
       mts->setMultiplier(_timeSeriesList[basisName]);
     }
@@ -487,7 +487,7 @@ void ConfigProject::createTimeSeriesList(Setting& timeSeriesGroup) {
       continue;
     }
     
-    AggregatorTimeSeries::sharedPointer ts = boost::static_pointer_cast<AggregatorTimeSeries>(_timeSeriesList[tsName]);
+    AggregatorTimeSeries::_sp ts = boost::static_pointer_cast<AggregatorTimeSeries>(_timeSeriesList[tsName]);
     
     // go through the list and connect sources w/ multipliers
     BOOST_FOREACH(const stringDoublePair_t::value_type& entry, aggregationList) {
@@ -500,7 +500,7 @@ void ConfigProject::createTimeSeriesList(Setting& timeSeriesGroup) {
         continue;
       }
       
-      TimeSeries::sharedPointer source = _timeSeriesList[sourceName];
+      TimeSeries::_sp source = _timeSeriesList[sourceName];
       
       ts->addSource(source, multiplier);
     }
@@ -509,19 +509,19 @@ void ConfigProject::createTimeSeriesList(Setting& timeSeriesGroup) {
   return;
 }
 
-TimeSeries::sharedPointer ConfigProject::createTimeSeriesOfType(libconfig::Setting &setting) {
+TimeSeries::_sp ConfigProject::createTimeSeriesOfType(libconfig::Setting &setting) {
   string type = setting["type"];
   if (_timeSeriesPointerMap.find(type) == _timeSeriesPointerMap.end()) {
     // not found
     cerr << "time series type " << type << " not implemented or not recognized" << endl;
-    TimeSeries::sharedPointer empty;
+    TimeSeries::_sp empty;
     return empty;
   }
   TimeSeriesFunctionPointer fp = _timeSeriesPointerMap[type];
   return (this->*fp)(setting);
 }
 
-void ConfigProject::setGenericTimeSeriesProperties(TimeSeries::sharedPointer timeSeries, libconfig::Setting &setting) {
+void ConfigProject::setGenericTimeSeriesProperties(TimeSeries::_sp timeSeries, libconfig::Setting &setting) {
   string myName = setting["name"];
   timeSeries->setName(myName);
   
@@ -533,7 +533,7 @@ void ConfigProject::setGenericTimeSeriesProperties(TimeSeries::sharedPointer tim
   timeSeries->setUnits(theUnits);
   
   if (setting.exists("clock")) {
-    Clock::sharedPointer clock = _clockList[setting["clock"]];
+    Clock::_sp clock = _clockList[setting["clock"]];
     timeSeries->setClock(clock);
   }
   
@@ -556,7 +556,7 @@ void ConfigProject::setGenericTimeSeriesProperties(TimeSeries::sharedPointer tim
       cerr << "WARNING: could not find point record \"" << pointRecordName << "\"" << endl;
     }
     else {
-      PointRecord::sharedPointer pointRecord = _pointRecordList[setting["pointRecord"]];
+      PointRecord::_sp pointRecord = _pointRecordList[setting["pointRecord"]];
       timeSeries->setRecord(pointRecord);
     }
   }
@@ -582,14 +582,14 @@ void ConfigProject::setGenericTimeSeriesProperties(TimeSeries::sharedPointer tim
   
 }
 
-TimeSeries::sharedPointer ConfigProject::createTimeSeries(libconfig::Setting &setting) {
-  TimeSeries::sharedPointer timeSeries( new TimeSeries() );
+TimeSeries::_sp ConfigProject::createTimeSeries(libconfig::Setting &setting) {
+  TimeSeries::_sp timeSeries( new TimeSeries() );
   setGenericTimeSeriesProperties(timeSeries, setting);
   return timeSeries;
 }
 
-TimeSeries::sharedPointer ConfigProject::createAggregator(libconfig::Setting &setting) {
-  AggregatorTimeSeries::sharedPointer timeSeries( new AggregatorTimeSeries() );
+TimeSeries::_sp ConfigProject::createAggregator(libconfig::Setting &setting) {
+  AggregatorTimeSeries::_sp timeSeries( new AggregatorTimeSeries() );
   // set generic properties
   setGenericTimeSeriesProperties(timeSeries, setting);
   // additional setters for this class...
@@ -620,8 +620,8 @@ TimeSeries::sharedPointer ConfigProject::createAggregator(libconfig::Setting &se
   return timeSeries;
 }
 
-TimeSeries::sharedPointer ConfigProject::createMovingAverage(libconfig::Setting &setting) {
-  MovingAverage::sharedPointer timeSeries( new MovingAverage() );
+TimeSeries::_sp ConfigProject::createMovingAverage(libconfig::Setting &setting) {
+  MovingAverage::_sp timeSeries( new MovingAverage() );
   // set generic properties
   setGenericTimeSeriesProperties(timeSeries, setting);
   
@@ -629,12 +629,12 @@ TimeSeries::sharedPointer ConfigProject::createMovingAverage(libconfig::Setting 
   int window = setting["window"];
   timeSeries->setWindowSize(window);
   
-  TimeSeries::sharedPointer returnTS = timeSeries;
+  TimeSeries::_sp returnTS = timeSeries;
   return returnTS;
 }
 
-TimeSeries::sharedPointer ConfigProject::createResampler(libconfig::Setting &setting) {
-  Resampler::sharedPointer resampler( new Resampler() );
+TimeSeries::_sp ConfigProject::createResampler(libconfig::Setting &setting) {
+  Resampler::_sp resampler( new Resampler() );
   setGenericTimeSeriesProperties(resampler, setting);
   string mode;
   if (setting.lookupValue("mode", mode)) {
@@ -652,14 +652,14 @@ TimeSeries::sharedPointer ConfigProject::createResampler(libconfig::Setting &set
   return resampler;
 }
 
-TimeSeries::sharedPointer ConfigProject::createDerivative(Setting &setting) {
-  FirstDerivative::sharedPointer derivative( new FirstDerivative() );
+TimeSeries::_sp ConfigProject::createDerivative(Setting &setting) {
+  FirstDerivative::_sp derivative( new FirstDerivative() );
   setGenericTimeSeriesProperties(derivative, setting);
   return derivative;
 }
 
-TimeSeries::sharedPointer ConfigProject::createOffset(Setting &setting) {
-  OffsetTimeSeries::sharedPointer offset( new OffsetTimeSeries() );
+TimeSeries::_sp ConfigProject::createOffset(Setting &setting) {
+  OffsetTimeSeries::_sp offset( new OffsetTimeSeries() );
   setGenericTimeSeriesProperties(offset, setting);
   if (setting.exists("offsetValue")) {
     double v = getConfigDouble(setting, "offsetValue");
@@ -669,8 +669,8 @@ TimeSeries::sharedPointer ConfigProject::createOffset(Setting &setting) {
   return offset;
 }
 
-TimeSeries::sharedPointer ConfigProject::createThreshold(Setting &setting) {
-  ThresholdTimeSeries::sharedPointer status( new ThresholdTimeSeries() );
+TimeSeries::_sp ConfigProject::createThreshold(Setting &setting) {
+  ThresholdTimeSeries::_sp status( new ThresholdTimeSeries() );
   setGenericTimeSeriesProperties(status, setting);
   if (setting.exists("thresholdValue")) {
     double v = getConfigDouble(setting, "thresholdValue");
@@ -692,8 +692,8 @@ TimeSeries::sharedPointer ConfigProject::createThreshold(Setting &setting) {
   return status;
 }
 
-TimeSeries::sharedPointer ConfigProject::createCurveFunction(libconfig::Setting &setting) {
-  CurveFunction::sharedPointer timeSeries( new CurveFunction() );
+TimeSeries::_sp ConfigProject::createCurveFunction(libconfig::Setting &setting) {
+  CurveFunction::_sp timeSeries( new CurveFunction() );
   // set generic properties
   setGenericTimeSeriesProperties(timeSeries, setting);
   
@@ -724,8 +724,8 @@ TimeSeries::sharedPointer ConfigProject::createCurveFunction(libconfig::Setting 
   return timeSeries;
 }
 
-TimeSeries::sharedPointer ConfigProject::createConstant(Setting &setting) {
-  ConstantTimeSeries::sharedPointer constant( new ConstantTimeSeries() );
+TimeSeries::_sp ConfigProject::createConstant(Setting &setting) {
+  ConstantTimeSeries::_sp constant( new ConstantTimeSeries() );
   setGenericTimeSeriesProperties(constant, setting);
   
   if (setting.exists("value")) {
@@ -737,9 +737,9 @@ TimeSeries::sharedPointer ConfigProject::createConstant(Setting &setting) {
 }
 
 
-TimeSeries::sharedPointer ConfigProject::createValidRange(Setting &setting) {
+TimeSeries::_sp ConfigProject::createValidRange(Setting &setting) {
   
-  ValidRangeTimeSeries::sharedPointer ts( new ValidRangeTimeSeries() );
+  ValidRangeTimeSeries::_sp ts( new ValidRangeTimeSeries() );
   setGenericTimeSeriesProperties(ts, setting);
   
   pair<double,double> range = ts->range();
@@ -768,9 +768,9 @@ TimeSeries::sharedPointer ConfigProject::createValidRange(Setting &setting) {
   return ts;
 }
 
-TimeSeries::sharedPointer ConfigProject::createMultiplier(Setting &setting) {
+TimeSeries::_sp ConfigProject::createMultiplier(Setting &setting) {
   
-  MultiplierTimeSeries::sharedPointer ts( new MultiplierTimeSeries() );
+  MultiplierTimeSeries::_sp ts( new MultiplierTimeSeries() );
   setGenericTimeSeriesProperties(ts, setting);
   
   string basis;
@@ -782,8 +782,8 @@ TimeSeries::sharedPointer ConfigProject::createMultiplier(Setting &setting) {
   return ts;
 }
 
-TimeSeries::sharedPointer ConfigProject::createRuntimeStatus(Setting &setting) {
-  RunTimeStatusModularTimeSeries::sharedPointer ts( new RunTimeStatusModularTimeSeries() );
+TimeSeries::_sp ConfigProject::createRuntimeStatus(Setting &setting) {
+  RunTimeStatusModularTimeSeries::_sp ts( new RunTimeStatusModularTimeSeries() );
   setGenericTimeSeriesProperties(ts, setting);
   if (setting.exists("thresholdValue")) {
     double v = getConfigDouble(setting, "thresholdValue");
@@ -805,8 +805,8 @@ TimeSeries::sharedPointer ConfigProject::createRuntimeStatus(Setting &setting) {
   return ts;
 }
 
-TimeSeries::sharedPointer ConfigProject::createGain(Setting &setting) {
-  GainTimeSeries::sharedPointer ts( new GainTimeSeries() );
+TimeSeries::_sp ConfigProject::createGain(Setting &setting) {
+  GainTimeSeries::_sp ts( new GainTimeSeries() );
   setGenericTimeSeriesProperties(ts, setting);
   if (setting.exists("gainValue")) {
     double v = getConfigDouble(setting, "gainValue");
@@ -869,7 +869,7 @@ void ConfigProject::createModel(Setting& setting) {
 
 }
 
-Model::sharedPointer ConfigProject::model() {
+Model::_sp ConfigProject::model() {
   return _model;
 }
 
@@ -912,9 +912,9 @@ void ConfigProject::createDmaObjs(Setting& dmaGroup) {
       }
       
       // we have a list of pipe names, but now we need the actual objects.
-      vector<Pipe::sharedPointer> ignorePipes;
+      vector<Pipe::_sp> ignorePipes;
       BOOST_FOREACH(const string& name, ignoreLinkNameList) {
-        Link::sharedPointer link = _model->linkWithName(name);
+        Link::_sp link = _model->linkWithName(name);
         if (link) {
           ignorePipes.push_back(boost::static_pointer_cast<Pipe>(link));
         }
@@ -955,19 +955,19 @@ void ConfigProject::createSaveOptions(libconfig::Setting &saveGroup) {
           _model->setStorage(_defaultRecord);
         }
         else if (RTX_STRINGS_ARE_EQUAL(stateToSave, "flow")) {
-          BOOST_FOREACH(Pipe::sharedPointer p, _model->pipes()) {
+          BOOST_FOREACH(Pipe::_sp p, _model->pipes()) {
             p->flow()->setRecord(_defaultRecord);
           }
         }
         else if (RTX_STRINGS_ARE_EQUAL(stateToSave, "quality")) {
-          BOOST_FOREACH(Junction::sharedPointer j, _model->junctions()) {
+          BOOST_FOREACH(Junction::_sp j, _model->junctions()) {
             j->quality()->setRecord(_defaultRecord);
           }
         }
         else if (RTX_STRINGS_ARE_EQUAL(stateToSave, "measured")) {
           // save only the element states that have measured counterparts.
-          vector<Junction::sharedPointer> junctions = _model->junctions();
-          BOOST_FOREACH(Junction::sharedPointer j, junctions) {
+          vector<Junction::_sp> junctions = _model->junctions();
+          BOOST_FOREACH(Junction::_sp j, junctions) {
             if (j->doesHaveHeadMeasure()) {
               j->head()->setRecord(_defaultRecord);
               j->pressure()->setRecord(_defaultRecord);
@@ -976,41 +976,41 @@ void ConfigProject::createSaveOptions(libconfig::Setting &saveGroup) {
               j->quality()->setRecord(_defaultRecord);
             }
           }
-          vector<Pipe::sharedPointer> pipes = _model->pipes();
-          BOOST_FOREACH(Pipe::sharedPointer p, pipes) {
+          vector<Pipe::_sp> pipes = _model->pipes();
+          BOOST_FOREACH(Pipe::_sp p, pipes) {
             if (p->doesHaveFlowMeasure()) {
               p->flow()->setRecord(_defaultRecord);
             }
           }
-          vector<Pump::sharedPointer> pumps = _model->pumps();
-          BOOST_FOREACH(Pump::sharedPointer p, pumps) {
+          vector<Pump::_sp> pumps = _model->pumps();
+          BOOST_FOREACH(Pump::_sp p, pumps) {
             if (p->doesHaveFlowMeasure()) {
               p->flow()->setRecord(_defaultRecord);
             }
           }
-          vector<Valve::sharedPointer> valves = _model->valves();
-          BOOST_FOREACH(Valve::sharedPointer p, valves) {
+          vector<Valve::_sp> valves = _model->valves();
+          BOOST_FOREACH(Valve::_sp p, valves) {
             if (p->doesHaveFlowMeasure()) {
               p->flow()->setRecord(_defaultRecord);
             }
           }
-          vector<Tank::sharedPointer> tanks = _model->tanks();
-          BOOST_FOREACH(Tank::sharedPointer t, tanks) {
+          vector<Tank::_sp> tanks = _model->tanks();
+          BOOST_FOREACH(Tank::_sp t, tanks) {
             if (t->doesHaveHeadMeasure()) {
               t->head()->setRecord(_defaultRecord);
               t->level()->setRecord(_defaultRecord);
             }
           }          
-          vector<Reservoir::sharedPointer> reservoirs = _model->reservoirs();
-          BOOST_FOREACH(Reservoir::sharedPointer r, reservoirs) {
+          vector<Reservoir::_sp> reservoirs = _model->reservoirs();
+          BOOST_FOREACH(Reservoir::_sp r, reservoirs) {
             if (r->doesHaveHeadMeasure()) {
               r->head()->setRecord(_defaultRecord);
             }
           }
         } // measured
         else if (RTX_STRINGS_ARE_EQUAL(stateToSave, "dma_demand")) {
-          vector<Dma::sharedPointer> dmas = _model->dmas();
-          BOOST_FOREACH(Dma::sharedPointer z, dmas) {
+          vector<Dma::_sp> dmas = _model->dmas();
+          BOOST_FOREACH(Dma::_sp z, dmas) {
             z->setRecord(_defaultRecord);
           }
         } // dma demand
@@ -1028,34 +1028,34 @@ void ConfigProject::createSaveOptions(libconfig::Setting &saveGroup) {
 #pragma mark - Element Configuration
 
 
-void ConfigProject::configureElements(Model::sharedPointer model) {
+void ConfigProject::configureElements(Model::_sp model) {
   
   // hash by name
-  map<string,Element::sharedPointer> junctionMap;
-  BOOST_FOREACH(Junction::sharedPointer j, model->junctions()) {
+  map<string,Element::_sp> junctionMap;
+  BOOST_FOREACH(Junction::_sp j, model->junctions()) {
     junctionMap.insert(make_pair(j->name(), j));
   }
-  BOOST_FOREACH(Tank::sharedPointer t, model->tanks()) {
+  BOOST_FOREACH(Tank::_sp t, model->tanks()) {
     junctionMap.insert(make_pair(t->name(), t));
   }
-  BOOST_FOREACH(Reservoir::sharedPointer r, model->reservoirs()) {
+  BOOST_FOREACH(Reservoir::_sp r, model->reservoirs()) {
     junctionMap.insert(make_pair(r->name(), r));
   }
   
-  map<string, Element::sharedPointer> pipeMap;
-  BOOST_FOREACH(Pipe::sharedPointer p, model->pipes()) {
+  map<string, Element::_sp> pipeMap;
+  BOOST_FOREACH(Pipe::_sp p, model->pipes()) {
     pipeMap.insert(make_pair(p->name(), p));
   }
-  BOOST_FOREACH(Pump::sharedPointer p, model->pumps()) {
+  BOOST_FOREACH(Pump::_sp p, model->pumps()) {
     pipeMap.insert(make_pair(p->name(), p));
   }
-  BOOST_FOREACH(Valve::sharedPointer v, model->valves()) {
+  BOOST_FOREACH(Valve::_sp v, model->valves()) {
     pipeMap.insert(make_pair(v->name(), v));
   }
   
   
   // parameter types keyed to element types.
-  map<string, map<string, Element::sharedPointer>* > parameterTypes;
+  map<string, map<string, Element::_sp>* > parameterTypes;
   parameterTypes.insert(make_pair("status_boundary", &pipeMap));
   parameterTypes.insert(make_pair("energy_measure", &pipeMap));
   parameterTypes.insert(make_pair("flow_measure", &pipeMap));
@@ -1091,16 +1091,16 @@ void ConfigProject::configureElements(Model::sharedPointer model) {
       continue;
     }
     
-    map<string, Element::sharedPointer>* elementMap = parameterTypes[parameterType];
+    map<string, Element::_sp>* elementMap = parameterTypes[parameterType];
     if ((*elementMap).find(modelID) == (*elementMap).end()) {
       cerr << "could not find element: " << modelID << endl;
       continue;
     }
-    Element::sharedPointer element = (*elementMap)[modelID];
+    Element::_sp element = (*elementMap)[modelID];
     
     ParameterFunction fp = _parameterSetter[parameterType];
     const string tsName = elementSetting["timeseries"];
-    TimeSeries::sharedPointer series = _timeSeriesList[tsName];
+    TimeSeries::_sp series = _timeSeriesList[tsName];
     if (!series) {
       cerr << "could not find time series \"" << tsName << "\"." << endl;
       continue;
@@ -1115,100 +1115,100 @@ void ConfigProject::configureElements(Model::sharedPointer model) {
 
 #pragma mark Specific element configuration
 
-void ConfigProject::configureQualitySource(Setting &setting, Element::sharedPointer junction) {
-  Junction::sharedPointer thisJunction = boost::dynamic_pointer_cast<Junction>(junction);
+void ConfigProject::configureQualitySource(Setting &setting, Element::_sp junction) {
+  Junction::_sp thisJunction = boost::dynamic_pointer_cast<Junction>(junction);
   if (thisJunction) {
-    TimeSeries::sharedPointer quality = _timeSeriesList[setting["timeseries"]];
+    TimeSeries::_sp quality = _timeSeriesList[setting["timeseries"]];
     thisJunction->setQualitySource(quality);
   }
 }
 
-void ConfigProject::configureBoundaryFlow(Setting &setting, Element::sharedPointer junction) {
-  Junction::sharedPointer thisJunction = boost::dynamic_pointer_cast<Junction>(junction);
+void ConfigProject::configureBoundaryFlow(Setting &setting, Element::_sp junction) {
+  Junction::_sp thisJunction = boost::dynamic_pointer_cast<Junction>(junction);
   if (thisJunction) {
-    TimeSeries::sharedPointer flow = _timeSeriesList[setting["timeseries"]];
+    TimeSeries::_sp flow = _timeSeriesList[setting["timeseries"]];
     thisJunction->setBoundaryFlow(flow);
   }
 }
 
-void ConfigProject::configureHeadMeasure(Setting &setting, Element::sharedPointer junction) {
-  Junction::sharedPointer thisJunction = boost::dynamic_pointer_cast<Junction>(junction);
+void ConfigProject::configureHeadMeasure(Setting &setting, Element::_sp junction) {
+  Junction::_sp thisJunction = boost::dynamic_pointer_cast<Junction>(junction);
   if (thisJunction) {
-    TimeSeries::sharedPointer head = _timeSeriesList[setting["timeseries"]];
+    TimeSeries::_sp head = _timeSeriesList[setting["timeseries"]];
     // if it's in units of PSI, then it requires a tweak. (TODO)
     thisJunction->setHeadMeasure(head);
   }
 }
 
-void ConfigProject::configurePressureMeasure(Setting &setting, Element::sharedPointer junction) {
-  Junction::sharedPointer thisJunction = boost::dynamic_pointer_cast<Junction>(junction);
+void ConfigProject::configurePressureMeasure(Setting &setting, Element::_sp junction) {
+  Junction::_sp thisJunction = boost::dynamic_pointer_cast<Junction>(junction);
   if (thisJunction) {
-    TimeSeries::sharedPointer pres = _timeSeriesList[setting["timeseries"]];
+    TimeSeries::_sp pres = _timeSeriesList[setting["timeseries"]];
     // if it's in units of PSI, then it requires a tweak. (TODO)
     thisJunction->setPressureMeasure(pres);
   }
 }
 
-void ConfigProject::configureLevelMeasure(Setting &setting, Element::sharedPointer tank) {
-  Tank::sharedPointer thisTank = boost::dynamic_pointer_cast<Tank>(tank);
+void ConfigProject::configureLevelMeasure(Setting &setting, Element::_sp tank) {
+  Tank::_sp thisTank = boost::dynamic_pointer_cast<Tank>(tank);
   if (thisTank) {
-    TimeSeries::sharedPointer level = _timeSeriesList[setting["timeseries"]];
+    TimeSeries::_sp level = _timeSeriesList[setting["timeseries"]];
     thisTank->setLevelMeasure(level);
   }
 }
 
-void ConfigProject::configureQualityMeasure(Setting &setting, Element::sharedPointer junction) {
-  Junction::sharedPointer thisJunction = boost::dynamic_pointer_cast<Junction>(junction);
+void ConfigProject::configureQualityMeasure(Setting &setting, Element::_sp junction) {
+  Junction::_sp thisJunction = boost::dynamic_pointer_cast<Junction>(junction);
   if (thisJunction) {
-    TimeSeries::sharedPointer quality = _timeSeriesList[setting["timeseries"]];
+    TimeSeries::_sp quality = _timeSeriesList[setting["timeseries"]];
     thisJunction->setQualityMeasure(quality);
   }
 }
 
-void ConfigProject::configureBoundaryHead(Setting &setting, Element::sharedPointer reservoir) {
-  Reservoir::sharedPointer thisReservoir = boost::dynamic_pointer_cast<Reservoir>(reservoir);
+void ConfigProject::configureBoundaryHead(Setting &setting, Element::_sp reservoir) {
+  Reservoir::_sp thisReservoir = boost::dynamic_pointer_cast<Reservoir>(reservoir);
   if (thisReservoir) {
-    TimeSeries::sharedPointer head = _timeSeriesList[setting["timeseries"]];
+    TimeSeries::_sp head = _timeSeriesList[setting["timeseries"]];
     thisReservoir->setBoundaryHead(head);
   }
 }
 
-void ConfigProject::configurePipeStatus(Setting &setting, Element::sharedPointer pipe) {
-  Pipe::sharedPointer thisPipe = boost::dynamic_pointer_cast<Pipe>(pipe);
+void ConfigProject::configurePipeStatus(Setting &setting, Element::_sp pipe) {
+  Pipe::_sp thisPipe = boost::dynamic_pointer_cast<Pipe>(pipe);
   if (thisPipe) {
-    TimeSeries::sharedPointer status = _timeSeriesList[setting["timeseries"]];
+    TimeSeries::_sp status = _timeSeriesList[setting["timeseries"]];
     thisPipe->setStatusParameter(status);
   }
 }
 
-void ConfigProject::configurePipeSetting(Setting &setting, Element::sharedPointer pipe) {
-  Pipe::sharedPointer thisPipe = boost::dynamic_pointer_cast<Pipe>(pipe);
+void ConfigProject::configurePipeSetting(Setting &setting, Element::_sp pipe) {
+  Pipe::_sp thisPipe = boost::dynamic_pointer_cast<Pipe>(pipe);
   if (thisPipe) {
-    TimeSeries::sharedPointer pipeSetting = _timeSeriesList[setting["timeseries"]];
+    TimeSeries::_sp pipeSetting = _timeSeriesList[setting["timeseries"]];
     thisPipe->setSettingParameter(pipeSetting);
   }
 }
 
-void ConfigProject::configureFlowMeasure(Setting &setting, Element::sharedPointer pipe) {
-  Pipe::sharedPointer thisPipe = boost::dynamic_pointer_cast<Pipe>(pipe);
+void ConfigProject::configureFlowMeasure(Setting &setting, Element::_sp pipe) {
+  Pipe::_sp thisPipe = boost::dynamic_pointer_cast<Pipe>(pipe);
   if (thisPipe) {
-    TimeSeries::sharedPointer flow = _timeSeriesList[setting["timeseries"]];
+    TimeSeries::_sp flow = _timeSeriesList[setting["timeseries"]];
     thisPipe->setFlowMeasure(flow);
   }
 }
 
-void ConfigProject::configurePumpCurve(Setting &setting, Element::sharedPointer pump) {
-  Pump::sharedPointer thisPump = boost::dynamic_pointer_cast<Pump>(pump);
+void ConfigProject::configurePumpCurve(Setting &setting, Element::_sp pump) {
+  Pump::_sp thisPump = boost::dynamic_pointer_cast<Pump>(pump);
   if (thisPump) {
-    TimeSeries::sharedPointer curve = _timeSeriesList[setting["timeseries"]];
+    TimeSeries::_sp curve = _timeSeriesList[setting["timeseries"]];
     thisPump->setCurveParameter(curve);
   }
 }
 
-void ConfigProject::configurePumpEnergyMeasure(Setting &setting, Element::sharedPointer pump) {
-  Pump::sharedPointer thisPump = boost::dynamic_pointer_cast<Pump>(pump);
+void ConfigProject::configurePumpEnergyMeasure(Setting &setting, Element::_sp pump) {
+  Pump::_sp thisPump = boost::dynamic_pointer_cast<Pump>(pump);
   if (thisPump) {
-    TimeSeries::sharedPointer energy = _timeSeriesList[setting["timeseries"]];
+    TimeSeries::_sp energy = _timeSeriesList[setting["timeseries"]];
     thisPump->setEnergyMeasure(energy);
   }
 }

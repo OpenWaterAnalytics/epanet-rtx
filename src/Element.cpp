@@ -41,7 +41,7 @@ void Element::setType(element_t type) {
   _type = type;
 }
 
-void Element::setRecord(PointRecord::sharedPointer record) {
+void Element::setRecord(PointRecord::_sp record) {
   std::cerr << "base class called! error!" << std::endl;
 }
 

@@ -23,30 +23,30 @@ using namespace std;
 
 
 CorrelatorTimeSeries::CorrelatorTimeSeries() {
-  Clock::sharedPointer c( new Clock(3600) );
+  Clock::_sp c( new Clock(3600) );
   _corWindow = c;
   
 }
 
-bool CorrelatorTimeSeries::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
+bool CorrelatorTimeSeries::isCompatibleWith(TimeSeries::_sp withTimeSeries) {
   return (units().isDimensionless() || units().isSameDimensionAs(withTimeSeries->units()));
   // it's ok if the clocks aren't compatible.
 }
 
 
-TimeSeries::sharedPointer CorrelatorTimeSeries::correlatorTimeSeries() {
+TimeSeries::_sp CorrelatorTimeSeries::correlatorTimeSeries() {
   return _secondary;
 }
 
-void CorrelatorTimeSeries::setCorrelatorTimeSeries(TimeSeries::sharedPointer ts) {
+void CorrelatorTimeSeries::setCorrelatorTimeSeries(TimeSeries::_sp ts) {
   _secondary = ts;
 }
 
-Clock::sharedPointer CorrelatorTimeSeries::correlationWindow() {
+Clock::_sp CorrelatorTimeSeries::correlationWindow() {
   return _corWindow;
 }
 
-void CorrelatorTimeSeries::setCorrelationWindow(Clock::sharedPointer window) {
+void CorrelatorTimeSeries::setCorrelationWindow(Clock::_sp window) {
   _corWindow = window;
 }
 
@@ -55,7 +55,7 @@ void CorrelatorTimeSeries::setCorrelationWindow(Clock::sharedPointer window) {
 
 #pragma mark - superclass overrides
 
-void CorrelatorTimeSeries::setSource(TimeSeries::sharedPointer source) {
+void CorrelatorTimeSeries::setSource(TimeSeries::_sp source) {
   ModularTimeSeries::setSource(source);
   if (source) {
     this->setUnits(RTX_DIMENSIONLESS);
@@ -63,7 +63,7 @@ void CorrelatorTimeSeries::setSource(TimeSeries::sharedPointer source) {
 }
 
 
-vector<Point> CorrelatorTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+vector<Point> CorrelatorTimeSeries::filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
   
   std::vector<Point> thePoints;
   if (!this->correlatorTimeSeries() || !this->source()) {

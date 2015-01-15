@@ -33,33 +33,33 @@ vector<Point> randomPoints(time_t start, int nPoints, time_t period = 0);
 
 int main(int argc, const char * argv[])
 {
-  EpanetModel::sharedPointer net3_model;
+  EpanetModel::_sp net3_model;
   
-  OdbcPointRecord::sharedPointer scada( new OdbcDirectPointRecord() );
+  OdbcPointRecord::_sp scada( new OdbcDirectPointRecord() );
   scada->connection.dsn = "ODBC_SYSTEM_DSN";
   scada->dbConnect();
   
-  TimeSeries::sharedPointer pumpFlow( new TimeSeries() );
+  TimeSeries::_sp pumpFlow( new TimeSeries() );
   pumpFlow->setUnits(RTX_MILLION_GALLON_PER_DAY);
   pumpFlow->setName("River_PS_Discharge");
   pumpFlow->setRecord(scada);
   
-  Clock::sharedPointer reg_5m( new Clock(5*60) );
+  Clock::_sp reg_5m( new Clock(5*60) );
   
-  Resampler::sharedPointer pumpResample( new Resampler() );
+  Resampler::_sp pumpResample( new Resampler() );
   pumpResample->setClock(reg_5m);
   pumpResample->setSource(pumpFlow);
   
-  ThresholdTimeSeries::sharedPointer threshold( new ThresholdTimeSeries() );
+  ThresholdTimeSeries::_sp threshold( new ThresholdTimeSeries() );
   threshold->setSource(pumpResample);
   threshold->setThreshold(12.0);
   
-  Pump::sharedPointer thePump = boost::dynamic_pointer_cast<Pump>( net3_model->linkWithName("RiverPump") );
+  Pump::_sp thePump = boost::dynamic_pointer_cast<Pump>( net3_model->linkWithName("RiverPump") );
   thePump->setStatusParameter(threshold);
   
   
   
-  typedef TimeSeries::sharedPointer TS;
+  typedef TimeSeries::_sp TS;
   
   TS  eastFlow( new TimeSeries() ),           southFlow( new TimeSeries() ),
       lakePumpFlow( new TimeSeries() ),       riverPumpFlow( new TimeSeries() ),
@@ -92,16 +92,16 @@ int main(int argc, const char * argv[])
   }
   
   
-  MovingAverage::sharedPointer eb_ma1( new MovingAverage() );
+  MovingAverage::_sp eb_ma1( new MovingAverage() );
   
   time_t startTime,endTime;
   
-  Pipe::sharedPointer eastBranchPipe = boost::dynamic_pointer_cast<Pipe>(net3_model->linkWithName("EastBranchConnector"));
+  Pipe::_sp eastBranchPipe = boost::dynamic_pointer_cast<Pipe>(net3_model->linkWithName("EastBranchConnector"));
   boost::dynamic_pointer_cast<Pipe>(net3_model->linkWithName("EastBranchConnector"))->setFlowMeasure(eastFlow);
   
   net3_model->initDMAs();
   
-  BOOST_FOREACH( Dma::sharedPointer dma, net3_model->dmas() ) {
+  BOOST_FOREACH( Dma::_sp dma, net3_model->dmas() ) {
     
     TS demand = dma->demand();
     TimeSeries::Summary info = demand->summary(startTime, endTime);
@@ -109,13 +109,13 @@ int main(int argc, const char * argv[])
     cout << "min/max/mean: " << info.min << "/" << info.max << "/" << info.mean << endl;
   }
   
-  vector<DMA::sharedPointer> dmas = net3_model->dmas()
+  vector<DMA::_sp> dmas = net3_model->dmas()
   
   
   
   
   
-  InfluxDbPointRecord::sharedPointer influxDb( new InfluxDbPointRecord() );
+  InfluxDbPointRecord::_sp influxDb( new InfluxDbPointRecord() );
   
   influxDb->setName("Influx");
   influxDb->user = "root";
@@ -130,15 +130,15 @@ int main(int argc, const char * argv[])
   
   
   
-  ConstantTimeSeries::sharedPointer constantTs( new ConstantTimeSeries );
-  Clock::sharedPointer oneMinute (new Clock(60));
+  ConstantTimeSeries::_sp constantTs( new ConstantTimeSeries );
+  Clock::_sp oneMinute (new Clock(60));
   constantTs->setClock(oneMinute);
   constantTs->setValue(100.221);
   
-  SineTimeSeries::sharedPointer sine( new SineTimeSeries );
+  SineTimeSeries::_sp sine( new SineTimeSeries );
   sine->setClock(oneMinute);
   
-  ModularTimeSeries::sharedPointer mod(new ModularTimeSeries);
+  ModularTimeSeries::_sp mod(new ModularTimeSeries);
   mod->setName("ts_test");
   mod->setSource(sine);
   mod->setRecord(influxDb);
@@ -169,7 +169,7 @@ int main(int argc, const char * argv[])
   
   //
   
-  SqlitePointRecord::sharedPointer sqliteRecord(new SqlitePointRecord);
+  SqlitePointRecord::_sp sqliteRecord(new SqlitePointRecord);
   sqliteRecord->setPath("/tmp/sqlite_test.sqlite");
   sqliteRecord->dbConnect();
   mod->setRecord(sqliteRecord);

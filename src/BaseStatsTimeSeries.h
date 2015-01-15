@@ -24,13 +24,13 @@ namespace RTX {
    */
   
   /*!
-   \fn Clock::sharedPointer BaseStatsTimeSeries::window();
+   \fn Clock::_sp BaseStatsTimeSeries::window();
    \brief Get the statistical sampling window clock.
    \return A shared pointer to a Clock object.
    \sa BaseStatsTimeSeries::setWindow
    */
   /*!
-   \fn void BaseStatsTimeSeries::setWindow(Clock::sharedPointer window);
+   \fn void BaseStatsTimeSeries::setWindow(Clock::_sp window);
    \brief Set the moving statistical window.
    \param window A moving window to use for statistical calculations
    \sa BaseStatsTimeSeries::window
@@ -54,8 +54,8 @@ namespace RTX {
     RTX_SHARED_POINTER(BaseStatsTimeSeries);
     BaseStatsTimeSeries();
     
-    void setWindow(Clock::sharedPointer window);
-    Clock::sharedPointer window();
+    void setWindow(Clock::_sp window);
+    Clock::_sp window();
     
     void setSamplingMode(StatsSamplingMode_t mode);
     StatsSamplingMode_t samplingMode();
@@ -64,13 +64,13 @@ namespace RTX {
     void setSummaryOnly(bool summaryOnly);
     
     // overrides
-//    void setClock(Clock::sharedPointer clock);
+//    void setClock(Clock::_sp clock);
     
   protected:
-    virtual std::vector< pointSummaryPair_t > filteredSummaryPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
+    virtual std::vector< pointSummaryPair_t > filteredSummaryPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
     
   private:
-    Clock::sharedPointer _window;
+    Clock::_sp _window;
     bool _summaryOnly;
     StatsSamplingMode_t _samplingMode;
   };

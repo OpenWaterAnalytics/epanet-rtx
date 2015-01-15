@@ -9,7 +9,7 @@ TimeGapTimeSeries::TimeGapTimeSeries() {
   this->setUnits(RTX_SECOND); // Default time unit
 }
 
-void TimeGapTimeSeries::setSource(TimeSeries::sharedPointer source) {
+void TimeGapTimeSeries::setSource(TimeSeries::_sp source) {
   Units originalUnits = this->units();
   this->setUnits(RTX_DIMENSIONLESS);  // non-dimensionalize so that we can accept this source.
   ModularTimeSeries::setSource(source);
@@ -29,7 +29,7 @@ void TimeGapTimeSeries::setUnits(Units newUnits) {
   }
 }
 
-vector<Point> TimeGapTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+vector<Point> TimeGapTimeSeries::filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
   vector<Point> filtered;
   
   std::vector<Point> sourcePoints = sourceTs->gaps(fromTime, toTime);

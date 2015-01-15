@@ -31,21 +31,21 @@ namespace RTX {
     RTX_SHARED_POINTER(AggregatorTimeSeries);
     
     typedef struct {
-      TimeSeries::sharedPointer timeseries;
+      TimeSeries::_sp timeseries;
       double multiplier;
     } AggregatorSource;
     
-    TimeSeries::sharedPointer source();
-    virtual void setSource(TimeSeries::sharedPointer source);
+    TimeSeries::_sp source();
+    virtual void setSource(TimeSeries::_sp source);
     virtual bool doesHaveSource();
     virtual std::ostream& toStream(std::ostream &stream);
     
     // add a time series to this aggregator. optional parameter "multiplier" allows you to scale
     // the aggregated time series (for instance, by -1 if it needs to be subtracted).
-    void addSource(TimeSeries::sharedPointer timeSeries, double multiplier = 1.) throw(RtxException);
-    void removeSource(TimeSeries::sharedPointer timeSeries);
+    void addSource(TimeSeries::_sp timeSeries, double multiplier = 1.) throw(RtxException);
+    void removeSource(TimeSeries::_sp timeSeries);
     std::vector< AggregatorSource > sources();
-    void setMultiplierForSource(TimeSeries::sharedPointer timeSeries, double multiplier);
+    void setMultiplierForSource(TimeSeries::_sp timeSeries, double multiplier);
     
     // reimplement the base class methods
     virtual Point point(time_t time);
@@ -56,7 +56,7 @@ namespace RTX {
     virtual Point pointAfter(time_t time);
     
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
+    virtual std::vector<Point> filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
 
   private:
     // need to store several TimeSeries references...

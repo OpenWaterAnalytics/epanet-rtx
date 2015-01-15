@@ -22,7 +22,7 @@ namespace RTX {
     void setRange(double min, double max);
     std::pair<double, double> range();
     
-    virtual void setClock(Clock::sharedPointer clock);
+    virtual void setClock(Clock::_sp clock);
     
     typedef enum {saturate=0,drop=1} filterMode_t;
     filterMode_t mode();

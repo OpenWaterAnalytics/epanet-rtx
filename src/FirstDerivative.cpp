@@ -19,7 +19,7 @@ FirstDerivative::~FirstDerivative() {
   
 }
 
-void FirstDerivative::setSource(TimeSeries::sharedPointer source) {
+void FirstDerivative::setSource(TimeSeries::_sp source) {
   Units originalUnits = this->units();
   this->setUnits(RTX_DIMENSIONLESS);  // non-dimensionalize so that we can accept this source.
   Resampler::setSource(source);

@@ -17,7 +17,7 @@ CurveFunction::CurveFunction() : _inputUnits(1) {
   
 }
 
-void CurveFunction::setSource(TimeSeries::sharedPointer source) {
+void CurveFunction::setSource(TimeSeries::_sp source) {
   // hijack the base class implementation
   Units myRealUnits = units();
   this->setUnits(RTX_DIMENSIONLESS);  // non-dimensionalize so that we can accept this source.
@@ -80,7 +80,7 @@ Point CurveFunction::point(time_t time) {
   }
 }
 
-std::vector<Point> CurveFunction::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+std::vector<Point> CurveFunction::filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
   
   Units sourceU = sourceTs->units();
   std::vector<Point> sourcePoints = sourceTs->points(fromTime, toTime);

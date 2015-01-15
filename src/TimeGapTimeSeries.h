@@ -23,13 +23,13 @@ namespace RTX {
     RTX_SHARED_POINTER(TimeGapTimeSeries);
     TimeGapTimeSeries();
     
-    virtual void setSource(TimeSeries::sharedPointer source);
+    virtual void setSource(TimeSeries::_sp source);
     virtual void setUnits(Units newUnits);
     
     virtual bool canAlterDimension() { return true; };
     
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
+    virtual std::vector<Point> filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
     
   };
 }

@@ -18,7 +18,7 @@ namespace RTX {
     RTX_SHARED_POINTER(SinglePointFilterModularTimeSeries);
     virtual Point point(time_t time);
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
+    virtual std::vector<Point> filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
     virtual Point filteredSingle(Point p, Units sourceU); // override for extended functionality
   };
 }

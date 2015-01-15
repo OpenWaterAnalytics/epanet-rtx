@@ -16,7 +16,7 @@ using namespace RTX;
 using namespace std;
 
 
-bool FailoverTimeSeries::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
+bool FailoverTimeSeries::isCompatibleWith(TimeSeries::_sp withTimeSeries) {
   return (units().isDimensionless() || units().isSameDimensionAs(withTimeSeries->units()));
   // it's ok if the clocks aren't compatible.
 }
@@ -34,11 +34,11 @@ void FailoverTimeSeries::setMaximumStaleness(time_t stale) {
   }
 }
 
-TimeSeries::sharedPointer FailoverTimeSeries::failoverTimeseries() {
+TimeSeries::_sp FailoverTimeSeries::failoverTimeseries() {
   return _failover;
 }
 
-void FailoverTimeSeries::setFailoverTimeseries(TimeSeries::sharedPointer ts) {
+void FailoverTimeSeries::setFailoverTimeseries(TimeSeries::_sp ts) {
   _failover = ts;
 }
 
@@ -49,7 +49,7 @@ void FailoverTimeSeries::swapSourceWithFailover() {
     cerr << "nothing to swap" << endl;
     return;
   }
-  TimeSeries::sharedPointer tmp = this->source();
+  TimeSeries::_sp tmp = this->source();
   this->setSource(this->failoverTimeseries());
   this->setFailoverTimeseries(tmp);
 }
@@ -59,7 +59,7 @@ void FailoverTimeSeries::swapSourceWithFailover() {
 
 #pragma mark - superclass overrides
 
-void FailoverTimeSeries::setSource(TimeSeries::sharedPointer source) {
+void FailoverTimeSeries::setSource(TimeSeries::_sp source) {
   ModularTimeSeries::setSource(source);
   if (source) {
     if (source->clock()->isRegular() && this->maximumStaleness() < source->clock()->period()) {
@@ -69,7 +69,7 @@ void FailoverTimeSeries::setSource(TimeSeries::sharedPointer source) {
 }
 
 
-vector<Point> FailoverTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+vector<Point> FailoverTimeSeries::filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
   
   if (!this->failoverTimeseries()) {
     return ModularTimeSeries::filteredPoints(sourceTs, fromTime, toTime);

@@ -31,13 +31,13 @@ namespace RTX {
    Derive from the Dma class to implement custom demand allocation schemes.
  
    
-   \fn virtual void Dma::setRecord(PointRecord::sharedPointer record)
+   \fn virtual void Dma::setRecord(PointRecord::_sp record)
    \brief Set the intended PointRecord object for storing data. Defaults to the generic TimeSeries storage mechanism.
    \param record The PointRecord pointer
    \sa PointRecord TimeSeries
    
    
-   \fn void Dma::enumerateJunctionsWithRootNode(Junction::sharedPointer junction)
+   \fn void Dma::enumerateJunctionsWithRootNode(Junction::_sp junction)
    \brief Add a group of junctions to a Dma.
    
    Uses graph connectivity to enumerate the junctions in a dma starting with the passed Junction pointer. The enumeration uses a depth-first search to follow Pipe elements, and stops at links which return true to the doesHaveFlowMeasure() method.
@@ -47,7 +47,7 @@ namespace RTX {
    
    
    
-   \fn void Dma::setDemand(TimeSeries::sharedPointer demand);
+   \fn void Dma::setDemand(TimeSeries::_sp demand);
    \brief Set the TimeSeries to use as the basis for demand allocation.
    \param demand A TimeSeries pointer
    \sa TimeSeries
@@ -63,63 +63,63 @@ namespace RTX {
   class Dma : public Element {
   public:
     RTX_SHARED_POINTER(Dma);
-    typedef std::pair<Pipe::sharedPointer, Pipe::direction_t> pipeDirPair_t;
+    typedef std::pair<Pipe::_sp, Pipe::direction_t> pipeDirPair_t;
     
     virtual std::ostream& toStream(std::ostream &stream);
     Dma(const std::string& name);
     ~Dma();
     
     // static class methods
-//    static std::list<Dma::sharedPointer> enumerateDmas(std::vector<Node::sharedPointer> nodes);
+//    static std::list<Dma::_sp> enumerateDmas(std::vector<Node::_sp> nodes);
     
     
-    virtual void setRecord(PointRecord::sharedPointer record);
+    virtual void setRecord(PointRecord::_sp record);
     
-    void initDemandTimeseries(const std::set<Pipe::sharedPointer> &boundarySet);
+    void initDemandTimeseries(const std::set<Pipe::_sp> &boundarySet);
     
     // node accessors
-    void addJunction(Junction::sharedPointer junction);
-    void removeJunction(Junction::sharedPointer junction);
-//    void enumerateJunctionsWithRootNode(Junction::sharedPointer junction, bool stopAtClosedLinks = false, std::vector<Pipe::sharedPointer> ignorePipes = std::vector<Pipe::sharedPointer>() );
-    Junction::sharedPointer findJunction(std::string name);
-    bool doesHaveJunction(Junction::sharedPointer j);
-    std::set<Junction::sharedPointer> junctions();
-    std::set<Tank::sharedPointer> tanks();
+    void addJunction(Junction::_sp junction);
+    void removeJunction(Junction::_sp junction);
+//    void enumerateJunctionsWithRootNode(Junction::_sp junction, bool stopAtClosedLinks = false, std::vector<Pipe::_sp> ignorePipes = std::vector<Pipe::_sp>() );
+    Junction::_sp findJunction(std::string name);
+    bool doesHaveJunction(Junction::_sp j);
+    std::set<Junction::_sp> junctions();
+    std::set<Tank::_sp> tanks();
     std::vector<Dma::pipeDirPair_t> measuredBoundaryPipes();
     std::vector<Dma::pipeDirPair_t> closedBoundaryPipes();
-    std::vector<Pipe::sharedPointer> closedInteriorPipes();
-    std::vector<Pipe::sharedPointer> measuredInteriorPipes();
-    bool isMeasuredBoundaryPipe(Pipe::sharedPointer pipe);
-    bool isMeasuredInteriorPipe(Pipe::sharedPointer pipe);
-    bool isMeasuredPipe(Pipe::sharedPointer pipe);
-    bool isClosedBoundaryPipe(Pipe::sharedPointer pipe);
-    bool isClosedInteriorPipe(Pipe::sharedPointer pipe);
-    bool isClosedPipe(Pipe::sharedPointer pipe);
-    bool isBoundaryPipe(Pipe::sharedPointer pipe);
+    std::vector<Pipe::_sp> closedInteriorPipes();
+    std::vector<Pipe::_sp> measuredInteriorPipes();
+    bool isMeasuredBoundaryPipe(Pipe::_sp pipe);
+    bool isMeasuredInteriorPipe(Pipe::_sp pipe);
+    bool isMeasuredPipe(Pipe::_sp pipe);
+    bool isClosedBoundaryPipe(Pipe::_sp pipe);
+    bool isClosedInteriorPipe(Pipe::_sp pipe);
+    bool isClosedPipe(Pipe::_sp pipe);
+    bool isBoundaryPipe(Pipe::_sp pipe);
 
     // time series accessors
-    TimeSeries::sharedPointer demand();
-    void setDemand(TimeSeries::sharedPointer demand);
+    TimeSeries::_sp demand();
+    void setDemand(TimeSeries::_sp demand);
     void setJunctionFlowUnits(Units units);
     
     // business logic
     virtual void allocateDemandToJunctions(time_t time);
         
   private:
-    // void followJunction(Junction::sharedPointer junction);
-    bool isBoundaryFlowJunction(Junction::sharedPointer junction);
-    bool isTank(Junction::sharedPointer junction);
-    bool isAlwaysClosed(Pipe::sharedPointer pipe);
+    // void followJunction(Junction::_sp junction);
+    bool isBoundaryFlowJunction(Junction::_sp junction);
+    bool isTank(Junction::_sp junction);
+    bool isAlwaysClosed(Pipe::_sp pipe);
     
-    std::vector<Junction::sharedPointer> _boundaryFlowJunctions;
-    std::set<Tank::sharedPointer> _tanks;
-    std::set<Junction::sharedPointer> _junctions;
+    std::vector<Junction::_sp> _boundaryFlowJunctions;
+    std::set<Tank::_sp> _tanks;
+    std::set<Junction::_sp> _junctions;
     std::vector<Dma::pipeDirPair_t> _measuredBoundaryPipesDirectional;
     std::vector<Dma::pipeDirPair_t> _closedBoundaryPipesDirectional;
-    std::vector<Pipe::sharedPointer> _closedInteriorPipes;
-    std::vector<Pipe::sharedPointer> _measuredInteriorPipes;
+    std::vector<Pipe::_sp> _closedInteriorPipes;
+    std::vector<Pipe::_sp> _measuredInteriorPipes;
 
-    TimeSeries::sharedPointer _demand;
+    TimeSeries::_sp _demand;
     Units _flowUnits;
   };
 }

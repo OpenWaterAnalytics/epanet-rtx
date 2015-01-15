@@ -12,7 +12,7 @@
 
 using namespace RTX;
 
-Pump::Pump(const std::string& name, Node::sharedPointer startNode, Node::sharedPointer endNode) : Pipe(name, startNode, endNode) {
+Pump::Pump(const std::string& name, Node::_sp startNode, Node::_sp endNode) : Pipe(name, startNode, endNode) {
   setType(PUMP);
   _doesHaveCurveParameter = false;
   _doesHaveEnergyParameter = false;
@@ -23,13 +23,13 @@ Pump::~Pump() {
   
 }
 
-void Pump::setRecord(PointRecord::sharedPointer record) {
+void Pump::setRecord(PointRecord::_sp record) {
   _energyState->setRecord(record);
   // call base method
   Pipe::setRecord(record);
 }
 
-TimeSeries::sharedPointer Pump::energy() {
+TimeSeries::_sp Pump::energy() {
   return _energyState;
 }
 
@@ -37,11 +37,11 @@ bool Pump::doesHaveCurveParameter() {
   return _doesHaveCurveParameter;
 }
 
-TimeSeries::sharedPointer Pump::curveParameter() {
+TimeSeries::_sp Pump::curveParameter() {
   return _curve;
 }
 
-void Pump::setCurveParameter(TimeSeries::sharedPointer curve) {
+void Pump::setCurveParameter(TimeSeries::_sp curve) {
   _doesHaveCurveParameter = (curve ? true : false);
   _curve = curve;
 }
@@ -50,11 +50,11 @@ bool Pump::doesHaveEnergyMeasure() {
   return _doesHaveEnergyParameter;
 }
 
-TimeSeries::sharedPointer Pump::energyMeasure() {
+TimeSeries::_sp Pump::energyMeasure() {
   return _energyMeasure;
 }
 
-void Pump::setEnergyMeasure(TimeSeries::sharedPointer energy) {
+void Pump::setEnergyMeasure(TimeSeries::_sp energy) {
   _doesHaveEnergyParameter = (energy ? true : false);
   _energyMeasure = energy;
 }
