@@ -23,13 +23,33 @@ using namespace std;
 using namespace boost::accumulators;
 
 
+TimeSeries::PointCollection::PointCollection(vector<Point> points, Units units) : points(points), units(units) {
+  // simple
+}
+
+double TimeSeries::PointCollection::percentile(double p) {
+  int cacheSize = (int)this->points.size();
+  using namespace boost::accumulators;
+  
+  accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::left> > > centile( tag::tail<boost::accumulators::left>::cache_size = cacheSize );
+  BOOST_FOREACH(const Point& p, _collection) {
+    centile(p.value);
+  }
+  
+  double pct = quantile(centile, quantile_probability = p);
+  return pct;
+}
+size_t TimeSeries::PointCollection::count() {
+  return this->points.size();
+}
+
+
+
 TimeSeries::TimeSeries() : _units(1) {
   _name = "";  
   _points.reset( new PointRecord() );
   setName("Time Series");
-  _clock.reset( new IrregularClock(_points, "Time Series") );
   _units = RTX_DIMENSIONLESS;
-  _validTimeRange = std::make_pair(1, LONG_MAX);
 }
 
 TimeSeries::~TimeSeries() {
@@ -47,11 +67,6 @@ std::ostream& RTX::operator<< (std::ostream &out, TimeSeries &ts) {
 void TimeSeries::setName(const std::string& name) {
   _name = name;
   _points->registerAndGetIdentifier(name, this->units());
-  if (_clock && !_clock->isRegular()) {
-    // reset the clock to point to the new record ID, but only if we start with an irregular clock.
-    _clock.reset( new IrregularClock(_points, name) );
-  }
-  
 }
 
 std::string TimeSeries::name() {
@@ -79,6 +94,12 @@ Point TimeSeries::point(time_t time) {
   return p;
 }
 
+
+TimeSeries::PointCollection TimeSeries::pointCollection(time_t start, time_t end) {
+  return PointCollection(this->points(start,end), this->units());
+}
+
+
 // get a range of points from this TimeSeries' point method
 std::vector< Point > TimeSeries::points(time_t start, time_t end) {
   // container for points in this range
@@ -89,77 +110,31 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
     return points;
   }
   
-  std::vector<time_t> timeList;
   
-  if (_clock) {
-    timeList = _clock->timeValuesInRange(start, end);
-  }
-  
-  BOOST_FOREACH(time_t time, timeList) {
-    // check the time
-    if (! (time >= start && time <= end) ) {
-      // skip this time
-      std::cerr << "time out of bounds. ignoring." << std::endl;
-      continue;
-    }
-    Point aNewPoint;
-    if ( !points.empty() && points.back().time == time) {
-      //std::cerr << "duplicate time detected" << std::endl;
-      continue;
-    }
-    aNewPoint = point(time);
-    
-    if (!aNewPoint.isValid) {
-      //std::cerr << "bad point" << std::endl;
-    }
-    else {
-      points.push_back(aNewPoint);
-    }
-  }
-    
+  points = this->record()->pointsInRange(this->name(), start, end);
   return points;
 }
 
 
-// gets adjacent points such that ( first < time <= second )
-std::pair< Point, Point > TimeSeries::adjacentPoints(time_t time) {
-  Point previous, next;
-  previous = pointBefore(time);
-  next = point(time);
-  if (!next.isValid) {
-    next = pointAfter(time);
-  }
-  return std::make_pair(previous, next);
-}
+
 
 Point TimeSeries::pointBefore(time_t time) {
   Point myPoint;
-  
-  time_t timeBefore = clock()->timeBefore(time);
-  if (timeBefore > 0) {
-    myPoint = point(timeBefore);
+  if (time == 0) {
+    return myPoint;
   }
   
+  myPoint = this->record()->pointBefore(this->name(), time);
   return myPoint;
 }
 
 Point TimeSeries::pointAfter(time_t time) {
   Point myPoint;
-  
-  time_t timeAfter = clock()->timeAfter(time);
-  if (timeAfter > 0) {
-    myPoint = point(timeAfter);
-
+  if (time == 0) {
+    return myPoint;
   }
   
-  
-  /* / if not, we depend on the PointRecord to tell us what the next point is.
-  else {
-    myPoint = _points->pointAfter(time);  
-    myPoint = point(myPoint->time);   // funny, but we have to call the point() method on the time that we discover here. this will call the most-derived point method.
-  }
-  */
-  
+  myPoint = this->record()->pointAfter(this->name(), time);
   return myPoint;
 }
 
@@ -201,7 +176,7 @@ vector<Point> TimeSeries::gaps(time_t start, time_t end) {
   
   return gaps;
 }
-
+/*
 TimeSeries::Statistics TimeSeries::summary(time_t start, time_t end) {
   vector<Point> points = this->points(start, end);
   return getStats(points);
@@ -249,16 +224,9 @@ TimeSeries::Statistics TimeSeries::getStats(vector<Point> points) {
   
   return s;
 }
+*/
 
 
-time_t TimeSeries::period() {
-  if (_clock) {
-    return _clock->period();
-  }
-  else {
-    return 0;
-  }
-}
 
 void TimeSeries::setRecord(PointRecord::sharedPointer record) {
   if(_points) {
@@ -273,10 +241,6 @@ void TimeSeries::setRecord(PointRecord::sharedPointer record) {
   _points = record;
   record->registerAndGetIdentifier(this->name(), this->units());
   
-  // if my clock is irregular, then re-set it with the current pointRecord as the master synchronizer.
-  if (!_clock || !_clock->isRegular()) {
-    _clock.reset( new IrregularClock(_points, name()) );
-  }
 }
 
 PointRecord::sharedPointer TimeSeries::record() {
@@ -288,23 +252,10 @@ void TimeSeries::resetCache() {
   //_points->registerAndGetIdentifier(this->name(), this->units());
 }
 
-void TimeSeries::setClock(Clock::sharedPointer clock) {
-  //_hasClock = (clock ? true : false);
-  if (clock) {
-    _clock = clock;
-  }
-  else {
-    _clock.reset( new IrregularClock(_points, this->name()) );
-  }
-}
-
-Clock::sharedPointer TimeSeries::clock() {
-  return _clock;
-}
 
 void TimeSeries::setUnits(Units newUnits) {
   // changing units means the values here are no good anymore.
-  if (!newUnits.isSameDimensionAs(this->units())) {
+  if (! (newUnits == this->units())) {
     this->resetCache();
   }
   _units = newUnits;
@@ -312,22 +263,6 @@ void TimeSeries::setUnits(Units newUnits) {
 
 Units TimeSeries::units() {
   return _units;
-}
-
-void TimeSeries::setFirstTime(time_t time) {
-  _validTimeRange.first = time;
-}
-
-void TimeSeries::setLastTime(time_t time) {
-  _validTimeRange.second = time;
-}
-
-time_t TimeSeries::firstTime() {
-  return _validTimeRange.first;
-}
-
-time_t TimeSeries::lastTime() {
-  return _validTimeRange.second;
 }
 
 #pragma mark - Protected Methods
@@ -342,7 +277,7 @@ std::ostream& TimeSeries::toStream(std::ostream &stream) {
   stream << *_points;
   return stream;
 }
-
+/*
 bool TimeSeries::isCompatibleWith(TimeSeries::sharedPointer otherSeries) {
   
   // basic check for compatible regular time series.
@@ -352,5 +287,5 @@ bool TimeSeries::isCompatibleWith(TimeSeries::sharedPointer otherSeries) {
   return (clocksCompatible && unitsCompatible);
 }
 
-
+*/
 

@@ -258,6 +258,10 @@
 		22CAAECE19EDB28100E56141 /* libboost_python.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22826AD219BE107A004FC11F /* libboost_python.dylib */; };
 		22CE31EE17399403008AC1F9 /* CsvPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CE31EC17399403008AC1F9 /* CsvPointRecord.h */; };
 		22CE31EF1739A3A4008AC1F9 /* libboost_system.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 229D1BD915FE3E0F000B4C94 /* libboost_system.dylib */; };
+		22CF1C291A68094300161188 /* TimeSeriesFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22CF1C271A68094300161188 /* TimeSeriesFilter.cpp */; };
+		22CF1C2A1A68094300161188 /* TimeSeriesFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22CF1C271A68094300161188 /* TimeSeriesFilter.cpp */; };
+		22CF1C2B1A68094300161188 /* TimeSeriesFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CF1C281A68094300161188 /* TimeSeriesFilter.h */; };
+		22CF1C2C1A68094300161188 /* TimeSeriesFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CF1C281A68094300161188 /* TimeSeriesFilter.h */; };
 		22D308E018FEC3ED0004E1DC /* libmysqlcppconn-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22249A9B17C918D400874859 /* libmysqlcppconn-static.a */; };
 		22D982EA17F4A29C00DD7EB4 /* CsvPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22CE31EB17399403008AC1F9 /* CsvPointRecord.cpp */; };
 		22D9830E17F4AFDE00DD7EB4 /* rt_simulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22D9830D17F4AFDE00DD7EB4 /* rt_simulator.cpp */; };
@@ -608,6 +612,8 @@
 		22CAAED419EDC7B300E56141 /* libpython2.7.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpython2.7.dylib; path = ../../../../../../../usr/local/lib/libpython2.7.dylib; sourceTree = "<group>"; };
 		22CE31EB17399403008AC1F9 /* CsvPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CsvPointRecord.cpp; path = ../../src/CsvPointRecord.cpp; sourceTree = "<group>"; };
 		22CE31EC17399403008AC1F9 /* CsvPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CsvPointRecord.h; path = ../../src/CsvPointRecord.h; sourceTree = "<group>"; };
+		22CF1C271A68094300161188 /* TimeSeriesFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesFilter.cpp; path = ../../src/TimeSeriesFilter.cpp; sourceTree = "<group>"; };
+		22CF1C281A68094300161188 /* TimeSeriesFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeSeriesFilter.h; path = ../../src/TimeSeriesFilter.h; sourceTree = "<group>"; };
 		22D4D32118F8298300DA1648 /* readConfigTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = readConfigTest; sourceTree = BUILT_PRODUCTS_DIR; };
 		22D982F017F4A3CD00DD7EB4 /* rt_simulator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rt_simulator; sourceTree = BUILT_PRODUCTS_DIR; };
 		22D9830D17F4AFDE00DD7EB4 /* rt_simulator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rt_simulator.cpp; path = ../../examples/rtxNetSim/rt_simulator.cpp; sourceTree = "<group>"; };
@@ -1012,6 +1018,8 @@
 				22C62ACA1439ED9F00841E60 /* point record classes */,
 				22C62ADA1439EE0B00841E60 /* TimeSeries.h */,
 				22C62AD91439EE0B00841E60 /* TimeSeries.cpp */,
+				22CF1C281A68094300161188 /* TimeSeriesFilter.h */,
+				22CF1C271A68094300161188 /* TimeSeriesFilter.cpp */,
 				226AC14A1733FE56009B7C90 /* Synthetic */,
 				221E2EFD149A42F0000860C2 /* ModularTimeSeries.h */,
 				221E2EFF149A43A3000860C2 /* ModularTimeSeries.cpp */,
@@ -1219,6 +1227,7 @@
 				220F9E3F18F9E68B00BB842C /* ConstantTimeSeries.h in Headers */,
 				220F9E4018F9E68B00BB842C /* SinglePointFilterModularTimeSeries.h in Headers */,
 				220F9E4118F9E68B00BB842C /* ValidRangeTimeSeries.h in Headers */,
+				22CF1C2C1A68094300161188 /* TimeSeriesFilter.h in Headers */,
 				220F9E4218F9E68B00BB842C /* MultiplierTimeSeries.h in Headers */,
 				220F9E4318F9E68B00BB842C /* CsvPointRecord.h in Headers */,
 				220F9E4418F9E68B00BB842C /* GainTimeSeries.h in Headers */,
@@ -1294,6 +1303,7 @@
 				22E4ED111725C1C60076E93D /* ConstantTimeSeries.h in Headers */,
 				226AC1441733F5CE009B7C90 /* SinglePointFilterModularTimeSeries.h in Headers */,
 				226AC1491733F996009B7C90 /* ValidRangeTimeSeries.h in Headers */,
+				22CF1C2B1A68094300161188 /* TimeSeriesFilter.h in Headers */,
 				226AC14E17340D06009B7C90 /* MultiplierTimeSeries.h in Headers */,
 				22CE31EE17399403008AC1F9 /* CsvPointRecord.h in Headers */,
 				22A842D6173BF446009CE769 /* GainTimeSeries.h in Headers */,
@@ -1597,6 +1607,7 @@
 				229FBEA3190807B3004FE5A4 /* InfluxDbPointRecord.cpp in Sources */,
 				220F9DF318F9E68B00BB842C /* EpanetMsxModel.cpp in Sources */,
 				220F9DF418F9E68B00BB842C /* Junction.cpp in Sources */,
+				22CF1C2A1A68094300161188 /* TimeSeriesFilter.cpp in Sources */,
 				220F9DF518F9E68B00BB842C /* Tank.cpp in Sources */,
 				220F9DF618F9E68B00BB842C /* Reservoir.cpp in Sources */,
 				220F9DF718F9E68B00BB842C /* Pipe.cpp in Sources */,
@@ -1709,6 +1720,7 @@
 				223F52C716D51F330086DC8F /* MapPointRecord.cpp in Sources */,
 				223F52D516D55D090086DC8F /* DequePointRecord.cpp in Sources */,
 				43627ED0171F286C007AE0F5 /* ThresholdTimeSeries.cpp in Sources */,
+				22CF1C291A68094300161188 /* TimeSeriesFilter.cpp in Sources */,
 				22C0AE56184F86190013D51F /* SqlitePointRecord.cpp in Sources */,
 				22E4ED101725C1C60076E93D /* ConstantTimeSeries.cpp in Sources */,
 				226AC1431733F5CE009B7C90 /* SinglePointFilterModularTimeSeries.cpp in Sources */,
