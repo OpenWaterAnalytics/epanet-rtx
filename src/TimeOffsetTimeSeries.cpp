@@ -46,7 +46,7 @@ Point TimeOffsetTimeSeries::pointAfter(time_t time) {
   return p;
 }
 
-vector<Point> TimeOffsetTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+vector<Point> TimeOffsetTimeSeries::filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
   return TIME_OFFSET_SUPER::filteredPoints(sourceTs, fromTime - _offset, toTime - _offset);
 }
 

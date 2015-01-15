@@ -228,12 +228,12 @@ TimeSeries::Statistics TimeSeries::getStats(vector<Point> points) {
 
 
 
-void TimeSeries::setRecord(PointRecord::sharedPointer record) {
+void TimeSeries::setRecord(PointRecord::_sp record) {
   if(_points) {
     //_points->reset(name());
   }
   if (!record) {
-    PointRecord::sharedPointer pr( new PointRecord() );
+    PointRecord::_sp pr( new PointRecord() );
     record = pr;
     //cerr << "WARNING: removing record for Time Series \"" << this->name() << "\"" << endl;
   }
@@ -243,7 +243,7 @@ void TimeSeries::setRecord(PointRecord::sharedPointer record) {
   
 }
 
-PointRecord::sharedPointer TimeSeries::record() {
+PointRecord::_sp TimeSeries::record() {
   return _points;
 }
 
@@ -278,10 +278,10 @@ std::ostream& TimeSeries::toStream(std::ostream &stream) {
   return stream;
 }
 /*
-bool TimeSeries::isCompatibleWith(TimeSeries::sharedPointer otherSeries) {
+bool TimeSeries::isCompatibleWith(TimeSeries::_sp otherSeries) {
   
   // basic check for compatible regular time series.
-  Clock::sharedPointer theirClock = otherSeries->clock(), myClock = this->clock();
+  Clock::_sp theirClock = otherSeries->clock(), myClock = this->clock();
   bool clocksCompatible = myClock->isCompatibleWith(theirClock);
   bool unitsCompatible = units().isDimensionless() || units().isSameDimensionAs(otherSeries->units());
   return (clocksCompatible && unitsCompatible);

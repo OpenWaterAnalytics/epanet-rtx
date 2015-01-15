@@ -35,7 +35,7 @@ namespace RTX {
     double threshold();
     void setValue(double val);
     double value();
-    virtual void setSource(TimeSeries::sharedPointer source);
+    virtual void setSource(TimeSeries::_sp source);
     virtual void setUnits(Units newUnits);
     
     thresholdMode_t mode();

@@ -21,13 +21,13 @@ namespace RTX {
    
    */
   /*! 
-   \fn TimeSeries::sharedPointer ModularTimeSeries::source() 
+   \fn TimeSeries::_sp ModularTimeSeries::source() 
    \brief Get the source of this time series.
    \return A shared pointer to a TimeSeries (or derived) object.
    \sa TimeSeries
    */
   /*! 
-   \fn void ModularTimeSeries::setSource(TimeSeries::sharedPointer source)
+   \fn void ModularTimeSeries::setSource(TimeSeries::_sp source)
    \brief Set the upstream TimeSeries object
    \param source A shared pointer to the intended upstream TimeSeries object.
    */
@@ -46,11 +46,11 @@ namespace RTX {
     virtual ~ModularTimeSeries();
     
     // class-specific methods
-    virtual TimeSeries::sharedPointer source();
-    virtual void setSource(TimeSeries::sharedPointer source);
+    virtual TimeSeries::_sp source();
+    virtual void setSource(TimeSeries::_sp source);
     virtual bool doesHaveSource();
     
-    virtual TimeSeries::sharedPointer rootTimeSeries();
+    virtual TimeSeries::_sp rootTimeSeries();
     
     // overridden methods from parent class
     //virtual bool isPointAvailable(time_t time);
@@ -70,11 +70,11 @@ namespace RTX {
     
   protected:
     
-    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
-    virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
+    virtual std::vector<Point> filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
+    virtual bool isCompatibleWith(TimeSeries::_sp withTimeSeries);
 
   private:
-    TimeSeries::sharedPointer _source;
+    TimeSeries::_sp _source;
     bool _doesHaveSource;
   };
   

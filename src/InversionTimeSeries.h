@@ -17,7 +17,7 @@ namespace RTX {
     
   public:
     RTX_SHARED_POINTER(InversionTimeSeries);
-    void setSource(TimeSeries::sharedPointer ts);
+    void setSource(TimeSeries::_sp ts);
     
   protected:
     void checkUnits();

@@ -93,7 +93,7 @@ int Resampler::margin() {
 }
 
 
-std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+std::vector<Point> Resampler::filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
   Units sourceUnits = sourceTs->units();
   std::vector<Point> resampled;
   Point fromPoint, toPoint, newPoint;
@@ -215,7 +215,7 @@ std::vector<Point> Resampler::filteredPoints(TimeSeries::sharedPointer sourceTs,
 // margin = 1:          [x----x----x----x]
 // margin = 2:     [x----x----x----x----x----x]
 
-std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sourceTs, time_t start, time_t end) {
+std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::_sp sourceTs, time_t start, time_t end) {
   
   // quick check for usage
   if (start == 0 || end == 0 || end < start) {
@@ -228,7 +228,7 @@ std::pair<time_t,time_t> Resampler::expandedRange(TimeSeries::sharedPointer sour
   time_t rangeStart = start, rangeEnd = end;
   
   int margin = this->margin();
-  Clock::sharedPointer otherClock = sourceTs->clock();
+  Clock::_sp otherClock = sourceTs->clock();
   
   if (otherClock->isRegular()) {
     // much faster.

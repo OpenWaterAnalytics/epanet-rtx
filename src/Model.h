@@ -61,8 +61,8 @@ namespace RTX {
     virtual void overrideControls() throw(RtxException);
     void runSinglePeriod(time_t time);
     void runExtendedPeriod(time_t start, time_t end);
-    void setStorage(PointRecord::sharedPointer record);
-    void setParameterSource(PointRecord::sharedPointer record);
+    void setStorage(PointRecord::_sp record);
+    void setParameterSource(PointRecord::_sp record);
     
     bool shouldRunWaterQuality();
     void setShouldRunWaterQuality(bool run);
@@ -71,27 +71,27 @@ namespace RTX {
     void initDMAs();
     void setDmaShouldDetectClosedLinks(bool detect);
     bool dmaShouldDetectClosedLinks();
-    void setDmaPipesToIgnore(vector<Pipe::sharedPointer> ignorePipes);
-    vector<Pipe::sharedPointer> dmaPipesToIgnore();
+    void setDmaPipesToIgnore(vector<Pipe::_sp> ignorePipes);
+    vector<Pipe::_sp> dmaPipesToIgnore();
     
     // element accessors
-    void addJunction(Junction::sharedPointer newJunction);
-    void addTank(Tank::sharedPointer newTank);
-    void addReservoir(Reservoir::sharedPointer newReservoir);
-    void addPipe(Pipe::sharedPointer newPipe);
-    void addPump(Pump::sharedPointer newPump);
-    void addValve(Valve::sharedPointer newValve);
-    void addDma(Dma::sharedPointer dma);
-    Link::sharedPointer linkWithName(const string& name);
-    Node::sharedPointer nodeWithName(const string& name);
-    vector<Element::sharedPointer> elements();
-    vector<Dma::sharedPointer> dmas();
-    vector<Junction::sharedPointer> junctions();
-    vector<Tank::sharedPointer> tanks();
-    vector<Reservoir::sharedPointer> reservoirs();
-    vector<Pipe::sharedPointer> pipes();
-    vector<Pump::sharedPointer> pumps();
-    vector<Valve::sharedPointer> valves();
+    void addJunction(Junction::_sp newJunction);
+    void addTank(Tank::_sp newTank);
+    void addReservoir(Reservoir::_sp newReservoir);
+    void addPipe(Pipe::_sp newPipe);
+    void addPump(Pump::_sp newPump);
+    void addValve(Valve::_sp newValve);
+    void addDma(Dma::_sp dma);
+    Link::_sp linkWithName(const string& name);
+    Node::_sp nodeWithName(const string& name);
+    vector<Element::_sp> elements();
+    vector<Dma::_sp> dmas();
+    vector<Junction::_sp> junctions();
+    vector<Tank::_sp> tanks();
+    vector<Reservoir::_sp> reservoirs();
+    vector<Pipe::_sp> pipes();
+    vector<Pump::_sp> pumps();
+    vector<Valve::_sp> valves();
     
     // simulation properties
     virtual void setHydraulicTimeStep(int seconds);
@@ -104,17 +104,17 @@ namespace RTX {
     virtual void setInitialModelQuality() { };
 
     virtual time_t currentSimulationTime();
-    TimeSeries::sharedPointer iterations() {return _iterations;}
-    TimeSeries::sharedPointer relativeError() {return _relativeError;}
+    TimeSeries::_sp iterations() {return _iterations;}
+    TimeSeries::_sp relativeError() {return _relativeError;}
     
     bool tanksNeedReset();
     void setTanksNeedReset(bool needReset);
     
     virtual std::ostream& toStream(std::ostream &stream);
 
-    vector<TimeSeries::sharedPointer> networkStatesWithMeasures();
-    void setRecordForNetworkStatesWithMeasures(PointRecord::sharedPointer pr);
-    void setRecordForNetworkBoundariesAndMeasures(PointRecord::sharedPointer pr);
+    vector<TimeSeries::_sp> networkStatesWithMeasures();
+    void setRecordForNetworkStatesWithMeasures(PointRecord::_sp pr);
+    void setRecordForNetworkBoundariesAndMeasures(PointRecord::_sp pr);
     
     // units
     Units flowUnits();
@@ -168,7 +168,7 @@ namespace RTX {
     
     virtual void setCurrentSimulationTime(time_t time);
     
-    double nodeDistanceXY(Node::sharedPointer n1, Node::sharedPointer n2);
+    double nodeDistanceXY(Node::_sp n1, Node::_sp n2);
     
     
   private:
@@ -177,32 +177,32 @@ namespace RTX {
     bool _shouldRunWaterQuality;
     bool _tanksNeedReset;
     // master list access
-    void add(Junction::sharedPointer newJunction);
-    void add(Pipe::sharedPointer newPipe);
+    void add(Junction::_sp newJunction);
+    void add(Pipe::_sp newPipe);
 
     // element lists
     // master node/link lists
-//    std::vector<Node::sharedPointer> _nodes;
-//    std::vector<Link::sharedPointer> _links;
-    std::map<string, Node::sharedPointer> _nodes;
-    std::map<string, Link::sharedPointer> _links;
+//    std::vector<Node::_sp> _nodes;
+//    std::vector<Link::_sp> _links;
+    std::map<string, Node::_sp> _nodes;
+    std::map<string, Link::_sp> _links;
     // convenience lists for iterations
-    vector<Element::sharedPointer> _elements;
-    vector<Junction::sharedPointer> _junctions;
-    vector<Tank::sharedPointer> _tanks;
-    vector<Reservoir::sharedPointer> _reservoirs;
-    vector<Pipe::sharedPointer> _pipes;
-    vector<Pump::sharedPointer> _pumps;
-    vector<Valve::sharedPointer> _valves;
-    vector<Dma::sharedPointer> _dmas;
-    vector<Pipe::sharedPointer> _dmaPipesToIgnore;
+    vector<Element::_sp> _elements;
+    vector<Junction::_sp> _junctions;
+    vector<Tank::_sp> _tanks;
+    vector<Reservoir::_sp> _reservoirs;
+    vector<Pipe::_sp> _pipes;
+    vector<Pump::_sp> _pumps;
+    vector<Valve::_sp> _valves;
+    vector<Dma::_sp> _dmas;
+    vector<Pipe::_sp> _dmaPipesToIgnore;
     bool _dmaShouldDetectClosedLinks;
     
-    PointRecord::sharedPointer _record;         // default record for results
-    Clock::sharedPointer _regularMasterClock;   // normal hydraulic timestep
-    TimeSeries::sharedPointer _relativeError;
-    TimeSeries::sharedPointer _iterations;
-    Clock::sharedPointer _boundaryResetClock;
+    PointRecord::_sp _record;         // default record for results
+    Clock::_sp _regularMasterClock;   // normal hydraulic timestep
+    TimeSeries::_sp _relativeError;
+    TimeSeries::_sp _iterations;
+    Clock::_sp _boundaryResetClock;
     int _qualityTimeStep;
     bool _doesOverrideDemands;
     

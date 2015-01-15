@@ -14,24 +14,24 @@ using namespace RTX;
 using namespace std;
 
 BaseStatsTimeSeries::BaseStatsTimeSeries() {
-  Clock::sharedPointer window(new Clock(60));
+  Clock::_sp window(new Clock(60));
   _window = window;
   _summaryOnly = true;
   _samplingMode = StatsSamplingModeLagging;
 }
 
 
-//void BaseStatsTimeSeries::setClock(Clock::sharedPointer clock) {
+//void BaseStatsTimeSeries::setClock(Clock::_sp clock) {
 //  // not allowed
 //  return;
 //}
 
 
-void BaseStatsTimeSeries::setWindow(Clock::sharedPointer window) {
+void BaseStatsTimeSeries::setWindow(Clock::_sp window) {
   _window = window;
   this->record()->invalidate(this->name());
 }
-Clock::sharedPointer BaseStatsTimeSeries::window() {
+Clock::_sp BaseStatsTimeSeries::window() {
   return _window;
 }
 
@@ -55,7 +55,7 @@ BaseStatsTimeSeries::StatsSamplingMode_t BaseStatsTimeSeries::samplingMode() {
 }
 
 
-vector< BaseStatsTimeSeries::pointSummaryPair_t > BaseStatsTimeSeries::filteredSummaryPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+vector< BaseStatsTimeSeries::pointSummaryPair_t > BaseStatsTimeSeries::filteredSummaryPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
   
   time_t windowLen = this->window()->period();
   

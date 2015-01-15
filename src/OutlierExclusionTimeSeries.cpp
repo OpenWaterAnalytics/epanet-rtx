@@ -88,7 +88,7 @@ Point OutlierExclusionTimeSeries::filteredSingle(time_t time) {
 }
 
 
-vector<Point> OutlierExclusionTimeSeries::filteredPointsWithMissing(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime, bool returnMissing) {
+vector<Point> OutlierExclusionTimeSeries::filteredPointsWithMissing(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime, bool returnMissing) {
   
   double m = this->outlierMultiplier();
   vector<Point> goodPoints;
@@ -138,7 +138,7 @@ vector<Point> OutlierExclusionTimeSeries::filteredPointsWithMissing(TimeSeries::
 }
 
 
-vector<Point> OutlierExclusionTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+vector<Point> OutlierExclusionTimeSeries::filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
   
   return this->filteredPointsWithMissing(sourceTs, fromTime, toTime, false);
   

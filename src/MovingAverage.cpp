@@ -46,7 +46,7 @@ int MovingAverage::margin() {
 
 #pragma mark - Public Overridden Methods
 
-bool MovingAverage::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
+bool MovingAverage::isCompatibleWith(TimeSeries::_sp withTimeSeries) {
   // a MA can intrinsically resample
   return true;
 }

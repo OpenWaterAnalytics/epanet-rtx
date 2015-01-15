@@ -19,7 +19,7 @@ namespace RTX {
    */
   
   /*!
-   \fn virtual TimeSeries::TimeRange TimeSeriesFilter::willGetRangeFromSource(TimeSeries::sharedPointer source, TimeSeries::TimeRange range)
+   \fn virtual TimeSeries::TimeRange TimeSeriesFilter::willGetRangeFromSource(TimeSeries::_sp source, TimeSeries::TimeRange range)
    \brief Allow derived class to expand the source search bounds prior to a filtering operation
    \param source The source that will be queried.
    \param range The range that will be requested from the source
@@ -46,20 +46,20 @@ namespace RTX {
   public:
     RTX_SHARED_POINTER(TimeSeriesFilter);
     
-    TimeSeries::sharedPointer source();
-    void setSource(TimeSeries::sharedPointer ts);
+    TimeSeries::_sp source();
+    void setSource(TimeSeries::_sp ts);
     
-    Clock::sharedPointer clock();
-    void setClock(Clock::sharedPointer clock);
+    Clock::_sp clock();
+    void setClock(Clock::_sp clock);
     
     // methods you must override to provide info to the base class
-    virtual TimeRange willGetRangeFromSource(TimeSeries::sharedPointer source, TimeRange range) = 0;
+    virtual TimeRange willGetRangeFromSource(TimeSeries::_sp source, TimeRange range) = 0;
     virtual PointCollection filterPointsInRange(PointCollection inputCollection, TimeRange outRange) = 0;
     
     
   private:
-    TimeSeries::sharedPointer _source;
-    Clock::sharedPointer _clock;
+    TimeSeries::_sp _source;
+    Clock::_sp _clock;
     
   };
 }

@@ -29,7 +29,7 @@ Point SinglePointFilterModularTimeSeries::point(time_t time){
   return newPoint;
 }
 
-std::vector<Point> SinglePointFilterModularTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+std::vector<Point> SinglePointFilterModularTimeSeries::filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
   
   Units sourceU = source()->units();
   std::vector<Point> sourcePoints = sourceTs->points(fromTime, toTime);

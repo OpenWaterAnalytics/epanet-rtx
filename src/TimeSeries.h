@@ -97,8 +97,8 @@ namespace RTX {
     virtual std::string name();
     virtual void setName(const std::string& name);
     
-    PointRecord::sharedPointer record();
-    void setRecord(PointRecord::sharedPointer record);
+    PointRecord::_sp record();
+    void setRecord(PointRecord::_sp record);
     
     Units units();
     virtual void setUnits(Units newUnits);
@@ -109,17 +109,17 @@ namespace RTX {
      */
     std::vector<Point> gaps(time_t start, time_t end);
     
-    virtual TimeSeries::sharedPointer rootTimeSeries() { return shared_from_this(); };
+    virtual TimeSeries::_sp rootTimeSeries() { return shared_from_this(); };
     virtual void resetCache();
     
     virtual std::ostream& toStream(std::ostream &stream);
 
   protected:
     // methods which may be needed by subclasses but shouldn't be public:
-    // refactor, move to filter class --> virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
+    // refactor, move to filter class --> virtual bool isCompatibleWith(TimeSeries::_sp withTimeSeries);
     
   private:
-    PointRecord::sharedPointer _points;
+    PointRecord::_sp _points;
     std::string _name;
     Units _units;
     std::pair<time_t, time_t> _validTimeRange;

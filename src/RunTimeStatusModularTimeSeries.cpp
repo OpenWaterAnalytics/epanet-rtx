@@ -63,7 +63,7 @@ Point RunTimeStatusModularTimeSeries::pointAfter(time_t time) {
   return afterPoint;
 }
 
-void RunTimeStatusModularTimeSeries::setClock(Clock::sharedPointer clock) {
+void RunTimeStatusModularTimeSeries::setClock(Clock::_sp clock) {
   // refuse to retain our own clock so that pointRecord->pointBefore accesses our record and not the sources
   std::cerr << "RunTimeStatusModularTimeSeries clock can not be set\n";
 }

@@ -23,20 +23,20 @@ namespace RTX {
     time_t maximumStaleness();
     void setMaximumStaleness(time_t stale);
     
-    TimeSeries::sharedPointer failoverTimeseries();
-    void setFailoverTimeseries(TimeSeries::sharedPointer ts);
+    TimeSeries::_sp failoverTimeseries();
+    void setFailoverTimeseries(TimeSeries::_sp ts);
     
     void swapSourceWithFailover();
     
     // superclass overrides
-    virtual void setSource(TimeSeries::sharedPointer source);
+    virtual void setSource(TimeSeries::_sp source);
     
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
-    virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
+    virtual std::vector<Point> filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
+    virtual bool isCompatibleWith(TimeSeries::_sp withTimeSeries);
     
   private:
-    TimeSeries::sharedPointer _failover;
+    TimeSeries::_sp _failover;
     time_t _stale;
   };
 }
