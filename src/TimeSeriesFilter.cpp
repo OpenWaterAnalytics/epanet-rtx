@@ -28,13 +28,10 @@ TimeSeries::_sp TimeSeriesFilter::source() {
 void TimeSeriesFilter::setSource(TimeSeries::_sp ts) {
   this->invalidate();
   _source = ts;
-  
   TimeSeriesFilter::_sp filterSource = boost::dynamic_pointer_cast<TimeSeriesFilter>(ts);
   if (filterSource && !this->clock()) {
     this->setClock(filterSource->clock());
   }
-  
-  
 }
 
 
