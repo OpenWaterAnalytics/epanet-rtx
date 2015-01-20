@@ -18,26 +18,45 @@ namespace RTX {
    The base TimeSeriesFilter class doesn't do very much. Derive for added flavor.
    */
   
-  /*!
-   \fn virtual TimeSeries::TimeRange TimeSeriesFilter::willGetRangeFromSource(TimeSeries::_sp source, TimeSeries::TimeRange range)
-   \brief Allow derived class to expand the source search bounds prior to a filtering operation
-   \param source The source that will be queried.
-   \param range The range that will be requested from the source
-   \return The range that should be queried from the source
-   
-   The intention of this method is to allow derived classes the opportunity to expand the search bounds and ensure that they have enough data to perform the desired filtering operation. For example, a lagging moving average will need to expand the left side of the range by either a number of points, or by a fixed time window depending on particular implementation details.
-   
-   */
-  /*!
-   \fn virtual PointCollection TimeSeriesFilter::filterPointsInRange(PointCollection inputCollection, TimeRange outRange)
-   \brief Perform a specific filtering operation on a collection of points
-   \param inputCollection The points on which to perform the operation. These have been 
-   \param outRange The time range being requested, which may be a subset of the time values of the points provided to this method.
-   \return The requested Points (as a PointCollection)
-   
-   Important: Derived classes are responsible for unit conversions.
-   */
   
+  /*!
+   \fn virtual std::set<time_t> TimeSeriesFilter::timeValuesInRange(TimeRange range)
+   \brief Allow derived classes to specify the occurence of points in time. Optional.
+   \param range The time range over which to report time values.
+   \return A set of time values where the Time Series may provide points.
+  
+   Overriding this method is optional. Base functionality reports clock ticks if there is a clock, or the time values for this object's source points, if a source is set.
+   */
+  /*!
+   \fn virtual PointCollection TimeSeriesFilter::filterPointsAtTimes(std::set<time_t> times)
+   \brief Generate time series values at given points.
+   \param times The list of times for which to provide filtered data.
+   \return A PointCollection containing the filtered data.
+  
+   This is where the magic happens. You must override this to add any meaningful functionality for a derived class. Important: derived classes are responsible for converting units.
+   */
+  /*!
+   \fn virtual bool TimeSeriesFilter::canSetSource(TimeSeries::_sp ts)
+   \brief Allows a derived class to refuse a source. Base implmentation enforces pass-through dimensional consistency.
+   \param ts The potential new source time series.
+   
+   Overriding this method is optional. Base implementation enforces dimensonal consistency.
+   */
+  /*!
+   \fn virtual void TimeSeriesFilter::didSetSource(TimeSeries::_sp ts)
+   \brief Notify derived class that a new source was set.
+   \param ts The new source which was set.
+   
+   Overriding this method is optional. Base implementation updates units and clock (if the new source has one).
+   */
+  /*!
+   \fn bool TimeSeriesFilter::canChangeToUnits(Units units)
+   \brief Allows a derived class to refuse changing units. This can be called when testing for a new source, or when trying to manually set units, or for information purposes like populating a list of available units.
+   \param units The new units.
+   
+   Overriding this method is optional. Base implementation enforces dimensonal consistency.
+   */
+
   
   
   class TimeSeriesFilter : public TimeSeries {
@@ -51,10 +70,14 @@ namespace RTX {
     void setClock(Clock::_sp clock);
     
     std::vector< Point > points(time_t start, time_t end);
+    virtual Point pointBefore(time_t time);
+    virtual Point pointAfter(time_t time);
     
     // methods you must override to provide info to the base class
-    virtual TimeRange willGetRangeFromSource(TimeSeries::_sp source, TimeRange range);
-    virtual PointCollection filterPointsInRange(PointCollection inputCollection, TimeRange outRange);
+    virtual std::set<time_t> timeValuesInRange(TimeRange range);
+    virtual PointCollection filterPointsAtTimes(std::set<time_t> times);
+    virtual bool canSetSource(TimeSeries::_sp ts);
+    virtual void didSetSource(TimeSeries::_sp ts);
     virtual bool canChangeToUnits(Units units);
     
   private:

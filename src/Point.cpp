@@ -66,6 +66,18 @@ Point& Point::operator+=(const Point& point) {
   return *this;
 }
 
+Point Point::operator+(const double value) const {
+  Point result = *this;
+  result += value;
+  return result;
+}
+
+Point& Point::operator+=(const double value) {
+  this->value += value;
+  return *this;
+}
+
+
 Point Point::operator*(const double factor) const {
   double value;
   double confidence;

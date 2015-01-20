@@ -6,30 +6,29 @@
 //  See README.md and license.txt for more information
 //
 
-#include "SinglePointFilterModularTimeSeries.h"
+#include "TimeSeriesFilterSinglePoint.h"
 
 #ifndef __epanet_rtx__GainTimeSeries__
 #define __epanet_rtx__GainTimeSeries__
 
 namespace RTX {
-  class GainTimeSeries : public SinglePointFilterModularTimeSeries {
+  class GainTimeSeries : public TimeSeriesFilterSinglePoint {
     
   public:
     RTX_SHARED_POINTER(GainTimeSeries);
     GainTimeSeries();
     
-    void setGain(double gain);
     double gain();
-    void setGainUnits(Units u);
+    void setGain(double gain);
+    
     Units gainUnits();
-    
-    virtual void setUnits(Units u);
-    virtual bool isCompatibleWith(TimeSeries::_sp ts);
-    
-    virtual bool canAlterDimension() { return true; };
+    void setGainUnits(Units u);
     
   protected:
-    Point filteredSingle(Point p, Units sourceU);
+    Point filteredWithSourcePoint(Point sourcePoint);
+    virtual bool canSetSource(TimeSeries::_sp ts);
+    virtual void didSetSource(TimeSeries::_sp ts);
+    virtual bool canChangeToUnits(Units units);
     
   private:
     double _gain;

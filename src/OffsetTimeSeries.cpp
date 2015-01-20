@@ -17,10 +17,8 @@ double OffsetTimeSeries::offset() {
   return _offset;
 }
 
-Point OffsetTimeSeries::filteredSingle(Point p, Units sourceU) {
-  Point convertedSourcePoint = Point::convertPoint(p, sourceU, units());
-  double pointValue = convertedSourcePoint.value;
-  pointValue += offset();
-  Point newPoint(convertedSourcePoint.time, pointValue, convertedSourcePoint.quality, convertedSourcePoint.confidence);
-  return newPoint;
+Point OffsetTimeSeries::filteredWithSourcePoint(Point sourcePoint) {
+  Point converted = Point::convertPoint(sourcePoint, source()->units(), this->units());
+  converted += this->offset();
+  return converted;
 }

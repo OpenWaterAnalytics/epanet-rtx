@@ -64,9 +64,12 @@ namespace RTX {
     public:
       PointCollection(std::vector<Point> points, Units units);
       PointCollection(); // null constructor
-      
+
       std::vector<Point> points;
       Units units;
+      
+      bool convertToUnits(Units u);
+      
       // statistical methods on the collection
       double min();
       double max();
@@ -89,7 +92,7 @@ namespace RTX {
     TimeSeries();
     ~TimeSeries();
     
-
+    
     virtual void insert(Point aPoint);
     virtual void insertPoints(std::vector<Point>);  /// option to add lots of (un)ordered points all at once.
     

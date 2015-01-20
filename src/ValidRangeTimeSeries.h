@@ -10,30 +10,26 @@
 #define __epanet_rtx__ValidRangeTimeSeries__
 
 #include <iostream>
-#include "SinglePointFilterModularTimeSeries.h"
-
-#define RTX_VRTS_SUPER SinglePointFilterModularTimeSeries
+#include "TimeSeriesFilter.h"
 
 namespace RTX {
-  class ValidRangeTimeSeries : public RTX_VRTS_SUPER {
+  class ValidRangeTimeSeries : public TimeSeriesFilter {
   public:
     RTX_SHARED_POINTER(ValidRangeTimeSeries);
     ValidRangeTimeSeries();
+    
     void setRange(double min, double max);
     std::pair<double, double> range();
-    
-    virtual void setClock(Clock::_sp clock);
     
     typedef enum {saturate=0,drop=1} filterMode_t;
     filterMode_t mode();
     void setMode(filterMode_t mode);
     
-    // Overridden methods
-    virtual Point pointBefore(time_t time);
-    virtual Point pointAfter(time_t time);
+    
+  protected:
+    Point filteredWithSourcePoint(Point sourcePoint);
     
   private:
-    Point filteredSingle(Point p, Units sourceU);
     std::pair<double, double> _range;
     filterMode_t _mode;
   };

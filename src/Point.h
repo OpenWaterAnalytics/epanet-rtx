@@ -49,6 +49,8 @@ namespace RTX {
     // operators
     Point operator+(const Point& point) const;
     Point& operator+=(const Point& point);
+    Point operator+(const double value) const;
+    Point& operator+=(const double value);
     Point operator*(const double factor) const;
     Point& operator*=(const double factor);
     Point operator/(const double factor) const;

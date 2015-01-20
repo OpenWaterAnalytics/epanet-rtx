@@ -14,56 +14,51 @@ ThresholdTimeSeries::ThresholdTimeSeries() {
 
 void ThresholdTimeSeries::setThreshold(double threshold) {
   _threshold = threshold;
+  this->invalidate();
 }
-
 double ThresholdTimeSeries::threshold() {
   return _threshold;
 }
 
 void ThresholdTimeSeries::setValue(double val) {
   _fixedValue = val;
+  this->invalidate();
 }
-
 double ThresholdTimeSeries::value() {
   return _fixedValue;
 }
 
 void ThresholdTimeSeries::setMode(thresholdMode_t mode) {
   _mode = mode;
+  this->invalidate();
 }
-
 ThresholdTimeSeries::thresholdMode_t ThresholdTimeSeries::mode() {
   return _mode;
 }
 
-void ThresholdTimeSeries::setSource(TimeSeries::_sp source) {
-  Units originalUnits = this->units();
-  this->setUnits(RTX_DIMENSIONLESS);  // non-dimensionalize so that we can accept this source.
-  ModularTimeSeries::setSource(source);
-  
-  // Threshold units can be anything - reset them
-  this->setUnits(originalUnits);
-}
-
-void ThresholdTimeSeries::setUnits(Units newUnits) {
-  
-  // Threshold units can be different from the source units; the value is assumed
-  // to be in Threshold units, and the threshold is assumed to be in source units -
-  // so just set them
-  TimeSeries::setUnits(newUnits);
-}
 
 
-Point ThresholdTimeSeries::filteredSingle(RTX::Point p, RTX::Units sourceU) {
-  // we don't care about units.
+Point ThresholdTimeSeries::filteredWithSourcePoint(RTX::Point sourcePoint) {
   double pointValue;
   if (_mode == thresholdModeAbsolute) {
-    pointValue = (abs(p.value) > _threshold) ? _fixedValue : 0.;
+    pointValue = (abs(sourcePoint.value) > _threshold) ? _fixedValue : 0.;
   }
   else {
-    pointValue = (p.value > _threshold) ? _fixedValue : 0.;
+    pointValue = (sourcePoint.value > _threshold) ? _fixedValue : 0.;
   }
-  Point newPoint(p.time, pointValue, p.quality, p.confidence);
+  Point newPoint(sourcePoint.time, pointValue, sourcePoint.quality, sourcePoint.confidence);
   return newPoint;
 }
 
+void ThresholdTimeSeries::didSetSource(TimeSeries::_sp ts) {
+  // don't mess with units.
+  // if the source is a filter, and has a clock, and I don't have a clock, then use the source's clock.
+  TimeSeriesFilter::_sp sourceFilter = boost::dynamic_pointer_cast<TimeSeriesFilter>(ts);
+  if (sourceFilter && sourceFilter->clock() && !this->clock()) {
+    this->setClock(sourceFilter->clock());
+  }
+}
+
+bool ThresholdTimeSeries::canChangeToUnits(RTX::Units units) {
+  return true; // any units are ok.
+}

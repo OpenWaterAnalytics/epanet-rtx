@@ -11,9 +11,11 @@
 
 
 #include <vector>
-#include "Resampler.h"
-#include "rtxExceptions.h"
 #include <boost/foreach.hpp>
+
+#include "TimeSeriesFilter.h"
+#include "rtxExceptions.h"
+
 
 namespace RTX {
   
@@ -25,7 +27,7 @@ namespace RTX {
    
    */
   
-  class AggregatorTimeSeries : public Resampler {
+  class AggregatorTimeSeries : public TimeSeriesFilter {
   
   public:
     RTX_SHARED_POINTER(AggregatorTimeSeries);
@@ -35,9 +37,6 @@ namespace RTX {
       double multiplier;
     } AggregatorSource;
     
-    TimeSeries::_sp source();
-    virtual void setSource(TimeSeries::_sp source);
-    virtual bool doesHaveSource();
     virtual std::ostream& toStream(std::ostream &stream);
     
     // add a time series to this aggregator. optional parameter "multiplier" allows you to scale
@@ -47,16 +46,17 @@ namespace RTX {
     std::vector< AggregatorSource > sources();
     void setMultiplierForSource(TimeSeries::_sp timeSeries, double multiplier);
     
-    // reimplement the base class methods
-    virtual Point point(time_t time);
-    // points is handled by ModularTimeSeries, which calls filteredPoints (see below)
-    //virtual std::vector< Point > points(time_t start, time_t end);
-
+    
+    // must reimplement these searching methods
     virtual Point pointBefore(time_t time);
     virtual Point pointAfter(time_t time);
     
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
+    virtual std::set<time_t> timeValuesInRange(TimeRange range);
+    virtual PointCollection filterPointsAtTimes(std::set<time_t> times);
+    virtual bool canSetSource(TimeSeries::_sp ts);
+    virtual void didSetSource(TimeSeries::_sp ts);
+    virtual bool canChangeToUnits(Units units);
 
   private:
     // need to store several TimeSeries references...

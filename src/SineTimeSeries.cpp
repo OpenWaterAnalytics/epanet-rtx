@@ -26,13 +26,7 @@ double SineTimeSeries::magnitude() {
 }
 
 
-Point SineTimeSeries::point(time_t time) {
-  if ( !(clock()->isValid(time)) ) {
-    // if the time is not valid, rewind until a valid time is reached.
-    time = clock()->timeBefore(time);
-  }
-  
+Point SineTimeSeries::syntheticPoint(time_t time) {
   double value = _magnitude * sin((double)time * M_PI * 2 / (_period));
   return Point(time, value);
-  
 }

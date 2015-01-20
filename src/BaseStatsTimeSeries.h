@@ -10,7 +10,7 @@
 #define __epanet_rtx__BaseStatsTimeSeries__
 
 #include <iostream>
-#include "ModularTimeSeries.h"
+#include "TimeSeriesFilter.h"
 
 namespace RTX {
   
@@ -38,7 +38,7 @@ namespace RTX {
 
   
     
-  class BaseStatsTimeSeries : public ModularTimeSeries {
+  class BaseStatsTimeSeries : public TimeSeriesFilter {
     
   public:
     //! sampling window mode (lead, lag, center)
@@ -49,7 +49,7 @@ namespace RTX {
     } StatsSamplingMode_t;
     
     
-    typedef std::pair< Point, Statistics > pointSummaryPair_t;
+    typedef std::pair< Point, PointCollection > pointSummaryPair_t;
     
     RTX_SHARED_POINTER(BaseStatsTimeSeries);
     BaseStatsTimeSeries();
@@ -63,11 +63,12 @@ namespace RTX {
     bool summaryOnly();
     void setSummaryOnly(bool summaryOnly);
     
-    // overrides
-//    void setClock(Clock::_sp clock);
+    
     
   protected:
-    virtual std::vector< pointSummaryPair_t > filteredSummaryPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
+    virtual PointCollection filterPointsAtTimes(std::set<time_t> times) = 0; // pure virtual. don't use this class directly.
+    std::vector<pointSummaryPair_t> filterSummaryCollection(std::set<time_t> times);
+    
     
   private:
     Clock::_sp _window;

@@ -26,12 +26,16 @@ TimeSeries::_sp TimeSeriesFilter::source() {
   return _source;
 }
 void TimeSeriesFilter::setSource(TimeSeries::_sp ts) {
+  if (!this->canSetSource(ts)) {
+    return;
+  }
   this->invalidate();
   _source = ts;
   TimeSeriesFilter::_sp filterSource = boost::dynamic_pointer_cast<TimeSeriesFilter>(ts);
   if (filterSource && !this->clock()) {
     this->setClock(filterSource->clock());
   }
+  this->didSetSource(ts);
 }
 
 
@@ -42,74 +46,138 @@ vector<Point> TimeSeriesFilter::points(time_t start, time_t end) {
     return filtered;
   }
   
-  TimeRange range = make_pair(start, end);
-  range = this->willGetRangeFromSource(this->source(), range);
+  set<time_t> pointTimes;
+  pointTimes = this->timeValuesInRange(make_pair(start, end));
+  
   PointCollection native;
   
-  if (this->clock()->isRegular()) {
-    set<time_t> timeList = this->clock()->timeValuesInRange(range.first, range.second);
-    
-    
-    // important optimization. if this range has already been constructed and cached, then don't recreate it.
-    bool alreadyCached = false;
-    vector<Point> cached = TimeSeries::points(range.first, range.second); // base class call -> find any pre-cached points
-    if (cached.size() == timeList.size()) {
-      // looks good, let's make sure that all time values line up.
-      alreadyCached = true;
-      BOOST_FOREACH(const Point& p, cached) {
-        if (timeList.count(p.time) == 0) {
-          alreadyCached = false;
-          break; // break foreach, with false "alreadyCached" flag
-        }
+  // important optimization. if this range has already been constructed and cached, then don't recreate it.
+  bool alreadyCached = false;
+  vector<Point> cached = TimeSeries::points(start, end); // base class call -> find any pre-cached points
+  if (cached.size() == pointTimes.size()) {
+    // looks good, let's make sure that all time values line up.
+    alreadyCached = true;
+    BOOST_FOREACH(const Point& p, cached) {
+      if (pointTimes.count(p.time) == 0) {
+        alreadyCached = false;
+        break; // break foreach, with false "alreadyCached" flag
       }
     }
-    
-    if (alreadyCached) {
-      return cached; // we're done here.
-    }
-    
-    native = source()->resampled(timeList);
   }
-  else {
-    native = source()->pointCollection(range.first, range.second);
+  if (alreadyCached) {
+    return cached; // we're done here. all points are present.
   }
   
-  PointCollection outCollection = this->filterPointsInRange(native, make_pair(start, end));
-  
-  
+  PointCollection outCollection = this->filterPointsAtTimes(pointTimes);
   this->insertPoints(outCollection.points);
-  
   return outCollection.points;
 }
 
 
+Point TimeSeriesFilter::pointBefore(time_t time) {
+  Point p;
+  p.time = time;
+  time_t seekTime = time;
+  
+  if (!this->source()) {
+    return p;
+  }
+  
+  while (!p.isValid && p.time != 0) {
+    if (this->clock()) {
+      seekTime = this->clock()->timeBefore(seekTime);
+    }
+    else {
+      seekTime = this->source()->pointBefore(seekTime).time;
+    }
+    p = this->point(seekTime);
+  }
+  
+  return p;
+}
+
+Point TimeSeriesFilter::pointAfter(time_t time) {
+  Point p;
+  p.time = time;
+  time_t seekTime = time;
+  
+  if (!this->source()) {
+    return p;
+  }
+  
+  while (!p.isValid && p.time != 0) {
+    if (this->clock()) {
+      seekTime = this->clock()->timeAfter(seekTime);
+    }
+    else {
+      seekTime = this->source()->pointAfter(seekTime).time;
+    }
+    p = this->point(seekTime);
+  }
+  
+  return p;
+}
+
 
 #pragma mark - Pseudo-Delegate methods
 
-
-TimeSeries::TimeRange TimeSeriesFilter::willGetRangeFromSource(TimeSeries::_sp source, TimeRange range) {
+set<time_t> TimeSeriesFilter::timeValuesInRange(TimeSeries::TimeRange range) {
+  set<time_t> times;
   
-  TimeRange outRange = range;
-  
-  if (this->clock()) {
-    outRange.first = this->clock()->timeAfter(range.first - 1);
-    outRange.second = this->clock()->timeBefore(range.second + 1);
+  if (range.first == 0 || range.second == 0) {
+    return times;
   }
   
-  return outRange;
+  if (this->clock()) {
+    times = this->clock()->timeValuesInRange(range.first, range.second);
+  }
+  else {
+    vector<Point> points = source()->points(range.first, range.second);
+    BOOST_FOREACH(const Point& p, points) {
+      times.insert(p.time);
+    }
+  }
+  
+  return times;
 }
 
-TimeSeries::PointCollection TimeSeriesFilter::filterPointsInRange(RTX::TimeSeries::PointCollection inputCollection, TimeRange outRange) {
-  
+
+TimeSeries::PointCollection TimeSeriesFilter::filterPointsAtTimes(std::set<time_t> times) {
   vector<Point> outPoints;
   
-  BOOST_FOREACH(const Point& p, inputCollection.points) {
-    Point out = Point::convertPoint(p, inputCollection.units, this->units());
-    outPoints.push_back(out);
+  // just resample
+  PointCollection pointsCollection = this->source()->resampled(times);
+  
+  bool convertOk = pointsCollection.convertToUnits(this->units());
+  if (convertOk) {
+    outPoints = pointsCollection.points;
   }
   
   PointCollection outCollection(outPoints,this->units());
   return outCollection;
+}
+
+
+bool TimeSeriesFilter::canSetSource(TimeSeries::_sp ts) {
+  bool goodSource = (ts) ? true : false;
+  bool unitsOk = ( ts->units().isSameDimensionAs(this->units()) || this->units().isDimensionless() );
+  return goodSource && unitsOk;
+}
+
+void TimeSeriesFilter::didSetSource(TimeSeries::_sp ts) {
+  // expected behavior if this has dimensionless units, take on the units of the source.
+  // we are guaranteed that the units are compatible (if canChangeToUnits was properly implmented),
+  // so no further checking is required.
+  if (this->units().isDimensionless()) {
+    this->setUnits(ts->units());
+  }
+  
+  // if the source is a filter, and has a clock, and I don't have a clock, then use the source's clock.
+  TimeSeriesFilter::_sp sourceFilter = boost::dynamic_pointer_cast<TimeSeriesFilter>(ts);
+  if (sourceFilter && sourceFilter->clock() && !this->clock()) {
+    this->setClock(sourceFilter->clock());
+  }
+  
 }
 
 bool TimeSeriesFilter::canChangeToUnits(Units units) {

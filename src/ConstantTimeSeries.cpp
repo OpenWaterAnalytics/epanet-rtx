@@ -10,15 +10,8 @@ ConstantTimeSeries::ConstantTimeSeries() {
   this->setClock(reg);
 }
 
-Point ConstantTimeSeries::point(time_t time)  {
-  bool regular = this->clock()->isRegular();
-  
-  if ( !regular || (regular && this->clock()->isValid(time)) ) {
-    return Point(time, _value, Point::constant);
-  }
-  else {
-    return Point();
-  }
+Point ConstantTimeSeries::syntheticPoint(time_t time)  {
+  return Point(time, _value, Point::constant);
 }
 
 

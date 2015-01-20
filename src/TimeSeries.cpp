@@ -31,6 +31,19 @@ TimeSeries::PointCollection::PointCollection() : points(vector<Point>()), units(
   
 }
 
+bool TimeSeries::PointCollection::convertToUnits(RTX::Units u) {
+  if (!u.isSameDimensionAs(this->units)) {
+    return false;
+  }
+  vector<Point> converted;
+  BOOST_FOREACH(const Point& p, this->points) {
+    converted.push_back(Point::convertPoint(p, this->units, u));
+  }
+  this->points = converted;
+  this->units = u;
+  return true;
+}
+
 
 double TimeSeries::PointCollection::percentile(double p) {
   int cacheSize = (int)this->points.size();
@@ -94,7 +107,12 @@ Point TimeSeries::point(time_t time) {
   Point p;
   //time = clock()->validTime(time);
   
-  p = _points->point(name(), time);
+  vector<Point> single = this->points(time,time);
+  if (single.size() > 0) {
+    p = single.front();
+  }
+  
+//  p = _points->point(name(), time);
   
   return p;
 }

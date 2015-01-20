@@ -17,11 +17,6 @@ TimeSeries::_sp MultiplierTimeSeries::multiplier() {
   return _multiplierBasis;
 }
 
-void MultiplierTimeSeries::setSource(TimeSeries::_sp ts) {
-  ModularTimeSeries::setSource(ts);
-  this->checkUnits();
-}
-
 bool MultiplierTimeSeries::isCompatibleWith(TimeSeries::_sp otherSeries) {
   // basic check for compatible regular time series.
   Clock::_sp theirClock = otherSeries->clock(), myClock = this->clock();
@@ -31,10 +26,64 @@ bool MultiplierTimeSeries::isCompatibleWith(TimeSeries::_sp otherSeries) {
   return (clocksCompatible && unitsCompatible);
 }
 
-void MultiplierTimeSeries::setUnits(Units u) {
-  TimeSeries::setUnits(u);
-  this->checkUnits();
+
+Point MultiplierTimeSeries::filteredWithSourcePoint(Point sourcePoint) {
+  if (!this->multiplier()) {
+    return Point();
+  }
+  set<time_t> t;
+  t.insert(sourcePoint.time);
+  vector<Point> multiplierPoint = this->multiplier()->resampled(t).points;
+  
+  if (multiplierPoint.size() < 1) {
+    return Point();
+  }
+  
+  Point x = multiplierPoint.front();
+  
+  if (!x.isValid) {
+    return Point();
+  }
+  
+  Point multiplied = sourcePoint * x;
+  Point outPoint = Point::convertPoint(multiplied, this->source()->units() * this->multiplier()->units(), this->units());
+  
+  return outPoint;
 }
+
+bool MultiplierTimeSeries::canSetSource(TimeSeries::_sp ts) {
+  
+  return true;
+  
+}
+
+void MultiplierTimeSeries::didSetSource(TimeSeries::_sp ts) {
+  if (!this->source() || !this->multiplier()) {
+    return;
+  }
+  
+  Units nativeDerivedUnits = this->source()->units() * this->multiplier()->units();
+  if (!this->units().isSameDimensionAs(nativeDerivedUnits)) {
+    this->setUnits(nativeDerivedUnits)
+  }
+  
+}
+
+bool MultiplierTimeSeries::canChangeToUnits(Units units) {
+  if (!this->source() || !this->multiplier()) {
+    return true; // if the inputs are not fully set, then accept any units.
+  }
+  else if (units.isSameDimensionAs(this->source()->units() * this->multiplier()->units())) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+
+
+
 
 void MultiplierTimeSeries::checkUnits() {
   if (_multiplierBasis && this->source()) {
