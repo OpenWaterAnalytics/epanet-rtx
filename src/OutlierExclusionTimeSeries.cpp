@@ -77,6 +77,60 @@ Point OutlierExclusionTimeSeries::pointAfter(time_t searchTime) {
 }
 
 
+TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsAtTimes(std::set<time_t> times) {
+  
+  vector<pointSummaryPair_t> summaries = this->filterSummaryCollection(times);
+  
+  double m = this->outlierMultiplier();
+  vector<Point> goodPoints;
+  double q25,q75,iqr,mean,stddev;
+  
+  goodPoints.reserve(summaryCollection.size());
+  
+  BOOST_FOREACH(const pointSummaryPair_t& psp, summaries) {
+    
+    // fetch pair values from the source summary collection
+    Point p = psp.first;
+    PointCollection col = psp.second;
+    
+    switch (this->exclusionMode()) {
+      case OutlierExclusionModeInterquartileRange:
+      {
+        q25 = col.percentile(.25);
+        q75 = col.percentile(.75);
+        iqr = q75 - q25;
+        if ( !( (p.value < q25 - m*iqr) || (m*iqr + q75 < p.value) )) {
+          // store the point if it's within bounds
+          goodPoints.push_back(Point::convertPoint(p, sourceTs->units(), this->units()));
+        }
+        else if (returnMissing) {
+          goodPoints.push_back(Point(p.time, 0, Point::missing)); // bad point placeholder for searching
+        }
+      }
+        break; // OutlierExclusionModeInterquartileRange
+      case OutlierExclusionModeStdDeviation:
+      {
+        mean = col.mean();
+        stddev = sqrt(col.variance());
+        if ( fabs(mean - p.value) <= (m * stddev) ) {
+          goodPoints.push_back(Point::convertPoint(p, sourceTs->units(), this->units()));
+        }
+        else if (returnMissing) {
+          goodPoints.push_back(Point(p.time, 0, Point::missing)); // bad point placeholder for searching
+        }
+      }
+        break; // OutlierExclusionModeStdDeviation
+    } // end switch mode
+  }// end for each summary
+  
+  return PointCollection(goodPoints, this->units());
+  
+}
+
+
+
+
+
 Point OutlierExclusionTimeSeries::filteredSingle(time_t time) {
   
   vector<Point> candidates = this->filteredPointsWithMissing(this->source(), time, time, true);

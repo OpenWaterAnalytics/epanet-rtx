@@ -9,42 +9,41 @@ TimeGapTimeSeries::TimeGapTimeSeries() {
   this->setUnits(RTX_SECOND); // Default time unit
 }
 
-void TimeGapTimeSeries::setSource(TimeSeries::_sp source) {
-  Units originalUnits = this->units();
-  this->setUnits(RTX_DIMENSIONLESS);  // non-dimensionalize so that we can accept this source.
-  ModularTimeSeries::setSource(source);
-  
-  // Time Gap units are independent of the source units - reset them
-  this->setUnits(originalUnits);
-}
 
-void TimeGapTimeSeries::setUnits(Units newUnits) {
+TimeSeries::PointCollection TimeGapTimeSeries::filterPointsAtTimes(std::set<time_t> times) {
   
-  // TimeGap requires time units
-  if (newUnits.isSameDimensionAs(RTX_SECOND)) {
-    RTX_TIME_GAP_SUPER::setUnits(newUnits);
-  }
-  else {
-    std::cerr << "Time Gap requires time units" << std::endl;
-  }
-}
-
-vector<Point> TimeGapTimeSeries::filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
-  vector<Point> filtered;
+  vector<Point> gaps;
   
-  std::vector<Point> sourcePoints = sourceTs->gaps(fromTime, toTime);
-  
-  if (sourcePoints.size() == 0) {
-    return filtered;
-  }
-  
-  BOOST_FOREACH(const Point& p, sourcePoints) {
-    if (p.time < fromTime || p.time > toTime) {
-      continue; // skip the points we didn't ask for.
+  BOOST_FOREACH(time_t now, times) {
+    Point thisOne = this->source()->pointAtOrBefore(now);
+    Point lastOne = this->source()->pointBefore(thisOne.time);
+    
+    if (!thisOne.isValid || !lastOne.isValid) {
+      continue; // skip this one.
     }
-    Point aPoint = Point::convertPoint(p, RTX_SECOND, this->units());
-    filtered.push_back(aPoint);
+    time_t gapLen = thisOne.time - lastOne.time;
+    double gapLenConverted = Units::convertValue((double)gapLen, RTX_SECOND, this->units());
+    
+    Point gapPoint(now, gapLenConverted);
+    gaps.push_back(gapPoint);
   }
   
-  return filtered;
+  
+  return PointCollection(gaps, this->units());
 }
+
+bool TimeGapTimeSeries::canSetSource(TimeSeries::_sp ts) {
+  return true;
+}
+
+void TimeGapTimeSeries::didSetSource(TimeSeries::_sp ts) {
+  this->invalidate();
+}
+
+bool TimeGapTimeSeries::canChangeToUnits(Units units) {
+  if (units.isSameDimensionAs(RTX_SECOND)) {
+    return true;
+  }
+  return false;
+}
+

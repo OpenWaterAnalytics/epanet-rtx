@@ -40,15 +40,14 @@ namespace RTX {
     virtual Point pointAfter(time_t time);
     
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
-    std::vector<Point> filteredPointsWithMissing(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime, bool returnMissing);
-    
-    Point filteredSingle(time_t time);
+    virtual PointCollection filterPointsAtTimes(std::set<time_t> times);
+    virtual bool canSetSource(TimeSeries::_sp ts);
+    virtual void didSetSource(TimeSeries::_sp ts);
+    virtual bool canChangeToUnits(Units units);
     
   private:
     double _outlierMultiplier;
     exclusion_mode_t _exclusionMode;
-        
   };
 }
 

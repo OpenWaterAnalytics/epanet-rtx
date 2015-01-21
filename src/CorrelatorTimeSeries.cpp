@@ -25,7 +25,6 @@ using namespace std;
 CorrelatorTimeSeries::CorrelatorTimeSeries() {
   Clock::_sp c( new Clock(3600) );
   _corWindow = c;
-  
 }
 
 bool CorrelatorTimeSeries::isCompatibleWith(TimeSeries::_sp withTimeSeries) {
@@ -39,7 +38,13 @@ TimeSeries::_sp CorrelatorTimeSeries::correlatorTimeSeries() {
 }
 
 void CorrelatorTimeSeries::setCorrelatorTimeSeries(TimeSeries::_sp ts) {
+  
+  if (this->source() && !this->source()->units().isSameDimensionAs(ts->units())) {
+    return; // can't do it.
+  }
+  
   _secondary = ts;
+  this->invalidate();
 }
 
 Clock::_sp CorrelatorTimeSeries::correlationWindow() {
@@ -48,65 +53,50 @@ Clock::_sp CorrelatorTimeSeries::correlationWindow() {
 
 void CorrelatorTimeSeries::setCorrelationWindow(Clock::_sp window) {
   _corWindow = window;
+  this->invalidate();
 }
-
-
 
 
 #pragma mark - superclass overrides
 
-void CorrelatorTimeSeries::setSource(TimeSeries::_sp source) {
-  ModularTimeSeries::setSource(source);
-  if (source) {
-    this->setUnits(RTX_DIMENSIONLESS);
-  }
-}
-
-
-vector<Point> CorrelatorTimeSeries::filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
-  
+TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsAtTimes(std::set<time_t> times) {
   std::vector<Point> thePoints;
   if (!this->correlatorTimeSeries() || !this->source()) {
     return thePoints;
   }
   
+  time_t fromTime = *(times.begin());
+  time_t toTime = *(times.rbegin());
+  
   // force pre-cache
   this->source()->points(fromTime - this->correlationWindow()->period(), toTime);
   this->correlatorTimeSeries()->points(fromTime - this->correlationWindow()->period(), toTime);
   
-  vector<time_t> times;
-  if (this->clock()->isRegular()) {
-    times = this->clock()->timeValuesInRange(fromTime, toTime);
-  }
-  else {
-    vector<Point>sourcePointsForTimes = this->source()->points(fromTime, toTime);
-    BOOST_FOREACH(const Point& p, sourcePointsForTimes) {
-      times.push_back(p.time);
-    }
-  }
-  
-  
+  TimeSeries::_sp sourceTs = this->source();
   Units sourceU = sourceTs->units();
   Units secondaryUnits = this->correlatorTimeSeries()->units();
   time_t windowWidth = this->correlationWindow()->period();
   
   BOOST_FOREACH(time_t t, times) {
     double corrcoef = 0;
-    vector<Point> sourcePoints = sourceTs->points(t - windowWidth, t);
-    vector<Point> secondaryPoints = this->correlatorTimeSeries()->points(t - windowWidth, t);
+    PointCollection sourceCollection = sourceTs->pointCollection(t - windowWidth, t);
+    PointCollection secondaryCollection = this->correlatorTimeSeries()->pointCollection(t - windowWidth, t);
     
-    if (sourcePoints.size() != secondaryPoints.size()) {
+    if (sourceCollection.count() != secondaryCollection.count()) {
       cout << "Unequal number of points" << endl;
-      return thePoints;
+      return PointCollection(thePoints, this->units());
     }
+    
+    // get consistent units
+    secondaryCollection.convertToUnits(sourceCollection.units);
     
     // correlation coefficient
     accumulator_set<double, stats<tag::mean, tag::variance> > acc1;
     accumulator_set<double, stats<tag::mean, tag::variance> > acc2;
     accumulator_set<double, stats<tag::covariance<double, tag::covariate1> > > acc3;
     for (int i = 0; i < sourcePoints.size(); i++) {
-      Point p1 = sourcePoints.at(i);
-      Point p2 = Point::convertPoint(secondaryPoints.at(i), sourceU, secondaryUnits);
+      Point p1 = sourceCollection.points;
+      Point p2 = secondaryCollection.points;
       acc1(p1.value);
       acc2(p2.value);
       acc3(p1.value, covariate1 = p2.value);
@@ -117,12 +107,25 @@ vector<Point> CorrelatorTimeSeries::filteredPoints(TimeSeries::_sp sourceTs, tim
     
   }
   
-  return thePoints;
+  return PointCollection(thePoints, this->units());
 }
 
+bool CorrelatorTimeSeries::canSetSource(TimeSeries::_sp ts) {
+  if (this->correlatorTimeSeries() && !ts->units().isSameDimensionAs(this->correlatorTimeSeries()->units())) {
+    return false;
+  }
+  return true;
+}
 
+void CorrelatorTimeSeries::didSetSource(TimeSeries::_sp ts) {
+  this->invalidate();
+}
 
-
-
+bool CorrelatorTimeSeries::canChangeToUnits(Units units) {
+  if (units.isDimensionless()) {
+    return true;
+  }
+  return false;
+}
 
 

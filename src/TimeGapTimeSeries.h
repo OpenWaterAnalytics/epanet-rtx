@@ -10,26 +10,23 @@
 #define __epanet_rtx__TimeGapTimeSeries__
 
 #include <iostream>
-#include "ModularTimeSeries.h"
+#include "TimeSeriesFilter.h"
 
-#define RTX_TIME_GAP_SUPER ModularTimeSeries
 
 namespace RTX {
   //!   A Class to map the input time series into a series whos values are the time gaps between successive points
   
-  class TimeGapTimeSeries : public RTX_TIME_GAP_SUPER {
+  class TimeGapTimeSeries : public TimeSeriesFilter {
     
   public:
     RTX_SHARED_POINTER(TimeGapTimeSeries);
     TimeGapTimeSeries();
     
-    virtual void setSource(TimeSeries::_sp source);
-    virtual void setUnits(Units newUnits);
-    
-    virtual bool canAlterDimension() { return true; };
-    
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
+    virtual PointCollection filterPointsAtTimes(std::set<time_t> times);
+    virtual bool canSetSource(TimeSeries::_sp ts);
+    virtual void didSetSource(TimeSeries::_sp ts);
+    virtual bool canChangeToUnits(Units units);
     
   };
 }

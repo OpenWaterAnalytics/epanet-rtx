@@ -46,21 +46,77 @@ bool TimeSeries::PointCollection::convertToUnits(RTX::Units u) {
 
 
 double TimeSeries::PointCollection::percentile(double p) {
+  if (p < 0. || p > 1.) {
+    return 0.;
+  }
+  
   int cacheSize = (int)this->points.size();
   using namespace boost::accumulators;
   
   accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::left> > > centile( tag::tail<boost::accumulators::left>::cache_size = cacheSize );
-  BOOST_FOREACH(const Point& p, this->points) {
-    centile(p.value);
+  BOOST_FOREACH(const Point& point, this->points) {
+    centile(point.value);
   }
   
   double pct = quantile(centile, quantile_probability = p);
   return pct;
 }
+
 size_t TimeSeries::PointCollection::count() {
   return this->points.size();
 }
 
+
+double TimeSeries::PointCollection::min() {
+  
+  accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
+  
+  BOOST_FOREACH(const Point& p, points) {
+    acc(p.value);
+  }
+  
+  double min = extract::min(acc);
+  return min;
+}
+
+double TimeSeries::PointCollection::max() {
+  accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
+  BOOST_FOREACH(const Point& p, points) {
+    acc(p.value);
+  }
+  
+  double max = extract::max(acc);
+  return max;
+}
+
+double TimeSeries::PointCollection::mean() {
+  accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
+  
+  BOOST_FOREACH(const Point& p, points) {
+    acc(p.value);
+  }
+  
+  double mean = extract::mean(acc);
+  return mean;
+}
+
+double TimeSeries::PointCollection::variance() {
+  accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
+  
+  BOOST_FOREACH(const Point& p, points) {
+    acc(p.value);
+  }
+  
+  double variance = extract::variance(acc);
+  return variance;
+}
+
+
+
+
+
+
+#pragma mark -
 
 
 TimeSeries::TimeSeries() : _units(1) {

@@ -24,16 +24,14 @@ namespace RTX {
     TimeSeries::_sp correlatorTimeSeries();
     void setCorrelatorTimeSeries(TimeSeries::_sp ts);
     
-    // superclass overrides
-    virtual void setSource(TimeSeries::_sp source);
-    virtual bool canAlterDimension() { return true; };
-    
     Clock::_sp correlationWindow();
     void setCorrelationWindow(Clock::_sp correlationWindow);
     
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
-    virtual bool isCompatibleWith(TimeSeries::_sp withTimeSeries);
+    virtual PointCollection filterPointsAtTimes(std::set<time_t> times);
+    virtual bool canSetSource(TimeSeries::_sp ts);
+    virtual void didSetSource(TimeSeries::_sp ts);
+    virtual bool canChangeToUnits(Units units);
     
   private:
     TimeSeries::_sp _secondary;

@@ -17,6 +17,7 @@
 namespace RTX {
   class TimeSeriesSynthetic : public TimeSeries {
   public:
+    TimeSeriesSynthetic();
     Point point(time_t time);
     Point pointBefore(time_t time);
     Point pointAfter(time_t time);

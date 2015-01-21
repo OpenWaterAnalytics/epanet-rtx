@@ -103,6 +103,17 @@ double StatsTimeSeries::valueFromSummary(TimeSeries::PointCollection col) {
   return Units::convertValue(v, source()->units(), this->units());
 }
 
+
+bool StatsTimeSeries::canSetSource(TimeSeries::_sp ts) {
+  if (this->units().isDimensionless()) {
+    return true;
+  }
+  else if (this->source() && this->units().isSameDimensionAs(this->statsUnits(ts->units(), this->statsType()))) {
+    return true;
+  }
+  return false;
+}
+
 void StatsTimeSeries::didSetSource(TimeSeries::_sp source) {
   Units originalUnits = this->units();
   this->setUnits(RTX_DIMENSIONLESS);  // non-dimensionalize so that we can accept this source.
@@ -115,7 +126,6 @@ void StatsTimeSeries::didSetSource(TimeSeries::_sp source) {
     }
     this->setUnits(units);
   }
-
 }
 
 void StatsTimeSeries::canChangeToUnits(Units newUnits) {
