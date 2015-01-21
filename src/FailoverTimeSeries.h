@@ -9,13 +9,13 @@
 #ifndef __epanet_rtx__FailoverTimeSeries__
 #define __epanet_rtx__FailoverTimeSeries__
 
-#include "ModularTimeSeries.h"
+#include "TimeSeriesFilter.h"
 
 #include <iostream>
 
 
 namespace RTX {
-  class FailoverTimeSeries : public ModularTimeSeries
+  class FailoverTimeSeries : public TimeSeriesFilter
   {
   public:
     RTX_SHARED_POINTER(FailoverTimeSeries);
@@ -27,13 +27,14 @@ namespace RTX {
     void setFailoverTimeseries(TimeSeries::_sp ts);
     
     void swapSourceWithFailover();
-    
-    // superclass overrides
-    virtual void setSource(TimeSeries::_sp source);
-    
+  
+    // override base impl
+    Point pointBefore(time_t time);
+    Point pointAfter(time_t time);
+
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
-    virtual bool isCompatibleWith(TimeSeries::_sp withTimeSeries);
+    std::set<time_t> timeValuesInRange(TimeRange range);
+    PointCollection filterPointsAtTimes(std::set<time_t> times);
     
   private:
     TimeSeries::_sp _failover;

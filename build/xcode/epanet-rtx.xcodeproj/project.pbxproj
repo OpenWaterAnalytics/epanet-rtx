@@ -810,8 +810,6 @@
 		2211D2081A6D744D00E34B9B /* OLD CLASSES */ = {
 			isa = PBXGroup;
 			children = (
-				220324CA18AC05A800BD7790 /* FailoverTimeSeries.h */,
-				220324C918AC05A800BD7790 /* FailoverTimeSeries.cpp */,
 				221F3CD618F467AD00D63C5A /* WarpingTimeSeries.h */,
 				221F3CD518F467AD00D63C5A /* WarpingTimeSeries.cpp */,
 				220500D117B984470062D02B /* RunTimeStatusModularTimeSeries.h */,
@@ -1080,6 +1078,8 @@
 				2223206A1A6EF32E00B32D6A /* LagTimeSeries.cpp */,
 				2251FFD21A09394B00C4D483 /* TimeGapTimeSeries.h */,
 				2251FFC71A09394500C4D483 /* TimeGapTimeSeries.cpp */,
+				220324CA18AC05A800BD7790 /* FailoverTimeSeries.h */,
+				220324C918AC05A800BD7790 /* FailoverTimeSeries.cpp */,
 				22C62ACC1439EE0B00841E60 /* AggregatorTimeSeries.h */,
 				22C62ACB1439EE0B00841E60 /* AggregatorTimeSeries.cpp */,
 				223663B71A699DC100420EE4 /* Single Point Filter */,

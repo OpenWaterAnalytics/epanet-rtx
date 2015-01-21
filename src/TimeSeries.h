@@ -59,15 +59,21 @@ namespace RTX {
     
     typedef std::pair<time_t,time_t> TimeRange;
     
+    typedef enum {
+      TimeSeriesResampleModeLinear,
+      TimeSeriesResampleModeStep
+    } TimeSeriesResampleMode;
+    
     // internal public class for managing meta-information
     class PointCollection {
     public:
       PointCollection(std::vector<Point> points, Units units);
       PointCollection(); // null constructor
-
+      
       std::vector<Point> points;
       Units units;
       
+      PointCollection resampled(std::set<time_t>, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
       bool convertToUnits(Units u);
       
       // statistical methods on the collection
@@ -80,10 +86,7 @@ namespace RTX {
     };
     
     
-    typedef enum {
-      TimeSeriesResampleModeLinear,
-      TimeSeriesResampleModeStep
-    } TimeSeriesResampleMode;
+    
     
     
     RTX_SHARED_POINTER(TimeSeries);
@@ -103,7 +106,7 @@ namespace RTX {
     virtual Point interpolatedPoint(time_t time);
     PointCollection points(TimeRange range);
     virtual std::vector< Point > points(time_t start, time_t end); // points in range
-    PointCollection resampled(std::set<time_t>, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
+    
     PointCollection pointCollection(time_t start, time_t end);
     
     virtual std::string name();

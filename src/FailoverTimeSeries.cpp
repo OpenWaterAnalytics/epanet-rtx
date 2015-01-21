@@ -57,6 +57,23 @@ void FailoverTimeSeries::swapSourceWithFailover() {
 
 
 
+set<time_t> FailoverTimeSeries::timeValuesInRange(TimeRange range) {
+  set<time_t> timeValues = TimeSeriesFilter::timeValuesInRange(range);
+  
+  
+  
+  
+}
+
+TimeSeries::PointCollection FailoverTimeSeries::filterPointsAtTimes(std::set<time_t> times) {
+  
+}
+
+
+
+
+
+
 #pragma mark - superclass overrides
 
 void FailoverTimeSeries::setSource(TimeSeries::_sp source) {
