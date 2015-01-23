@@ -9,6 +9,9 @@
 
 #include "DbPointRecord.h"
 
+#include <set>
+#include <boost/foreach.hpp>
+
 using namespace RTX;
 using namespace std;
 
@@ -223,12 +226,22 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, time_t startTi
     merged.insert(merged.end(), left.begin(), left.end());
     merged.insert(merged.end(), newPoints.begin(), newPoints.end());
     merged.insert(merged.end(), right.begin(), right.end());
+
+    set<time_t> addedTimes;
+    vector<Point> deDuped;
+    deDuped.reserve(merged.size());
+    BOOST_FOREACH(const Point& p, merged) {
+      if (addedTimes.count(p.time) == 0) {
+        addedTimes.insert(p.time);
+        deDuped.push_back(p);
+      }
+    }
     
-    request = (merged.size() > 0) ? request_t(id, merged.front().time, merged.back().time) : request_t(id,0,0);
+    request = (deDuped.size() > 0) ? request_t(id, deDuped.front().time, deDuped.back().time) : request_t(id,0,0);
     
-    DB_PR_SUPER::addPoints(id, merged);
+    DB_PR_SUPER::addPoints(id, deDuped);
     
-    return merged;
+    return deDuped;
   }
   
   return DB_PR_SUPER::pointsInRange(id, startTime, endTime);
