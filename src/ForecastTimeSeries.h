@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-#include "ModularTimeSeries.h"
+#include "TimeSeriesFilter.h"
 #include "PythonInterpreter.h"
 
 namespace RTX {
@@ -43,7 +43,7 @@ namespace RTX {
    */
   
   
-  class ForecastTimeSeries : public ModularTimeSeries {
+  class ForecastTimeSeries : public TimeSeriesFilter {
   public:
     
     class ArimaOrder {

@@ -24,8 +24,8 @@
 #include "GainTimeSeries.h"
 #include "FailoverTimeSeries.h"
 #include "TimeOffsetTimeSeries.h"
-#include "WarpingTimeSeries.h"
-#include "ForecastTimeSeries.h"
+//#include "WarpingTimeSeries.h"
+//#include "ForecastTimeSeries.h"
 #include "TimeOffsetTimeSeries.h"
 
 #include "OutlierExclusionTimeSeries.h"

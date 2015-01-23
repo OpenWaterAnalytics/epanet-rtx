@@ -38,12 +38,13 @@ void StatsTimeSeries::setStatsType(StatsTimeSeriesType type) {
 
 
 
-TimeSeries::PointCollection StatsTimeSeries::filterPointsAtTimes(std::set<time_t> times) {
+TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range) {
+  
+  set<time_t> times = this->timeValuesInRange(range);
   
   vector<pointSummaryPair_t> summaries = this->filterSummaryCollection(times);
   vector<Point> outPoints;
   outPoints.reserve(summaries.size());
-  vector<pointSummaryPair_t>::const_iterator pIt = summaries.begin();
   
   BOOST_FOREACH(pointSummaryPair_t summary, summaries) {
     Point p = summary.first;
@@ -117,7 +118,7 @@ bool StatsTimeSeries::canSetSource(TimeSeries::_sp ts) {
 void StatsTimeSeries::didSetSource(TimeSeries::_sp source) {
   Units originalUnits = this->units();
   this->setUnits(RTX_DIMENSIONLESS);  // non-dimensionalize so that we can accept this source.
-  ModularTimeSeries::setSource(source);
+  TimeSeriesFilter::didSetSource(source);
   if (source) {
     Units units = statsUnits(source->units(), statsType());
     
@@ -128,7 +129,7 @@ void StatsTimeSeries::didSetSource(TimeSeries::_sp source) {
   }
 }
 
-void StatsTimeSeries::canChangeToUnits(Units newUnits) {
+bool StatsTimeSeries::canChangeToUnits(Units newUnits) {
   
   // only set the units if there is no source or the source's units are dimensionally consistent with the passed-in units.
   if (!this->source()) {

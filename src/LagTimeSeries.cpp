@@ -38,9 +38,27 @@ Point LagTimeSeries::pointAfter(time_t time) {
   return p;
 }
 
+bool LagTimeSeries::willResample() {
+  bool resample = TimeSeriesFilter::willResample();
+  
+  if (!resample) {
+    // make double sure.
+    TimeSeriesFilter::_sp sourceFilter = boost::dynamic_pointer_cast<TimeSeriesFilter>(this->source());
+    if (sourceFilter && sourceFilter->clock()
+        && _lag != 0
+        && (_lag % this->clock()->period() != 0 || this->clock()->period() % _lag != 0)) {
+      resample = true;
+    }
+  }
+  
+  return resample;
+}
 
 
 set<time_t> LagTimeSeries::timeValuesInRange(TimeRange range) {
+  if (this->clock()) {
+    return this->clock()->timeValuesInRange(range.first, range.second);
+  }
   TimeRange lagRange = range;
   lagRange.first -= _lag;
   lagRange.second -= _lag;
@@ -52,20 +70,36 @@ set<time_t> LagTimeSeries::timeValuesInRange(TimeRange range) {
   return outTimes;
 }
 
-TimeSeries::PointCollection LagTimeSeries::filterPointsAtTimes(std::set<time_t> times) {
+TimeSeries::PointCollection LagTimeSeries::filterPointsInRange(TimeRange range) {
   
-  set<time_t> queryTimes;
-  BOOST_FOREACH(time_t t, times) {
-    queryTimes.insert(t - _lag);
-  }
+  TimeRange queryRange = range;
+  queryRange.first -= _lag;
+  queryRange.second -= _lag;
   
-  PointCollection col = TimeSeriesFilter::filterPointsAtTimes(queryTimes);
+  queryRange.first = this->source()->pointBefore(queryRange.first + 1).time;
+  queryRange.second = this->source()->pointAfter(queryRange.second - 1).time;
   
-  BOOST_FOREACH(Point& p, col.points) {
+  PointCollection data = this->source()->points(queryRange);
+  
+  // move the points in time
+  BOOST_FOREACH(Point& p, data.points) {
     p.time += _lag;
   }
   
-  return col;
+  
+  
+  bool dataOk = false;
+  dataOk = data.convertToUnits(this->units());
+  if (dataOk && this->willResample()) {
+    set<time_t> timeValues = this->timeValuesInRange(range);
+    dataOk = data.resample(timeValues);
+  }
+  
+  if (dataOk) {
+    return data;
+  }
+  
+  return PointCollection(vector<Point>(),this->units());
   
 }
 

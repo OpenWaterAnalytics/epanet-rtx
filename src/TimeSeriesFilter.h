@@ -62,20 +62,26 @@ namespace RTX {
   class TimeSeriesFilter : public TimeSeries {
   public:
     RTX_SHARED_POINTER(TimeSeriesFilter);
+    TimeSeriesFilter();
     
-    TimeSeries::_sp source();
-    void setSource(TimeSeries::_sp ts);
+    virtual TimeSeries::_sp source();
+    virtual void setSource(TimeSeries::_sp ts);
     
     Clock::_sp clock();
     void setClock(Clock::_sp clock);
+    
+    TimeSeriesResampleMode resampleMode();
+    void setResampleMode(TimeSeriesResampleMode mode);
     
     std::vector< Point > points(time_t start, time_t end);
     virtual Point pointBefore(time_t time);
     virtual Point pointAfter(time_t time);
     
+    virtual bool willResample();
+    
     // methods you must override to provide info to the base class
+    virtual PointCollection filterPointsInRange(TimeRange range);
     virtual std::set<time_t> timeValuesInRange(TimeRange range);
-    virtual PointCollection filterPointsAtTimes(std::set<time_t> times);
     virtual bool canSetSource(TimeSeries::_sp ts);
     virtual void didSetSource(TimeSeries::_sp ts);
     virtual bool canChangeToUnits(Units units);
@@ -83,6 +89,7 @@ namespace RTX {
   private:
     TimeSeries::_sp _source;
     Clock::_sp _clock;
+    TimeSeriesResampleMode _resampleMode;
     
   };
 }

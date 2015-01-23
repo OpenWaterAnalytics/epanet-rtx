@@ -30,7 +30,7 @@ namespace RTX {
     
   protected:
     // delegate methods
-    PointCollection filterPointsAtTimes(std::set<time_t> times);
+    PointCollection filterPointsInRange(TimeRange range);
     
   private:
     int _windowSize;

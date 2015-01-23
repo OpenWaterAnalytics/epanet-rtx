@@ -27,10 +27,6 @@ CorrelatorTimeSeries::CorrelatorTimeSeries() {
   _corWindow = c;
 }
 
-bool CorrelatorTimeSeries::isCompatibleWith(TimeSeries::_sp withTimeSeries) {
-  return (units().isDimensionless() || units().isSameDimensionAs(withTimeSeries->units()));
-  // it's ok if the clocks aren't compatible.
-}
 
 
 TimeSeries::_sp CorrelatorTimeSeries::correlatorTimeSeries() {
@@ -59,23 +55,23 @@ void CorrelatorTimeSeries::setCorrelationWindow(Clock::_sp window) {
 
 #pragma mark - superclass overrides
 
-TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsAtTimes(std::set<time_t> times) {
-  std::vector<Point> thePoints;
+TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange range) {
+  
+  PointCollection data(vector<Point>(), this->units());
   if (!this->correlatorTimeSeries() || !this->source()) {
-    return thePoints;
+    return data;
   }
   
-  time_t fromTime = *(times.begin());
-  time_t toTime = *(times.rbegin());
-  
   // force pre-cache
-  this->source()->points(fromTime - this->correlationWindow()->period(), toTime);
-  this->correlatorTimeSeries()->points(fromTime - this->correlationWindow()->period(), toTime);
+  this->source()->points(range.first - this->correlationWindow()->period(), range.second);
+  this->correlatorTimeSeries()->points(range.first - this->correlationWindow()->period(), range.second);
   
   TimeSeries::_sp sourceTs = this->source();
-  Units sourceU = sourceTs->units();
-  Units secondaryUnits = this->correlatorTimeSeries()->units();
   time_t windowWidth = this->correlationWindow()->period();
+  
+  set<time_t> times = this->timeValuesInRange(range);
+  vector<Point> thePoints;
+  thePoints.reserve(times.size());
   
   BOOST_FOREACH(time_t t, times) {
     double corrcoef = 0;
@@ -84,7 +80,7 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsAtTimes(std::set<t
     
     if (sourceCollection.count() != secondaryCollection.count()) {
       cout << "Unequal number of points" << endl;
-      return PointCollection(thePoints, this->units());
+      return PointCollection(vector<Point>(), this->units());
     }
     
     // get consistent units
@@ -94,9 +90,9 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsAtTimes(std::set<t
     accumulator_set<double, stats<tag::mean, tag::variance> > acc1;
     accumulator_set<double, stats<tag::mean, tag::variance> > acc2;
     accumulator_set<double, stats<tag::covariance<double, tag::covariate1> > > acc3;
-    for (int i = 0; i < sourcePoints.size(); i++) {
-      Point p1 = sourceCollection.points;
-      Point p2 = secondaryCollection.points;
+    for (int i = 0; i < sourceCollection.count(); i++) {
+      Point p1 = sourceCollection.points.at(i);
+      Point p2 = secondaryCollection.points.at(i);
       acc1(p1.value);
       acc2(p2.value);
       acc3(p1.value, covariate1 = p2.value);

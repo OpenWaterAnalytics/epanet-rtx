@@ -28,13 +28,11 @@ namespace RTX {
     
     void swapSourceWithFailover();
   
-    // override base impl
-    Point pointBefore(time_t time);
-    Point pointAfter(time_t time);
 
   protected:
+    PointCollection filterPointsInRange(TimeRange range);
     std::set<time_t> timeValuesInRange(TimeRange range);
-    PointCollection filterPointsAtTimes(std::set<time_t> times);
+    bool canSetSource(TimeSeries::_sp ts);
     
   private:
     TimeSeries::_sp _failover;

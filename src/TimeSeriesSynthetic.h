@@ -27,7 +27,7 @@ namespace RTX {
     void setClock(Clock::_sp clock);
     
   protected:
-    virtual Point syntheticPoint(time_t time);
+    virtual Point syntheticPoint(time_t time) = 0;
     
   private:
     Clock::_sp _clock;

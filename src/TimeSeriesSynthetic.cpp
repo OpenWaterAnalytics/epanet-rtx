@@ -9,6 +9,7 @@
 #include "TimeSeriesSynthetic.h"
 #include <set>
 #include <vector>
+#include <boost/foreach.hpp>
 
 using namespace RTX;
 using namespace std;
@@ -32,6 +33,7 @@ Point TimeSeriesSynthetic::point(time_t time) {
   if (this->clock() && this->clock()->isValid(time)) {
     return this->syntheticPoint(time);
   }
+  return Point();
 }
 
 Point TimeSeriesSynthetic::pointBefore(time_t time) {

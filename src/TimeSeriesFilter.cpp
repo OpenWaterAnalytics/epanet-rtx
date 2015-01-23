@@ -9,6 +9,10 @@
 using namespace RTX;
 using namespace std;
 
+TimeSeriesFilter::TimeSeriesFilter() {
+  _resampleMode = TimeSeriesResampleModeLinear;
+}
+
 Clock::_sp TimeSeriesFilter::clock() {
   return _clock;
 }
@@ -22,11 +26,24 @@ void TimeSeriesFilter::setClock(Clock::_sp clock) {
   this->invalidate();
 }
 
+TimeSeries::TimeSeriesResampleMode TimeSeriesFilter::resampleMode() {
+  return _resampleMode;
+}
+
+void TimeSeriesFilter::setResampleMode(TimeSeries::TimeSeriesResampleMode mode) {
+  
+  if (_resampleMode != mode) {
+    this->invalidate();
+  }
+  
+  _resampleMode = mode;
+}
+
 TimeSeries::_sp TimeSeriesFilter::source() {
   return _source;
 }
 void TimeSeriesFilter::setSource(TimeSeries::_sp ts) {
-  if (!this->canSetSource(ts)) {
+  if (ts && !this->canSetSource(ts)) {
     return;
   }
   this->invalidate();
@@ -35,7 +52,9 @@ void TimeSeriesFilter::setSource(TimeSeries::_sp ts) {
   if (filterSource && !this->clock()) {
     this->setClock(filterSource->clock());
   }
-  this->didSetSource(ts);
+  if (ts) {
+    this->didSetSource(ts);
+  }
 }
 
 
@@ -68,7 +87,7 @@ vector<Point> TimeSeriesFilter::points(time_t start, time_t end) {
     return cached; // we're done here. all points are present.
   }
   
-  PointCollection outCollection = this->filterPointsAtTimes(pointTimes);
+  PointCollection outCollection = this->filterPointsInRange(make_pair(start, end));
   this->insertPoints(outCollection.points);
   return outCollection.points;
 }
@@ -121,6 +140,69 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
 
 #pragma mark - Pseudo-Delegate methods
 
+bool TimeSeriesFilter::willResample() {
+  
+  // if i don't have a clock, then the answer is obvious
+  if (!this->clock()) {
+    return false;
+  }
+  
+  // no source, also not resampling. or rather, it's a moot point.
+  if (!this->source()) {
+    return false;
+  }
+  
+  TimeSeriesFilter::_sp sourceFilter = boost::dynamic_pointer_cast<TimeSeriesFilter>(this->source());
+  
+  if (sourceFilter) {
+    // my source is a filter, so it may have a clock
+    Clock::_sp sourceClock = sourceFilter->clock();
+    if (!sourceClock && this->clock()) {
+      // no source clock, but i have a clock. i resample
+      return true;
+    }
+    if (sourceClock && sourceClock != this->clock()) {
+      // clocks are different, so i will resample.
+      return true;
+    }
+  }
+  else {
+    // source is just a time series. i will only resample if i have a clock
+    if (this->clock()) {
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+
+TimeSeries::PointCollection TimeSeriesFilter::filterPointsInRange(TimeRange range) {
+  
+  TimeRange queryRange = range;
+  if (this->willResample()) {
+    // expand range
+    queryRange.first = this->source()->pointBefore(range.first + 1).time;
+    queryRange.second = this->source()->pointAfter(range.second - 1).time;
+  }
+  
+  PointCollection data = source()->points(queryRange);
+  
+  bool dataOk = false;
+  dataOk = data.convertToUnits(this->units());
+  if (dataOk && this->willResample()) {
+    set<time_t> timeValues = this->timeValuesInRange(range);
+    dataOk = data.resample(timeValues, _resampleMode);
+  }
+  
+  if (dataOk) {
+    return data;
+  }
+  
+  return PointCollection(vector<Point>(),this->units());
+}
+
+
 set<time_t> TimeSeriesFilter::timeValuesInRange(TimeSeries::TimeRange range) {
   set<time_t> times;
   
@@ -141,21 +223,6 @@ set<time_t> TimeSeriesFilter::timeValuesInRange(TimeSeries::TimeRange range) {
   return times;
 }
 
-
-TimeSeries::PointCollection TimeSeriesFilter::filterPointsAtTimes(std::set<time_t> times) {
-  vector<Point> outPoints;
-  
-  // just resample
-  PointCollection pointsCollection = this->source()->resampled(times);
-  
-  bool convertOk = pointsCollection.convertToUnits(this->units());
-  if (convertOk) {
-    outPoints = pointsCollection.points;
-  }
-  
-  PointCollection outCollection(outPoints,this->units());
-  return outCollection;
-}
 
 
 bool TimeSeriesFilter::canSetSource(TimeSeries::_sp ts) {

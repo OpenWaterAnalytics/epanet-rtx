@@ -10,10 +10,10 @@
 #define __epanet_rtx__InversionTimeSeries__
 
 #include <iostream>
-#include "TimeSeriesFilter.h"
+#include "TimeSeriesFilterSinglePoint.h"
 
 namespace RTX {
-  class InversionTimeSeries : public TimeSeriesFilter {
+  class InversionTimeSeries : public TimeSeriesFilterSinglePoint {
     
   public:
     RTX_SHARED_POINTER(InversionTimeSeries);

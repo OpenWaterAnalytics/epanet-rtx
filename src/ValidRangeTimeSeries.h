@@ -10,10 +10,10 @@
 #define __epanet_rtx__ValidRangeTimeSeries__
 
 #include <iostream>
-#include "TimeSeriesFilter.h"
+#include "TimeSeriesFilterSinglePoint.h"
 
 namespace RTX {
-  class ValidRangeTimeSeries : public TimeSeriesFilter {
+  class ValidRangeTimeSeries : public TimeSeriesFilterSinglePoint {
   public:
     RTX_SHARED_POINTER(ValidRangeTimeSeries);
     ValidRangeTimeSeries();

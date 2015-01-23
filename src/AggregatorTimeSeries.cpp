@@ -28,6 +28,17 @@ ostream& AggregatorTimeSeries::toStream(ostream &stream) {
   return stream;
 }
 
+TimeSeries::_sp AggregatorTimeSeries::source() {
+  if (this->sources().size() > 0) {
+    return this->sources().front().timeseries;
+  }
+  return TimeSeries::_sp();
+}
+
+void AggregatorTimeSeries::setSource(TimeSeries::_sp ts) {
+  // nope
+}
+
 void AggregatorTimeSeries::addSource(TimeSeries::_sp timeSeries, double multiplier) throw(RtxException) {
   
   // check compatibility
@@ -96,7 +107,7 @@ Point AggregatorTimeSeries::pointBefore(time_t time) {
 
   std::set<time_t> timeSet;
   
-  if (this->clock()->isRegular()) {
+  if (this->clock()) {
     timeSet.insert(this->clock()->timeBefore(time));
   }
   else {
@@ -121,7 +132,7 @@ Point AggregatorTimeSeries::pointAfter(time_t time) {
   
   std::set<time_t> timeSet;
   
-  if (this->clock()->isRegular()) {
+  if (this->clock()) {
     timeSet.insert(this->clock()->timeAfter(time));
   }
   else {
@@ -148,14 +159,14 @@ Point AggregatorTimeSeries::pointAfter(time_t time) {
 std::set<time_t> AggregatorTimeSeries::timeValuesInRange(TimeRange range) {
   set<time_t> timeList;
   
-  if (this->clock() && this->clock()->isRegular()) {
+  if (this->clock()) {
     // align the query with the clock
     timeList = this->clock()->timeValuesInRange(range.first, range.second);
   }
   else {
     // get the set of times from the aggregator sources
     BOOST_FOREACH(AggregatorSource aggSource, this->sources()) {
-      vector<Point> thisSourcePoints = aggSource.timeseries->points(fromTime, toTime);
+      vector<Point> thisSourcePoints = aggSource.timeseries->points(range.first, range.second);
       BOOST_FOREACH(Point p, thisSourcePoints) {
         timeList.insert(p.time);
       }
@@ -164,9 +175,12 @@ std::set<time_t> AggregatorTimeSeries::timeValuesInRange(TimeRange range) {
   return timeList;
 }
 
-PointCollection AggregatorTimeSeries::filterPointsAtTimes(std::set<time_t> desiredTimes) {
+TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange range) {
   set<time_t> droppedTimes;
   vector<Point> aggregated;
+  
+  
+  set<time_t> desiredTimes = this->timeValuesInRange(range);
   
   // pre-load a vector of points.
   BOOST_FOREACH(time_t now, desiredTimes) {
@@ -176,7 +190,13 @@ PointCollection AggregatorTimeSeries::filterPointsAtTimes(std::set<time_t> desir
   BOOST_FOREACH(AggregatorSource aggSource, this->sources()) {
     TimeSeries::_sp sourceTs = aggSource.timeseries;
     double multiplier = aggSource.multiplier;
-    PointCollection componentCollection = sourceTs->resampled(desiredTimes);
+    TimeRange componentRange = range;
+    componentRange.first = sourceTs->pointBefore(range.first + 1).time;
+    componentRange.second = sourceTs->pointAfter(range.second - 1).time;
+    
+    PointCollection componentCollection = sourceTs->points(componentRange);
+    componentCollection.resample(desiredTimes);
+    componentCollection.convertToUnits(this->units());
     
     // make it easy to find any times that were dropped (bad points from a source series)
     map<time_t, Point> sourcePointMap;
@@ -188,7 +208,7 @@ PointCollection AggregatorTimeSeries::filterPointsAtTimes(std::set<time_t> desir
     BOOST_FOREACH(Point& p, aggregated) {
       if (sourcePointMap.count(p.time) > 0) {
         Point addingPoint = sourcePointMap[p.time] * multiplier;
-        p += Point::convertPoint(addingPoint, sourceTs->units(), this->units());
+        p += addingPoint;
       }
       else {
         droppedTimes.insert(p.time);
@@ -204,7 +224,10 @@ PointCollection AggregatorTimeSeries::filterPointsAtTimes(std::set<time_t> desir
     }
   }
   
-  return goodPoints;
+  PointCollection data(goodPoints, this->units());
+  data.resample(desiredTimes);
+  
+  return data;
 }
 
 bool AggregatorTimeSeries::canSetSource(TimeSeries::_sp ts) {

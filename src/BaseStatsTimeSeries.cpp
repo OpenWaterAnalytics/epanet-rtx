@@ -13,6 +13,7 @@
 using namespace RTX;
 using namespace std;
 
+
 BaseStatsTimeSeries::BaseStatsTimeSeries() {
   Clock::_sp window(new Clock(60));
   _window = window;
@@ -49,7 +50,7 @@ BaseStatsTimeSeries::StatsSamplingMode_t BaseStatsTimeSeries::samplingMode() {
 }
 
 
-std::vector<pointSummaryPair_t> BaseStatsTimeSeries::filterSummaryCollection(std::set<time_t> times) {
+vector<BaseStatsTimeSeries::pointSummaryPair_t> BaseStatsTimeSeries::filterSummaryCollection(std::set<time_t> times) {
   
   TimeSeries::_sp sourceTs = this->source();
   time_t fromTime = *(times.begin());

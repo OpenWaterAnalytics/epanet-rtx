@@ -16,10 +16,6 @@ using namespace RTX;
 using namespace std;
 
 
-bool FailoverTimeSeries::isCompatibleWith(TimeSeries::_sp withTimeSeries) {
-  return (units().isDimensionless() || units().isSameDimensionAs(withTimeSeries->units()));
-  // it's ok if the clocks aren't compatible.
-}
 
 time_t FailoverTimeSeries::maximumStaleness() {
   return _stale;
@@ -39,6 +35,11 @@ TimeSeries::_sp FailoverTimeSeries::failoverTimeseries() {
 }
 
 void FailoverTimeSeries::setFailoverTimeseries(TimeSeries::_sp ts) {
+  if (this->source() && !this->source()->units().isSameDimensionAs(ts->units())) {
+    // conflict
+    return;
+  }
+  
   _failover = ts;
 }
 
@@ -58,95 +59,88 @@ void FailoverTimeSeries::swapSourceWithFailover() {
 
 
 set<time_t> FailoverTimeSeries::timeValuesInRange(TimeRange range) {
-  set<time_t> timeValues = TimeSeriesFilter::timeValuesInRange(range);
-  
-  
-  
-  
-}
-
-TimeSeries::PointCollection FailoverTimeSeries::filterPointsAtTimes(std::set<time_t> times) {
-  
-}
-
-
-
-
-
-
-#pragma mark - superclass overrides
-
-void FailoverTimeSeries::setSource(TimeSeries::_sp source) {
-  ModularTimeSeries::setSource(source);
-  if (source) {
-    if (source->clock()->isRegular() && this->maximumStaleness() < source->clock()->period()) {
-      this->setMaximumStaleness(source->clock()->period());
-    }
+  if (!this->failoverTimeseries() || this->clock()) {
+    return TimeSeriesFilter::timeValuesInRange(range);
   }
+  return set<time_t>();
+  
 }
 
-
-vector<Point> FailoverTimeSeries::filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime) {
-  
+TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange range) {
   if (!this->failoverTimeseries()) {
-    return ModularTimeSeries::filteredPoints(sourceTs, fromTime, toTime);
+    return TimeSeriesFilter::filterPointsInRange(range);
   }
   
-  Units sourceU = sourceTs->units();
-  Units failoverUnits = this->failoverTimeseries()->units();
   Units myUnits = this->units();
-  std::vector<Point> sourcePoints = sourceTs->points(fromTime, toTime);
-  
   std::vector<Point> thePoints;
-  thePoints.reserve(sourcePoints.size());
+  time_t prior, next;
+  TimeRange primarySourceRange = range;
+  TimeRange secondarySourceRange = range;
+  
+  prior = this->source()->pointBefore(range.first + 1).time;
+  if (prior > 0) {
+    primarySourceRange.first = prior;
+  }
+  next = this->source()->pointAfter(range.second - 1).time;
+  if (next > 0) {
+    primarySourceRange.second = next;
+  }
+  
+  prior = this->failoverTimeseries()->pointBefore(range.first + 1).time;
+  next = this->failoverTimeseries()->pointAfter(range.second - 1).time;
+  if (prior > 0) {
+    secondarySourceRange.first = prior;
+  }
+  if (next > 0) {
+    secondarySourceRange.second = next;
+  }
+  
+  PointCollection primaryData = this->source()->points(primarySourceRange);
+  primaryData.convertToUnits(myUnits);
   
   time_t prevTime;
-  
-  
-  // guard for missing source points.
-  if (sourcePoints.size() > 0) {
-    // if there are source points, no problem.
-    prevTime = sourcePoints.front().time;
+  if (primaryData.count() > 0) {
+    prevTime = primaryData.points.front().time;
   }
   else {
-    // if there are no source points returned, then set up the vars
-    // so that I will have to fill the entire gap with the failover source.
-    prevTime = fromTime - (this->maximumStaleness() + 1);
-    sourcePoints.push_back(Point(toTime + 1, 0));
+    prevTime = range.first - _stale - 1;
   }
   
-  
-  if (fromTime < prevTime) {
-    // this causes the next block of code to fill the leading gap (if any)
-    prevTime = fromTime;
-  }
-  if (sourcePoints.back().time < toTime) {
-    // this causes the next block of code to fill trailing gap (if any)
-    sourcePoints.push_back(Point(toTime+1,0));
-  }
-  
-  BOOST_FOREACH(const Point& p, sourcePoints) {
-    
+  BOOST_FOREACH(const Point& p, primaryData.points) {
     time_t now = p.time;
-    if (now - prevTime > this->maximumStaleness()) {
-      // get a set of points from the source
-      vector<Point> missingPoints = this->failoverTimeseries()->points(prevTime, now);
-      BOOST_FOREACH(const Point& mp, missingPoints) {
-        thePoints.push_back( Point::convertPoint(mp, failoverUnits, myUnits) );
+    if (now - prevTime > _stale) {
+      PointCollection secondary = this->failoverTimeseries()->points(make_pair(prevTime, now));
+      secondary.convertToUnits(myUnits);
+      BOOST_FOREACH(Point sp, secondary.points) {
+        thePoints.push_back( sp );
       }
     }
     else {
-      thePoints.push_back( Point::convertPoint(p, sourceU, myUnits) );
+      thePoints.push_back(p);
     }
     prevTime = p.time;
   }
   
   
-  return thePoints;
+  PointCollection outData(thePoints, myUnits);
+  if (this->willResample()) {
+    outData.resample(this->clock()->timeValuesInRange(range.first, range.second));
+  }
+  
+  return outData;
+  
 }
 
 
-
+bool FailoverTimeSeries::canSetSource(TimeSeries::_sp ts) {
+  
+  if (this->failoverTimeseries() && !this->failoverTimeseries()->units().isSameDimensionAs(ts->units())) {
+    return false;
+  }
+  
+  return true;
+  
+}
 
 
 

@@ -14,15 +14,44 @@ using namespace std;
 
 
 
-TimeSeries::PointCollection TimeSeriesFilterSinglePoint::filterPointsAtTimes(std::set<time_t> times) {
-  PointCollection sourceRaw = this->source()->resampled(times);
-  vector<Point> outPoints;
+TimeSeries::PointCollection TimeSeriesFilterSinglePoint::filterPointsInRange(TimeRange range) {
   
-  BOOST_FOREACH(const Point& sourcePoint, sourceRaw.points) {
-    Point converted = this->filteredWithSourcePoint(sourcePoint);
-    outPoints.push_back(converted);
+  TimeRange queryRange = range;
+  if (this->willResample()) {
+    // expand range
+
+    Point seekLeft = this->source()->pointBefore(range.first + 1);
+    while (!this->filteredWithSourcePoint(seekLeft).isValid) {
+      seekLeft = this->source()->pointBefore(seekLeft.time);
+    }
+    
+    queryRange.first = seekLeft.time;
+    
+    Point seekRight = this->source()->pointAfter(range.second -1 );
+    while (!this->filteredWithSourcePoint(seekRight).isValid) {
+      seekRight = this->source()->pointAfter(seekRight.time);
+    }
+    
+    queryRange.second = seekRight.time;
   }
   
-  return PointCollection(outPoints, this->units());
+  PointCollection data = source()->points(queryRange);
+  
+  vector<Point> outPoints;
+  
+  BOOST_FOREACH(const Point& sourcePoint, data.points) {
+    Point converted = this->filteredWithSourcePoint(sourcePoint);
+    if (converted.isValid) {
+      outPoints.push_back(converted);
+    }
+  }
+  
+  PointCollection outData(outPoints, this->units());
+  if (this->willResample()) {
+    set<time_t> timeValues = this->timeValuesInRange(range);
+    outData.resample(timeValues);
+  }
+  
+  return outData;
 }
 

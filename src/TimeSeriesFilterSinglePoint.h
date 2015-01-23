@@ -15,7 +15,7 @@
 namespace RTX {
   class TimeSeriesFilterSinglePoint : public TimeSeriesFilter {
   protected:
-    PointCollection filterPointsAtTimes(std::set<time_t> times); // non-virtual
+    PointCollection filterPointsInRange(TimeRange range); // non-virtual
     virtual Point filteredWithSourcePoint(Point sourcePoint) = 0; // pure virtual. override must convert units.
   };
 }

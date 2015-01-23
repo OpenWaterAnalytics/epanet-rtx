@@ -10,7 +10,7 @@
 #define __epanet_rtx__ThresholdTimeSeries__
 
 #include <iostream>
-#include "TimeSeriesFilter.h"
+#include "TimeSeriesFilterSinglePoint.h"
 
 namespace RTX {
   //!   A Status Class to map the input time series into binary status based on a threshold.
@@ -20,7 +20,7 @@ namespace RTX {
    convert the derivative of a pump runtime into a pump on/off status.
    */
   
-  class ThresholdTimeSeries : public TimeSeriesFilter {
+  class ThresholdTimeSeries : public TimeSeriesFilterSinglePoint {
     
   public:
     typedef enum {

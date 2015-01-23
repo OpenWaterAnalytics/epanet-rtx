@@ -25,7 +25,7 @@
 #include "InversionTimeSeries.h"
 #include "FailoverTimeSeries.h"
 #include "TimeOffsetTimeSeries.h"
-#include "WarpingTimeSeries.h"
+//#include "WarpingTimeSeries.h"
 #include "StatsTimeSeries.h"
 #include "OutlierExclusionTimeSeries.h"
 
@@ -493,7 +493,7 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
         boost::dynamic_pointer_cast<MultiplierTimeSeries>(mod)->setMultiplier(upstreamTs);
       }
       else if (RTX_STRINGS_ARE_EQUAL(key, "warp")) {
-        boost::dynamic_pointer_cast<WarpingTimeSeries>(mod)->setWarp(upstreamTs);
+//        boost::dynamic_pointer_cast<WarpingTimeSeries>(mod)->setWarp(upstreamTs);
       }
       else {
         cerr << "unknown key: " << key << endl;
@@ -785,8 +785,8 @@ TimeSeries::_sp SqliteProjectFile::newTimeseriesWithType(const string& type) {
     return ts;
   }
   else if (typeEquals(dbWarpName)) {
-    WarpingTimeSeries::_sp ts(new WarpingTimeSeries);
-    return ts;
+//    WarpingTimeSeries::_sp ts(new WarpingTimeSeries);
+//    return ts;
   }
   else if (typeEquals(dbStatsName)) {
     StatsTimeSeries::_sp ts(new StatsTimeSeries);

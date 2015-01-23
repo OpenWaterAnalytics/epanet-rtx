@@ -20,27 +20,28 @@ FirstDerivative::~FirstDerivative() {
 }
 
 
-TimeSeries::PointCollection FirstDerivative::filterPointsAtTimes(std::set<time_t> times) {
+TimeSeries::PointCollection FirstDerivative::filterPointsInRange(TimeRange range) {
+  PointCollection data(vector<Point>(), this->units());
   
   vector<Point> outPoints;
   Units fromUnits = this->source()->units();
   
   // left difference, so get one more to the left.
-  Point prior = this->source()->pointBefore(*times.begin());
-  set<time_t> getSourceTimes = times;
-  getSourceTimes.insert(prior.time);
+  Point leftMostPoint = this->source()->pointAtOrBefore(range.first);
+  Point prior = this->source()->pointBefore(leftMostPoint.time);
   
-  vector<Point> sourceData = this->source()->resampled(getSourceTimes);
   
-  if (sourceData.size() < 2) {
-    return outCollection;
+  PointCollection sourceData = this->source()->points(make_pair(prior.time, range.second));
+  
+  if (sourceData.count() < 2) {
+    return data;
   }
   
   
   vector<Point>::const_iterator cursor, prev, vEnd;
-  cursor = sourceData.begin();
-  prev = sourceData.begin();
-  vEnd = sourceData.end();
+  cursor = sourceData.points.begin();
+  prev = sourceData.points.begin();
+  vEnd = sourceData.points.end();
   
   ++cursor;
   
@@ -49,13 +50,21 @@ TimeSeries::PointCollection FirstDerivative::filterPointsAtTimes(std::set<time_t
     double dv = cursor->value - prev->value;
     double dvdt = Units::convertValue(dv / double(dt), fromUnits / RTX_SECOND, this->units());
     
-    outPoints.push_back(Point(t, dvdt));
+    outPoints.push_back(Point(cursor->time, dvdt));
     
     ++cursor;
     ++prev;
   }
   
-  return PointCollection(outPoints, this->units());
+  
+  data.points = outPoints;
+  
+  if (this->willResample()) {
+    set<time_t> timeValues = this->timeValuesInRange(range);
+    data.resample(timeValues);
+  }
+  
+  return data;
 }
 
 bool FirstDerivative::canSetSource(TimeSeries::_sp ts) {
@@ -72,7 +81,7 @@ bool FirstDerivative::canChangeToUnits(Units units) {
   if (!this->source()) {
     return true;
   }
-  else if (units.isSameDimensionAs(this->source() / RTX_SECOND)) {
+  else if (units.isSameDimensionAs(this->source()->units() / RTX_SECOND)) {
     return true;
   }
   else {

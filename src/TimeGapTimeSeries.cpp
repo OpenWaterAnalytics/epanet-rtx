@@ -10,12 +10,13 @@ TimeGapTimeSeries::TimeGapTimeSeries() {
 }
 
 
-TimeSeries::PointCollection TimeGapTimeSeries::filterPointsAtTimes(std::set<time_t> times) {
+TimeSeries::PointCollection TimeGapTimeSeries::filterPointsInRange(TimeRange range) {
   
   vector<Point> gaps;
+  set<time_t> times = this->timeValuesInRange(range);
   
   BOOST_FOREACH(time_t now, times) {
-    Point thisOne = this->source()->pointAtOrBefore(now);
+    Point thisOne = this->source()->pointBefore(now+1);
     Point lastOne = this->source()->pointBefore(thisOne.time);
     
     if (!thisOne.isValid || !lastOne.isValid) {

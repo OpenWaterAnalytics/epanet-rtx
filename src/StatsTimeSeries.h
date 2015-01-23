@@ -66,10 +66,10 @@ namespace RTX {
     void setStatsType(StatsTimeSeriesType type);
     
   protected:
-    virtual PointCollection filterPointsAtTimes(std::set<time_t> times);
-    virtual bool canSetSource(TimeSeries::_sp ts);
-    virtual void didSetSource(TimeSeries::_sp ts);
-    virtual bool canChangeToUnits(Units units);
+    PointCollection filterPointsInRange(TimeRange range);
+    bool canSetSource(TimeSeries::_sp ts);
+    void didSetSource(TimeSeries::_sp ts);
+    bool canChangeToUnits(Units units);
     
   private:
     StatsTimeSeriesType _statsType;

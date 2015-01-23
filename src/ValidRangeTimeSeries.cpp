@@ -38,7 +38,7 @@ void ValidRangeTimeSeries::setMode(filterMode_t mode) {
 
 
 Point ValidRangeTimeSeries::filteredWithSourcePoint(RTX::Point sourcePoint) {
-  
+    
   Point convertedSourcePoint = Point::convertPoint(sourcePoint, this->source()->units(), this->units());
   Point newP;
   double pointValue = convertedSourcePoint.value;

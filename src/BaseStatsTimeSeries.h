@@ -66,7 +66,7 @@ namespace RTX {
     
     
   protected:
-    virtual PointCollection filterPointsAtTimes(std::set<time_t> times) = 0; // pure virtual. don't use this class directly.
+    virtual PointCollection filterPointsInRange(TimeRange range) = 0; // pure virtual. don't use this class directly.
     std::vector<pointSummaryPair_t> filterSummaryCollection(std::set<time_t> times);
     
     

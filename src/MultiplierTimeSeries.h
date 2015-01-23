@@ -21,10 +21,7 @@ namespace RTX {
     
     TimeSeries::_sp multiplier();
     void setMultiplier(TimeSeries::_sp ts);
-    
-    void setSource(TimeSeries::_sp ts);
-    bool isCompatibleWith(TimeSeries::_sp ts);
-    
+        
     
   protected:
     Point filteredWithSourcePoint(Point sourcePoint);

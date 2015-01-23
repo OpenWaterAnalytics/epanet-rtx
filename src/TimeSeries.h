@@ -73,7 +73,7 @@ namespace RTX {
       std::vector<Point> points;
       Units units;
       
-      PointCollection resampled(std::set<time_t>, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
+      bool resample(std::set<time_t> timeList, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
       bool convertToUnits(Units u);
       
       // statistical methods on the collection
@@ -95,6 +95,8 @@ namespace RTX {
     TimeSeries();
     ~TimeSeries();
     
+    virtual Clock::_sp clock() { return Clock::_sp(); };
+    virtual void setClock(Clock::_sp clock) { };
     
     virtual void insert(Point aPoint);
     virtual void insertPoints(std::vector<Point>);  /// option to add lots of (un)ordered points all at once.
@@ -106,7 +108,7 @@ namespace RTX {
     virtual Point interpolatedPoint(time_t time);
     PointCollection points(TimeRange range);
     virtual std::vector< Point > points(time_t start, time_t end); // points in range
-    
+    PointCollection resampled(std::set<time_t> timeList, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
     PointCollection pointCollection(time_t start, time_t end);
     
     virtual std::string name();

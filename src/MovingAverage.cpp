@@ -42,19 +42,24 @@ int MovingAverage::windowSize() {
 
 
 
-TimeSeries::PointCollection MovingAverage::filterPointsAtTimes(std::set<time_t> times) {
+TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) {
   vector<Point> filteredPoints;
   
-  time_t firstTime = *(times.cbegin());
-  time_t lastTime = *(times.crbegin());
+  TimeRange queryRange = range;
+  if (this->willResample()) {
+    // expand range
+    queryRange.first = this->source()->pointBefore(range.first + 1).time;
+    queryRange.second = this->source()->pointAfter(range.second - 1).time;
+  }
+  
   
   int margin = this->windowSize() / 2;
   
   // expand source lookup bounds, counting as we go and ignoring invalid points.
   for (int leftSeek = 0; leftSeek <= margin; ) {
-    Point p = this->source()->pointBefore(firstTime);
+    Point p = this->source()->pointBefore(queryRange.first);
     if (p.isValid && p.time != 0) {
-      firstTime = p.time;
+      queryRange.first = p.time;
       ++leftSeek;
     }
     if (p.time == 0) {
@@ -63,9 +68,9 @@ TimeSeries::PointCollection MovingAverage::filterPointsAtTimes(std::set<time_t> 
     }
   }
   for (int rightSeek = 0; rightSeek <= margin; ) {
-    Point p = this->source()->pointAfter(lastTime);
+    Point p = this->source()->pointAfter(queryRange.second);
     if (p.isValid && p.time != 0) {
-      lastTime = p.time;
+      queryRange.second = p.time;
       ++rightSeek;
     }
     if (p.time == 0) {
@@ -79,8 +84,8 @@ TimeSeries::PointCollection MovingAverage::filterPointsAtTimes(std::set<time_t> 
   vector<Point> sourcePoints;
   {
     // use our new righ/left bounds to get the source data we need.
-    vector<Point> sourceRaw = this->source()->points(firstTime, lastTime);
-    BOOST_FOREACH(Point p, sourceRaw) {
+    PointCollection sourceRaw = this->source()->points(queryRange);
+    BOOST_FOREACH(Point p, sourceRaw.points) {
       if (p.isValid) {
         sourcePoints.push_back(p);
       }
@@ -93,10 +98,14 @@ TimeSeries::PointCollection MovingAverage::filterPointsAtTimes(std::set<time_t> 
   pVec_cIt vecEnd = sourcePoints.cend();
   
   
-  // simple approach: take each proposed time value, and search through the vector for where
+  // simple approach: take each point, and search through the vector for where
   // to place the left/right cursors, then take the average.
   
-  BOOST_FOREACH(const time_t now, times) {
+  BOOST_FOREACH(const Point& sPoint, sourcePoints) {
+    time_t now = sPoint.time;
+    if (now < range.first || now > range.second) {
+      continue; // out of bounds.
+    }
     
     // initialize the cursors
     pVec_cIt seekCursor = vecBegin;
@@ -163,11 +172,25 @@ TimeSeries::PointCollection MovingAverage::filterPointsAtTimes(std::set<time_t> 
     meanPoint.addQualFlag(Point::averaged);
 //    cout << "accum: " << nAccumulated << endl;
     
-    Point filtered = Point::convertPoint(meanPoint, this->source()->units(), this->units());
-    filteredPoints.push_back(filtered);
+    filteredPoints.push_back(meanPoint);
   }
   
-  return PointCollection(filteredPoints, this->units());
+  
+  PointCollection outData = PointCollection(filteredPoints, source()->units());
+  
+  
+  bool dataOk = false;
+  dataOk = outData.convertToUnits(this->units());
+  if (dataOk && this->willResample()) {
+    set<time_t> timeValues = this->timeValuesInRange(range);
+    dataOk = outData.resample(timeValues);
+  }
+  
+  if (dataOk) {
+    return outData;
+  }
+  
+  return PointCollection(vector<Point>(),this->units());
 }
 
 

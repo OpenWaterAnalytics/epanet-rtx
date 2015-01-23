@@ -96,7 +96,6 @@ namespace RTX {
     virtual time_t timeBefore(time_t time);
     
     
-    bool isRegular();
     int period();
     void setPeriod(int p);
     time_t start();

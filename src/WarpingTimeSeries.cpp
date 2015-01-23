@@ -1,6 +1,6 @@
 #include <boost/foreach.hpp>
 #include <cmath>
-#include "WarpingTimeSeries.h"
+//#include "WarpingTimeSeries.h"
 
 using namespace std;
 using namespace RTX;

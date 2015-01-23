@@ -9,13 +9,13 @@
 #ifndef __epanet_rtx__CorrelatorTimeSeries__
 #define __epanet_rtx__CorrelatorTimeSeries__
 
-#include "ModularTimeSeries.h"
+#include "TimeSeriesFilter.h"
 
 #include <iostream>
 
 
 namespace RTX {
-  class CorrelatorTimeSeries : public ModularTimeSeries
+  class CorrelatorTimeSeries : public TimeSeriesFilter
   {
   public:
     RTX_SHARED_POINTER(CorrelatorTimeSeries);
@@ -28,10 +28,10 @@ namespace RTX {
     void setCorrelationWindow(Clock::_sp correlationWindow);
     
   protected:
-    virtual PointCollection filterPointsAtTimes(std::set<time_t> times);
-    virtual bool canSetSource(TimeSeries::_sp ts);
-    virtual void didSetSource(TimeSeries::_sp ts);
-    virtual bool canChangeToUnits(Units units);
+    PointCollection filterPointsInRange(TimeRange range);
+    bool canSetSource(TimeSeries::_sp ts);
+    void didSetSource(TimeSeries::_sp ts);
+    bool canChangeToUnits(Units units);
     
   private:
     TimeSeries::_sp _secondary;

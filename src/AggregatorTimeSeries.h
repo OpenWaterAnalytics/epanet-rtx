@@ -39,6 +39,9 @@ namespace RTX {
     
     virtual std::ostream& toStream(std::ostream &stream);
     
+    TimeSeries::_sp source();
+    void setSource(TimeSeries::_sp ts);
+    
     // add a time series to this aggregator. optional parameter "multiplier" allows you to scale
     // the aggregated time series (for instance, by -1 if it needs to be subtracted).
     void addSource(TimeSeries::_sp timeSeries, double multiplier = 1.) throw(RtxException);
@@ -52,11 +55,11 @@ namespace RTX {
     virtual Point pointAfter(time_t time);
     
   protected:
-    virtual std::set<time_t> timeValuesInRange(TimeRange range);
-    virtual PointCollection filterPointsAtTimes(std::set<time_t> times);
-    virtual bool canSetSource(TimeSeries::_sp ts);
-    virtual void didSetSource(TimeSeries::_sp ts);
-    virtual bool canChangeToUnits(Units units);
+    PointCollection filterPointsInRange(TimeRange range);
+    std::set<time_t> timeValuesInRange(TimeRange range);
+    bool canSetSource(TimeSeries::_sp ts);
+    void didSetSource(TimeSeries::_sp ts);
+    bool canChangeToUnits(Units units);
 
   private:
     // need to store several TimeSeries references...

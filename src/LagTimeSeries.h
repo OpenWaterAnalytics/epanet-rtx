@@ -26,8 +26,9 @@ namespace RTX {
     Point pointAfter(time_t time);
     
   protected:
-    virtual std::set<time_t> timeValuesInRange(TimeRange range);
-    virtual PointCollection filterPointsAtTimes(std::set<time_t> times);
+    bool willResample();
+    PointCollection filterPointsInRange(TimeRange range);
+    std::set<time_t> timeValuesInRange(TimeRange range);
     
   private:
     time_t _lag;

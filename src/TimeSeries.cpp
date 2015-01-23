@@ -114,19 +114,19 @@ double TimeSeries::PointCollection::variance() {
 
 
 
-TimeSeries::PointCollection TimeSeries::PointCollection::resampled(set<time_t> timeList, TimeSeriesResampleMode mode) {
+bool TimeSeries::PointCollection::resample(set<time_t> timeList, TimeSeriesResampleMode mode) {
   
   typedef std::vector<Point>::const_iterator pVec_cIt;
   
   // sanity
   if (timeList.empty()) {
-    return PointCollection();
+    return false;
   }
   
   // are there enough points to return anything?
   bool tooFewPoints = (mode == TimeSeriesResampleModeStep) ? (this->count() < 1) : (this->count() < 2);
   if (tooFewPoints) {
-    return PointCollection();
+    return false;
   }
   
   TimeRange listRange;
@@ -157,12 +157,10 @@ TimeSeries::PointCollection TimeSeries::PointCollection::resampled(set<time_t> t
   pVec_cIt right = sourceBegin;
   pVec_cIt left = sourceBegin;
   
-  pair<time_t, time_t> validTimeRange = make_pair(this->points.front().time, this->points.back().time);
-  
   // prune the time list for valid time values (values within native point time range)
   set<time_t> validTimeList;
   BOOST_FOREACH(const time_t now, timeList) {
-    if ( validTimeRange.first <= now && now <= validTimeRange.second ) {
+    if ( effectiveRange.first <= now && now <= effectiveRange.second ) {
       validTimeList.insert(now);
     }
   }
@@ -170,9 +168,9 @@ TimeSeries::PointCollection TimeSeries::PointCollection::resampled(set<time_t> t
   
   // pre-set the right/left cursors
   time_t firstValidTime = *(validTimeList.begin());
-  while (right != sourceEnd && right->time < firstValidTime) {
+  while (right != sourceEnd && right->time <= firstValidTime) {
     ++right;
-    if (right->time < firstValidTime) {
+    if (right->time <= firstValidTime) {
       // outer while loop will fire again, so increment the left iterator too
       // otherwise, we're straddling the first time value like we should be.
       ++left;
@@ -199,9 +197,8 @@ TimeSeries::PointCollection TimeSeries::PointCollection::resampled(set<time_t> t
     resampled.push_back(p);
   }
   
-  
-  PointCollection resampledCollection(resampled, this->units);
-  return resampledCollection;
+  this->points = resampled;
+  return true;
 }
 
 
@@ -351,55 +348,7 @@ vector<Point> TimeSeries::gaps(time_t start, time_t end) {
   
   return gaps;
 }
-/*
- TimeSeries::Statistics TimeSeries::summary(time_t start, time_t end) {
- vector<Point> points = this->points(start, end);
- return getStats(points);
- }
- 
- TimeSeries::Statistics TimeSeries::gapsSummary(time_t start, time_t end) {
- vector<Point> points = this->gaps(start, end);
- return getStats(points);
- }
- 
- TimeSeries::Statistics TimeSeries::getStats(vector<Point> points) {
- Statistics s;
- 
- if (points.size() == 0) {
- return s;
- }
- 
- // stats
- int cacheSize = (int)points.size();
- using namespace boost::accumulators;
- accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
- accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::right> > > quant_right( tag::tail<boost::accumulators::right>::cache_size = cacheSize );
- accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::left> > > quant_left( tag::tail<boost::accumulators::left>::cache_size = cacheSize );
- 
- BOOST_FOREACH(const Point& p, points) {
- acc(p.value);
- quant_right(p.value);
- quant_left(p.value);
- }
- 
- s.quartiles.q25 = quantile(quant_left, quantile_probability = 0.25);
- s.quartiles.q75 = quantile(quant_right, quantile_probability = 0.75);
- s.quartiles.q50    = extract::median(acc);
- s.mean      = extract::mean(acc);
- s.variance  = extract::variance(acc);
- s.count     = extract::count(acc);
- s.min       = extract::min(acc);
- s.max       = extract::max(acc);
- 
- if (s.quartiles.q50 < s.min) { // weird edge case with accumulators. small populations sometimes return values of zero.
- s.quartiles.q50 = NAN;
- s.quartiles.q25 = NAN;
- s.quartiles.q75 = NAN;
- }
- 
- return s;
- }
- */
+
 
 
 
@@ -448,6 +397,107 @@ Units TimeSeries::units() {
   return _units;
 }
 
+
+
+TimeSeries::PointCollection TimeSeries::resampled(set<time_t> timeList, TimeSeriesResampleMode mode) {
+  
+  typedef std::vector<Point>::const_iterator pVec_cIt;
+  
+  // sanity
+  if (timeList.empty()) {
+    return PointCollection();
+  }
+  
+  TimeRange listRange;
+  listRange.first = *(timeList.cbegin());
+  listRange.second = *(timeList.crbegin());
+  
+  // widen the range, if needed. i.e., if the start or end points
+  TimeRange effectiveRange;
+  effectiveRange.first = this->pointBefore(listRange.first + 1).time;
+  effectiveRange.second = this->pointAfter(listRange.second - 1).time;
+  
+  // if there are no points before or after the requested range, just get the points that are there.
+  
+  if (effectiveRange.first == 0) {
+    effectiveRange.first = listRange.first;
+  }
+  if (effectiveRange.second == 0) {
+    effectiveRange.second = listRange.second;
+  }
+  
+  PointCollection nativePoints = this->points(effectiveRange);
+  
+  // are there enough points to return anything?
+  bool tooFewPoints = (mode == TimeSeriesResampleModeStep) ? (nativePoints.count() < 1) : (nativePoints.count() < 2);
+  if (tooFewPoints) {
+    return PointCollection();
+  }
+  
+  
+  vector<Point> resampled;
+  vector<Point>::size_type s = timeList.size();
+  resampled.reserve(s);
+  
+  
+  // iterators for scrubbing through the source points
+  pVec_cIt sourceBegin = nativePoints.points.begin();
+  pVec_cIt sourceEnd = nativePoints.points.end();
+  pVec_cIt right = sourceBegin;
+  pVec_cIt left = sourceBegin;
+  
+  pair<time_t, time_t> validTimeRange = make_pair(nativePoints.points.front().time, nativePoints.points.back().time);
+  
+  // prune the time list for valid time values (values within native point time range)
+  set<time_t> validTimeList;
+  BOOST_FOREACH(const time_t now, timeList) {
+    if ( validTimeRange.first <= now && now <= validTimeRange.second ) {
+      validTimeList.insert(now);
+    }
+  }
+  
+  
+  // pre-set the right/left cursors
+  time_t firstValidTime = *(validTimeList.begin());
+  while (right != sourceEnd && right->time < firstValidTime) {
+    ++right;
+    if (right->time < firstValidTime) {
+      // outer while loop will fire again, so increment the left iterator too
+      // otherwise, we're straddling the first time value like we should be.
+      ++left;
+    }
+  }
+  
+  
+  BOOST_FOREACH(const time_t now, validTimeList) {
+    
+    // we should be straddling.
+    while ( ( right != sourceEnd || left != sourceEnd) &&
+           (! (left->time <= now && right->time >= now) ) ) {
+      // move cursors forward
+      ++left;
+      ++right;
+    }
+    
+    // end of native points?
+    if (right == sourceEnd) {
+      break; // get out of foreach
+    }
+    
+    Point p = Point::linearInterpolate(*left, *right, now);
+    resampled.push_back(p);
+  }
+  
+  
+  PointCollection resampledCollection(resampled, this->units());
+  return resampledCollection;
+  
+}
+
+
+
+
+
 #pragma mark - Protected Methods
 
 std::ostream& TimeSeries::toStream(std::ostream &stream) {
@@ -457,6 +507,8 @@ std::ostream& TimeSeries::toStream(std::ostream &stream) {
   stream << *_points;
   return stream;
 }
+
+
 /*
  bool TimeSeries::isCompatibleWith(TimeSeries::_sp otherSeries) {
  
