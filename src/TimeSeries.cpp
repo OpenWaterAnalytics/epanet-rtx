@@ -126,6 +126,10 @@ bool TimeSeries::PointCollection::resample(set<time_t> timeList, TimeSeriesResam
   // are there enough points to return anything?
   bool tooFewPoints = (mode == TimeSeriesResampleModeStep) ? (this->count() < 1) : (this->count() < 2);
   if (tooFewPoints) {
+    // the only way this is ok is if the collection has one point and it's the only time value there is.
+    if (this->count() == 1 && this->points.front().time == *(timeList.begin())) {
+      return true;
+    }
     return false;
   }
   

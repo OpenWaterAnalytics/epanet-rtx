@@ -45,13 +45,14 @@ int MovingAverage::windowSize() {
 TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) {
   vector<Point> filteredPoints;
   
-  TimeRange queryRange = range;
+  TimeRange rangeToResample = range;
   if (this->willResample()) {
     // expand range
-    queryRange.first = this->source()->pointBefore(range.first + 1).time;
-    queryRange.second = this->source()->pointAfter(range.second - 1).time;
+    rangeToResample.first = this->source()->pointBefore(range.first + 1).time;
+    rangeToResample.second = this->source()->pointAfter(range.second - 1).time;
   }
   
+  TimeRange queryRange = rangeToResample;
   
   int margin = this->windowSize() / 2;
   
@@ -103,12 +104,12 @@ TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) 
   
   BOOST_FOREACH(const Point& sPoint, sourcePoints) {
     time_t now = sPoint.time;
-    if (now < range.first || now > range.second) {
+    if (now < rangeToResample.first || now > rangeToResample.second) {
       continue; // out of bounds.
     }
     
     // initialize the cursors
-    pVec_cIt seekCursor = vecBegin;
+    pVec_cIt seekCursor = sourcePoints.cbegin();
     
     // maybe the data doesn't support this particular time we want
     if (seekCursor->time > now) {
@@ -116,7 +117,7 @@ TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) 
     }
     
     // seek to this time value in the source data
-    while (seekCursor->time < now && seekCursor != vecEnd) {
+    while (seekCursor != vecEnd && seekCursor->time < now ) {
       ++seekCursor;
     }
     // have we run off the end?
