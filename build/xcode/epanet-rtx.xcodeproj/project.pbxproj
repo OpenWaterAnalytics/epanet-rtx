@@ -222,6 +222,10 @@
 		22B38B961A48BCEE0071DCF3 /* ProjectFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B38B901A48BCEE0071DCF3 /* ProjectFile.cpp */; };
 		22B38B971A48BCEE0071DCF3 /* ProjectFile.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B38B911A48BCEE0071DCF3 /* ProjectFile.h */; };
 		22B7154E14DC2C2C00041167 /* Clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B7154D14DC2C2C00041167 /* Clock.cpp */; };
+		22B9285A1A76EF1B006DBC57 /* MathOpsTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B928581A76EF1B006DBC57 /* MathOpsTimeSeries.cpp */; };
+		22B9285B1A76EF1B006DBC57 /* MathOpsTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B928581A76EF1B006DBC57 /* MathOpsTimeSeries.cpp */; };
+		22B9285C1A76EF1B006DBC57 /* MathOpsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B928591A76EF1B006DBC57 /* MathOpsTimeSeries.h */; };
+		22B9285D1A76EF1B006DBC57 /* MathOpsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B928591A76EF1B006DBC57 /* MathOpsTimeSeries.h */; };
 		22BEDD1F187E0BE300855B68 /* libepanetmsx-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BEDCF4187E09A100855B68 /* libepanetmsx-static.a */; };
 		22BF02D315EBCABC00F66465 /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BF02D215EBCABC00F66465 /* Point.cpp */; };
 		22BFAB01196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */; };
@@ -594,6 +598,8 @@
 		22B38B911A48BCEE0071DCF3 /* ProjectFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProjectFile.h; path = ../../project/ProjectFile.h; sourceTree = "<group>"; };
 		22B7154D14DC2C2C00041167 /* Clock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Clock.cpp; path = ../../src/Clock.cpp; sourceTree = "<group>"; };
 		22B8A79C1603CA6100EECAA5 /* timeseries_demo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = timeseries_demo; sourceTree = BUILT_PRODUCTS_DIR; };
+		22B928581A76EF1B006DBC57 /* MathOpsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MathOpsTimeSeries.cpp; path = ../../src/MathOpsTimeSeries.cpp; sourceTree = "<group>"; };
+		22B928591A76EF1B006DBC57 /* MathOpsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MathOpsTimeSeries.h; path = ../../src/MathOpsTimeSeries.h; sourceTree = "<group>"; };
 		22BF02D215EBCABC00F66465 /* Point.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Point.cpp; path = ../../src/Point.cpp; sourceTree = "<group>"; };
 		22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OutlierExclusionTimeSeries.cpp; path = ../../src/OutlierExclusionTimeSeries.cpp; sourceTree = "<group>"; };
 		22BFAB00196AFBD800B5B77C /* OutlierExclusionTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OutlierExclusionTimeSeries.h; path = ../../src/OutlierExclusionTimeSeries.h; sourceTree = "<group>"; };
@@ -846,6 +852,8 @@
 				22253D8D16022FB6002F7256 /* CurveFunction.cpp */,
 				226AC14C17340D06009B7C90 /* MultiplierTimeSeries.h */,
 				226AC14B17340D06009B7C90 /* MultiplierTimeSeries.cpp */,
+				22B928581A76EF1B006DBC57 /* MathOpsTimeSeries.cpp */,
+				22B928591A76EF1B006DBC57 /* MathOpsTimeSeries.h */,
 			);
 			name = "Single Point Filter";
 			sourceTree = "<group>";
@@ -1195,6 +1203,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				220F9E1718F9E68B00BB842C /* AggregatorTimeSeries.h in Headers */,
+				22B9285D1A76EF1B006DBC57 /* MathOpsTimeSeries.h in Headers */,
 				220F9E1818F9E68B00BB842C /* MovingAverage.h in Headers */,
 				220F9E1918F9E68B00BB842C /* Point.h in Headers */,
 				224C419C1A434FCB008852C4 /* ModelPerformance.h in Headers */,
@@ -1272,6 +1281,7 @@
 				22C62AEA1439EE0B00841E60 /* TimeSeries.h in Headers */,
 				223AF33118F6E4C0002E846F /* InversionTimeSeries.h in Headers */,
 				22067EB41873318900BAFF61 /* OdbcPreparedPointRecord.h in Headers */,
+				22B9285C1A76EF1B006DBC57 /* MathOpsTimeSeries.h in Headers */,
 				223663B51A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.h in Headers */,
 				22C62B04143A10A500841E60 /* rtxExceptions.h in Headers */,
 				224D40D919786C3000160BD5 /* BaseStatsTimeSeries.h in Headers */,
@@ -1645,6 +1655,7 @@
 				220F9DF918F9E68B00BB842C /* Pump.cpp in Sources */,
 				228EFABE191C0AE300342E6E /* TempoDbPointRecord.cpp in Sources */,
 				220F9DFA18F9E68B00BB842C /* Valve.cpp in Sources */,
+				22B9285B1A76EF1B006DBC57 /* MathOpsTimeSeries.cpp in Sources */,
 				220F9DFB18F9E68B00BB842C /* FirstDerivative.cpp in Sources */,
 				220F9DFC18F9E68B00BB842C /* CurveFunction.cpp in Sources */,
 				220F9DFD18F9E68B00BB842C /* OffsetTimeSeries.cpp in Sources */,
@@ -1732,6 +1743,7 @@
 				2280409B158F82EF004222DA /* Pump.cpp in Sources */,
 				2280409F158F8352004222DA /* Valve.cpp in Sources */,
 				222FDDD615C1BC2F0065DAF6 /* FirstDerivative.cpp in Sources */,
+				22B9285A1A76EF1B006DBC57 /* MathOpsTimeSeries.cpp in Sources */,
 				223663B31A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.cpp in Sources */,
 				22253D8F16022FB6002F7256 /* CurveFunction.cpp in Sources */,
 				22BFAB01196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp in Sources */,
