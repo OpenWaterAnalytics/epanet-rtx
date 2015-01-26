@@ -112,6 +112,9 @@ bool StatsTimeSeries::canSetSource(TimeSeries::_sp ts) {
   else if (this->source() && this->units().isSameDimensionAs(this->statsUnits(ts->units(), this->statsType()))) {
     return true;
   }
+  else if (!this->source()) {
+    return true;
+  }
   return false;
 }
 
