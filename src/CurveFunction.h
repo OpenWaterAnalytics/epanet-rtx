@@ -38,9 +38,9 @@ namespace RTX {
         
   protected:
     Point filteredWithSourcePoint(Point sourcePoint);
-    virtual bool canSetSource(TimeSeries::_sp ts);
-    virtual void didSetSource(TimeSeries::_sp ts);
-    virtual bool canChangeToUnits(Units units);
+    bool canSetSource(TimeSeries::_sp ts);
+    void didSetSource(TimeSeries::_sp ts);
+    bool canChangeToUnits(Units units);
     
   private:
     Point convertWithCurve(Point p, Units sourceU);
