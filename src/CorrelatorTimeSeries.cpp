@@ -35,7 +35,7 @@ TimeSeries::_sp CorrelatorTimeSeries::correlatorTimeSeries() {
 
 void CorrelatorTimeSeries::setCorrelatorTimeSeries(TimeSeries::_sp ts) {
   
-  if (this->source() && !this->source()->units().isSameDimensionAs(ts->units())) {
+  if (this->source() && ts && !this->source()->units().isSameDimensionAs(ts->units())) {
     return; // can't do it.
   }
   
@@ -76,7 +76,24 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange 
   BOOST_FOREACH(time_t t, times) {
     double corrcoef = 0;
     PointCollection sourceCollection = sourceTs->pointCollection(t - windowWidth, t);
-    PointCollection secondaryCollection = this->correlatorTimeSeries()->pointCollection(t - windowWidth, t);
+    
+    set<time_t> sourceTimeValues;
+    BOOST_FOREACH(const Point& p, sourceCollection.points) {
+      sourceTimeValues.insert(p.time);
+    }
+    
+    // expand the query range for the secondary collection
+    TimeRange primaryRange = make_pair(*(sourceTimeValues.begin()), *(sourceTimeValues.rbegin()));
+    TimeRange secondaryRange;
+    secondaryRange.first = this->correlatorTimeSeries()->pointBefore(primaryRange.first + 1).time;
+    secondaryRange.second = this->correlatorTimeSeries()->pointAfter(primaryRange.second - 1).time;
+    
+    PointCollection secondaryCollection = this->correlatorTimeSeries()->points(secondaryRange);
+    secondaryCollection.resample(sourceTimeValues);
+    
+    if (sourceCollection.count() == 0 || secondaryCollection.count() == 0) {
+      continue; // no points to correlate
+    }
     
     if (sourceCollection.count() != secondaryCollection.count()) {
       cout << "Unequal number of points" << endl;

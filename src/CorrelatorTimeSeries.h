@@ -15,6 +15,11 @@
 
 
 namespace RTX {
+  
+  
+  //! The correlator will resample the secondary "correlatorTimeSeries" at the time values of its source, if needed.
+  
+  
   class CorrelatorTimeSeries : public TimeSeriesFilter
   {
   public:
