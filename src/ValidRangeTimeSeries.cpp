@@ -22,16 +22,6 @@ ValidRangeTimeSeries::filterMode_t ValidRangeTimeSeries::mode() {
   return _mode;
 }
 void ValidRangeTimeSeries::setMode(filterMode_t mode) {
-  if (mode == drop) {
-    Clock::_sp c;
-    this->setClock(c);
-  }
-  else if (this->source()) {
-    TimeSeriesFilter::_sp filterSource = boost::dynamic_pointer_cast<TimeSeriesFilter>(this->source());
-    if (filterSource && filterSource->clock()) {
-      this->setClock(filterSource->clock());
-    }
-  }
   _mode = mode;
   this->invalidate();
 }
