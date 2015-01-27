@@ -26,6 +26,7 @@ Junction::Junction(const std::string& name) : Node(name) {
   _demandState.reset(new TimeSeries());
   
   _headState->setUnits(RTX_METER);
+  _pressureState->setUnits(RTX_PASCAL);
   _qualityState->setUnits(RTX_SECOND);
   _demandState->setUnits(RTX_LITER_PER_SECOND);
   
