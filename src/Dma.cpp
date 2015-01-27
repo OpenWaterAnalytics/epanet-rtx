@@ -625,9 +625,6 @@ void Dma::allocateDemandToJunctions(time_t time) {
   // now we have the total (nominal) base demand for the dma.
   // total demand for the dma (includes metered and unmetered) -- already in myUnits.
   Point dPoint = this->demand()->pointAtOrBefore(time);
-  if (!dPoint.isValid) {
-    dPoint = this->demand()->pointBefore(time);
-  }
   if (dPoint.isValid) {
     dmaDemand = dPoint.value;
     allocableDemand = dmaDemand - meteredDemand; // the total unmetered demand

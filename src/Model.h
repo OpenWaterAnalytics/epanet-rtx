@@ -97,8 +97,12 @@ namespace RTX {
     virtual void setHydraulicTimeStep(int seconds);
     int hydraulicTimeStep();
     
+    virtual void setReportTimeStep(int seconds);
+    int reportTimeStep();
+    
     virtual void setQualityTimeStep(int seconds);
     int qualityTimeStep();
+    
     void setInitialJunctionUniformQuality(double qual);
     void setInitialJunctionQualityFromMeasurements(time_t time);
     virtual void setInitialModelQuality() { };
@@ -107,14 +111,37 @@ namespace RTX {
     TimeSeries::_sp iterations() {return _iterations;}
     TimeSeries::_sp relativeError() {return _relativeError;}
     
-    bool tanksNeedReset();
-    void setTanksNeedReset(bool needReset);
+    void setTankResetClock(Clock::_sp resetClock);
     
+    void setTanksNeedReset(bool reset);
+    bool tanksNeedReset();
+        
     virtual std::ostream& toStream(std::ostream &stream);
 
-    vector<TimeSeries::_sp> networkStatesWithMeasures();
-    void setRecordForNetworkStatesWithMeasures(PointRecord::_sp pr);
-    void setRecordForNetworkBoundariesAndMeasures(PointRecord::_sp pr);
+    void setRecordForDmaDemands(PointRecord::_sp record);
+    void setRecordForSimulationStats(PointRecord::_sp record);
+    
+    // specify records for certain states or inputs
+    typedef enum {
+      ElementOptionNone               = 0,
+      ElementOptionMeasuredAll        = 1 << 0, // setting for pre-fetch record
+      ElementOptionMeasuredTanks      = 1 << 1,
+      ElementOptionMeasuredFlows      = 1 << 2,
+      ElementOptionMeasuredPressures  = 1 << 3,
+      ElementOptionMeasuredQuality    = 1 << 4,
+      ElementOptionAllTanks           = 1 << 5,
+      ElementOptionAllFlows           = 1 << 6,
+      ElementOptionAllPressures       = 1 << 7,
+      ElementOptionAllHeads           = 1 << 8,
+      ElementOptionAllQuality         = 1 << 9
+    } elementOption_t;
+    
+    void setRecordForElementInputs(PointRecord::_sp record);
+    void setRecordForElementOutput(PointRecord::_sp record, elementOption_t options);
+    
+    vector<TimeSeries::_sp> networkStatesWithOptions(elementOption_t options);
+    vector<TimeSeries::_sp> networkInputSeries(elementOption_t options);
+
     
     // units
     Units flowUnits();
@@ -176,6 +203,7 @@ namespace RTX {
     string _modelFile;
     bool _shouldRunWaterQuality;
     bool _tanksNeedReset;
+    void _checkTanksForReset(time_t time);
     // master list access
     void add(Junction::_sp newJunction);
     void add(Pipe::_sp newPipe);
@@ -199,10 +227,11 @@ namespace RTX {
     bool _dmaShouldDetectClosedLinks;
     
     PointRecord::_sp _record;         // default record for results
-    Clock::_sp _regularMasterClock;   // normal hydraulic timestep
+    Clock::_sp _regularMasterClock, _simReportClock;
     TimeSeries::_sp _relativeError;
     TimeSeries::_sp _iterations;
-    Clock::_sp _boundaryResetClock;
+    TimeSeries::_sp _convergence;
+    Clock::_sp _tankResetClock;
     int _qualityTimeStep;
     bool _doesOverrideDemands;
     

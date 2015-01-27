@@ -384,7 +384,7 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
       // we should already have the info to find it in _elementOutput
       
       if (_elementOutput.find(uid) == _elementOutput.end()) {
-        cerr << "Warning: could not find output element specifed as UID " << uid << endl;
+        cerr << "Warning: could not find output element specifed with time series UID " << uid << endl;
         continue;
       }
       
@@ -1143,6 +1143,9 @@ void SqliteProjectFile::setJunctionParameter(Junction::_sp j, string paramName, 
   }
   else if (RTX_STRINGS_ARE_EQUAL(paramName, "qualityBoundary")) {
     j->setQualitySource(ts);
+  }
+  else if (RTX_STRINGS_ARE_EQUAL(paramName, "pressureMeasure")) {
+    j->setPressureMeasure(ts);
   }
   else if (RTX_STRINGS_ARE_EQUAL(paramName, "headMeasure")) {
     j->setHeadMeasure(ts);

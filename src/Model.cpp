@@ -30,12 +30,15 @@ Model::Model() : _flowUnits(1), _headUnits(1), _pressureUnits(1) {
   // default reset clock is 24 hours, default reporting clock is 1 hour.
   // TODO -- configure boundary reset clock in a smarter way?
   _regularMasterClock.reset( new Clock(3600) );
-  _boundaryResetClock = Clock::_sp( new Clock(24 * 3600) );
+  _tankResetClock = Clock::_sp();
+  _simReportClock = Clock::_sp();
   _relativeError.reset( new TimeSeries() );
   _iterations.reset( new TimeSeries() );
+  _convergence.reset( new TimeSeries() );
   
   _relativeError->setName("Relative Error");
   _iterations->setName("Iterations");
+  _convergence->setName("Convergence Status");
   _doesOverrideDemands = false;
   _shouldRunWaterQuality = false;
   
@@ -164,55 +167,23 @@ void Model::setVolumeUnits(RTX::Units units) {
 }
 
 #pragma mark - Storage
-void Model::setStorage(PointRecord::_sp record) {
-  _record = record;
+#pragma mark - Storage
 
-  std::vector< Element::_sp > elements = this->elements();
-  BOOST_FOREACH(Element::_sp element, elements) {
-    //std::cout << "setting storage for: " << element->name() << std::endl;
-    element->setRecord(_record);
-  }
+
+void Model::setRecordForDmaDemands(PointRecord::_sp record) {
   
   BOOST_FOREACH(Dma::_sp dma, dmas()) {
-    dma->setRecord(_record);
+    dma->setRecord(record);
   }
-  
-  _relativeError->setRecord(_record);
-  _iterations->setRecord(_record);
   
 }
 
-void Model::setParameterSource(PointRecord::_sp record) {
-
-  BOOST_FOREACH(Junction::_sp junction, this->junctions()) {
-    if (junction->doesHaveBoundaryFlow()) {
-      junction->boundaryFlow()->setRecord(record);
-    }
-    if (junction->doesHaveHeadMeasure()) {
-      junction->headMeasure()->setRecord(record);
-    }
-  }
-
-  BOOST_FOREACH(Reservoir::_sp reservoir, this->reservoirs()) {
-    if (reservoir->doesHaveBoundaryHead()) {
-      reservoir->boundaryHead()->setRecord(record);
-    }
-  }
-
-  BOOST_FOREACH(Valve::_sp valve, this->valves()) {
-    if (valve->doesHaveStatusParameter()) {
-      valve->statusParameter()->setRecord(record);
-    }
-    if (valve->doesHaveSettingParameter()) {
-      valve->settingParameter()->setRecord(record);
-    }
-  }
+void Model::setRecordForSimulationStats(PointRecord::_sp record) {
   
-  BOOST_FOREACH(Pump::_sp pump, this->pumps()) {
-    if (pump->doesHaveStatusParameter()) {
-      pump->statusParameter()->setRecord(record);
-    }
-  }
+  _relativeError->setRecord(record);
+  _iterations->setRecord(record);
+  _convergence->setRecord(record);
+  
 }
 
 
@@ -467,7 +438,7 @@ void Model::runSinglePeriod(time_t time) {
   // so back up to either the most recent set of results, or the most recent boundary-reset event
   // (whichever is nearer) and simulate through the requested time.
   //lastSimulationPeriod = _masterClock->validTime(time);
-  boundaryReset = _boundaryResetClock->validTime(time);
+  boundaryReset = _tankResetClock->validTime(time);
   start = RTX_MAX(lastSimulationPeriod, boundaryReset);
   
   // run the simulation to the requested time.
@@ -477,24 +448,29 @@ void Model::runSinglePeriod(time_t time) {
 void Model::runExtendedPeriod(time_t start, time_t end) {
   time_t simulationTime = start;
   time_t nextClockTime = start;
+  time_t nextReportTime = start;
   time_t nextSimulationTime = start;
+  time_t nextResetTime = start;
   time_t stepToTime = start;
+  struct tm * timeinfo;
   bool success;
   
   while (simulationTime < end) {
     
-    // reset tanks?
-    if (_tanksNeedReset) {
-      _tanksNeedReset = false;
-      BOOST_FOREACH(Tank::_sp t, this->tanks()) {
-        t->setResetLevelNextTime(true);
-      }
-    }
-    
     // get parameters from the RTX elements, and pull them into the simulation
     setSimulationParameters(simulationTime);
+    
     // simulate this period, find the next timestep boundary.
     success = solveSimulation(simulationTime);
+    
+    // save simulation stats here so we can track convergence issues
+    Point error(simulationTime, relativeError(simulationTime));
+    _relativeError->insert(error);
+    Point iterationCount(simulationTime, iterations(simulationTime));
+    _iterations->insert(iterationCount);
+    Point convergenceStatus(simulationTime, success);
+    _convergence->insert(convergenceStatus);
+    
     if (success) {
       // simulation succeeded
       
@@ -556,31 +532,44 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
 //      }
       
       // tell each element to update its derived states (simulation-computed values)
-      if (_regularMasterClock->isValid(simulationTime)) {
+      if (_simReportClock->isValid(simulationTime)) {
         saveNetworkStates(simulationTime);
       }
       // get time to next simulation period
       nextSimulationTime = nextHydraulicStep(simulationTime);
       nextClockTime = _regularMasterClock->timeAfter(simulationTime);
-      stepToTime = RTX_MIN(nextClockTime, nextSimulationTime);
+      nextReportTime = _simReportClock->timeAfter(simulationTime);
+      if ( _tankResetClock ) {
+        nextResetTime = _tankResetClock->timeAfter(simulationTime);
+      }
+      stepToTime = min( min( min( nextClockTime, nextSimulationTime ), nextReportTime ), nextResetTime);
       
       // and step the simulation to that time.
       stepSimulation(stepToTime);
       simulationTime = currentSimulationTime();
       
-      cout << "Simulation time :: " << (double)(simulationTime-start)/60./60. << " hours" << endl;
+      timeinfo = localtime (&simulationTime);
+      cout << "Simulation time :: " << asctime(timeinfo) << endl;
     }
     else {
-      // simulation failed -- advance the time and restart
+      // simulation failed -- advance the time and reset tank levels
       nextClockTime = _regularMasterClock->timeAfter(simulationTime);
       simulationTime = nextClockTime;
       setCurrentSimulationTime(simulationTime);
-      _tanksNeedReset = true;
+      this->setTanksNeedReset(true);
     }
     
   } // simulation loop
   
   
+}
+
+void Model::setReportTimeStep(int seconds) {
+  _simReportClock.reset( new Clock(seconds) );
+}
+
+int Model::reportTimeStep() {
+  return _simReportClock->period();
 }
 
 
@@ -616,6 +605,33 @@ bool Model::tanksNeedReset() {
 
 void Model::setTanksNeedReset(bool reset) {
   _tanksNeedReset = reset;
+  
+  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
+    tank->setNeedsReset(reset);
+  }
+  
+}
+
+void Model::_checkTanksForReset(time_t time) {
+  
+  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
+    if (tank->levelMeasure()) {
+      Point p = tank->levelMeasure()->pointAtOrBefore(time);
+      if (p.isValid) {
+        double levelValue = Units::convertValue(p.value, tank->levelMeasure()->units(), headUnits());
+        // adjust for model limits (epanet rejects otherwise, for example)
+        levelValue = (levelValue <= tank->maxLevel()) ? levelValue : tank->maxLevel();
+        levelValue = (levelValue >= tank->minLevel()) ? levelValue : tank->minLevel();
+        setTankLevel(tank->name(), levelValue);
+      }
+      else {
+        cerr << "ERR: Invalid head point for Tank " << tank->name() << " at time " << time << endl;
+      }
+    }
+  }
+  
+  this->setTanksNeedReset(false);
+  
 }
 
 void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
@@ -701,9 +717,9 @@ std::ostream& Model::toStream(std::ostream &stream) {
   stream << "\t" << _links.size() << " links (" << _pumps.size() << " pumps, " << _valves.size() << " valves)" << endl;
   stream << "Time Steps:" << endl;
   stream << "\t" << hydraulicTimeStep() << "s (hydraulic), " << qualityTimeStep() << "s (quality)" << endl;
-  if (_record) {
-    stream << "State Storage:" << endl << *_record;
-  }
+//  if (_record) {
+//    stream << "State Storage:" << endl << *_record;
+//  }
   
   if (_dmas.size() > 0) {
     stream << "Demand DMAs:" << endl;
@@ -778,45 +794,17 @@ void Model::setSimulationParameters(time_t time) {
     }
   }
   
-  // for tanks, set the boundary head, but only if the tank reset clock has fired.
-  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
-    if (tank->doesResetLevelUsingClock() && tank->levelResetClock()->isValid(time) && tank->doesHaveHeadMeasure()) {
-      Point p = tank->levelMeasure()->pointAtOrBefore(time);
-      if (p.isValid) {
-        double levelValue = Units::convertValue(p.value, tank->levelMeasure()->units(), headUnits());
-        // adjust for model limits (epanet rejects otherwise, for example)
-        levelValue = (levelValue <= tank->maxLevel()) ? levelValue : tank->maxLevel();
-        levelValue = (levelValue >= tank->minLevel()) ? levelValue : tank->minLevel();
-        setTankLevel(tank->name(), levelValue);
-      }
-      else {
-        cerr << "ERR: Invalid head point for Tank " << tank->name() << " at time " << time << endl;
-      }
-    }
+  // check for valid time with tank reset clock
+  if (_tankResetClock && _tankResetClock->isValid(time)) {
+    this->setTanksNeedReset(true);
   }
-
-  // or, set the boundary head if someone has specifically requested it
-  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
-    if (tank->resetLevelNextTime() && tank->doesHaveHeadMeasure()) {
-      Point p = tank->levelMeasure()->pointAtOrBefore(time);
-      if (p.isValid) {
-        double levelValue = Units::convertValue(p.value, tank->levelMeasure()->units(), headUnits());
-        // adjust for model limits (epanet rejects otherwise, for example)
-        levelValue = (levelValue <= tank->maxLevel()) ? levelValue : tank->maxLevel();
-        levelValue = (levelValue >= tank->minLevel()) ? levelValue : tank->minLevel();
-        setTankLevel(tank->name(), levelValue);
-        tank->setResetLevelNextTime(false);
-      }
-      else {
-        cerr << "ERR: Invalid head point for Tank " << tank->name() << " at time " << time << endl;
-      }
-    }
-  }
+  
+  _checkTanksForReset(time);
 
   // for valves, set status and setting
   BOOST_FOREACH(Valve::_sp valve, this->valves()) {
     // status can affect settings and vice-versa; status rules
-    Pipe::status_t status = Pipe::OPEN;
+    Pipe::status_t status = valve->fixedStatus();
     if (valve->doesHaveStatusParameter()) {
       Point p = valve->statusParameter()->pointAtOrBefore(time);
       if (p.isValid) {
@@ -827,14 +815,19 @@ void Model::setSimulationParameters(time_t time) {
         cerr << "ERR: Invalid status point for Valve " << valve->name() << " at time " << time << endl;
       }
     }
-    if (valve->doesHaveSettingParameter() && status) {
-      Point p = valve->settingParameter()->pointAtOrBefore(time);
-      if (p.isValid) {
-        // TODO -- set units based on type of valve (pressure or flow model units)
-        setValveSetting( valve->name(), p.value );
+    if (valve->doesHaveSettingParameter()) {
+      if (status) {
+        Point p = valve->settingParameter()->pointAtOrBefore(time);
+        if (p.isValid) {
+          // TODO -- set units based on type of valve (pressure or flow model units)
+          setValveSetting( valve->name(), p.value );
+        }
+        else {
+          cerr << "ERR: Invalid setting point for Valve " << valve->name() << " at time " << time << endl;
+        }
       }
       else {
-        cerr << "ERR: Invalid setting point for Valve " << valve->name() << " at time " << time << endl;
+        cerr << "WARN: Ignoring setting for Valve " << valve->name() << " because status is Closed" << endl;
       }
     }
   }
@@ -842,7 +835,7 @@ void Model::setSimulationParameters(time_t time) {
   // for pumps, set status and setting
   BOOST_FOREACH(Pump::_sp pump, this->pumps()) {
     // status can affect settings and vice-versa; status rules
-    Pipe::status_t status = Pipe::OPEN;
+    Pipe::status_t status = pump->fixedStatus();
     if (pump->doesHaveStatusParameter()) {
       Point p = pump->statusParameter()->pointAtOrBefore(time);
       if (p.isValid) {
@@ -853,13 +846,18 @@ void Model::setSimulationParameters(time_t time) {
         cerr << "ERR: Invalid status point for Pump " << pump->name() << " at time " << time << endl;
       }
     }
-    if (pump->doesHaveSettingParameter() && status) {
-      Point p = pump->settingParameter()->pointAtOrBefore(time);
-      if (p.isValid) {
-        setPumpSetting( pump->name(), p.value );
+    if (pump->settingParameter()) {
+      if (status == Pipe::OPEN) {
+        Point p = pump->settingParameter()->pointAtOrBefore(time);
+        if (p.isValid) {
+          setPumpSetting( pump->name(), p.value );
+        }
+        else {
+          cerr << "ERR: Invalid setting point for Pump " << pump->name() << " at time " << time << endl;
+        }
       }
       else {
-        cerr << "ERR: Invalid setting point for Pump " << pump->name() << " at time " << time << endl;
+        cerr << "WARN: Ignoring setting for Pump " << pump->name() << " because status is Closed" << endl;
       }
     }
   }
@@ -880,15 +878,17 @@ void Model::setSimulationParameters(time_t time) {
   //////////////////////////////
   // water quality parameters //
   //////////////////////////////
-  BOOST_FOREACH(Junction::_sp j, this->junctions()) {
-    if (j->doesHaveQualitySource()) {
-      Point p = j->qualitySource()->pointAtOrBefore(time);
-      if (p.isValid) {
-        double quality = Units::convertValue(p.value, j->qualitySource()->units(), qualityUnits());
-        setJunctionQuality(j->name(), quality);
-      }
-      else {
-        cerr << "ERR: Invalid quality source point for junction " << j->name() << " at time " << time << endl;
+  if (this->shouldRunWaterQuality()) {
+    BOOST_FOREACH(Junction::_sp j, this->junctions()) {
+      if (j->doesHaveQualitySource()) {
+        Point p = j->qualitySource()->pointAtOrBefore(time);
+        if (p.isValid) {
+          double quality = Units::convertValue(p.value, j->qualitySource()->units(), qualityUnits());
+          setJunctionQuality(j->name(), quality);
+        }
+        else {
+          cerr << "ERR: Invalid quality source point for junction " << j->name() << " at time " << time << endl;
+        }
       }
     }
   }
@@ -913,6 +913,8 @@ void Model::saveNetworkStates(time_t time) {
     
     double pressure;
     pressure = Units::convertValue(junctionPressure(junction->name()), pressureUnits(), junction->pressure()->units());
+    Point pressurePoint(time, pressure);
+    junction->pressure()->insert(pressurePoint);
     
     // todo - more fine-grained quality data? at wq step resolution...
     double quality;
@@ -936,6 +938,11 @@ void Model::saveNetworkStates(time_t time) {
     head = Units::convertValue(junctionHead(reservoir->name()), headUnits(), reservoir->head()->units());
     Point headPoint(time, head);
     reservoir->head()->insert(headPoint);
+    
+    double quality;
+    quality = Units::convertValue(junctionQuality(reservoir->name()), this->qualityUnits(), reservoir->quality()->units());
+    Point qualityPoint(time, quality);
+    reservoir->quality()->insert(qualityPoint);
   }
   
   BOOST_FOREACH(Tank::_sp tank, tanks()) {
@@ -943,7 +950,11 @@ void Model::saveNetworkStates(time_t time) {
     head = Units::convertValue(junctionHead(tank->name()), headUnits(), tank->head()->units());
     Point headPoint(time, head);
     tank->head()->insert(headPoint);
-    tank->level()->point(headPoint.time);
+    
+    double level;
+    level = Units::convertValue(tankLevel(tank->name()), headUnits(), tank->head()->units());
+    Point levelPoint(time, level);
+    tank->level()->insert(levelPoint);
     
     double quality;
     quality = Units::convertValue(junctionQuality(tank->name()), this->qualityUnits(), tank->quality()->units());
@@ -980,12 +991,6 @@ void Model::saveNetworkStates(time_t time) {
     pump->energy()->insert(energyPoint);
   }
   
-  // save the timestep information
-  Point error(time, relativeError(time));
-  _relativeError->insert(error);
-  Point iterationCount(time, iterations(time));
-  _iterations->insert(iterationCount);
-
 }
 
 void Model::setCurrentSimulationTime(time_t time) {
@@ -1001,141 +1006,136 @@ double Model::nodeDistanceXY(Node::_sp n1, Node::_sp n2) {
   return sqrt( pow(x1.first - x2.first, 2) + pow(x1.second - x2.second, 2) );
 }
 
-vector<TimeSeries::_sp> Model::networkStatesWithMeasures() {
+// get output states
+vector<TimeSeries::_sp> Model::networkStatesWithOptions(elementOption_t options) {
+  vector<TimeSeries::_sp> states;
+  vector<Element::_sp> modelElements;
+  modelElements = this->elements();
+  
+  BOOST_FOREACH(Element::_sp element, modelElements) {
+    switch (element->type()) {
+      case Element::JUNCTION:
+      case Element::TANK:
+      {
+        Tank::_sp t = boost::dynamic_pointer_cast<Tank>(element);
+        if (!t) {
+          break;
+        }
+        if ((t->levelMeasure() && (options & ElementOptionMeasuredTanks)) || (options & ElementOptionAllTanks) ) {
+          states.push_back(t->level());
+        }
+      }
+      case Element::RESERVOIR:
+      {
+        Junction::_sp junc;
+        junc = boost::dynamic_pointer_cast<Junction>(element);
+        if ((junc->headMeasure() && (options & ElementOptionMeasuredTanks))  ||  (options & ElementOptionAllTanks) ) {
+          states.push_back(junc->head());
+        }
+        if ((junc->qualityMeasure() && (options & ElementOptionMeasuredQuality))  ||  (options & ElementOptionAllQuality) ) {
+          states.push_back(junc->quality());
+        }
+        if ((junc->qualitySource() && (options & ElementOptionMeasuredQuality))  ||  (options & ElementOptionAllQuality) ) {
+          states.push_back(junc->quality());
+        }
+        if ((junc->pressureMeasure() && (options & ElementOptionMeasuredPressures))  ||  (options & ElementOptionAllPressures) ) {
+          states.push_back(junc->pressure());
+        }
+        break;
+      }
+      case Element::PIPE:
+      case Element::VALVE:
+      case Element::PUMP: {
+        Pipe::_sp pipe;
+        pipe = boost::static_pointer_cast<Pipe>(element);
+        if ((pipe->flowMeasure() && (options & ElementOptionMeasuredFlows)) || (options & ElementOptionAllFlows) ) {
+          states.push_back(pipe->flow());
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  }
+  return states;
+}
+
+vector<TimeSeries::_sp> Model::networkInputSeries(elementOption_t options) {
   vector<TimeSeries::_sp> measures;
   vector<Element::_sp> modelElements;
   modelElements = this->elements();
   
+  if (options & ElementOptionMeasuredAll) {
+    options = (elementOption_t)(options | ElementOptionMeasuredFlows | ElementOptionMeasuredPressures | ElementOptionMeasuredQuality | ElementOptionMeasuredTanks);
+  }
+  
   BOOST_FOREACH(Element::_sp element, modelElements) {
     switch (element->type()) {
       case Element::JUNCTION:
       case Element::TANK:
-      case Element::RESERVOIR: {
+      {
+        Tank::_sp t = boost::dynamic_pointer_cast<Tank>(element);
+        if (t && t->levelMeasure() && (options & ElementOptionMeasuredTanks)) {
+          measures.push_back(t->levelMeasure());
+        }
+      }
+      case Element::RESERVOIR:
+      {
         Junction::_sp junc;
         junc = boost::static_pointer_cast<Junction>(element);
-        if (junc->doesHaveHeadMeasure()) {
-          measures.push_back(junc->head());
+        if (junc->headMeasure() && (options & ElementOptionMeasuredTanks)) {
+          measures.push_back(junc->headMeasure());
         }
-        if (junc->doesHaveQualityMeasure()) {
-          measures.push_back(junc->quality());
+        if (junc->qualityMeasure() && (options & ElementOptionMeasuredQuality)) {
+          measures.push_back(junc->qualityMeasure());
+        }
+        if (junc->qualitySource() && (options & ElementOptionMeasuredQuality)) {
+          measures.push_back(junc->qualitySource());
+        }
+        if (junc->boundaryFlow() && (options & ElementOptionMeasuredFlows)) {
+          measures.push_back(junc->boundaryFlow());
+        }
+        if (junc->pressureMeasure() && (options & ElementOptionMeasuredPressures)) {
+          measures.push_back(junc->pressureMeasure());
         }
         break;
       }
-        
       case Element::PIPE:
       case Element::VALVE:
       case Element::PUMP: {
         Pipe::_sp pipe;
         pipe = boost::static_pointer_cast<Pipe>(element);
-        if (pipe->doesHaveFlowMeasure()) {
-          measures.push_back(pipe->flow());
+        if (pipe->flowMeasure() && (options & ElementOptionMeasuredFlows)) {
+          measures.push_back(pipe->flowMeasure());
+        }
+        if (pipe->settingParameter() && (options & ElementOptionMeasuredFlows)) {
+          measures.push_back(pipe->settingParameter());
+        }
+        if (pipe->statusParameter() && (options & ElementOptionMeasuredFlows)) {
+          measures.push_back(pipe->statusParameter());
         }
         break;
       }
-        
       default:
         break;
     }
   }
-  
   return measures;
 }
 
-void Model::setRecordForNetworkStatesWithMeasures(PointRecord::_sp pr) {
-  vector<Element::_sp> modelElements;
-  modelElements = this->elements();
-  
-  BOOST_FOREACH(Element::_sp element, modelElements) {
-    switch (element->type()) {
-      case Element::JUNCTION:
-      case Element::TANK:
-      case Element::RESERVOIR: {
-        Junction::_sp junc;
-        junc = boost::static_pointer_cast<Junction>(element);
-        if (junc->doesHaveHeadMeasure()) {
-          TimeSeries::_sp ts = junc->head();
-          ts->setRecord(pr);
-        }
-        if (junc->doesHaveQualityMeasure()) {
-          TimeSeries::_sp ts = junc->quality();
-          ts->setRecord(pr);
-        }
-        break;
-      }
-        
-      case Element::PIPE:
-      case Element::VALVE:
-      case Element::PUMP: {
-        Pipe::_sp pipe;
-        pipe = boost::static_pointer_cast<Pipe>(element);
-        if (pipe->doesHaveFlowMeasure()) {
-          TimeSeries::_sp ts = pipe->flow();
-          ts->setRecord(pr);
-        }
-        break;
-      }
-        
-      default:
-        break;
-    }
+// useful for pre-fetching simulation inputs
+void Model::setRecordForElementInputs(PointRecord::_sp pr) {
+  vector<TimeSeries::_sp> inputs = this->networkInputSeries(ElementOptionMeasuredAll);
+  BOOST_FOREACH(TimeSeries::_sp ts, inputs) {
+    ts->setRecord(pr);
   }
 }
 
-void Model::setRecordForNetworkBoundariesAndMeasures(PointRecord::_sp pr) {
-  vector<Element::_sp> modelElements;
-  modelElements = this->elements();
-  
-  // connect the time series
-  BOOST_FOREACH(Element::_sp element, modelElements) {
-    switch (element->type()) {
-      case Element::JUNCTION:
-      case Element::TANK:
-      case Element::RESERVOIR: {
-        Junction::_sp junc;
-        junc = boost::static_pointer_cast<Junction>(element);
-        if (junc->doesHaveBoundaryFlow()) {
-          TimeSeries::_sp ts = junc->boundaryFlow();
-          ts->setRecord(pr);
-        }
-        if (junc->doesHaveHeadMeasure()) {
-          TimeSeries::_sp ts = junc->headMeasure();
-          ts->setRecord(pr);
-        }
-        if (junc->doesHaveQualityMeasure()) {
-          TimeSeries::_sp ts = junc->qualityMeasure();
-          ts->setRecord(pr);
-        }
-        if (junc->doesHaveQualitySource()) {
-          TimeSeries::_sp ts = junc->qualitySource();
-          ts->setRecord(pr);
-        }
-        break;
-      }
-        
-      case Element::PIPE:
-      case Element::VALVE:
-      case Element::PUMP: {
-        Pipe::_sp pipe;
-        pipe = boost::static_pointer_cast<Pipe>(element);
-        if (pipe->doesHaveFlowMeasure()) {
-          TimeSeries::_sp ts = pipe->flowMeasure();
-          ts->setRecord(pr);
-        }
-        if (pipe->doesHaveSettingParameter()) {
-          TimeSeries::_sp ts = pipe->settingParameter();
-          ts->setRecord(pr);
-        }
-        if (pipe->doesHaveStatusParameter()) {
-          TimeSeries::_sp ts = pipe->statusParameter();
-          ts->setRecord(pr);
-        }
-        break;
-      }
-        
-      default:
-        break;
-    }
+void Model::setRecordForElementOutput(PointRecord::_sp record, elementOption_t options) {
+  vector<TimeSeries::_sp> outputs = this->networkStatesWithOptions(options);
+  BOOST_FOREACH(TimeSeries::_sp ts, outputs) {
+    ts->setRecord(record);
   }
-
 }
+
 

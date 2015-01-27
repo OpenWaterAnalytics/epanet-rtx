@@ -33,11 +33,9 @@ namespace RTX {
     std::string geometryName;
     
     void setElevation(double elevation);
-    bool doesResetLevelUsingClock();
-    void setLevelResetClock(Clock::_sp clock);
-    Clock::_sp levelResetClock();
-    void setResetLevelNextTime(bool reset);
-    bool resetLevelNextTime();
+    
+    void setNeedsReset(bool reset);
+    bool needsReset();
     
     // parameters
     void setLevelMeasure(TimeSeries::_sp level);
@@ -55,13 +53,11 @@ namespace RTX {
     OffsetTimeSeries::_sp _levelMeasure;
     CurveFunction::_sp _volumeMeasure;
     FirstDerivative::_sp _flowMeasure;
-    Clock::_sp _resetLevel;
     double _minLevel, _maxLevel;
-    bool _doesResetLevel;
     std::vector< std::pair<double,double> > _geometry;
     Units _geometryLevelUnits;
     Units _geometryVolumeUnits;
-    bool _resetLevelNextTime;
+    bool _willResetLevel;
     
   }; // Tank
   

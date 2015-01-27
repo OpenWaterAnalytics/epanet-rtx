@@ -20,8 +20,7 @@ using namespace std;
 Tank::Tank(const std::string& name) : Junction(name) {
   setType(TANK);
   // initialize time series states
-  _doesResetLevel = false;
-  _resetLevelNextTime = false;
+  _willResetLevel = false;
   _level.reset( new OffsetTimeSeries() );
   _level->setSource(this->head());
   _level->setName(name + " level (offset)");
@@ -149,19 +148,17 @@ TimeSeries::_sp Tank::volumeMeasure() {
 }
 
 
-void Tank::setResetLevelNextTime(bool reset) {
-  _resetLevelNextTime = reset;
+
+
+
+void Tank::setNeedsReset(bool reset) {
+  _willResetLevel = reset;
 }
-bool Tank::resetLevelNextTime() {
-  return _resetLevelNextTime;
+bool Tank::needsReset() {
+  return _willResetLevel;
 }
-bool Tank::doesResetLevelUsingClock() {
-  return _doesResetLevel;
-}
-void Tank::setLevelResetClock(Clock::_sp clock) {
-  _doesResetLevel = (clock ? true : false);
-  _resetLevel = clock;
-}
-Clock::_sp Tank::levelResetClock() {
-  return _resetLevel;
-}
+
+
+
+
+
