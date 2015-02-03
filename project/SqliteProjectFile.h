@@ -14,11 +14,6 @@
 
 #include "ProjectFile.h"
 
-#include "ModularTimeSeries.h"
-#include "AggregatorTimeSeries.h"
-
-
-
 namespace RTX {
   
   class SqliteProjectFile : public ProjectFile {

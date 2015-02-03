@@ -135,15 +135,15 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
   }
   
   // add the timeseries gap statistics to the summary
-  for(vector<ElementSummary>::iterator it = summary.begin();
-      it != summary.end(); ++it) {
-    TimeSeries::Statistics gapstats;
-    gapstats = (*it).data->gapsSummary(start, end);
-    (*it).count = gapstats.count;
-    (*it).minGap = gapstats.min;
-    (*it).maxGap = gapstats.max;
-    (*it).medianGap = gapstats.quartiles.q50;
-  }
+//  for(vector<ElementSummary>::iterator it = summary.begin();
+//      it != summary.end(); ++it) {
+//    TimeSeries::Statistics gapstats;
+//    gapstats = (*it).data->gapsSummary(start, end);
+//    (*it).count = gapstats.count;
+//    (*it).minGap = gapstats.min;
+//    (*it).maxGap = gapstats.max;
+//    (*it).medianGap = gapstats.quartiles.q50;
+//  }
   
   return summary;
 }

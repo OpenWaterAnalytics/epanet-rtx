@@ -11,7 +11,7 @@
 #include "TimeSeries.h"
 #include "ConstantTimeSeries.h"
 #include "SineTimeSeries.h"
-#include "Resampler.h"
+#include "TimeSeriesFilter.h"
 #include "MovingAverage.h"
 #include "FirstDerivative.h"
 #include "AggregatorTimeSeries.h"
@@ -24,7 +24,8 @@
 #include "MultiplierTimeSeries.h"
 #include "InversionTimeSeries.h"
 #include "FailoverTimeSeries.h"
-#include "TimeOffsetTimeSeries.h"
+#include "LagTimeSeries.h"
+#include "MathOpsTimeSeries.h"
 //#include "WarpingTimeSeries.h"
 #include "StatsTimeSeries.h"
 #include "OutlierExclusionTimeSeries.h"
@@ -88,8 +89,10 @@ static string dbInversionName = "Inversion";
 static string dbFailoverName = "Failover";
 static string dbLagName = "Lag";
 static string dbWarpName = "Warp";
+static string dbMathOpsName = "MathOps";
 static string dbStatsName = "Stats";
 static string dbOutlierName = "OutlierExclusion";
+
 //---------------------------------------------------------//
 static string dbOdbcRecordName =  "odbc";
 static string dbMysqlRecordName = "mysql";
@@ -152,7 +155,7 @@ namespace RTX {
 void SqliteProjectFile::loadProjectFile(const string& path) {
   boost::filesystem::path p(path);
   _path = boost::filesystem::absolute(p).string();
-  char *zErrMsg = 0;
+//  char *zErrMsg = 0;
   int returnCode;
   returnCode = sqlite3_open_v2(_path.c_str(), &_dbHandle, SQLITE_OPEN_READONLY, NULL);
   if( returnCode ){
@@ -203,7 +206,8 @@ void SqliteProjectFile::clear() {
 
 
 PointRecord::_sp SqliteProjectFile::defaultRecord() {
-  
+  PointRecord::_sp rec;
+  return rec;
 }
 
 Model::_sp SqliteProjectFile::model() {
@@ -466,8 +470,8 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
   
   BOOST_FOREACH(tsListEntry entry, tsList) {
     // if it doesn't take a source, then move on.
-    ModularTimeSeries::_sp mod = boost::dynamic_pointer_cast<ModularTimeSeries>(entry.ts);
-    if (!mod) {
+    TimeSeriesFilter::_sp filter = boost::dynamic_pointer_cast<TimeSeriesFilter>(entry.ts);
+    if (!filter) {
       continue;
     }
     
@@ -484,13 +488,13 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
       
       // possibilites for key: source, failover, multiplier, warp
       if (RTX_STRINGS_ARE_EQUAL(key, "source")) {
-        mod->setSource(upstreamTs);
+        filter->setSource(upstreamTs);
       }
       else if (RTX_STRINGS_ARE_EQUAL(key, "failover")) {
-        boost::dynamic_pointer_cast<FailoverTimeSeries>(mod)->setFailoverTimeseries(upstreamTs);
+        boost::dynamic_pointer_cast<FailoverTimeSeries>(filter)->setFailoverTimeseries(upstreamTs);
       }
       else if (RTX_STRINGS_ARE_EQUAL(key, "multiplier")) {
-        boost::dynamic_pointer_cast<MultiplierTimeSeries>(mod)->setMultiplier(upstreamTs);
+        boost::dynamic_pointer_cast<MultiplierTimeSeries>(filter)->setMultiplier(upstreamTs);
       }
       else if (RTX_STRINGS_ARE_EQUAL(key, "warp")) {
 //        boost::dynamic_pointer_cast<WarpingTimeSeries>(mod)->setWarp(upstreamTs);
@@ -558,9 +562,6 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
   
   
   // ANY CURVE TIME SERIES?
-  int curveId = 0;
-  string curveName();
-  
   BOOST_FOREACH(tsListEntry tsEntry, tsList) {
     if (RTX_STRINGS_ARE_EQUAL(tsEntry.type, "Curve")) {
       
@@ -572,13 +573,14 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
       
       // get the curve id
       sqlite3_stmt *getCurveIdStmt;
-      sqlite3_prepare_v2(_dbHandle, sqlGetCurveCoordinatesByTsId.c_str(), -1, &stmt, NULL);
-      sqlite3_bind_int(stmt, 1, tsEntry.uid);
-      while (sqlite3_step(stmt) == SQLITE_ROW) {
-        double x = sqlite3_column_double(stmt, 0);
-        double y = sqlite3_column_double(stmt, 1);
+      sqlite3_prepare_v2(_dbHandle, sqlGetCurveCoordinatesByTsId.c_str(), -1, &getCurveIdStmt, NULL);
+      sqlite3_bind_int(getCurveIdStmt, 1, tsEntry.uid);
+      while (sqlite3_step(getCurveIdStmt) == SQLITE_ROW) {
+        double x = sqlite3_column_double(getCurveIdStmt, 0);
+        double y = sqlite3_column_double(getCurveIdStmt, 1);
         curveTs->addCurveCoordinate(x, y);
       }
+      sqlite3_finalize(getCurveIdStmt);
     }
     
     
@@ -733,7 +735,7 @@ TimeSeries::_sp SqliteProjectFile::newTimeseriesWithType(const string& type) {
     return ts;
   }
   else if (typeEquals(dbResamplerName)) {
-    Resampler::_sp ts(new Resampler);
+    TimeSeriesFilter::_sp ts(new TimeSeriesFilter);
     return ts;
   }
   else if (typeEquals(dbMovingaverageName)) {
@@ -781,12 +783,16 @@ TimeSeries::_sp SqliteProjectFile::newTimeseriesWithType(const string& type) {
     return ts;
   }
   else if (typeEquals(dbLagName)) {
-    TimeOffsetTimeSeries::_sp ts(new TimeOffsetTimeSeries);
+    LagTimeSeries::_sp ts(new LagTimeSeries);
     return ts;
   }
   else if (typeEquals(dbWarpName)) {
 //    WarpingTimeSeries::_sp ts(new WarpingTimeSeries);
 //    return ts;
+  }
+  else if (typeEquals(dbMathOpsName)) {
+    MathOpsTimeSeries::_sp ts(new MathOpsTimeSeries);
+    return ts;
   }
   else if (typeEquals(dbStatsName)) {
     StatsTimeSeries::_sp ts(new StatsTimeSeries);
@@ -797,11 +803,9 @@ TimeSeries::_sp SqliteProjectFile::newTimeseriesWithType(const string& type) {
     return ts;
   }
   
-  else {
-    // cerr << "Did not recognize type: " << type << endl;
-    return TimeSeries::_sp(); // nada
-  }
-  
+
+  cerr << "Did not recognize type: " << type << endl;
+  return TimeSeries::_sp(); // nada
 }
 
 #pragma mark TimeSeries setters
@@ -916,9 +920,9 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
     }
   }
   else if (typeEquals(dbResamplerName)) {
-    Resampler::_sp rs = boost::dynamic_pointer_cast<Resampler>(ts);
+    TimeSeriesFilter::_sp rs = boost::dynamic_pointer_cast<TimeSeriesFilter>(ts);
     if (RTX_STRINGS_ARE_EQUAL(key, "interpolationMode")) {
-      rs->setMode((Resampler::interpolateMode_t)val);
+      rs->setResampleMode((TimeSeries::TimeSeriesResampleMode)val);
     }
   }
   else if (typeEquals(dbMovingaverageName)) {
@@ -968,7 +972,7 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
       gn->setGain(val);
     }
     else if (RTX_STRINGS_ARE_EQUAL(key, "gainUnits")) {
-      unsigned int idx;
+      unsigned int idx = 0;
       unsigned int desiredValue = (unsigned int)val;
       map<string,Units> uMap = Units::unitStringMap();
       map<string,Units>::const_iterator it;
@@ -977,6 +981,7 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
           gn->setUnits(it->second);
           break; // map iteration
         }
+        ++idx;
       }
     }
   }
@@ -993,7 +998,7 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
     }
   }
   else if (typeEquals(dbLagName)) {
-    TimeOffsetTimeSeries::_sp os = boost::dynamic_pointer_cast<TimeOffsetTimeSeries>(ts);
+    LagTimeSeries::_sp os = boost::dynamic_pointer_cast<LagTimeSeries>(ts);
     if (RTX_STRINGS_ARE_EQUAL(key, "lag")) {
       os->setOffset((time_t)val);
     }
