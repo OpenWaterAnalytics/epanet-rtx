@@ -22,7 +22,7 @@ time_t FailoverTimeSeries::maximumStaleness() {
 }
 
 void FailoverTimeSeries::setMaximumStaleness(time_t stale) {
-  if (this->clock()->period() <= (int)stale) {
+  if (!this->clock() || this->clock()->period() <= (int)stale) {
     _stale = stale;
   }
   else {

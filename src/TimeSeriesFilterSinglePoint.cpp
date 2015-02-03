@@ -21,14 +21,14 @@ TimeSeries::PointCollection TimeSeriesFilterSinglePoint::filterPointsInRange(Tim
     // expand range
 
     Point seekLeft = this->source()->pointBefore(range.first + 1);
-    while (!this->filteredWithSourcePoint(seekLeft).isValid) {
+    while (seekLeft.time > 0 && !this->filteredWithSourcePoint(seekLeft).isValid) {
       seekLeft = this->source()->pointBefore(seekLeft.time);
     }
     
     queryRange.first = seekLeft.time;
     
     Point seekRight = this->source()->pointAfter(range.second -1 );
-    while (!this->filteredWithSourcePoint(seekRight).isValid) {
+    while (seekRight.time > 0 && !this->filteredWithSourcePoint(seekRight).isValid) {
       seekRight = this->source()->pointAfter(seekRight.time);
     }
     

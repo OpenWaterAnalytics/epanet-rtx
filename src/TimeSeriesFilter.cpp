@@ -186,6 +186,9 @@ TimeSeries::PointCollection TimeSeriesFilter::filterPointsInRange(TimeRange rang
     queryRange.second = this->source()->pointAfter(range.second - 1).time;
   }
   
+  queryRange.first = (queryRange.first == 0) ? range.first : queryRange.first;
+  queryRange.second = (queryRange.second == 0) ? range.second : queryRange.second;
+  
   PointCollection data = source()->points(queryRange);
   
   bool dataOk = false;

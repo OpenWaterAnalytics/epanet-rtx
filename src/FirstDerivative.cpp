@@ -30,6 +30,20 @@ TimeSeries::PointCollection FirstDerivative::filterPointsInRange(TimeRange range
   Point leftMostPoint = this->source()->pointAtOrBefore(range.first);
   Point prior = this->source()->pointBefore(leftMostPoint.time);
   
+  // may not have a point here. if not, get the next one.
+  if (prior.time == 0) {
+    prior = this->source()->pointAfter(range.first - 1);
+  }
+  
+  // get next point in case it's out of the specified range
+  Point seekRight;
+  seekRight.time = range.second - 1;
+  while (seekRight.time > 0 && !seekRight.isValid) {
+    seekRight = this->source()->pointAfter(seekRight.time);
+  }
+  if (seekRight.time > 0) {
+    range.second = seekRight.time;
+  }
   
   PointCollection sourceData = this->source()->points(make_pair(prior.time, range.second));
   
@@ -37,21 +51,17 @@ TimeSeries::PointCollection FirstDerivative::filterPointsInRange(TimeRange range
     return data;
   }
   
-  
   vector<Point>::const_iterator cursor, prev, vEnd;
   cursor = sourceData.points.begin();
   prev = sourceData.points.begin();
   vEnd = sourceData.points.end();
   
   ++cursor;
-  
   while (cursor != vEnd) {
     time_t dt = cursor->time - prev->time;
     double dv = cursor->value - prev->value;
     double dvdt = Units::convertValue(dv / double(dt), fromUnits / RTX_SECOND, this->units());
-    
     outPoints.push_back(Point(cursor->time, dvdt));
-    
     ++cursor;
     ++prev;
   }
@@ -73,7 +83,11 @@ bool FirstDerivative::canSetSource(TimeSeries::_sp ts) {
 
 void FirstDerivative::didSetSource(TimeSeries::_sp ts) {
   if (this->units().isDimensionless() || !this->units().isSameDimensionAs(ts->units() / RTX_SECOND)) {
-    this->setUnits(ts->units() / RTX_SECOND);
+    Units newUnits = ts->units() / RTX_SECOND;
+    if (newUnits.isDimensionless()) {
+      newUnits = RTX_DIMENSIONLESS; // fix weird hr/sec units bug
+    }
+    this->setUnits(newUnits);
   }
 }
 
