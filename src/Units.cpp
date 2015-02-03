@@ -122,7 +122,7 @@ ostream& RTX::operator<< (ostream &out, Units &unit) {
 
 ostream& Units::toStream(ostream &stream) {
   if (isDimensionless()) {
-    stream << "(dimensionless)";
+    stream << "dimensionless";
     return stream;
   }
   
