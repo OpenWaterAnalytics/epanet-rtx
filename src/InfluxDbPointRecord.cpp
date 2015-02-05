@@ -4,12 +4,15 @@
 #include <boost/foreach.hpp>
 #include <curl/curl.h>
 #include <map>
+#include <boost/regex.hpp>
+#include <boost/lexical_cast.hpp>
+
 
 
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
-#include <boost/timer/timer.hpp>
+//#include <boost/timer/timer.hpp>
 
 using namespace std;
 using namespace RTX;
@@ -22,6 +25,13 @@ using boost::asio::ip::tcp;
 InfluxDbPointRecord::InfluxDbPointRecord() {
   _connected = false;
   _range = make_pair(0,0);
+  
+  host = "*HOST*";
+  user = "*USER*";
+  pass = "*PASS*";
+  port = 8086;
+  db = "*DB*";
+  
 }
 
 void InfluxDbPointRecord::dbConnect() throw(RtxException) {
@@ -29,15 +39,61 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
   stringstream q;
   q << "/db?u=" << this->user << "&p=" << this->pass;
   
-  JsonDocPtr doc = this->documentFromUrl(q.str());
+  JsonDocPtr doc = this->jsonFromUrl(q.str());
   if (!doc) {
     _connected = false;
     cerr << "could not connect" << endl;
+    errorMessage = "Could Not Connect";
   }
   else {
     _connected = true;
+    errorMessage = "OK";
   }
   
+}
+
+
+string InfluxDbPointRecord::connectionString() {
+  
+  stringstream ss;
+  ss << "host=" << this->host << "&port=" << this->port << "&db=" << this->db << "&u=" << this->user << "&p=" << this->pass;
+  
+  return ss.str();
+}
+
+void InfluxDbPointRecord::setConnectionString(const std::string &str) {
+  
+  // split the tokenized string. we're expecting something like "host=127.0.0.1&port=4242;"
+  std::map<std::string, std::string> kvPairs;
+  {
+    boost::regex kvReg("([^=]+)=([^&]+)&?"); // key - value pair
+    boost::sregex_iterator it(str.begin(), str.end(), kvReg), end;
+    for ( ; it != end; ++it) {
+      kvPairs[(*it)[1]] = (*it)[2];
+    }
+  }
+  
+  std::map<std::string, std::string>::iterator notfound = kvPairs.end();
+  
+  if (kvPairs.find("host") != notfound) {
+    this->host = kvPairs["host"];
+  }
+  if (kvPairs.find("port") != notfound) {
+    int intPort = boost::lexical_cast<int>(kvPairs["port"]);
+    this->port = intPort;
+  }
+  if (kvPairs.find("db") != notfound) {
+    this->db = kvPairs["db"];
+  }
+  if (kvPairs.find("u") != notfound) {
+    this->user = kvPairs["u"];
+  }
+  if (kvPairs.find("p") != notfound) {
+    this->pass = kvPairs["p"];
+  }
+  
+  
+  return;
 }
 
 
@@ -59,25 +115,25 @@ PointRecord::time_pair_t InfluxDbPointRecord::range(const string& id) {
   vector<Point> lastPoints;
   
   {
-    boost::timer::auto_cpu_timer t;
-    cout << "first:" << endl;
+//    boost::timer::auto_cpu_timer t;
+//    cout << "first:" << endl;
     
     sqlss << "select time,value,quality from " << id << " order asc limit 1";
     url = this->urlForQuery(sqlss.str());
-    doc = this->documentFromUrl(url);
-    firstPoints = this->pointsFromDoc(doc);
+    doc = this->jsonFromUrl(url);
+    firstPoints = this->pointsFromJson(doc);
     sqlss.str("");
   }
   
   
   {
-    boost::timer::auto_cpu_timer t;
-    cout << "last:" << endl;
+//    boost::timer::auto_cpu_timer t;
+//    cout << "last:" << endl;
     
     sqlss << "select time,value,quality from " << id << " where time < now() + 36500d order desc limit 1";
     url = this->urlForQuery(sqlss.str());
-    doc = this->documentFromUrl(url);
-    lastPoints = this->pointsFromDoc(doc);
+    doc = this->jsonFromUrl(url);
+    lastPoints = this->pointsFromJson(doc);
     
   }
   
@@ -103,14 +159,14 @@ std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_
   std::vector<Point> points;
   
   stringstream sqlss;
-  sqlss << "select time,value,quality from " << id;
+  sqlss << "select time,value,quality from \"" << id << "\"";
   sqlss << " where time > " << startTime << "s";
   sqlss << " and time < "   << endTime << "s";
   sqlss << " order asc";
   string url = this->urlForQuery(sqlss.str());
 
-  JsonDocPtr doc = this->documentFromUrl(url);
-  return this->pointsFromDoc(doc);
+  JsonDocPtr doc = this->jsonFromUrl(url);
+  return this->pointsFromJson(doc);
 }
 
 
@@ -124,8 +180,8 @@ Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
   sqlss << " order asc limit 1";
   string url = this->urlForQuery(sqlss.str());
   
-  JsonDocPtr doc = this->documentFromUrl(url);
-  points = this->pointsFromDoc(doc);
+  JsonDocPtr doc = this->jsonFromUrl(url);
+  points = this->pointsFromJson(doc);
   
   if (points.size() == 0) {
     return Point();
@@ -144,8 +200,8 @@ Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
   sqlss << " order desc limit 1";
   string url = this->urlForQuery(sqlss.str());
   
-  JsonDocPtr doc = this->documentFromUrl(url);
-  points = this->pointsFromDoc(doc);
+  JsonDocPtr doc = this->jsonFromUrl(url);
+  points = this->pointsFromJson(doc);
   
   if (points.size() == 0) {
     return Point();
@@ -166,6 +222,9 @@ void InfluxDbPointRecord::insertSingle(const std::string& id, Point point) {
 }
 
 void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> points) {
+  if (points.size() == 0) {
+    return;
+  }
   
   vector<Point> existing;
   existing = this->selectRange(id, points.front().time - 1, points.back().time + 1);
@@ -186,8 +245,8 @@ void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> 
     return;
   }
   
-  JsonDocPtr doc = this->insertionDocumentFromPoints(id, insertionPoints);
-  string body = this->serializedDocument(doc);
+  JsonDocPtr doc = this->insertionJsonFromPoints(id, insertionPoints);
+  string body = this->serializedJson(doc);
   
   this->postPointsWithBody(body);
   
@@ -210,7 +269,7 @@ void InfluxDbPointRecord::removeRecord(const std::string& id) {
   sqlss << "drop series " << id;
   string url = this->urlForQuery(sqlss.str(),false);
   
-  JsonDocPtr doc = this->documentFromUrl(url);
+  JsonDocPtr doc = this->jsonFromUrl(url);
   
   
 }
@@ -221,13 +280,24 @@ void InfluxDbPointRecord::removeRecord(const std::string& id) {
 vector<string> InfluxDbPointRecord::identifiers() {
   vector<string> ids;
   string query = "/db/" + this->db + "/series?u=" + this->user + "&p=" + this->pass + "&q=list%20series";
-  JsonDocPtr jsonDoc = this->documentFromUrl(query);
+  JsonDocPtr jsonDoc = this->jsonFromUrl(query);
   
   if (jsonDoc) {
-    for (rapidjson::SizeType i = 0; i < jsonDoc->Size(); ++i) {
-      string id = (*jsonDoc)[i]["name"].GetString();
+    rapidjson::SizeType zero = 0;
+    const rapidjson::Value& names = (*jsonDoc)[zero]["points"];
+    if (! names.IsArray()) {
+      return ids;
+    }
+    for (rapidjson::SizeType i = 0; i < names.Size(); ++i) {
+      // row of names array is of format [0,"tag.name"], itself an array.
+      const rapidjson::Value& row = names[i];
+      if (!row.IsArray()) {
+        continue;
+      }
+      string id = row[1].GetString();
       ids.push_back(id);
     }
+    
   }
   
   return ids;
@@ -237,7 +307,7 @@ vector<string> InfluxDbPointRecord::identifiers() {
 
 
 
-vector<Point> InfluxDbPointRecord::pointsFromDoc(JsonDocPtr doc) {
+vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
   vector<Point> points;
   
   // multiple time series might be returned eventually, but for now it's just a single-value array.
@@ -290,7 +360,7 @@ vector<Point> InfluxDbPointRecord::pointsFromDoc(JsonDocPtr doc) {
 
 
 
-JsonDocPtr InfluxDbPointRecord::documentFromUrl(const std::string &url) {
+JsonDocPtr InfluxDbPointRecord::jsonFromUrl(const std::string &url) {
   JsonDocPtr documentOut;
   stringstream portss;
   portss << this->port;
@@ -334,6 +404,8 @@ JsonDocPtr InfluxDbPointRecord::documentFromUrl(const std::string &url) {
   documentOut.reset(new rapidjson::Document);
   documentOut.get()->Parse<0>(body.c_str());
   
+  //cout << body << endl;
+  
   return documentOut;
 }
 
@@ -357,7 +429,7 @@ const std::string InfluxDbPointRecord::urlEncode(std::string s) {
 
 
 
-const string InfluxDbPointRecord::serializedDocument(JsonDocPtr doc) {
+const string InfluxDbPointRecord::serializedJson(JsonDocPtr doc) {
   
   rapidjson::StringBuffer strbuf;
   rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
@@ -381,7 +453,7 @@ const string InfluxDbPointRecord::urlForQuery(const std::string& query, bool app
   return queryss.str();
 }
 
-JsonDocPtr InfluxDbPointRecord::insertionDocumentFromPoints(const std::string& tsName, std::vector<Point> points) {
+JsonDocPtr InfluxDbPointRecord::insertionJsonFromPoints(const std::string& tsName, std::vector<Point> points) {
   
   JsonDocPtr doc( new rapidjson::Document );
   rapidjson::Document::AllocatorType& allocator = doc->GetAllocator();
