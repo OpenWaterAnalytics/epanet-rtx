@@ -11,9 +11,6 @@ using namespace RTX;
 using namespace std;
 
 SineTimeSeries::SineTimeSeries(double magnitude, time_t period) {
-  Clock::sharedPointer clock(new Clock(600));
-  clock->setName("RTX SYNTHETIC 600s");
-  setClock(clock);
   _period = period;
   _magnitude = magnitude;
 }
@@ -26,13 +23,7 @@ double SineTimeSeries::magnitude() {
 }
 
 
-Point SineTimeSeries::point(time_t time) {
-  if ( !(clock()->isValid(time)) ) {
-    // if the time is not valid, rewind until a valid time is reached.
-    time = clock()->timeBefore(time);
-  }
-  
+Point SineTimeSeries::syntheticPoint(time_t time) {
   double value = _magnitude * sin((double)time * M_PI * 2 / (_period));
   return Point(time, value);
-  
 }

@@ -62,8 +62,8 @@ namespace RTX {
     class ElementSummary {
     public:
       ElementSummary() : count(0),minGap(0),maxGap(0),medianGap(0) { };
-      Element::sharedPointer element;
-      TimeSeries::sharedPointer data;
+      Element::_sp element;
+      TimeSeries::_sp data;
       boundary_t boundaryType;
       measure_t measureType;
       size_t count;
@@ -76,14 +76,14 @@ namespace RTX {
     virtual void saveProjectFile(const string& path) = 0;
     virtual void clear() = 0;
     
-    virtual RTX_LIST<TimeSeries::sharedPointer> timeSeries() = 0;
-    virtual RTX_LIST<Clock::sharedPointer> clocks() = 0;
-    virtual RTX_LIST<PointRecord::sharedPointer> records() = 0;
-    virtual Model::sharedPointer model() = 0;
+    virtual RTX_LIST<TimeSeries::_sp> timeSeries() = 0;
+    virtual RTX_LIST<Clock::_sp> clocks() = 0;
+    virtual RTX_LIST<PointRecord::_sp> records() = 0;
+    virtual Model::_sp model() = 0;
     
-    virtual void insertTimeSeries(TimeSeries::sharedPointer ts) = 0;
-    virtual void insertClock(Clock::sharedPointer clock) = 0;
-    virtual void insertRecord(PointRecord::sharedPointer record) = 0;
+    virtual void insertTimeSeries(TimeSeries::_sp ts) = 0;
+    virtual void insertClock(Clock::_sp clock) = 0;
+    virtual void insertRecord(PointRecord::_sp record) = 0;
     
     std::vector<ElementSummary> projectSummary(time_t start, time_t end);
     

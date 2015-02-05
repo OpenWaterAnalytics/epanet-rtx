@@ -24,8 +24,8 @@
 #include "GainTimeSeries.h"
 #include "FailoverTimeSeries.h"
 #include "TimeOffsetTimeSeries.h"
-#include "WarpingTimeSeries.h"
-#include "ForecastTimeSeries.h"
+//#include "WarpingTimeSeries.h"
+//#include "ForecastTimeSeries.h"
 #include "TimeOffsetTimeSeries.h"
 
 #include "OutlierExclusionTimeSeries.h"
@@ -47,13 +47,13 @@ void printPoints(vector<Point> pointVector);
 int main(int argc, const char * argv[])
 {
   
-  Clock::sharedPointer clock(new Clock(900));
+  Clock::_sp clock(new Clock(900));
   
-  SineTimeSeries::sharedPointer sineWave(new SineTimeSeries());
+  SineTimeSeries::_sp sineWave(new SineTimeSeries());
   sineWave->setName("sine");
   sineWave->setClock(clock);
   
-  TimeOffsetTimeSeries::sharedPointer lag(new TimeOffsetTimeSeries());
+  TimeOffsetTimeSeries::_sp lag(new TimeOffsetTimeSeries());
   lag->setOffset(900);
   lag->setSource(sineWave);
   
@@ -70,7 +70,7 @@ int main(int argc, const char * argv[])
   /*
   
   
-  ForecastTimeSeries::sharedPointer pythonTestTs(new ForecastTimeSeries());
+  ForecastTimeSeries::_sp pythonTestTs(new ForecastTimeSeries());
   
   pythonTestTs->setSource(sineWave);
   

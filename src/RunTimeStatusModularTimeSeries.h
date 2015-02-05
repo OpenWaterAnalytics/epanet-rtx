@@ -31,7 +31,7 @@ namespace RTX {
     virtual Point point(time_t time);
     virtual Point pointBefore(time_t time);
     virtual Point pointAfter(time_t time);
-    virtual void setClock(Clock::sharedPointer clock);
+    virtual void setClock(Clock::_sp clock);
 
   private:
     Point pointNext(time_t time);

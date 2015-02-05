@@ -11,9 +11,11 @@
 
 
 #include <vector>
-#include "Resampler.h"
-#include "rtxExceptions.h"
 #include <boost/foreach.hpp>
+
+#include "TimeSeriesFilter.h"
+#include "rtxExceptions.h"
+
 
 namespace RTX {
   
@@ -25,38 +27,39 @@ namespace RTX {
    
    */
   
-  class AggregatorTimeSeries : public Resampler {
+  class AggregatorTimeSeries : public TimeSeriesFilter {
   
   public:
     RTX_SHARED_POINTER(AggregatorTimeSeries);
     
     typedef struct {
-      TimeSeries::sharedPointer timeseries;
+      TimeSeries::_sp timeseries;
       double multiplier;
     } AggregatorSource;
     
-    TimeSeries::sharedPointer source();
-    virtual void setSource(TimeSeries::sharedPointer source);
-    virtual bool doesHaveSource();
     virtual std::ostream& toStream(std::ostream &stream);
+    
+    TimeSeries::_sp source();
+    void setSource(TimeSeries::_sp ts);
     
     // add a time series to this aggregator. optional parameter "multiplier" allows you to scale
     // the aggregated time series (for instance, by -1 if it needs to be subtracted).
-    void addSource(TimeSeries::sharedPointer timeSeries, double multiplier = 1.) throw(RtxException);
-    void removeSource(TimeSeries::sharedPointer timeSeries);
+    void addSource(TimeSeries::_sp timeSeries, double multiplier = 1.) throw(RtxException);
+    void removeSource(TimeSeries::_sp timeSeries);
     std::vector< AggregatorSource > sources();
-    void setMultiplierForSource(TimeSeries::sharedPointer timeSeries, double multiplier);
+    void setMultiplierForSource(TimeSeries::_sp timeSeries, double multiplier);
     
-    // reimplement the base class methods
-    virtual Point point(time_t time);
-    // points is handled by ModularTimeSeries, which calls filteredPoints (see below)
-    //virtual std::vector< Point > points(time_t start, time_t end);
-
+    
+    // must reimplement these searching methods
     virtual Point pointBefore(time_t time);
     virtual Point pointAfter(time_t time);
     
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
+    PointCollection filterPointsInRange(TimeRange range);
+    std::set<time_t> timeValuesInRange(TimeRange range);
+    bool canSetSource(TimeSeries::_sp ts);
+    void didSetSource(TimeSeries::_sp ts);
+    bool canChangeToUnits(Units units);
 
   private:
     // need to store several TimeSeries references...

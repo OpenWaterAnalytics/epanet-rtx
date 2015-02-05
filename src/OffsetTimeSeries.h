@@ -10,10 +10,10 @@
 #define __epanet_rtx__OffsetTimeSeries__
 
 #include <iostream>
-#include "SinglePointFilterModularTimeSeries.h"
+#include "TimeSeriesFilterSinglePoint.h"
 
 namespace RTX {
-  class OffsetTimeSeries : public SinglePointFilterModularTimeSeries {
+  class OffsetTimeSeries : public TimeSeriesFilterSinglePoint {
   
   public:
     RTX_SHARED_POINTER(OffsetTimeSeries);
@@ -21,7 +21,7 @@ namespace RTX {
     void setOffset(double offset);
     double offset();
   protected:
-    Point filteredSingle(Point p, Units sourceU);
+    Point filteredWithSourcePoint(Point sourcePoint);
   private:
     double _offset;
   };

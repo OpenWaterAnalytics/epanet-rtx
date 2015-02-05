@@ -43,13 +43,8 @@ void Clock::setName(std::string name) {
   _name = name;
 }
 
-bool Clock::isCompatibleWith(Clock::sharedPointer clock) {
-  // if this clock is irregular, it's compatible with anything!
-  if (!isRegular()) {
-    return true;
-  }
-  
-  // otherwise...
+bool Clock::isCompatibleWith(Clock::_sp clock) {
+
   time_t offsetDifference;
   int periodModulus;
   offsetDifference = this->start() - clock->start();
@@ -78,7 +73,7 @@ bool Clock::isCompatibleWith(Clock::sharedPointer clock) {
 
 bool Clock::isValid(time_t time) {
   
-  if (!isRegular() || timeOffset(time) == 0) {
+  if (timeOffset(time) == 0) {
     return true;
   }
   else {
@@ -86,9 +81,6 @@ bool Clock::isValid(time_t time) {
   }
 }
 
-bool Clock::isRegular() {
-  return _isRegular;
-}
 
 int Clock::period() {
   return _period;
@@ -118,9 +110,6 @@ time_t Clock::validTime(time_t time) {
 }
 
 time_t Clock::timeBefore(time_t time) {
-  if (!isRegular()) {
-    return (time - 1);
-  }
   if (isValid(time)) {
     // return the previous time value
     return ( time - period() );
@@ -132,9 +121,6 @@ time_t Clock::timeBefore(time_t time) {
 }
 
 time_t Clock::timeAfter(time_t time) {
-  if (!isRegular()) {
-    return (time + 1);
-  }
   if (isValid(time)) {
     // return the next time value
     return ( time + period() );
@@ -145,8 +131,8 @@ time_t Clock::timeAfter(time_t time) {
   }
 }
 
-std::vector< time_t > Clock::timeValuesInRange(time_t start, time_t end) {
-  std::vector<time_t> timeList;
+std::set< time_t > Clock::timeValuesInRange(time_t start, time_t end) {
+  std::set<time_t> timeList;
   if (!isValid(start)) {
     start = timeAfter(start);
   }
@@ -154,7 +140,7 @@ std::vector< time_t > Clock::timeValuesInRange(time_t start, time_t end) {
     if (thisTime == 0) {
       break;
     }
-    timeList.push_back(thisTime);
+    timeList.insert(thisTime);
   }
   return timeList;
 }
@@ -163,13 +149,9 @@ std::vector< time_t > Clock::timeValuesInRange(time_t start, time_t end) {
 #pragma mark - Protected Methods
 
 std::ostream& Clock::toStream(std::ostream &stream) {
-  if (isRegular()) {
-    stream << "period(" << period() << ") ";
-    stream << "offset(" << start() << ")\n";
-  }
-  else {
-    stream << "irregular\n";
-  }
+
+  stream << "period(" << period() << ") ";
+  stream << "offset(" << start() << ")\n";
   
   return stream;
 }

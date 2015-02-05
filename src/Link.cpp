@@ -11,7 +11,7 @@
 using namespace RTX;
 using namespace std;
 
-Link::Link(const std::string& name, Node::sharedPointer startNode, Node::sharedPointer endNode) : Element(name) {
+Link::Link(const std::string& name, Node::_sp startNode, Node::_sp endNode) : Element(name) {
   _from = startNode;
   _to = endNode;
 }
@@ -20,21 +20,21 @@ Link::~Link() {
   
 }
 
-std::pair<Node::sharedPointer, Node::sharedPointer> Link::nodes() {
-  return std::make_pair<Node::sharedPointer, Node::sharedPointer>(from(), to());
+std::pair<Node::_sp, Node::_sp> Link::nodes() {
+  return std::make_pair<Node::_sp, Node::_sp>(from(), to());
 }
 
-Node::sharedPointer Link::from() {
+Node::_sp Link::from() {
   return _from;
 }
 
-Node::sharedPointer Link::to() {
+Node::_sp Link::to() {
   return _to;
 }
 
 
 
-Link::direction_t Link::directionRelativeToNode(Node::sharedPointer node) {
+Link::direction_t Link::directionRelativeToNode(Node::_sp node) {
   direction_t dir;
   if (from() == node) {
     dir = outDirection;

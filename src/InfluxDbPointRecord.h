@@ -31,6 +31,9 @@ namespace RTX {
     
     virtual time_pair_t range(const string& id);
     
+    std::string connectionString();
+    void setConnectionString(const std::string& str);
+    
     std::string host, user, pass, db;
     int port;
     
@@ -56,10 +59,10 @@ namespace RTX {
 //    InfluxConnectInfo_t connectionInfo;
     
     
-    JsonDocPtr documentFromUrl(const std::string& url);
-    JsonDocPtr insertionDocumentFromPoints(const std::string& tsName, std::vector<Point> points);
-    const std::string serializedDocument(JsonDocPtr doc);
-    std::vector<Point> pointsFromDoc(JsonDocPtr doc);
+    JsonDocPtr jsonFromUrl(const std::string& url);
+    JsonDocPtr insertionJsonFromPoints(const std::string& tsName, std::vector<Point> points);
+    const std::string serializedJson(JsonDocPtr doc);
+    std::vector<Point> pointsFromJson(JsonDocPtr doc);
     const std::string urlForQuery(const std::string& query, bool appendTimePrecision = true); // unencoded query
     const std::string urlEncode(std::string s);
     void postPointsWithBody(const std::string& body);

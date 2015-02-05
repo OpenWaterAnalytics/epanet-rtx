@@ -14,11 +14,6 @@
 
 #include "ProjectFile.h"
 
-#include "ModularTimeSeries.h"
-#include "AggregatorTimeSeries.h"
-
-
-
 namespace RTX {
   
   class SqliteProjectFile : public ProjectFile {
@@ -27,27 +22,27 @@ namespace RTX {
     void saveProjectFile(const string& path);
     void clear();
     
-    RTX_LIST<TimeSeries::sharedPointer> timeSeries();
-    RTX_LIST<Clock::sharedPointer> clocks();
-    RTX_LIST<PointRecord::sharedPointer> records();
-    Model::sharedPointer model();
+    RTX_LIST<TimeSeries::_sp> timeSeries();
+    RTX_LIST<Clock::_sp> clocks();
+    RTX_LIST<PointRecord::_sp> records();
+    Model::_sp model();
     
-    PointRecord::sharedPointer defaultRecord();
+    PointRecord::_sp defaultRecord();
     
-    void insertTimeSeries(TimeSeries::sharedPointer ts) {};
-    void insertClock(Clock::sharedPointer clock) {};
-    void insertRecord(PointRecord::sharedPointer record) {};
+    void insertTimeSeries(TimeSeries::_sp ts) {};
+    void insertClock(Clock::_sp clock) {};
+    void insertRecord(PointRecord::_sp record) {};
     
   private:
     // maps are keyed by uuid from database
-    map<int, TimeSeries::sharedPointer> _timeseries;
-    map<int, PointRecord::sharedPointer> _records;
-    map<int, Clock::sharedPointer> _clocks;
+    map<int, TimeSeries::_sp> _timeseries;
+    map<int, PointRecord::_sp> _records;
+    map<int, Clock::_sp> _clocks;
     
-    map<int, Element::sharedPointer> _elementUidLookup;
+    map<int, Element::_sp> _elementUidLookup;
     map<int, std::pair<int, std::string> > _elementOutput;
     
-    Model::sharedPointer _model;
+    Model::_sp _model;
     sqlite3 *_dbHandle;
     string _path;
     
@@ -60,13 +55,13 @@ namespace RTX {
     
     void loadModelOutputMapping();
     
-    void setJunctionParameter(Junction::sharedPointer j, string paramName, TimeSeries::sharedPointer ts);
-    void setPipeParameter(Pipe::sharedPointer p, string paramName, TimeSeries::sharedPointer ts);
-    TimeSeries::sharedPointer tsPropertyForElementWithKey(Element::sharedPointer, std::string key);
+    void setJunctionParameter(Junction::_sp j, string paramName, TimeSeries::_sp ts);
+    void setPipeParameter(Pipe::_sp p, string paramName, TimeSeries::_sp ts);
+    TimeSeries::_sp tsPropertyForElementWithKey(Element::_sp, std::string key);
     
-    TimeSeries::sharedPointer newTimeseriesWithType(const std::string& type);
-    void setBaseProperties(TimeSeries::sharedPointer ts, int uid);
-    void setPropertyValuesForTimeSeriesWithType(TimeSeries::sharedPointer ts, const string& type, string key, double value);
+    TimeSeries::_sp newTimeseriesWithType(const std::string& type);
+    void setBaseProperties(TimeSeries::_sp ts, int uid);
+    void setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp ts, const string& type, string key, double value);
     
   };
 }

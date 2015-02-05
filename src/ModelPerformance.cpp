@@ -17,7 +17,7 @@
 using namespace RTX;
 using namespace std;
 
-ModelPerformance::ModelPerformance(Model::sharedPointer model, StatsType statsType, AggregationType aggregationType, LocationType locationType) {
+ModelPerformance::ModelPerformance(Model::_sp model, StatsType statsType, AggregationType aggregationType, LocationType locationType) {
   
   if (!model) {
     return;
@@ -32,15 +32,15 @@ ModelPerformance::ModelPerformance(Model::sharedPointer model, StatsType statsTy
 }
 
 // specify the model and get the important information
-Model::sharedPointer ModelPerformance::model() {
+Model::_sp ModelPerformance::model() {
   return _model;
 }
 
-TimeSeries::sharedPointer ModelPerformance::performance() {
+TimeSeries::_sp ModelPerformance::performance() {
   return _performance;
 }
 
-std::vector<std::pair<Element::sharedPointer, TimeSeries::sharedPointer> > ModelPerformance::components() {
+std::vector<std::pair<Element::_sp, TimeSeries::_sp> > ModelPerformance::components() {
   return _errorComponents;
 }
 
@@ -76,31 +76,31 @@ void ModelPerformance::setLocationType(ModelPerformance::LocationType type) {
 
 
 
-Clock::sharedPointer ModelPerformance::samplingWindow() {
+Clock::_sp ModelPerformance::samplingWindow() {
   return _samplingWindow;
 }
 
-void ModelPerformance::setSamplingWindow(Clock::sharedPointer clock) {
+void ModelPerformance::setSamplingWindow(Clock::_sp clock) {
   _samplingWindow = clock;
   this->rebuildPerformanceCalculation();
 }
 
 
-Clock::sharedPointer ModelPerformance::errorClock() {
+Clock::_sp ModelPerformance::errorClock() {
   return _errorClock;
 }
 
-void ModelPerformance::setErrorClock(Clock::sharedPointer clock) {
+void ModelPerformance::setErrorClock(Clock::_sp clock) {
   _errorClock = clock;
   this->rebuildPerformanceCalculation();
 }
 
 
-Clock::sharedPointer ModelPerformance::aggregationClock() {
+Clock::_sp ModelPerformance::aggregationClock() {
   return _aggregationClock;
 }
 
-void ModelPerformance::setAggregationClock(Clock::sharedPointer clock) {
+void ModelPerformance::setAggregationClock(Clock::_sp clock) {
   _aggregationClock = clock;
   this->rebuildPerformanceCalculation();
 }
@@ -108,31 +108,31 @@ void ModelPerformance::setAggregationClock(Clock::sharedPointer clock) {
 
 void ModelPerformance::rebuildPerformanceCalculation() {
   
-  vector<Element::sharedPointer> elementsToConsider = this->elementsWithModelForLocationType(this->model(), this->locationType());
+  vector<Element::_sp> elementsToConsider = this->elementsWithModelForLocationType(this->model(), this->locationType());
   this->buildPerformanceCalculatorWithElements(elementsToConsider);
   
 }
 
 
-vector<Element::sharedPointer> ModelPerformance::elementsWithModelForLocationType(Model::sharedPointer model, LocationType locationType) {
+vector<Element::_sp> ModelPerformance::elementsWithModelForLocationType(Model::_sp model, LocationType locationType) {
   
   // get the collection of elements to consider.
-  vector<Element::sharedPointer> elementsToConsider;
+  vector<Element::_sp> elementsToConsider;
   
   switch (this->locationType()) {
     case ModelPerformanceLocationFlow:
     {
-      BOOST_FOREACH( Pipe::sharedPointer p, model->pipes()) {
+      BOOST_FOREACH( Pipe::_sp p, model->pipes()) {
         if (p->doesHaveFlowMeasure()) {
           elementsToConsider.push_back(p);
         }
       }
-      BOOST_FOREACH( Pipe::sharedPointer p, model->valves()) {
+      BOOST_FOREACH( Pipe::_sp p, model->valves()) {
         if (p->doesHaveFlowMeasure()) {
           elementsToConsider.push_back(p);
         }
       }
-      BOOST_FOREACH( Pipe::sharedPointer p, model->pumps()) {
+      BOOST_FOREACH( Pipe::_sp p, model->pumps()) {
         if (p->doesHaveFlowMeasure()) {
           elementsToConsider.push_back(p);
         }
@@ -141,7 +141,7 @@ vector<Element::sharedPointer> ModelPerformance::elementsWithModelForLocationTyp
       break;
     case ModelPerformanceLocationPressure:
     {
-      BOOST_FOREACH(Junction::sharedPointer j, model->junctions()) {
+      BOOST_FOREACH(Junction::_sp j, model->junctions()) {
         if (j->pressureMeasure()) {
           elementsToConsider.push_back(j);
         }
@@ -150,7 +150,7 @@ vector<Element::sharedPointer> ModelPerformance::elementsWithModelForLocationTyp
       break;
     case ModelPerformanceLocationHead:
     {
-      BOOST_FOREACH(Junction::sharedPointer j, model->junctions()) {
+      BOOST_FOREACH(Junction::_sp j, model->junctions()) {
         if (j->doesHaveHeadMeasure()) {
           elementsToConsider.push_back(j);
         }
@@ -159,7 +159,7 @@ vector<Element::sharedPointer> ModelPerformance::elementsWithModelForLocationTyp
       break;
     case ModelPerformanceLocationTank:
     {
-      BOOST_FOREACH(Tank::sharedPointer t, model->tanks()) {
+      BOOST_FOREACH(Tank::_sp t, model->tanks()) {
         if (t->doesHaveHeadMeasure()) {
           elementsToConsider.push_back(t);
         }
@@ -176,18 +176,18 @@ vector<Element::sharedPointer> ModelPerformance::elementsWithModelForLocationTyp
 }
 
 
-void ModelPerformance::buildPerformanceCalculatorWithElements(std::vector<Element::sharedPointer> elements) {
+void ModelPerformance::buildPerformanceCalculatorWithElements(std::vector<Element::_sp> elements) {
   
   
-  vector<pair<Element::sharedPointer, TimeSeries::sharedPointer> > components;
+  vector<pair<Element::_sp, TimeSeries::_sp> > components;
   
   // go through the elements
-  BOOST_FOREACH(Element::sharedPointer e, elements) {
+  BOOST_FOREACH(Element::_sp e, elements) {
     // decide what time series pair to use.
-    pair<TimeSeries::sharedPointer,TimeSeries::sharedPointer> tsPair = this->tsPairForElementWithLocationType(e, this->locationType());
+    pair<TimeSeries::_sp,TimeSeries::_sp> tsPair = this->tsPairForElementWithLocationType(e, this->locationType());
     
     // assemble the difference or correlator
-    TimeSeries::sharedPointer error = this->errorForPair(tsPair);
+    TimeSeries::_sp error = this->errorForPair(tsPair);
     string errName("");
     errName += e->name();
     errName += "_";
@@ -197,17 +197,17 @@ void ModelPerformance::buildPerformanceCalculatorWithElements(std::vector<Elemen
   }
   
   
-  AggregatorTimeSeries::sharedPointer performance(new AggregatorTimeSeries);
+  AggregatorTimeSeries::_sp performance(new AggregatorTimeSeries);
   performance->setClock(this->aggregationClock());
   
-  typedef pair<Element::sharedPointer, TimeSeries::sharedPointer> elementTimeseriesPair_t;
+  typedef pair<Element::_sp, TimeSeries::_sp> elementTimeseriesPair_t;
   BOOST_FOREACH(const elementTimeseriesPair_t &p, components) {
     performance->addSource(p.second);
   }
   
   if (this->aggregationType() == ModelPerformanceAggregationMean) {
     // divide by number of error sources
-    GainTimeSeries::sharedPointer meanPerf(new GainTimeSeries);
+    GainTimeSeries::_sp meanPerf(new GainTimeSeries);
     meanPerf->setClock(this->aggregationClock());
     meanPerf->setGainUnits(RTX_DIMENSIONLESS);
     meanPerf->setGain( 1. / (double)(performance->sources().size()) );
@@ -223,20 +223,20 @@ void ModelPerformance::buildPerformanceCalculatorWithElements(std::vector<Elemen
 }
 
 
-TimeSeries::sharedPointer ModelPerformance::errorForPair(std::pair<TimeSeries::sharedPointer, TimeSeries::sharedPointer> tsPair)
+TimeSeries::_sp ModelPerformance::errorForPair(std::pair<TimeSeries::_sp, TimeSeries::_sp> tsPair)
 {
   
-  TimeSeries::sharedPointer err;
+  TimeSeries::_sp err;
   
   switch (this->statsType()) {
     case ModelPerformanceStatsRMSE:
     {
-      AggregatorTimeSeries::sharedPointer diff(new AggregatorTimeSeries);
+      AggregatorTimeSeries::_sp diff(new AggregatorTimeSeries);
       diff->addSource(tsPair.first);
       diff->addSource(tsPair.second, -1);
       diff->setClock(this->errorClock());
       
-      StatsTimeSeries::sharedPointer rmse(new StatsTimeSeries);
+      StatsTimeSeries::_sp rmse(new StatsTimeSeries);
       rmse->setSource(diff);
       rmse->setWindow(this->samplingWindow());
       rmse->setStatsType(StatsTimeSeries::StatsTimeSeriesRMS);
@@ -247,7 +247,7 @@ TimeSeries::sharedPointer ModelPerformance::errorForPair(std::pair<TimeSeries::s
       break;
     case ModelPerformanceStatsCorrelationCoefficient:
     {
-      CorrelatorTimeSeries::sharedPointer corr(new CorrelatorTimeSeries());
+      CorrelatorTimeSeries::_sp corr(new CorrelatorTimeSeries());
       corr->setClock(this->errorClock());
       corr->setCorrelationWindow(this->samplingWindow());
       corr->setSource(tsPair.first);
@@ -264,34 +264,34 @@ TimeSeries::sharedPointer ModelPerformance::errorForPair(std::pair<TimeSeries::s
 
 
 
-pair<TimeSeries::sharedPointer, TimeSeries::sharedPointer> ModelPerformance::tsPairForElementWithLocationType(Element::sharedPointer e, ModelPerformance::LocationType location) {
+pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithLocationType(Element::_sp e, ModelPerformance::LocationType location) {
   
-  TimeSeries::sharedPointer measured, modeled;
+  TimeSeries::_sp measured, modeled;
   switch (location) {
     case ModelPerformanceLocationFlow:
     {
-      Pipe::sharedPointer p = boost::dynamic_pointer_cast<Pipe>(e);
+      Pipe::_sp p = boost::dynamic_pointer_cast<Pipe>(e);
       measured = p->flowMeasure();
       modeled = p->flow();
     }
       break;
     case ModelPerformanceLocationHead:
     {
-      Junction::sharedPointer j = boost::dynamic_pointer_cast<Junction>(e);
+      Junction::_sp j = boost::dynamic_pointer_cast<Junction>(e);
       measured = j->headMeasure();
       modeled = j->head();
     }
       break;
     case ModelPerformanceLocationPressure:
     {
-      Junction::sharedPointer j = boost::dynamic_pointer_cast<Junction>(e);
+      Junction::_sp j = boost::dynamic_pointer_cast<Junction>(e);
       measured = j->pressureMeasure();
       modeled = j->pressure();
     }
       break;
     case ModelPerformanceLocationTank:
     {
-      Tank::sharedPointer t = boost::dynamic_pointer_cast<Tank>(e);
+      Tank::_sp t = boost::dynamic_pointer_cast<Tank>(e);
       measured = t->levelMeasure();
       modeled = t->level();
     }

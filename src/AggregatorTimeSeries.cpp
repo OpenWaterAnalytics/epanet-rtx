@@ -11,32 +11,16 @@
 #include "AggregatorTimeSeries.h"
 #include <boost/foreach.hpp>
 #include <boost/range/adaptors.hpp>
+#include <set>
 
 using namespace RTX;
 using namespace std;
-
-TimeSeries::sharedPointer AggregatorTimeSeries::source() {
-  vector< AggregatorSource > sourceVec = this->sources();
-  if (sourceVec.size() > 0) {
-    return sourceVec.front().timeseries;
-  }
-  else {
-    TimeSeries::sharedPointer empty;
-    return empty;
-  }
-}
-void AggregatorTimeSeries::setSource(TimeSeries::sharedPointer source) {
-  return;
-}
-bool AggregatorTimeSeries::doesHaveSource() {
-  return !(_tsList.empty());
-}
 
 ostream& AggregatorTimeSeries::toStream(ostream &stream) {
   TimeSeries::toStream(stream);
   stream << "Connected to: " << _tsList.size() << " time series:" << "\n";
   
-  typedef std::pair<TimeSeries::sharedPointer,double> tsMultPair_t;
+  typedef std::pair<TimeSeries::_sp,double> tsMultPair_t;
   BOOST_FOREACH(const AggregatorSource& aggSource, _tsList) {
     string dir = (aggSource.multiplier > 0)? "(+)" : "(-)";
     stream << "    " << dir << " " << aggSource.timeseries->name() << endl;
@@ -44,10 +28,30 @@ ostream& AggregatorTimeSeries::toStream(ostream &stream) {
   return stream;
 }
 
-void AggregatorTimeSeries::addSource(TimeSeries::sharedPointer timeSeries, double multiplier) throw(RtxException) {
+TimeSeries::_sp AggregatorTimeSeries::source() {
+  if (this->sources().size() > 0) {
+    return this->sources().front().timeseries;
+  }
+  return TimeSeries::_sp();
+}
+
+void AggregatorTimeSeries::setSource(TimeSeries::_sp ts) {
+  // nope
+}
+
+void AggregatorTimeSeries::addSource(TimeSeries::_sp timeSeries, double multiplier) throw(RtxException) {
   
   // check compatibility
-  if (!isCompatibleWith(timeSeries)) {
+  bool isCompatible = false;
+  
+  if (this->sources().size() == 0) {
+    isCompatible = true;
+  }
+  else if (timeSeries->units().isSameDimensionAs(this->units())) {
+    isCompatible = true;
+  }
+  
+  if (!isCompatible) {
     cerr << "Incompatible time series: " << *timeSeries << endl;
     return;
   }
@@ -58,16 +62,10 @@ void AggregatorTimeSeries::addSource(TimeSeries::sharedPointer timeSeries, doubl
   }
   
   _tsList.push_back((AggregatorSource){timeSeries,multiplier});
-  
-  // set my clock to the lesser-period of any source.
-  /*
-  if (this->clock()->period() < timeSeries->clock()->period()) {
-    this->setClock(timeSeries->clock());
-  }
-  */
+  this->invalidate();
 }
 
-void AggregatorTimeSeries::removeSource(TimeSeries::sharedPointer timeSeries) {
+void AggregatorTimeSeries::removeSource(TimeSeries::_sp timeSeries) {
   
   std::vector< AggregatorSource > newSourceList;
   
@@ -82,20 +80,23 @@ void AggregatorTimeSeries::removeSource(TimeSeries::sharedPointer timeSeries) {
   }
   // save the new source list
   _tsList = newSourceList;
+  
+  this->invalidate();
 }
 
 std::vector< AggregatorTimeSeries::AggregatorSource > AggregatorTimeSeries::sources() {
   return _tsList;
 }
 
-void AggregatorTimeSeries::setMultiplierForSource(TimeSeries::sharedPointer timeSeries, double multiplier) {
+void AggregatorTimeSeries::setMultiplierForSource(TimeSeries::_sp timeSeries, double multiplier) {
   // _tsList[x].first == TimeSeries, _tsList[x].second == multipier
-  // (private) std::vector< std::pair<TimeSeries::sharedPointer,double> > _tsList;
-  typedef std::pair<TimeSeries::sharedPointer, double> tsDoublePair_t;
+  // (private) std::vector< std::pair<TimeSeries::_sp,double> > _tsList;
+  typedef std::pair<TimeSeries::_sp, double> tsDoublePair_t;
   BOOST_FOREACH(AggregatorSource& item, _tsList) {
     if (item.timeseries == timeSeries) {
       item.multiplier = multiplier;
       // todo -- reset pointrecord backing store?
+      this->invalidate();
     }
   }
 }
@@ -106,7 +107,7 @@ Point AggregatorTimeSeries::pointBefore(time_t time) {
 
   std::set<time_t> timeSet;
   
-  if (this->clock()->isRegular()) {
+  if (this->clock()) {
     timeSet.insert(this->clock()->timeBefore(time));
   }
   else {
@@ -131,7 +132,7 @@ Point AggregatorTimeSeries::pointAfter(time_t time) {
   
   std::set<time_t> timeSet;
   
-  if (this->clock()->isRegular()) {
+  if (this->clock()) {
     timeSet.insert(this->clock()->timeAfter(time));
   }
   else {
@@ -152,141 +153,99 @@ Point AggregatorTimeSeries::pointAfter(time_t time) {
 }
 
 
-Point AggregatorTimeSeries::point(time_t time) {
-  return ModularTimeSeries::point(time);
-}
 
-std::vector<Point> AggregatorTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+
+
+std::set<time_t> AggregatorTimeSeries::timeValuesInRange(TimeRange range) {
+  set<time_t> timeList;
   
-  vector<Point> aggregated;
-  if (clock()->isRegular()) {
+  if (this->clock()) {
     // align the query with the clock
-    fromTime = (clock()->isValid(fromTime)) ? fromTime : clock()->timeAfter(fromTime);
-    toTime = (clock()->isValid(toTime)) ? toTime : clock()->timeBefore(toTime);
-    
-    // get the set of times from the clock
-    aggregated.reserve(1 + (toTime-fromTime)/(clock()->period()));
-    for (time_t thisTime = fromTime; thisTime <= toTime; thisTime = this->clock()->timeAfter(thisTime)) {
-      Point p(thisTime, 0);
-      aggregated.push_back(p);
-    }
-    
+    timeList = this->clock()->timeValuesInRange(range.first, range.second);
   }
-  
   else {
-    
     // get the set of times from the aggregator sources
-    std::set<time_t> aggregatedTimes;
-    BOOST_FOREACH(AggregatorSource aggSource, _tsList) {
-      vector<Point> thisSourcePoints = aggSource.timeseries->points(fromTime, toTime);
+    BOOST_FOREACH(AggregatorSource aggSource, this->sources()) {
+      vector<Point> thisSourcePoints = aggSource.timeseries->points(range.first, range.second);
       BOOST_FOREACH(Point p, thisSourcePoints) {
-        aggregatedTimes.insert(p.time);
+        timeList.insert(p.time);
       }
-    }
-    BOOST_FOREACH(time_t t, aggregatedTimes) {
-      Point p(t, 0);
-      aggregated.push_back(p);
     }
   }
-  
-    if (aggregated.size() == 0) {
-      // no points in range
-      return aggregated;
-    }
-    
-    BOOST_FOREACH(AggregatorSource aggSource , _tsList) {
-      // Try to expand the point range
-      pair<time_t,time_t> sourceRange; // = expandedRange(aggSource.timeseries, fromTime, toTime);
-      sourceRange.first = aggSource.timeseries->pointAtOrBefore(fromTime).time;
-      sourceRange.second = aggSource.timeseries->pointAfter(toTime-1).time;
-      
-      
-      // the following is a case where we are asking for points outside a narrow bound of source points. TO_DO :: figure out a better way of sampling.
-      if (sourceRange.first == 0) {
-        sourceRange.first = aggSource.timeseries->pointAfter(fromTime).time;
-      }
-      if (sourceRange.second == 0) {
-        sourceRange.second = aggSource.timeseries->pointBefore(toTime).time;
-      }
-      
-      
-      // get the source points
-      vector<Point> upstreamPoints = aggSource.timeseries->points(sourceRange.first, sourceRange.second);
-      if (upstreamPoints.size() == 0) {
-        continue;
-      }
-      
-      if (sourceRange.first != upstreamPoints.front().time || sourceRange.second != upstreamPoints.back().time) {
-        cerr << "source points not what expected" << endl;
-      }
-      
-      vector<Point>::const_iterator cursorPoint = upstreamPoints.begin();
-      Point trailingPoint = *cursorPoint;
-      ++cursorPoint;
-      if (cursorPoint == upstreamPoints.end()) {
-        // possibility that trailing point is perfectly aligned.
-        if (trailingPoint.time != aggregated.front().time) {
-          cerr << "not enough upstream data" << endl;
-        }
-      }
-      
-      // add in the new points.
-      BOOST_FOREACH(Point& p, aggregated) {
-        
-        // crawl along the upstream vector, interpolating as needed.
-        // as long as the current aggregation point is within the range set by the trailing point and the cursor,
-        // there's no problem. otherwise, let's skip ahead.
-        
-        // *** this is OK:
-        //   trailing <-------------------------> cursor
-        //                    ^
-        //                    p
-        
-        
-        // the following block gets evaluated when we're not yet within the correct range:
-        //        trailing <-------------------------> cursor
-        //   ^
-        //   p
-        if (p.time < trailingPoint.time) {
-          cerr << "aggregator skipping ahead" << endl;
-          // this is error
-          continue; // get to the next point.
-        }
-        
-        
-        else if (trailingPoint.time == p.time) {
-          Point convertedPoint = Point::convertPoint(trailingPoint, aggSource.timeseries->units(), this->units());
-          p += convertedPoint * aggSource.multiplier;
-          continue;
-          // you are perfect.
-        }
-        
-        // the following block gets evaluated when we've gone outside the trailing---cursor range:
-        //   trailing <-------------------------> cursor
-        //                                                 ^
-        //                                                 p
-        else while (cursorPoint->time < p.time) {
-          // move both markers forward
-          trailingPoint = *cursorPoint;
-          ++cursorPoint;
-          if (cursorPoint == upstreamPoints.end()) {
-            continue;
-          }
-        }
-        
-        // if we've gotten this far, then we're in good shape.
-        Point aggregationPoint = Point::linearInterpolate(trailingPoint, *cursorPoint, p.time);
-        Point convertedPoint = Point::convertPoint(aggregationPoint, aggSource.timeseries->units(), this->units());
-        p += convertedPoint * aggSource.multiplier;
-        
-      }
-    }
-    
-  
-  
-  
-  return aggregated;
+  return timeList;
 }
 
+TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange range) {
+  set<time_t> droppedTimes;
+  vector<Point> aggregated;
+  
+  
+  set<time_t> desiredTimes = this->timeValuesInRange(range);
+  
+  // pre-load a vector of points.
+  BOOST_FOREACH(time_t now, desiredTimes) {
+    aggregated.push_back(Point(now));
+  }
+  
+  BOOST_FOREACH(AggregatorSource aggSource, this->sources()) {
+    TimeSeries::_sp sourceTs = aggSource.timeseries;
+    double multiplier = aggSource.multiplier;
+    TimeRange componentRange = range;
+    componentRange.first = sourceTs->pointBefore(range.first + 1).time;
+    componentRange.second = sourceTs->pointAfter(range.second - 1).time;
+    
+    PointCollection componentCollection = sourceTs->points(componentRange);
+    componentCollection.resample(desiredTimes);
+    componentCollection.convertToUnits(this->units());
+    
+    // make it easy to find any times that were dropped (bad points from a source series)
+    map<time_t, Point> sourcePointMap;
+    BOOST_FOREACH(const Point& p, componentCollection.points) {
+      sourcePointMap[p.time] = p;
+    }
+    
+    // do the aggregation.
+    BOOST_FOREACH(Point& p, aggregated) {
+      if (sourcePointMap.count(p.time) > 0) {
+        Point addingPoint = sourcePointMap[p.time] * multiplier;
+        p += addingPoint;
+      }
+      else {
+        droppedTimes.insert(p.time);
+      }
+    }
+  }
+  
+  // prune dropped points from aggregation result.
+  vector<Point> goodPoints;
+  BOOST_FOREACH(const Point& p, aggregated) {
+    if (droppedTimes.count(p.time) == 0) {
+      goodPoints.push_back(p);
+    }
+  }
+  
+  PointCollection data(goodPoints, this->units());
+  data.resample(desiredTimes);
+  
+  return data;
+}
 
+bool AggregatorTimeSeries::canSetSource(TimeSeries::_sp ts) {
+  return false;
+}
 
+void AggregatorTimeSeries::didSetSource(TimeSeries::_sp ts) {
+  return;
+}
+
+bool AggregatorTimeSeries::canChangeToUnits(Units units) {
+  if (this->sources().size() == 0) {
+    return true;
+  }
+  else if (this->sources().front().timeseries->units().isSameDimensionAs(units)) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}

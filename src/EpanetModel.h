@@ -92,7 +92,7 @@ namespace RTX {
 //    std::string _modelFile;
     
     void createRtxWrappers();
-    
+    bool _didConverge(time_t time, int errorCode);
     bool _enOpened;
     
     

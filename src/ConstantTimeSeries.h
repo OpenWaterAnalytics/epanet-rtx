@@ -9,18 +9,20 @@
 #ifndef __epanet_rtx__ConstantTimeSeries__
 #define __epanet_rtx__ConstantTimeSeries__
 
-#include "TimeSeries.h"
+#include "TimeSeriesSynthetic.h"
 
 namespace RTX {
   
-  class ConstantTimeSeries : public TimeSeries {
+  class ConstantTimeSeries : public TimeSeriesSynthetic {
   public:
     RTX_SHARED_POINTER(ConstantTimeSeries);
     ConstantTimeSeries();
-    virtual Point point(time_t time);
     
     void setValue(double value);
     double value();
+    
+  protected:
+    Point syntheticPoint(time_t time);
     
   private:
     double _value;

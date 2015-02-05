@@ -9,6 +9,9 @@
 
 #include "DbPointRecord.h"
 
+#include <set>
+#include <boost/foreach.hpp>
+
 using namespace RTX;
 using namespace std;
 
@@ -223,12 +226,22 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, time_t startTi
     merged.insert(merged.end(), left.begin(), left.end());
     merged.insert(merged.end(), newPoints.begin(), newPoints.end());
     merged.insert(merged.end(), right.begin(), right.end());
+
+    set<time_t> addedTimes;
+    vector<Point> deDuped;
+    deDuped.reserve(merged.size());
+    BOOST_FOREACH(const Point& p, merged) {
+      if (addedTimes.count(p.time) == 0) {
+        addedTimes.insert(p.time);
+        deDuped.push_back(p);
+      }
+    }
     
-    request = (merged.size() > 0) ? request_t(id, merged.front().time, merged.back().time) : request_t(id,0,0);
+    request = (deDuped.size() > 0) ? request_t(id, deDuped.front().time, deDuped.back().time) : request_t(id,0,0);
     
-    DB_PR_SUPER::addPoints(id, merged);
+    DB_PR_SUPER::addPoints(id, deDuped);
     
-    return merged;
+    return deDuped;
   }
   
   return DB_PR_SUPER::pointsInRange(id, startTime, endTime);
@@ -237,7 +250,7 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, time_t startTi
 
 
 void DbPointRecord::addPoint(const string& id, Point point) {
-  if (this->readonly()) {
+  if (!this->readonly()) {
     DB_PR_SUPER::addPoint(id, point);
     this->insertSingle(id, point);
   }
@@ -245,7 +258,7 @@ void DbPointRecord::addPoint(const string& id, Point point) {
 
 
 void DbPointRecord::addPoints(const string& id, std::vector<Point> points) {
-  if (this->readonly()) {
+  if (!this->readonly()) {
     DB_PR_SUPER::addPoints(id, points);
     this->insertRange(id, points);
   }
@@ -253,7 +266,7 @@ void DbPointRecord::addPoints(const string& id, std::vector<Point> points) {
 
 
 void DbPointRecord::reset() {
-  if (this->readonly()) {
+  if (!this->readonly()) {
     DB_PR_SUPER::reset();
     //this->truncate();
   }
@@ -261,7 +274,7 @@ void DbPointRecord::reset() {
 
 
 void DbPointRecord::reset(const string& id) {
-  if (this->readonly()) {
+  if (!this->readonly()) {
     // deprecate?
     //cout << "Whoops - don't use this" << endl;
     DB_PR_SUPER::reset(id);
@@ -272,7 +285,7 @@ void DbPointRecord::reset(const string& id) {
 }
 
 void DbPointRecord::invalidate(const string &identifier) {
-  if (this->readonly()) {
+  if (!this->readonly()) {
     this->removeRecord(identifier);
     this->reset(identifier);
   }

@@ -10,20 +10,20 @@
 #define __epanet_rtx__InversionTimeSeries__
 
 #include <iostream>
-#include "SinglePointFilterModularTimeSeries.h"
+#include "TimeSeriesFilterSinglePoint.h"
 
 namespace RTX {
-  class InversionTimeSeries : public SinglePointFilterModularTimeSeries {
+  class InversionTimeSeries : public TimeSeriesFilterSinglePoint {
     
   public:
     RTX_SHARED_POINTER(InversionTimeSeries);
-    void setSource(TimeSeries::sharedPointer ts);
     
   protected:
-    void checkUnits();
+    Point filteredWithSourcePoint(Point sourcePoint);
+    virtual bool canSetSource(TimeSeries::_sp ts);
+    virtual void didSetSource(TimeSeries::_sp ts);
+    virtual bool canChangeToUnits(Units units);
     
-  private:
-    Point filteredSingle(Point p, Units sourceU);
     
   };
 }

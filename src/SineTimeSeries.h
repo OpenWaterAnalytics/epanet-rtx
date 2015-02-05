@@ -9,22 +9,24 @@
 #ifndef __epanet_rtx__SineTimeSeries__
 #define __epanet_rtx__SineTimeSeries__
 
-#include "TimeSeries.h"
+#include "TimeSeriesSynthetic.h"
 
 namespace RTX {
   
-  class SineTimeSeries : public TimeSeries {
+  class SineTimeSeries : public TimeSeriesSynthetic {
     
   public:
     RTX_SHARED_POINTER(SineTimeSeries);
     SineTimeSeries(double magnitude = 1., time_t period = 86400);
-    virtual Point point(time_t time);
     
     time_t period();
     double magnitude();
     
     void setPeriod(time_t p) {_period = p;};
     void setMagnitude(double m) {_magnitude = m;};
+    
+  protected:
+    Point syntheticPoint(time_t time);
     
   private:
     time_t _period;

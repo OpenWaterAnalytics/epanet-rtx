@@ -23,90 +23,93 @@ using namespace std;
 
 
 CorrelatorTimeSeries::CorrelatorTimeSeries() {
-  Clock::sharedPointer c( new Clock(3600) );
+  Clock::_sp c( new Clock(3600) );
   _corWindow = c;
-  
-}
-
-bool CorrelatorTimeSeries::isCompatibleWith(TimeSeries::sharedPointer withTimeSeries) {
-  return (units().isDimensionless() || units().isSameDimensionAs(withTimeSeries->units()));
-  // it's ok if the clocks aren't compatible.
 }
 
 
-TimeSeries::sharedPointer CorrelatorTimeSeries::correlatorTimeSeries() {
+
+TimeSeries::_sp CorrelatorTimeSeries::correlatorTimeSeries() {
   return _secondary;
 }
 
-void CorrelatorTimeSeries::setCorrelatorTimeSeries(TimeSeries::sharedPointer ts) {
+void CorrelatorTimeSeries::setCorrelatorTimeSeries(TimeSeries::_sp ts) {
+  
+  if (this->source() && ts && !this->source()->units().isSameDimensionAs(ts->units())) {
+    return; // can't do it.
+  }
+  
   _secondary = ts;
+  this->invalidate();
 }
 
-Clock::sharedPointer CorrelatorTimeSeries::correlationWindow() {
+Clock::_sp CorrelatorTimeSeries::correlationWindow() {
   return _corWindow;
 }
 
-void CorrelatorTimeSeries::setCorrelationWindow(Clock::sharedPointer window) {
+void CorrelatorTimeSeries::setCorrelationWindow(Clock::_sp window) {
   _corWindow = window;
+  this->invalidate();
 }
-
-
 
 
 #pragma mark - superclass overrides
 
-void CorrelatorTimeSeries::setSource(TimeSeries::sharedPointer source) {
-  ModularTimeSeries::setSource(source);
-  if (source) {
-    this->setUnits(RTX_DIMENSIONLESS);
-  }
-}
-
-
-vector<Point> CorrelatorTimeSeries::filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime) {
+TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange range) {
   
-  std::vector<Point> thePoints;
+  PointCollection data(vector<Point>(), this->units());
   if (!this->correlatorTimeSeries() || !this->source()) {
-    return thePoints;
+    return data;
   }
   
   // force pre-cache
-  this->source()->points(fromTime - this->correlationWindow()->period(), toTime);
-  this->correlatorTimeSeries()->points(fromTime - this->correlationWindow()->period(), toTime);
+  this->source()->points(range.first - this->correlationWindow()->period(), range.second);
+  this->correlatorTimeSeries()->points(range.first - this->correlationWindow()->period(), range.second);
   
-  vector<time_t> times;
-  if (this->clock()->isRegular()) {
-    times = this->clock()->timeValuesInRange(fromTime, toTime);
-  }
-  else {
-    vector<Point>sourcePointsForTimes = this->source()->points(fromTime, toTime);
-    BOOST_FOREACH(const Point& p, sourcePointsForTimes) {
-      times.push_back(p.time);
-    }
-  }
-  
-  
-  Units sourceU = sourceTs->units();
-  Units secondaryUnits = this->correlatorTimeSeries()->units();
+  TimeSeries::_sp sourceTs = this->source();
   time_t windowWidth = this->correlationWindow()->period();
+  
+  set<time_t> times = this->timeValuesInRange(range);
+  vector<Point> thePoints;
+  thePoints.reserve(times.size());
   
   BOOST_FOREACH(time_t t, times) {
     double corrcoef = 0;
-    vector<Point> sourcePoints = sourceTs->points(t - windowWidth, t);
-    vector<Point> secondaryPoints = this->correlatorTimeSeries()->points(t - windowWidth, t);
+    PointCollection sourceCollection = sourceTs->pointCollection(t - windowWidth, t);
     
-    if (sourcePoints.size() != secondaryPoints.size()) {
-      cout << "Unequal number of points" << endl;
-      return thePoints;
+    set<time_t> sourceTimeValues;
+    BOOST_FOREACH(const Point& p, sourceCollection.points) {
+      sourceTimeValues.insert(p.time);
     }
+    
+    // expand the query range for the secondary collection
+    TimeRange primaryRange = make_pair(*(sourceTimeValues.begin()), *(sourceTimeValues.rbegin()));
+    TimeRange secondaryRange;
+    secondaryRange.first = this->correlatorTimeSeries()->pointBefore(primaryRange.first + 1).time;
+    secondaryRange.second = this->correlatorTimeSeries()->pointAfter(primaryRange.second - 1).time;
+    
+    PointCollection secondaryCollection = this->correlatorTimeSeries()->points(secondaryRange);
+    secondaryCollection.resample(sourceTimeValues);
+    
+    if (sourceCollection.count() == 0 || secondaryCollection.count() == 0) {
+      continue; // no points to correlate
+    }
+    
+    if (sourceCollection.count() != secondaryCollection.count()) {
+      cout << "Unequal number of points" << endl;
+      return PointCollection(vector<Point>(), this->units());
+    }
+    
+    // get consistent units
+    secondaryCollection.convertToUnits(sourceCollection.units);
     
     // correlation coefficient
     accumulator_set<double, stats<tag::mean, tag::variance> > acc1;
     accumulator_set<double, stats<tag::mean, tag::variance> > acc2;
     accumulator_set<double, stats<tag::covariance<double, tag::covariate1> > > acc3;
-    for (int i = 0; i < sourcePoints.size(); i++) {
-      Point p1 = sourcePoints.at(i);
-      Point p2 = Point::convertPoint(secondaryPoints.at(i), sourceU, secondaryUnits);
+    for (int i = 0; i < sourceCollection.count(); i++) {
+      Point p1 = sourceCollection.points.at(i);
+      Point p2 = secondaryCollection.points.at(i);
       acc1(p1.value);
       acc2(p2.value);
       acc3(p1.value, covariate1 = p2.value);
@@ -117,12 +120,25 @@ vector<Point> CorrelatorTimeSeries::filteredPoints(TimeSeries::sharedPointer sou
     
   }
   
-  return thePoints;
+  return PointCollection(thePoints, this->units());
 }
 
+bool CorrelatorTimeSeries::canSetSource(TimeSeries::_sp ts) {
+  if (this->correlatorTimeSeries() && !ts->units().isSameDimensionAs(this->correlatorTimeSeries()->units())) {
+    return false;
+  }
+  return true;
+}
 
+void CorrelatorTimeSeries::didSetSource(TimeSeries::_sp ts) {
+  this->invalidate();
+}
 
-
-
+bool CorrelatorTimeSeries::canChangeToUnits(Units units) {
+  if (units.isDimensionless()) {
+    return true;
+  }
+  return false;
+}
 
 

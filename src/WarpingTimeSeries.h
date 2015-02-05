@@ -18,14 +18,14 @@ namespace RTX {
   
   public:
     RTX_SHARED_POINTER(WarpingTimeSeries);
-    TimeSeries::sharedPointer warp();
-    void setWarp(TimeSeries::sharedPointer warp);
+    TimeSeries::_sp warp();
+    void setWarp(TimeSeries::_sp warp);
     
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
+    virtual std::vector<Point> filteredPoints(TimeSeries::_sp sourceTs, time_t fromTime, time_t toTime);
     
   private:
-    TimeSeries::sharedPointer _warpingBasis;
+    TimeSeries::_sp _warpingBasis;
   };
 }
 

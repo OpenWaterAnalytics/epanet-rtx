@@ -11,11 +11,11 @@ int main(int argc, const char * argv[])
 {
   
   
-  ProjectFile::sharedPointer project( new SqliteProjectFile());
+  ProjectFile::_sp project( new SqliteProjectFile());
   
   project->loadProjectFile("/Users/sam/Desktop/milly.rtx");
   
-  Model::sharedPointer model = project->model();
+  Model::_sp model = project->model();
   
   model->initDMAs();
   model->initEngine();

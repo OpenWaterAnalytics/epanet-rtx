@@ -322,7 +322,7 @@ Point SqlitePointRecord::selectNext(const std::string& id, time_t time) {
       // slow query
       sqlite3_bind_text(_selectNextStmt, 1, id.c_str(), -1, NULL);
       sqlite3_bind_int(_selectNextStmt, 2, (int)time);
-      vector<Point> points = pointsFromPreparedStatement(_selectNextStmt);
+      points = pointsFromPreparedStatement(_selectNextStmt);
     }
     
     

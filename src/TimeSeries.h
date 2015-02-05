@@ -12,6 +12,7 @@
 #include <boost/enable_shared_from_this.hpp>
 
 #include <vector>
+#include <set>
 #include <map>
 #include <iostream>
 
@@ -56,17 +57,37 @@ namespace RTX {
   class TimeSeries : public boost::enable_shared_from_this<TimeSeries> {
   public:
     
-    //! A summary of a collection of points.
-    class Statistics {
+    typedef std::pair<time_t,time_t> TimeRange;
+    
+    typedef enum {
+      TimeSeriesResampleModeLinear,
+      TimeSeriesResampleModeStep
+    } TimeSeriesResampleMode;
+    
+    // internal public class for managing meta-information
+    class PointCollection {
     public:
-      Statistics() : count(0),min(0),max(0),mean(0),variance(0) { quartiles.q25 = 0; quartiles.q50 = 0; quartiles.q75 = 0; };
-      size_t count;
-      double min,max,mean,variance;
-      typedef struct {
-        double q25,q50,q75;
-      } quartiles_t;
-      quartiles_t quartiles;
+      PointCollection(std::vector<Point> points, Units units);
+      PointCollection(); // null constructor
+      
+      std::vector<Point> points;
+      Units units;
+      
+      bool resample(std::set<time_t> timeList, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
+      bool convertToUnits(Units u);
+      
+      // statistical methods on the collection
+      double min();
+      double max();
+      double mean();
+      double variance();
+      size_t count();
+      double percentile(double p);
     };
+    
+    
+    
+    
     
     RTX_SHARED_POINTER(TimeSeries);
     
@@ -74,63 +95,53 @@ namespace RTX {
     TimeSeries();
     ~TimeSeries();
     
-    // methods
+    virtual Clock::_sp clock() { return Clock::_sp(); };
+    virtual void setClock(Clock::_sp clock) { };
+    
     virtual void insert(Point aPoint);
     virtual void insertPoints(std::vector<Point>);  /// option to add lots of (un)ordered points all at once.
     
-    // getters
     virtual Point point(time_t time);
     virtual Point pointBefore(time_t time);
     virtual Point pointAfter(time_t time);
     virtual Point pointAtOrBefore(time_t time);
     virtual Point interpolatedPoint(time_t time);
+    PointCollection points(TimeRange range);
     virtual std::vector< Point > points(time_t start, time_t end); // points in range
-    virtual std::pair< Point, Point > adjacentPoints(time_t time); // adjacent points
-    virtual time_t period();                              //! 1/frequency (# seconds between data points)
-    virtual std::string name();
-    PointRecord::sharedPointer record();
+    PointCollection resampled(std::set<time_t> timeList, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
+    PointCollection pointCollection(time_t start, time_t end);
     
+    virtual std::string name();
+    virtual void setName(const std::string& name);
+    
+    PointRecord::_sp record();
+    void setRecord(PointRecord::_sp record);
+    
+    Units units();
+    virtual void setUnits(Units newUnits);
+    virtual bool canChangeToUnits(Units units) {return true;};
+    /*
     TimeSeries::Statistics summary(time_t start, time_t end);
     TimeSeries::Statistics gapsSummary(time_t start, time_t end);
+     */
     std::vector<Point> gaps(time_t start, time_t end);
     
-    virtual TimeSeries::sharedPointer rootTimeSeries() { return shared_from_this(); };
-    
-    // setters
-    virtual void setName(const std::string& name);
-    void setRecord(PointRecord::sharedPointer record);
+    virtual TimeSeries::_sp rootTimeSeries() { return shared_from_this(); };
     virtual void resetCache();
-    virtual void setClock(Clock::sharedPointer clock);
-    Clock::sharedPointer clock();
-    
-    virtual void setUnits(Units newUnits);
-    Units units();
-    
-    
-    void setFirstTime(time_t time);
-    void setLastTime(time_t time);
-    time_t firstTime();
-    time_t lastTime();
-    
-    // tests
-    //virtual bool isPointAvailable(time_t time);
+    virtual void invalidate();
     
     virtual std::ostream& toStream(std::ostream &stream);
 
   protected:
     // methods which may be needed by subclasses but shouldn't be public:
-    virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
+    // refactor, move to filter class --> virtual bool isCompatibleWith(TimeSeries::_sp withTimeSeries);
     
   private:
-    PointRecord::sharedPointer _points;
+    PointRecord::_sp _points;
     std::string _name;
-    int _cacheSize;
-    Clock::sharedPointer _clock;
-    //TimeSeries::sharedPointer _source;
-    // TODO -- units
     Units _units;
     std::pair<time_t, time_t> _validTimeRange;
-    TimeSeries::Statistics getStats(std::vector<Point> points);
+//    TimeSeries::Statistics getStats(std::vector<Point> points);
   
   };
 

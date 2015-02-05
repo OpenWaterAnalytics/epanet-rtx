@@ -10,7 +10,7 @@
 #define epanet_rtx_rtxMacros_h
 
 #include <boost/shared_ptr.hpp>
-#define RTX_SHARED_POINTER(type) typedef boost::shared_ptr<type> sharedPointer
+#define RTX_SHARED_POINTER(type) typedef boost::shared_ptr<type> _sp
 
 #define RTX_MAX_CHAR_STRING 256
 #define RTX_MAX(x,y) x>y?x:y

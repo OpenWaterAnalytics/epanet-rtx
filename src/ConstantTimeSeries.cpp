@@ -5,20 +5,10 @@ using namespace std;
 
 ConstantTimeSeries::ConstantTimeSeries() {
   _value = 0.;
-  Clock::sharedPointer reg( new Clock(3600) );
-  reg->setName("RTX CONSTANT 3600s");
-  this->setClock(reg);
 }
 
-Point ConstantTimeSeries::point(time_t time)  {
-  bool regular = this->clock()->isRegular();
-  
-  if ( !regular || (regular && this->clock()->isValid(time)) ) {
-    return Point(time, _value, Point::constant);
-  }
-  else {
-    return Point();
-  }
+Point ConstantTimeSeries::syntheticPoint(time_t time)  {
+  return Point(time, _value, Point::constant);
 }
 
 

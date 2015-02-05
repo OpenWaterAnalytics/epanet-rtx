@@ -30,17 +30,20 @@ Model::Model() : _flowUnits(1), _headUnits(1), _pressureUnits(1) {
   // default reset clock is 24 hours, default reporting clock is 1 hour.
   // TODO -- configure boundary reset clock in a smarter way?
   _regularMasterClock.reset( new Clock(3600) );
-  _boundaryResetClock = Clock::sharedPointer( new Clock(24 * 3600) );
+  _tankResetClock = Clock::_sp();
+  _simReportClock = Clock::_sp();
   _relativeError.reset( new TimeSeries() );
   _iterations.reset( new TimeSeries() );
+  _convergence.reset( new TimeSeries() );
   
   _relativeError->setName("Relative Error");
   _iterations->setName("Iterations");
+  _convergence->setName("Convergence Status");
   _doesOverrideDemands = false;
   _shouldRunWaterQuality = false;
   
   _dmaShouldDetectClosedLinks = false;
-  _dmaPipesToIgnore = vector<Pipe::sharedPointer>();
+  _dmaPipesToIgnore = vector<Pipe::_sp>();
   
   // defaults
   setFlowUnits(RTX_LITER_PER_SECOND);
@@ -108,52 +111,52 @@ void Model::setFlowUnits(Units units)    {
     return;
   }
   _flowUnits = units;
-  BOOST_FOREACH(Junction::sharedPointer j, this->junctions()) {
+  BOOST_FOREACH(Junction::_sp j, this->junctions()) {
     j->demand()->setUnits(units);
   }
-  BOOST_FOREACH(Tank::sharedPointer t, this->tanks()) {
+  BOOST_FOREACH(Tank::_sp t, this->tanks()) {
     t->flowMeasure()->setUnits(units);
   }
-  BOOST_FOREACH(Pipe::sharedPointer p, this->pipes()) {
+  BOOST_FOREACH(Pipe::_sp p, this->pipes()) {
     p->flow()->setUnits(units);
   }
-  BOOST_FOREACH(Pump::sharedPointer p, this->pumps()) {
+  BOOST_FOREACH(Pump::_sp p, this->pumps()) {
     p->flow()->setUnits(units);
   }
-  BOOST_FOREACH(Valve::sharedPointer v, this->valves()) {
+  BOOST_FOREACH(Valve::_sp v, this->valves()) {
     v->flow()->setUnits(units);
   }
 }
 void Model::setHeadUnits(Units units)    {
   _headUnits = units;
   
-  BOOST_FOREACH(Junction::sharedPointer j, this->junctions()) {
+  BOOST_FOREACH(Junction::_sp j, this->junctions()) {
     j->head()->setUnits(units);
   }
-  BOOST_FOREACH(Tank::sharedPointer t, this->tanks()) {
+  BOOST_FOREACH(Tank::_sp t, this->tanks()) {
     t->head()->setUnits(units);
     t->level()->setUnits(units);
   }
-  BOOST_FOREACH(Reservoir::sharedPointer r, this->reservoirs()) {
+  BOOST_FOREACH(Reservoir::_sp r, this->reservoirs()) {
     r->head()->setUnits(units);
   }
   
 }
 void Model::setPressureUnits(Units units) {
   _pressureUnits = units;
-  BOOST_FOREACH(Junction::sharedPointer j, this->junctions()) {
+  BOOST_FOREACH(Junction::_sp j, this->junctions()) {
     j->pressure()->setUnits(units);
   }
 }
 void Model::setQualityUnits(Units units) {
   _qualityUnits = units;
-  BOOST_FOREACH(Junction::sharedPointer j, this->junctions()) {
+  BOOST_FOREACH(Junction::_sp j, this->junctions()) {
     j->quality()->setUnits(units);
   }
-  BOOST_FOREACH(Tank::sharedPointer t, this->tanks()) {
+  BOOST_FOREACH(Tank::_sp t, this->tanks()) {
     t->quality()->setUnits(units);
   }
-  BOOST_FOREACH(Reservoir::sharedPointer r, this->reservoirs()) {
+  BOOST_FOREACH(Reservoir::_sp r, this->reservoirs()) {
     r->quality()->setUnits(units);
   }
   
@@ -164,55 +167,23 @@ void Model::setVolumeUnits(RTX::Units units) {
 }
 
 #pragma mark - Storage
-void Model::setStorage(PointRecord::sharedPointer record) {
-  _record = record;
+#pragma mark - Storage
 
-  std::vector< Element::sharedPointer > elements = this->elements();
-  BOOST_FOREACH(Element::sharedPointer element, elements) {
-    //std::cout << "setting storage for: " << element->name() << std::endl;
-    element->setRecord(_record);
-  }
+
+void Model::setRecordForDmaDemands(PointRecord::_sp record) {
   
-  BOOST_FOREACH(Dma::sharedPointer dma, dmas()) {
-    dma->setRecord(_record);
+  BOOST_FOREACH(Dma::_sp dma, dmas()) {
+    dma->setRecord(record);
   }
-  
-  _relativeError->setRecord(_record);
-  _iterations->setRecord(_record);
   
 }
 
-void Model::setParameterSource(PointRecord::sharedPointer record) {
-
-  BOOST_FOREACH(Junction::sharedPointer junction, this->junctions()) {
-    if (junction->doesHaveBoundaryFlow()) {
-      junction->boundaryFlow()->setRecord(record);
-    }
-    if (junction->doesHaveHeadMeasure()) {
-      junction->headMeasure()->setRecord(record);
-    }
-  }
-
-  BOOST_FOREACH(Reservoir::sharedPointer reservoir, this->reservoirs()) {
-    if (reservoir->doesHaveBoundaryHead()) {
-      reservoir->boundaryHead()->setRecord(record);
-    }
-  }
-
-  BOOST_FOREACH(Valve::sharedPointer valve, this->valves()) {
-    if (valve->doesHaveStatusParameter()) {
-      valve->statusParameter()->setRecord(record);
-    }
-    if (valve->doesHaveSettingParameter()) {
-      valve->settingParameter()->setRecord(record);
-    }
-  }
+void Model::setRecordForSimulationStats(PointRecord::_sp record) {
   
-  BOOST_FOREACH(Pump::sharedPointer pump, this->pumps()) {
-    if (pump->doesHaveStatusParameter()) {
-      pump->statusParameter()->setRecord(record);
-    }
-  }
+  _relativeError->setRecord(record);
+  _iterations->setRecord(record);
+  _convergence->setRecord(record);
+  
 }
 
 
@@ -223,14 +194,14 @@ void Model::initDMAs() {
   
   _dmas.clear();
   
-  set<Pipe::sharedPointer> boundaryPipes;
+  set<Pipe::_sp> boundaryPipes;
   
   using namespace boost;
-  std::map<Node::sharedPointer, int> nodeIndexMap;
+  std::map<Node::_sp, int> nodeIndexMap;
   boost::adjacency_list <boost::vecS, boost::vecS, boost::undirectedS> G;
   
   typedef struct {
-    Link::sharedPointer link;
+    Link::_sp link;
     int fromIdx, toIdx;
   } LinkDescriptor;
   
@@ -238,11 +209,11 @@ void Model::initDMAs() {
   vector<LinkDescriptor> linkDescriptors;
   {
     int iNode = 0;
-    BOOST_FOREACH(Node::sharedPointer node, _nodes | boost::adaptors::map_values) {
+    BOOST_FOREACH(Node::_sp node, _nodes | boost::adaptors::map_values) {
       nodeIndexMap[node] = iNode;
       ++iNode;
     }
-    BOOST_FOREACH(Link::sharedPointer link, _links | boost::adaptors::map_values) {
+    BOOST_FOREACH(Link::_sp link, _links | boost::adaptors::map_values) {
       int from = nodeIndexMap[link->from()];
       int to = nodeIndexMap[link->to()];
       linkDescriptors.push_back((LinkDescriptor){link, from, to});
@@ -253,10 +224,10 @@ void Model::initDMAs() {
   // build a boost graph of the network, ignoring links that are dma boundaries or explicitly ignored
   // is this faster than adapting the model to be BGL compliant? certainly faster dev time, but this should be tested in code.
   //
-  vector<Pipe::sharedPointer> ignorePipes = this->dmaPipesToIgnore();
+  vector<Pipe::_sp> ignorePipes = this->dmaPipesToIgnore();
   
-  BOOST_FOREACH(Link::sharedPointer link, _links | boost::adaptors::map_values) {
-    Pipe::sharedPointer pipe = boost::static_pointer_cast<Pipe>(link);
+  BOOST_FOREACH(Link::_sp link, _links | boost::adaptors::map_values) {
+    Pipe::_sp pipe = boost::static_pointer_cast<Pipe>(link);
     // flow measure?
     if (pipe->doesHaveFlowMeasure()) {
       boundaryPipes.insert(pipe);
@@ -282,29 +253,29 @@ void Model::initDMAs() {
   int nDmas = connected_components(G, &componentMap[0]);
   
   // for each connected component, create a new dma.
-  vector<Dma::sharedPointer> newDmas;
+  vector<Dma::_sp> newDmas;
   for (int iDma = 0; iDma < nDmas; ++iDma) {
     stringstream dmaNameStream("");
     dmaNameStream << "dma " << iDma;
-    Dma::sharedPointer dma( new Dma(dmaNameStream.str()) );
+    Dma::_sp dma( new Dma(dmaNameStream.str()) );
     newDmas.push_back(dma);
   }
   
   // now that we have the dma list, go through the node membership and add each node object to the appropriate dma.
-  vector<Node::sharedPointer> indexedNodes;
+  vector<Node::_sp> indexedNodes;
   indexedNodes.reserve(_nodes.size());
-  BOOST_FOREACH(Node::sharedPointer j, _nodes | boost::adaptors::map_values) {
+  BOOST_FOREACH(Node::_sp j, _nodes | boost::adaptors::map_values) {
     indexedNodes.push_back(j);
   }
   
   for (int nodeIdx = 0; nodeIdx < _nodes.size(); ++nodeIdx) {
     int dmaIdx = componentMap[nodeIdx];
-    Dma::sharedPointer dma = newDmas[dmaIdx];
+    Dma::_sp dma = newDmas[dmaIdx];
     dma->addJunction(boost::static_pointer_cast<Junction>(indexedNodes[nodeIdx]));
   }
   
   // finally, let the dma assemble its aggregators
-  BOOST_FOREACH(const Dma::sharedPointer dma, newDmas) {
+  BOOST_FOREACH(const Dma::_sp dma, newDmas) {
     dma->initDemandTimeseries(boundaryPipes);
     dma->demand()->setUnits(this->flowUnits());
     //cout << "adding dma: " << *dma << endl;
@@ -323,11 +294,11 @@ bool Model::dmaShouldDetectClosedLinks() {
   return _dmaShouldDetectClosedLinks;
 }
 
-void Model::setDmaPipesToIgnore(vector<Pipe::sharedPointer> ignorePipes) {
+void Model::setDmaPipesToIgnore(vector<Pipe::_sp> ignorePipes) {
   _dmaPipesToIgnore = ignorePipes;
 }
 
-vector<Pipe::sharedPointer> Model::dmaPipesToIgnore() {
+vector<Pipe::_sp> Model::dmaPipesToIgnore() {
   return _dmaPipesToIgnore;
 }
 
@@ -339,7 +310,7 @@ void Model::overrideControls() throw(RtxException) {
 
 #pragma mark - Element Accessors
 
-void Model::addJunction(Junction::sharedPointer newJunction) {
+void Model::addJunction(Junction::_sp newJunction) {
   if (!newJunction) {
     std::cerr << "junction not specified" << std::endl;
     return;
@@ -347,7 +318,7 @@ void Model::addJunction(Junction::sharedPointer newJunction) {
   _junctions.push_back(newJunction);
   add(newJunction);
 }
-void Model::addTank(Tank::sharedPointer newTank) {
+void Model::addTank(Tank::_sp newTank) {
   if (!newTank) {
     std::cerr << "tank not specified" << std::endl;
     return;
@@ -355,7 +326,7 @@ void Model::addTank(Tank::sharedPointer newTank) {
   _tanks.push_back(newTank);
   add(newTank);
 }
-void Model::addReservoir(Reservoir::sharedPointer newReservoir) {
+void Model::addReservoir(Reservoir::_sp newReservoir) {
   if (!newReservoir) {
     std::cerr << "reservoir not specified" << std::endl;
     return;
@@ -363,7 +334,7 @@ void Model::addReservoir(Reservoir::sharedPointer newReservoir) {
   _reservoirs.push_back(newReservoir);
   add(newReservoir);
 }
-void Model::addPipe(Pipe::sharedPointer newPipe) {
+void Model::addPipe(Pipe::_sp newPipe) {
   if (!newPipe) {
     std::cerr << "pipe not specified" << std::endl;
     return;
@@ -371,7 +342,7 @@ void Model::addPipe(Pipe::sharedPointer newPipe) {
   _pipes.push_back(newPipe);
   add(newPipe);
 }
-void Model::addPump(Pump::sharedPointer newPump) {
+void Model::addPump(Pump::_sp newPump) {
   if (!newPump) {
     std::cerr << "pump not specified" << std::endl;
     return;
@@ -379,7 +350,7 @@ void Model::addPump(Pump::sharedPointer newPump) {
   _pumps.push_back(newPump);
   add(newPump);
 }
-void Model::addValve(Valve::sharedPointer newValve) {
+void Model::addValve(Valve::_sp newValve) {
   if (!newValve) {
     std::cerr << "valve not specified" << std::endl;
     return;
@@ -388,20 +359,20 @@ void Model::addValve(Valve::sharedPointer newValve) {
   add(newValve);
 }
 
-void Model::addDma(Dma::sharedPointer dma) {
+void Model::addDma(Dma::_sp dma) {
   _dmas.push_back(dma);
   dma->setJunctionFlowUnits(this->flowUnits());
-  Clock::sharedPointer hydClock(new Clock(hydraulicTimeStep()));
+  Clock::_sp hydClock(new Clock(hydraulicTimeStep()));
   //dma->demand()->setClock(hydClock);
   
 }
 
 // add to master lists
-void Model::add(Junction::sharedPointer newJunction) {
+void Model::add(Junction::_sp newJunction) {
   _nodes[newJunction->name()] = newJunction;
   _elements.push_back(newJunction);
 }
-void Model::add(Pipe::sharedPointer newPipe) {
+void Model::add(Pipe::_sp newPipe) {
   // manually add the pipe to the nodes' lists.
   newPipe->from()->addLink(newPipe);
   newPipe->to()->addLink(newPipe);
@@ -410,18 +381,18 @@ void Model::add(Pipe::sharedPointer newPipe) {
   _elements.push_back(newPipe);
 }
 
-Link::sharedPointer Model::linkWithName(const string& name) {
+Link::_sp Model::linkWithName(const string& name) {
   if ( _links.find(name) == _links.end() ) {
-    Link::sharedPointer emptyLink;
+    Link::_sp emptyLink;
     return emptyLink;
   }
   else {
     return _links[name];
   }
 }
-Node::sharedPointer Model::nodeWithName(const string& name) {
+Node::_sp Model::nodeWithName(const string& name) {
   if ( _nodes.find(name) == _nodes.end() ) {
-    Node::sharedPointer emptyNode;
+    Node::_sp emptyNode;
     return emptyNode;
   }
   else {
@@ -429,29 +400,29 @@ Node::sharedPointer Model::nodeWithName(const string& name) {
   }
 }
 
-std::vector<Element::sharedPointer> Model::elements() {
+std::vector<Element::_sp> Model::elements() {
   return _elements;
 }
 
-std::vector<Dma::sharedPointer> Model::dmas() {
+std::vector<Dma::_sp> Model::dmas() {
   return _dmas;
 }
-std::vector<Junction::sharedPointer> Model::junctions() {
+std::vector<Junction::_sp> Model::junctions() {
   return _junctions;
 }
-std::vector<Tank::sharedPointer> Model::tanks() {
+std::vector<Tank::_sp> Model::tanks() {
   return _tanks;
 }
-std::vector<Reservoir::sharedPointer> Model::reservoirs() {
+std::vector<Reservoir::_sp> Model::reservoirs() {
   return _reservoirs;
 }
-std::vector<Pipe::sharedPointer> Model::pipes() {
+std::vector<Pipe::_sp> Model::pipes() {
   return _pipes;
 }
-std::vector<Pump::sharedPointer> Model::pumps() {
+std::vector<Pump::_sp> Model::pumps() {
   return _pumps;
 }
-std::vector<Valve::sharedPointer> Model::valves() {
+std::vector<Valve::_sp> Model::valves() {
   return _valves;
 }
 
@@ -467,7 +438,7 @@ void Model::runSinglePeriod(time_t time) {
   // so back up to either the most recent set of results, or the most recent boundary-reset event
   // (whichever is nearer) and simulate through the requested time.
   //lastSimulationPeriod = _masterClock->validTime(time);
-  boundaryReset = _boundaryResetClock->validTime(time);
+  boundaryReset = _tankResetClock->validTime(time);
   start = RTX_MAX(lastSimulationPeriod, boundaryReset);
   
   // run the simulation to the requested time.
@@ -477,29 +448,34 @@ void Model::runSinglePeriod(time_t time) {
 void Model::runExtendedPeriod(time_t start, time_t end) {
   time_t simulationTime = start;
   time_t nextClockTime = start;
+  time_t nextReportTime = start;
   time_t nextSimulationTime = start;
+  time_t nextResetTime = start;
   time_t stepToTime = start;
+  struct tm * timeinfo;
   bool success;
   
   while (simulationTime < end) {
     
-    // reset tanks?
-    if (_tanksNeedReset) {
-      _tanksNeedReset = false;
-      BOOST_FOREACH(Tank::sharedPointer t, this->tanks()) {
-        t->setResetLevelNextTime(true);
-      }
-    }
-    
     // get parameters from the RTX elements, and pull them into the simulation
     setSimulationParameters(simulationTime);
+    
     // simulate this period, find the next timestep boundary.
     success = solveSimulation(simulationTime);
+    
+    // save simulation stats here so we can track convergence issues
+    Point error(simulationTime, relativeError(simulationTime));
+    _relativeError->insert(error);
+    Point iterationCount(simulationTime, iterations(simulationTime));
+    _iterations->insert(iterationCount);
+    Point convergenceStatus(simulationTime, success);
+    _convergence->insert(convergenceStatus);
+    
     if (success) {
       // simulation succeeded
       
 //      // debugging the DMA demands
-//      BOOST_FOREACH(Dma::sharedPointer dma, this->dmas()) {
+//      BOOST_FOREACH(Dma::_sp dma, this->dmas()) {
 //        cout << endl << "*** DMA " << dma->name() << " ***" << endl;
 //        
 //        double dmaDemand = 0.0;
@@ -515,8 +491,8 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
 //        double dmaDemandFromData = Units::convertValue(dPoint.value, myUnits, modelUnits);
 //        
 //        // demand accumulation by element type
-//        set<Junction::sharedPointer> juncs = dma->junctions();
-//        BOOST_FOREACH(Junction::sharedPointer junc, juncs) {
+//        set<Junction::_sp> juncs = dma->junctions();
+//        BOOST_FOREACH(Junction::_sp junc, juncs) {
 //          double juncDemand = junctionDemand(junc->name());
 //          if (junc->type() == Element::JUNCTION) {
 //            //          cout << "      " << junc->name() << ": " << juncDemand << endl;
@@ -535,7 +511,7 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
 //        // accumulate the boundary flows
 //        vector<Dma::pipeDirPair_t> boundaryPipes = dma->measuredBoundaryPipes();
 //        BOOST_FOREACH(const Dma::pipeDirPair_t& pd, boundaryPipes) {
-//          Pipe::sharedPointer p = pd.first;
+//          Pipe::_sp p = pd.first;
 //          double q = pipeFlow(p->name());
 //          Pipe::direction_t dir = pd.second;
 //          if (dir == Pipe::inDirection) {
@@ -556,31 +532,44 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
 //      }
       
       // tell each element to update its derived states (simulation-computed values)
-      if (_regularMasterClock->isValid(simulationTime)) {
+      if (_simReportClock->isValid(simulationTime)) {
         saveNetworkStates(simulationTime);
       }
       // get time to next simulation period
       nextSimulationTime = nextHydraulicStep(simulationTime);
       nextClockTime = _regularMasterClock->timeAfter(simulationTime);
-      stepToTime = RTX_MIN(nextClockTime, nextSimulationTime);
+      nextReportTime = _simReportClock->timeAfter(simulationTime);
+      if ( _tankResetClock ) {
+        nextResetTime = _tankResetClock->timeAfter(simulationTime);
+      }
+      stepToTime = min( min( min( nextClockTime, nextSimulationTime ), nextReportTime ), nextResetTime);
       
       // and step the simulation to that time.
       stepSimulation(stepToTime);
       simulationTime = currentSimulationTime();
       
-      cout << "Simulation time :: " << (double)(simulationTime-start)/60./60. << " hours" << endl;
+      timeinfo = localtime (&simulationTime);
+      cout << "Simulation time :: " << asctime(timeinfo) << endl;
     }
     else {
-      // simulation failed -- advance the time and restart
+      // simulation failed -- advance the time and reset tank levels
       nextClockTime = _regularMasterClock->timeAfter(simulationTime);
       simulationTime = nextClockTime;
       setCurrentSimulationTime(simulationTime);
-      _tanksNeedReset = true;
+      this->setTanksNeedReset(true);
     }
     
   } // simulation loop
   
   
+}
+
+void Model::setReportTimeStep(int seconds) {
+  _simReportClock.reset( new Clock(seconds) );
+}
+
+int Model::reportTimeStep() {
+  return _simReportClock->period();
 }
 
 
@@ -602,10 +591,10 @@ int Model::qualityTimeStep() {
 
 void Model::setInitialJunctionUniformQuality(double qual) {
   // Constant initial quality of Junctions and Tanks (Reservoirs are boundary conditions)
-  BOOST_FOREACH(Junction::sharedPointer junc, this->junctions()) {
+  BOOST_FOREACH(Junction::_sp junc, this->junctions()) {
     junc->setInitialQuality(qual);
   }
-  BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
+  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
     tank->setInitialQuality(qual);
   }
 }
@@ -616,6 +605,33 @@ bool Model::tanksNeedReset() {
 
 void Model::setTanksNeedReset(bool reset) {
   _tanksNeedReset = reset;
+  
+  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
+    tank->setNeedsReset(reset);
+  }
+  
+}
+
+void Model::_checkTanksForReset(time_t time) {
+  
+  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
+    if (tank->levelMeasure()) {
+      Point p = tank->levelMeasure()->pointAtOrBefore(time);
+      if (p.isValid) {
+        double levelValue = Units::convertValue(p.value, tank->levelMeasure()->units(), headUnits());
+        // adjust for model limits (epanet rejects otherwise, for example)
+        levelValue = (levelValue <= tank->maxLevel()) ? levelValue : tank->maxLevel();
+        levelValue = (levelValue >= tank->minLevel()) ? levelValue : tank->minLevel();
+        setTankLevel(tank->name(), levelValue);
+      }
+      else {
+        cerr << "ERR: Invalid head point for Tank " << tank->name() << " at time " << time << endl;
+      }
+    }
+  }
+  
+  this->setTanksNeedReset(false);
+  
 }
 
 void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
@@ -623,10 +639,10 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
   // using nearest neighbor interpolation of quality measurements
   
   // junction measurements
-  std::vector< std::pair<Junction::sharedPointer, double> > measuredJunctions;
-  BOOST_FOREACH(Junction::sharedPointer junc, this->junctions()) {
+  std::vector< std::pair<Junction::_sp, double> > measuredJunctions;
+  BOOST_FOREACH(Junction::_sp junc, this->junctions()) {
     if (junc->doesHaveQualityMeasure()) {
-      TimeSeries::sharedPointer qualityTS = junc->qualityMeasure();
+      TimeSeries::_sp qualityTS = junc->qualityMeasure();
       Point aPoint = qualityTS->pointAtOrBefore(time);
       if (aPoint.isValid) {
         measuredJunctions.push_back(make_pair(junc, aPoint.value));
@@ -634,9 +650,9 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
     }
   }
   // tank measurements
-  BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
+  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
     if (tank->doesHaveQualityMeasure()) {
-      TimeSeries::sharedPointer qualityTS = tank->qualityMeasure();
+      TimeSeries::_sp qualityTS = tank->qualityMeasure();
       Point aPoint = qualityTS->pointAtOrBefore(time);
       if (aPoint.isValid) {
         measuredJunctions.push_back(make_pair(tank, aPoint.value));
@@ -646,8 +662,8 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
   
   // Nearest neighbor interpolation by enumeration
   // junctions
-  BOOST_FOREACH(Junction::sharedPointer junc, this->junctions()) {
-    std::pair<Junction::sharedPointer, double> mjunc;
+  BOOST_FOREACH(Junction::_sp junc, this->junctions()) {
+    std::pair<Junction::_sp, double> mjunc;
     double minDistance = DBL_MAX;
     double initQuality = 0;
     BOOST_FOREACH(mjunc, measuredJunctions) {
@@ -662,8 +678,8 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
 //    cout << "Junction " << junc->name() << " Quality: " << initQuality << endl;
   }
   // tanks
-  BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
-    std::pair<Junction::sharedPointer, double> mjunc;
+  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
+    std::pair<Junction::_sp, double> mjunc;
     double minDistance = DBL_MAX;
     double initQuality = 0;
     BOOST_FOREACH(mjunc, measuredJunctions) {
@@ -701,13 +717,13 @@ std::ostream& Model::toStream(std::ostream &stream) {
   stream << "\t" << _links.size() << " links (" << _pumps.size() << " pumps, " << _valves.size() << " valves)" << endl;
   stream << "Time Steps:" << endl;
   stream << "\t" << hydraulicTimeStep() << "s (hydraulic), " << qualityTimeStep() << "s (quality)" << endl;
-  if (_record) {
-    stream << "State Storage:" << endl << *_record;
-  }
+//  if (_record) {
+//    stream << "State Storage:" << endl << *_record;
+//  }
   
   if (_dmas.size() > 0) {
     stream << "Demand DMAs:" << endl;
-    BOOST_FOREACH(Dma::sharedPointer d, _dmas) {
+    BOOST_FOREACH(Dma::_sp d, _dmas) {
       stream << "## DMA: " << d->name() << endl;
       stream << *d << endl;
     }
@@ -722,11 +738,11 @@ void Model::setSimulationParameters(time_t time) {
   
   // allocate junction demands based on dmas, and set the junction demand values in the model.
   if (_doesOverrideDemands) {
-    BOOST_FOREACH(Dma::sharedPointer dma, this->dmas()) {
+    BOOST_FOREACH(Dma::_sp dma, this->dmas()) {
       dma->allocateDemandToJunctions(time);
     }
     // hydraulic junctions - set demand values.
-    BOOST_FOREACH(Junction::sharedPointer junction, this->junctions()) {
+    BOOST_FOREACH(Junction::_sp junction, this->junctions()) {
       if (junction->doesHaveBoundaryFlow()) {
         // junction is separate from the allocation scheme (but allocateDemandToJunctions already inserts this into demand() series?)
         Point p = junction->boundaryFlow()->pointAtOrBefore(time);
@@ -753,7 +769,7 @@ void Model::setSimulationParameters(time_t time) {
   }
   
   // for reservoirs, set the boundary head and quality conditions
-  BOOST_FOREACH(Reservoir::sharedPointer reservoir, this->reservoirs()) {
+  BOOST_FOREACH(Reservoir::_sp reservoir, this->reservoirs()) {
     if (reservoir->doesHaveBoundaryHead()) {
       // get the head measurement parameter, and pass it through as a state.
       Point p = reservoir->boundaryHead()->pointAtOrBefore(time);
@@ -778,45 +794,17 @@ void Model::setSimulationParameters(time_t time) {
     }
   }
   
-  // for tanks, set the boundary head, but only if the tank reset clock has fired.
-  BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
-    if (tank->doesResetLevelUsingClock() && tank->levelResetClock()->isValid(time) && tank->doesHaveHeadMeasure()) {
-      Point p = tank->levelMeasure()->pointAtOrBefore(time);
-      if (p.isValid) {
-        double levelValue = Units::convertValue(p.value, tank->levelMeasure()->units(), headUnits());
-        // adjust for model limits (epanet rejects otherwise, for example)
-        levelValue = (levelValue <= tank->maxLevel()) ? levelValue : tank->maxLevel();
-        levelValue = (levelValue >= tank->minLevel()) ? levelValue : tank->minLevel();
-        setTankLevel(tank->name(), levelValue);
-      }
-      else {
-        cerr << "ERR: Invalid head point for Tank " << tank->name() << " at time " << time << endl;
-      }
-    }
+  // check for valid time with tank reset clock
+  if (_tankResetClock && _tankResetClock->isValid(time)) {
+    this->setTanksNeedReset(true);
   }
-
-  // or, set the boundary head if someone has specifically requested it
-  BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
-    if (tank->resetLevelNextTime() && tank->doesHaveHeadMeasure()) {
-      Point p = tank->levelMeasure()->pointAtOrBefore(time);
-      if (p.isValid) {
-        double levelValue = Units::convertValue(p.value, tank->levelMeasure()->units(), headUnits());
-        // adjust for model limits (epanet rejects otherwise, for example)
-        levelValue = (levelValue <= tank->maxLevel()) ? levelValue : tank->maxLevel();
-        levelValue = (levelValue >= tank->minLevel()) ? levelValue : tank->minLevel();
-        setTankLevel(tank->name(), levelValue);
-        tank->setResetLevelNextTime(false);
-      }
-      else {
-        cerr << "ERR: Invalid head point for Tank " << tank->name() << " at time " << time << endl;
-      }
-    }
-  }
+  
+  _checkTanksForReset(time);
 
   // for valves, set status and setting
-  BOOST_FOREACH(Valve::sharedPointer valve, this->valves()) {
+  BOOST_FOREACH(Valve::_sp valve, this->valves()) {
     // status can affect settings and vice-versa; status rules
-    Pipe::status_t status = Pipe::OPEN;
+    Pipe::status_t status = valve->fixedStatus();
     if (valve->doesHaveStatusParameter()) {
       Point p = valve->statusParameter()->pointAtOrBefore(time);
       if (p.isValid) {
@@ -827,22 +815,27 @@ void Model::setSimulationParameters(time_t time) {
         cerr << "ERR: Invalid status point for Valve " << valve->name() << " at time " << time << endl;
       }
     }
-    if (valve->doesHaveSettingParameter() && status) {
-      Point p = valve->settingParameter()->pointAtOrBefore(time);
-      if (p.isValid) {
-        // TODO -- set units based on type of valve (pressure or flow model units)
-        setValveSetting( valve->name(), p.value );
+    if (valve->doesHaveSettingParameter()) {
+      if (status) {
+        Point p = valve->settingParameter()->pointAtOrBefore(time);
+        if (p.isValid) {
+          // TODO -- set units based on type of valve (pressure or flow model units)
+          setValveSetting( valve->name(), p.value );
+        }
+        else {
+          cerr << "ERR: Invalid setting point for Valve " << valve->name() << " at time " << time << endl;
+        }
       }
       else {
-        cerr << "ERR: Invalid setting point for Valve " << valve->name() << " at time " << time << endl;
+        cerr << "WARN: Ignoring setting for Valve " << valve->name() << " because status is Closed" << endl;
       }
     }
   }
   
   // for pumps, set status and setting
-  BOOST_FOREACH(Pump::sharedPointer pump, this->pumps()) {
+  BOOST_FOREACH(Pump::_sp pump, this->pumps()) {
     // status can affect settings and vice-versa; status rules
-    Pipe::status_t status = Pipe::OPEN;
+    Pipe::status_t status = pump->fixedStatus();
     if (pump->doesHaveStatusParameter()) {
       Point p = pump->statusParameter()->pointAtOrBefore(time);
       if (p.isValid) {
@@ -853,19 +846,24 @@ void Model::setSimulationParameters(time_t time) {
         cerr << "ERR: Invalid status point for Pump " << pump->name() << " at time " << time << endl;
       }
     }
-    if (pump->doesHaveSettingParameter() && status) {
-      Point p = pump->settingParameter()->pointAtOrBefore(time);
-      if (p.isValid) {
-        setPumpSetting( pump->name(), p.value );
+    if (pump->settingParameter()) {
+      if (status == Pipe::OPEN) {
+        Point p = pump->settingParameter()->pointAtOrBefore(time);
+        if (p.isValid) {
+          setPumpSetting( pump->name(), p.value );
+        }
+        else {
+          cerr << "ERR: Invalid setting point for Pump " << pump->name() << " at time " << time << endl;
+        }
       }
       else {
-        cerr << "ERR: Invalid setting point for Pump " << pump->name() << " at time " << time << endl;
+        cerr << "WARN: Ignoring setting for Pump " << pump->name() << " because status is Closed" << endl;
       }
     }
   }
   
   // for pipes, set status
-  BOOST_FOREACH(Pipe::sharedPointer pipe, this->pipes()) {
+  BOOST_FOREACH(Pipe::_sp pipe, this->pipes()) {
     if (pipe->doesHaveStatusParameter()) {
       Point p = pipe->statusParameter()->pointAtOrBefore(time);
       if (p.isValid) {
@@ -880,15 +878,17 @@ void Model::setSimulationParameters(time_t time) {
   //////////////////////////////
   // water quality parameters //
   //////////////////////////////
-  BOOST_FOREACH(Junction::sharedPointer j, this->junctions()) {
-    if (j->doesHaveQualitySource()) {
-      Point p = j->qualitySource()->pointAtOrBefore(time);
-      if (p.isValid) {
-        double quality = Units::convertValue(p.value, j->qualitySource()->units(), qualityUnits());
-        setJunctionQuality(j->name(), quality);
-      }
-      else {
-        cerr << "ERR: Invalid quality source point for junction " << j->name() << " at time " << time << endl;
+  if (this->shouldRunWaterQuality()) {
+    BOOST_FOREACH(Junction::_sp j, this->junctions()) {
+      if (j->doesHaveQualitySource()) {
+        Point p = j->qualitySource()->pointAtOrBefore(time);
+        if (p.isValid) {
+          double quality = Units::convertValue(p.value, j->qualitySource()->units(), qualityUnits());
+          setJunctionQuality(j->name(), quality);
+        }
+        else {
+          cerr << "ERR: Invalid quality source point for junction " << j->name() << " at time " << time << endl;
+        }
       }
     }
   }
@@ -905,7 +905,7 @@ void Model::saveNetworkStates(time_t time) {
   // then insert the state values into elements' time series.
   
   // junctions, tanks, reservoirs
-  BOOST_FOREACH(Junction::sharedPointer junction, junctions()) {
+  BOOST_FOREACH(Junction::_sp junction, junctions()) {
     double head;
     head = Units::convertValue(junctionHead(junction->name()), headUnits(), junction->head()->units());
     Point headPoint(time, head);
@@ -913,6 +913,8 @@ void Model::saveNetworkStates(time_t time) {
     
     double pressure;
     pressure = Units::convertValue(junctionPressure(junction->name()), pressureUnits(), junction->pressure()->units());
+    Point pressurePoint(time, pressure);
+    junction->pressure()->insert(pressurePoint);
     
     // todo - more fine-grained quality data? at wq step resolution...
     double quality;
@@ -923,7 +925,7 @@ void Model::saveNetworkStates(time_t time) {
   
   // only save demand states if 
   if (!_doesOverrideDemands) {
-    BOOST_FOREACH(Junction::sharedPointer junction, junctions()) {
+    BOOST_FOREACH(Junction::_sp junction, junctions()) {
       double demand;
       demand = Units::convertValue(junctionDemand(junction->name()), flowUnits(), junction->demand()->units());
       Point demandPoint(time, demand);
@@ -931,19 +933,28 @@ void Model::saveNetworkStates(time_t time) {
     }
   }
   
-  BOOST_FOREACH(Reservoir::sharedPointer reservoir, reservoirs()) {
+  BOOST_FOREACH(Reservoir::_sp reservoir, reservoirs()) {
     double head;
     head = Units::convertValue(junctionHead(reservoir->name()), headUnits(), reservoir->head()->units());
     Point headPoint(time, head);
     reservoir->head()->insert(headPoint);
+    
+    double quality;
+    quality = Units::convertValue(junctionQuality(reservoir->name()), this->qualityUnits(), reservoir->quality()->units());
+    Point qualityPoint(time, quality);
+    reservoir->quality()->insert(qualityPoint);
   }
   
-  BOOST_FOREACH(Tank::sharedPointer tank, tanks()) {
+  BOOST_FOREACH(Tank::_sp tank, tanks()) {
     double head;
     head = Units::convertValue(junctionHead(tank->name()), headUnits(), tank->head()->units());
     Point headPoint(time, head);
     tank->head()->insert(headPoint);
-    tank->level()->point(headPoint.time);
+    
+    double level;
+    level = Units::convertValue(tankLevel(tank->name()), headUnits(), tank->head()->units());
+    Point levelPoint(time, level);
+    tank->level()->insert(levelPoint);
     
     double quality;
     quality = Units::convertValue(junctionQuality(tank->name()), this->qualityUnits(), tank->quality()->units());
@@ -953,14 +964,14 @@ void Model::saveNetworkStates(time_t time) {
   }
   
   // pipe elements
-  BOOST_FOREACH(Pipe::sharedPointer pipe, pipes()) {
+  BOOST_FOREACH(Pipe::_sp pipe, pipes()) {
     double flow;
     flow = Units::convertValue(pipeFlow(pipe->name()), flowUnits(), pipe->flow()->units());
     Point aPoint(time, flow);
     pipe->flow()->insert(aPoint);
   }
   
-  BOOST_FOREACH(Valve::sharedPointer valve, valves()) {
+  BOOST_FOREACH(Valve::_sp valve, valves()) {
     double flow;
     flow = Units::convertValue(pipeFlow(valve->name()), flowUnits(), valve->flow()->units());
     Point aPoint(time, flow);
@@ -968,7 +979,7 @@ void Model::saveNetworkStates(time_t time) {
   }
   
   // pump energy
-  BOOST_FOREACH(Pump::sharedPointer pump, pumps()) {
+  BOOST_FOREACH(Pump::_sp pump, pumps()) {
     double flow;
     flow = Units::convertValue(pipeFlow(pump->name()), flowUnits(), pump->flow()->units());
     Point flowPoint(time, flow);
@@ -980,12 +991,6 @@ void Model::saveNetworkStates(time_t time) {
     pump->energy()->insert(energyPoint);
   }
   
-  // save the timestep information
-  Point error(time, relativeError(time));
-  _relativeError->insert(error);
-  Point iterationCount(time, iterations(time));
-  _iterations->insert(iterationCount);
-
 }
 
 void Model::setCurrentSimulationTime(time_t time) {
@@ -995,147 +1000,142 @@ time_t Model::currentSimulationTime() {
   return _currentSimulationTime;
 }
 
-double Model::nodeDistanceXY(Node::sharedPointer n1, Node::sharedPointer n2) {
+double Model::nodeDistanceXY(Node::_sp n1, Node::_sp n2) {
   std::pair<double, double> x1 = n1->coordinates();
   std::pair<double, double> x2 = n2->coordinates();
   return sqrt( pow(x1.first - x2.first, 2) + pow(x1.second - x2.second, 2) );
 }
 
-vector<TimeSeries::sharedPointer> Model::networkStatesWithMeasures() {
-  vector<TimeSeries::sharedPointer> measures;
-  vector<Element::sharedPointer> modelElements;
+// get output states
+vector<TimeSeries::_sp> Model::networkStatesWithOptions(elementOption_t options) {
+  vector<TimeSeries::_sp> states;
+  vector<Element::_sp> modelElements;
   modelElements = this->elements();
   
-  BOOST_FOREACH(Element::sharedPointer element, modelElements) {
+  BOOST_FOREACH(Element::_sp element, modelElements) {
     switch (element->type()) {
       case Element::JUNCTION:
       case Element::TANK:
-      case Element::RESERVOIR: {
-        Junction::sharedPointer junc;
-        junc = boost::static_pointer_cast<Junction>(element);
-        if (junc->doesHaveHeadMeasure()) {
-          measures.push_back(junc->head());
+      {
+        Tank::_sp t = boost::dynamic_pointer_cast<Tank>(element);
+        if (!t) {
+          break;
         }
-        if (junc->doesHaveQualityMeasure()) {
-          measures.push_back(junc->quality());
+        if ((t->levelMeasure() && (options & ElementOptionMeasuredTanks)) || (options & ElementOptionAllTanks) ) {
+          states.push_back(t->level());
+        }
+      }
+      case Element::RESERVOIR:
+      {
+        Junction::_sp junc;
+        junc = boost::dynamic_pointer_cast<Junction>(element);
+        if ((junc->headMeasure() && (options & ElementOptionMeasuredTanks))  ||  (options & ElementOptionAllTanks) ) {
+          states.push_back(junc->head());
+        }
+        if ((junc->qualityMeasure() && (options & ElementOptionMeasuredQuality))  ||  (options & ElementOptionAllQuality) ) {
+          states.push_back(junc->quality());
+        }
+        if ((junc->qualitySource() && (options & ElementOptionMeasuredQuality))  ||  (options & ElementOptionAllQuality) ) {
+          states.push_back(junc->quality());
+        }
+        if ((junc->pressureMeasure() && (options & ElementOptionMeasuredPressures))  ||  (options & ElementOptionAllPressures) ) {
+          states.push_back(junc->pressure());
         }
         break;
       }
-        
       case Element::PIPE:
       case Element::VALVE:
       case Element::PUMP: {
-        Pipe::sharedPointer pipe;
+        Pipe::_sp pipe;
         pipe = boost::static_pointer_cast<Pipe>(element);
-        if (pipe->doesHaveFlowMeasure()) {
-          measures.push_back(pipe->flow());
+        if ((pipe->flowMeasure() && (options & ElementOptionMeasuredFlows)) || (options & ElementOptionAllFlows) ) {
+          states.push_back(pipe->flow());
         }
         break;
       }
-        
       default:
         break;
     }
   }
+  return states;
+}
+
+vector<TimeSeries::_sp> Model::networkInputSeries(elementOption_t options) {
+  vector<TimeSeries::_sp> measures;
+  vector<Element::_sp> modelElements;
+  modelElements = this->elements();
   
+  if (options & ElementOptionMeasuredAll) {
+    options = (elementOption_t)(options | ElementOptionMeasuredFlows | ElementOptionMeasuredPressures | ElementOptionMeasuredQuality | ElementOptionMeasuredTanks);
+  }
+  
+  BOOST_FOREACH(Element::_sp element, modelElements) {
+    switch (element->type()) {
+      case Element::JUNCTION:
+      case Element::TANK:
+      {
+        Tank::_sp t = boost::dynamic_pointer_cast<Tank>(element);
+        if (t && t->levelMeasure() && (options & ElementOptionMeasuredTanks)) {
+          measures.push_back(t->levelMeasure());
+        }
+      }
+      case Element::RESERVOIR:
+      {
+        Junction::_sp junc;
+        junc = boost::static_pointer_cast<Junction>(element);
+        if (junc->headMeasure() && (options & ElementOptionMeasuredTanks)) {
+          measures.push_back(junc->headMeasure());
+        }
+        if (junc->qualityMeasure() && (options & ElementOptionMeasuredQuality)) {
+          measures.push_back(junc->qualityMeasure());
+        }
+        if (junc->qualitySource() && (options & ElementOptionMeasuredQuality)) {
+          measures.push_back(junc->qualitySource());
+        }
+        if (junc->boundaryFlow() && (options & ElementOptionMeasuredFlows)) {
+          measures.push_back(junc->boundaryFlow());
+        }
+        if (junc->pressureMeasure() && (options & ElementOptionMeasuredPressures)) {
+          measures.push_back(junc->pressureMeasure());
+        }
+        break;
+      }
+      case Element::PIPE:
+      case Element::VALVE:
+      case Element::PUMP: {
+        Pipe::_sp pipe;
+        pipe = boost::static_pointer_cast<Pipe>(element);
+        if (pipe->flowMeasure() && (options & ElementOptionMeasuredFlows)) {
+          measures.push_back(pipe->flowMeasure());
+        }
+        if (pipe->settingParameter() && (options & ElementOptionMeasuredFlows)) {
+          measures.push_back(pipe->settingParameter());
+        }
+        if (pipe->statusParameter() && (options & ElementOptionMeasuredFlows)) {
+          measures.push_back(pipe->statusParameter());
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  }
   return measures;
 }
 
-void Model::setRecordForNetworkStatesWithMeasures(PointRecord::sharedPointer pr) {
-  vector<Element::sharedPointer> modelElements;
-  modelElements = this->elements();
-  
-  BOOST_FOREACH(Element::sharedPointer element, modelElements) {
-    switch (element->type()) {
-      case Element::JUNCTION:
-      case Element::TANK:
-      case Element::RESERVOIR: {
-        Junction::sharedPointer junc;
-        junc = boost::static_pointer_cast<Junction>(element);
-        if (junc->doesHaveHeadMeasure()) {
-          TimeSeries::sharedPointer ts = junc->head();
-          ts->setRecord(pr);
-        }
-        if (junc->doesHaveQualityMeasure()) {
-          TimeSeries::sharedPointer ts = junc->quality();
-          ts->setRecord(pr);
-        }
-        break;
-      }
-        
-      case Element::PIPE:
-      case Element::VALVE:
-      case Element::PUMP: {
-        Pipe::sharedPointer pipe;
-        pipe = boost::static_pointer_cast<Pipe>(element);
-        if (pipe->doesHaveFlowMeasure()) {
-          TimeSeries::sharedPointer ts = pipe->flow();
-          ts->setRecord(pr);
-        }
-        break;
-      }
-        
-      default:
-        break;
-    }
+// useful for pre-fetching simulation inputs
+void Model::setRecordForElementInputs(PointRecord::_sp pr) {
+  vector<TimeSeries::_sp> inputs = this->networkInputSeries(ElementOptionMeasuredAll);
+  BOOST_FOREACH(TimeSeries::_sp ts, inputs) {
+    ts->setRecord(pr);
   }
 }
 
-void Model::setRecordForNetworkBoundariesAndMeasures(PointRecord::sharedPointer pr) {
-  vector<Element::sharedPointer> modelElements;
-  modelElements = this->elements();
-  
-  // connect the time series
-  BOOST_FOREACH(Element::sharedPointer element, modelElements) {
-    switch (element->type()) {
-      case Element::JUNCTION:
-      case Element::TANK:
-      case Element::RESERVOIR: {
-        Junction::sharedPointer junc;
-        junc = boost::static_pointer_cast<Junction>(element);
-        if (junc->doesHaveBoundaryFlow()) {
-          TimeSeries::sharedPointer ts = junc->boundaryFlow();
-          ts->setRecord(pr);
-        }
-        if (junc->doesHaveHeadMeasure()) {
-          TimeSeries::sharedPointer ts = junc->headMeasure();
-          ts->setRecord(pr);
-        }
-        if (junc->doesHaveQualityMeasure()) {
-          TimeSeries::sharedPointer ts = junc->qualityMeasure();
-          ts->setRecord(pr);
-        }
-        if (junc->doesHaveQualitySource()) {
-          TimeSeries::sharedPointer ts = junc->qualitySource();
-          ts->setRecord(pr);
-        }
-        break;
-      }
-        
-      case Element::PIPE:
-      case Element::VALVE:
-      case Element::PUMP: {
-        Pipe::sharedPointer pipe;
-        pipe = boost::static_pointer_cast<Pipe>(element);
-        if (pipe->doesHaveFlowMeasure()) {
-          TimeSeries::sharedPointer ts = pipe->flowMeasure();
-          ts->setRecord(pr);
-        }
-        if (pipe->doesHaveSettingParameter()) {
-          TimeSeries::sharedPointer ts = pipe->settingParameter();
-          ts->setRecord(pr);
-        }
-        if (pipe->doesHaveStatusParameter()) {
-          TimeSeries::sharedPointer ts = pipe->statusParameter();
-          ts->setRecord(pr);
-        }
-        break;
-      }
-        
-      default:
-        break;
-    }
+void Model::setRecordForElementOutput(PointRecord::_sp record, elementOption_t options) {
+  vector<TimeSeries::_sp> outputs = this->networkStatesWithOptions(options);
+  BOOST_FOREACH(TimeSeries::_sp ts, outputs) {
+    ts->setRecord(record);
   }
-
 }
+
 

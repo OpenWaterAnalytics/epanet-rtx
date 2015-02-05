@@ -31,19 +31,19 @@ namespace RTX {
    \fn void ConfigProject::clear()
    \brief Clear all configuration settings.
    
-   \fn std::map<std::string, TimeSeries::sharedPointer> ConfigProject::timeSeries()
+   \fn std::map<std::string, TimeSeries::_sp> ConfigProject::timeSeries()
    \brief Get a list of TimeSeries pointers held by the configuration object.
    \return The list of pointers.
    
-   \fn std::map<std::string, PointRecord::sharedPointer> ConfigProject::pointRecords()
+   \fn std::map<std::string, PointRecord::_sp> ConfigProject::pointRecords()
    \brief Get a list of PointRecord pointers held by the configuration object.
    \return The list of pointers.
    
-   \fn std::map<std::string, Clock::sharedPointer> ConfigProject::clocks()
+   \fn std::map<std::string, Clock::_sp> ConfigProject::clocks()
    \brief Get a list of Clock pointers held by the configuration object.
    \return The list of pointers.
    
-   \fn void ConfigProject::addTimeSeries(TimeSeries::sharedPointer timeSeries)
+   \fn void ConfigProject::addTimeSeries(TimeSeries::_sp timeSeries)
    \brief add a TimeSeries pointer to the configuration
    \param timeSeries A TimeSeries shared pointer
    
@@ -70,49 +70,49 @@ namespace RTX {
     void saveProjectFile(const string& path);
     void clear();
     
-    RTX_LIST<TimeSeries::sharedPointer> timeSeries();
-    RTX_LIST<Clock::sharedPointer> clocks();
-    RTX_LIST<PointRecord::sharedPointer> records();
+    RTX_LIST<TimeSeries::_sp> timeSeries();
+    RTX_LIST<Clock::_sp> clocks();
+    RTX_LIST<PointRecord::_sp> records();
     
-    PointRecord::sharedPointer defaultRecord();
-    Model::sharedPointer model();
+    PointRecord::_sp defaultRecord();
+    Model::_sp model();
     
-    void configureElements(Model::sharedPointer model);
+    void configureElements(Model::_sp model);
     
   protected:
     void createSimulationDefaults(Setting& setting);
     
-    PointRecord::sharedPointer createPointRecordOfType(Setting& setting);
-    Clock::sharedPointer createRegularClock(Setting& setting);
-    TimeSeries::sharedPointer createTimeSeriesOfType(Setting& setting);
-    void setGenericTimeSeriesProperties(TimeSeries::sharedPointer timeSeries, Setting& setting);
-    TimeSeries::sharedPointer createTimeSeries(Setting& setting);
-    TimeSeries::sharedPointer createMovingAverage(Setting& setting);
-    TimeSeries::sharedPointer createAggregator(Setting& setting);
-    TimeSeries::sharedPointer createResampler(Setting &setting);
-    TimeSeries::sharedPointer createDerivative(Setting &setting);
-    TimeSeries::sharedPointer createOffset(Setting &setting);
-    TimeSeries::sharedPointer createThreshold(Setting &setting);
-    TimeSeries::sharedPointer createCurveFunction(Setting &setting);
-    TimeSeries::sharedPointer createConstant(Setting &setting);
-    TimeSeries::sharedPointer createValidRange(Setting &setting);
-    TimeSeries::sharedPointer createMultiplier(Setting &setting);
-    TimeSeries::sharedPointer createRuntimeStatus(Setting &setting);
-    TimeSeries::sharedPointer createGain(Setting &setting);
+    PointRecord::_sp createPointRecordOfType(Setting& setting);
+    Clock::_sp createRegularClock(Setting& setting);
+    TimeSeries::_sp createTimeSeriesOfType(Setting& setting);
+    void setGenericTimeSeriesProperties(TimeSeries::_sp timeSeries, Setting& setting);
+    TimeSeries::_sp createTimeSeries(Setting& setting);
+    TimeSeries::_sp createMovingAverage(Setting& setting);
+    TimeSeries::_sp createAggregator(Setting& setting);
+    TimeSeries::_sp createResampler(Setting &setting);
+    TimeSeries::_sp createDerivative(Setting &setting);
+    TimeSeries::_sp createOffset(Setting &setting);
+    TimeSeries::_sp createThreshold(Setting &setting);
+    TimeSeries::_sp createCurveFunction(Setting &setting);
+    TimeSeries::_sp createConstant(Setting &setting);
+    TimeSeries::_sp createValidRange(Setting &setting);
+    TimeSeries::_sp createMultiplier(Setting &setting);
+    TimeSeries::_sp createRuntimeStatus(Setting &setting);
+    TimeSeries::_sp createGain(Setting &setting);
 
 
-    void configureQualitySource(Setting &setting, Element::sharedPointer junction);
-    void configureBoundaryFlow(Setting &setting, Element::sharedPointer junction);
-    void configureHeadMeasure(Setting &setting, Element::sharedPointer junction);
-    void configurePressureMeasure(Setting &setting, Element::sharedPointer junction);
-    void configureLevelMeasure(Setting &setting, Element::sharedPointer tank);
-    void configureQualityMeasure(Setting &setting, Element::sharedPointer junction);
-    void configureBoundaryHead(Setting &setting, Element::sharedPointer junction);
-    void configurePipeStatus(Setting &setting, Element::sharedPointer pipe);
-    void configurePipeSetting(Setting &setting, Element::sharedPointer pipe);
-    void configureFlowMeasure(Setting &setting, Element::sharedPointer pipe);
-    void configurePumpCurve(Setting &setting, Element::sharedPointer pump);
-    void configurePumpEnergyMeasure(Setting &setting, Element::sharedPointer pump);
+    void configureQualitySource(Setting &setting, Element::_sp junction);
+    void configureBoundaryFlow(Setting &setting, Element::_sp junction);
+    void configureHeadMeasure(Setting &setting, Element::_sp junction);
+    void configurePressureMeasure(Setting &setting, Element::_sp junction);
+    void configureLevelMeasure(Setting &setting, Element::_sp tank);
+    void configureQualityMeasure(Setting &setting, Element::_sp junction);
+    void configureBoundaryHead(Setting &setting, Element::_sp junction);
+    void configurePipeStatus(Setting &setting, Element::_sp pipe);
+    void configurePipeSetting(Setting &setting, Element::_sp pipe);
+    void configureFlowMeasure(Setting &setting, Element::_sp pipe);
+    void configurePumpCurve(Setting &setting, Element::_sp pump);
+    void configurePumpEnergyMeasure(Setting &setting, Element::_sp pump);
     
     void createModel(Setting& setting);
     
@@ -126,22 +126,22 @@ namespace RTX {
     bool _doesHaveStateRecord;
     
     Config _configuration;
-    typedef TimeSeries::sharedPointer (ConfigProject::*TimeSeriesFunctionPointer)(Setting&);
-    typedef PointRecord::sharedPointer (*PointRecordFunctionPointer)(Setting&);
-    typedef void (ConfigProject::*ParameterFunction)(Setting&, Element::sharedPointer);
+    typedef TimeSeries::_sp (ConfigProject::*TimeSeriesFunctionPointer)(Setting&);
+    typedef PointRecord::_sp (*PointRecordFunctionPointer)(Setting&);
+    typedef void (ConfigProject::*ParameterFunction)(Setting&, Element::_sp);
     map<string, PointRecordFunctionPointer> _pointRecordPointerMap;
     map<string, TimeSeriesFunctionPointer> _timeSeriesPointerMap;
     map<string, ParameterFunction> _parameterSetter;
-    map<string, TimeSeries::sharedPointer> _timeSeriesList;
-    map<string, PointRecord::sharedPointer> _pointRecordList;
-    map<string, Clock::sharedPointer> _clockList;
-    PointRecord::sharedPointer _defaultRecord;
-    Model::sharedPointer _model;
+    map<string, TimeSeries::_sp> _timeSeriesList;
+    map<string, PointRecord::_sp> _pointRecordList;
+    map<string, Clock::_sp> _clockList;
+    PointRecord::_sp _defaultRecord;
+    Model::_sp _model;
     std::string _configPath;
     
     map<string, string> _timeSeriesSourceList;
     map<string, std::vector< std::pair<string, double> > > _timeSeriesAggregationSourceList;
-    map<TimeSeries::sharedPointer,std::string> _multiplierBasisList;
+    map<TimeSeries::_sp,std::string> _multiplierBasisList;
   };
   
 }

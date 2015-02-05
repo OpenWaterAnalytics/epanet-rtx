@@ -10,30 +10,28 @@
 #define __epanet_rtx__MultiplierTimeSeries__
 
 #include <iostream>
-#include "SinglePointFilterModularTimeSeries.h"
+#include "TimeSeriesFilterSinglePoint.h"
 
 namespace RTX {
-  class MultiplierTimeSeries : public SinglePointFilterModularTimeSeries {
+  class MultiplierTimeSeries : public TimeSeriesFilterSinglePoint {
     
   public:
     RTX_SHARED_POINTER(MultiplierTimeSeries);
     MultiplierTimeSeries();
     
-    TimeSeries::sharedPointer multiplier();
-    void setMultiplier(TimeSeries::sharedPointer ts);
-    
-    void setSource(TimeSeries::sharedPointer ts);
-    bool isCompatibleWith(TimeSeries::sharedPointer ts);
-    
-    virtual void setUnits(Units u);
+    TimeSeries::_sp multiplier();
+    void setMultiplier(TimeSeries::_sp ts);
+        
     
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
-    void checkUnits();
+    Point filteredWithSourcePoint(Point sourcePoint);
+    virtual bool canSetSource(TimeSeries::_sp ts);
+    virtual void didSetSource(TimeSeries::_sp ts);
+    virtual bool canChangeToUnits(Units units);
     
   private:
     Point filteredSingle(Point p, Units sourceU);
-    TimeSeries::sharedPointer _multiplierBasis;
+    TimeSeries::_sp _multiplierBasis;
   };
 }
 

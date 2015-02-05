@@ -20,8 +20,7 @@ using namespace std;
 Tank::Tank(const std::string& name) : Junction(name) {
   setType(TANK);
   // initialize time series states
-  _doesResetLevel = false;
-  _resetLevelNextTime = false;
+  _willResetLevel = false;
   _level.reset( new OffsetTimeSeries() );
   _level->setSource(this->head());
   _level->setName(name + " level (offset)");
@@ -92,12 +91,12 @@ void Tank::setElevation(double elevation) {
   _levelMeasure->setOffset(-elevation);
 }
 
-void Tank::setLevelMeasure(TimeSeries::sharedPointer levelMeasure) {
+void Tank::setLevelMeasure(TimeSeries::_sp levelMeasure) {
   if (!levelMeasure) {
-    this->setHeadMeasure(TimeSeries::sharedPointer());
+    this->setHeadMeasure(TimeSeries::_sp());
   }
   else {
-    OffsetTimeSeries::sharedPointer offsetHeadMeasure( new OffsetTimeSeries() );
+    OffsetTimeSeries::_sp offsetHeadMeasure( new OffsetTimeSeries() );
     offsetHeadMeasure->setName(this->name() + " offset");
     offsetHeadMeasure->setSource(levelMeasure);
     offsetHeadMeasure->setOffset( (this->elevation()) );
@@ -106,11 +105,11 @@ void Tank::setLevelMeasure(TimeSeries::sharedPointer levelMeasure) {
   }
 }
 
-TimeSeries::sharedPointer Tank::levelMeasure() {
+TimeSeries::_sp Tank::levelMeasure() {
   return _levelMeasure;
 }
 
-void Tank::setHeadMeasure(TimeSeries::sharedPointer head) {
+void Tank::setHeadMeasure(TimeSeries::_sp head) {
   // base class method first
   Junction::setHeadMeasure(head);
   
@@ -131,37 +130,35 @@ void Tank::setHeadMeasure(TimeSeries::sharedPointer head) {
   }
   else {
     // invalidate tank flow timeseries.
-    TimeSeries::sharedPointer blank;
+    TimeSeries::_sp blank;
     _levelMeasure->setSource(blank);
   }
 
 }
 
 
-TimeSeries::sharedPointer Tank::level() {
+TimeSeries::_sp Tank::level() {
   return _level;
 }
-TimeSeries::sharedPointer Tank::flowMeasure() {
+TimeSeries::_sp Tank::flowMeasure() {
   return _flowMeasure;
 }
-TimeSeries::sharedPointer Tank::volumeMeasure() {
+TimeSeries::_sp Tank::volumeMeasure() {
   return _volumeMeasure;
 }
 
 
-void Tank::setResetLevelNextTime(bool reset) {
-  _resetLevelNextTime = reset;
+
+
+
+void Tank::setNeedsReset(bool reset) {
+  _willResetLevel = reset;
 }
-bool Tank::resetLevelNextTime() {
-  return _resetLevelNextTime;
+bool Tank::needsReset() {
+  return _willResetLevel;
 }
-bool Tank::doesResetLevelUsingClock() {
-  return _doesResetLevel;
-}
-void Tank::setLevelResetClock(Clock::sharedPointer clock) {
-  _doesResetLevel = (clock ? true : false);
-  _resetLevel = clock;
-}
-Clock::sharedPointer Tank::levelResetClock() {
-  return _resetLevel;
-}
+
+
+
+
+

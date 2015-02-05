@@ -10,7 +10,7 @@
 #define __epanet_rtx__ThresholdTimeSeries__
 
 #include <iostream>
-#include "SinglePointFilterModularTimeSeries.h"
+#include "TimeSeriesFilterSinglePoint.h"
 
 namespace RTX {
   //!   A Status Class to map the input time series into binary status based on a threshold.
@@ -20,7 +20,7 @@ namespace RTX {
    convert the derivative of a pump runtime into a pump on/off status.
    */
   
-  class ThresholdTimeSeries : public SinglePointFilterModularTimeSeries {
+  class ThresholdTimeSeries : public TimeSeriesFilterSinglePoint {
     
   public:
     typedef enum {
@@ -31,20 +31,22 @@ namespace RTX {
     RTX_SHARED_POINTER(ThresholdTimeSeries);
     ThresholdTimeSeries();
     
-    void setThreshold(double threshold);
     double threshold();
-    void setValue(double val);
+    void setThreshold(double threshold);
+    
     double value();
-    virtual void setSource(TimeSeries::sharedPointer source);
-    virtual void setUnits(Units newUnits);
+    void setValue(double val);
     
     thresholdMode_t mode();
     void setMode(thresholdMode_t mode);
-
-    virtual bool canAlterDimension() { return true; };
+    
+  protected:
+    Point filteredWithSourcePoint(Point sourcePoint);
+    virtual void didSetSource(TimeSeries::_sp ts);
+    virtual bool canChangeToUnits(Units units);
     
   private:
-    Point filteredSingle(Point p, Units sourceU);
+//    Point filteredSingle(Point p, Units sourceU);
     double _threshold;
     double _fixedValue;
     thresholdMode_t _mode;

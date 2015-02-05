@@ -111,6 +111,7 @@ namespace RTX {
     
     Units operator*(const Units& unit) const;
     Units operator/(const Units& unit) const;
+    Units operator^(const double power) const;
     bool operator==(const Units& unit) const;
     
     bool isSameDimensionAs(const Units& unit) const;

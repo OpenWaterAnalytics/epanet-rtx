@@ -213,9 +213,9 @@ void EpanetModel::createRtxWrappers() {
     double x,y,z;         // rtx coordinates
     EN_NodeType nodeType;         // epanet node type code
     string nodeName;
-    Junction::sharedPointer newJunction;
-    Reservoir::sharedPointer newReservoir;
-    Tank::sharedPointer newTank;
+    Junction::_sp newJunction;
+    Reservoir::_sp newReservoir;
+    Tank::_sp newTank;
     
     // get relevant info from EPANET toolkit
     OW_API_CHECK( OW_getnodeid(_enModel, iNode, enName), "OW_getnodeid" );
@@ -226,7 +226,7 @@ void EpanetModel::createRtxWrappers() {
     
     nodeName = string(enName);
     
-    //CurveFunction::sharedPointer volumeCurveTs;
+    //CurveFunction::_sp volumeCurveTs;
     vector< pair<double,double> > curveGeometry;
     double minLevel = 0, maxLevel = 0;
     
@@ -348,10 +348,10 @@ void EpanetModel::createRtxWrappers() {
     EN_LinkType linkType;
     double length, diameter, status;
     string linkName;
-    Node::sharedPointer startNode, endNode;
-    Pipe::sharedPointer newPipe;
-    Pump::sharedPointer newPump;
-    Valve::sharedPointer newValve;
+    Node::_sp startNode, endNode;
+    Pipe::_sp newPipe;
+    Pump::_sp newPump;
+    Valve::_sp newValve;
     
     // a bunch of epanet api calls to get properties from the link
     OW_API_CHECK(OW_getlinkid(_enModel, iLink, enLinkName), "OW_getlinkid");
@@ -571,31 +571,17 @@ bool EpanetModel::solveSimulation(time_t time) {
    
    */
   bool success = true;
-  
   long timestep;
-  int errcode;
-  double accuracy;
+  int errorCode;
   
   // set the current epanet-time to zero, since we override epanet-time.
   setCurrentSimulationTime( time );
   OW_API_CHECK(OW_settimeparam(_enModel, EN_HTIME, 0), "OW_settimeparam(EN_HTIME)");
   OW_API_CHECK(OW_settimeparam(_enModel, EN_QTIME, 0), "OW_settimeparam(EN_QTIME)");
   // solve the hydraulics
-  OW_API_CHECK(errcode = OW_runH(_enModel, &timestep), "OW_runH");
+  OW_API_CHECK(errorCode = OW_runH(_enModel, &timestep), "OW_runH");
   // check for success
-  OW_API_CHECK( OW_getoption(_enModel, EN_ACCURACY, &accuracy), "OW_getoption");
-  bool illcondition = errcode == 101 || errcode == 110; // 101 is memory issue, 110 is illconditioning
-  bool unbalanced = relativeError(time) > accuracy;
-  if (illcondition || unbalanced) {
-    success = false;
-    cerr << "Simulation Failed: ";
-    if (illcondition) {
-      cerr << "Ill Conditioned" << endl;
-    }
-    if (unbalanced) {
-      cerr << "Unbalanced" << endl;
-    }
-  }
+  success = this->_didConverge(time, errorCode);
   
   // how to deal with lack of hydraulic convergence here - reset boundary/initial conditions?
   if (this->shouldRunWaterQuality()) {
@@ -662,6 +648,21 @@ double EpanetModel::relativeError(time_t time) {
   return relativeError;
 }
 
+bool EpanetModel::_didConverge(time_t time, int errorCode) {
+  // return true if the simulation did not converge
+  EN_API_FLOAT_TYPE accuracy;
+  
+  OW_API_CHECK( OW_getoption(_enModel, EN_ACCURACY, &accuracy), "OW_getoption");
+  bool illcondition = errorCode == 101 || errorCode == 110; // 101 is memory issue, 110 is illconditioning
+  bool unbalanced = relativeError(time) > accuracy;
+  if (illcondition || unbalanced) {
+    return false;
+  }
+  else {
+    return true;
+  }
+}
+
 
 void EpanetModel::setHydraulicTimeStep(int seconds) {
   
@@ -683,14 +684,14 @@ void EpanetModel::setInitialModelQuality() {
   OW_API_CHECK(OW_openQ(_enModel), "OW_openQ");
 
   // Junctions
-  BOOST_FOREACH(Junction::sharedPointer junc, this->junctions()) {
+  BOOST_FOREACH(Junction::_sp junc, this->junctions()) {
     double qual = junc->initialQuality();
     int iNode = _nodeIndex[junc->name()];
     OW_API_CHECK(OW_setnodevalue(_enModel, iNode, EN_INITQUAL, qual), "OW_setnodevalue - EN_INITQUAL");
   }
   
   // Tanks
-  BOOST_FOREACH(Tank::sharedPointer tank, this->tanks()) {
+  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
     double qual = tank->initialQuality();
     int iNode = _nodeIndex[tank->name()];
     OW_API_CHECK(OW_setnodevalue(_enModel, iNode, EN_INITQUAL, qual), "OW_setnodevalue - EN_INITQUAL");

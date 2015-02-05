@@ -10,7 +10,7 @@
 #define __epanet_rtx__BaseStatsTimeSeries__
 
 #include <iostream>
-#include "ModularTimeSeries.h"
+#include "TimeSeriesFilter.h"
 
 namespace RTX {
   
@@ -24,13 +24,13 @@ namespace RTX {
    */
   
   /*!
-   \fn Clock::sharedPointer BaseStatsTimeSeries::window();
+   \fn Clock::_sp BaseStatsTimeSeries::window();
    \brief Get the statistical sampling window clock.
    \return A shared pointer to a Clock object.
    \sa BaseStatsTimeSeries::setWindow
    */
   /*!
-   \fn void BaseStatsTimeSeries::setWindow(Clock::sharedPointer window);
+   \fn void BaseStatsTimeSeries::setWindow(Clock::_sp window);
    \brief Set the moving statistical window.
    \param window A moving window to use for statistical calculations
    \sa BaseStatsTimeSeries::window
@@ -38,7 +38,7 @@ namespace RTX {
 
   
     
-  class BaseStatsTimeSeries : public ModularTimeSeries {
+  class BaseStatsTimeSeries : public TimeSeriesFilter {
     
   public:
     //! sampling window mode (lead, lag, center)
@@ -49,13 +49,13 @@ namespace RTX {
     } StatsSamplingMode_t;
     
     
-    typedef std::pair< Point, Statistics > pointSummaryPair_t;
+    typedef std::pair< Point, PointCollection > pointSummaryPair_t;
     
     RTX_SHARED_POINTER(BaseStatsTimeSeries);
     BaseStatsTimeSeries();
     
-    void setWindow(Clock::sharedPointer window);
-    Clock::sharedPointer window();
+    void setWindow(Clock::_sp window);
+    Clock::_sp window();
     
     void setSamplingMode(StatsSamplingMode_t mode);
     StatsSamplingMode_t samplingMode();
@@ -63,14 +63,15 @@ namespace RTX {
     bool summaryOnly();
     void setSummaryOnly(bool summaryOnly);
     
-    // overrides
-//    void setClock(Clock::sharedPointer clock);
+    
     
   protected:
-    virtual std::vector< pointSummaryPair_t > filteredSummaryPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
+    virtual PointCollection filterPointsInRange(TimeRange range) = 0; // pure virtual. don't use this class directly.
+    std::vector<pointSummaryPair_t> filterSummaryCollection(std::set<time_t> times);
+    
     
   private:
-    Clock::sharedPointer _window;
+    Clock::_sp _window;
     bool _summaryOnly;
     StatsSamplingMode_t _samplingMode;
   };

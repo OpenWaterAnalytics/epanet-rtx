@@ -9,13 +9,13 @@
 #ifndef __epanet_rtx__FailoverTimeSeries__
 #define __epanet_rtx__FailoverTimeSeries__
 
-#include "ModularTimeSeries.h"
+#include "TimeSeriesFilter.h"
 
 #include <iostream>
 
 
 namespace RTX {
-  class FailoverTimeSeries : public ModularTimeSeries
+  class FailoverTimeSeries : public TimeSeriesFilter
   {
   public:
     RTX_SHARED_POINTER(FailoverTimeSeries);
@@ -23,20 +23,19 @@ namespace RTX {
     time_t maximumStaleness();
     void setMaximumStaleness(time_t stale);
     
-    TimeSeries::sharedPointer failoverTimeseries();
-    void setFailoverTimeseries(TimeSeries::sharedPointer ts);
+    TimeSeries::_sp failoverTimeseries();
+    void setFailoverTimeseries(TimeSeries::_sp ts);
     
     void swapSourceWithFailover();
-    
-    // superclass overrides
-    virtual void setSource(TimeSeries::sharedPointer source);
-    
+  
+
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
-    virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
+    PointCollection filterPointsInRange(TimeRange range);
+    std::set<time_t> timeValuesInRange(TimeRange range);
+    bool canSetSource(TimeSeries::_sp ts);
     
   private:
-    TimeSeries::sharedPointer _failover;
+    TimeSeries::_sp _failover;
     time_t _stale;
   };
 }

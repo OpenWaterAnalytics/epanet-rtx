@@ -9,35 +9,38 @@
 #ifndef __epanet_rtx__CorrelatorTimeSeries__
 #define __epanet_rtx__CorrelatorTimeSeries__
 
-#include "ModularTimeSeries.h"
+#include "TimeSeriesFilter.h"
 
 #include <iostream>
 
 
 namespace RTX {
-  class CorrelatorTimeSeries : public ModularTimeSeries
+  
+  
+  //! The correlator will resample the secondary "correlatorTimeSeries" at the time values of its source, if needed.
+  
+  
+  class CorrelatorTimeSeries : public TimeSeriesFilter
   {
   public:
     RTX_SHARED_POINTER(CorrelatorTimeSeries);
     CorrelatorTimeSeries();
     
-    TimeSeries::sharedPointer correlatorTimeSeries();
-    void setCorrelatorTimeSeries(TimeSeries::sharedPointer ts);
+    TimeSeries::_sp correlatorTimeSeries();
+    void setCorrelatorTimeSeries(TimeSeries::_sp ts);
     
-    // superclass overrides
-    virtual void setSource(TimeSeries::sharedPointer source);
-    virtual bool canAlterDimension() { return true; };
-    
-    Clock::sharedPointer correlationWindow();
-    void setCorrelationWindow(Clock::sharedPointer correlationWindow);
+    Clock::_sp correlationWindow();
+    void setCorrelationWindow(Clock::_sp correlationWindow);
     
   protected:
-    virtual std::vector<Point> filteredPoints(TimeSeries::sharedPointer sourceTs, time_t fromTime, time_t toTime);
-    virtual bool isCompatibleWith(TimeSeries::sharedPointer withTimeSeries);
+    PointCollection filterPointsInRange(TimeRange range);
+    bool canSetSource(TimeSeries::_sp ts);
+    void didSetSource(TimeSeries::_sp ts);
+    bool canChangeToUnits(Units units);
     
   private:
-    TimeSeries::sharedPointer _secondary;
-    Clock::sharedPointer _corWindow;
+    TimeSeries::_sp _secondary;
+    Clock::_sp _corWindow;
   };
 }
 

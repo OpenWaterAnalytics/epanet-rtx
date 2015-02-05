@@ -33,35 +33,31 @@ namespace RTX {
     std::string geometryName;
     
     void setElevation(double elevation);
-    bool doesResetLevelUsingClock();
-    void setLevelResetClock(Clock::sharedPointer clock);
-    Clock::sharedPointer levelResetClock();
-    void setResetLevelNextTime(bool reset);
-    bool resetLevelNextTime();
+    
+    void setNeedsReset(bool reset);
+    bool needsReset();
     
     // parameters
-    void setLevelMeasure(TimeSeries::sharedPointer level);
-    TimeSeries::sharedPointer levelMeasure();
+    void setLevelMeasure(TimeSeries::_sp level);
+    TimeSeries::_sp levelMeasure();
     // override parameters
-    virtual void setHeadMeasure(TimeSeries::sharedPointer head);
+    virtual void setHeadMeasure(TimeSeries::_sp head);
     
     // states
-    TimeSeries::sharedPointer level(); // directly related to head
-    TimeSeries::sharedPointer volumeMeasure(); // based on tank geometry
-    TimeSeries::sharedPointer flowMeasure();  // flow into the tank (computed)
+    TimeSeries::_sp level(); // directly related to head
+    TimeSeries::_sp volumeMeasure(); // based on tank geometry
+    TimeSeries::_sp flowMeasure();  // flow into the tank (computed)
     
   private:
-    OffsetTimeSeries::sharedPointer _level;
-    OffsetTimeSeries::sharedPointer _levelMeasure;
-    CurveFunction::sharedPointer _volumeMeasure;
-    FirstDerivative::sharedPointer _flowMeasure;
-    Clock::sharedPointer _resetLevel;
+    OffsetTimeSeries::_sp _level;
+    OffsetTimeSeries::_sp _levelMeasure;
+    CurveFunction::_sp _volumeMeasure;
+    FirstDerivative::_sp _flowMeasure;
     double _minLevel, _maxLevel;
-    bool _doesResetLevel;
     std::vector< std::pair<double,double> > _geometry;
     Units _geometryLevelUnits;
     Units _geometryVolumeUnits;
-    bool _resetLevelNextTime;
+    bool _willResetLevel;
     
   }; // Tank
   

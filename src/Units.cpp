@@ -63,6 +63,19 @@ Units Units::operator/(const Units& unit) const {
                _intensity - unit._intensity);
 }
 
+
+Units Units::operator^(const double power) const {
+  int mass = round(_mass*power);
+  int length = round(_length*power);
+  int time = round(_time*power);
+  int current = round(_current*power);
+  int temperature = round(_temperature*power);
+  int amount = round(_amount*power);
+  int intensity = round(_intensity*power);
+  
+  return Units(pow(_conversion,power), mass, length, time, current, temperature, amount, intensity);
+}
+
 bool Units::operator==(const RTX::Units &unit) const {
   if (_conversion == unit._conversion && this->isSameDimensionAs(unit) && _offset == unit._offset) {
     return true;
@@ -109,7 +122,7 @@ ostream& RTX::operator<< (ostream &out, Units &unit) {
 
 ostream& Units::toStream(ostream &stream) {
   if (isDimensionless()) {
-    stream << "(dimensionless)";
+    stream << "dimensionless";
     return stream;
   }
   

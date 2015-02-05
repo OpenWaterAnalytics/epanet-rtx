@@ -17,18 +17,18 @@ namespace RTX {
   class IrregularClock : public Clock {
   public:
     RTX_SHARED_POINTER(IrregularClock);
-    IrregularClock(PointRecord::sharedPointer pointRecord, std::string name);
+    IrregularClock(PointRecord::_sp pointRecord, std::string name);
     virtual ~IrregularClock();
     
-    virtual bool isCompatibleWith(Clock::sharedPointer clock);
+    virtual bool isCompatibleWith(Clock::_sp clock);
     virtual bool isValid(time_t time);
     virtual time_t timeAfter(time_t time);
     virtual time_t timeBefore(time_t time);
-    virtual std::vector< time_t > timeValuesInRange(time_t start, time_t end);
+    virtual std::set< time_t > timeValuesInRange(time_t start, time_t end);
     virtual std::ostream& toStream(std::ostream &stream);
     
   private:
-    PointRecord::sharedPointer _pointRecord;
+    PointRecord::_sp _pointRecord;
     std::string _name;
   };
   

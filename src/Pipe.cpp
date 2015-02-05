@@ -12,7 +12,7 @@
 
 using namespace RTX;
 
-Pipe::Pipe(const std::string& name, Node::sharedPointer startNode, Node::sharedPointer endNode) : Link(name, startNode, endNode) {
+Pipe::Pipe(const std::string& name, Node::_sp startNode, Node::_sp endNode) : Link(name, startNode, endNode) {
   setType(PIPE);
   _flowState.reset( new TimeSeries() );
   _flowState->setUnits(RTX_LITER_PER_SECOND);
@@ -31,7 +31,7 @@ void Pipe::setFixedStatus(status_t status) {
   _fixedStatus = status;
 }
 
-void Pipe::setRecord(PointRecord::sharedPointer record) {
+void Pipe::setRecord(PointRecord::_sp record) {
   _flowState->setRecord(record);
 }
 
@@ -51,7 +51,7 @@ void Pipe::setLength(double length) {
   _length = length;
 }
 
-TimeSeries::sharedPointer Pipe::flow() {
+TimeSeries::_sp Pipe::flow() {
   return _flowState;
 }
 
@@ -59,22 +59,22 @@ bool Pipe::doesHaveStatusParameter() {
   return _status ? true : false;
 }
 
-TimeSeries::sharedPointer Pipe::statusParameter() {
+TimeSeries::_sp Pipe::statusParameter() {
   return _status;
 }
-void Pipe::setStatusParameter(TimeSeries::sharedPointer status) {
+void Pipe::setStatusParameter(TimeSeries::_sp status) {
   _status = status;
 }
 
 bool Pipe::doesHaveFlowMeasure() {
   return _flowMeasure ? true : false;
 }
-TimeSeries::sharedPointer Pipe::flowMeasure() {
+TimeSeries::_sp Pipe::flowMeasure() {
   return _flowMeasure;
 }
-void Pipe::setFlowMeasure(TimeSeries::sharedPointer flow) {
+void Pipe::setFlowMeasure(TimeSeries::_sp flow) {
   if (flow == NULL || !flow) {
-    _flowMeasure = TimeSeries::sharedPointer();
+    _flowMeasure = TimeSeries::_sp();
   }
   else if ( !(flow->units().isSameDimensionAs(RTX_GALLON_PER_MINUTE)) ) {
     return;
@@ -87,10 +87,10 @@ bool Pipe::doesHaveSettingParameter() {
   return _setting ? true : false;
 }
 
-TimeSeries::sharedPointer Pipe::settingParameter() {
+TimeSeries::_sp Pipe::settingParameter() {
   return _setting;
 }
 
-void Pipe::setSettingParameter(TimeSeries::sharedPointer setting) {
+void Pipe::setSettingParameter(TimeSeries::_sp setting) {
   _setting = setting;
 }
