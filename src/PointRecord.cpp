@@ -92,6 +92,14 @@ Point PointRecord::pointAfter(const string& identifier, time_t time) {
 
 std::vector<Point> PointRecord::pointsInRange(const string& identifier, time_t startTime, time_t endTime) {
   std::vector<Point> pointVector;
+  
+  if (startTime == endTime) {
+    Point p = this->point(identifier, startTime);
+    if (p.isValid) {
+      pointVector.push_back(p);
+    }
+  }
+  
   return pointVector;
 }
 
