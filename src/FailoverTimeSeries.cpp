@@ -15,6 +15,7 @@
 using namespace RTX;
 using namespace std;
 
+#define MAX(x,y) (((x)>=(y)) ? (x) : (y))     /* maximum of x and y    */
 
 
 time_t FailoverTimeSeries::maximumStaleness() {
@@ -106,17 +107,25 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
     prevTime = range.first - _stale - 1;
   }
   
+  Point fakeEndPoint;
+  fakeEndPoint.time = MAX(primarySourceRange.second, secondarySourceRange.second);
+  primaryData.points.push_back(fakeEndPoint);
+  
   BOOST_FOREACH(const Point& p, primaryData.points) {
     time_t now = p.time;
     if (now - prevTime > _stale) {
       PointCollection secondary = this->failoverTimeseries()->points(make_pair(prevTime, now));
       secondary.convertToUnits(myUnits);
       BOOST_FOREACH(Point sp, secondary.points) {
-        thePoints.push_back( sp );
+        if (sp.isValid) {
+          thePoints.push_back( sp );
+        }
       }
     }
     else {
-      thePoints.push_back(p);
+      if (p.isValid) {
+        thePoints.push_back(p);
+      }
     }
     prevTime = p.time;
   }
