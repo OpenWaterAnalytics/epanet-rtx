@@ -32,6 +32,19 @@ vector<Point> randomPoints(time_t start, int nPoints, time_t period = 0);
 int main(int argc, const char * argv[])
 {
   
+  
+  TimeSeries::_sp ts( new TimeSeries);
+  
+  
+  ts->insert(Point(1420088400,2.3));
+  
+  Point p = ts->point(1420088400);
+  
+  cout << p << endl;
+  
+  
+  
+  
   InfluxDbPointRecord::_sp influxDb( new InfluxDbPointRecord() );
   
   influxDb->setName("Influx");
