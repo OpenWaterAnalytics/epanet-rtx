@@ -36,6 +36,7 @@ namespace RTX {
     void setPath(std::string path);
     
     virtual bool supportsBoundedQueries();
+    virtual void truncate();
 
     
   protected:
@@ -48,7 +49,6 @@ namespace RTX {
     void insertSingleInTransaction(const std::string &id, Point point);
     virtual void insertRange(const std::string& id, std::vector<Point> points);
     virtual void removeRecord(const std::string& id);
-    virtual void truncate();
     
   private:
     sqlite3 *_dbHandle;

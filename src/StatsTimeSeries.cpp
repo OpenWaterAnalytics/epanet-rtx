@@ -125,7 +125,7 @@ void StatsTimeSeries::didSetSource(TimeSeries::_sp source) {
   if (source) {
     Units units = statsUnits(source->units(), statsType());
     
-    if (!units.isSameDimensionAs(originalUnits)) {
+    if (units.isSameDimensionAs(originalUnits)) {
       units = originalUnits;
     }
     this->setUnits(units);

@@ -603,6 +603,10 @@ void Model::setInitialJunctionUniformQuality(double qual) {
   }
 }
 
+void Model::setTankResetClock(Clock::_sp resetClock) {
+  _tankResetClock = resetClock;
+}
+
 bool Model::tanksNeedReset() {
   return _tanksNeedReset;
 }
