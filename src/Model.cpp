@@ -532,15 +532,18 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
 //      }
       
       // tell each element to update its derived states (simulation-computed values)
-      if (_simReportClock->isValid(simulationTime)) {
+      if (!_simReportClock || _simReportClock->isValid(simulationTime)) {
         saveNetworkStates(simulationTime);
       }
       // get time to next simulation period
       nextSimulationTime = nextHydraulicStep(simulationTime);
       nextClockTime = _regularMasterClock->timeAfter(simulationTime);
-      nextReportTime = _simReportClock->timeAfter(simulationTime);
+      nextReportTime = (_simReportClock) ? _simReportClock->timeAfter(simulationTime) : nextSimulationTime;
       if ( _tankResetClock ) {
         nextResetTime = _tankResetClock->timeAfter(simulationTime);
+      }
+      else {
+        nextResetTime = nextSimulationTime;
       }
       stepToTime = min( min( min( nextClockTime, nextSimulationTime ), nextReportTime ), nextResetTime);
       
@@ -556,6 +559,7 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
       nextClockTime = _regularMasterClock->timeAfter(simulationTime);
       simulationTime = nextClockTime;
       setCurrentSimulationTime(simulationTime);
+      cout << "will reset tanks" << endl;
       this->setTanksNeedReset(true);
     }
     
@@ -613,6 +617,10 @@ void Model::setTanksNeedReset(bool reset) {
 }
 
 void Model::_checkTanksForReset(time_t time) {
+  
+  if (!tanksNeedReset()) {
+    return;
+  }
   
   BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
     if (tank->levelMeasure()) {
@@ -836,7 +844,7 @@ void Model::setSimulationParameters(time_t time) {
   BOOST_FOREACH(Pump::_sp pump, this->pumps()) {
     // status can affect settings and vice-versa; status rules
     Pipe::status_t status = pump->fixedStatus();
-    if (pump->doesHaveStatusParameter()) {
+    if (pump->statusParameter()) {
       Point p = pump->statusParameter()->pointAtOrBefore(time);
       if (p.isValid) {
         status = Pipe::status_t((int)(p.value));
