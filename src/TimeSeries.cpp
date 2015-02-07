@@ -169,23 +169,20 @@ bool TimeSeries::PointCollection::resample(set<time_t> timeList, TimeSeriesResam
     }
   }
   
+  ++right; // get one step ahead.
   
   // pre-set the right/left cursors
   time_t firstValidTime = *(validTimeList.begin());
-  while (right != sourceEnd && right->time <= firstValidTime) {
+  while (right != sourceEnd && right->time < firstValidTime) {
     ++right;
-    if (right->time <= firstValidTime) {
-      // outer while loop will fire again, so increment the left iterator too
-      // otherwise, we're straddling the first time value like we should be.
-      ++left;
-    }
+    ++left;
   }
   
   
   BOOST_FOREACH(const time_t now, validTimeList) {
     
     // we should be straddling.
-    while ( ( right != sourceEnd || left != sourceEnd) &&
+    while ( ( right != sourceEnd && left != sourceEnd) &&
            (! (left->time <= now && right->time >= now) ) ) {
       // move cursors forward
       ++left;
@@ -196,8 +193,19 @@ bool TimeSeries::PointCollection::resample(set<time_t> timeList, TimeSeriesResam
     if (right == sourceEnd) {
       break; // get out of foreach
     }
-    
-    Point p = Point::linearInterpolate(*left, *right, now);
+    Point p;
+    if (mode == TimeSeriesResampleModeLinear) {
+      p = Point::linearInterpolate(*left, *right, now);
+    }
+    else if (mode == TimeSeriesResampleModeStep) {
+      if (now == right->time) {
+        p = *right;
+      }
+      else {
+        p = *left;
+      }
+      p.time = now;
+    }
     resampled.push_back(p);
   }
   
@@ -391,7 +399,7 @@ void TimeSeries::setUnits(Units newUnits) {
   // changing units means the values here are no good anymore.
   if (this->canChangeToUnits(newUnits)) {
     if (! (newUnits == this->units())) {
-      this->resetCache();
+      this->invalidate();
     }
     _units = newUnits;
   }
