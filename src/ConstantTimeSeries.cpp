@@ -8,7 +8,9 @@ ConstantTimeSeries::ConstantTimeSeries() {
 }
 
 Point ConstantTimeSeries::syntheticPoint(time_t time)  {
-  return Point(time, _value, Point::constant);
+  Point p(time,_value);
+  p.addQualFlag(Point::constant);
+  return p;
 }
 
 
