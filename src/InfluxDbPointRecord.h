@@ -28,9 +28,6 @@ namespace RTX {
     //virtual std::vector<std::pair<std::string, Units> >availableData();
     virtual void truncate() {}; // specific implementation must override this
 
-    
-    virtual time_pair_t range(const string& id);
-    
     std::string connectionString();
     void setConnectionString(const std::string& str);
     

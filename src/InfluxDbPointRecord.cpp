@@ -102,64 +102,12 @@ string InfluxDbPointRecord::registerAndGetIdentifier(std::string recordName, Uni
 }
 
 
-PointRecord::time_pair_t InfluxDbPointRecord::range(const string& id) {
-  
-  if (_range.second > 0) {
-    return _range;
-  }
-  
-  stringstream sqlss;
-  string url;
-  JsonDocPtr doc;
-  vector<Point> firstPoints;
-  vector<Point> lastPoints;
-  
-  {
-//    boost::timer::auto_cpu_timer t;
-//    cout << "first:" << endl;
-    
-    sqlss << "select time,value,quality from " << id << " order asc limit 1";
-    url = this->urlForQuery(sqlss.str());
-    doc = this->jsonFromUrl(url);
-    firstPoints = this->pointsFromJson(doc);
-    sqlss.str("");
-  }
-  
-  
-  {
-//    boost::timer::auto_cpu_timer t;
-//    cout << "last:" << endl;
-    
-    sqlss << "select time,value,quality from " << id << " where time < now() + 36500d order desc limit 1";
-    url = this->urlForQuery(sqlss.str());
-    doc = this->jsonFromUrl(url);
-    lastPoints = this->pointsFromJson(doc);
-    
-  }
-  
-  if (firstPoints.size() == 0 || lastPoints.size() == 0) {
-    cerr << "not enough points" << endl;
-    return std::make_pair(0, 0);
-  }
-  
-  Point first = firstPoints.front();
-  Point last = lastPoints.back();
-  
-  PointRecord::time_pair_t range = std::make_pair(first.time, last.time);
-  
-  _range = range;
-  return _range;
-}
-
-
-
-
 
 std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
   std::vector<Point> points;
   
   stringstream sqlss;
-  sqlss << "select time,value,quality from \"" << id << "\"";
+  sqlss << "select * from \"" << id << "\"";
   sqlss << " where time > " << startTime << "s";
   sqlss << " and time < "   << endTime << "s";
   sqlss << " order asc";
@@ -175,7 +123,7 @@ Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
   std::vector<Point> points;
   
   stringstream sqlss;
-  sqlss << "select time,value,quality from " << id;
+  sqlss << "select * from " << id;
   sqlss << " where time > " << time + 1 << "s";
   sqlss << " order asc limit 1";
   string url = this->urlForQuery(sqlss.str());
@@ -195,7 +143,7 @@ Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
   std::vector<Point> points;
   
   stringstream sqlss;
-  sqlss << "select time,value,quality from " << id;
+  sqlss << "select * from " << id;
   sqlss << " where time < " << time - 1 << "s";
   sqlss << " order desc limit 1";
   string url = this->urlForQuery(sqlss.str());
@@ -313,7 +261,8 @@ vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
   // multiple time series might be returned eventually, but for now it's just a single-value array.
   
   if (!doc->IsArray()) {
-    cerr << "not an array: bad output" << endl;
+    // empty document. no points.
+    //cerr << "not an array: bad output" << endl;
     return points;
   }
   
@@ -336,6 +285,7 @@ vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
   int timeIndex = columnMap["time"];
   int valueIndex = columnMap["value"];
   int qualityIndex = columnMap["quality"];
+  int confidenceIndex = columnMap["confidence"];
   
   // now go through each returned row and create a point.
   // use the column name map to set point properties.
@@ -346,8 +296,8 @@ vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
     time_t pointTime = (time_t)row[timeIndex].GetInt();
     double pointValue = row[valueIndex].GetDouble();
     Point::Qual_t pointQuality = (row[qualityIndex].IsNull()) ? Point::good : (Point::Qual_t)row[qualityIndex].GetInt();
-    
-    Point p(pointTime, pointValue, pointQuality);
+    double pointConf = row[confidenceIndex].GetDouble();
+    Point p(pointTime, pointValue, pointQuality, pointConf);
     points.push_back(p);
   }
   
@@ -465,6 +415,7 @@ JsonDocPtr InfluxDbPointRecord::insertionJsonFromPoints(const std::string& tsNam
   jsCols.PushBack("time", allocator);
   jsCols.PushBack("value", allocator);
   jsCols.PushBack("quality", allocator);
+  jsCols.PushBack("confidence", allocator);
   
   rapidjson::Value jsPoints(rapidjson::kArrayType);
   BOOST_FOREACH(const Point& p, points) {
@@ -472,6 +423,7 @@ JsonDocPtr InfluxDbPointRecord::insertionJsonFromPoints(const std::string& tsNam
     jsPoint.PushBack((int)p.time,     allocator);
     jsPoint.PushBack((double)p.value, allocator);
     jsPoint.PushBack((int)p.quality,  allocator);
+    jsPoint.PushBack((double)p.confidence, allocator);
     // add it to the points collection
     jsPoints.PushBack(jsPoint, allocator);
   }
@@ -481,29 +433,11 @@ JsonDocPtr InfluxDbPointRecord::insertionJsonFromPoints(const std::string& tsNam
   tsData.AddMember("name", tsName.c_str(), allocator);
   tsData.AddMember("columns", jsCols, allocator);
   tsData.AddMember("points", jsPoints, allocator);
-  
+  tsData.AddMember("confidence", jsPoints, allocator);
   
   doc->PushBack(tsData, allocator);
   
   return doc;
-  
-  /*
-   
-   [
-     {
-       "name": "response_times",
-       "columns": ["time", "value"],
-       "points": [
-         [1382819388, 234.3],
-         [1382819389, 120.1],
-         [1382819380, 340.9]
-       ]
-     }
-   ]
-   
-   
-   */
-  
 }
 
 
@@ -544,10 +478,5 @@ void InfluxDbPointRecord::postPointsWithBody(const std::string& body) {
   connectionInfo.sockStream.close();
   
 }
-
-
-
-
-
 
 
