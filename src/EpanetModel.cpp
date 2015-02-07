@@ -621,8 +621,10 @@ void EpanetModel::stepSimulation(time_t time) {
   
   //std::cout << "set step to: " << step << std::endl;
   
+  long timeLeftInStep = 0;
+  
   OW_API_CHECK( OW_settimeparam(_enModel, EN_HYDSTEP, step), "OW_settimeparam(EN_HYDSTEP)" );
-  OW_API_CHECK( OW_nextH(_enModel, &step), "OW_nextH()" );
+  OW_API_CHECK( OW_nextH(_enModel, &timeLeftInStep), "OW_nextH()" );
   
   if (this->shouldRunWaterQuality()) {
     OW_API_CHECK(OW_nextQ(_enModel, &qstep), "OW_nextQ");
