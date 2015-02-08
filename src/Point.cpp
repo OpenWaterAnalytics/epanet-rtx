@@ -26,6 +26,10 @@ Point::Point(time_t t, double v, Qual_t q, double c) : time(t),value(v),quality(
   if (isnan(v)) {
     cout << "nan" << endl;
   }
+  if (time == 0) {
+    isValid = false;
+    quality = (Qual_t)(missing | bad);
+  }
 }
 
 Point::~Point() {
