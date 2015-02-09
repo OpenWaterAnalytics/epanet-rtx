@@ -53,6 +53,8 @@ TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) 
   }
   
   TimeRange queryRange = rangeToResample;
+  queryRange.first  = queryRange.first  > 0 ? queryRange.first  : range.first;
+  queryRange.second = queryRange.second > 0 ? queryRange.second : range.second;
   
   int margin = this->windowSize() / 2;
   
