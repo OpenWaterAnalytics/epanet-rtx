@@ -13,6 +13,7 @@
 #include "CorrelatorTimeSeries.h"
 #include "StatsTimeSeries.h"
 #include "GainTimeSeries.h"
+#include "MathOpsTimeSeries.h"
 
 using namespace RTX;
 using namespace std;
@@ -96,15 +97,28 @@ void ModelPerformance::setErrorClock(Clock::_sp clock) {
 }
 
 
-Clock::_sp ModelPerformance::aggregationClock() {
-  return _aggregationClock;
+time_t ModelPerformance::correlationLag() {
+  return _correlationLag;
 }
 
-void ModelPerformance::setAggregationClock(Clock::_sp clock) {
-  _aggregationClock = clock;
+void ModelPerformance::setCorrelationLag(time_t timeLag) {
+  _correlationLag = timeLag;
   this->rebuildPerformanceCalculation();
 }
 
+double ModelPerformance::quantile() {
+  return _quantile;
+}
+
+void ModelPerformance::setQuantile(double q) {
+  if (q > 0 && q < 1) {
+    _quantile = q;
+    this->rebuildPerformanceCalculation();
+  }
+  else {
+    cerr << "ERR: Quantile must be between 0 and 1" << endl;
+  }
+}
 
 void ModelPerformance::rebuildPerformanceCalculation() {
   
@@ -198,7 +212,7 @@ void ModelPerformance::buildPerformanceCalculatorWithElements(std::vector<Elemen
   
   
   AggregatorTimeSeries::_sp performance(new AggregatorTimeSeries);
-  performance->setClock(this->aggregationClock());
+  performance->setClock(this->errorClock());
   
   typedef pair<Element::_sp, TimeSeries::_sp> elementTimeseriesPair_t;
   BOOST_FOREACH(const elementTimeseriesPair_t &p, components) {
@@ -208,7 +222,7 @@ void ModelPerformance::buildPerformanceCalculatorWithElements(std::vector<Elemen
   if (this->aggregationType() == ModelPerformanceAggregationMean) {
     // divide by number of error sources
     GainTimeSeries::_sp meanPerf(new GainTimeSeries);
-    meanPerf->setClock(this->aggregationClock());
+    meanPerf->setClock(this->errorClock());
     meanPerf->setGainUnits(RTX_DIMENSIONLESS);
     meanPerf->setGain( 1. / (double)(performance->sources().size()) );
     meanPerf->setSource(performance);
@@ -253,6 +267,26 @@ TimeSeries::_sp ModelPerformance::errorForPair(std::pair<TimeSeries::_sp, TimeSe
       corr->setSource(tsPair.first);
       corr->setCorrelatorTimeSeries(tsPair.second);
       err = corr;
+    }
+    case ModelPerformanceStatsAbsoluteErrorQuantile:
+    {
+      AggregatorTimeSeries::_sp diff(new AggregatorTimeSeries);
+      diff->addSource(tsPair.second, -1);  // will adopt the uniform model units
+      diff->addSource(tsPair.first);
+      diff->setClock(this->errorClock());
+      
+      MathOpsTimeSeries::_sp abs(new MathOpsTimeSeries());
+      abs->setSource(diff);
+      abs->setMathOpsType(MathOpsTimeSeries::MathOpsTimeSeriesAbs);
+      
+      StatsTimeSeries::_sp quant(new StatsTimeSeries);
+      quant->setSource(abs);
+      quant->setWindow(this->samplingWindow());
+      quant->setStatsType(StatsTimeSeries::StatsTimeSeriesPercentile);
+      quant->setClock(this->errorClock());
+      quant->setArbitraryPercentile(_quantile);
+      
+      err = quant;
     }
     default:
       break;

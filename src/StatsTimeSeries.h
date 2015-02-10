@@ -56,7 +56,8 @@ namespace RTX {
       StatsTimeSeriesMin    = 7,  /*!< Minimum value in a population. */
       StatsTimeSeriesCount  = 8,  /*!< The number of points in the stats window. */
       StatsTimeSeriesVar    = 9,  /*!< The variance of the values in the population. */
-      StatsTimeSeriesRMS    = 10  /*!< Root mean squared. */
+      StatsTimeSeriesRMS    = 10,  /*!< Root mean squared. */
+      StatsTimeSeriesPercentile = 11 /*!< Arbitrary percentile */
     } StatsTimeSeriesType;
     
     RTX_SHARED_POINTER(StatsTimeSeries);
@@ -64,6 +65,9 @@ namespace RTX {
     
     StatsTimeSeriesType statsType();
     void setStatsType(StatsTimeSeriesType type);
+    
+    double arbitraryPercentile();
+    void setArbitraryPercentile(double p);
     
   protected:
     PointCollection filterPointsInRange(TimeRange range);
@@ -75,6 +79,7 @@ namespace RTX {
     StatsTimeSeriesType _statsType;
     double valueFromSummary(TimeSeries::PointCollection collection);
     Units statsUnits(Units sourceUnits, StatsTimeSeriesType type);
+    double _percentile;
     
   };
 }

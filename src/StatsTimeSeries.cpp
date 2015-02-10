@@ -16,6 +16,7 @@ using namespace std;
 
 StatsTimeSeries::StatsTimeSeries() {
   _statsType = StatsTimeSeriesMean;
+  _percentile = .5;
   this->setSummaryOnly(false);
 }
 
@@ -36,6 +37,21 @@ void StatsTimeSeries::setStatsType(StatsTimeSeriesType type) {
   }
 }
 
+double StatsTimeSeries::arbitraryPercentile() {
+  return _percentile;
+}
+void StatsTimeSeries::setArbitraryPercentile(double p) {
+  
+  if (p > 1.) {
+    p = 1.;
+  }
+  else if (p < 0.) {
+    p = 0.;
+  }
+  
+  _percentile = p;
+  this->invalidate();
+}
 
 
 TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range) {
@@ -98,6 +114,8 @@ double StatsTimeSeries::valueFromSummary(TimeSeries::PointCollection col) {
     case StatsTimeSeriesRMS:
       v = sqrt(col.variance() + col.mean()*col.mean());
       break;
+    case StatsTimeSeriesPercentile:
+      v = col.percentile(_percentile);
     default:
       break;
   }
@@ -144,7 +162,6 @@ bool StatsTimeSeries::canChangeToUnits(Units newUnits) {
       return true;
     }
     else {
-      std::cerr << "units are not dimensionally consistent" << std::endl;
       return false;
     }
   }

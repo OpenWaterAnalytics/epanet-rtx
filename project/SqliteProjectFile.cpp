@@ -1014,6 +1014,9 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
     else if (RTX_STRINGS_ARE_EQUAL(key, "statsMode")) {
       st->setStatsType((StatsTimeSeries::StatsTimeSeriesType)val);
     }
+    else if (RTX_STRINGS_ARE_EQUAL(key, "arbitraryPercentile")) {
+      st->setArbitraryPercentile(val);
+    }
   }
   else if (typeEquals(dbOutlierName)) {
     OutlierExclusionTimeSeries::_sp outl = boost::dynamic_pointer_cast<OutlierExclusionTimeSeries>(ts);

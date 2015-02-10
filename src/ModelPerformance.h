@@ -23,7 +23,8 @@ namespace RTX {
     typedef enum {
       ModelPerformanceStatsRMSE                    = 0,
       ModelPerformanceStatsMeanAbsoluteError       = 1,
-      ModelPerformanceStatsCorrelationCoefficient  = 2
+      ModelPerformanceStatsCorrelationCoefficient  = 2,
+      ModelPerformanceStatsAbsoluteErrorQuantile   = 3
     } StatsType;
     
     typedef enum {
@@ -68,11 +69,14 @@ namespace RTX {
     Clock::_sp samplingWindow();            /*!< clock to be used as sampling window by each error time series */
     void setSamplingWindow(Clock::_sp clock);
     
-    Clock::_sp errorClock();                /*!< clock for each differencing or correlation time series (error) */
+    Clock::_sp errorClock();                /*!< clock for each differencing or correlation time series (error), and the aggregation thereof (or mean) */
     void setErrorClock(Clock::_sp clock);
     
-    Clock::_sp aggregationClock();          /*!< clock for aggregating all the error time series */
-    void setAggregationClock(Clock::_sp clock);
+    time_t correlationLag();                          /*!< model time lag (+ or -) relative to measure time */
+    void setCorrelationLag(time_t timeLag);
+    
+    double quantile();                                /*!< Quantile to use for Abs Error Quantile stat */
+    void setQuantile(double q);
     
     void buildPerformanceCalculatorWithElements(std::vector<Element::_sp> elements); /*!< rebuild calculation time series workflow with arbitrary elements */
     
@@ -81,9 +85,11 @@ namespace RTX {
     StatsType _statsType;
     AggregationType _aggregationType;
     LocationType _locationType;
-    Clock::_sp _samplingWindow, _errorClock, _aggregationClock;
+    Clock::_sp _samplingWindow, _errorClock;
     std::vector<std::pair<Element::_sp, TimeSeries::_sp> > _errorComponents;
     TimeSeries::_sp _performance;
+    time_t _correlationLag;
+    double _quantile;
     
     void rebuildPerformanceCalculation();  /*!< rebuild calculation time series workflow */
     std::vector<Element::_sp> elementsWithModelForLocationType(Model::_sp model, LocationType locationType);
