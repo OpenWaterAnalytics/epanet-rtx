@@ -38,16 +38,20 @@ TimeSeries::PointCollection TimeSeriesFilterSinglePoint::filterPointsInRange(Tim
   PointCollection data = source()->points(queryRange);
   
   vector<Point> outPoints;
+  bool didDropPoints = false;
   
   BOOST_FOREACH(const Point& sourcePoint, data.points) {
     Point converted = this->filteredWithSourcePoint(sourcePoint);
     if (converted.isValid) {
       outPoints.push_back(converted);
     }
+    else {
+      didDropPoints = true;
+    }
   }
   
   PointCollection outData(outPoints, this->units());
-  if (this->willResample()) {
+  if (this->willResample() || didDropPoints) {
     set<time_t> timeValues = this->timeValuesInRange(range);
     outData.resample(timeValues);
   }
