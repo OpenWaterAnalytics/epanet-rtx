@@ -624,6 +624,7 @@ void EpanetModel::stepSimulation(time_t time) {
   long timeLeftInStep = 0;
   
   OW_API_CHECK( OW_settimeparam(_enModel, EN_HYDSTEP, step), "OW_settimeparam(EN_HYDSTEP)" );
+  OW_API_CHECK( OW_settimeparam(_enModel, EN_DURATION, step), "OW_settimeparam(EN_DURATION)");
   OW_API_CHECK( OW_nextH(_enModel, &timeLeftInStep), "OW_nextH()" );
   
   if (this->shouldRunWaterQuality()) {
@@ -633,7 +634,7 @@ void EpanetModel::stepSimulation(time_t time) {
   long supposedStep = time - currentSimulationTime();
   if (step != supposedStep) {
     // it's an intermediate step
-    //cerr << "model returned step: " << step << ", expecting " << supposedStep << endl;
+    cerr << "model returned step: " << step << ", expecting " << supposedStep << endl;
   }
   setCurrentSimulationTime( currentSimulationTime() + step );
 }
