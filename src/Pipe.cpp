@@ -55,9 +55,6 @@ TimeSeries::_sp Pipe::flow() {
   return _flowState;
 }
 
-bool Pipe::doesHaveStatusParameter() {
-  return _status ? true : false;
-}
 
 TimeSeries::_sp Pipe::statusParameter() {
   return _status;
@@ -66,9 +63,6 @@ void Pipe::setStatusParameter(TimeSeries::_sp status) {
   _status = status;
 }
 
-bool Pipe::doesHaveFlowMeasure() {
-  return _flowMeasure ? true : false;
-}
 TimeSeries::_sp Pipe::flowMeasure() {
   return _flowMeasure;
 }
@@ -83,9 +77,6 @@ void Pipe::setFlowMeasure(TimeSeries::_sp flow) {
   
 }
 
-bool Pipe::doesHaveSettingParameter() {
-  return _setting ? true : false;
-}
 
 TimeSeries::_sp Pipe::settingParameter() {
   return _setting;

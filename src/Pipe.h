@@ -35,16 +35,16 @@ namespace RTX {
     // states
     TimeSeries::_sp flow();
     
+    // public ivars for temporary (that is, steady-state) solutions
+    double state_flow;
+    
     // parameters
-    bool doesHaveStatusParameter();
     TimeSeries::_sp statusParameter();
     void setStatusParameter(TimeSeries::_sp status);
-    bool doesHaveSettingParameter();
     TimeSeries::_sp settingParameter();
     void setSettingParameter(TimeSeries::_sp setting);
 
     // measurements
-    bool doesHaveFlowMeasure();
     TimeSeries::_sp flowMeasure();
     void setFlowMeasure(TimeSeries::_sp flow);
     

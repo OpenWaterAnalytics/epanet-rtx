@@ -80,9 +80,7 @@ TimeSeries::_sp Junction::demand() {
 }
 
 // measured demand (boundary flow condition)
-bool Junction::doesHaveBoundaryFlow() {
-  return (this->boundaryFlow() ? true : false);
-}
+
 void Junction::setBoundaryFlow(TimeSeries::_sp flow) {
   if (flow == NULL || !flow) {
     _boundaryFlow = TimeSeries::_sp();
@@ -97,9 +95,6 @@ TimeSeries::_sp Junction::boundaryFlow() {
 }
 
 // head measurement
-bool Junction::doesHaveHeadMeasure() {
-  return (this->headMeasure() ? true : false);
-}
 void Junction::setHeadMeasure(TimeSeries::_sp headMeas) {
   if (headMeas == NULL || !headMeas) {
     _headMeasure = TimeSeries::_sp();
@@ -160,9 +155,6 @@ TimeSeries::_sp Junction::pressureMeasure() {
 
 
 // quality measurement
-bool Junction::doesHaveQualityMeasure() {
-  return (this->qualityMeasure() ? true : false);
-}
 void Junction::setQualityMeasure(TimeSeries::_sp quality) {
   _qualityMeasure = quality;
 }
@@ -171,9 +163,6 @@ TimeSeries::_sp Junction::qualityMeasure() {
 }
 
 // quality boundary condition
-bool Junction::doesHaveQualitySource() {
-  return (this->qualitySource() ? true : false);
-}
 void Junction::setQualitySource(TimeSeries::_sp quality) {
   _qualityBoundary = quality;
 }

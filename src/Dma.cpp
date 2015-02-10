@@ -277,7 +277,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
         Pipe::direction_t jDir = p->directionRelativeToNode(myJ);
         
         // figure out why this pipe is included here. is it flow measured? is it closed?
-        if (p->doesHaveFlowMeasure()) {
+        if (p->flowMeasure()) {
           _measuredBoundaryPipesDirectional.push_back(make_pair(p, jDir));
         }
         else if (p->fixedStatus() == Pipe::CLOSED) {
@@ -289,7 +289,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
         
       }
       else {  // completely internal
-        if (p->doesHaveFlowMeasure()) {
+        if (p->flowMeasure()) {
           _measuredInteriorPipes.push_back(p);
         }
         else if (p->fixedStatus() == Pipe::CLOSED) {
@@ -375,7 +375,7 @@ bool Dma::isTank(Junction::_sp junction) {
 }
 
 bool Dma::isBoundaryFlowJunction(Junction::_sp junction) {
-  return (junction->doesHaveBoundaryFlow());
+  return (junction->boundaryFlow());
 }
 
 /* deprecated
@@ -602,7 +602,7 @@ void Dma::allocateDemandToJunctions(time_t time) {
   // otherwise, add the nominal base demand to the totalBaseDemand pool.
   BOOST_FOREACH(Junction::_sp junction, _junctions) {
     
-    if ( junction->doesHaveBoundaryFlow() ) {
+    if ( junction->boundaryFlow() ) {
       Point dp = junction->boundaryFlow()->point(time);
       if (!dp.isValid) {
         dp = junction->boundaryFlow()->pointBefore(time);
@@ -644,7 +644,7 @@ void Dma::allocateDemandToJunctions(time_t time) {
   */
   // set the demand values for unmetered junctions, according to their base demands.
   BOOST_FOREACH(Junction::_sp junction, _junctions) {
-    if (junction->doesHaveBoundaryFlow()) {
+    if (junction->boundaryFlow()) {
       // junction does have boundary flow...
       // just need to copy the boundary flow into the junction's demand time series
       Point dp = junction->boundaryFlow()->pointAtOrBefore(time);

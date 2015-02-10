@@ -23,10 +23,8 @@ namespace RTX {
     double fixedLevel();
     
     // maybe?
-    bool doesHaveBoundaryHead();
     TimeSeries::_sp boundaryHead();
     void setBoundaryHead(TimeSeries::_sp head);
-    bool doesHaveBoundaryQuality();
     TimeSeries::_sp boundaryQuality();
     void setBoundaryQuality(TimeSeries::_sp quality);
     

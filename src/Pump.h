@@ -24,11 +24,9 @@ namespace RTX {
     TimeSeries::_sp energy();
     
     // parameters
-    bool doesHaveCurveParameter();
     TimeSeries::_sp curveParameter();
     void setCurveParameter(TimeSeries::_sp curve);
     
-    bool doesHaveEnergyMeasure();
     TimeSeries::_sp energyMeasure();
     void setEnergyMeasure(TimeSeries::_sp energy);
     
@@ -36,8 +34,7 @@ namespace RTX {
     TimeSeries::_sp _energyState;        // state
     TimeSeries::_sp _energyMeasure; // parameter
     TimeSeries::_sp _curve;
-    bool _doesHaveCurveParameter;
-    bool _doesHaveEnergyParameter;
+
   };
 
 }

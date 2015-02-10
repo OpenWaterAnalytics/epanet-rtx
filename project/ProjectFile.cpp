@@ -43,7 +43,7 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
       case Element::RESERVOIR: {
         Junction::_sp junc;
         junc = boost::static_pointer_cast<Junction>(element);
-        if (junc->doesHaveBoundaryFlow()) {
+        if (junc->boundaryFlow()) {
           ElementSummary s;
           s.element = element;
           s.data = junc->boundaryFlow()->rootTimeSeries();
@@ -51,7 +51,7 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
           s.measureType = MeasureTypeNone;
           summary.push_back(s);
         }
-        if (junc->doesHaveHeadMeasure()) {
+        if (junc->headMeasure()) {
           ElementSummary s;
           s.element = element;
           s.data = junc->headMeasure()->rootTimeSeries();
@@ -60,7 +60,7 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
           (element->type() == Element::RESERVOIR) ? (s.boundaryType = BoundaryTypeHead) : (s.measureType = MeasureTypeHead);
           summary.push_back(s);
         }
-        if (junc->doesHaveQualityMeasure()) {
+        if (junc->qualityMeasure()) {
           ElementSummary s;
           s.element = element;
           s.data = junc->qualityMeasure()->rootTimeSeries();
@@ -68,7 +68,7 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
           s.measureType = MeasureTypeQuality;
           summary.push_back(s);
         }
-        if (junc->doesHaveQualitySource()) {
+        if (junc->qualitySource()) {
           ElementSummary s;
           s.element = element;
           s.data = junc->qualitySource()->rootTimeSeries();
@@ -84,7 +84,7 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
       case Element::PUMP: {
         Pipe::_sp pipe;
         pipe = boost::static_pointer_cast<Pipe>(element);
-        if (pipe->doesHaveFlowMeasure()) {
+        if (pipe->flowMeasure()) {
           ElementSummary s;
           s.element = element;
           s.data = pipe->flowMeasure()->rootTimeSeries();
@@ -98,7 +98,7 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
           }
           summary.push_back(s);
         }
-        if (pipe->doesHaveSettingParameter()) {
+        if (pipe->settingParameter()) {
           ElementSummary s;
           s.element = element;
           s.data = pipe->settingParameter()->rootTimeSeries();
@@ -112,7 +112,7 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
           }
           summary.push_back(s);
         }
-        if (pipe->doesHaveStatusParameter()) {
+        if (pipe->statusParameter()) {
           ElementSummary s;
           s.element = element;
           s.data = pipe->statusParameter()->rootTimeSeries();

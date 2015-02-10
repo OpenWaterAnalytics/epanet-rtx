@@ -123,17 +123,17 @@ vector<Element::_sp> ModelPerformance::elementsWithModelForLocationType(Model::_
     case ModelPerformanceLocationFlow:
     {
       BOOST_FOREACH( Pipe::_sp p, model->pipes()) {
-        if (p->doesHaveFlowMeasure()) {
+        if (p->flowMeasure()) {
           elementsToConsider.push_back(p);
         }
       }
       BOOST_FOREACH( Pipe::_sp p, model->valves()) {
-        if (p->doesHaveFlowMeasure()) {
+        if (p->flowMeasure()) {
           elementsToConsider.push_back(p);
         }
       }
       BOOST_FOREACH( Pipe::_sp p, model->pumps()) {
-        if (p->doesHaveFlowMeasure()) {
+        if (p->flowMeasure()) {
           elementsToConsider.push_back(p);
         }
       }
@@ -151,7 +151,7 @@ vector<Element::_sp> ModelPerformance::elementsWithModelForLocationType(Model::_
     case ModelPerformanceLocationHead:
     {
       BOOST_FOREACH(Junction::_sp j, model->junctions()) {
-        if (j->doesHaveHeadMeasure()) {
+        if (j->headMeasure()) {
           elementsToConsider.push_back(j);
         }
       }
@@ -160,7 +160,7 @@ vector<Element::_sp> ModelPerformance::elementsWithModelForLocationType(Model::_
     case ModelPerformanceLocationTank:
     {
       BOOST_FOREACH(Tank::_sp t, model->tanks()) {
-        if (t->doesHaveHeadMeasure()) {
+        if (t->headMeasure()) {
           elementsToConsider.push_back(t);
         }
       }

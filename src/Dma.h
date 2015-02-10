@@ -40,7 +40,7 @@ namespace RTX {
    \fn void Dma::enumerateJunctionsWithRootNode(Junction::_sp junction)
    \brief Add a group of junctions to a Dma.
    
-   Uses graph connectivity to enumerate the junctions in a dma starting with the passed Junction pointer. The enumeration uses a depth-first search to follow Pipe elements, and stops at links which return true to the doesHaveFlowMeasure() method.
+   Uses graph connectivity to enumerate the junctions in a dma starting with the passed Junction pointer. The enumeration uses a depth-first search to follow Pipe elements, and stops at links which have a flow measure.
    
    \param junction A single junction within the intended dma.
    \sa Junction Pipe

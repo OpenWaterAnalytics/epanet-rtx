@@ -229,7 +229,7 @@ void Model::initDMAs() {
   BOOST_FOREACH(Link::_sp link, _links | boost::adaptors::map_values) {
     Pipe::_sp pipe = boost::static_pointer_cast<Pipe>(link);
     // flow measure?
-    if (pipe->doesHaveFlowMeasure()) {
+    if (pipe->flowMeasure()) {
       boundaryPipes.insert(pipe);
       continue;
     }
@@ -653,7 +653,7 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
   // junction measurements
   std::vector< std::pair<Junction::_sp, double> > measuredJunctions;
   BOOST_FOREACH(Junction::_sp junc, this->junctions()) {
-    if (junc->doesHaveQualityMeasure()) {
+    if (junc->qualityMeasure()) {
       TimeSeries::_sp qualityTS = junc->qualityMeasure();
       Point aPoint = qualityTS->pointAtOrBefore(time);
       if (aPoint.isValid) {
@@ -663,7 +663,7 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
   }
   // tank measurements
   BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
-    if (tank->doesHaveQualityMeasure()) {
+    if (tank->qualityMeasure()) {
       TimeSeries::_sp qualityTS = tank->qualityMeasure();
       Point aPoint = qualityTS->pointAtOrBefore(time);
       if (aPoint.isValid) {
@@ -755,7 +755,7 @@ void Model::setSimulationParameters(time_t time) {
     }
     // hydraulic junctions - set demand values.
     BOOST_FOREACH(Junction::_sp junction, this->junctions()) {
-      if (junction->doesHaveBoundaryFlow()) {
+      if (junction->boundaryFlow()) {
         // junction is separate from the allocation scheme (but allocateDemandToJunctions already inserts this into demand() series?)
         Point p = junction->boundaryFlow()->pointAtOrBefore(time);
         if (p.isValid) {
@@ -782,7 +782,7 @@ void Model::setSimulationParameters(time_t time) {
   
   // for reservoirs, set the boundary head and quality conditions
   BOOST_FOREACH(Reservoir::_sp reservoir, this->reservoirs()) {
-    if (reservoir->doesHaveBoundaryHead()) {
+    if (reservoir->boundaryHead()) {
       // get the head measurement parameter, and pass it through as a state.
       Point p = reservoir->boundaryHead()->pointAtOrBefore(time);
       if (p.isValid) {
@@ -793,7 +793,7 @@ void Model::setSimulationParameters(time_t time) {
         cerr << "ERR: Invalid head point for Reservoir " << reservoir->name() << " at time " << time << endl;
       }
     }
-    if (reservoir->doesHaveBoundaryQuality()) {
+    if (reservoir->boundaryQuality()) {
       // get the quality measurement parameter, and pass it through as a state.
       Point p = reservoir->boundaryQuality()->pointAtOrBefore(time);
       if (p.isValid) {
@@ -817,7 +817,7 @@ void Model::setSimulationParameters(time_t time) {
   BOOST_FOREACH(Valve::_sp valve, this->valves()) {
     // status can affect settings and vice-versa; status rules
     Pipe::status_t status = valve->fixedStatus();
-    if (valve->doesHaveStatusParameter()) {
+    if (valve->statusParameter()) {
       Point p = valve->statusParameter()->pointAtOrBefore(time);
       if (p.isValid) {
         status = Pipe::status_t((int)(p.value));
@@ -827,7 +827,7 @@ void Model::setSimulationParameters(time_t time) {
         cerr << "ERR: Invalid status point for Valve " << valve->name() << " at time " << time << endl;
       }
     }
-    if (valve->doesHaveSettingParameter()) {
+    if (valve->settingParameter()) {
       if (status) {
         Point p = valve->settingParameter()->pointAtOrBefore(time);
         if (p.isValid) {
@@ -876,7 +876,7 @@ void Model::setSimulationParameters(time_t time) {
   
   // for pipes, set status
   BOOST_FOREACH(Pipe::_sp pipe, this->pipes()) {
-    if (pipe->doesHaveStatusParameter()) {
+    if (pipe->statusParameter()) {
       Point p = pipe->statusParameter()->pointAtOrBefore(time);
       if (p.isValid) {
         setPipeStatus(pipe->name(), Pipe::status_t((int)(p.value)));
@@ -892,7 +892,7 @@ void Model::setSimulationParameters(time_t time) {
   //////////////////////////////
   if (this->shouldRunWaterQuality()) {
     BOOST_FOREACH(Junction::_sp j, this->junctions()) {
-      if (j->doesHaveQualitySource()) {
+      if (j->qualitySource()) {
         Point p = j->qualitySource()->pointAtOrBefore(time);
         if (p.isValid) {
           double quality = Units::convertValue(p.value, j->qualitySource()->units(), qualityUnits());
@@ -922,17 +922,20 @@ void Model::saveNetworkStates(time_t time) {
     head = Units::convertValue(junctionHead(junction->name()), headUnits(), junction->head()->units());
     Point headPoint(time, head);
     junction->head()->insert(headPoint);
+    junction->state_head = head;
     
     double pressure;
     pressure = Units::convertValue(junctionPressure(junction->name()), pressureUnits(), junction->pressure()->units());
     Point pressurePoint(time, pressure);
     junction->pressure()->insert(pressurePoint);
+    junction->state_pressure = pressure;
     
     // todo - more fine-grained quality data? at wq step resolution...
     double quality;
     quality = Units::convertValue(junctionQuality(junction->name()), this->qualityUnits(), junction->quality()->units());
     Point qualityPoint(time, quality);
     junction->quality()->insert(qualityPoint);
+    junction->state_quality = quality;
   }
   
   // only save demand states if 
@@ -942,6 +945,7 @@ void Model::saveNetworkStates(time_t time) {
       demand = Units::convertValue(junctionDemand(junction->name()), flowUnits(), junction->demand()->units());
       Point demandPoint(time, demand);
       junction->demand()->insert(demandPoint);
+      junction->state_demand = demand;
     }
   }
   
@@ -950,11 +954,13 @@ void Model::saveNetworkStates(time_t time) {
     head = Units::convertValue(junctionHead(reservoir->name()), headUnits(), reservoir->head()->units());
     Point headPoint(time, head);
     reservoir->head()->insert(headPoint);
+    reservoir->state_head = head;
     
     double quality;
     quality = Units::convertValue(junctionQuality(reservoir->name()), this->qualityUnits(), reservoir->quality()->units());
     Point qualityPoint(time, quality);
     reservoir->quality()->insert(qualityPoint);
+    reservoir->state_quality = quality;
   }
   
   BOOST_FOREACH(Tank::_sp tank, tanks()) {
@@ -962,16 +968,20 @@ void Model::saveNetworkStates(time_t time) {
     head = Units::convertValue(junctionHead(tank->name()), headUnits(), tank->head()->units());
     Point headPoint(time, head);
     tank->head()->insert(headPoint);
+    tank->state_head = head;
     
     double level;
     level = Units::convertValue(tankLevel(tank->name()), headUnits(), tank->head()->units());
     Point levelPoint(time, level);
     tank->level()->insert(levelPoint);
+    tank->state_level = level;
+    
     
     double quality;
     quality = Units::convertValue(junctionQuality(tank->name()), this->qualityUnits(), tank->quality()->units());
     Point qualityPoint(time, quality);
     tank->quality()->insert(qualityPoint);
+    tank->state_quality = quality;
     
   }
   
@@ -981,6 +991,7 @@ void Model::saveNetworkStates(time_t time) {
     flow = Units::convertValue(pipeFlow(pipe->name()), flowUnits(), pipe->flow()->units());
     Point aPoint(time, flow);
     pipe->flow()->insert(aPoint);
+    pipe->state_flow = flow;
   }
   
   BOOST_FOREACH(Valve::_sp valve, valves()) {
@@ -988,6 +999,7 @@ void Model::saveNetworkStates(time_t time) {
     flow = Units::convertValue(pipeFlow(valve->name()), flowUnits(), valve->flow()->units());
     Point aPoint(time, flow);
     valve->flow()->insert(aPoint);
+    valve->state_flow = flow;
   }
   
   // pump energy
@@ -996,6 +1008,7 @@ void Model::saveNetworkStates(time_t time) {
     flow = Units::convertValue(pipeFlow(pump->name()), flowUnits(), pump->flow()->units());
     Point flowPoint(time, flow);
     pump->flow()->insert(flowPoint);
+    pump->state_flow = flow;
     
     double energy;
     energy = pumpEnergy(pump->name());

@@ -27,6 +27,9 @@ namespace RTX {
     double minLevel();
     double maxLevel();
     
+    // public ivars for temporary (that is, steady-state) solutions
+    double state_level;
+    
     void setGeometry(std::vector< std::pair<double,double> > levelVolumePoints, Units levelUnits, Units volumeUnits);
     std::vector< std::pair<double,double> > geometry();
     std::pair<Units,Units> geometryUnits();

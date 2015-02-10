@@ -37,22 +37,22 @@ namespace RTX {
     TimeSeries::_sp demand();
     TimeSeries::_sp quality();
     
+    // public ivars for temporary (that is, steady-state) solutions
+    double state_head, state_pressure, state_demand, state_quality;
+    
+    
     // parameters
-    bool doesHaveQualitySource();
     TimeSeries::_sp qualitySource();
     void setQualitySource(TimeSeries::_sp quality);
     
-    bool doesHaveBoundaryFlow();
     TimeSeries::_sp boundaryFlow(); // metered demand (+) or flow input (-)
     void setBoundaryFlow(TimeSeries::_sp flow);
     
-    bool doesHaveHeadMeasure();
     TimeSeries::_sp headMeasure();
     TimeSeries::_sp pressureMeasure();
     virtual void setHeadMeasure(TimeSeries::_sp head);
     virtual void setPressureMeasure(TimeSeries::_sp pressure);
     
-    bool doesHaveQualityMeasure();
     TimeSeries::_sp qualityMeasure();
     void setQualityMeasure(TimeSeries::_sp quality);
     

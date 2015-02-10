@@ -34,9 +34,6 @@ void Reservoir::setBoundaryHead(TimeSeries::_sp head) {
   setHeadMeasure(head);
 }
 
-bool Reservoir::doesHaveBoundaryHead() {
-  return doesHaveHeadMeasure();
-}
 
 TimeSeries::_sp Reservoir::boundaryHead() {
   return headMeasure();
@@ -49,9 +46,6 @@ void Reservoir::setBoundaryQuality(TimeSeries::_sp quality) {
   setQualitySource(quality);
 }
 
-bool Reservoir::doesHaveBoundaryQuality() {
-  return doesHaveQualitySource();
-}
 
 TimeSeries::_sp Reservoir::boundaryQuality() {
   return qualitySource();
