@@ -342,19 +342,21 @@ std::vector<Point> OdbcPointRecord::pointsFromStatement(SQLHSTMT statement) {
     std::bitset<16> bits(intQual);
     cout << "#" << setw(20) << tStr << "| " << setw(10) << v << " | " << "Q: " << setw(6) << intQual << " | " << setw(16) << bits << endl;
     */
-    Point::Qual_t q = Point::missing;
+    Point::Qual_t q = Point::good;
     
     // map to rtx quality types
-    if (_querySyntax.qualityMap.count(record.quality) > 0) {
-      q = _querySyntax.qualityMap[record.quality];
-    }
-    else {
-      q = Point::questionable;
-    }
+//    if (_querySyntax.qualityMap.count(record.quality) > 0) {
+//      q = _querySyntax.qualityMap[record.quality];
+//    }
+//    else {
+//      q = Point::questionable;
+//    }
+    
+    unsigned int opc = (unsigned int)record.quality;
     
     if (record.valueInd > 0 && !(q & Point::missing)) {
       // ok
-      p = Point(t, v, q);
+      p = Point(t, v, q, 0., opc);
       points.push_back(p);
     }
     else {

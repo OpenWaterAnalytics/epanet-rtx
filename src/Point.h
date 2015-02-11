@@ -36,13 +36,14 @@ namespace RTX {
       estimated    = 1 << 9
     } Qual_t;
     
+    
     //! quality flag
 //    enum Qual_t { good, questionable, missing, estimated, forecasted, bad };
     
     //! Empty Constructor, equivalent to Point(0,0,Point::missing,0)
     Point();
     //! Full Constructor, for explicitly setting all internal data within the point object.
-    Point(time_t time, double value = 0., Qual_t qual = good, double confidence = 0.);
+    Point(time_t time, double value = 0., Qual_t qual = good, double confidence = 0., unsigned int opcQuality = 192);
     // dtor
     ~Point();
     
@@ -61,6 +62,7 @@ namespace RTX {
     double value;
     Qual_t quality;
     double confidence;
+    unsigned int opcQuality;
     bool isValid;
     
     // convenience

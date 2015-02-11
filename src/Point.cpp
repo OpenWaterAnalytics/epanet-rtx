@@ -21,8 +21,7 @@ Point::Point() : time(0),value(0),quality(Point::missing),isValid(false),confide
   
 }
 
-
-Point::Point(time_t t, double v, Qual_t q, double c) : time(t),value(v),quality(q),isValid((q & missing)||(isnan(v)) ? false : true),confidence(c) {
+Point::Point(time_t t, double v, Qual_t q, double c, unsigned int opc) : time(t),value(v),quality(q),isValid((q & missing)||(isnan(v)) ? false : true),confidence(c),opcQuality(opc) {
   if (isnan(v)) {
     cout << "nan" << endl;
   }
