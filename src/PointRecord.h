@@ -63,6 +63,8 @@ namespace RTX {
     
     virtual std::string registerAndGetIdentifier(std::string recordName, Units dataUnits);    // registering record names.
     virtual std::vector<std::string> identifiers();
+    virtual Units unitsForIdentifier(const std::string& id);
+    virtual void setUnitsForIdentifier(const std::string& id, Units u);
     
     //virtual bool isPointAvailable(const string& identifier, time_t time);
     virtual Point point(const string& identifier, time_t time);

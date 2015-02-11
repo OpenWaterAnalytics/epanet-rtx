@@ -28,6 +28,8 @@ namespace RTX {
     virtual bool isConnected();
     virtual std::string registerAndGetIdentifier(std::string recordName, Units dataUnits);
     virtual std::vector<std::string> identifiers();
+    virtual Units unitsForIdentifier(const std::string &id);
+    virtual void setUnitsForIdentifier(const std::string& id, Units u);
     virtual std::vector<std::pair<std::string, Units> >availableData();
     
     virtual time_pair_t range(const string& id);
@@ -69,6 +71,10 @@ namespace RTX {
     
     Point pointFromStatment(sqlite3_stmt *stmt);
     std::vector<Point> pointsFromPreparedStatement(sqlite3_stmt *stmt);
+    
+    bool updateSchema();
+    int dbSchemaVersion();
+    void setDbSchemaVersion(int v);
     
   };
   

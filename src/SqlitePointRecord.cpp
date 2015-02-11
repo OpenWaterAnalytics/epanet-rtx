@@ -9,16 +9,18 @@ using namespace std;
 using boost::signals2::mutex;
 using boost::interprocess::scoped_lock;
 
+static int sqlitePointRecordCurrentDbVersion = 1;
+
 typedef const unsigned char* sqltext;
 
 /******************************************************************************************/
-static string initTablesStr = "CREATE TABLE 'meta' ('series_id' INTEGER PRIMARY KEY ASC AUTOINCREMENT, 'name' TEXT UNIQUE ON CONFLICT ABORT, 'units' TEXT, 'regular_period' INTEGER, 'regular_offset' INTEGER); CREATE TABLE 'points' ('time' INTEGER, 'series_id' INTEGER REFERENCES 'meta'('series_id'), 'value' REAL, 'confidence' REAL, 'quality' INTEGER, 'opcQuality' INTEGER, UNIQUE (series_id, time asc) ON CONFLICT IGNORE)";
-static string selectPreamble = "SELECT time, value, quality, confidence FROM points INNER JOIN meta USING (series_id) WHERE name = ? AND ";
+static string initTablesStr = "CREATE TABLE 'meta' ('series_id' INTEGER PRIMARY KEY ASC AUTOINCREMENT, 'name' TEXT UNIQUE ON CONFLICT ABORT, 'units' TEXT, 'regular_period' INTEGER, 'regular_offset' INTEGER); CREATE TABLE 'points' ('time' INTEGER, 'series_id' INTEGER REFERENCES 'meta'('series_id'), 'value' REAL, 'confidence' REAL, 'quality' INTEGER, 'opcQuality' INTEGER, UNIQUE (series_id, time asc) ON CONFLICT IGNORE); PRAGMA user_version = 1";
+static string selectPreamble = "SELECT time, value, quality, confidence, opcQuality FROM points INNER JOIN meta USING (series_id) WHERE name = ? AND ";
 static string singleSelectStr = selectPreamble + "time = ? order by time asc";
 static string rangeSelectStr = selectPreamble + "time >= ? AND time <= ? order by time asc";
 static string nextSelectStr = selectPreamble + "time > ? order by time asc LIMIT 1";
 static string prevSelectStr = selectPreamble + "time < ? order by time desc LIMIT 1";
-static string singleInsertStr = "INSERT INTO points (time, series_id, value, quality, confidence) SELECT ?,series_id,?,?,? FROM meta WHERE name = ?";
+static string singleInsertStr = "INSERT INTO points (time, series_id, value, quality, confidence, opcQuality) SELECT ?,series_id,?,?,?,? FROM meta WHERE name = ?";
 static string firstSelectStr = selectPreamble + "1 order by time asc limit 1";
 static string lastSelectStr = selectPreamble + "1 order by time desc limit 1";
 static string selectNamesStr = "select name from meta order by name asc";
@@ -100,11 +102,16 @@ void SqlitePointRecord::dbConnect() throw(RtxException) {
     return;
   }
   
-  
+  // check schema
+  int databaseVersion = this->dbSchemaVersion();
+  if (databaseVersion < sqlitePointRecordCurrentDbVersion) {
+    cerr << "Point Record Database Schema version not compatible. Require version " << sqlitePointRecordCurrentDbVersion << " or greater." << endl;
+    bool ok = this->updateSchema();
+  }
   
   // prepare the select & insert statments
   
-  string statmentStrings[] =          {selectNamesStr,   singleSelectStr,   rangeSelectStr,   prevSelectStr,       nextSelectStr,   singleInsertStr,   firstSelectStr,   lastSelectStr  };
+  string statmentStrings[] =           {selectNamesStr,    singleSelectStr,    rangeSelectStr,    prevSelectStr,        nextSelectStr,    singleInsertStr,    firstSelectStr,    lastSelectStr  };
   sqlite3_stmt** preparedStatments[] = {&_selectNamesStmt, &_selectSingleStmt, &_selectRangeStmt, &_selectPreviousStmt, &_selectNextStmt, &_insertSingleStmt, &_selectFirstStmt, &_selectLastStmt};
   int nStmts = 8;
   
@@ -123,6 +130,7 @@ void SqlitePointRecord::dbConnect() throw(RtxException) {
   }
 }
 
+
 bool SqlitePointRecord::initTables() {
   
   
@@ -137,6 +145,64 @@ bool SqlitePointRecord::initTables() {
   
   return true;
 }
+
+int SqlitePointRecord::dbSchemaVersion() {
+  int vers = -1;
+  sqlite3_stmt *stmt_version;
+  if(sqlite3_prepare_v2(_dbHandle, "PRAGMA user_version;", -1, &stmt_version, NULL) == SQLITE_OK) {
+    while(sqlite3_step(stmt_version) == SQLITE_ROW) {
+      vers = sqlite3_column_int(stmt_version, 0);
+    }
+  }
+  return vers;
+}
+void SqlitePointRecord::setDbSchemaVersion(int v) {
+  stringstream ss;
+  ss << "PRAGMA user_version = " << v;
+  sqlite3_exec(_dbHandle, ss.str().c_str(), NULL, NULL, NULL);
+}
+
+
+bool SqlitePointRecord::updateSchema() {
+  
+  int currentVersion = this->dbSchemaVersion();
+  
+  while (currentVersion < sqlitePointRecordCurrentDbVersion) {
+    
+    switch (currentVersion) {
+      case 0:
+      {
+        // migrate 0->1
+        stringstream ss;
+        ss << "BEGIN TRANSACTION; ";
+        ss << "ALTER TABLE points RENAME TO points_old; ";
+        ss << "CREATE TABLE 'points' ('time' INTEGER, 'series_id' INTEGER REFERENCES 'meta'('series_id'), 'value' REAL, 'confidence' REAL, 'quality' INTEGER, 'opcQuality' INTEGER, UNIQUE (series_id, time asc) ON CONFLICT IGNORE); ";
+        ss << "INSERT INTO points (time,series_id,value,confidence,quality,opcQuality) SELECT time,series_id,value,confidence,quality,192 from points_old; ";
+        ss << "DROP TABLE points_old; ";
+        ss << "END TRANSACTION; ";
+        
+        sqlite3_exec(_dbHandle, ss.str().c_str(), NULL, NULL, NULL);
+        ++currentVersion;
+        this->setDbSchemaVersion(currentVersion);
+      }
+        break;
+        
+      default:
+        break;
+    }
+    
+  }
+  
+  if (currentVersion == sqlitePointRecordCurrentDbVersion) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+
+
 
 void SqlitePointRecord::logDbError() {
   const char *zErrMsg = sqlite3_errmsg(_dbHandle);
@@ -178,6 +244,8 @@ std::string SqlitePointRecord::registerAndGetIdentifier(std::string recordName, 
     sqlite3_finalize(stmt);
   }
   
+  this->setUnitsForIdentifier(recordName, dataUnits);
+  
   
   DB_PR_SUPER::registerAndGetIdentifier(recordName, dataUnits);
   
@@ -198,10 +266,45 @@ std::vector<std::string> SqlitePointRecord::identifiers() {
     sqlite3_reset(_selectNamesStmt);
   }
   
-  
-  
   return names;
 }
+
+Units SqlitePointRecord::unitsForIdentifier(const std::string &id) {
+  Units u = RTX_DIMENSIONLESS;
+  
+  if (this->isConnected()) {
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
+    sqlite3_stmt *stmt_getUnits;
+    stringstream ss;
+    ss << "SELECT units from meta where name = \"" << id << "\"";
+    if(sqlite3_prepare_v2(_dbHandle, ss.str().c_str(), -1, &stmt_getUnits, NULL) == SQLITE_OK) {
+      while(sqlite3_step(stmt_getUnits) == SQLITE_ROW) {
+        sqltext unitsStr = sqlite3_column_text(stmt_getUnits, 0);
+        u = Units::unitOfType(string((char*)unitsStr));
+      }
+    }
+    sqlite3_reset(stmt_getUnits);
+  }
+  return u;
+}
+
+void SqlitePointRecord::setUnitsForIdentifier(const std::string& id, Units u) {
+  if (this->readonly()) {
+    return;
+  }
+  // clear points
+  this->removeRecord(id);
+  
+  // alter reported units
+  if (this->isConnected()) {
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
+    stringstream ss;
+    ss << "UPDATE meta set units = \"" << u.unitString() << "\" where name = \"" << id << "\"";
+    sqlite3_exec(_dbHandle, ss.str().c_str(), NULL, NULL, NULL);
+  }
+  
+}
+
 
 std::vector<std::pair<std::string, Units> > SqlitePointRecord::availableData() {
   // todo
@@ -405,7 +508,8 @@ void SqlitePointRecord::insertSingleInTransaction(const std::string& id, Point p
     ret = sqlite3_bind_double( _insertSingleStmt, 2, point.value          );
     ret = sqlite3_bind_int(    _insertSingleStmt, 3, point.quality        );
     ret = sqlite3_bind_double( _insertSingleStmt, 4, point.confidence     );
-    ret = sqlite3_bind_text(   _insertSingleStmt, 5, id.c_str(), -1, NULL );
+    ret = sqlite3_bind_int(    _insertSingleStmt, 5, (int)point.opcQuality);
+    ret = sqlite3_bind_text(   _insertSingleStmt, 6, id.c_str(), -1, NULL );
     
     ret = sqlite3_step(_insertSingleStmt);
     if (ret != SQLITE_DONE) {
@@ -507,8 +611,9 @@ Point SqlitePointRecord::pointFromStatment(sqlite3_stmt *stmt) {
   time_t time = sqlite3_column_int(stmt, 0);
   double value = sqlite3_column_double(stmt, 1);
   Point::Qual_t qual = Point::Qual_t( sqlite3_column_int(stmt, 2) );
-  
-  return Point(time, value, qual);
+  double conf = sqlite3_column_double(stmt, 3);
+  unsigned int opc = sqlite3_column_int(stmt, 4);
+  return Point(time, value, qual, conf, opc);
 }
 
 

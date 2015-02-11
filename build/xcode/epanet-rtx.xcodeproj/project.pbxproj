@@ -149,6 +149,7 @@
 		224A92691A8BABD300D8FBE2 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22C62AC01439ED6300841E60 /* libepanet-rtx.dylib */; };
 		224A927B1A8BAEAA00D8FBE2 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD3173C2E9700309C2F /* libboost_system.a */; };
 		224A927C1A8BAEAE00D8FBE2 /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD1173C2E9700309C2F /* libboost_filesystem.a */; };
+		224A927D1A8BB3CB00D8FBE2 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 43E5BBE51A8AF55A00CC93D6 /* libsqlite3.dylib */; };
 		224C41991A434FCB008852C4 /* ModelPerformance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224C41971A434FCB008852C4 /* ModelPerformance.cpp */; };
 		224C419A1A434FCB008852C4 /* ModelPerformance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224C41971A434FCB008852C4 /* ModelPerformance.cpp */; };
 		224C419B1A434FCB008852C4 /* ModelPerformance.h in Headers */ = {isa = PBXBuildFile; fileRef = 224C41981A434FCB008852C4 /* ModelPerformance.h */; };
@@ -687,6 +688,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				224A927D1A8BB3CB00D8FBE2 /* libsqlite3.dylib in Frameworks */,
 				223646911A8AB8D7007DC074 /* libpython.dylib in Frameworks */,
 				2236468F1A8AB8CF007DC074 /* libcurl.dylib in Frameworks */,
 				22A667A919E481B900CEB0BC /* libepanet-static.a in Frameworks */,

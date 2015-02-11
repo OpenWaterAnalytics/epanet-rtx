@@ -91,8 +91,10 @@ namespace RTX {
     
     RTX_SHARED_POINTER(TimeSeries);
     
-    // ctor & dtor
     TimeSeries();
+    // convenience constructor for a raw timeseries
+    TimeSeries(const std::string& name, PointRecord::_sp record);
+    
     ~TimeSeries();
     
     virtual Clock::_sp clock() { return Clock::_sp(); };

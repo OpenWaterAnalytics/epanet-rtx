@@ -54,6 +54,13 @@ std::vector<std::string> PointRecord::identifiers() {
   return names;
 }
 
+Units PointRecord::unitsForIdentifier(const std::string &id) {
+  return RTX_DIMENSIONLESS;
+}
+void PointRecord::setUnitsForIdentifier(const std::string& id, Units u) {
+  // nope
+}
+
 /*
 bool PointRecord::isPointAvailable(const string& identifier, time_t time) {
   

@@ -14,6 +14,10 @@
 #include "rtxMacros.h"
 #include "Units.h"
 
+
+#define OPC_GOOD 192
+#define OPC_BAD  0
+
 namespace RTX {
     
 //!   A Point Class to store data tuples (date, value, quality, confidence)
@@ -37,13 +41,15 @@ namespace RTX {
     } Qual_t;
     
     
+    
+    
     //! quality flag
 //    enum Qual_t { good, questionable, missing, estimated, forecasted, bad };
     
     //! Empty Constructor, equivalent to Point(0,0,Point::missing,0)
     Point();
     //! Full Constructor, for explicitly setting all internal data within the point object.
-    Point(time_t time, double value = 0., Qual_t qual = good, double confidence = 0., unsigned int opcQuality = 192);
+    Point(time_t time, double value = 0., Qual_t qual = good, double confidence = 0., unsigned int opcQuality = OPC_GOOD);
     // dtor
     ~Point();
     

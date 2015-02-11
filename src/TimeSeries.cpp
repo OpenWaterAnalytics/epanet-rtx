@@ -228,6 +228,16 @@ TimeSeries::TimeSeries() : _units(1) {
   _units = RTX_DIMENSIONLESS;
 }
 
+TimeSeries::TimeSeries(const std::string& name, PointRecord::_sp record) {
+  
+  _name = string(name);
+  _units = record->unitsForIdentifier(name); // if it doesn't exist, then default is dimensionless
+  this->setRecord(record);
+  
+}
+
+
+
 TimeSeries::~TimeSeries() {
   // empty Dtor
 }
@@ -365,9 +375,7 @@ vector<Point> TimeSeries::gaps(time_t start, time_t end) {
 
 
 void TimeSeries::setRecord(PointRecord::_sp record) {
-  if(_points) {
-    //_points->reset(name());
-  }
+  
   if (!record) {
     PointRecord::_sp pr( new PointRecord() );
     record = pr;
@@ -376,7 +384,6 @@ void TimeSeries::setRecord(PointRecord::_sp record) {
   
   _points = record;
   record->registerAndGetIdentifier(this->name(), this->units());
-  
 }
 
 PointRecord::_sp TimeSeries::record() {
@@ -391,6 +398,7 @@ void TimeSeries::resetCache() {
 void TimeSeries::invalidate() {
   if(_points) {
     _points->invalidate(this->name());
+    _points->registerAndGetIdentifier(this->name(), this->units());
   }
 }
 
@@ -399,9 +407,9 @@ void TimeSeries::setUnits(Units newUnits) {
   // changing units means the values here are no good anymore.
   if (this->canChangeToUnits(newUnits)) {
     if (! (newUnits == this->units())) {
+      _units = newUnits;
       this->invalidate();
     }
-    _units = newUnits;
   }
 }
 
