@@ -100,7 +100,7 @@ namespace RTX {
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
     
-    virtual std::string registerAndGetIdentifier(std::string recordName, Units dataUnits);
+    virtual std::string registerAndGetIdentifier(std::string recordName);
     virtual std::vector<std::string> identifiers();
     virtual std::ostream& toStream(std::ostream &stream);
     

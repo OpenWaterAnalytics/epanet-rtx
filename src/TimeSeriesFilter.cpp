@@ -39,6 +39,22 @@ void TimeSeriesFilter::setResampleMode(TimeSeries::TimeSeriesResampleMode mode) 
   _resampleMode = mode;
 }
 
+void TimeSeriesFilter::setRecord(PointRecord::_sp record) {
+  if (record != this->record()) {
+    this->invalidate();
+    TimeSeries::setRecord(record);
+    this->invalidate();
+  }
+}
+
+// filters can invalidate themselves.
+void TimeSeriesFilter::setUnits(RTX::Units newUnits) {
+  if (! (newUnits == this->units())) {
+    this->invalidate();
+    TimeSeries::setUnits(newUnits);
+  }
+}
+
 TimeSeries::_sp TimeSeriesFilter::source() {
   return _source;
 }

@@ -126,7 +126,7 @@ void SqlitePointRecord::dbConnect() throw(RtxException) {
   errorMessage = "OK";
   _connected = true;
   BOOST_FOREACH(const string &name, DB_PR_SUPER::identifiers()) {
-    this->registerAndGetIdentifier(name, Units());
+    this->registerAndGetIdentifier(name);
   }
 }
 
@@ -215,7 +215,7 @@ bool SqlitePointRecord::isConnected() {
   return _connected;
 }
 
-std::string SqlitePointRecord::registerAndGetIdentifier(std::string recordName, Units dataUnits) {
+std::string SqlitePointRecord::registerAndGetIdentifier(std::string recordName) {
   
   int ret = 0;
   
@@ -232,9 +232,9 @@ std::string SqlitePointRecord::registerAndGetIdentifier(std::string recordName, 
     // INSERT IGNORE INTO meta (name,units) VALUES (?,?)
     
     sqlite3_stmt *stmt;
-    sqlite3_prepare_v2(_dbHandle, "insert or ignore into meta (name,units) values (?,?)", -1, &stmt, NULL);
+    sqlite3_prepare_v2(_dbHandle, "insert or ignore into meta (name) values (?)", -1, &stmt, NULL);
     sqlite3_bind_text(stmt, 1, recordName.c_str(), -1, NULL);
-    sqlite3_bind_text(stmt, 2, dataUnits.unitString().c_str(), -1, NULL);
+    
     
     ret = sqlite3_step(stmt);
     if (ret != SQLITE_DONE) {
@@ -244,13 +244,11 @@ std::string SqlitePointRecord::registerAndGetIdentifier(std::string recordName, 
     sqlite3_finalize(stmt);
   }
   
-  this->setUnitsForIdentifier(recordName, dataUnits);
-  
-  
-  DB_PR_SUPER::registerAndGetIdentifier(recordName, dataUnits);
+  DB_PR_SUPER::registerAndGetIdentifier(recordName);
   
   return recordName;
 }
+
 
 std::vector<std::string> SqlitePointRecord::identifiers() {
   vector<string> names;
@@ -267,47 +265,6 @@ std::vector<std::string> SqlitePointRecord::identifiers() {
   }
   
   return names;
-}
-
-Units SqlitePointRecord::unitsForIdentifier(const std::string &id) {
-  Units u = RTX_DIMENSIONLESS;
-  
-  if (this->isConnected()) {
-    scoped_lock<boost::signals2::mutex> lock(*_mutex);
-    sqlite3_stmt *stmt_getUnits;
-    stringstream ss;
-    ss << "SELECT units from meta where name = \"" << id << "\"";
-    if(sqlite3_prepare_v2(_dbHandle, ss.str().c_str(), -1, &stmt_getUnits, NULL) == SQLITE_OK) {
-      while(sqlite3_step(stmt_getUnits) == SQLITE_ROW) {
-        sqltext unitsStr = sqlite3_column_text(stmt_getUnits, 0);
-        u = Units::unitOfType(string((char*)unitsStr));
-      }
-    }
-    sqlite3_reset(stmt_getUnits);
-  }
-  return u;
-}
-
-void SqlitePointRecord::setUnitsForIdentifier(const std::string& id, Units u) {
-  if (this->readonly()) {
-    return;
-  }
-  // clear points
-  this->removeRecord(id);
-  
-  // alter reported units
-  if (this->isConnected()) {
-    scoped_lock<boost::signals2::mutex> lock(*_mutex);
-    stringstream ss;
-    ss << "UPDATE meta set units = \"" << u.unitString() << "\" where name = \"" << id << "\"";
-    sqlite3_exec(_dbHandle, ss.str().c_str(), NULL, NULL, NULL);
-  }
-  
-}
-
-
-std::vector<std::pair<std::string, Units> > SqlitePointRecord::availableData() {
-  // todo
 }
 
 
@@ -557,6 +514,7 @@ void SqlitePointRecord::insertRange(const std::string& id, std::vector<Point> po
 }
 
 void SqlitePointRecord::removeRecord(const std::string& id) {
+  scoped_lock<boost::signals2::mutex> lock(*_mutex);
   
   if (!_connected) {
     return;

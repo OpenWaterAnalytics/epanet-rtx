@@ -38,35 +38,19 @@ std::ostream& PointRecord::toStream(std::ostream &stream) {
 }
 
 
-std::string PointRecord::registerAndGetIdentifier(std::string recordName, Units dataUnits) {
-  
+std::string PointRecord::registerAndGetIdentifier(std::string recordName) {
   if (_pointCache.find(recordName) == _pointCache.end()) {
     _pointCache[recordName] = Point();
   }
-  
   return recordName;
 }
 
 std::vector<std::string> PointRecord::identifiers() {
-  
   vector<string> names;
-  
   return names;
 }
 
-Units PointRecord::unitsForIdentifier(const std::string &id) {
-  return RTX_DIMENSIONLESS;
-}
-void PointRecord::setUnitsForIdentifier(const std::string& id, Units u) {
-  // nope
-}
 
-/*
-bool PointRecord::isPointAvailable(const string& identifier, time_t time) {
-  
-  return false;
-}
-*/
 
 Point PointRecord::point(const string& identifier, time_t time) {
   // return the cached point if it is valid

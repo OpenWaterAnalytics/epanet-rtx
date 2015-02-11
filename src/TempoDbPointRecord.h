@@ -23,7 +23,7 @@ namespace RTX {
     
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected() {return _connected;};
-    virtual std::string registerAndGetIdentifier(std::string recordName, Units dataUnits);
+    virtual std::string registerAndGetIdentifier(std::string recordName);
     virtual std::vector<std::string> identifiers();
     virtual void truncate() {}; // specific implementation must override this
     virtual time_pair_t range(const string& id);

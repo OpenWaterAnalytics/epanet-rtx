@@ -270,8 +270,8 @@ bool OdbcPointRecord::checkConnected() {
   return _connectionOk;
 }
 
-string OdbcPointRecord::registerAndGetIdentifier(string recordName, Units dataUnits) {
-  return DB_PR_SUPER::registerAndGetIdentifier(recordName, dataUnits);
+string OdbcPointRecord::registerAndGetIdentifier(string recordName) {
+  return DB_PR_SUPER::registerAndGetIdentifier(recordName);
 }
 
 vector<string> OdbcPointRecord::identifiers() {

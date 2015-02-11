@@ -92,9 +92,6 @@ namespace RTX {
     RTX_SHARED_POINTER(TimeSeries);
     
     TimeSeries();
-    // convenience constructor for a raw timeseries
-    TimeSeries(const std::string& name, PointRecord::_sp record);
-    
     ~TimeSeries();
     
     virtual Clock::_sp clock() { return Clock::_sp(); };
@@ -117,7 +114,7 @@ namespace RTX {
     virtual void setName(const std::string& name);
     
     PointRecord::_sp record();
-    void setRecord(PointRecord::_sp record);
+    virtual void setRecord(PointRecord::_sp record);
     
     Units units();
     virtual void setUnits(Units newUnits);

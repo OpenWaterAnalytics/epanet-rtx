@@ -97,7 +97,7 @@ void InfluxDbPointRecord::setConnectionString(const std::string &str) {
 }
 
 
-string InfluxDbPointRecord::registerAndGetIdentifier(std::string recordName, Units dataUnits) {
+string InfluxDbPointRecord::registerAndGetIdentifier(std::string recordName) {
   return recordName;
 }
 

@@ -228,14 +228,6 @@ TimeSeries::TimeSeries() : _units(1) {
   _units = RTX_DIMENSIONLESS;
 }
 
-TimeSeries::TimeSeries(const std::string& name, PointRecord::_sp record) {
-  
-  _name = string(name);
-  _units = record->unitsForIdentifier(name); // if it doesn't exist, then default is dimensionless
-  this->setRecord(record);
-  
-}
-
 
 
 TimeSeries::~TimeSeries() {
@@ -252,7 +244,7 @@ std::ostream& RTX::operator<< (std::ostream &out, TimeSeries &ts) {
 
 void TimeSeries::setName(const std::string& name) {
   _name = name;
-  _points->registerAndGetIdentifier(name, this->units());
+  _points->registerAndGetIdentifier(name);
 }
 
 std::string TimeSeries::name() {
@@ -372,8 +364,6 @@ vector<Point> TimeSeries::gaps(time_t start, time_t end) {
 }
 
 
-
-
 void TimeSeries::setRecord(PointRecord::_sp record) {
   
   if (!record) {
@@ -383,7 +373,9 @@ void TimeSeries::setRecord(PointRecord::_sp record) {
   }
   
   _points = record;
-  record->registerAndGetIdentifier(this->name(), this->units());
+  
+  record->registerAndGetIdentifier(this->name());
+  
 }
 
 PointRecord::_sp TimeSeries::record() {
@@ -398,7 +390,7 @@ void TimeSeries::resetCache() {
 void TimeSeries::invalidate() {
   if(_points) {
     _points->invalidate(this->name());
-    _points->registerAndGetIdentifier(this->name(), this->units());
+    _points->registerAndGetIdentifier(this->name());
   }
 }
 
@@ -408,7 +400,6 @@ void TimeSeries::setUnits(Units newUnits) {
   if (this->canChangeToUnits(newUnits)) {
     if (! (newUnits == this->units())) {
       _units = newUnits;
-      this->invalidate();
     }
   }
 }

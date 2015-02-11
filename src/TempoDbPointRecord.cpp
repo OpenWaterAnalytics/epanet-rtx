@@ -16,7 +16,7 @@ void TempoDbPointRecord::dbConnect() throw(RtxException) {
   
 }
 
-string TempoDbPointRecord::registerAndGetIdentifier(std::string recordName, Units dataUnits) {
+string TempoDbPointRecord::registerAndGetIdentifier(std::string recordName) {
   
 }
 

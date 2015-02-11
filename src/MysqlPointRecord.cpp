@@ -167,14 +167,13 @@ bool MysqlPointRecord::isConnected() {
   return connected;
 }
 
-std::string MysqlPointRecord::registerAndGetIdentifier(std::string recordName, Units dataUnits) {
+std::string MysqlPointRecord::registerAndGetIdentifier(std::string recordName) {
   // insert the identifier, or make sure it's in the db.
   this->checkConnection();
   if (isConnected()) {
     try {
       boost::shared_ptr<sql::PreparedStatement> seriesNameStatement( _mysqlCon->prepareStatement("INSERT IGNORE INTO timeseries_meta (name,units) VALUES (?,?)") );
       seriesNameStatement->setString(1,recordName);
-      seriesNameStatement->setString(2, dataUnits.unitString());
       seriesNameStatement->executeUpdate();
       _mysqlCon->commit();
     } catch (sql::SQLException &e) {
@@ -183,7 +182,7 @@ std::string MysqlPointRecord::registerAndGetIdentifier(std::string recordName, U
   }
   
   
-  DB_PR_SUPER::registerAndGetIdentifier(recordName, dataUnits);
+  DB_PR_SUPER::registerAndGetIdentifier(recordName);
   
   return recordName;
 }

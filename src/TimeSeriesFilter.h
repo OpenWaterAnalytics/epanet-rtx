@@ -78,6 +78,8 @@ namespace RTX {
     virtual Point pointAfter(time_t time);
     
     virtual bool willResample();
+    virtual void setRecord(PointRecord::_sp record); // will invalidate backing store.
+    virtual void setUnits(Units newUnits); // filter ts objects can invalidate their backing store.
     
     // methods you must override to provide info to the base class
     virtual PointCollection filterPointsInRange(TimeRange range);

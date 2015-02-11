@@ -26,11 +26,8 @@ namespace RTX {
     
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
-    virtual std::string registerAndGetIdentifier(std::string recordName, Units dataUnits);
+    virtual std::string registerAndGetIdentifier(std::string recordName);
     virtual std::vector<std::string> identifiers();
-    virtual Units unitsForIdentifier(const std::string &id);
-    virtual void setUnitsForIdentifier(const std::string& id, Units u);
-    virtual std::vector<std::pair<std::string, Units> >availableData();
     
     virtual time_pair_t range(const string& id);
     
