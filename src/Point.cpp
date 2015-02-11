@@ -182,7 +182,7 @@ std::ostream& RTX::operator<< (std::ostream &out, Point &point) {
 Point Point::convertPoint(const Point& point, const Units& fromUnits, const Units& toUnits) {
   double value = Units::convertValue(point.value, fromUnits, toUnits);
   double confidence = Units::convertValue(point.confidence, fromUnits, toUnits);
-  return Point(point.time, value, point.quality, confidence);
+  return Point(point.time, value, point.quality, confidence, point.opcQuality);
 }
 
 
