@@ -137,17 +137,14 @@ bool StatsTimeSeries::canSetSource(TimeSeries::_sp ts) {
 }
 
 void StatsTimeSeries::didSetSource(TimeSeries::_sp source) {
-  Units originalUnits = this->units();
-  this->setUnits(RTX_DIMENSIONLESS);  // non-dimensionalize so that we can accept this source.
-  TimeSeriesFilter::didSetSource(source);
+  
   if (source) {
     Units units = statsUnits(source->units(), statsType());
-    
-    if (units.isSameDimensionAs(originalUnits)) {
-      units = originalUnits;
+    if (!units.isSameDimensionAs(this->units())) {
+      this->setUnits(units);
     }
-    this->setUnits(units);
   }
+  
 }
 
 bool StatsTimeSeries::canChangeToUnits(Units newUnits) {
