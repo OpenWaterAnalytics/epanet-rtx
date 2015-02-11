@@ -827,16 +827,8 @@ void SqliteProjectFile::setBaseProperties(TimeSeries::_sp ts, int uid) {
   int recordUid =     sqlite3_column_int(stmt, 2);
   int clockUid =      sqlite3_column_int(stmt, 3);
   
-  
+  // name
   ts->setName(string((char*)name));
-  
-  // record
-  if (recordUid > 0) { // zero is a null value; column autoincrement starts at 1
-    PointRecord::_sp pr = _records[recordUid];
-    if (pr) {
-      ts->setRecord(pr);
-    }
-  }
   
   // units
   string unitsStr((char*)unitsText);
@@ -853,6 +845,19 @@ void SqliteProjectFile::setBaseProperties(TimeSeries::_sp ts, int uid) {
       cerr << "could not find clock uid " << clockUid << endl;
     }
   }
+  
+  // record
+  // set the record last, since any other changes will invalidate points that are currently stored there.
+  if (recordUid > 0) { // zero is a null value; column autoincrement starts at 1
+    PointRecord::_sp pr = _records[recordUid];
+    if (pr) {
+      ts->setRecord(pr);
+    }
+  }
+  
+  
+  
+
   
   sqlite3_finalize(stmt);
   
