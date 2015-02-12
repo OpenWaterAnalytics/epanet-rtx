@@ -176,7 +176,7 @@ bool SqlitePointRecord::updateSchema() {
         // migrate 0,1->2
         stringstream ss;
         ss << "BEGIN TRANSACTION; ";
-        ss << "UPDATE points SET quality = 128";
+        ss << "UPDATE points SET quality = 128;";
         ss << "END TRANSACTION; ";
         
         sqlite3_exec(_dbHandle, ss.str().c_str(), NULL, NULL, NULL);
