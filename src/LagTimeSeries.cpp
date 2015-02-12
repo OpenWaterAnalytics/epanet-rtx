@@ -28,12 +28,18 @@ time_t LagTimeSeries::offset() {
 
 Point LagTimeSeries::pointBefore(time_t time) {
   Point p = TimeSeriesFilter::pointBefore(time - _lag);
+  if (!p.isValid) {
+    return Point();
+  }
   p.time += _lag;
   return p;
 }
 
 Point LagTimeSeries::pointAfter(time_t time) {
   Point p = TimeSeriesFilter::pointAfter(time - _lag);
+  if (!p.isValid) {
+    return Point();
+  }
   p.time += _lag;
   return p;
 }

@@ -65,6 +65,9 @@ TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range
   BOOST_FOREACH(pointSummaryPair_t summary, summaries) {
     Point p = summary.first;
     PointCollection col = summary.second;
+    if (col.count() == 0) {
+      continue;
+    }
     double v = this->valueFromSummary(col);
     Point outPoint(p.time, v);
     if (outPoint.isValid) {
