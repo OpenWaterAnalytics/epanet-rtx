@@ -317,24 +317,7 @@ std::vector<Point> OdbcPointRecord::pointsFromStatement(SQLHSTMT statement) {
     Point p;
     time_t t = PointRecordTime::time(record.time);
     double v = record.value;
-    /*
-    int intQual = record.quality;
-    // report on the point retrieved
-    // 2013-01-02 23:09:00 | 120.3345 | q:1216   | 0000000100000000
-    string tStr = PointRecordTime::utcDateStringFromUnix(t);
-    std::bitset<16> bits(intQual);
-    cout << "#" << setw(20) << tStr << "| " << setw(10) << v << " | " << "Q: " << setw(6) << intQual << " | " << setw(16) << bits << endl;
-    */
     Point::PointQuality q = Point::opc_good;
-    
-    // map to rtx quality types
-//    if (_querySyntax.qualityMap.count(record.quality) > 0) {
-//      q = _querySyntax.qualityMap[record.quality];
-//    }
-//    else {
-//      q = Point::questionable;
-//    }
-    
     q = (Point::PointQuality)record.quality;
     
     if (record.valueInd > 0) {
@@ -344,7 +327,6 @@ std::vector<Point> OdbcPointRecord::pointsFromStatement(SQLHSTMT statement) {
     }
     else {
       // nothing
-      //cout << "skipped invalid point. quality = " << _tempRecord.quality << endl;
     }
   }
   
