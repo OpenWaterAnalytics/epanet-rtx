@@ -41,7 +41,13 @@ const bool Point::hasQual(PointQuality qual) const {
 }
 
 void Point::addQualFlag(PointQuality qual) {
-  this->quality = (PointQuality)(this->quality | qual);
+  // make sure it's an RTX override quality
+  // funny bitwise math here since the OPC standard is not a straightforward bitmask
+  PointQuality override = this->quality;
+  override = (PointQuality)(override & (~opc_good)); // remove opc bits
+  override = (PointQuality)(override | opc_rtx_override); // add override mask
+  override = (PointQuality)(override | qual);
+  this->quality = override;
   if (this->hasQual(opc_bad)) {
     this->isValid = false;
   }
