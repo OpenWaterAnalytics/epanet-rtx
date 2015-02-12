@@ -202,6 +202,20 @@ TimeSeries::PointCollection TimeSeriesFilter::filterPointsInRange(TimeRange rang
     queryRange.second = this->source()->pointAfter(range.second - 1).time;
   }
   
+  if (queryRange.first == 0) {
+    queryRange.first = this->source()->pointAfter(range.first).time; // go to next available point.
+  }
+  if (queryRange.second == 0) {
+    queryRange.second = this->source()->pointBefore(range.second).time; // go to previous availble point.
+  }
+  
+  // now check to see if we should proceed, i.e., our source has some data within the requested range.
+  if (queryRange.second < range.first || range.second < queryRange.first) {
+    // source data is out of range.
+    return PointCollection(vector<Point>(),this->units());
+  }
+  
+  
   queryRange.first = (queryRange.first == 0) ? range.first : queryRange.first;
   queryRange.second = (queryRange.second == 0) ? range.second : queryRange.second;
   

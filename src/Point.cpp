@@ -41,7 +41,7 @@ const bool Point::hasQual(PointQuality qual) const {
 }
 
 void Point::addQualFlag(PointQuality qual) {
-  // make sure it's an RTX override quality
+  // make sure it's an RTX override quality. if we're using this method, then it's not process data.
   // funny bitwise math here since the OPC standard is not a straightforward bitmask
   PointQuality override = this->quality;
   override = (PointQuality)(override & (~opc_good)); // remove opc bits
