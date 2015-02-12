@@ -101,11 +101,6 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::OdbcQuery> OdbcPointRecor
   wwQueries.upperBound = "";
   wwQueries.timeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
   
-  map<int, Point::Qual_t> wwQualMap;
-  wwQualMap[192] = Point::good;
-  wwQualMap[0] = Point::missing;
-  
-  wwQueries.qualityMap = wwQualMap;
   
   /***************************************************/
   
@@ -117,23 +112,11 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::OdbcQuery> OdbcPointRecor
   oraQueries.upperBound = "";
   oraQueries.timeQuery = "select sysdate from dual";
   
-  map<int, Point::Qual_t> oraQualMap;
-  oraQualMap[0] = Point::good;            // 00000000000
-  oraQualMap[128] = Point::questionable;  // 00010000000
-  oraQualMap[192] = Point::questionable;  // 00011000000
-  oraQualMap[256] = Point::questionable;  // 00100000000
-  oraQualMap[768] = Point::questionable;  // 01100000000
-  oraQualMap[32]   = Point::missing;      // 00000100000
-  oraQualMap[1024] = Point::missing;      // 10000000000
-  
-  oraQueries.qualityMap = oraQualMap;
-  
   
   // "regular" mssql db...
   OdbcQuery mssqlQueries = wwQueries;
   mssqlQueries.connectorName = "mssql";
   mssqlQueries.rangeSelect =  "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE #TAGCOL# = ? AND (#DATECOL# >= ?) AND (#DATECOL# <= ?)"; // ORDER BY #DATECOL# asc";
-  mssqlQueries.qualityMap = oraQualMap;
   
 //  mssqlQueries.lowerBound = "SELECT TOP(1) #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE #TAGCOL# = ? AND (#DATECOL# < ?) ORDER BY #DATECOL# ASC";
 //  mssqlQueries.upperBound = "SELECT TOP(1) #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE #TAGCOL# = ? AND (#DATECOL# > ?) ORDER BY #DATECOL# DESC";
@@ -342,7 +325,7 @@ std::vector<Point> OdbcPointRecord::pointsFromStatement(SQLHSTMT statement) {
     std::bitset<16> bits(intQual);
     cout << "#" << setw(20) << tStr << "| " << setw(10) << v << " | " << "Q: " << setw(6) << intQual << " | " << setw(16) << bits << endl;
     */
-    Point::Qual_t q = Point::good;
+    Point::PointQuality q = Point::opc_good;
     
     // map to rtx quality types
 //    if (_querySyntax.qualityMap.count(record.quality) > 0) {
@@ -352,11 +335,11 @@ std::vector<Point> OdbcPointRecord::pointsFromStatement(SQLHSTMT statement) {
 //      q = Point::questionable;
 //    }
     
-    unsigned int opc = (unsigned int)record.quality;
+    q = (Point::PointQuality)record.quality;
     
-    if (record.valueInd > 0 && !(q & Point::missing)) {
+    if (record.valueInd > 0) {
       // ok
-      p = Point(t, v, q, 0., opc);
+      p = Point(t, v, q, 0.);
       points.push_back(p);
     }
     else {

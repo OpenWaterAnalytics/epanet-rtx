@@ -295,7 +295,7 @@ vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
     const rapidjson::Value& row = pointRows[i];
     time_t pointTime = (time_t)row[timeIndex].GetInt();
     double pointValue = row[valueIndex].GetDouble();
-    Point::Qual_t pointQuality = (row[qualityIndex].IsNull()) ? Point::good : (Point::Qual_t)row[qualityIndex].GetInt();
+    Point::PointQuality pointQuality = (row[qualityIndex].IsNull()) ? Point::opc_rtx_override : (Point::PointQuality)row[qualityIndex].GetInt();
     double pointConf = row[confidenceIndex].GetDouble();
     Point p(pointTime, pointValue, pointQuality, pointConf);
     points.push_back(p);

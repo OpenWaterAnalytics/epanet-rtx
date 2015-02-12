@@ -451,7 +451,7 @@ std::vector<Point> MysqlPointRecord::pointsFromResultSet(boost::shared_ptr<sql::
     double value = result->getDouble("value");
     double confidence = result->getDouble("confidence");
     int quality = result->getInt("quality");
-    Point::Qual_t qtype = Point::Qual_t(quality);
+    Point::PointQuality qtype = Point::PointQuality(quality);
     Point point(time, value, qtype, confidence);
     points.push_back(point);
   }

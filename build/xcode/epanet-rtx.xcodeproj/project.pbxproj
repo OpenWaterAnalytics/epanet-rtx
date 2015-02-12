@@ -327,6 +327,13 @@
 			remoteGlobalIDString = 228A76F918450CBD00905D8E;
 			remoteInfo = "epanet-rtx-project";
 		};
+		22678CD81A8C1878009F66BB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC0620554660B00DB518D;
+			remoteInfo = epanet;
+		};
 		22A1CBC71A325948009F58FC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
@@ -1394,6 +1401,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				22678CD91A8C1878009F66BB /* PBXTargetDependency */,
 			);
 			name = "epanet-rtx";
 			productName = "epanet-rtx";
@@ -1829,6 +1837,11 @@
 			target = 228A76F918450CBD00905D8E /* epanet-rtx-project */;
 			targetProxy = 2251FFF31A0A7E3500C4D483 /* PBXContainerItemProxy */;
 		};
+		22678CD91A8C1878009F66BB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = epanet;
+			targetProxy = 22678CD81A8C1878009F66BB /* PBXContainerItemProxy */;
+		};
 		22A1CBC81A325948009F58FC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 22C62ABF1439ED6300841E60 /* epanet-rtx */;
@@ -2148,6 +2161,7 @@
 		22C62AC51439ED6300841E60 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
@@ -2182,6 +2196,7 @@
 		22C62AC61439ED6300841E60 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;

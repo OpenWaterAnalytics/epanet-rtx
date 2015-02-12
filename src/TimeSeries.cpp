@@ -439,69 +439,9 @@ TimeSeries::PointCollection TimeSeries::resampled(set<time_t> timeList, TimeSeri
   
   PointCollection nativePoints = this->points(effectiveRange);
   
-  // are there enough points to return anything?
-  bool tooFewPoints = (mode == TimeSeriesResampleModeStep) ? (nativePoints.count() < 1) : (nativePoints.count() < 2);
-  if (tooFewPoints) {
-    return PointCollection();
-  }
+  nativePoints.resample(timeList);
   
-  
-  vector<Point> resampled;
-  vector<Point>::size_type s = timeList.size();
-  resampled.reserve(s);
-  
-  
-  // iterators for scrubbing through the source points
-  pVec_cIt sourceBegin = nativePoints.points.begin();
-  pVec_cIt sourceEnd = nativePoints.points.end();
-  pVec_cIt right = sourceBegin;
-  pVec_cIt left = sourceBegin;
-  
-  pair<time_t, time_t> validTimeRange = make_pair(nativePoints.points.front().time, nativePoints.points.back().time);
-  
-  // prune the time list for valid time values (values within native point time range)
-  set<time_t> validTimeList;
-  BOOST_FOREACH(const time_t now, timeList) {
-    if ( validTimeRange.first <= now && now <= validTimeRange.second ) {
-      validTimeList.insert(now);
-    }
-  }
-  
-  
-  // pre-set the right/left cursors
-  time_t firstValidTime = *(validTimeList.begin());
-  while (right != sourceEnd && right->time < firstValidTime) {
-    ++right;
-    if (right->time < firstValidTime) {
-      // outer while loop will fire again, so increment the left iterator too
-      // otherwise, we're straddling the first time value like we should be.
-      ++left;
-    }
-  }
-  
-  
-  BOOST_FOREACH(const time_t now, validTimeList) {
-    
-    // we should be straddling.
-    while ( ( right != sourceEnd || left != sourceEnd) &&
-           (! (left->time <= now && right->time >= now) ) ) {
-      // move cursors forward
-      ++left;
-      ++right;
-    }
-    
-    // end of native points?
-    if (right == sourceEnd) {
-      break; // get out of foreach
-    }
-    
-    Point p = Point::linearInterpolate(*left, *right, now);
-    resampled.push_back(p);
-  }
-  
-  
-  PointCollection resampledCollection(resampled, this->units());
-  return resampledCollection;
+  return nativePoints;
   
 }
 

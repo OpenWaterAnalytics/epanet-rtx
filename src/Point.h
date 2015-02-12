@@ -27,29 +27,29 @@ namespace RTX {
   class Point {    
   public:
     
-    typedef enum {
-      good         = 1 << 0,
-      questionable = 1 << 1,
-      bad          = 1 << 2,
-      missing      = 1 << 3,
-      constant     = 1 << 4,
-      interpolated = 1 << 5,
-      lastKnown    = 1 << 6,
-      averaged     = 1 << 7,
-      forecasted   = 1 << 8,
-      estimated    = 1 << 9
-    } Qual_t;
+    // quality. an amalgamation of OPC standard codes and special "RTX" codes (identified by the 0b10xxxxxx prefix, otherwise unused by OPC)
+    //
     
+    enum PointQuality: uint8_t {
+      
+      opc_good         = 0b11000000,  // 192
+      opc_bad          = 0b00000000,  // 0
+      opc_uncertain    = 0b01000000,  // 64
+      opc_rtx_override = 0b10000000,  // 128
+      
+      rtx_constant     = 0b00000001,
+      rtx_interpolated = 0b00000010,
+      rtx_averaged     = 0b00000100,
+      rtx_aggregated   = 0b00001000,
+      rtx_forecasted   = 0b00010000
+      
+    };
     
-    
-    
-    //! quality flag
-//    enum Qual_t { good, questionable, missing, estimated, forecasted, bad };
     
     //! Empty Constructor, equivalent to Point(0,0,Point::missing,0)
     Point();
     //! Full Constructor, for explicitly setting all internal data within the point object.
-    Point(time_t time, double value = 0., Qual_t qual = good, double confidence = 0., unsigned int opcQuality = OPC_GOOD);
+    Point(time_t time, double value = 0., PointQuality qual = opc_rtx_override, double confidence = 0.);
     // dtor
     ~Point();
     
@@ -66,14 +66,13 @@ namespace RTX {
     // simple tuple class, so no getters/setters
     time_t time;
     double value;
-    Qual_t quality;
+    PointQuality quality;
     double confidence;
-    unsigned int opcQuality;
     bool isValid;
     
     // convenience
-    const bool hasQual(Qual_t qual) const;
-    void addQualFlag(Qual_t qual);
+    const bool hasQual(PointQuality qual) const;
+    void addQualFlag(PointQuality qual);
     
     Point inverse();
     

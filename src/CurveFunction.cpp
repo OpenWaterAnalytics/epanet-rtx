@@ -55,7 +55,7 @@ Point CurveFunction::filteredWithSourcePoint(RTX::Point sourcePoint) {
   double convertedSourceValue = convertedSourcePoint.value;
   
   if (_curve.size() < 1) {
-    return Point(sourcePoint.time,0,Point::missing);
+    return Point(sourcePoint.time,0,Point::opc_bad);
   }
   
   double newValue;

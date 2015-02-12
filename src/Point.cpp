@@ -17,17 +17,17 @@
 using namespace std;
 using namespace RTX;
 
-Point::Point() : time(0),value(0),quality(Point::missing),isValid(false),confidence(0) {
+Point::Point() : time(0),value(0),quality(PointQuality::opc_bad),isValid(false),confidence(0) {
   
 }
 
-Point::Point(time_t t, double v, Qual_t q, double c, unsigned int opc) : time(t),value(v),quality(q),isValid((q & missing)||(isnan(v)) ? false : true),confidence(c),opcQuality(opc) {
+Point::Point(time_t t, double v, PointQuality q, double c) : time(t),value(v),quality(q),isValid((q & PointQuality::opc_bad)||(isnan(v)) ? false : true),confidence(c) {
   if (isnan(v)) {
     cout << "nan" << endl;
   }
   if (time == 0) {
     isValid = false;
-    quality = (Qual_t)(missing | bad);
+    quality = (PointQuality::opc_bad);
   }
 }
 
@@ -36,13 +36,13 @@ Point::~Point() {
 }
 
 
-const bool Point::hasQual(Qual_t qual) const {
+const bool Point::hasQual(PointQuality qual) const {
   return (this->quality & qual);
 }
 
-void Point::addQualFlag(Qual_t qual) {
-  this->quality = (Qual_t)(this->quality | qual);
-  if (this->hasQual(Point::bad)) {
+void Point::addQualFlag(PointQuality qual) {
+  this->quality = (PointQuality)(this->quality | qual);
+  if (this->hasQual(opc_bad)) {
     this->isValid = false;
   }
 };
@@ -90,7 +90,7 @@ Point Point::operator*(const double factor) const {
   confidence = (this->confidence * factor);  // TODO -- figure out confidence intervals.
   time = this->time;
   
-  return Point(time, value, Point::good, confidence);
+  return Point(time, value, opc_rtx_override, confidence);
 }
 
 Point& Point::operator*=(const double factor) {
@@ -109,7 +109,7 @@ Point Point::operator/(const double factor) const {
   confidence = (this->confidence / factor);  // TODO -- figure out confidence intervals.
   time = this->time;
   
-  return Point(time, value, Point::good, confidence);
+  return Point(time, value, opc_rtx_override, confidence);
 }
 
 
@@ -132,8 +132,8 @@ Point Point::linearInterpolate(const Point& p1, const Point& p2, const time_t& t
     double dv2 = dv * dt2 / dt;
     double newValue = p1.value + dv2;
     double newConfidence = (p1.confidence + p2.confidence) / 2; // TODO -- more elegant confidence estimation
-    p = Point(t, newValue, (Qual_t)(p1.quality | p2.quality), newConfidence);
-    p.addQualFlag(Point::interpolated);
+    p = Point(t, newValue, (PointQuality)(p1.quality | p2.quality), newConfidence);
+    p.addQualFlag(rtx_interpolated);
   }
   return p;
 }
@@ -143,14 +143,14 @@ Point Point::inverse() {
   double value;
   double confidence;
   time_t time;
-  Qual_t q = this->quality;
+  PointQuality q = this->quality;
   
   
   if (this->value != 0.) {
     value = (1 / this->value);
   }
   else {
-    q = Point::bad;
+    q = opc_bad;
   }
   
   if (this->confidence != 0.) {
@@ -182,7 +182,7 @@ std::ostream& RTX::operator<< (std::ostream &out, Point &point) {
 Point Point::convertPoint(const Point& point, const Units& fromUnits, const Units& toUnits) {
   double value = Units::convertValue(point.value, fromUnits, toUnits);
   double confidence = Units::convertValue(point.confidence, fromUnits, toUnits);
-  return Point(point.time, value, point.quality, confidence, point.opcQuality);
+  return Point(point.time, value, point.quality, confidence);
 }
 
 

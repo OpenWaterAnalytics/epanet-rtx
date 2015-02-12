@@ -375,7 +375,7 @@ bool Dma::isTank(Junction::_sp junction) {
 }
 
 bool Dma::isBoundaryFlowJunction(Junction::_sp junction) {
-  return (junction->boundaryFlow());
+  return (junction->boundaryFlow() ? true : false);
 }
 
 /* deprecated

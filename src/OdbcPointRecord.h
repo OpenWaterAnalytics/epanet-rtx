@@ -54,7 +54,6 @@ namespace RTX {
     class OdbcQuery {
     public:
       std::string connectorName, singleSelect, rangeSelect, upperBound, lowerBound, timeQuery;
-      std::map<int,Point::Qual_t> qualityMap;
     };
     
     class OdbcTableDescription {
