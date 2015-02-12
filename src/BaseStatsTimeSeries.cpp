@@ -94,17 +94,12 @@ vector<BaseStatsTimeSeries::pointSummaryPair_t> BaseStatsTimeSeries::filterSumma
   }
   
   vector<Point> sourcePoints;
-  BOOST_FOREACH(time_t now, times) {
-    sourcePoints.push_back(Point(now));
-  }
-  
+  sourcePoints = sourceTs->resampled(times).points;
   
   sPoints.reserve(sourcePoints.size());
   
   BOOST_FOREACH(const Point& p, sourcePoints) {
-    time_t now = p.time;
     PointCollection c = sourceTs->pointCollection(p.time - lagDistance, p.time + leadDistance);
-    size_t count = c.count();
     sPoints.push_back(make_pair(p, c));
   }
   

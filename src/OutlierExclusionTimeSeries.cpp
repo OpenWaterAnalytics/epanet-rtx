@@ -89,8 +89,16 @@ double OutlierExclusionTimeSeries::outlierMultiplier() {
 
 TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(TimeRange range) {
   
-  set<time_t> times = this->timeValuesInRange(range);
-  vector<pointSummaryPair_t> summaries = this->filterSummaryCollection(times);
+  // get raw values, exclude outliers, then resample if needed.
+  vector<Point> rawSourcePoints = this->source()->points(range).points;
+  set<time_t> rawTimes;
+  BOOST_FOREACH(const Point& p, rawSourcePoints) {
+    rawTimes.insert(p.time);
+  }
+  
+  set<time_t> outTimes = this->timeValuesInRange(range); // output times. some of these may be excluded.
+  
+  vector<pointSummaryPair_t> summaries = this->filterSummaryCollection(rawTimes);
   TimeSeries::_sp sourceTs = this->source();
   
   double m = this->outlierMultiplier();
@@ -129,7 +137,12 @@ TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(Time
     } // end switch mode
   }// end for each summary
   
-  return PointCollection(goodPoints, this->units());
+  PointCollection outCollection(goodPoints, this->units());
+  if (this->willResample()) {
+    outCollection.resample(outTimes);
+  }
+  
+  return outCollection;
   
 }
 
