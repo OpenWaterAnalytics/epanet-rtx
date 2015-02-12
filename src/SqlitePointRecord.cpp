@@ -105,7 +105,7 @@ void SqlitePointRecord::dbConnect() throw(RtxException) {
   // check schema
   int databaseVersion = this->dbSchemaVersion();
   if (databaseVersion < sqlitePointRecordCurrentDbVersion) {
-    cerr << "Point Record Database Schema version not compatible. Require version " << sqlitePointRecordCurrentDbVersion << " or greater." << endl;
+    cerr << "Point Record Database Schema version not compatible. Require version " << sqlitePointRecordCurrentDbVersion << " or greater. Updating." << endl;
     bool ok = this->updateSchema();
   }
   
