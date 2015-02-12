@@ -62,13 +62,13 @@ void TimeSeriesFilter::setSource(TimeSeries::_sp ts) {
   if (ts && !this->canSetSource(ts)) {
     return;
   }
-  this->invalidate();
   _source = ts;
   TimeSeriesFilter::_sp filterSource = boost::dynamic_pointer_cast<TimeSeriesFilter>(ts);
   if (filterSource && !this->clock()) {
     this->setClock(filterSource->clock());
   }
   if (ts) {
+    this->invalidate();
     this->didSetSource(ts);
   }
 }
