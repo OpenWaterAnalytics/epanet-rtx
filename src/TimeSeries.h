@@ -85,6 +85,9 @@ namespace RTX {
       bool convertToUnits(Units u);
       void addQualityFlag(Point::PointQuality q);
       
+      // non-mutating
+      PointCollection trimmedToRange(TimeRange range);
+      
       // statistical methods on the collection
       double min();
       double max();

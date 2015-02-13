@@ -247,6 +247,20 @@ bool TimeSeries::PointCollection::resample(set<time_t> timeList, TimeSeriesResam
 }
 
 
+TimeSeries::PointCollection TimeSeries::PointCollection::trimmedToRange(RTX::TimeSeries::TimeRange range) {
+  
+  vector<Point> filtered;
+  
+  BOOST_FOREACH(const Point& p, this->points) {
+    if (range.contains(p.time)) {
+      filtered.push_back(p);
+    }
+  }
+  
+  PointCollection pc(filtered, this->units);
+  return pc;
+}
+
 
 
 
