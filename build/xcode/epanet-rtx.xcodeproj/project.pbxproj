@@ -106,6 +106,10 @@
 		221A19CC1579111A00F0699E /* EpanetSyntheticModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 221A19CB1579111900F0699E /* EpanetSyntheticModel.h */; };
 		221A19CF1579112B00F0699E /* EpanetSyntheticModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221A19CE1579112B00F0699E /* EpanetSyntheticModel.cpp */; };
 		221BFC6C1A8E493C00143FCC /* PointRecordTime.h in Headers */ = {isa = PBXBuildFile; fileRef = 22AB022E187B1BF000706EEA /* PointRecordTime.h */; };
+		221BFC6F1A8E584500143FCC /* IntegratorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221BFC6D1A8E584500143FCC /* IntegratorTimeSeries.cpp */; };
+		221BFC701A8E584500143FCC /* IntegratorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221BFC6D1A8E584500143FCC /* IntegratorTimeSeries.cpp */; };
+		221BFC711A8E584500143FCC /* IntegratorTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 221BFC6E1A8E584500143FCC /* IntegratorTimeSeries.h */; };
+		221BFC721A8E584500143FCC /* IntegratorTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 221BFC6E1A8E584500143FCC /* IntegratorTimeSeries.h */; };
 		221C06C316077FB300B8969C /* timeseries_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221C06C216077FB300B8969C /* timeseries_demo.cpp */; };
 		221C06C516077FC100B8969C /* validator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221C06C416077FC100B8969C /* validator.cpp */; };
 		2223206C1A6EF32E00B32D6A /* LagTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2223206A1A6EF32E00B32D6A /* LagTimeSeries.cpp */; };
@@ -496,6 +500,8 @@
 		2211D2051A6D69EA00E34B9B /* TimeSeriesSynthetic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeSeriesSynthetic.h; path = ../../src/TimeSeriesSynthetic.h; sourceTree = "<group>"; };
 		221A19CB1579111900F0699E /* EpanetSyntheticModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EpanetSyntheticModel.h; path = ../../src/EpanetSyntheticModel.h; sourceTree = "<group>"; };
 		221A19CE1579112B00F0699E /* EpanetSyntheticModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetSyntheticModel.cpp; path = ../../src/EpanetSyntheticModel.cpp; sourceTree = "<group>"; };
+		221BFC6D1A8E584500143FCC /* IntegratorTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IntegratorTimeSeries.cpp; path = ../../src/IntegratorTimeSeries.cpp; sourceTree = "<group>"; };
+		221BFC6E1A8E584500143FCC /* IntegratorTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IntegratorTimeSeries.h; path = ../../src/IntegratorTimeSeries.h; sourceTree = "<group>"; };
 		221C06C216077FB300B8969C /* timeseries_demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = timeseries_demo.cpp; path = ../../examples/conceptual/timeseries_demo.cpp; sourceTree = "<group>"; };
 		221C06C416077FC100B8969C /* validator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = validator.cpp; path = ../../examples/validator/validator.cpp; sourceTree = "<group>"; };
 		221C06C616077FD200B8969C /* sample.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; name = sample.cfg; path = ../../examples/validator/sample.cfg; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
@@ -1059,6 +1065,8 @@
 				220324C918AC05A800BD7790 /* FailoverTimeSeries.cpp */,
 				22C62ACC1439EE0B00841E60 /* AggregatorTimeSeries.h */,
 				22C62ACB1439EE0B00841E60 /* AggregatorTimeSeries.cpp */,
+				221BFC6E1A8E584500143FCC /* IntegratorTimeSeries.h */,
+				221BFC6D1A8E584500143FCC /* IntegratorTimeSeries.cpp */,
 				223663B71A699DC100420EE4 /* Single Point Filter */,
 				226AC14A1733FE56009B7C90 /* Synthetic */,
 				2211D2081A6D744D00E34B9B /* OLD CLASSES */,
@@ -1202,6 +1210,7 @@
 				220F9E2218F9E68B00BB842C /* Dma.h in Headers */,
 				220F9E2318F9E68B00BB842C /* EpanetMsxModel.h in Headers */,
 				220F9E2418F9E68B00BB842C /* rtxMacros.h in Headers */,
+				221BFC721A8E584500143FCC /* IntegratorTimeSeries.h in Headers */,
 				220F9E2518F9E68B00BB842C /* EpanetModel.h in Headers */,
 				220F9E2818F9E68B00BB842C /* OdbcDirectPointRecord.h in Headers */,
 				220F9E2918F9E68B00BB842C /* Clock.h in Headers */,
@@ -1308,6 +1317,7 @@
 				226AC14E17340D06009B7C90 /* MultiplierTimeSeries.h in Headers */,
 				22CE31EE17399403008AC1F9 /* CsvPointRecord.h in Headers */,
 				22A842D6173BF446009CE769 /* GainTimeSeries.h in Headers */,
+				221BFC711A8E584500143FCC /* IntegratorTimeSeries.h in Headers */,
 				22E2A624177DC57F008D139A /* TsdbPointRecord.h in Headers */,
 				220324CC18AC05A800BD7790 /* FailoverTimeSeries.h in Headers */,
 			);
@@ -1645,6 +1655,7 @@
 				220F9E0018F9E68B00BB842C /* FailoverTimeSeries.cpp in Sources */,
 				2223206D1A6EF32E00B32D6A /* LagTimeSeries.cpp in Sources */,
 				220F9E0218F9E68B00BB842C /* SineTimeSeries.cpp in Sources */,
+				221BFC701A8E584500143FCC /* IntegratorTimeSeries.cpp in Sources */,
 				220F9E0318F9E68B00BB842C /* BufferPointRecord.cpp in Sources */,
 				220F9E0418F9E68B00BB842C /* MapPointRecord.cpp in Sources */,
 				220F9E0518F9E68B00BB842C /* DequePointRecord.cpp in Sources */,
@@ -1728,6 +1739,7 @@
 				22B9285A1A76EF1B006DBC57 /* MathOpsTimeSeries.cpp in Sources */,
 				223663B31A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.cpp in Sources */,
 				22253D8F16022FB6002F7256 /* CurveFunction.cpp in Sources */,
+				221BFC6F1A8E584500143FCC /* IntegratorTimeSeries.cpp in Sources */,
 				22BFAB01196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp in Sources */,
 				22707A9616309D4100FEB4DD /* OffsetTimeSeries.cpp in Sources */,
 				224C41991A434FCB008852C4 /* ModelPerformance.cpp in Sources */,
