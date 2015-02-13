@@ -26,7 +26,7 @@ TimeSeries::PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange 
 
   vector<Point> outPoints;
   Units fromUnits = this->source()->units();
-  PointCollection data(vector<Point>(), fromUnits);
+  PointCollection data(vector<Point>(), fromUnits * RTX_SECOND);
   
   if (!this->resetClock()) {
     return PointCollection(vector<Point>(), this->units());
