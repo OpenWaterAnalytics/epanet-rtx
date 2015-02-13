@@ -20,19 +20,19 @@ TimeSeries::PointCollection TimeSeriesFilterSinglePoint::filterPointsInRange(Tim
   if (this->willResample()) {
     // expand range
 
-    Point seekLeft = this->source()->pointBefore(range.first + 1);
+    Point seekLeft = this->source()->pointBefore(range.start + 1);
     while (seekLeft.time > 0 && !this->filteredWithSourcePoint(seekLeft).isValid) {
       seekLeft = this->source()->pointBefore(seekLeft.time);
     }
     
-    queryRange.first = seekLeft.time;
+    queryRange.start = seekLeft.time;
     
-    Point seekRight = this->source()->pointAfter(range.second -1 );
+    Point seekRight = this->source()->pointAfter(range.end -1 );
     while (seekRight.time > 0 && !this->filteredWithSourcePoint(seekRight).isValid) {
       seekRight = this->source()->pointAfter(seekRight.time);
     }
     
-    queryRange.second = seekRight.time;
+    queryRange.end = seekRight.time;
   }
   
   PointCollection data = source()->points(queryRange);

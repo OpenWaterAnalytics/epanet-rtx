@@ -63,11 +63,11 @@ bool LagTimeSeries::willResample() {
 
 set<time_t> LagTimeSeries::timeValuesInRange(TimeRange range) {
   if (this->clock()) {
-    return this->clock()->timeValuesInRange(range.first, range.second);
+    return this->clock()->timeValuesInRange(range.start, range.end);
   }
   TimeRange lagRange = range;
-  lagRange.first -= _lag;
-  lagRange.second -= _lag;
+  lagRange.start -= _lag;
+  lagRange.end -= _lag;
   set<time_t> sourceTimes = TimeSeriesFilter::timeValuesInRange(lagRange);
   set<time_t> outTimes;
   BOOST_FOREACH(time_t t, sourceTimes) {
@@ -79,11 +79,11 @@ set<time_t> LagTimeSeries::timeValuesInRange(TimeRange range) {
 TimeSeries::PointCollection LagTimeSeries::filterPointsInRange(TimeRange range) {
   
   TimeRange queryRange = range;
-  queryRange.first -= _lag;
-  queryRange.second -= _lag;
+  queryRange.start -= _lag;
+  queryRange.end -= _lag;
   
-  queryRange.first = this->source()->pointBefore(queryRange.first + 1).time;
-  queryRange.second = this->source()->pointAfter(queryRange.second - 1).time;
+  queryRange.start = this->source()->pointBefore(queryRange.start + 1).time;
+  queryRange.end = this->source()->pointAfter(queryRange.end - 1).time;
   
   PointCollection data = this->source()->points(queryRange);
   

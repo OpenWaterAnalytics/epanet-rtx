@@ -82,7 +82,7 @@ vector<Point> TimeSeriesFilter::points(time_t start, time_t end) {
   }
   
   set<time_t> pointTimes;
-  pointTimes = this->timeValuesInRange(make_pair(start, end));
+  pointTimes = this->timeValuesInRange(TimeRange(start, end));
   
   PointCollection native;
   
@@ -103,7 +103,7 @@ vector<Point> TimeSeriesFilter::points(time_t start, time_t end) {
     return cached; // we're done here. all points are present.
   }
   
-  PointCollection outCollection = this->filterPointsInRange(make_pair(start, end));
+  PointCollection outCollection = this->filterPointsInRange(TimeRange(start, end));
   this->insertPoints(outCollection.points);
   return outCollection.points;
 }
@@ -198,26 +198,26 @@ TimeSeries::PointCollection TimeSeriesFilter::filterPointsInRange(TimeRange rang
   TimeRange queryRange = range;
   if (this->willResample()) {
     // expand range
-    queryRange.first = this->source()->pointBefore(range.first + 1).time;
-    queryRange.second = this->source()->pointAfter(range.second - 1).time;
+    queryRange.start = this->source()->pointBefore(range.start + 1).time;
+    queryRange.end = this->source()->pointAfter(range.end - 1).time;
   }
   
-  if (queryRange.first == 0) {
-    queryRange.first = this->source()->pointAfter(range.first).time; // go to next available point.
+  if (queryRange.start == 0) {
+    queryRange.start = this->source()->pointAfter(range.start).time; // go to next available point.
   }
-  if (queryRange.second == 0) {
-    queryRange.second = this->source()->pointBefore(range.second).time; // go to previous availble point.
+  if (queryRange.end == 0) {
+    queryRange.end = this->source()->pointBefore(range.end).time; // go to previous availble point.
   }
   
   // now check to see if we should proceed, i.e., our source has some data within the requested range.
-  if (queryRange.second < range.first || range.second < queryRange.first) {
+  if (queryRange.end < range.start || range.end < queryRange.start) {
     // source data is out of range.
     return PointCollection(vector<Point>(),this->units());
   }
   
   
-  queryRange.first = (queryRange.first == 0) ? range.first : queryRange.first;
-  queryRange.second = (queryRange.second == 0) ? range.second : queryRange.second;
+  queryRange.start = (queryRange.start == 0) ? range.start : queryRange.start;
+  queryRange.end = (queryRange.end == 0) ? range.end : queryRange.end;
   
   PointCollection data = source()->points(queryRange);
   
@@ -239,15 +239,15 @@ TimeSeries::PointCollection TimeSeriesFilter::filterPointsInRange(TimeRange rang
 set<time_t> TimeSeriesFilter::timeValuesInRange(TimeSeries::TimeRange range) {
   set<time_t> times;
   
-  if (range.first == 0 || range.second == 0) {
+  if (range.start == 0 || range.end == 0) {
     return times;
   }
   
   if (this->clock()) {
-    times = this->clock()->timeValuesInRange(range.first, range.second);
+    times = this->clock()->timeValuesInRange(range.start, range.end);
   }
   else {
-    vector<Point> points = source()->points(range.first, range.second);
+    vector<Point> points = source()->points(range.start, range.end);
     BOOST_FOREACH(const Point& p, points) {
       times.insert(p.time);
     }

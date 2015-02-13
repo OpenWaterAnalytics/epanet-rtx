@@ -76,22 +76,22 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
   TimeRange primarySourceRange = range;
   TimeRange secondarySourceRange = range;
   
-  Point priorPoint = this->source()->pointBefore(range.first + 1);
+  Point priorPoint = this->source()->pointBefore(range.start + 1);
   if (priorPoint.isValid) {
-    primarySourceRange.first = priorPoint.time;
+    primarySourceRange.start = priorPoint.time;
   }
-  Point nextPoint = this->source()->pointAfter(range.second - 1).time;
+  Point nextPoint = this->source()->pointAfter(range.end - 1).time;
   if (nextPoint.isValid) {
-    primarySourceRange.second = nextPoint.time;
+    primarySourceRange.end = nextPoint.time;
   }
   
-  priorPoint = this->failoverTimeseries()->pointBefore(range.first + 1);
-  nextPoint = this->failoverTimeseries()->pointAfter(range.second - 1);
+  priorPoint = this->failoverTimeseries()->pointBefore(range.start + 1);
+  nextPoint = this->failoverTimeseries()->pointAfter(range.end - 1);
   if (priorPoint.isValid) {
-    secondarySourceRange.first = priorPoint.time;
+    secondarySourceRange.start = priorPoint.time;
   }
   if (nextPoint.isValid) {
-    secondarySourceRange.second = nextPoint.time;
+    secondarySourceRange.end = nextPoint.time;
   }
   
   PointCollection primaryData = this->source()->points(primarySourceRange);
@@ -102,11 +102,11 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
     prevTime = primaryData.points.front().time;
   }
   else {
-    prevTime = range.first - _stale - 1;
+    prevTime = range.start - _stale - 1;
   }
   
   Point fakeEndPoint;
-  fakeEndPoint.time = MAX(primarySourceRange.second, secondarySourceRange.second);
+  fakeEndPoint.time = MAX(primarySourceRange.end, secondarySourceRange.end);
   primaryData.points.push_back(fakeEndPoint);
   
   BOOST_FOREACH(const Point& p, primaryData.points) {
@@ -120,7 +120,7 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
       if (p.isValid) {
         --now;
       }
-      PointCollection secondary = this->failoverTimeseries()->points(make_pair(prevTime, now));
+      PointCollection secondary = this->failoverTimeseries()->points(TimeRange(prevTime, now));
       secondary.convertToUnits(myUnits);
       BOOST_FOREACH(Point sp, secondary.points) {
         if (sp.isValid) {
@@ -140,7 +140,7 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
   
   PointCollection outData(thePoints, myUnits);
   if (this->willResample()) {
-    outData.resample(this->clock()->timeValuesInRange(range.first, range.second));
+    outData.resample(this->clock()->timeValuesInRange(range.start, range.end));
   }
   
   return outData;

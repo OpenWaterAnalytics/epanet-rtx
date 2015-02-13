@@ -23,6 +23,32 @@ using namespace RTX;
 using namespace std;
 using namespace boost::accumulators;
 
+TimeSeries::TimeRange::TimeRange() {
+  start = 0;
+  end = 0;
+}
+TimeSeries::TimeRange::TimeRange(time_t i_start, time_t i_end) {
+  start = i_start;
+  end = i_end;
+}
+time_t TimeSeries::TimeRange::duration() {
+  return end - start;
+}
+bool TimeSeries::TimeRange::contains(time_t time) {
+  return (start <= time && time <= end);
+}
+bool TimeSeries::TimeRange::touches(TimeRange otherRange) {
+  if (this->contains(otherRange.start) || this->contains(otherRange.end)) {
+    return true;
+  }
+  else if ( otherRange.contains(this->start) || otherRange.contains(this->end) ) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
 
 TimeSeries::PointCollection::PointCollection(vector<Point> points, Units units) : points(points), units(units) {
   // simple
@@ -134,18 +160,18 @@ bool TimeSeries::PointCollection::resample(set<time_t> timeList, TimeSeriesResam
   }
   
   TimeRange listRange;
-  listRange.first = *(timeList.cbegin());
-  listRange.second = *(timeList.crbegin());
+  listRange.start = *(timeList.cbegin());
+  listRange.end = *(timeList.crbegin());
   
   TimeRange effectiveRange;
-  effectiveRange.first = this->points.front().time;
-  effectiveRange.second = this->points.back().time;
+  effectiveRange.start = this->points.front().time;
+  effectiveRange.end = this->points.back().time;
   
-  if (effectiveRange.first == 0) {
-    effectiveRange.first = listRange.first;
+  if (effectiveRange.start == 0) {
+    effectiveRange.start = listRange.start;
   }
-  if (effectiveRange.second == 0) {
-    effectiveRange.second = listRange.second;
+  if (effectiveRange.end == 0) {
+    effectiveRange.end = listRange.end;
   }
   
   
@@ -164,7 +190,7 @@ bool TimeSeries::PointCollection::resample(set<time_t> timeList, TimeSeriesResam
   // prune the time list for valid time values (values within native point time range)
   set<time_t> validTimeList;
   BOOST_FOREACH(const time_t now, timeList) {
-    if ( effectiveRange.first <= now && now <= effectiveRange.second ) {
+    if ( effectiveRange.start <= now && now <= effectiveRange.end ) {
       validTimeList.insert(now);
     }
   }
@@ -299,7 +325,7 @@ std::vector< Point > TimeSeries::points(time_t start, time_t end) {
 }
 
 TimeSeries::PointCollection TimeSeries::points(TimeSeries::TimeRange range) {
-  return this->pointCollection(range.first, range.second);
+  return this->pointCollection(range.start, range.end);
 }
 
 
@@ -420,21 +446,21 @@ TimeSeries::PointCollection TimeSeries::resampled(set<time_t> timeList, TimeSeri
   }
   
   TimeRange listRange;
-  listRange.first = *(timeList.cbegin());
-  listRange.second = *(timeList.crbegin());
+  listRange.start = *(timeList.cbegin());
+  listRange.end = *(timeList.crbegin());
   
   // widen the range, if needed. i.e., if the start or end points
   TimeRange effectiveRange;
-  effectiveRange.first = this->pointBefore(listRange.first + 1).time;
-  effectiveRange.second = this->pointAfter(listRange.second - 1).time;
+  effectiveRange.start = this->pointBefore(listRange.start + 1).time;
+  effectiveRange.end = this->pointAfter(listRange.end - 1).time;
   
   // if there are no points before or after the requested range, just get the points that are there.
   
-  if (effectiveRange.first == 0) {
-    effectiveRange.first = listRange.first;
+  if (effectiveRange.start == 0) {
+    effectiveRange.start = listRange.start;
   }
-  if (effectiveRange.second == 0) {
-    effectiveRange.second = listRange.second;
+  if (effectiveRange.end == 0) {
+    effectiveRange.end = listRange.end;
   }
   
   PointCollection nativePoints = this->points(effectiveRange);

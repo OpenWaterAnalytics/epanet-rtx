@@ -63,8 +63,8 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange 
   }
   
   // force pre-cache
-  this->source()->points(range.first - this->correlationWindow()->period(), range.second);
-  this->correlatorTimeSeries()->points(range.first - this->correlationWindow()->period(), range.second);
+  this->source()->points(range.start - this->correlationWindow()->period(), range.end);
+  this->correlatorTimeSeries()->points(range.start - this->correlationWindow()->period(), range.end);
   
   TimeSeries::_sp sourceTs = this->source();
   time_t windowWidth = this->correlationWindow()->period();
@@ -83,10 +83,10 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange 
     }
     
     // expand the query range for the secondary collection
-    TimeRange primaryRange = make_pair(*(sourceTimeValues.begin()), *(sourceTimeValues.rbegin()));
+    TimeRange primaryRange(*(sourceTimeValues.begin()), *(sourceTimeValues.rbegin()));
     TimeRange secondaryRange;
-    secondaryRange.first = this->correlatorTimeSeries()->pointBefore(primaryRange.first + 1).time;
-    secondaryRange.second = this->correlatorTimeSeries()->pointAfter(primaryRange.second - 1).time;
+    secondaryRange.start = this->correlatorTimeSeries()->pointBefore(primaryRange.start + 1).time;
+    secondaryRange.end = this->correlatorTimeSeries()->pointAfter(primaryRange.end - 1).time;
     
     PointCollection secondaryCollection = this->correlatorTimeSeries()->points(secondaryRange);
     secondaryCollection.resample(sourceTimeValues);

@@ -27,25 +27,25 @@ TimeSeries::PointCollection FirstDerivative::filterPointsInRange(TimeRange range
   Units fromUnits = this->source()->units();
   
   // left difference, so get one more to the left.
-  Point leftMostPoint = this->source()->pointAtOrBefore(range.first);
+  Point leftMostPoint = this->source()->pointAtOrBefore(range.start);
   Point prior = this->source()->pointBefore(leftMostPoint.time);
   
   // may not have a point here. if not, get the next one.
   if (prior.time == 0) {
-    prior = this->source()->pointAfter(range.first - 1);
+    prior = this->source()->pointAfter(range.start - 1);
   }
   
   // get next point in case it's out of the specified range
   Point seekRight;
-  seekRight.time = range.second - 1;
+  seekRight.time = range.end - 1;
   while (seekRight.time > 0 && !seekRight.isValid) {
     seekRight = this->source()->pointAfter(seekRight.time);
   }
   if (seekRight.time > 0) {
-    range.second = seekRight.time;
+    range.end = seekRight.time;
   }
   
-  PointCollection sourceData = this->source()->points(make_pair(prior.time, range.second));
+  PointCollection sourceData = this->source()->points(TimeRange(prior.time, range.end));
   
   if (sourceData.count() < 2) {
     return data;

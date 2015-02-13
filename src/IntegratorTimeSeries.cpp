@@ -33,7 +33,7 @@ TimeSeries::PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange 
   }
   
   // back up to previous reset clock tick
-  time_t lastReset = this->resetClock()->timeBefore(range.first + 1);
+  time_t lastReset = this->resetClock()->timeBefore(range.start + 1);
   
   // lagging area, so get this time or the one before it.
   Point leftMostPoint = this->source()->pointAtOrBefore(lastReset);
@@ -41,15 +41,15 @@ TimeSeries::PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange 
   
   // get next point in case it's out of the specified range
   Point seekRight;
-  seekRight.time = range.second - 1;
+  seekRight.time = range.end - 1;
   while (seekRight.time > 0 && !seekRight.isValid) {
     seekRight = this->source()->pointAfter(seekRight.time);
   }
   if (seekRight.time > 0) {
-    range.second = seekRight.time;
+    range.end = seekRight.time;
   }
   
-  PointCollection sourceData = this->source()->points(make_pair(leftMostPoint.time, range.second));
+  PointCollection sourceData = this->source()->points(TimeRange(leftMostPoint.time, range.end));
   
   if (sourceData.count() < 2) {
     return data;
@@ -60,7 +60,7 @@ TimeSeries::PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange 
   prev = sourceData.points.begin();
   vEnd = sourceData.points.end();
   
-  time_t nextReset = this->resetClock()->timeAfter(range.first);
+  time_t nextReset = this->resetClock()->timeAfter(range.start);
   double integratedValue = 0;
   
   ++cursor;

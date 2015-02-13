@@ -171,12 +171,12 @@ std::set<time_t> AggregatorTimeSeries::timeValuesInRange(TimeRange range) {
   
   if (this->clock()) {
     // align the query with the clock
-    timeList = this->clock()->timeValuesInRange(range.first, range.second);
+    timeList = this->clock()->timeValuesInRange(range.start, range.end);
   }
   else {
     // get the set of times from the aggregator sources
     BOOST_FOREACH(AggregatorSource aggSource, this->sources()) {
-      vector<Point> thisSourcePoints = aggSource.timeseries->points(range.first, range.second);
+      vector<Point> thisSourcePoints = aggSource.timeseries->points(range.start, range.end);
       BOOST_FOREACH(Point p, thisSourcePoints) {
         timeList.insert(p.time);
       }
@@ -214,10 +214,10 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
     TimeSeries::_sp sourceTs = aggSource.timeseries;
     double multiplier = aggSource.multiplier;
     TimeRange componentRange = range;
-    Point leftseek = sourceTs->pointBefore(range.first + 1).time;
-    Point rightseek = sourceTs->pointAfter(range.second - 1).time;
-    componentRange.first = leftseek.time > 0 ? leftseek.time : range.first;
-    componentRange.second = rightseek.time > 0 ? rightseek.time : range.second;
+    Point leftseek = sourceTs->pointBefore(range.start + 1).time;
+    Point rightseek = sourceTs->pointAfter(range.end - 1).time;
+    componentRange.start = leftseek.time > 0 ? leftseek.time : range.start;
+    componentRange.end = rightseek.time > 0 ? rightseek.time : range.end;
     
     PointCollection componentCollection = sourceTs->points(componentRange);
     componentCollection.resample(desiredTimes);

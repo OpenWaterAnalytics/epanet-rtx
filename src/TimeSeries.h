@@ -57,7 +57,15 @@ namespace RTX {
   class TimeSeries : public boost::enable_shared_from_this<TimeSeries> {
   public:
     
-    typedef std::pair<time_t,time_t> TimeRange;
+    class TimeRange {
+    public:
+      TimeRange();
+      TimeRange(time_t start, time_t end);
+      time_t duration();
+      bool contains(time_t time);
+      bool touches(TimeRange otherRange);
+      time_t start, end;
+    };
     
     typedef enum {
       TimeSeriesResampleModeLinear,

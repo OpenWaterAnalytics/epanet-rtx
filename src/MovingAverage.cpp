@@ -48,21 +48,21 @@ TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) 
   TimeRange rangeToResample = range;
   if (this->willResample()) {
     // expand range
-    rangeToResample.first = this->source()->pointBefore(range.first + 1).time;
-    rangeToResample.second = this->source()->pointAfter(range.second - 1).time;
+    rangeToResample.start = this->source()->pointBefore(range.start + 1).time;
+    rangeToResample.end = this->source()->pointAfter(range.end - 1).time;
   }
   
   TimeRange queryRange = rangeToResample;
-  queryRange.first  = queryRange.first  > 0 ? queryRange.first  : range.first;
-  queryRange.second = queryRange.second > 0 ? queryRange.second : range.second;
+  queryRange.start  = queryRange.start  > 0 ? queryRange.start  : range.start;
+  queryRange.end = queryRange.end > 0 ? queryRange.end : range.end;
   
   int margin = this->windowSize() / 2;
   
   // expand source lookup bounds, counting as we go and ignoring invalid points.
   for (int leftSeek = 0; leftSeek <= margin; ) {
-    Point p = this->source()->pointBefore(queryRange.first);
+    Point p = this->source()->pointBefore(queryRange.start);
     if (p.isValid && p.time != 0) {
-      queryRange.first = p.time;
+      queryRange.start = p.time;
       ++leftSeek;
     }
     if (p.time == 0) {
@@ -71,9 +71,9 @@ TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) 
     }
   }
   for (int rightSeek = 0; rightSeek <= margin; ) {
-    Point p = this->source()->pointAfter(queryRange.second);
+    Point p = this->source()->pointAfter(queryRange.end);
     if (p.isValid && p.time != 0) {
-      queryRange.second = p.time;
+      queryRange.end = p.time;
       ++rightSeek;
     }
     if (p.time == 0) {
@@ -106,7 +106,7 @@ TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) 
   
   BOOST_FOREACH(const Point& sPoint, sourcePoints) {
     time_t now = sPoint.time;
-    if (now < rangeToResample.first || now > rangeToResample.second) {
+    if (!rangeToResample.contains(now)) {
       continue; // out of bounds.
     }
     
