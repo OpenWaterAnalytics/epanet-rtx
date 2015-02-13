@@ -63,6 +63,15 @@ set<time_t> FailoverTimeSeries::timeValuesInRange(TimeRange range) {
   if (!this->failoverTimeseries() || this->clock()) {
     return TimeSeriesFilter::timeValuesInRange(range);
   }
+  else if (!this->clock()) {
+    set<time_t> times;
+    vector<Point> points = this->filterPointsInRange(range).points;
+    BOOST_FOREACH(const Point& p, points) {
+      times.insert(p.time);
+    }
+    return times;
+  }
+  
   return set<time_t>();
 }
 
@@ -120,7 +129,7 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
       if (p.isValid) {
         --now;
       }
-      PointCollection secondary = this->failoverTimeseries()->points(TimeRange(prevTime, now));
+      PointCollection secondary = this->failoverTimeseries()->points(TimeRange(prevTime+1, now));
       secondary.convertToUnits(myUnits);
       BOOST_FOREACH(Point sp, secondary.points) {
         if (sp.isValid) {
