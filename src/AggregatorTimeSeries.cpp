@@ -207,6 +207,7 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
         break;
     }
     
+    p.addQualFlag(Point::rtx_aggregated);
     aggregated.push_back(p);
   }
   

@@ -26,6 +26,7 @@ TimeSeries::PointCollection TimeGapTimeSeries::filterPointsInRange(TimeRange ran
     double gapLenConverted = Units::convertValue((double)gapLen, RTX_SECOND, this->units());
     
     Point gapPoint(now, gapLenConverted);
+    gapPoint.addQualFlag(Point::rtx_integrated);
     gaps.push_back(gapPoint);
   }
   

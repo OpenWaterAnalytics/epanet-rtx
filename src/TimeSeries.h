@@ -83,6 +83,7 @@ namespace RTX {
       
       bool resample(std::set<time_t> timeList, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
       bool convertToUnits(Units u);
+      void addQualityFlag(Point::PointQuality q);
       
       // statistical methods on the collection
       double min();

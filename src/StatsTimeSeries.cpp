@@ -75,7 +75,19 @@ TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range
     }
   }
   
-  return PointCollection(outPoints, this->units());
+  PointCollection ret(outPoints, this->units());
+  
+  switch (statsType()) {
+    case StatsTimeSeriesMean:
+    case StatsTimeSeriesMedian:
+      ret.addQualityFlag(Point::rtx_averaged);
+      break;
+    default:
+      ret.addQualityFlag(Point::rtx_aggregated);
+      break;
+  }
+  
+  return ret;
 }
 
 

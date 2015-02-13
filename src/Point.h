@@ -41,7 +41,8 @@ namespace RTX {
       rtx_interpolated = 0b00000010,
       rtx_averaged     = 0b00000100,
       rtx_aggregated   = 0b00001000,
-      rtx_forecasted   = 0b00010000
+      rtx_forecasted   = 0b00010000,
+      rtx_integrated   = 0b00100000
       
     };
     

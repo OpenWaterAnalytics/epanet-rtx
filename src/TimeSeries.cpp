@@ -49,6 +49,7 @@ bool TimeSeries::TimeRange::touches(TimeRange otherRange) {
   }
 }
 
+#pragma mark -
 
 TimeSeries::PointCollection::PointCollection(vector<Point> points, Units units) : points(points), units(units) {
   // simple
@@ -68,6 +69,12 @@ bool TimeSeries::PointCollection::convertToUnits(RTX::Units u) {
   this->points = converted;
   this->units = u;
   return true;
+}
+
+void TimeSeries::PointCollection::addQualityFlag(Point::PointQuality q) {
+  BOOST_FOREACH(Point& p, this->points) {
+    p.addQualFlag(q);
+  }
 }
 
 

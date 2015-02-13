@@ -172,7 +172,6 @@ TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) 
     // done with computing the average. Save the new value.
     meanPoint.value = mean(meanAccumulator);
     meanPoint.confidence = mean(confidenceAccum);
-    meanPoint.addQualFlag(Point::rtx_averaged);
 //    cout << "accum: " << nAccumulated << endl;
     
     filteredPoints.push_back(meanPoint);
@@ -180,7 +179,7 @@ TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) 
   
   
   PointCollection outData = PointCollection(filteredPoints, source()->units());
-  
+  outData.addQualityFlag(Point::rtx_averaged);
   
   bool dataOk = false;
   dataOk = outData.convertToUnits(this->units());

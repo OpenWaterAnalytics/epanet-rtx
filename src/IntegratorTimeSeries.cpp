@@ -77,7 +77,9 @@ TimeSeries::PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange 
     double area = meanValue * double(dt);
     integratedValue += area;
     if (range.contains(cursor->time)) {
-      outPoints.push_back(Point(cursor->time, integratedValue));
+      Point p(cursor->time, integratedValue);
+      p.addQualFlag(Point::rtx_integrated);
+      outPoints.push_back(p);
     }
     ++cursor;
     ++prev;
