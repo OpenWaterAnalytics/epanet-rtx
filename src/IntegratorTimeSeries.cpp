@@ -76,7 +76,9 @@ TimeSeries::PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange 
     double meanValue = (cursor->value + prev->value) / 2.;
     double area = meanValue * double(dt);
     integratedValue += area;
-    outPoints.push_back(Point(cursor->time, integratedValue));
+    if (range.contains(cursor->time)) {
+      outPoints.push_back(Point(cursor->time, integratedValue));
+    }
     ++cursor;
     ++prev;
   }
