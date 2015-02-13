@@ -42,7 +42,6 @@
 		220F9DF518F9E68B00BB842C /* Tank.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22ED77D515878953002D67F1 /* Tank.cpp */; };
 		220F9DF618F9E68B00BB842C /* Reservoir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22ED77D71587898D002D67F1 /* Reservoir.cpp */; };
 		220F9DF718F9E68B00BB842C /* Pipe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22804093158F8243004222DA /* Pipe.cpp */; };
-		220F9DF818F9E68B00BB842C /* PointRecordTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22AB022D187B1BF000706EEA /* PointRecordTime.cpp */; };
 		220F9DF918F9E68B00BB842C /* Pump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409A158F82EE004222DA /* Pump.cpp */; };
 		220F9DFA18F9E68B00BB842C /* Valve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409E158F8351004222DA /* Valve.cpp */; };
 		220F9DFB18F9E68B00BB842C /* FirstDerivative.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */; };
@@ -83,7 +82,6 @@
 		220F9E2E18F9E68B00BB842C /* EpanetSyntheticModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 221A19CB1579111900F0699E /* EpanetSyntheticModel.h */; };
 		220F9E2F18F9E68B00BB842C /* Junction.h in Headers */ = {isa = PBXBuildFile; fileRef = 22ED77D11587884F002D67F1 /* Junction.h */; settings = {ATTRIBUTES = (); }; };
 		220F9E3018F9E68B00BB842C /* Reservoir.h in Headers */ = {isa = PBXBuildFile; fileRef = 22ED77CC158787B7002D67F1 /* Reservoir.h */; };
-		220F9E3118F9E68B00BB842C /* PointRecordTime.h in Headers */ = {isa = PBXBuildFile; fileRef = 22AB022E187B1BF000706EEA /* PointRecordTime.h */; };
 		220F9E3218F9E68B00BB842C /* Tank.h in Headers */ = {isa = PBXBuildFile; fileRef = 22ED77CF15878804002D67F1 /* Tank.h */; };
 		220F9E3318F9E68B00BB842C /* Pipe.h in Headers */ = {isa = PBXBuildFile; fileRef = 22804096158F827E004222DA /* Pipe.h */; };
 		220F9E3418F9E68B00BB842C /* Pump.h in Headers */ = {isa = PBXBuildFile; fileRef = 22804098158F82CA004222DA /* Pump.h */; };
@@ -107,6 +105,7 @@
 		2211D2071A6D69EA00E34B9B /* TimeSeriesSynthetic.h in Headers */ = {isa = PBXBuildFile; fileRef = 2211D2051A6D69EA00E34B9B /* TimeSeriesSynthetic.h */; };
 		221A19CC1579111A00F0699E /* EpanetSyntheticModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 221A19CB1579111900F0699E /* EpanetSyntheticModel.h */; };
 		221A19CF1579112B00F0699E /* EpanetSyntheticModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221A19CE1579112B00F0699E /* EpanetSyntheticModel.cpp */; };
+		221BFC6C1A8E493C00143FCC /* PointRecordTime.h in Headers */ = {isa = PBXBuildFile; fileRef = 22AB022E187B1BF000706EEA /* PointRecordTime.h */; };
 		221C06C316077FB300B8969C /* timeseries_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221C06C216077FB300B8969C /* timeseries_demo.cpp */; };
 		221C06C516077FC100B8969C /* validator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221C06C416077FC100B8969C /* validator.cpp */; };
 		2223206C1A6EF32E00B32D6A /* LagTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2223206A1A6EF32E00B32D6A /* LagTimeSeries.cpp */; };
@@ -216,7 +215,6 @@
 		22A842D5173BF446009CE769 /* GainTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22A842D3173BF445009CE769 /* GainTimeSeries.cpp */; };
 		22A842D6173BF446009CE769 /* GainTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22A842D4173BF445009CE769 /* GainTimeSeries.h */; };
 		22AB022F187B1BF000706EEA /* PointRecordTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22AB022D187B1BF000706EEA /* PointRecordTime.cpp */; };
-		22AB0230187B1BF000706EEA /* PointRecordTime.h in Headers */ = {isa = PBXBuildFile; fileRef = 22AB022E187B1BF000706EEA /* PointRecordTime.h */; };
 		22B38B951A48BCEE0071DCF3 /* ConfigProject.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B38B8F1A48BCEE0071DCF3 /* ConfigProject.h */; };
 		22B38B961A48BCEE0071DCF3 /* ProjectFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B38B901A48BCEE0071DCF3 /* ProjectFile.cpp */; };
 		22B38B971A48BCEE0071DCF3 /* ProjectFile.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B38B911A48BCEE0071DCF3 /* ProjectFile.h */; };
@@ -1215,7 +1213,6 @@
 				220F9E3018F9E68B00BB842C /* Reservoir.h in Headers */,
 				228EFAC0191C0AE300342E6E /* TempoDbPointRecord.h in Headers */,
 				229FBEA5190807B3004FE5A4 /* InfluxDbPointRecord.h in Headers */,
-				220F9E3118F9E68B00BB842C /* PointRecordTime.h in Headers */,
 				22BFAB04196AFBD800B5B77C /* OutlierExclusionTimeSeries.h in Headers */,
 				220F9E3218F9E68B00BB842C /* Tank.h in Headers */,
 				224E04831979431D0039E3F9 /* StatsTimeSeries.h in Headers */,
@@ -1271,6 +1268,7 @@
 				224D40D919786C3000160BD5 /* BaseStatsTimeSeries.h in Headers */,
 				22DDAD811443684B00C1F188 /* Element.h in Headers */,
 				2274872819AE236200A48475 /* PythonInterpreter.h in Headers */,
+				221BFC6C1A8E493C00143FCC /* PointRecordTime.h in Headers */,
 				22DDAD941443750600C1F188 /* Model.h in Headers */,
 				220AE464145AFB3C002F07B4 /* CurveFunction.h in Headers */,
 				220AE466145B0A8F002F07B4 /* Dma.h in Headers */,
@@ -1287,7 +1285,6 @@
 				228EFABF191C0AE300342E6E /* TempoDbPointRecord.h in Headers */,
 				229FBEA4190807B3004FE5A4 /* InfluxDbPointRecord.h in Headers */,
 				2223206E1A6EF32E00B32D6A /* LagTimeSeries.h in Headers */,
-				22AB0230187B1BF000706EEA /* PointRecordTime.h in Headers */,
 				22BFAB03196AFBD800B5B77C /* OutlierExclusionTimeSeries.h in Headers */,
 				22ED77D015878804002D67F1 /* Tank.h in Headers */,
 				224E04821979431D0039E3F9 /* StatsTimeSeries.h in Headers */,
@@ -1635,7 +1632,6 @@
 				220F9DF518F9E68B00BB842C /* Tank.cpp in Sources */,
 				220F9DF618F9E68B00BB842C /* Reservoir.cpp in Sources */,
 				220F9DF718F9E68B00BB842C /* Pipe.cpp in Sources */,
-				220F9DF818F9E68B00BB842C /* PointRecordTime.cpp in Sources */,
 				220F9DF918F9E68B00BB842C /* Pump.cpp in Sources */,
 				228EFABE191C0AE300342E6E /* TempoDbPointRecord.cpp in Sources */,
 				220F9DFA18F9E68B00BB842C /* Valve.cpp in Sources */,
@@ -1858,6 +1854,7 @@
 		220F9E4A18F9E68B00BB842C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
@@ -1895,6 +1892,7 @@
 		220F9E4B18F9E68B00BB842C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
@@ -1932,6 +1930,7 @@
 		228A76FC18450CBD00905D8E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -1944,7 +1943,6 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
-				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					RTX_NO_MYSQL,
@@ -1975,6 +1973,7 @@
 		228A76FD18450CBD00905D8E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -1988,7 +1987,6 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				EXECUTABLE_PREFIX = lib;
-				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					RTX_NO_MYSQL,
