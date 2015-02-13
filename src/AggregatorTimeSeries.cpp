@@ -7,6 +7,7 @@
 //  
 
 #include <iostream>
+#include <limits>
 
 #include "AggregatorTimeSeries.h"
 #include <boost/foreach.hpp>
@@ -27,6 +28,15 @@ ostream& AggregatorTimeSeries::toStream(ostream &stream) {
   }
   return stream;
 }
+
+AggregatorTimeSeries::AggregatorMode AggregatorTimeSeries::aggregatorMode() {
+  return _mode;
+}
+void AggregatorTimeSeries::setAggregatorMode(RTX::AggregatorTimeSeries::AggregatorMode mode) {
+  _mode = mode;
+  this->invalidate();
+}
+
 
 TimeSeries::_sp AggregatorTimeSeries::source() {
   if (this->sources().size() > 0) {
@@ -178,13 +188,26 @@ std::set<time_t> AggregatorTimeSeries::timeValuesInRange(TimeRange range) {
 TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange range) {
   set<time_t> droppedTimes;
   vector<Point> aggregated;
-  
+  double nSources = (double)(this->sources().size());
   
   set<time_t> desiredTimes = this->timeValuesInRange(range);
   
   // pre-load a vector of points.
   BOOST_FOREACH(time_t now, desiredTimes) {
-    aggregated.push_back(Point(now));
+    Point p(now);
+    
+    switch (_mode) {
+      case AggregatorModeMin:
+        p.value = std::numeric_limits<double>::max();
+        break;
+      case AggregatorModeMax:
+        p.value = -(std::numeric_limits<double>::max());
+        break;
+      default:
+        break;
+    }
+    
+    aggregated.push_back(p);
   }
   
   BOOST_FOREACH(AggregatorSource aggSource, this->sources()) {
@@ -209,11 +232,39 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
     // do the aggregation.
     BOOST_FOREACH(Point& p, aggregated) {
       if (sourcePointMap.count(p.time) > 0) {
-        Point addingPoint = sourcePointMap[p.time] * multiplier;
-        p += addingPoint;
+        Point pointToAggregate = sourcePointMap[p.time] * multiplier;
+        
+        switch (_mode) {
+          case AggregatorModeSum:
+          {
+            p += pointToAggregate;
+          }
+            break;
+          case AggregatorModeMax:
+          {
+            if (p.value < pointToAggregate.value) {
+              p = pointToAggregate;
+            }
+          }
+            break;
+          case AggregatorModeMean:
+          {
+            p += pointToAggregate / nSources;
+          }
+            break;
+          case AggregatorModeMin:
+          {
+            if (p.value > pointToAggregate.value) {
+              p = pointToAggregate;
+            }
+          }
+          default:
+            break;
+        }
+        
       }
       else {
-        droppedTimes.insert(p.time);
+        droppedTimes.insert(p.time); // if any member is missing, then remove the point from the output
       }
     }
   }

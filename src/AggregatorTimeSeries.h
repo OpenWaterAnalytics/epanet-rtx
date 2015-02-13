@@ -37,6 +37,13 @@ namespace RTX {
       double multiplier;
     } AggregatorSource;
     
+    enum AggregatorMode : unsigned int {
+      AggregatorModeSum =  0,
+      AggregatorModeMin =  1,
+      AggregatorModeMax =  2,
+      AggregatorModeMean = 3
+    };
+    
     virtual std::ostream& toStream(std::ostream &stream);
     
     TimeSeries::_sp source();
@@ -49,6 +56,8 @@ namespace RTX {
     std::vector< AggregatorSource > sources();
     void setMultiplierForSource(TimeSeries::_sp timeSeries, double multiplier);
     
+    void setAggregatorMode(AggregatorMode mode);
+    AggregatorMode aggregatorMode();
     
     // must reimplement these searching methods
     virtual Point pointBefore(time_t time);
@@ -65,6 +74,7 @@ namespace RTX {
     // need to store several TimeSeries references...
     // _tsList[x].first == TimeSeries, _tsList[x].second == multipier
     std::vector< AggregatorSource > _tsList;
+    AggregatorMode _mode;
     
   };
   
