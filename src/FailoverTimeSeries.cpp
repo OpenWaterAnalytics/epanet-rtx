@@ -113,8 +113,13 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
     if (!p.isValid) {
       continue; // skip bad points
     }
+    
     time_t now = p.time;
     if (now - prevTime > _stale) {
+      // pay attention! back up by one second when requesting failover points, since we're NOW sitting on a valid primary point. Maybe.
+      if (p.isValid) {
+        --now;
+      }
       PointCollection secondary = this->failoverTimeseries()->points(make_pair(prevTime, now));
       secondary.convertToUnits(myUnits);
       BOOST_FOREACH(Point sp, secondary.points) {
@@ -123,11 +128,12 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
         }
       }
     }
-    else {
-      if (p.isValid) {
-        thePoints.push_back(p);
-      }
+    
+    // even if we added secondary points, there is still a good point here. maybe.
+    if (p.isValid) {
+      thePoints.push_back(p);
     }
+    
     prevTime = p.time;
   }
   
