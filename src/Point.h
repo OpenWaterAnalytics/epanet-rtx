@@ -85,7 +85,7 @@ namespace RTX {
     
     friend std::ostream& operator<<(std::ostream& outputStream, const Point& p)
     {
-      return outputStream << p.time << " - " << p.value;
+      return outputStream << p.time << " - " << p.value << " - " << (p.isValid ? "valid" : "invalid") << std::endl;
     }
     
     
