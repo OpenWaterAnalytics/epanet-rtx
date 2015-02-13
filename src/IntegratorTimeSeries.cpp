@@ -36,7 +36,7 @@ TimeSeries::PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange 
   time_t lastReset = this->resetClock()->timeBefore(range.start + 1);
   
   // lagging area, so get this time or the one before it.
-  Point leftMostPoint = this->source()->pointAtOrBefore(lastReset);
+  Point leftMostPoint = this->source()->pointBefore(lastReset);
   // to-do :: should we resample the source here, for special cases?
   
   // get next point in case it's out of the specified range
