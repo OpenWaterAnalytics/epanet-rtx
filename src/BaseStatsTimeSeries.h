@@ -69,7 +69,6 @@ namespace RTX {
     virtual PointCollection filterPointsInRange(TimeRange range) = 0; // pure virtual. don't use this class directly.
     std::vector<pointSummaryPair_t> filterSummaryCollection(std::set<time_t> times);
     
-    
   private:
     Clock::_sp _window;
     bool _summaryOnly;

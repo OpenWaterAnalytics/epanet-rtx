@@ -39,6 +39,10 @@ double OutlierExclusionTimeSeries::outlierMultiplier() {
   return _outlierMultiplier;
 }
 
+bool OutlierExclusionTimeSeries::willResample() {
+  return TimeSeriesFilter::willResample() || ( this->clock() );
+}
+
 //Point OutlierExclusionTimeSeries::pointBefore(time_t searchTime) {
 //  Point priorPoint;
 //  if (!this->source()) {
@@ -89,8 +93,24 @@ double OutlierExclusionTimeSeries::outlierMultiplier() {
 
 TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(TimeRange range) {
   
+  // if we are to resample, then there's a possibility that we need to expand the range
+  // used to query the source ts. but we have to limit the search to something reasonable, in case
+  // too many points are excluded. yikes!
+  TimeRange sourceQuery = range;
+  if (this->willResample() && range.duration() > 0) {
+    // expand range so that we can resample at the start and/or end of the range requested
+    // this is quick and dirty, and probably will fail for badly behaved data.
+    
+    sourceQuery.start -= range.duration();
+    sourceQuery.end += range.duration();
+    
+  }
+
+  
+  
+  
   // get raw values, exclude outliers, then resample if needed.
-  vector<Point> rawSourcePoints = this->source()->points(range).points;
+  vector<Point> rawSourcePoints = this->source()->points(sourceQuery).points;
   set<time_t> rawTimes;
   BOOST_FOREACH(const Point& p, rawSourcePoints) {
     rawTimes.insert(p.time);
@@ -101,9 +121,9 @@ TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(Time
   vector<pointSummaryPair_t> summaries = this->filterSummaryCollection(rawTimes);
   TimeSeries::_sp sourceTs = this->source();
   
-  double m = this->outlierMultiplier();
+  
   vector<Point> goodPoints;
-  double q25,q75,iqr,mean,stddev;
+  
   
   goodPoints.reserve(summaries.size());
   
@@ -112,29 +132,12 @@ TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(Time
     // fetch pair values from the source summary collection
     Point p = psp.first;
     PointCollection col = psp.second;
+    Point summaryPoint = this->pointWithCollectionAndPoint(col, p);
     
-    switch (this->exclusionMode()) {
-      case OutlierExclusionModeInterquartileRange:
-      {
-        q25 = col.percentile(.25);
-        q75 = col.percentile(.75);
-        iqr = q75 - q25;
-        if ( !( (p.value < q25 - m*iqr) || (m*iqr + q75 < p.value) )) {
-          // store the point if it's within bounds
-          goodPoints.push_back(Point::convertPoint(p, sourceTs->units(), this->units()));
-        }
-      }
-        break; // OutlierExclusionModeInterquartileRange
-      case OutlierExclusionModeStdDeviation:
-      {
-        mean = col.mean();
-        stddev = sqrt(col.variance());
-        if ( fabs(mean - p.value) <= (m * stddev) ) {
-          goodPoints.push_back(Point::convertPoint(p, sourceTs->units(), this->units()));
-        }
-      }
-        break; // OutlierExclusionModeStdDeviation
-    } // end switch mode
+    if (summaryPoint.isValid) {
+      goodPoints.push_back(summaryPoint);
+    }
+    
   }// end for each summary
   
   PointCollection outCollection(goodPoints, this->units());
@@ -148,6 +151,37 @@ TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(Time
 
 
 
+Point OutlierExclusionTimeSeries::pointWithCollectionAndPoint(RTX::TimeSeries::PointCollection col, Point p) {
+  Point pOut;
+  double q25,q75,iqr,mean,stddev;
+  double m = this->outlierMultiplier();
+  
+  switch (this->exclusionMode()) {
+    case OutlierExclusionModeInterquartileRange:
+    {
+      q25 = col.percentile(.25);
+      q75 = col.percentile(.75);
+      iqr = q75 - q25;
+      if ( !( (p.value < q25 - m*iqr) || (m*iqr + q75 < p.value) )) {
+        // store the point if it's within bounds
+        pOut = Point::convertPoint(p, this->source()->units(), this->units());
+      }
+    }
+      break; // OutlierExclusionModeInterquartileRange
+    case OutlierExclusionModeStdDeviation:
+    {
+      mean = col.mean();
+      stddev = sqrt(col.variance());
+      if ( fabs(mean - p.value) <= (m * stddev) ) {
+        pOut = Point::convertPoint(p, this->source()->units(), this->units());
+      }
+    }
+      break; // OutlierExclusionModeStdDeviation
+  } // end switch mode
+  
+  return pOut;
+  
+}
 
 
 

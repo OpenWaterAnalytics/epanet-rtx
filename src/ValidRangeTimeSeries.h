@@ -21,12 +21,13 @@ namespace RTX {
     void setRange(double min, double max);
     std::pair<double, double> range();
     
-    typedef enum {saturate=0,drop=1} filterMode_t;
+    enum filterMode_t : int {saturate=0,drop=1};
     filterMode_t mode();
     void setMode(filterMode_t mode);
     
     
   protected:
+    virtual bool willResample(); // we are special !
     Point filteredWithSourcePoint(Point sourcePoint);
     
   private:

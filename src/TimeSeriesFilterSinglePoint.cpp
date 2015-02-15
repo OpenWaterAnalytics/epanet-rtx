@@ -50,6 +50,14 @@ TimeSeries::PointCollection TimeSeriesFilterSinglePoint::filterPointsInRange(Tim
     }
   }
   
+  // if points were dropped, then there's a possibility that we won't have enough data at the start/end
+  // to do a good job resampling (if we are to resample)
+  if (this->clock() && didDropPoints) {
+    
+    // go back and fetch a previous point
+    
+  }
+  
   PointCollection outData(outPoints, this->units());
   if (this->willResample() || (didDropPoints && this->clock())) {
     set<time_t> timeValues = this->timeValuesInRange(range);

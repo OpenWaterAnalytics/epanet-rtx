@@ -26,6 +26,10 @@ void ValidRangeTimeSeries::setMode(filterMode_t mode) {
   this->invalidate();
 }
 
+bool ValidRangeTimeSeries::willResample() {
+  return TimeSeriesFilterSinglePoint::willResample() || (this->clock() && _mode == filterMode_t::drop);
+}
+
 
 Point ValidRangeTimeSeries::filteredWithSourcePoint(RTX::Point sourcePoint) {
     

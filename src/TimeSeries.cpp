@@ -320,7 +320,7 @@ Point TimeSeries::point(time_t time) {
   }
   
   //  p = _points->point(name(), time);
-  p.time = time;
+  // p.time = time;
   return p;
 }
 

@@ -40,6 +40,7 @@ namespace RTX {
 //    virtual Point pointAfter(time_t time);
     
   protected:
+    virtual bool willResample();
     PointCollection filterPointsInRange(TimeRange range);
 //    bool canSetSource(TimeSeries::_sp ts);
 //    void didSetSource(TimeSeries::_sp ts);
@@ -48,6 +49,7 @@ namespace RTX {
   private:
     double _outlierMultiplier;
     exclusion_mode_t _exclusionMode;
+    Point pointWithCollectionAndPoint(PointCollection c, Point p);
   };
 }
 
