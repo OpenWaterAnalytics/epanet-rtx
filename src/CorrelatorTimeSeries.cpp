@@ -63,8 +63,9 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange 
   }
   
   // force pre-cache
-  this->source()->points(range.start - this->correlationWindow()->period(), range.end);
-  this->correlatorTimeSeries()->points(range.start - this->correlationWindow()->period(), range.end);
+  TimeRange preFetchRange(range.start - this->correlationWindow()->period(), range.end);
+  this->source()->points(preFetchRange);
+  this->correlatorTimeSeries()->points(preFetchRange);
   
   TimeSeries::_sp sourceTs = this->source();
   time_t windowWidth = this->correlationWindow()->period();
