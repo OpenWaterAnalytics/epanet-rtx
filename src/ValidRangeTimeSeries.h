@@ -29,6 +29,7 @@ namespace RTX {
   protected:
     virtual bool willResample(); // we are special !
     Point filteredWithSourcePoint(Point sourcePoint);
+    bool canDropPoints() { return true;};
     
   private:
     std::pair<double, double> _range;

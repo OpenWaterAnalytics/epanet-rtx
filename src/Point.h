@@ -74,7 +74,7 @@ namespace RTX {
     // convenience
     const bool hasQual(PointQuality qual) const;
     void addQualFlag(PointQuality qual);
-    
+    bool notFound() { return this->time == 0; };
     Point inverse();
     
     // static class methods
