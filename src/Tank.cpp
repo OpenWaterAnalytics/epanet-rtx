@@ -106,7 +106,11 @@ void Tank::setLevelMeasure(TimeSeries::_sp levelMeasure) {
 }
 
 TimeSeries::_sp Tank::levelMeasure() {
-  return _levelMeasure;
+  if (_levelMeasure->source()) {
+    return _levelMeasure;
+  }
+  TimeSeries::_sp blank;
+  return blank;
 }
 
 void Tank::setHeadMeasure(TimeSeries::_sp head) {

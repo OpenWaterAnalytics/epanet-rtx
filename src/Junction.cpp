@@ -117,6 +117,7 @@ void Junction::setHeadMeasure(TimeSeries::_sp headMeas) {
   gainTs->setGainUnits( RTX_PASCAL / RTX_METER);
   gainTs->setGain(9804.13943198467193);
   gainTs->setSource(relativeHead);
+  gainTs->setName(this->name() + " pressure measure");
   
   _pressureMeasure = gainTs;
 }
@@ -145,6 +146,7 @@ void Junction::setPressureMeasure(TimeSeries::_sp pressure) {
   headMeas->setUnits(this->head()->units());
   headMeas->setOffset(this->elevation());
   headMeas->setSource(gainTs);
+  headMeas->setName(this->name() + " head measure");
   
   _headMeasure = headMeas;
 }
