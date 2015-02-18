@@ -118,7 +118,31 @@ Point TimeSeriesFilter::pointBefore(time_t time) {
     return p;
   }
   
-  while (!p.isValid && p.time != 0) {
+  if (this->canDropPoints()) {
+    // search iteratively?
+    
+    time_t stride = 60*60*12; // 12 hour
+    int maxStrides = 4;
+    PointCollection c;
+    
+    TimeRange q(time - stride, time);
+    
+    while ( q.start > time - (stride * maxStrides) ) {
+      c = TimeSeries::points(q);
+      if (c.count() > 0) {
+        break; // found something
+      }
+      q.start -= stride;
+      q.end -= stride;
+    }
+    
+    // if we found something:
+    if (c.count() > 0) {
+      p = c.points.back();
+    }
+  }
+  else {
+    // points in, points out
     if (this->clock()) {
       seekTime = this->clock()->timeBefore(seekTime);
     }
@@ -140,7 +164,31 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
     return p;
   }
   
-  while (!p.isValid && p.time != 0) {
+  
+  if (this->canDropPoints()) {
+    // search iteratively?
+    
+    time_t stride = 60*60*12; // 12 hour
+    int maxStrides = 4;
+    PointCollection c;
+    TimeRange q(time, time + stride);
+    
+    while ( q.end < time + (stride * maxStrides) ) {
+      c = TimeSeries::points(q);
+      if (c.count() > 0) {
+        break; // found something
+      }
+      q.start += stride;
+      q.end += stride;
+    }
+    
+    // if we found something:
+    if (c.count() > 0) {
+      p = c.points.front();
+    }
+  }
+  else {
+    // points in, points out
     if (this->clock()) {
       seekTime = this->clock()->timeAfter(seekTime);
     }
