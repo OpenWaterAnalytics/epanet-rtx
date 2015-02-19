@@ -50,7 +50,7 @@ Point TimeSeriesSynthetic::pointAfter(time_t time) {
   return this->point(this->clock()->timeAfter(time));
 }
 
-vector< Point > TimeSeriesSynthetic::points(time_t start, time_t end) {
+vector< Point > TimeSeriesSynthetic::points(TimeRange range) {
   vector<Point> outPoints;
   
   if (!this->clock()) {
@@ -59,7 +59,7 @@ vector< Point > TimeSeriesSynthetic::points(time_t start, time_t end) {
   
   set<time_t> times;
   
-  times = this->clock()->timeValuesInRange(start, end);
+  times = this->clock()->timeValuesInRange(range.start, range.end);
   outPoints.reserve(times.size());
   
   BOOST_FOREACH(time_t now, times) {

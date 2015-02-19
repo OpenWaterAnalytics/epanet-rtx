@@ -110,7 +110,7 @@ TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(Time
   
   
   // get raw values, exclude outliers, then resample if needed.
-  vector<Point> rawSourcePoints = this->source()->points(sourceQuery).points;
+  vector<Point> rawSourcePoints = this->source()->points(sourceQuery);
   set<time_t> rawTimes;
   BOOST_FOREACH(const Point& p, rawSourcePoints) {
     rawTimes.insert(p.time);

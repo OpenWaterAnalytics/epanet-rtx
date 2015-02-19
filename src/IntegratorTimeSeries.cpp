@@ -49,7 +49,7 @@ TimeSeries::PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange 
     range.end = seekRight.time;
   }
   
-  PointCollection sourceData = this->source()->points(TimeRange(leftMostPoint.time, range.end));
+  PointCollection sourceData = this->source()->pointCollection(TimeRange(leftMostPoint.time, range.end));
   
   if (sourceData.count() < 2) {
     return data;

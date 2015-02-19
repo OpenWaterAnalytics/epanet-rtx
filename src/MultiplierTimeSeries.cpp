@@ -25,7 +25,27 @@ Point MultiplierTimeSeries::filteredWithSourcePoint(Point sourcePoint) {
   }
   set<time_t> t;
   t.insert(sourcePoint.time);
-  vector<Point> multiplierPoint = this->multiplier()->resampled(t).points;
+  
+  // get resampled point at this sourcepoint time value
+  TimeRange effectiveRange;
+  effectiveRange.start = this->multiplier()->pointBefore(sourcePoint.time + 1).time;
+  effectiveRange.end = this->multiplier()->pointAfter(sourcePoint.time - 1).time;
+  
+  // if there are no points before or after the requested range, just get the points that are there.
+  
+  if (effectiveRange.start == 0) {
+    effectiveRange.start = sourcePoint.time;
+  }
+  if (effectiveRange.end == 0) {
+    effectiveRange.end = sourcePoint.time;
+  }
+  
+  PointCollection nativePoints = this->multiplier()->pointCollection(effectiveRange);
+  
+  nativePoints.resample(t);
+  
+  
+  vector<Point> multiplierPoint = nativePoints.points;
   
   if (multiplierPoint.size() < 1) {
     return Point();

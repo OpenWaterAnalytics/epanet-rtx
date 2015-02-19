@@ -48,6 +48,16 @@ bool TimeSeries::TimeRange::touches(TimeRange otherRange) {
     return false;
   }
 }
+bool TimeSeries::TimeRange::isValid() {
+  if (this->contains(0)) {
+    return false;
+  }
+  if (this->start < 0 || this->end < 0) {
+    return false;
+  }
+  return true;
+}
+
 
 #pragma mark -
 
@@ -305,49 +315,39 @@ void TimeSeries::insert(Point thisPoint) {
 void TimeSeries::insertPoints(std::vector<Point> points) {
   _points->addPoints(name(), points);
 }
-/*
- bool TimeSeries::isPointAvailable(time_t time) {
- return ( _points->isPointAvailable(name(), time) );
- }
- */
+
 Point TimeSeries::point(time_t time) {
   Point p;
-  //time = clock()->validTime(time);
-  
-  vector<Point> single = this->points(time,time);
+  vector<Point> single = this->points(TimeRange(time,time));
   if (single.size() > 0) {
-    p = single.front();
+    Point goodPoint = single.front();
+    if (goodPoint.time == time) {
+      p = goodPoint;
+    }
   }
-  
-  //  p = _points->point(name(), time);
-  // p.time = time;
   return p;
 }
 
-
-TimeSeries::PointCollection TimeSeries::pointCollection(time_t start, time_t end) {
-  return PointCollection(this->points(start,end), this->units());
+TimeSeries::PointCollection TimeSeries::pointCollection(TimeRange range) {
+  return PointCollection(this->points(range), this->units());
 }
 
-
 // get a range of points from this TimeSeries' point method
-std::vector< Point > TimeSeries::points(time_t start, time_t end) {
+std::vector< Point > TimeSeries::points(TimeRange range) {
   // container for points in this range
   std::vector< Point > points;
   
-  // sanity
-  if (start == 0 || end == 0 || (start < 0) || (end < 0)) {
+  if (!range.isValid()) {
     return points;
   }
   
-  
-  points = this->record()->pointsInRange(this->name(), start, end);
+  points = this->record()->pointsInRange(this->name(), range.start, range.end);
   return points;
 }
 
-TimeSeries::PointCollection TimeSeries::points(TimeSeries::TimeRange range) {
-  return this->pointCollection(range.start, range.end);
-}
+//TimeSeries::PointCollection TimeSeries::points(TimeSeries::TimeRange range) {
+//  return this->pointCollection(range.start, range.end);
+//}
 
 
 
@@ -379,6 +379,7 @@ Point TimeSeries::pointAtOrBefore(time_t time) {
   return p;
 }
 
+/*
 Point TimeSeries::interpolatedPoint(time_t time) {
   
   Point p1,p2;
@@ -388,7 +389,8 @@ Point TimeSeries::interpolatedPoint(time_t time) {
   
   return Point::linearInterpolate(p1, p2, time);
 }
-
+*/
+/*
 vector<Point> TimeSeries::gaps(time_t start, time_t end) {
   
   vector<Point> points = this->points(start, end);
@@ -410,7 +412,7 @@ vector<Point> TimeSeries::gaps(time_t start, time_t end) {
   return gaps;
 }
 
-
+*/
 void TimeSeries::setRecord(PointRecord::_sp record) {
   
   if (!record) {
@@ -419,10 +421,16 @@ void TimeSeries::setRecord(PointRecord::_sp record) {
     //cerr << "WARNING: removing record for Time Series \"" << this->name() << "\"" << endl;
   }
   
-  _points = record;
+  vector<string> existing = record->identifiers();
+  BOOST_FOREACH( const string& name, existing) {
+    if (RTX_STRINGS_ARE_EQUAL_CS(name,this->name())) {
+      _points = record;
+      record->registerAndGetIdentifier(this->name());
+      return;
+    }
+  }
   
-  record->registerAndGetIdentifier(this->name());
-  
+  return;
 }
 
 PointRecord::_sp TimeSeries::record() {
@@ -456,7 +464,7 @@ Units TimeSeries::units() {
 }
 
 
-
+/*
 TimeSeries::PointCollection TimeSeries::resampled(set<time_t> timeList, TimeSeriesResampleMode mode) {
   
   typedef std::vector<Point>::const_iterator pVec_cIt;
@@ -491,7 +499,7 @@ TimeSeries::PointCollection TimeSeries::resampled(set<time_t> timeList, TimeSeri
   return nativePoints;
   
 }
-
+*/
 
 
 

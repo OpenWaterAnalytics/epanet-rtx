@@ -64,6 +64,8 @@ namespace RTX {
     RTX_SHARED_POINTER(TimeSeriesFilter);
     TimeSeriesFilter();
     
+    virtual void setRecord(PointRecord::_sp record);
+    
     virtual TimeSeries::_sp source();
     virtual void setSource(TimeSeries::_sp ts);
     
@@ -73,12 +75,11 @@ namespace RTX {
     TimeSeriesResampleMode resampleMode();
     void setResampleMode(TimeSeriesResampleMode mode);
     
-    std::vector< Point > points(time_t start, time_t end);
+    std::vector< Point > points(TimeRange range);
     virtual Point pointBefore(time_t time);
     virtual Point pointAfter(time_t time);
     
     virtual bool willResample();
-    virtual void setRecord(PointRecord::_sp record); // will invalidate backing store.
     virtual void setUnits(Units newUnits); // filter ts objects can invalidate their backing store.
     
     virtual bool canDropPoints() { return false; };

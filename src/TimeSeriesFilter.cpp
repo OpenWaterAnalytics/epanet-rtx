@@ -13,6 +13,14 @@ TimeSeriesFilter::TimeSeriesFilter() {
   _resampleMode = TimeSeriesResampleModeLinear;
 }
 
+void TimeSeriesFilter::setRecord(PointRecord::_sp record) {
+  // not read-only
+  if (record) {
+    record->registerAndGetIdentifier(this->name());
+    TimeSeries::setRecord(record);
+  }
+}
+
 Clock::_sp TimeSeriesFilter::clock() {
   return _clock;
 }
@@ -39,13 +47,6 @@ void TimeSeriesFilter::setResampleMode(TimeSeries::TimeSeriesResampleMode mode) 
   _resampleMode = mode;
 }
 
-void TimeSeriesFilter::setRecord(PointRecord::_sp record) {
-  if (record != this->record()) {
-    this->invalidate();
-    TimeSeries::setRecord(record);
-    this->invalidate();
-  }
-}
 
 // filters can invalidate themselves.
 void TimeSeriesFilter::setUnits(RTX::Units newUnits) {
@@ -74,7 +75,7 @@ void TimeSeriesFilter::setSource(TimeSeries::_sp ts) {
 }
 
 
-vector<Point> TimeSeriesFilter::points(time_t start, time_t end) {
+vector<Point> TimeSeriesFilter::points(TimeRange range) {
   vector<Point> filtered;
   
   if (! this->source()) {
@@ -82,13 +83,13 @@ vector<Point> TimeSeriesFilter::points(time_t start, time_t end) {
   }
   
   set<time_t> pointTimes;
-  pointTimes = this->timeValuesInRange(TimeRange(start, end));
+  pointTimes = this->timeValuesInRange(range);
   
   PointCollection native;
   
   // important optimization. if this range has already been constructed and cached, then don't recreate it.
   bool alreadyCached = false;
-  vector<Point> cached = TimeSeries::points(start, end); // base class call -> find any pre-cached points
+  vector<Point> cached = TimeSeries::points(range); // base class call -> find any pre-cached points
   if (cached.size() == pointTimes.size()) {
     // looks good, let's make sure that all time values line up.
     alreadyCached = true;
@@ -103,7 +104,7 @@ vector<Point> TimeSeriesFilter::points(time_t start, time_t end) {
     return cached; // we're done here. all points are present.
   }
   
-  PointCollection outCollection = this->filterPointsInRange(TimeRange(start, end));
+  PointCollection outCollection = this->filterPointsInRange(range);
   this->insertPoints(outCollection.points);
   return outCollection.points;
 }
@@ -128,7 +129,7 @@ Point TimeSeriesFilter::pointBefore(time_t time) {
     TimeRange q(time - stride, time);
     
     while ( q.start > time - (stride * maxStrides) ) {
-      c = TimeSeries::points(q);
+      c = TimeSeries::pointCollection(q);
       if (c.count() > 0) {
         break; // found something
       }
@@ -174,7 +175,7 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
     TimeRange q(time, time + stride);
     
     while ( q.end < time + (stride * maxStrides) ) {
-      c = TimeSeries::points(q);
+      c = this->pointCollection(q);
       if (c.count() > 0) {
         break; // found something
       }
@@ -267,7 +268,7 @@ TimeSeries::PointCollection TimeSeriesFilter::filterPointsInRange(TimeRange rang
   queryRange.start = (queryRange.start == 0) ? range.start : queryRange.start;
   queryRange.end = (queryRange.end == 0) ? range.end : queryRange.end;
   
-  PointCollection data = source()->points(queryRange);
+  PointCollection data = source()->pointCollection(queryRange);
   
   bool dataOk = false;
   dataOk = data.convertToUnits(this->units());
@@ -295,7 +296,7 @@ set<time_t> TimeSeriesFilter::timeValuesInRange(TimeSeries::TimeRange range) {
     times = this->clock()->timeValuesInRange(range.start, range.end);
   }
   else {
-    vector<Point> points = source()->points(range.start, range.end);
+    vector<Point> points = source()->points(range);
     BOOST_FOREACH(const Point& p, points) {
       times.insert(p.time);
     }

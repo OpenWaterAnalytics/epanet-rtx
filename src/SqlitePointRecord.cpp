@@ -216,6 +216,7 @@ bool SqlitePointRecord::isConnected() {
 std::string SqlitePointRecord::registerAndGetIdentifier(std::string recordName) {
   
   int ret = 0;
+  bool success = false;
   
   // has to be connected, otherwise there may not be a row for this guy in the meta table.
   // TODO -- check for errors when inserting data??
@@ -226,23 +227,36 @@ std::string SqlitePointRecord::registerAndGetIdentifier(std::string recordName) 
   if (this->isConnected()) {
     scoped_lock<boost::signals2::mutex> lock(*_mutex);
     
-    // insert a name here.
-    // INSERT IGNORE INTO meta (name,units) VALUES (?,?)
-    
-    sqlite3_stmt *stmt;
-    sqlite3_prepare_v2(_dbHandle, "insert or ignore into meta (name) values (?)", -1, &stmt, NULL);
-    sqlite3_bind_text(stmt, 1, recordName.c_str(), -1, NULL);
-    
-    
-    ret = sqlite3_step(stmt);
-    if (ret != SQLITE_DONE) {
-      logDbError();
+    // readonly?
+    if (this->readonly()) {
+      
+      // to-do: make sure ts exists in db.
+      success = true;
+      
     }
-    sqlite3_reset(stmt);
-    sqlite3_finalize(stmt);
+    else {
+      // insert a name here.
+      // INSERT IGNORE INTO meta (name,units) VALUES (?,?)
+      
+      sqlite3_stmt *stmt;
+      sqlite3_prepare_v2(_dbHandle, "insert or ignore into meta (name) values (?)", -1, &stmt, NULL);
+      sqlite3_bind_text(stmt, 1, recordName.c_str(), -1, NULL);
+      ret = sqlite3_step(stmt);
+      if (ret != SQLITE_DONE) {
+        logDbError();
+      }
+      else {
+        success = true;
+      }
+      sqlite3_reset(stmt);
+      sqlite3_finalize(stmt);
+    }
   }
   
-  DB_PR_SUPER::registerAndGetIdentifier(recordName);
+  if (success) {
+    DB_PR_SUPER::registerAndGetIdentifier(recordName);
+  }
+  
   
   return recordName;
 }

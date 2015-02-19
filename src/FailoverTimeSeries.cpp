@@ -103,7 +103,7 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
     secondarySourceRange.end = nextPoint.time;
   }
   
-  PointCollection primaryData = this->source()->points(primarySourceRange);
+  PointCollection primaryData = this->source()->pointCollection(primarySourceRange);
   primaryData.convertToUnits(myUnits);
   
   time_t prevTime;
@@ -129,7 +129,7 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
       if (p.isValid) {
         --now;
       }
-      PointCollection secondary = this->failoverTimeseries()->points(TimeRange(prevTime+1, now));
+      PointCollection secondary = this->failoverTimeseries()->pointCollection(TimeRange(prevTime+1, now));
       secondary.convertToUnits(myUnits);
       BOOST_FOREACH(Point sp, secondary.points) {
         if (sp.isValid) {

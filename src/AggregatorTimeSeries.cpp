@@ -176,7 +176,7 @@ std::set<time_t> AggregatorTimeSeries::timeValuesInRange(TimeRange range) {
   else {
     // get the set of times from the aggregator sources
     BOOST_FOREACH(AggregatorSource aggSource, this->sources()) {
-      vector<Point> thisSourcePoints = aggSource.timeseries->points(range.start, range.end);
+      vector<Point> thisSourcePoints = aggSource.timeseries->points(range);
       BOOST_FOREACH(Point p, thisSourcePoints) {
         timeList.insert(p.time);
       }
@@ -220,7 +220,7 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
     componentRange.start = leftseek.time > 0 ? leftseek.time : range.start;
     componentRange.end = rightseek.time > 0 ? rightseek.time : range.end;
     
-    PointCollection componentCollection = sourceTs->points(componentRange);
+    PointCollection componentCollection = sourceTs->pointCollection(componentRange);
     componentCollection.resample(desiredTimes);
     componentCollection.convertToUnits(this->units());
     

@@ -35,7 +35,7 @@ TimeSeries::PointCollection TimeSeriesFilterSinglePoint::filterPointsInRange(Tim
     queryRange.end = seekRight.time;
   }
   
-  PointCollection data = source()->points(queryRange);
+  PointCollection data = source()->pointCollection(queryRange);
   
   vector<Point> outPoints;
   bool didDropPoints = false;

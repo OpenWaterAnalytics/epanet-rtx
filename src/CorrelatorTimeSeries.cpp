@@ -76,7 +76,8 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange 
   
   BOOST_FOREACH(time_t t, times) {
     double corrcoef = 0;
-    PointCollection sourceCollection = sourceTs->pointCollection(t - windowWidth, t);
+    TimeRange q(t-windowWidth, t);
+    PointCollection sourceCollection = sourceTs->pointCollection(q);
     
     set<time_t> sourceTimeValues;
     BOOST_FOREACH(const Point& p, sourceCollection.points) {
@@ -89,7 +90,7 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange 
     secondaryRange.start = this->correlatorTimeSeries()->pointBefore(primaryRange.start + 1).time;
     secondaryRange.end = this->correlatorTimeSeries()->pointAfter(primaryRange.end - 1).time;
     
-    PointCollection secondaryCollection = this->correlatorTimeSeries()->points(secondaryRange);
+    PointCollection secondaryCollection = this->correlatorTimeSeries()->pointCollection(secondaryRange);
     secondaryCollection.resample(sourceTimeValues);
     
     if (sourceCollection.count() == 0 || secondaryCollection.count() == 0) {

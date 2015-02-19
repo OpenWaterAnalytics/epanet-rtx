@@ -64,6 +64,7 @@ namespace RTX {
       time_t duration();
       bool contains(time_t time);
       bool touches(TimeRange otherRange);
+      bool isValid();
       time_t start, end;
     };
     
@@ -116,11 +117,11 @@ namespace RTX {
     virtual Point pointBefore(time_t time);
     virtual Point pointAfter(time_t time);
     virtual Point pointAtOrBefore(time_t time);
-    virtual Point interpolatedPoint(time_t time);
-    PointCollection points(TimeRange range);
-    virtual std::vector< Point > points(time_t start, time_t end); // points in range
-    PointCollection resampled(std::set<time_t> timeList, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
-    PointCollection pointCollection(time_t start, time_t end);
+//    virtual Point interpolatedPoint(time_t time);
+    PointCollection pointCollection(TimeRange range);
+    virtual std::vector< Point > points(TimeRange range); // points in range
+//    PointCollection resampled(std::set<time_t> timeList, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
+//    PointCollection pointCollection(time_t start, time_t end);
     
     virtual std::string name();
     virtual void setName(const std::string& name);
@@ -135,7 +136,7 @@ namespace RTX {
     TimeSeries::Statistics summary(time_t start, time_t end);
     TimeSeries::Statistics gapsSummary(time_t start, time_t end);
      */
-    std::vector<Point> gaps(time_t start, time_t end);
+//    std::vector<Point> gaps(time_t start, time_t end);
     
     virtual TimeSeries::_sp rootTimeSeries() { return shared_from_this(); };
     virtual void resetCache();

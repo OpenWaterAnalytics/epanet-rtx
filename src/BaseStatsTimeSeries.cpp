@@ -87,7 +87,7 @@ vector<BaseStatsTimeSeries::pointSummaryPair_t> BaseStatsTimeSeries::filterSumma
   
   // force a pre-cache on the source time series
   TimeRange preFetchRange(fromTime - lagDistance, toTime + leadDistance);
-  PointCollection preFetch = sourceTs->points(preFetchRange);
+  PointCollection preFetch = sourceTs->pointCollection(preFetchRange);
   
   // if no data, then quit.
   if (preFetch.count() == 0) {

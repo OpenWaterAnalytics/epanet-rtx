@@ -21,7 +21,7 @@ namespace RTX {
     Point point(time_t time);
     Point pointBefore(time_t time);
     Point pointAfter(time_t time);
-    std::vector< Point > points(time_t start, time_t end);
+    std::vector< Point > points(TimeRange range);
     
     Clock::_sp clock();
     void setClock(Clock::_sp clock);

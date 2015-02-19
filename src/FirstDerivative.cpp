@@ -45,7 +45,7 @@ TimeSeries::PointCollection FirstDerivative::filterPointsInRange(TimeRange range
     range.end = seekRight.time;
   }
   
-  PointCollection sourceData = this->source()->points(TimeRange(prior.time, range.end));
+  PointCollection sourceData = this->source()->pointCollection(TimeRange(prior.time, range.end));
   
   if (sourceData.count() < 2) {
     return data;

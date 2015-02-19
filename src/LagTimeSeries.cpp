@@ -85,7 +85,7 @@ TimeSeries::PointCollection LagTimeSeries::filterPointsInRange(TimeRange range) 
   queryRange.start = this->source()->pointBefore(queryRange.start + 1).time;
   queryRange.end = this->source()->pointAfter(queryRange.end - 1).time;
   
-  PointCollection data = this->source()->points(queryRange);
+  PointCollection data = this->source()->pointCollection(queryRange);
   
   // move the points in time
   BOOST_FOREACH(Point& p, data.points) {
