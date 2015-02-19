@@ -130,12 +130,12 @@ TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) 
     // back-off to the left
     pVec_cIt leftCurs = seekCursor;
     for (int iLeft = 0; iLeft < margin; ) {
-      --leftCurs;
-      ++iLeft;
       // did we stumble upon the vector.begin?
       if (leftCurs == vecBegin) {
         break;
       }
+      --leftCurs;
+      ++iLeft;
     }
     
     // back-off to the right
