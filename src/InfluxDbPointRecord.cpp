@@ -98,6 +98,36 @@ void InfluxDbPointRecord::setConnectionString(const std::string &str) {
 
 
 string InfluxDbPointRecord::registerAndGetIdentifier(std::string recordName) {
+  
+  if (this->readonly()) {
+    return recordName;
+  }
+  
+  // placeholder in db. insert a point to create the ts, then drop the points (but not the ts)
+  
+  bool alreadyInIndex = false;
+  
+  vector<string> existing = this->identifiers();
+  BOOST_FOREACH( const string& name, existing) {
+    if (RTX_STRINGS_ARE_EQUAL_CS(name,this->name())) {
+      // already here.
+      alreadyInIndex = true;
+      break;
+    }
+  }
+  
+  if (!alreadyInIndex) {
+    
+    // insert dummy point, then delete it.
+    this->insertSingle(recordName, Point(time(NULL) - 60*60*24*365));
+    stringstream ss;
+    ss << "delete from " << recordName << " where time < now()";
+    string url = this->urlForQuery(ss.str(),false);
+    JsonDocPtr doc = this->jsonFromUrl(url);
+    
+  }
+  
+  
   return recordName;
 }
 
@@ -259,6 +289,10 @@ vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
   vector<Point> points;
   
   // multiple time series might be returned eventually, but for now it's just a single-value array.
+  
+  if (doc == NULL) {
+    return points;
+  }
   
   if (!doc->IsArray()) {
     // empty document. no points.
