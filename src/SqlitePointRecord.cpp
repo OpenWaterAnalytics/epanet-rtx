@@ -265,6 +265,10 @@ std::string SqlitePointRecord::registerAndGetIdentifier(std::string recordName) 
 std::vector<std::string> SqlitePointRecord::identifiers() {
   vector<string> names;
   
+  if (!this->isConnected()) {
+    this->dbConnect();
+  }
+  
   if (this->isConnected()) {
     scoped_lock<boost::signals2::mutex> lock(*_mutex);
     int ret = sqlite3_step(_selectNamesStmt);
