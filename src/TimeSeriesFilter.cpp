@@ -106,6 +106,8 @@ vector<Point> TimeSeriesFilter::points(TimeRange range) {
   
   PointCollection outCollection = this->filterPointsInRange(range);
   this->insertPoints(outCollection.points);
+  outCollection = outCollection.trimmedToRange(range); // safeguard if filter doesn't respected the range
+
   return outCollection.points;
 }
 
