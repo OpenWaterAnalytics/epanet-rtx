@@ -11,6 +11,8 @@
 
 #define DB_PR_SUPER BufferPointRecord
 
+#include <set>
+
 #include "MapPointRecord.h"
 #include "BufferPointRecord.h"
 #include "rtxExceptions.h"
@@ -59,6 +61,29 @@ namespace RTX {
     void setSearchDistance(time_t time);
     time_t searchDistance();
     
+    /*--------------------------------------------*/
+    //! OPC quality filter :: blacklist / whitelist
+    
+    enum OpcFilterType: unsigned int {
+      OpcPassThrough   = 0, //!< all codes
+      OpcBlackList     = 1, //!< explicitly exclude codes
+      OpcWhiteList     = 2, //!< only allow these codes
+      OpcCodesToValues = 3  //!< convert opc codes to values
+    };
+    
+    void setOpcFilterType(OpcFilterType type);
+    OpcFilterType opcFilterType();
+    
+    std::set<unsigned int> opcFilterList();
+    void clearOpcFilterList();
+    void addOpcFilterCode(unsigned int code);
+    void removeOpcFilterCode(unsigned int code);
+    
+    Point pointWithOpcFilter(Point p);
+    std::vector<Point> pointsWithOpcFilter(std::vector<Point> points);
+    
+    /*--------------------------------------------*/
+    
     
     //exceptions specific to this class family
     class RtxDbConnectException : public RtxException {
@@ -74,18 +99,13 @@ namespace RTX {
     std::string errorMessage;
     
   protected:
-    // fetch means cache the results
-    // these have obvious default implementations, but you can override them also.
-    //virtual void fetchRange(const std::string& id, time_t startTime, time_t endTime);
-    //virtual void fetchNext(const std::string& id, time_t time);
-    //virtual void fetchPrevious(const std::string& id, time_t time);
     
-    // select just returns the results
+    // select statements
     virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime)=0;
     virtual Point selectNext(const std::string& id, time_t time)=0;
     virtual Point selectPrevious(const std::string& id, time_t time)=0;
     
-    // insertions or alterations may choose to ignore / deny
+    // insertions or alterations: may choose to ignore / deny
     virtual void insertSingle(const std::string& id, Point point)=0;
     virtual void insertRange(const std::string& id, std::vector<Point> points)=0;
     virtual void removeRecord(const std::string& id)=0;
@@ -107,7 +127,8 @@ namespace RTX {
     std::string _connectionString;
     time_t _searchDistance;
     bool _readOnly;
-    
+    std::set<unsigned int> _opcFilterCodes;
+    OpcFilterType _filterType;
     
   };
 

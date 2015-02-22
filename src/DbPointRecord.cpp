@@ -32,6 +32,8 @@ bool DbPointRecord::request_t::contains(std::string id, time_t t) {
 DbPointRecord::DbPointRecord() : request("",0,0) {
   _searchDistance = 60*60*24*7; // 1-week
   errorMessage = "Not Connected";
+  
+  _filterType = OpcPassThrough;
 }
 
 
@@ -93,6 +95,8 @@ Point DbPointRecord::point(const string& id, time_t time) {
     // do the request, and cache the request parameters.
     
     vector<Point> pVec = this->selectRange(id, start, end);
+    pVec = this->pointsWithOpcFilter(pVec);
+    
     if (pVec.size() > 0) {
       request = request_t(id, pVec.front().time, pVec.back().time);
     }
@@ -133,6 +137,7 @@ Point DbPointRecord::pointBefore(const string& id, time_t time) {
     PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
     request = request_t(id, time, time);
     p = this->selectPrevious(id, time);
+    p = this->pointWithOpcFilter(p);
     // cache it
     if (p.isValid) {
       _cachedPointId = id;
@@ -172,6 +177,7 @@ Point DbPointRecord::pointAfter(const string& id, time_t time) {
     PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
     request = request_t(id, time, time);
     p = this->selectNext(id, time);
+    p = this->pointWithOpcFilter(p);
     // cache it
     if (p.isValid) {
       _cachedPointId = id;
@@ -220,6 +226,7 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, time_t startTi
     }
     // db hit
     vector<Point> newPoints = this->selectRange(id, qstart, qend);
+    newPoints = this->pointsWithOpcFilter(newPoints);
     
     vector<Point> merged;
     merged.reserve(newPoints.size() + left.size() + right.size());
@@ -294,6 +301,93 @@ void DbPointRecord::invalidate(const string &identifier) {
 bool DbPointRecord::supportsBoundedQueries() {
   return false;
 }
+
+
+
+#pragma mark - opc filter list
+
+void DbPointRecord::setOpcFilterType(OpcFilterType type) {
+  if (_filterType != type) {
+    BufferPointRecord::reset(); // mem cache
+    _filterType = type;
+  }
+}
+
+DbPointRecord::OpcFilterType DbPointRecord::opcFilterType() {
+  return _filterType;
+}
+
+std::set<unsigned int> DbPointRecord::opcFilterList() {
+  return _opcFilterCodes;
+}
+
+void DbPointRecord::clearOpcFilterList() {
+  _opcFilterCodes.clear();
+  BufferPointRecord::reset(); // mem cache
+}
+
+void DbPointRecord::addOpcFilterCode(unsigned int code) {
+  _opcFilterCodes.insert(code);
+  BufferPointRecord::reset(); // mem cache
+}
+
+void DbPointRecord::removeOpcFilterCode(unsigned int code) {
+  if (_opcFilterCodes.count(code) > 0) {
+    _opcFilterCodes.erase(code);
+    BufferPointRecord::reset(); // mem cache
+  }
+}
+
+
+
+vector<Point> DbPointRecord::pointsWithOpcFilter(std::vector<Point> points) {
+  vector<Point> out;
+  
+  BOOST_FOREACH(Point p, points) {
+    Point outPoint = this->pointWithOpcFilter(p);
+    if (outPoint.isValid) {
+      out.push_back(outPoint);
+    }
+  }
+  
+  return out;
+}
+
+Point DbPointRecord::pointWithOpcFilter(Point p) {
+  Point pOut = p;
+  
+  switch (this->opcFilterType()) {
+    case OpcPassThrough:
+      break;
+    case OpcWhiteList:
+      if (this->opcFilterList().count(p.quality) > 0) {
+        pOut.quality = Point::opc_rtx_override;
+      }
+      else {
+        pOut = Point();
+      }
+      break;
+    case OpcBlackList:
+      if (this->opcFilterList().count(p.quality)) {
+        pOut = Point();
+      }
+      else {
+        pOut.quality = Point::opc_rtx_override;
+      }
+      break;
+    case OpcCodesToValues:
+    {
+      pOut.value = (double)p.quality;
+    }
+    default:
+      break;
+  }
+  
+  return pOut;
+  
+}
+
+
 
 /*
 Point DbPointRecord::firstPoint(const string& id) {
