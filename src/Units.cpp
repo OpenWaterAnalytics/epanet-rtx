@@ -237,6 +237,8 @@ map<string, Units> Units::unitStringMap() {
   m["celsius"] = RTX_DEGREE_CELSIUS;
   m["farenheit"] = RTX_DEGREE_FARENHEIT;
   
+  //m["%"] = RTX_DIMENSIONLESS;
+  
   return m;
 }
 
@@ -263,7 +265,14 @@ Units Units::unitOfType(const string& unitString) {
     }
     
     // first component will be the unit conversion, so cast that into a number.
-    conversionFactor = boost::lexical_cast<double>(components.front());
+    // this may fail, so catch it if so.
+    try {
+      conversionFactor = boost::lexical_cast<double>(components.front());
+    } catch (...) {
+      cerr << "WARNING: Units not recognized: " << uStr << "- defaulting to dimensionless." << endl;
+      return RTX_DIMENSIONLESS;
+    }
+    
     components.pop_front();
     
     // get each dimensional power and set it.
