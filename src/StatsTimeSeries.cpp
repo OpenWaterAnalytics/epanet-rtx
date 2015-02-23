@@ -56,7 +56,14 @@ void StatsTimeSeries::setArbitraryPercentile(double p) {
 
 TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range) {
   
-  set<time_t> times = this->timeValuesInRange(range);
+  TimeRange qRange = range;
+  if (this->willResample()) {
+    // expand range
+    qRange.start = this->source()->pointBefore(range.start + 1).time;
+    qRange.end = this->source()->pointAfter(range.end - 1).time;
+  }
+  
+  set<time_t> times = this->timeValuesInRange(qRange);
   
   vector<pointSummaryPair_t> summaries = this->filterSummaryCollection(times);
   vector<Point> outPoints;
@@ -76,6 +83,10 @@ TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range
   }
   
   PointCollection ret(outPoints, this->units());
+  
+  if (this->willResample()) {
+    ret.resample(times);
+  }
   
   switch (statsType()) {
     case StatsTimeSeriesMean:
