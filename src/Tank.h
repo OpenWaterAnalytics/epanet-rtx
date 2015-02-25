@@ -53,7 +53,7 @@ namespace RTX {
     
   private:
     OffsetTimeSeries::_sp _level;
-    OffsetTimeSeries::_sp _levelMeasure;
+    TimeSeries::_sp _levelMeasure;
     CurveFunction::_sp _volumeMeasure;
     FirstDerivative::_sp _flowMeasure;
     double _minLevel, _maxLevel;

@@ -28,14 +28,9 @@ Tank::Tank(const std::string& name) : Junction(name) {
   _minLevel = 0;
   _maxLevel = 0;
   
-  // likely to be used.
-  _levelMeasure.reset( new OffsetTimeSeries() );
-  _levelMeasure->setUnits(RTX_METER);
-  _levelMeasure->setName(name + " level measure");
   
   _volumeMeasure.reset( new CurveFunction() );
   _volumeMeasure->setUnits(RTX_LITER);
-  _volumeMeasure->setSource(_levelMeasure);
   _volumeMeasure->setName(name + " volume measure");
   
   _flowMeasure.reset( new FirstDerivative() );
@@ -88,54 +83,81 @@ void Tank::setElevation(double elevation) {
   Node::setElevation(elevation);
   // re-set the elevation offset for the level timeseries
   _level->setOffset(-elevation);
-  _levelMeasure->setOffset(-elevation);
+  
+  // do we have a head or level measure??
+  OffsetTimeSeries::_sp offsetTs;
+  int direction = 1;
+  
+  if (levelMeasure() || headMeasure()) {
+    direction = -1;
+    offsetTs = boost::dynamic_pointer_cast<OffsetTimeSeries>(levelMeasure());
+    if (!offsetTs) {
+      direction = 1;
+      offsetTs = boost::dynamic_pointer_cast<OffsetTimeSeries>(headMeasure());
+    }
+    if (offsetTs) {
+      offsetTs->setOffset(elevation * direction);
+    }
+  }
+  
 }
 
 void Tank::setLevelMeasure(TimeSeries::_sp levelMeasure) {
   if (!levelMeasure) {
-    this->setHeadMeasure(TimeSeries::_sp());
+    Junction::setHeadMeasure(TimeSeries::_sp());
+    _levelMeasure = TimeSeries::_sp();
   }
   else {
+    _volumeMeasure->resetCache();
+    _flowMeasure->resetCache();
+    
     OffsetTimeSeries::_sp offsetHeadMeasure( new OffsetTimeSeries() );
-    offsetHeadMeasure->setName(this->name() + " offset");
+    offsetHeadMeasure->setName(this->name() + ".measure.head");
     offsetHeadMeasure->setSource(levelMeasure);
     offsetHeadMeasure->setOffset( (this->elevation()) );
   
-    this->setHeadMeasure(offsetHeadMeasure);
+    Junction::setHeadMeasure(offsetHeadMeasure);
+    _levelMeasure = levelMeasure;
+    _volumeMeasure->setSource(levelMeasure);
   }
 }
 
 TimeSeries::_sp Tank::levelMeasure() {
-  if (_levelMeasure->source()) {
-    return _levelMeasure;
-  }
-  TimeSeries::_sp blank;
-  return blank;
+  return _levelMeasure;
 }
 
 void Tank::setHeadMeasure(TimeSeries::_sp head) {
+  
+  _volumeMeasure->resetCache();
+  _flowMeasure->resetCache();
+  
   // base class method first
   Junction::setHeadMeasure(head);
   
-  _levelMeasure->resetCache();
-  _volumeMeasure->resetCache();
-  _flowMeasure->resetCache();
+  if (!this->headMeasure()) {
+    return;
+  }
   
   // now hook it up to the "measured" level->volume->flow chain.
   // assumption about elevation units is made here.
   // todo -- revise elevation units handling
   if (head) {
-    _levelMeasure->setClock(head->clock());
-    _levelMeasure->setUnits(head->units());
-    _levelMeasure->setSource(head);
+    
+    OffsetTimeSeries::_sp offsetHeadMeasure( new OffsetTimeSeries() );
+    offsetHeadMeasure->setName(this->name() + ".measure.level");
+    offsetHeadMeasure->setSource(head);
+    offsetHeadMeasure->setOffset( -(this->elevation()) );
+    offsetHeadMeasure->setClock(head->clock());
+    offsetHeadMeasure->setUnits(head->units());
+    _levelMeasure = offsetHeadMeasure;
     
     _volumeMeasure->setClock(head->clock());
+    _volumeMeasure->setSource(_levelMeasure);
     _flowMeasure->setClock(head->clock());
   }
   else {
     // invalidate tank flow timeseries.
-    TimeSeries::_sp blank;
-    _levelMeasure->setSource(blank);
+    _levelMeasure.reset();
   }
 
 }
