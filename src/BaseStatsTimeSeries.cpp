@@ -52,6 +52,10 @@ BaseStatsTimeSeries::StatsSamplingMode_t BaseStatsTimeSeries::samplingMode() {
 
 vector<BaseStatsTimeSeries::pointSummaryPair_t> BaseStatsTimeSeries::filterSummaryCollection(std::set<time_t> times) {
   
+  if (times.size() == 0) {
+    return vector<BaseStatsTimeSeries::pointSummaryPair_t> ();
+  }
+  
   TimeSeries::_sp sourceTs = this->source();
   time_t fromTime = *(times.begin());
   time_t toTime = *(times.rbegin());
