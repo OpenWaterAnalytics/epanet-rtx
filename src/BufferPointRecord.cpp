@@ -62,15 +62,12 @@ std::vector<std::string> BufferPointRecord::identifiers() {
 
 Point BufferPointRecord::point(const string& identifier, time_t time) {
   
-  scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
-  
-  bool isAvailable = false;
-  bool idsMatch = RTX_STRINGS_ARE_EQUAL_CS(_cachedPointId, identifier);
-  
-  // quick check for repeated calls
-  if (_cachedPoint.time == time && idsMatch ) {
-    return _cachedPoint;
+  Point bp = PointRecord::point(identifier,time);
+  if (bp.isValid) {
+    return bp;
   }
+  
+  scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
   
   KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
   if (it == _keyedBufferMutex.end()) {
@@ -106,24 +103,12 @@ Point BufferPointRecord::point(const string& identifier, time_t time) {
     
     PointBuffer_t::iterator pbIt = std::lower_bound(startIterator, buffer.end(), finder, &Point::comparePointTime);
     if (pbIt != buffer.end() && pbIt->time == time) {
-      isAvailable = true;
-      _cachedPoint = *pbIt;
-      _cachedPointId = identifier;
-      _cacheIterator = pbIt;
+      Point p = *pbIt;
+      PointRecord::addPoint(identifier, p);
+      return p;
     }
     else {
-      //cerr << "whoops, not found" << endl;
-      // try brute-force (debug)
-      PointBuffer_t::const_iterator pbIt = buffer.begin();
-      while (pbIt != buffer.end()) {
-        time_t foundTime = pbIt->time;
-        if (foundTime == time) {
-          cout << "found it anyway!!" << endl;
-          Point aPoint = *pbIt;
-          _cachedPoint = aPoint;
-        }
-        ++pbIt;
-      }
+      return Point();
     }
   }
   
@@ -131,12 +116,8 @@ Point BufferPointRecord::point(const string& identifier, time_t time) {
   // ok, all done
   //mutex->unlock();
   
-  if (isAvailable) {
-    return _cachedPoint;
-  }
-  else {
-    return Point();//this->pointBefore(identifier, time);
-  }
+  return Point();//this->pointBefore(identifier, time);
+
   
 }
 
@@ -157,28 +138,24 @@ Point BufferPointRecord::pointBefore(const string& identifier, time_t time) {
     PointBuffer_t& buffer = (it->second.first);
     // lock the buffer
     scoped_lock<boost::signals2::mutex> lock(*mtx);
-//    mtx->lock();
     
     PointBuffer_t::const_iterator it  = lower_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
     if (it != buffer.begin()) {
-      // OK we're not at the beginning, so there is a point before time
+      // we're not at the beginning, so there is a point before time
       if (it != buffer.end()) {
         // and we're not at the end, so the point is within the continuous buffer
         // we want the previous point
         foundPoint = *(--it);
-        _cachedPoint = foundPoint;
-        _cachedPointId = identifier;
+        PointRecord::addPoint(identifier, foundPoint);
+        return foundPoint;
       }
       else if ((--it)->time == time - 1) {
         // edge case where end of buffer is adjacent to requested time
         foundPoint = *it;
-        _cachedPoint = foundPoint;
-        _cachedPointId = identifier;
+        PointRecord::addPoint(identifier, foundPoint);
+        return foundPoint;
       }
     }
-    
-    // all done.
-    //mtx->unlock();
   }
   
   return foundPoint;
@@ -199,7 +176,6 @@ Point BufferPointRecord::pointAfter(const string& identifier, time_t time) {
     boost::signals2::mutex *mtx = (it->second.second.get());
     PointBuffer_t& buffer = (it->second.first);
     // lock the buffer
-//    mtx->lock();
     scoped_lock<boost::signals2::mutex> lock(*mtx);
     
     PointBuffer_t::const_iterator it = upper_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
@@ -209,14 +185,10 @@ Point BufferPointRecord::pointAfter(const string& identifier, time_t time) {
         // either we're not at the beginning, so the point is within the continuous buffer -
         // or edge case where beginning of buffer is adjacent to requested time
         foundPoint = *it;
-        _cachedPoint = foundPoint;
-        _cachedPointId = identifier;
+        PointRecord::addPoint(identifier, foundPoint);
+        return foundPoint;
       }
     }
-    
-    
-    // all done.
-//    mtx->unlock();
   }
   
   return foundPoint;
@@ -256,10 +228,11 @@ std::vector<Point> BufferPointRecord::pointsInRange(const string& identifier, ti
 
 void BufferPointRecord::addPoint(const string& identifier, Point point) {
   
-  // no-op. do something more interesting in your derived class.
-  // why no-op? because how can you ensure that a point you want to insert here is contiguous?
+  PointRecord::addPoint(identifier, point);
+  
+  // do something more interesting in your derived class.
+  // why nothing smart? because how can you ensure that a point you want to insert here is contiguous?
   // there's no way without knowing about clocks and all that business.
-//  cout << "BufferPointRecord::addPoint() -- no point added for TimeSeries " << identifier << endl;
   
 }
 
