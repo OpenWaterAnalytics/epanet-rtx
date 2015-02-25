@@ -13,6 +13,7 @@
 #include <vector>
 #include <set>
 #include "rtxMacros.h"
+#include "TimeRange.h"
 
 namespace RTX {
   
@@ -100,7 +101,7 @@ namespace RTX {
     void setPeriod(int p);
     time_t start();
     void setStart(time_t startTime);
-    virtual std::set< time_t > timeValuesInRange(time_t start, time_t end);
+    virtual std::set< time_t > timeValuesInRange(TimeRange range);
     virtual std::ostream& toStream(std::ostream &stream);
     
   private:

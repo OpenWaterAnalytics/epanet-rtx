@@ -21,6 +21,7 @@
 #include "PointRecord.h"
 #include "Clock.h"
 #include "Units.h"
+#include "TimeRange.h"
 
 namespace RTX {
 
@@ -57,17 +58,6 @@ namespace RTX {
   class TimeSeries : public boost::enable_shared_from_this<TimeSeries> {
   public:
     
-    class TimeRange {
-    public:
-      TimeRange();
-      TimeRange(time_t start, time_t end);
-      time_t duration();
-      bool contains(time_t time);
-      bool touches(TimeRange otherRange);
-      bool isValid();
-      time_t start, end;
-    };
-    
     typedef enum {
       TimeSeriesResampleModeLinear,
       TimeSeriesResampleModeStep
@@ -81,6 +71,7 @@ namespace RTX {
       
       std::vector<Point> points;
       Units units;
+      std::set<time_t> times();
       
       bool resample(std::set<time_t> timeList, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
       bool convertToUnits(Units u);
@@ -117,11 +108,9 @@ namespace RTX {
     virtual Point pointBefore(time_t time);
     virtual Point pointAfter(time_t time);
     virtual Point pointAtOrBefore(time_t time);
-//    virtual Point interpolatedPoint(time_t time);
     PointCollection pointCollection(TimeRange range);
     virtual std::vector< Point > points(TimeRange range); // points in range
-//    PointCollection resampled(std::set<time_t> timeList, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
-//    PointCollection pointCollection(time_t start, time_t end);
+    virtual std::set<time_t> timeValuesInRange(TimeRange range);
     
     virtual std::string name();
     virtual void setName(const std::string& name);

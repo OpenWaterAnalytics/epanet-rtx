@@ -53,7 +53,7 @@ TimeSeries::PointCollection TimeSeriesFilterSinglePoint::filterPointsInRange(Tim
   
   PointCollection outData(outPoints, this->units());
   if (this->willResample() || (didDropPoints && this->clock())) {
-    set<time_t> timeValues = this->timeValuesInRange(range);
+    set<time_t> timeValues = this->timeValuesInRange(range); // if infinite recursion occurs here, check canDropPoints
     outData.resample(timeValues);
   }
   

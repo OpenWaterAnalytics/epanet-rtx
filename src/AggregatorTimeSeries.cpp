@@ -171,7 +171,7 @@ std::set<time_t> AggregatorTimeSeries::timeValuesInRange(TimeRange range) {
   
   if (this->clock()) {
     // align the query with the clock
-    timeList = this->clock()->timeValuesInRange(range.start, range.end);
+    timeList = this->clock()->timeValuesInRange(range);
   }
   else {
     // get the set of times from the aggregator sources

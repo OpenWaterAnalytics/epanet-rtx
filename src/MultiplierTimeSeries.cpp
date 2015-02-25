@@ -32,19 +32,10 @@ Point MultiplierTimeSeries::filteredWithSourcePoint(Point sourcePoint) {
   effectiveRange.end = this->multiplier()->pointAfter(sourcePoint.time - 1).time;
   
   // if there are no points before or after the requested range, just get the points that are there.
-  
-  if (effectiveRange.start == 0) {
-    effectiveRange.start = sourcePoint.time;
-  }
-  if (effectiveRange.end == 0) {
-    effectiveRange.end = sourcePoint.time;
-  }
+  effectiveRange.correctWithRange(TimeRange(sourcePoint.time, sourcePoint.time));
   
   PointCollection nativePoints = this->multiplier()->pointCollection(effectiveRange);
-  
   nativePoints.resample(t);
-  
-  
   vector<Point> multiplierPoint = nativePoints.points;
   
   if (multiplierPoint.size() < 1) {

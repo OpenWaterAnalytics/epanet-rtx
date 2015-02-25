@@ -95,7 +95,7 @@ bool LagTimeSeries::willResample() {
 
 set<time_t> LagTimeSeries::timeValuesInRange(TimeRange range) {
   if (this->clock()) {
-    return this->clock()->timeValuesInRange(range.start, range.end);
+    return this->clock()->timeValuesInRange(range);
   }
   TimeRange lagRange = range;
   lagRange.start -= _lag;

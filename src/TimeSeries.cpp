@@ -23,42 +23,6 @@ using namespace RTX;
 using namespace std;
 using namespace boost::accumulators;
 
-TimeSeries::TimeRange::TimeRange() {
-  start = 0;
-  end = 0;
-}
-TimeSeries::TimeRange::TimeRange(time_t i_start, time_t i_end) {
-  start = i_start;
-  end = i_end;
-}
-time_t TimeSeries::TimeRange::duration() {
-  return end - start;
-}
-bool TimeSeries::TimeRange::contains(time_t time) {
-  return (start <= time && time <= end);
-}
-bool TimeSeries::TimeRange::touches(TimeRange otherRange) {
-  if (this->contains(otherRange.start) || this->contains(otherRange.end)) {
-    return true;
-  }
-  else if ( otherRange.contains(this->start) || otherRange.contains(this->end) ) {
-    return true;
-  }
-  else {
-    return false;
-  }
-}
-bool TimeSeries::TimeRange::isValid() {
-  if (this->contains(0)) {
-    return false;
-  }
-  if (this->start < 0 || this->end < 0) {
-    return false;
-  }
-  return true;
-}
-
-
 #pragma mark -
 
 TimeSeries::PointCollection::PointCollection(vector<Point> points, Units units) : points(points), units(units) {

@@ -131,12 +131,12 @@ time_t Clock::timeAfter(time_t time) {
   }
 }
 
-std::set< time_t > Clock::timeValuesInRange(time_t start, time_t end) {
+std::set< time_t > Clock::timeValuesInRange(TimeRange range) {
   std::set<time_t> timeList;
-  if (!isValid(start)) {
-    start = timeAfter(start);
+  if (!isValid(range.start)) {
+    range.start = timeAfter(range.start);
   }
-  for (time_t thisTime = start; thisTime <= end; thisTime = timeAfter(thisTime)) {
+  for (time_t thisTime = range.start; thisTime <= range.end; thisTime = timeAfter(thisTime)) {
     if (thisTime == 0) {
       break;
     }

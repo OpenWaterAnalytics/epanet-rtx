@@ -149,7 +149,7 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
   
   PointCollection outData(thePoints, myUnits);
   if (this->willResample()) {
-    outData.resample(this->clock()->timeValuesInRange(range.start, range.end));
+    outData.resample(this->clock()->timeValuesInRange(range));
   }
   
   return outData;

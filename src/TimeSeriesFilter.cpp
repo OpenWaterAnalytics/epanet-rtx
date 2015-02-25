@@ -261,14 +261,12 @@ TimeSeries::PointCollection TimeSeriesFilter::filterPointsInRange(TimeRange rang
   }
   
   // now check to see if we should proceed, i.e., our source has some data within the requested range.
-  if (queryRange.end < range.start || range.end < queryRange.start) {
+  if (!range.touches(queryRange)) {
     // source data is out of range.
     return PointCollection(vector<Point>(),this->units());
   }
   
-  
-  queryRange.start = (queryRange.start == 0) ? range.start : queryRange.start;
-  queryRange.end = (queryRange.end == 0) ? range.end : queryRange.end;
+  queryRange.correctWithRange(range);
   
   PointCollection data = source()->pointCollection(queryRange);
   
@@ -287,15 +285,15 @@ TimeSeries::PointCollection TimeSeriesFilter::filterPointsInRange(TimeRange rang
 }
 
 
-set<time_t> TimeSeriesFilter::timeValuesInRange(TimeSeries::TimeRange range) {
+set<time_t> TimeSeriesFilter::timeValuesInRange(TimeRange range) {
   set<time_t> times;
   
-  if (range.start == 0 || range.end == 0) {
+  if (!range.isValid()) {
     return times;
   }
   
   if (this->clock()) {
-    times = this->clock()->timeValuesInRange(range.start, range.end);
+    times = this->clock()->timeValuesInRange(range);
   }
   else {
     vector<Point> points = source()->points(range);
