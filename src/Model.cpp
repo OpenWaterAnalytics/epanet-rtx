@@ -931,11 +931,13 @@ void Model::saveNetworkStates(time_t time) {
     junction->state_pressure = pressure;
     
     // todo - more fine-grained quality data? at wq step resolution...
-    double quality;
-    quality = Units::convertValue(junctionQuality(junction->name()), this->qualityUnits(), junction->quality()->units());
-    Point qualityPoint(time, quality);
-    junction->quality()->insert(qualityPoint);
-    junction->state_quality = quality;
+    if (this->shouldRunWaterQuality()) {
+      double quality;
+      quality = Units::convertValue(junctionQuality(junction->name()), this->qualityUnits(), junction->quality()->units());
+      Point qualityPoint(time, quality);
+      junction->quality()->insert(qualityPoint);
+      junction->state_quality = quality;
+    }
   }
   
   // only save demand states if 
@@ -1037,17 +1039,20 @@ vector<TimeSeries::_sp> Model::networkStatesWithOptions(elementOption_t options)
   vector<Element::_sp> modelElements;
   modelElements = this->elements();
   
+  if (options & ElementOptionMeasuredAll) {
+    options = (elementOption_t)(options | ElementOptionMeasuredFlows | ElementOptionMeasuredPressures | ElementOptionMeasuredQuality | ElementOptionMeasuredTanks);
+  }
+
   BOOST_FOREACH(Element::_sp element, modelElements) {
     switch (element->type()) {
       case Element::JUNCTION:
       case Element::TANK:
       {
         Tank::_sp t = boost::dynamic_pointer_cast<Tank>(element);
-        if (!t) {
-          break;
-        }
-        if ((t->levelMeasure() && (options & ElementOptionMeasuredTanks)) || (options & ElementOptionAllTanks) ) {
-          states.push_back(t->level());
+        if (t) {
+          if ((t->levelMeasure() && (options & ElementOptionMeasuredTanks)) || (options & ElementOptionAllTanks) ) {
+            states.push_back(t->level());
+          }
         }
       }
       case Element::RESERVOIR:
@@ -1102,6 +1107,9 @@ vector<TimeSeries::_sp> Model::networkInputSeries(elementOption_t options) {
         Tank::_sp t = boost::dynamic_pointer_cast<Tank>(element);
         if (t && t->levelMeasure() && (options & ElementOptionMeasuredTanks)) {
           measures.push_back(t->levelMeasure());
+        }
+        if (t && t->flowMeasure() && (options & ElementOptionMeasuredTanks)) {
+          measures.push_back(t->flowMeasure());
         }
       }
       case Element::RESERVOIR:
