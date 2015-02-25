@@ -109,7 +109,7 @@ string InfluxDbPointRecord::registerAndGetIdentifier(std::string recordName) {
   
   vector<string> existing = this->identifiers();
   BOOST_FOREACH( const string& name, existing) {
-    if (RTX_STRINGS_ARE_EQUAL_CS(name,this->name())) {
+    if (RTX_STRINGS_ARE_EQUAL_CS(name,recordName)) {
       // already here.
       alreadyInIndex = true;
       break;
