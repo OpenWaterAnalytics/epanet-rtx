@@ -59,6 +59,7 @@ bool DbPointRecord::registerAndGetIdentifier(string name) {
     vector<string> existing = this->identifiers();
     BOOST_FOREACH(const string& n, existing) {
       if (RTX_STRINGS_ARE_EQUAL_CS(n, name)) {
+        DB_PR_SUPER::registerAndGetIdentifier(name);
         return true;
       }
     }
