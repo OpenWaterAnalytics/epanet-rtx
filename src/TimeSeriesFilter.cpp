@@ -274,13 +274,6 @@ TimeSeries::PointCollection TimeSeriesFilter::filterPointsInRange(TimeRange rang
     }
   }
   
-  
-  // now check to see if we should proceed, i.e., our source has some data within the requested range.
-  if (!range.touches(queryRange)) {
-    // source data is out of range.
-    return PointCollection(vector<Point>(),this->units());
-  }
-  
   queryRange.correctWithRange(range);
   
   PointCollection data = source()->pointCollection(queryRange);
