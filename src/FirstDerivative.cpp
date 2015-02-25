@@ -26,14 +26,24 @@ TimeSeries::PointCollection FirstDerivative::filterPointsInRange(TimeRange range
   vector<Point> outPoints;
   Units fromUnits = this->source()->units();
   
-  // left difference, so get one more to the left.
-  Point leftMostPoint = this->source()->pointAtOrBefore(range.start);
-  Point prior = this->source()->pointBefore(leftMostPoint.time);
-  
-  // may not have a point here. if not, get the next one.
-  if (prior.time == 0) {
-    prior = this->source()->pointAfter(range.start - 1);
+  TimeRange qRange = range;
+  if (this->willResample()) {
+    // expand range
+    qRange.start = this->source()->pointBefore(range.start + 1).time;
+    qRange.end = this->source()->pointAfter(range.end - 1).time;
   }
+  
+  // one prior
+  qRange.start = this->source()->pointBefore(qRange.start).time;
+  
+  if (!qRange.touches(range)) {
+    return data;
+  }
+  
+  qRange.correctWithRange(range);
+  set<time_t> times = this->timeValuesInRange(qRange);
+  
+  
   
   // get next point in case it's out of the specified range
   Point seekRight;
@@ -45,7 +55,7 @@ TimeSeries::PointCollection FirstDerivative::filterPointsInRange(TimeRange range
     range.end = seekRight.time;
   }
   
-  PointCollection sourceData = this->source()->pointCollection(TimeRange(prior.time, range.end));
+  PointCollection sourceData = this->source()->pointCollection(qRange);
   
   if (sourceData.count() < 2) {
     return data;
