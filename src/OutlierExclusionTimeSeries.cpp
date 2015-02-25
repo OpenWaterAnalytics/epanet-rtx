@@ -110,13 +110,20 @@ TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(Time
   
   
   // get raw values, exclude outliers, then resample if needed.
-  vector<Point> rawSourcePoints = this->source()->points(sourceQuery);
+  PointCollection raw = this->source()->pointCollection(sourceQuery);
   set<time_t> rawTimes;
-  BOOST_FOREACH(const Point& p, rawSourcePoints) {
+  BOOST_FOREACH(const Point& p, raw.points) {
     rawTimes.insert(p.time);
   }
   
-  set<time_t> outTimes = this->timeValuesInRange(range); // output times. some of these may be excluded.
+  set<time_t> proposedOutTimes; // = this->timeValuesInRange(range); // can't do this because recursion.
+  if (this->clock()) {
+    proposedOutTimes = this->clock()->timeValuesInRange(range);
+  }
+  else {
+    PointCollection trim = raw.trimmedToRange(range);
+    proposedOutTimes = trim.times();
+  }
   
   vector<pointSummaryPair_t> summaries = this->filterSummaryCollection(rawTimes);
   TimeSeries::_sp sourceTs = this->source();
@@ -142,7 +149,7 @@ TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(Time
   
   PointCollection outCollection(goodPoints, this->units());
   if (this->willResample()) {
-    outCollection.resample(outTimes);
+    outCollection.resample(proposedOutTimes);
   }
   
   return outCollection;

@@ -39,8 +39,8 @@ std::ostream& PointRecord::toStream(std::ostream &stream) {
 
 
 std::string PointRecord::registerAndGetIdentifier(std::string recordName) {
-  if (_pointCache.find(recordName) == _pointCache.end()) {
-    _pointCache[recordName] = Point();
+  if (_singlePointCache.find(recordName) == _singlePointCache.end()) {
+    _singlePointCache[recordName] = Point();
   }
   return recordName;
 }
@@ -55,12 +55,8 @@ std::vector<std::string> PointRecord::identifiers() {
 Point PointRecord::point(const string& identifier, time_t time) {
   // return the cached point if it is valid
   
-  if (_cachedPointId == identifier && _cachedPoint.time == time) {
-    return _cachedPoint;
-  }
-  
-  if (_pointCache.find(identifier) != _pointCache.end()) {
-    Point p = _pointCache[identifier];
+  if (_singlePointCache.find(identifier) != _singlePointCache.end()) {
+    Point p = _singlePointCache[identifier];
     if (p.time == time) {
       return p;
     }
@@ -109,11 +105,9 @@ PointRecord::time_pair_t PointRecord::range(const string& id) {
 
 void PointRecord::addPoint(const string& identifier, Point point) {
   // Cache this single point
-  _cachedPointId = identifier;
-  _cachedPoint = point;
   
-  if (_pointCache.find(identifier) != _pointCache.end()) {
-    _pointCache[identifier] = point;
+  if (_singlePointCache.find(identifier) != _singlePointCache.end()) {
+    _singlePointCache[identifier] = point;
   }
   
 }

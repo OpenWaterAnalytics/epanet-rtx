@@ -81,10 +81,11 @@ namespace RTX {
     virtual std::ostream& toStream(std::ostream &stream);
 
   protected:
-    std::string _cachedPointId;
-    Point _cachedPoint;
+//    std::string _cachedPointId;
+//    Point _cachedPoint;
     
-    std::map<std::string,Point> _pointCache;
+    std::map<std::string,Point> _singlePointCache;
+//    std::map<std::string, std::vector<Point> > _pointVectorCache;
     
   private:
     std::string _name;
