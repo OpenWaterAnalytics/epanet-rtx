@@ -48,7 +48,7 @@ bool TimeRange::isValid() {
   if (this->contains(0)) {
     return false;
   }
-  if (this->start < 0 || this->end < 0) {
+  if (this->start <= 0 || this->end <= 0) {
     return false;
   }
   return true;
