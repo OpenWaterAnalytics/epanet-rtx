@@ -127,7 +127,7 @@ Point TimeSeriesFilter::pointBefore(time_t time) {
   time_t seekTime = time;
   
   if (!this->source()) {
-    return p;
+    return Point();
   }
   
   if (this->canDropPoints()) {
@@ -173,7 +173,7 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
   time_t seekTime = time;
   
   if (!this->source()) {
-    return p;
+    return Point();
   }
   
   
