@@ -63,6 +63,9 @@ TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range
     qRange.end = this->source()->pointAfter(range.end - 1).time;
   }
   
+  qRange.start  = qRange.start  > 0 ? qRange.start  : range.start;
+  qRange.end = qRange.end > 0 ? qRange.end : range.end;
+  
   set<time_t> times = this->timeValuesInRange(qRange);
   
   vector<pointSummaryPair_t> summaries = this->filterSummaryCollection(times);
