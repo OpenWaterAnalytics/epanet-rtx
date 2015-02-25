@@ -121,11 +121,6 @@ namespace RTX {
     Units units();
     virtual void setUnits(Units newUnits);
     virtual bool canChangeToUnits(Units units) {return true;};
-    /*
-    TimeSeries::Statistics summary(time_t start, time_t end);
-    TimeSeries::Statistics gapsSummary(time_t start, time_t end);
-     */
-//    std::vector<Point> gaps(time_t start, time_t end);
     
     virtual TimeSeries::_sp rootTimeSeries() { return shared_from_this(); };
     virtual void resetCache();
