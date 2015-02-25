@@ -83,7 +83,16 @@ vector<Point> TimeSeriesFilter::points(TimeRange range) {
   }
   
   set<time_t> pointTimes;
-  pointTimes = this->timeValuesInRange(range);
+  
+  if (!this->canDropPoints()) {
+    // optmized fetching: we know we're going to use these same points...
+    PointCollection c = this->filterPointsInRange(range);
+    this->record()->addPoints(this->name(), c.points);
+    pointTimes = c.times();
+  }
+  else {
+    pointTimes = this->timeValuesInRange(range);
+  }
   
   PointCollection native;
   
@@ -253,12 +262,18 @@ TimeSeries::PointCollection TimeSeriesFilter::filterPointsInRange(TimeRange rang
     queryRange.end = this->source()->pointAfter(range.end - 1).time;
   }
   
-  if (queryRange.start == 0) {
-    queryRange.start = this->source()->pointAfter(range.start).time; // go to next available point.
+  
+  // in case the source has data, but that data is truncated within the range requested
+  // i.e.,   ******[******-------]-------
+  if (!queryRange.isValid()) {
+    if (queryRange.start == 0) {
+      queryRange.start = this->source()->pointAfter(range.start).time; // go to next available point.
+    }
+    if (queryRange.end == 0) {
+      queryRange.end = this->source()->pointBefore(range.end).time; // go to previous availble point.
+    }
   }
-  if (queryRange.end == 0) {
-    queryRange.end = this->source()->pointBefore(range.end).time; // go to previous availble point.
-  }
+  
   
   // now check to see if we should proceed, i.e., our source has some data within the requested range.
   if (!range.touches(queryRange)) {
@@ -296,9 +311,12 @@ set<time_t> TimeSeriesFilter::timeValuesInRange(TimeRange range) {
     times = this->clock()->timeValuesInRange(range);
   }
   else {
-    vector<Point> points = source()->points(range);
-    BOOST_FOREACH(const Point& p, points) {
-      times.insert(p.time);
+    if (this->canDropPoints()) {
+      PointCollection c = this->filterPointsInRange(range);
+      times = c.times();
+    }
+    else {
+      times = this->source()->timeValuesInRange(range);
     }
   }
   

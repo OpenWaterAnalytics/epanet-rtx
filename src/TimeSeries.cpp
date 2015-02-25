@@ -10,7 +10,6 @@
 #include <boost/foreach.hpp>
 
 #include "TimeSeries.h"
-#include "IrregularClock.h"
 #include "PointRecord.h"
 
 #include <boost/accumulators/accumulators.hpp>
@@ -30,6 +29,14 @@ TimeSeries::PointCollection::PointCollection(vector<Point> points, Units units) 
 }
 TimeSeries::PointCollection::PointCollection() : points(vector<Point>()), units(1) {
   
+}
+
+set<time_t> TimeSeries::PointCollection::times() {
+  set<time_t> t;
+  BOOST_FOREACH(const Point& p, this->points) {
+    t.insert(p.time);
+  }
+  return t;
 }
 
 bool TimeSeries::PointCollection::convertToUnits(RTX::Units u) {
@@ -148,14 +155,7 @@ bool TimeSeries::PointCollection::resample(set<time_t> timeList, TimeSeriesResam
   effectiveRange.start = this->points.front().time;
   effectiveRange.end = this->points.back().time;
   
-  if (effectiveRange.start == 0) {
-    effectiveRange.start = listRange.start;
-  }
-  if (effectiveRange.end == 0) {
-    effectiveRange.end = listRange.end;
-  }
-  
-  
+  effectiveRange.correctWithRange(listRange);
   
   vector<Point> resampled;
   vector<Point>::size_type s = timeList.size();
@@ -221,7 +221,7 @@ bool TimeSeries::PointCollection::resample(set<time_t> timeList, TimeSeriesResam
 }
 
 
-TimeSeries::PointCollection TimeSeries::PointCollection::trimmedToRange(RTX::TimeSeries::TimeRange range) {
+TimeSeries::PointCollection TimeSeries::PointCollection::trimmedToRange(TimeRange range) {
   
   vector<Point> filtered;
   
@@ -309,9 +309,15 @@ std::vector< Point > TimeSeries::points(TimeRange range) {
   return points;
 }
 
-//TimeSeries::PointCollection TimeSeries::points(TimeSeries::TimeRange range) {
-//  return this->pointCollection(range.start, range.end);
-//}
+std::set<time_t> TimeSeries::timeValuesInRange(TimeRange range) {
+  
+  vector<Point> points = this->points(range);
+  set<time_t> times;
+  BOOST_FOREACH(const Point& p, points) {
+    times.insert(p.time);
+  }
+  return times;
+}
 
 
 
@@ -343,40 +349,7 @@ Point TimeSeries::pointAtOrBefore(time_t time) {
   return p;
 }
 
-/*
-Point TimeSeries::interpolatedPoint(time_t time) {
-  
-  Point p1,p2;
-  
-  p1 = this->pointAtOrBefore(time);
-  p2 = this->pointAfter(time - 1);
-  
-  return Point::linearInterpolate(p1, p2, time);
-}
-*/
-/*
-vector<Point> TimeSeries::gaps(time_t start, time_t end) {
-  
-  vector<Point> points = this->points(start, end);
-  
-  if (points.size() == 0) {
-    return points;
-  }
-  
-  vector<Point> gaps;
-  gaps.reserve(points.size());
-  time_t prior = this->pointBefore(points.front().time).time;
-  BOOST_FOREACH(const Point& p, points) {
-    time_t gapLength = p.time - prior;
-    Point newPoint(p.time, (double)gapLength);
-    gaps.push_back(newPoint);
-    prior = p.time;
-  }
-  
-  return gaps;
-}
 
-*/
 void TimeSeries::setRecord(PointRecord::_sp record) {
   
   if (!record) {
@@ -428,46 +401,6 @@ Units TimeSeries::units() {
 }
 
 
-/*
-TimeSeries::PointCollection TimeSeries::resampled(set<time_t> timeList, TimeSeriesResampleMode mode) {
-  
-  typedef std::vector<Point>::const_iterator pVec_cIt;
-  
-  // sanity
-  if (timeList.empty()) {
-    return PointCollection();
-  }
-  
-  TimeRange listRange;
-  listRange.start = *(timeList.cbegin());
-  listRange.end = *(timeList.crbegin());
-  
-  // widen the range, if needed. i.e., if the start or end points
-  TimeRange effectiveRange;
-  effectiveRange.start = this->pointBefore(listRange.start + 1).time;
-  effectiveRange.end = this->pointAfter(listRange.end - 1).time;
-  
-  // if there are no points before or after the requested range, just get the points that are there.
-  
-  if (effectiveRange.start == 0) {
-    effectiveRange.start = listRange.start;
-  }
-  if (effectiveRange.end == 0) {
-    effectiveRange.end = listRange.end;
-  }
-  
-  PointCollection nativePoints = this->points(effectiveRange);
-  
-  nativePoints.resample(timeList);
-  
-  return nativePoints;
-  
-}
-*/
-
-
-
-
 #pragma mark - Protected Methods
 
 std::ostream& TimeSeries::toStream(std::ostream &stream) {
@@ -479,14 +412,3 @@ std::ostream& TimeSeries::toStream(std::ostream &stream) {
 }
 
 
-/*
- bool TimeSeries::isCompatibleWith(TimeSeries::_sp otherSeries) {
- 
- // basic check for compatible regular time series.
- Clock::_sp theirClock = otherSeries->clock(), myClock = this->clock();
- bool clocksCompatible = myClock->isCompatibleWith(theirClock);
- bool unitsCompatible = units().isDimensionless() || units().isSameDimensionAs(otherSeries->units());
- return (clocksCompatible && unitsCompatible);
- }
- 
- */
