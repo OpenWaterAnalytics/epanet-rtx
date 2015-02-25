@@ -167,8 +167,10 @@ bool MysqlPointRecord::isConnected() {
   return connected;
 }
 
-std::string MysqlPointRecord::registerAndGetIdentifier(std::string recordName) {
+bool MysqlPointRecord::insertIdentifier(const std::string& recordName) {
   // insert the identifier, or make sure it's in the db.
+  bool ok = false;
+  
   this->checkConnection();
   if (isConnected()) {
     try {
@@ -176,15 +178,14 @@ std::string MysqlPointRecord::registerAndGetIdentifier(std::string recordName) {
       seriesNameStatement->setString(1,recordName);
       seriesNameStatement->executeUpdate();
       _mysqlCon->commit();
+      ok = true;
     } catch (sql::SQLException &e) {
       handleException(e);
     }
   }
   
   
-  DB_PR_SUPER::registerAndGetIdentifier(recordName);
-  
-  return recordName;
+  return ok;
 }
 
 

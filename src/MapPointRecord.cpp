@@ -29,7 +29,7 @@ std::ostream& MapPointRecord::toStream(std::ostream &stream) {
 }
 
 
-std::string MapPointRecord::registerAndGetIdentifier(std::string recordName) {
+bool MapPointRecord::registerAndGetIdentifier(std::string recordName) {
   // register the recordName internally and generate a unique key identifier
   
   // check to see if it's there first
@@ -41,7 +41,7 @@ std::string MapPointRecord::registerAndGetIdentifier(std::string recordName) {
     _nextKey++;
   }
   
-  return recordName;
+  return true;
 }
 
 int MapPointRecord::identifierForName(std::string recordName) {

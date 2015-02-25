@@ -326,17 +326,10 @@ void TimeSeries::setRecord(PointRecord::_sp record) {
   
   if (!record) {
     PointRecord::_sp pr( new PointRecord() );
-    record = pr;
-    //cerr << "WARNING: removing record for Time Series \"" << this->name() << "\"" << endl;
+    _points = pr;
   }
-  
-  vector<string> existing = record->identifiers();
-  BOOST_FOREACH( const string& name, existing) {
-    if (RTX_STRINGS_ARE_EQUAL_CS(name,this->name())) {
-      _points = record;
-      record->registerAndGetIdentifier(this->name());
-      return;
-    }
+  else if (record->registerAndGetIdentifier(this->name())) {
+    _points = record;
   }
   
   return;

@@ -38,11 +38,11 @@ std::ostream& PointRecord::toStream(std::ostream &stream) {
 }
 
 
-std::string PointRecord::registerAndGetIdentifier(std::string recordName) {
+bool PointRecord::registerAndGetIdentifier(std::string recordName) {
   if (_singlePointCache.find(recordName) == _singlePointCache.end()) {
     _singlePointCache[recordName] = Point();
   }
-  return recordName;
+  return true;
 }
 
 std::vector<std::string> PointRecord::identifiers() {

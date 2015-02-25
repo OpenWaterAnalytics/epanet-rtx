@@ -24,9 +24,10 @@ namespace RTX {
     SqlitePointRecord();
     virtual ~SqlitePointRecord();
     
+    bool insertIdentifier(const std::string& recordName);
+    
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
-    virtual std::string registerAndGetIdentifier(std::string recordName);
     virtual std::vector<std::string> identifiers();
     
     virtual time_pair_t range(const string& id);

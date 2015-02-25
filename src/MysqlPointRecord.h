@@ -61,7 +61,7 @@ namespace RTX {
     
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
-    virtual std::string registerAndGetIdentifier(std::string recordName);
+    bool insertIdentifier(const std::string& recordName);
     virtual std::vector<std::string> identifiers();
     virtual std::vector<std::pair<std::string, Units> >availableData();
     

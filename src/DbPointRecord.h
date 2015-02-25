@@ -34,8 +34,10 @@ namespace RTX {
     DbPointRecord();
     virtual ~DbPointRecord() {};
     
-    virtual bool readonly();
-    virtual void setReadonly(bool readOnly);
+    bool readonly();
+    void setReadonly(bool readOnly);
+    
+    bool registerAndGetIdentifier(std::string name);
     
     // end of the road for these guys; no virtuals.
     Point point(const string& id, time_t time);
@@ -109,7 +111,7 @@ namespace RTX {
     virtual void insertSingle(const std::string& id, Point point)=0;
     virtual void insertRange(const std::string& id, std::vector<Point> points)=0;
     virtual void removeRecord(const std::string& id)=0;
-    
+    virtual bool insertIdentifier(const std::string& id)=0;
     
     
     

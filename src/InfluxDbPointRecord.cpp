@@ -97,12 +97,8 @@ void InfluxDbPointRecord::setConnectionString(const std::string &str) {
 }
 
 
-string InfluxDbPointRecord::registerAndGetIdentifier(std::string recordName) {
-  
-  if (this->readonly()) {
-    return recordName;
-  }
-  
+bool InfluxDbPointRecord::insertIdentifier(const std::string &recordName) {
+
   // placeholder in db. insert a point to create the ts, then drop the points (but not the ts)
   
   bool alreadyInIndex = false;
@@ -128,7 +124,7 @@ string InfluxDbPointRecord::registerAndGetIdentifier(std::string recordName) {
   }
   
   
-  return recordName;
+  return true;
 }
 
 

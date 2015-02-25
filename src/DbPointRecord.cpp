@@ -51,6 +51,28 @@ void DbPointRecord::setReadonly(bool readOnly) {
   _readOnly = readOnly;
 }
 
+bool DbPointRecord::registerAndGetIdentifier(string name) {
+  
+  if (this->readonly()) {
+    
+    // check existing
+    vector<string> existing = this->identifiers();
+    BOOST_FOREACH(const string& n, existing) {
+      if (RTX_STRINGS_ARE_EQUAL_CS(n, name)) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+  
+  if (this->insertIdentifier(name) && DB_PR_SUPER::registerAndGetIdentifier(name) ) {
+    return true;
+  }
+  
+  return false;
+}
+
 
 void DbPointRecord::setSearchDistance(time_t time) {
   _searchDistance = time;

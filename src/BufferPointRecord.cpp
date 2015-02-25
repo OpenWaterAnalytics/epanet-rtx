@@ -34,7 +34,7 @@ std::ostream& BufferPointRecord::toStream(std::ostream &stream) {
 }
 
 
-std::string BufferPointRecord::registerAndGetIdentifier(std::string recordName) {
+bool BufferPointRecord::registerAndGetIdentifier(std::string recordName) {
   // register the recordName internally and generate a buffer and mutex
   
   // check to see if it's there first
@@ -47,7 +47,7 @@ std::string BufferPointRecord::registerAndGetIdentifier(std::string recordName) 
     _keyedBufferMutex.insert(make_pair(recordName, bmPair));
   }
   
-  return recordName;
+  return true;
 }
 
 

@@ -61,7 +61,7 @@ namespace RTX {
     std::string name();
     void setName(std::string name);
     
-    virtual std::string registerAndGetIdentifier(std::string recordName);    // registering record names.
+    virtual bool registerAndGetIdentifier(std::string recordName);    // registering record names.
     virtual std::vector<std::string> identifiers();
     
     //virtual bool isPointAvailable(const string& identifier, time_t time);

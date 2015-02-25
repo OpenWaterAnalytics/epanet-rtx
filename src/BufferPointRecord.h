@@ -40,7 +40,7 @@ namespace RTX {
     BufferPointRecord(int defaultCapacity = RTX_BUFFER_DEFAULT_CACHESIZE);
     virtual ~BufferPointRecord() {};
     
-    virtual std::string registerAndGetIdentifier(std::string recordName);    // registering record names.
+    virtual bool registerAndGetIdentifier(std::string recordName);    // registering record names.
     virtual std::vector<std::string> identifiers();
     
     virtual Point point(const string& identifier, time_t time);

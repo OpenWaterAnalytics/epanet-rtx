@@ -63,9 +63,7 @@ namespace RTX {
   public:
     RTX_SHARED_POINTER(TimeSeriesFilter);
     TimeSeriesFilter();
-    
-    virtual void setRecord(PointRecord::_sp record);
-    
+        
     virtual TimeSeries::_sp source();
     virtual void setSource(TimeSeries::_sp ts);
     

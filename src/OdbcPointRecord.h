@@ -99,7 +99,7 @@ namespace RTX {
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
     
-    virtual std::string registerAndGetIdentifier(std::string recordName);
+    virtual bool registerAndGetIdentifier(std::string recordName);
     virtual std::vector<std::string> identifiers();
     virtual std::ostream& toStream(std::ostream &stream);
     
@@ -110,7 +110,7 @@ namespace RTX {
     
   protected:
     void initDsnList();
-    
+    virtual bool insertIdentifier(const std::string& id) { return false; };
     // abstract stubs
     virtual void rebuildQueries(); // must call base
     virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime)=0;

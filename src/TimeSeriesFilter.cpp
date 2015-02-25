@@ -13,14 +13,6 @@ TimeSeriesFilter::TimeSeriesFilter() {
   _resampleMode = TimeSeriesResampleModeLinear;
 }
 
-void TimeSeriesFilter::setRecord(PointRecord::_sp record) {
-  // not read-only
-  if (record) {
-    record->registerAndGetIdentifier(this->name());
-    TimeSeries::setRecord(record);
-  }
-}
-
 Clock::_sp TimeSeriesFilter::clock() {
   return _clock;
 }
