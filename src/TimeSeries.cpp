@@ -136,26 +136,10 @@ bool TimeSeries::PointCollection::resample(set<time_t> timeList, TimeSeriesResam
   if (timeList.empty()) {
     return false;
   }
-  
-  // are there enough points to return anything?
-  bool tooFewPoints = (mode == TimeSeriesResampleModeStep) ? (this->count() < 1) : (this->count() < 2);
-  if (tooFewPoints) {
-    // the only way this is ok is if the collection has one point and it's the only time value there is.
-    if (this->count() == 1 && this->points.front().time == *(timeList.begin())) {
-      return true;
-    }
+  if (this->count() < 1) {
     return false;
   }
   
-  TimeRange listRange;
-  listRange.start = *(timeList.cbegin());
-  listRange.end = *(timeList.crbegin());
-  
-  TimeRange effectiveRange;
-  effectiveRange.start = this->points.front().time;
-  effectiveRange.end = this->points.back().time;
-  
-  effectiveRange.correctWithRange(listRange);
   
   vector<Point> resampled;
   vector<Point>::size_type s = timeList.size();
@@ -168,52 +152,40 @@ bool TimeSeries::PointCollection::resample(set<time_t> timeList, TimeSeriesResam
   pVec_cIt right = sourceBegin;
   pVec_cIt left = sourceBegin;
   
-  // prune the time list for valid time values (values within native point time range)
-  set<time_t> validTimeList;
-  BOOST_FOREACH(const time_t now, timeList) {
-    if ( effectiveRange.start <= now && now <= effectiveRange.end ) {
-      validTimeList.insert(now);
-    }
-  }
-  
   ++right; // get one step ahead.
   
-  // pre-set the right/left cursors
-  time_t firstValidTime = *(validTimeList.begin());
-  while (right != sourceEnd && right->time < firstValidTime) {
-    ++right;
-    ++left;
-  }
-  
-  
-  BOOST_FOREACH(const time_t now, validTimeList) {
+  BOOST_FOREACH(const time_t now, timeList) {
     
-    // we should be straddling.
-    while ( ( right != sourceEnd && left != sourceEnd) &&
-           (! (left->time <= now && right->time >= now) ) ) {
-      // move cursors forward
+    // maybe we can't resample at now
+    if (now < left->time) {
+      continue;
+    }
+    
+    // get positioned
+    while (right != sourceEnd && right->time <= now) {
       ++left;
       ++right;
     }
     
-    // end of native points?
-    if (right == sourceEnd) {
-      break; // get out of foreach
-    }
     Point p;
     if (mode == TimeSeriesResampleModeLinear) {
-      p = Point::linearInterpolate(*left, *right, now);
-    }
-    else if (mode == TimeSeriesResampleModeStep) {
-      if (now == right->time) {
-        p = *right;
+      if (right != sourceEnd) {
+        p = Point::linearInterpolate(*left, *right, now);
+        resampled.push_back(p);
       }
       else {
-        p = *left;
+        if (left->time == now) {
+          p = *left;
+          resampled.push_back(p);
+        }
+        break;
       }
-      p.time = now;
     }
-    resampled.push_back(p);
+    else if (mode == TimeSeriesResampleModeStep) {
+      p = *left;
+      p.time = now;
+      resampled.push_back(p);
+    }
   }
   
   this->points = resampled;
