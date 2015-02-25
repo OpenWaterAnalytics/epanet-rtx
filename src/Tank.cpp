@@ -106,6 +106,8 @@ void Tank::setLevelMeasure(TimeSeries::_sp levelMeasure) {
   if (!levelMeasure) {
     Junction::setHeadMeasure(TimeSeries::_sp());
     _levelMeasure = TimeSeries::_sp();
+    TimeSeries::_sp blank;
+    _volumeMeasure->setSource(blank);
   }
   else {
     _volumeMeasure->resetCache();
