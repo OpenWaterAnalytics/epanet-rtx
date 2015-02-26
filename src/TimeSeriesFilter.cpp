@@ -298,6 +298,30 @@ set<time_t> TimeSeriesFilter::timeValuesInRange(TimeRange range) {
 }
 
 
+time_t TimeSeriesFilter::timeAfter(time_t t) {
+  if (!this->source()) {
+    return 0;
+  }
+  if (this->clock()) {
+    return this->clock()->timeAfter(t);
+  }
+  else {
+    return this->source()->timeAfter(t);
+  }
+}
+
+time_t TimeSeriesFilter::timeBefore(time_t t) {
+  if (!this->source()) {
+    return 0;
+  }
+  if (this->clock()) {
+    return this->clock()->timeBefore(t);
+  }
+  else {
+    return this->source()->timeBefore(t);
+  }
+}
+
 
 bool TimeSeriesFilter::canSetSource(TimeSeries::_sp ts) {
   bool goodSource = (ts) ? true : false;

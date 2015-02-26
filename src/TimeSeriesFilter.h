@@ -84,7 +84,11 @@ namespace RTX {
     
     // methods you must override to provide info to the base class
     virtual PointCollection filterPointsInRange(TimeRange range);
+    
     virtual std::set<time_t> timeValuesInRange(TimeRange range);
+    virtual time_t timeAfter(time_t t);
+    virtual time_t timeBefore(time_t t);
+    
     virtual bool canSetSource(TimeSeries::_sp ts);
     virtual void didSetSource(TimeSeries::_sp ts);
     virtual bool canChangeToUnits(Units units);

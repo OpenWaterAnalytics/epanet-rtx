@@ -296,7 +296,7 @@ time_t TimeSeries::timeAfter(time_t t) {
     return this->clock()->timeAfter(t);
   }
   else {
-    time_t a = this->pointAfter(t).time;
+    time_t a = TimeSeries::pointAfter(t).time;
     return a;
   }
 }
@@ -307,7 +307,7 @@ time_t TimeSeries::timeBefore(time_t t) {
     return this->clock()->timeBefore(t);
   }
   else {
-    time_t b = this->pointBefore(t).time;
+    time_t b = TimeSeries::pointBefore(t).time;
     return b;
   }
 }
