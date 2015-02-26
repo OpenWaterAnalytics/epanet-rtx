@@ -82,26 +82,19 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
   
   Units myUnits = this->units();
   std::vector<Point> thePoints;
-  TimeRange primarySourceRange = range;
-  TimeRange secondarySourceRange = range;
+  TimeRange preliminarySourceRange = range;
+  TimeRange preliminarySecondaryRange = range;
   
-  Point priorPoint = this->source()->pointBefore(range.start + 1);
-  if (priorPoint.isValid) {
-    primarySourceRange.start = priorPoint.time;
-  }
-  Point nextPoint = this->source()->pointAfter(range.end - 1).time;
-  if (nextPoint.isValid) {
-    primarySourceRange.end = nextPoint.time;
-  }
+  time_t prior, next;
+  prior = this->source()->timeBefore(range.start + 1);
+  next = this->source()->timeAfter(range.end - 1);
+  TimeRange primarySourceRange(prior, next);
+  primarySourceRange.correctWithRange(preliminarySourceRange);
   
-  priorPoint = this->failoverTimeseries()->pointBefore(range.start + 1);
-  nextPoint = this->failoverTimeseries()->pointAfter(range.end - 1);
-  if (priorPoint.isValid) {
-    secondarySourceRange.start = priorPoint.time;
-  }
-  if (nextPoint.isValid) {
-    secondarySourceRange.end = nextPoint.time;
-  }
+  prior = this->failoverTimeseries()->timeBefore(range.start + 1);
+  next = this->failoverTimeseries()->timeAfter(range.end - 1);
+  TimeRange secondarySourceRange(prior, next);
+  secondarySourceRange.correctWithRange(preliminarySecondaryRange);
   
   PointCollection primaryData = this->source()->pointCollection(primarySourceRange);
   primaryData.convertToUnits(myUnits);

@@ -55,7 +55,9 @@ bool TimeRange::isValid() {
 }
 
 void TimeRange::correctWithRange(RTX::TimeRange otherRange) {
-  
+  if (this->isValid()) {
+    return;
+  }
   if (this->start == 0) {
     this->start = otherRange.start;
   }

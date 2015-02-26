@@ -146,12 +146,7 @@ Point TimeSeriesFilter::pointBefore(time_t time) {
   }
   else {
     // points in, points out
-    if (this->clock()) {
-      seekTime = this->clock()->timeBefore(seekTime);
-    }
-    else {
-      seekTime = this->source()->pointBefore(seekTime).time;
-    }
+    seekTime = this->timeBefore(seekTime);
     p = this->point(seekTime);
   }
   
@@ -192,12 +187,7 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
   }
   else {
     // points in, points out
-    if (this->clock()) {
-      seekTime = this->clock()->timeAfter(seekTime);
-    }
-    else {
-      seekTime = this->source()->pointAfter(seekTime).time;
-    }
+    seekTime = this->timeAfter(seekTime);
     p = this->point(seekTime);
   }
   
@@ -258,10 +248,10 @@ TimeSeries::PointCollection TimeSeriesFilter::filterPointsInRange(TimeRange rang
   // i.e.,   ******[******-------]-------
   if (!queryRange.isValid()) {
     if (queryRange.start == 0) {
-      queryRange.start = this->source()->pointAfter(range.start).time; // go to next available point.
+      queryRange.start = this->source()->timeAfter(range.start); // go to next available point.
     }
     if (queryRange.end == 0) {
-      queryRange.end = this->source()->pointBefore(range.end).time; // go to previous availble point.
+      queryRange.end = this->source()->timeBefore(range.end); // go to previous availble point.
     }
   }
   

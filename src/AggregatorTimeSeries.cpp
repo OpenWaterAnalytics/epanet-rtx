@@ -122,14 +122,7 @@ Point AggregatorTimeSeries::pointBefore(time_t time) {
   }
   else {
     BOOST_FOREACH(AggregatorSource& item, _tsList) {
-      if (item.timeseries->clock()) {
-        timeSet.insert(item.timeseries->clock()->timeBefore(time));
-      }
-      else {
-        time_t thisBefore = item.timeseries->pointBefore(time).time;
-        timeSet.insert(thisBefore);
-      }
-      
+      timeSet.insert(item.timeseries->timeBefore(time));
     }
   }
     
@@ -153,13 +146,7 @@ Point AggregatorTimeSeries::pointAfter(time_t time) {
   }
   else {
     BOOST_FOREACH(AggregatorSource& item, _tsList) {
-      if (item.timeseries->clock()) {
-        timeSet.insert(item.timeseries->clock()->timeAfter(time));
-      }
-      else {
-        time_t thisAfter = item.timeseries->pointAfter(time).time;
-        timeSet.insert(thisAfter);
-      }
+      timeSet.insert(item.timeseries->timeAfter(time));
     }
   }
   

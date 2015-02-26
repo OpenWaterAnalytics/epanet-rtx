@@ -110,12 +110,14 @@ set<time_t> LagTimeSeries::timeValuesInRange(TimeRange range) {
 
 TimeSeries::PointCollection LagTimeSeries::filterPointsInRange(TimeRange range) {
   
-  TimeRange queryRange = range;
-  queryRange.start -= _lag;
-  queryRange.end -= _lag;
+  TimeRange laggedRange = range;
+  laggedRange.start -= _lag;
+  laggedRange.end -= _lag;
+  TimeRange queryRange = laggedRange;
   
-  queryRange.start = this->source()->pointBefore(queryRange.start + 1).time;
-  queryRange.end = this->source()->pointAfter(queryRange.end - 1).time;
+  queryRange.start = this->source()->timeBefore(queryRange.start + 1);
+  queryRange.end = this->source()->timeAfter(queryRange.end - 1);
+  queryRange.correctWithRange(laggedRange);
   
   PointCollection data = this->source()->pointCollection(queryRange);
   
@@ -123,8 +125,6 @@ TimeSeries::PointCollection LagTimeSeries::filterPointsInRange(TimeRange range) 
   BOOST_FOREACH(Point& p, data.points) {
     p.time += _lag;
   }
-  
-  
   
   bool dataOk = false;
   dataOk = data.convertToUnits(this->units());

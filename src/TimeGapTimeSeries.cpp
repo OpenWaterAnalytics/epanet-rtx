@@ -12,26 +12,51 @@ TimeGapTimeSeries::TimeGapTimeSeries() {
 
 TimeSeries::PointCollection TimeGapTimeSeries::filterPointsInRange(TimeRange range) {
   
-  vector<Point> gaps;
-  set<time_t> times = this->timeValuesInRange(range);
+  PointCollection gaps(vector<Point>(), RTX_SECOND);
   
-  BOOST_FOREACH(time_t now, times) {
-    Point thisOne = this->source()->pointBefore(now+1);
-    Point lastOne = this->source()->pointBefore(thisOne.time);
-    
-    if (!thisOne.isValid || !lastOne.isValid) {
-      continue; // skip this one.
-    }
-    time_t gapLen = thisOne.time - lastOne.time;
-    double gapLenConverted = Units::convertValue((double)gapLen, RTX_SECOND, this->units());
-    
-    Point gapPoint(now, gapLenConverted);
-    gapPoint.addQualFlag(Point::rtx_integrated);
-    gaps.push_back(gapPoint);
+  TimeRange qRange = range;
+  if (this->willResample()) {
+    // expand range
+    qRange.start = this->source()->timeBefore(range.start + 1);
+    qRange.end = this->source()->timeAfter(range.end - 1);
   }
   
+  // one prior
+  qRange.start = this->source()->timeBefore(qRange.start);
   
-  return PointCollection(gaps, this->units());
+  qRange.correctWithRange(range);
+  PointCollection sourceData = this->source()->pointCollection(qRange);
+  
+  if (sourceData.count() < 2) {
+    return PointCollection(vector<Point>(), this->units());
+  }
+  
+  vector<Point>::const_iterator it = sourceData.points.cbegin();
+  vector<Point>::const_iterator prev = it;
+  ++it;
+  while (it != sourceData.points.cend()) {
+    
+    time_t t1,t2;
+    t1 = prev->time;
+    t2 = it->time;
+    
+    double gapV = (double)(t2-t1);
+    Point gapP(t2,gapV);
+    gapP.addQualFlag(Point::rtx_integrated);
+    gaps.points.push_back(gapP);
+    
+    ++prev;
+    ++it;
+  }
+  
+  gaps.convertToUnits(this->units());
+  
+  if (this->willResample()) {
+    set<time_t> times = this->timeValuesInRange(range);
+    gaps.resample(times);
+  }
+  
+  return gaps;
 }
 
 bool TimeGapTimeSeries::canSetSource(TimeSeries::_sp ts) {

@@ -43,54 +43,6 @@ bool OutlierExclusionTimeSeries::willResample() {
   return TimeSeriesFilter::willResample() || ( this->clock() );
 }
 
-//Point OutlierExclusionTimeSeries::pointBefore(time_t searchTime) {
-//  Point priorPoint;
-//  if (!this->source()) {
-//    return priorPoint;
-//  }
-//  
-//  time_t priorTime = this->source()->pointBefore(searchTime).time;
-//  if (priorTime == 0) {
-//    return priorPoint;
-//  }
-//  
-//  priorPoint = this->filteredSingle(priorTime);
-//  while (!priorPoint.isValid && priorPoint.time > 0) {
-//    priorTime = this->source()->pointBefore(priorTime).time;
-//    priorPoint = this->filteredSingle(priorTime);
-//  }
-//  
-//  return priorPoint;
-//}
-//
-//Point OutlierExclusionTimeSeries::pointAfter(time_t time) {
-//  if (!this->source()) {
-//    return Point();
-//  }
-//  Point thePoint;
-//  time_t searchTime = time;
-//  thePoint.time = searchTime;
-//  while (!thePoint.isValid && thePoint.time > 0) {
-//    searchTime = this->source()->pointAfter(thePoint.time).time;
-//    thePoint = this->point
-//  }
-//  
-//  return Point();
-//  
-//  time_t afterTime = this->source()->pointAfter(searchTime).time;
-//  if (afterTime == 0) {
-//    return Point();
-//  }
-//  
-//  Point afterPoint = this->filteredSingle(afterTime);
-//  while (!afterPoint.isValid && afterPoint.time > 0) {
-//    afterTime = this->source()->pointAfter(afterTime).time;
-//    afterPoint = this->filteredSingle(afterTime);
-//  }
-//  return afterPoint;
-//}
-
-
 TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(TimeRange range) {
   
   // if we are to resample, then there's a possibility that we need to expand the range
@@ -100,15 +52,10 @@ TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(Time
   if (this->willResample() && range.duration() > 0) {
     // expand range so that we can resample at the start and/or end of the range requested
     // this is quick and dirty, and probably will fail for badly behaved data.
-    
     sourceQuery.start -= range.duration();
     sourceQuery.end += range.duration();
-    
   }
 
-  
-  
-  
   // get raw values, exclude outliers, then resample if needed.
   PointCollection raw = this->source()->pointCollection(sourceQuery);
   set<time_t> rawTimes;

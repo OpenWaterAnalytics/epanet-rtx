@@ -48,25 +48,18 @@ TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) 
   TimeRange rangeToResample = range;
   if (this->willResample()) {
     // expand range
-    rangeToResample.start = this->source()->pointBefore(range.start + 1).time;
-    rangeToResample.end = this->source()->pointAfter(range.end - 1).time;
+    rangeToResample.start = this->source()->timeBefore(range.start + 1);
+    rangeToResample.end = this->source()->timeAfter(range.end - 1);
   }
   
   TimeRange queryRange = rangeToResample;
-  queryRange.start  = queryRange.start  > 0 ? queryRange.start  : range.start;
-  queryRange.end = queryRange.end > 0 ? queryRange.end : range.end;
+  queryRange.correctWithRange(range);
   
   int margin = this->windowSize() / 2;
   
   // expand source lookup bounds, counting as we go and ignoring invalid points.
   for (int leftSeek = 0; leftSeek <= margin; ) {
-    time_t left;
-    if (source()->clock()) {
-      left = this->source()->clock()->timeBefore(queryRange.start);
-    }
-    else {
-      left = this->source()->pointBefore(queryRange.start).time;
-    }
+    time_t left = this->source()->timeBefore(queryRange.start);
     if (left != 0) {
       queryRange.start = left;
       ++leftSeek;
@@ -77,13 +70,7 @@ TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) 
     }
   }
   for (int rightSeek = 0; rightSeek <= margin; ) {
-    time_t right;
-    if (source()->clock()) {
-      right = this->source()->clock()->timeAfter(queryRange.end);
-    }
-    else {
-      right = this->source()->pointAfter(queryRange.end).time;
-    }
+    time_t right = this->source()->timeAfter(queryRange.end);
     if (right != 0) {
       queryRange.end = right;
       ++rightSeek;

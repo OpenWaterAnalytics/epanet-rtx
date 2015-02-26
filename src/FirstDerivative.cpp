@@ -29,32 +29,14 @@ TimeSeries::PointCollection FirstDerivative::filterPointsInRange(TimeRange range
   TimeRange qRange = range;
   if (this->willResample()) {
     // expand range
-    qRange.start = this->source()->pointBefore(range.start + 1).time;
-    qRange.end = this->source()->pointAfter(range.end - 1).time;
+    qRange.start = this->source()->timeBefore(range.start + 1);
+    qRange.end = this->source()->timeAfter(range.end - 1);
   }
   
   // one prior
-  qRange.start = this->source()->pointBefore(qRange.start).time;
-  
-  if (!qRange.touches(range)) {
-    return data;
-  }
+  qRange.start = this->source()->timeBefore(qRange.start);
   
   qRange.correctWithRange(range);
-//  set<time_t> times = this->timeValuesInRange(qRange);
-  
-//  
-//  
-//  // get next point in case it's out of the specified range
-//  Point seekRight;
-//  seekRight.time = range.end - 1;
-//  while (seekRight.time > 0 && !seekRight.isValid) {
-//    seekRight = this->source()->pointAfter(seekRight.time);
-//  }
-//  if (seekRight.time > 0) {
-//    range.end = seekRight.time;
-//  }
-  
   PointCollection sourceData = this->source()->pointCollection(qRange);
   
   if (sourceData.count() < 2) {

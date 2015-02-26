@@ -28,8 +28,8 @@ Point MultiplierTimeSeries::filteredWithSourcePoint(Point sourcePoint) {
   
   // get resampled point at this sourcepoint time value
   TimeRange effectiveRange;
-  effectiveRange.start = this->multiplier()->pointBefore(sourcePoint.time + 1).time;
-  effectiveRange.end = this->multiplier()->pointAfter(sourcePoint.time - 1).time;
+  effectiveRange.start = this->multiplier()->timeBefore(sourcePoint.time + 1);
+  effectiveRange.end = this->multiplier()->timeAfter(sourcePoint.time - 1);
   
   // if there are no points before or after the requested range, just get the points that are there.
   effectiveRange.correctWithRange(TimeRange(sourcePoint.time, sourcePoint.time));

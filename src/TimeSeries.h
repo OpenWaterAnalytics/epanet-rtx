@@ -110,7 +110,10 @@ namespace RTX {
     virtual Point pointAtOrBefore(time_t time);
     PointCollection pointCollection(TimeRange range);
     virtual std::vector< Point > points(TimeRange range); // points in range
+    
     virtual std::set<time_t> timeValuesInRange(TimeRange range);
+    virtual time_t timeAfter(time_t t);
+    virtual time_t timeBefore(time_t t);
     
     virtual std::string name();
     virtual void setName(const std::string& name);

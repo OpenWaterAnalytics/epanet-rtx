@@ -87,8 +87,8 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange 
     // expand the query range for the secondary collection
     TimeRange primaryRange(*(sourceTimeValues.begin()), *(sourceTimeValues.rbegin()));
     TimeRange secondaryRange;
-    secondaryRange.start = this->correlatorTimeSeries()->pointBefore(primaryRange.start + 1).time;
-    secondaryRange.end = this->correlatorTimeSeries()->pointAfter(primaryRange.end - 1).time;
+    secondaryRange.start = this->correlatorTimeSeries()->timeBefore(primaryRange.start + 1);
+    secondaryRange.end = this->correlatorTimeSeries()->timeAfter(primaryRange.end - 1);
     
     PointCollection secondaryCollection = this->correlatorTimeSeries()->pointCollection(secondaryRange);
     secondaryCollection.resample(sourceTimeValues);

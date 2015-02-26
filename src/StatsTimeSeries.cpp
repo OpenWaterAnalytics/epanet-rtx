@@ -59,8 +59,8 @@ TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range
   TimeRange qRange = range;
   if (this->willResample()) {
     // expand range
-    qRange.start = this->source()->pointBefore(range.start + 1).time;
-    qRange.end = this->source()->pointAfter(range.end - 1).time;
+    qRange.start = this->source()->timeBefore(range.start + 1);
+    qRange.end = this->source()->timeAfter(range.end - 1);
   }
   
   qRange.correctWithRange(range);

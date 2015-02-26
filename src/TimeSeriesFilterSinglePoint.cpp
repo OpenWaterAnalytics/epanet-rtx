@@ -16,26 +16,17 @@ using namespace std;
 
 TimeSeries::PointCollection TimeSeriesFilterSinglePoint::filterPointsInRange(TimeRange range) {
   
-  TimeRange queryRange = range;
+  TimeRange qRange = range;
   if (this->willResample()) {
     // expand range
-
-    Point seekLeft = this->source()->pointBefore(range.start + 1);
-    while (seekLeft.time > 0 && !this->filteredWithSourcePoint(seekLeft).isValid) {
-      seekLeft = this->source()->pointBefore(seekLeft.time);
-    }
-    
-    queryRange.start = seekLeft.time;
-    
-    Point seekRight = this->source()->pointAfter(range.end -1 );
-    while (seekRight.time > 0 && !this->filteredWithSourcePoint(seekRight).isValid) {
-      seekRight = this->source()->pointAfter(seekRight.time);
-    }
-    
-    queryRange.end = seekRight.time;
+    qRange.start = this->source()->timeBefore(range.start + 1);
+    qRange.end = this->source()->timeAfter(range.end - 1);
   }
   
-  PointCollection data = source()->pointCollection(queryRange);
+  qRange.correctWithRange(range);
+  PointCollection sourceData = this->source()->pointCollection(qRange);
+  
+  PointCollection data = source()->pointCollection(qRange);
   
   vector<Point> outPoints;
   bool didDropPoints = false;
