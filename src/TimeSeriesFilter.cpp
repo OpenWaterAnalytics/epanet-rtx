@@ -69,6 +69,7 @@ void TimeSeriesFilter::setSource(TimeSeries::_sp ts) {
 
 vector<Point> TimeSeriesFilter::points(TimeRange range) {
   vector<Point> filtered;
+  vector<Point> cached;
   
   if (! this->source()) {
     return filtered;
@@ -76,21 +77,19 @@ vector<Point> TimeSeriesFilter::points(TimeRange range) {
   
   set<time_t> pointTimes;
   
-  if (!this->canDropPoints()) {
+  if (this->canDropPoints()) {
     // optmized fetching: we know we're going to use these same points...
     PointCollection c = this->filterPointsInRange(range);
-    this->record()->addPoints(this->name(), c.points);
+    cached = c.points;
     pointTimes = c.times();
   }
   else {
     pointTimes = this->timeValuesInRange(range);
+    cached = TimeSeries::points(range); // base class call -> find any pre-cached points
   }
-  
-  PointCollection native;
   
   // important optimization. if this range has already been constructed and cached, then don't recreate it.
   bool alreadyCached = false;
-  vector<Point> cached = TimeSeries::points(range); // base class call -> find any pre-cached points
   if (cached.size() == pointTimes.size()) {
     // looks good, let's make sure that all time values line up.
     alreadyCached = true;

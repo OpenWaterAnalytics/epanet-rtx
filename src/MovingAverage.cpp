@@ -60,23 +60,35 @@ TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) 
   
   // expand source lookup bounds, counting as we go and ignoring invalid points.
   for (int leftSeek = 0; leftSeek <= margin; ) {
-    Point p = this->source()->pointBefore(queryRange.start);
-    if (p.isValid && p.time != 0) {
-      queryRange.start = p.time;
+    time_t left;
+    if (source()->clock()) {
+      left = this->source()->clock()->timeBefore(queryRange.start);
+    }
+    else {
+      left = this->source()->pointBefore(queryRange.start).time;
+    }
+    if (left != 0) {
+      queryRange.start = left;
       ++leftSeek;
     }
-    if (p.time == 0) {
+    else {
       // end of valid points
       break; // out of for(leftSeek)
     }
   }
   for (int rightSeek = 0; rightSeek <= margin; ) {
-    Point p = this->source()->pointAfter(queryRange.end);
-    if (p.isValid && p.time != 0) {
-      queryRange.end = p.time;
+    time_t right;
+    if (source()->clock()) {
+      right = this->source()->clock()->timeAfter(queryRange.end);
+    }
+    else {
+      right = this->source()->pointAfter(queryRange.end).time;
+    }
+    if (right != 0) {
+      queryRange.end = right;
       ++rightSeek;
     }
-    if (p.time == 0) {
+    else {
       // end of valid points
       break; // out of for(rightSeek)
     }
