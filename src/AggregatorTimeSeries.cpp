@@ -174,9 +174,9 @@ std::set<time_t> AggregatorTimeSeries::timeValuesInRange(TimeRange range) {
   else {
     // get the set of times from the aggregator sources
     BOOST_FOREACH(AggregatorSource aggSource, this->sources()) {
-      vector<Point> thisSourcePoints = aggSource.timeseries->points(range);
-      BOOST_FOREACH(Point p, thisSourcePoints) {
-        timeList.insert(p.time);
+      set<time_t> sourceTimes = aggSource.timeseries->timeValuesInRange(range);
+      BOOST_FOREACH(time_t t, sourceTimes) {
+        timeList.insert(t);
       }
     }
   }
