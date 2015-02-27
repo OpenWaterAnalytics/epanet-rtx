@@ -10,10 +10,10 @@
 #define __epanet_rtx__ValidRangeTimeSeries__
 
 #include <iostream>
-#include "TimeSeriesFilterSinglePoint.h"
+#include "TimeSeriesFilter.h"
 
 namespace RTX {
-  class ValidRangeTimeSeries : public TimeSeriesFilterSinglePoint {
+  class ValidRangeTimeSeries : public TimeSeriesFilter {
   public:
     RTX_SHARED_POINTER(ValidRangeTimeSeries);
     ValidRangeTimeSeries();
@@ -28,7 +28,7 @@ namespace RTX {
     
   protected:
     virtual bool willResample(); // we are special !
-    Point filteredWithSourcePoint(Point sourcePoint);
+    PointCollection filterPointsInRange(TimeRange range);
     bool canDropPoints() { return true;};
     
   private:

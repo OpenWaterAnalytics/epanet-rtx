@@ -27,99 +27,63 @@ void ValidRangeTimeSeries::setMode(filterMode_t mode) {
 }
 
 bool ValidRangeTimeSeries::willResample() {
-  return TimeSeriesFilterSinglePoint::willResample() || (this->clock() && _mode == filterMode_t::drop);
+  return TimeSeriesFilter::willResample() || (this->clock() && _mode == filterMode_t::drop);
 }
 
 
-Point ValidRangeTimeSeries::filteredWithSourcePoint(RTX::Point sourcePoint) {
+
+TimeSeries::PointCollection ValidRangeTimeSeries::filterPointsInRange(TimeRange range) {
+  
+  // if we are to resample, then there's a possibility that we need to expand the range
+  // used to query the source ts. but we have to limit the search to something reasonable, in case
+  // too many points are excluded. yikes!
+  TimeRange sourceQuery = range;
+  if (this->willResample() && range.duration() > 0) {
+    // expand range so that we can resample at the start and/or end of the range requested
+    // this is quick and dirty, and probably will fail for badly behaved data.
+    sourceQuery.start -= range.duration();
+    sourceQuery.end += range.duration();
+  }
+  
+  // get raw values, exclude outliers, then resample if needed.
+  PointCollection raw = this->source()->pointCollection(sourceQuery);
+  
+  
+  raw.convertToUnits(this->units());
+  PointCollection outData(vector<Point>(),this->units());
+  
+  BOOST_FOREACH(const Point& p, raw.points) {
+    Point newP;
+    double pointValue = p.value;
     
-  Point convertedSourcePoint = Point::convertPoint(sourcePoint, this->source()->units(), this->units());
-  Point newP;
-  double pointValue = convertedSourcePoint.value;
-  
-  if (pointValue < _range.first || _range.second < pointValue) {
-    // out of range.
-    if (_mode == saturate) {
-      // bring pointValue to the nearest max/min value
-      pointValue = RTX_MAX(pointValue, _range.first);
-      pointValue = RTX_MIN(pointValue, _range.second);
-      newP = Point(convertedSourcePoint.time, pointValue, convertedSourcePoint.quality, convertedSourcePoint.confidence);
+    if (pointValue < _range.first || _range.second < pointValue) {
+      // out of range.
+      if (_mode == saturate) {
+        // bring pointValue to the nearest max/min value
+        pointValue = RTX_MAX(pointValue, _range.first);
+        pointValue = RTX_MIN(pointValue, _range.second);
+        newP = Point(p.time, pointValue, p.quality, p.confidence);
+      }
+      else {
+        // drop point
+        newP.time = p.time;
+      }
     }
     else {
-      // drop point - return only the time
-      newP.time = convertedSourcePoint.time;
+      // just pass it through
+      newP = p;
+    }
+    if (newP.isValid) {
+      outData.points.push_back(newP);
     }
   }
-  else {
-    // just pass it through
-    newP = convertedSourcePoint;
+  
+  if (this->willResample()) {
+    set<time_t> resTimes = this->timeValuesInRange(range);
+    outData.resample(resTimes);
   }
-
-  return newP;
+  
+  return outData;
 }
 
 
-/*
-
-
-
-
-Point ValidRangeTimeSeries::pointBefore(time_t time) {
-  
-  Point priorPoint;
-  
-  priorPoint = RTX_VRTS_SUPER::pointBefore(time);
-  
-  // If baseclass pointBefore returns an invalid point,
-  // then keep searching backwards
-  time_t priorTime = 1;
-  while (!priorPoint.isValid && priorTime > 0) {
-    time_t fetchTime = priorPoint.time;
-    priorPoint = RTX_VRTS_SUPER::pointBefore(fetchTime);
-    priorTime = priorPoint.time;
-    if (priorTime == 0) {
-      cout << "break" << endl;
-    }
-  }
-//  std::cout << priorPoint << endl;
-  return priorPoint;
-}
-
-Point ValidRangeTimeSeries::pointAfter(time_t time) {
-  
-  Point afterPoint = RTX_VRTS_SUPER::pointAfter(time);
-  
-  // If baseclass pointAfter returns an invalid point,
-  // then keep searching 
-  while (!afterPoint.isValid && afterPoint.time > 0) {
-    afterPoint = RTX_VRTS_SUPER::pointAfter(afterPoint.time);
-  }
-  return afterPoint;
-}
-
-Point ValidRangeTimeSeries::filteredSingle(RTX::Point p, RTX::Units sourceU) {
-  Point convertedSourcePoint = Point::convertPoint(p, sourceU, units());
-  Point newP;
-  double pointValue = convertedSourcePoint.value;
-  
-  if (pointValue < _range.first || _range.second < pointValue) {
-    // out of range.
-    if (_mode == saturate) {
-      // bring pointValue to the nearest max/min value
-      pointValue = RTX_MAX(pointValue, _range.first);
-      pointValue = RTX_MIN(pointValue, _range.second);
-      newP = Point(convertedSourcePoint.time, pointValue, convertedSourcePoint.quality, convertedSourcePoint.confidence);
-    }
-    else {
-      // drop point - return only the time
-      newP.time = convertedSourcePoint.time;
-    }
-  }
-  else {
-    // just pass it through
-    newP = convertedSourcePoint;
-  }
-  
-  return newP;
-}
-*/
