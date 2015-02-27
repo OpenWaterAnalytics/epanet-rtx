@@ -311,13 +311,21 @@
 		2280409B158F82EF004222DA /* Pump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409A158F82EE004222DA /* Pump.cpp */; };
 		2280409D158F8326004222DA /* Valve.h in Headers */ = {isa = PBXBuildFile; fileRef = 2280409C158F8326004222DA /* Valve.h */; };
 		2280409F158F8352004222DA /* Valve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409E158F8351004222DA /* Valve.cpp */; };
-		228A837B16DBE644008E9C35 /* data_access.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228A837A16DBE644008E9C35 /* data_access.cpp */; };
 		228C2D921A9E15BF003C826D /* TimeRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228C2D901A9E15BF003C826D /* TimeRange.cpp */; };
 		228C2D931A9E15BF003C826D /* TimeRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228C2D901A9E15BF003C826D /* TimeRange.cpp */; };
 		228C2D941A9E15BF003C826D /* TimeRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228C2D901A9E15BF003C826D /* TimeRange.cpp */; };
 		228C2D951A9E15BF003C826D /* TimeRange.h in Headers */ = {isa = PBXBuildFile; fileRef = 228C2D911A9E15BF003C826D /* TimeRange.h */; };
 		228C2D961A9E15BF003C826D /* TimeRange.h in Headers */ = {isa = PBXBuildFile; fileRef = 228C2D911A9E15BF003C826D /* TimeRange.h */; };
 		228C2D971A9E15BF003C826D /* TimeRange.h in Headers */ = {isa = PBXBuildFile; fileRef = 228C2D911A9E15BF003C826D /* TimeRange.h */; };
+		228CA8D61AA0CBFF00D0353E /* InpTextPattern.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228CA8D41AA0CBFF00D0353E /* InpTextPattern.cpp */; };
+		228CA8D71AA0CBFF00D0353E /* InpTextPattern.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228CA8D41AA0CBFF00D0353E /* InpTextPattern.cpp */; };
+		228CA8D91AA0CBFF00D0353E /* InpTextPattern.h in Headers */ = {isa = PBXBuildFile; fileRef = 228CA8D51AA0CBFF00D0353E /* InpTextPattern.h */; };
+		228CA8DA1AA0CBFF00D0353E /* InpTextPattern.h in Headers */ = {isa = PBXBuildFile; fileRef = 228CA8D51AA0CBFF00D0353E /* InpTextPattern.h */; };
+		228CA8DB1AA0CBFF00D0353E /* InpTextPattern.h in Headers */ = {isa = PBXBuildFile; fileRef = 228CA8D51AA0CBFF00D0353E /* InpTextPattern.h */; };
+		228CA8E11AA0D69800D0353E /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
+		228CA8E21AA0D71800D0353E /* InpTextPattern.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228CA8D41AA0CBFF00D0353E /* InpTextPattern.cpp */; };
+		228CA8E51AA0D9D400D0353E /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
+		228CA8E61AA0F56D00D0353E /* data_access.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228A837A16DBE644008E9C35 /* data_access.cpp */; };
 		22909B3A147DDCEB00945449 /* EpanetModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 22909B39147DDCEB00945449 /* EpanetModel.h */; };
 		22909B3C147DDE2A00945449 /* EpanetModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22909B3B147DDE2A00945449 /* EpanetModel.cpp */; };
 		22956CE01A792FAE0014D7EF /* TimeSeriesSynthetic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2211D2041A6D69EA00E34B9B /* TimeSeriesSynthetic.cpp */; };
@@ -359,7 +367,6 @@
 		22C62AEA1439EE0B00841E60 /* TimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C62ADA1439EE0B00841E60 /* TimeSeries.h */; };
 		22C62AFE143A0E3F00841E60 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22C62AC01439ED6300841E60 /* libepanet-rtx.dylib */; };
 		22C62B04143A10A500841E60 /* rtxExceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C62B03143A10A500841E60 /* rtxExceptions.h */; };
-		22CAAEC019ED959E00E56141 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22C62AC01439ED6300841E60 /* libepanet-rtx.dylib */; };
 		22CE31EE17399403008AC1F9 /* CsvPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CE31EC17399403008AC1F9 /* CsvPointRecord.h */; };
 		22CF1C291A68094300161188 /* TimeSeriesFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22CF1C271A68094300161188 /* TimeSeriesFilter.cpp */; };
 		22CF1C2A1A68094300161188 /* TimeSeriesFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22CF1C271A68094300161188 /* TimeSeriesFilter.cpp */; };
@@ -477,6 +484,20 @@
 			remoteGlobalIDString = 228A76F918450CBD00905D8E;
 			remoteInfo = "epanet-rtx-project";
 		};
+		228CA8DF1AA0D69400D0353E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 221BFD311A8E8AD000143FCC;
+			remoteInfo = "epanet-rtx static deps";
+		};
+		228CA8E31AA0D9CE00D0353E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 221BFD311A8E8AD000143FCC;
+			remoteInfo = "epanet-rtx static deps";
+		};
 		22A1CBC71A325948009F58FC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
@@ -525,13 +546,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 22E3FA4D1432A24D0001579B;
 			remoteInfo = runepanetmsx;
-		};
-		22CAAEBE19ED959900E56141 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 22C62ABF1439ED6300841E60;
-			remoteInfo = "epanet-rtx";
 		};
 		22D058BF1A00350100362F77 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -720,6 +734,8 @@
 		228A837A16DBE644008E9C35 /* data_access.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = data_access.cpp; path = ../../examples/data_access_profiling/data_access.cpp; sourceTree = "<group>"; };
 		228C2D901A9E15BF003C826D /* TimeRange.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeRange.cpp; path = ../../src/TimeRange.cpp; sourceTree = "<group>"; };
 		228C2D911A9E15BF003C826D /* TimeRange.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeRange.h; path = ../../src/TimeRange.h; sourceTree = "<group>"; };
+		228CA8D41AA0CBFF00D0353E /* InpTextPattern.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InpTextPattern.cpp; path = ../../src/InpTextPattern.cpp; sourceTree = "<group>"; };
+		228CA8D51AA0CBFF00D0353E /* InpTextPattern.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InpTextPattern.h; path = ../../src/InpTextPattern.h; sourceTree = "<group>"; };
 		22909B39147DDCEB00945449 /* EpanetModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EpanetModel.h; path = ../../src/EpanetModel.h; sourceTree = "<group>"; };
 		22909B3B147DDE2A00945449 /* EpanetModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetModel.cpp; path = ../../src/EpanetModel.cpp; sourceTree = "<group>"; };
 		229FBEA0190807B3004FE5A4 /* InfluxDbPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InfluxDbPointRecord.cpp; path = ../../src/InfluxDbPointRecord.cpp; sourceTree = "<group>"; };
@@ -849,7 +865,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22CAAEC019ED959E00E56141 /* libepanet-rtx.dylib in Frameworks */,
+				228CA8E11AA0D69800D0353E /* libepanet-rtx.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -884,6 +900,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				228CA8E51AA0D9D400D0353E /* libepanet-rtx.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -989,8 +1006,6 @@
 				22707A9416309D4000FEB4DD /* OffsetTimeSeries.cpp */,
 				43627EC9171F27E3007AE0F5 /* ThresholdTimeSeries.h */,
 				43627ECF171F286C007AE0F5 /* ThresholdTimeSeries.cpp */,
-				226AC1471733F996009B7C90 /* ValidRangeTimeSeries.h */,
-				226AC1461733F996009B7C90 /* ValidRangeTimeSeries.cpp */,
 				223AF32F18F6E4C0002E846F /* InversionTimeSeries.h */,
 				223AF32E18F6E4C0002E846F /* InversionTimeSeries.cpp */,
 				22A842D4173BF445009CE769 /* GainTimeSeries.h */,
@@ -1104,6 +1119,15 @@
 			name = "RTX Project";
 			sourceTree = "<group>";
 		};
+		228CA8CE1AA0CBC400D0353E /* time series extensions */ = {
+			isa = PBXGroup;
+			children = (
+				228CA8D51AA0CBFF00D0353E /* InpTextPattern.h */,
+				228CA8D41AA0CBFF00D0353E /* InpTextPattern.cpp */,
+			);
+			name = "time series extensions";
+			sourceTree = "<group>";
+		};
 		228F6B6514857FD6007383D4 /* input files */ = {
 			isa = PBXGroup;
 			children = (
@@ -1164,6 +1188,7 @@
 				22C62B02143A107D00841E60 /* exceptions */,
 				2274871E19AE234200A48475 /* Python Interpreter */,
 				22C62AC91439ED9300841E60 /* time series classes */,
+				228CA8CE1AA0CBC400D0353E /* time series extensions */,
 				22C62AC11439ED6300841E60 /* Products */,
 				220DFA9C15502E4100AF41D0 /* Libraries */,
 			);
@@ -1207,6 +1232,8 @@
 				224E047E1979431C0039E3F9 /* StatsTimeSeries.cpp */,
 				22BFAB00196AFBD800B5B77C /* OutlierExclusionTimeSeries.h */,
 				22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */,
+				226AC1471733F996009B7C90 /* ValidRangeTimeSeries.h */,
+				226AC1461733F996009B7C90 /* ValidRangeTimeSeries.cpp */,
 				22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */,
 				22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */,
 				2223206B1A6EF32E00B32D6A /* LagTimeSeries.h */,
@@ -1346,6 +1373,7 @@
 				22B9285D1A76EF1B006DBC57 /* MathOpsTimeSeries.h in Headers */,
 				220F9E1818F9E68B00BB842C /* MovingAverage.h in Headers */,
 				220F9E1918F9E68B00BB842C /* Point.h in Headers */,
+				228CA8DA1AA0CBFF00D0353E /* InpTextPattern.h in Headers */,
 				224C419C1A434FCB008852C4 /* ModelPerformance.h in Headers */,
 				220F9E1A18F9E68B00BB842C /* TimeSeries.h in Headers */,
 				220F9E1B18F9E68B00BB842C /* InversionTimeSeries.h in Headers */,
@@ -1415,6 +1443,7 @@
 				221BFD891A8E8AD000143FCC /* Element.h in Headers */,
 				221BFD8A1A8E8AD000143FCC /* PythonInterpreter.h in Headers */,
 				221BFD8B1A8E8AD000143FCC /* PointRecordTime.h in Headers */,
+				228CA8DB1AA0CBFF00D0353E /* InpTextPattern.h in Headers */,
 				221BFD8C1A8E8AD000143FCC /* Model.h in Headers */,
 				221BFD8D1A8E8AD000143FCC /* CurveFunction.h in Headers */,
 				221BFD8E1A8E8AD000143FCC /* Dma.h in Headers */,
@@ -1485,6 +1514,7 @@
 				22DDAD811443684B00C1F188 /* Element.h in Headers */,
 				2274872819AE236200A48475 /* PythonInterpreter.h in Headers */,
 				221BFC6C1A8E493C00143FCC /* PointRecordTime.h in Headers */,
+				228CA8D91AA0CBFF00D0353E /* InpTextPattern.h in Headers */,
 				22DDAD941443750600C1F188 /* Model.h in Headers */,
 				220AE464145AFB3C002F07B4 /* CurveFunction.h in Headers */,
 				220AE466145B0A8F002F07B4 /* Dma.h in Headers */,
@@ -1614,7 +1644,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				22CAAEBF19ED959900E56141 /* PBXTargetDependency */,
+				228CA8E01AA0D69400D0353E /* PBXTargetDependency */,
 			);
 			name = timeseries_demo;
 			productName = "rtx-demo";
@@ -1668,6 +1698,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				228CA8E41AA0D9CE00D0353E /* PBXTargetDependency */,
 			);
 			name = testTsFilter;
 			productName = testTsFilter;
@@ -1844,6 +1875,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				220F9DDD18F9E68B00BB842C /* CsvPointRecord.cpp in Sources */,
+				228CA8D71AA0CBFF00D0353E /* InpTextPattern.cpp in Sources */,
 				220F9DDE18F9E68B00BB842C /* Point.cpp in Sources */,
 				220F9DDF18F9E68B00BB842C /* AggregatorTimeSeries.cpp in Sources */,
 				220F9DE018F9E68B00BB842C /* MovingAverage.cpp in Sources */,
@@ -1907,6 +1939,7 @@
 				221BFD391A8E8AD000143FCC /* Point.cpp in Sources */,
 				221BFD3A1A8E8AD000143FCC /* AggregatorTimeSeries.cpp in Sources */,
 				221BFD3B1A8E8AD000143FCC /* MovingAverage.cpp in Sources */,
+				228CA8E21AA0D71800D0353E /* InpTextPattern.cpp in Sources */,
 				221BFD3C1A8E8AD000143FCC /* InfluxDbPointRecord.cpp in Sources */,
 				221BFD3D1A8E8AD000143FCC /* TimeSeries.cpp in Sources */,
 				221BFD3E1A8E8AD000143FCC /* Model.cpp in Sources */,
@@ -1973,7 +2006,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				228A837B16DBE644008E9C35 /* data_access.cpp in Sources */,
+				228CA8E61AA0F56D00D0353E /* data_access.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1995,6 +2028,7 @@
 				22BF02D315EBCABC00F66465 /* Point.cpp in Sources */,
 				22C62ADB1439EE0B00841E60 /* AggregatorTimeSeries.cpp in Sources */,
 				22C62AE21439EE0B00841E60 /* MovingAverage.cpp in Sources */,
+				228CA8D61AA0CBFF00D0353E /* InpTextPattern.cpp in Sources */,
 				227FF7B81A8284A70019E82D /* InfluxDbPointRecord.cpp in Sources */,
 				22C62AE91439EE0B00841E60 /* TimeSeries.cpp in Sources */,
 				220AE468145B0D15002F07B4 /* Model.cpp in Sources */,
@@ -2157,15 +2191,20 @@
 			target = 228A76F918450CBD00905D8E /* epanet-rtx-project */;
 			targetProxy = 2251FFF31A0A7E3500C4D483 /* PBXContainerItemProxy */;
 		};
+		228CA8E01AA0D69400D0353E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 221BFD311A8E8AD000143FCC /* epanet-rtx static deps */;
+			targetProxy = 228CA8DF1AA0D69400D0353E /* PBXContainerItemProxy */;
+		};
+		228CA8E41AA0D9CE00D0353E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 221BFD311A8E8AD000143FCC /* epanet-rtx static deps */;
+			targetProxy = 228CA8E31AA0D9CE00D0353E /* PBXContainerItemProxy */;
+		};
 		22A1CBC81A325948009F58FC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 22C62ABF1439ED6300841E60 /* epanet-rtx */;
 			targetProxy = 22A1CBC71A325948009F58FC /* PBXContainerItemProxy */;
-		};
-		22CAAEBF19ED959900E56141 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 22C62ABF1439ED6300841E60 /* epanet-rtx */;
-			targetProxy = 22CAAEBE19ED959900E56141 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2402,7 +2441,7 @@
 		228A837516DBE5E7008E9C35 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -2425,7 +2464,7 @@
 		228A837616DBE5E7008E9C35 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -2448,6 +2487,7 @@
 		22B8A7A41603CA6100EECAA5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -2472,6 +2512,7 @@
 		22B8A7A51603CA6100EECAA5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -2632,7 +2673,7 @@
 		22CF1C3E1A6842DC00161188 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2645,7 +2686,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -2662,7 +2703,7 @@
 		22CF1C3F1A6842DC00161188 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2676,7 +2717,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_WARN_ABOUT_RETURN_TYPE = NO;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
