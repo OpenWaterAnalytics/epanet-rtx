@@ -65,11 +65,8 @@ set<time_t> FailoverTimeSeries::timeValuesInRange(TimeRange range) {
   }
   else if (!this->clock()) {
     set<time_t> times;
-    vector<Point> points = this->filterPointsInRange(range).points;
-    BOOST_FOREACH(const Point& p, points) {
-      times.insert(p.time);
-    }
-    return times;
+    PointCollection pc = this->filterPointsInRange(range);
+    return pc.times();
   }
   
   return set<time_t>();
@@ -80,73 +77,100 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
     return TimeSeriesFilter::filterPointsInRange(range);
   }
   
-  Units myUnits = this->units();
-  std::vector<Point> thePoints;
-  TimeRange preliminarySourceRange = range;
-  TimeRange preliminarySecondaryRange = range;
+  TimeRange qPrimary = range;
+  time_t priPrev = this->source()->timeBefore(range.start + 1);
+  time_t priNext = this->source()->timeAfter(range.end - 1);
+  qPrimary = TimeRange(priPrev,priNext);
   
-  time_t prior, next;
-  prior = this->source()->timeBefore(range.start + 1);
-  next = this->source()->timeAfter(range.end - 1);
-  TimeRange primarySourceRange(prior, next);
-  primarySourceRange.correctWithRange(preliminarySourceRange);
+  TimeRange qSecondary = range;
+  time_t secPrev = this->failoverTimeseries()->timeBefore(range.start + 1);
+  time_t secNext = this->failoverTimeseries()->timeBefore(range.end - 1);
+  qSecondary = TimeRange(secPrev,secNext);
   
-  prior = this->failoverTimeseries()->timeBefore(range.start + 1);
-  next = this->failoverTimeseries()->timeAfter(range.end - 1);
-  TimeRange secondarySourceRange(prior, next);
-  secondarySourceRange.correctWithRange(preliminarySecondaryRange);
+  // make these valid & queryable
+  qPrimary.correctWithRange(range);
+  qSecondary.correctWithRange(range);
   
-  PointCollection primaryData = this->source()->pointCollection(primarySourceRange);
-  primaryData.convertToUnits(myUnits);
-  
-  time_t prevTime;
-  if (primaryData.count() > 0) {
-    prevTime = primaryData.points.front().time;
+  // this is to make sure we have enough secondary data to fill leading & trailing gaps
+  if (qPrimary.start < qSecondary.start) {
+    qSecondary.start = qPrimary.start;
   }
-  else {
-    prevTime = range.start - _stale - 1;
+  if (qPrimary.end > qSecondary.end) {
+    qSecondary.end = qPrimary.end;
   }
   
-  Point fakeEndPoint;
-  fakeEndPoint.time = MAX(primarySourceRange.end, secondarySourceRange.end);
-  primaryData.points.push_back(fakeEndPoint);
+  // get source and secondary data
+  PointCollection primaryData = this->source()->pointCollection(qPrimary);
+  PointCollection secondaryData = this->failoverTimeseries()->pointCollection(qSecondary);
   
-  BOOST_FOREACH(const Point& p, primaryData.points) {
-    if (!p.isValid) {
-      continue; // skip bad points
+  primaryData.convertToUnits(this->units());
+  secondaryData.convertToUnits(this->units());
+  
+  // if there's no source data at all, just give the secondary.
+  if (primaryData.count() == 0) {
+    if (this->willResample()) {
+      secondaryData.resample(this->timeValuesInRange(range));
     }
-    
-    time_t now = p.time;
-    if (now - prevTime > _stale) {
-      // pay attention! back up by one second when requesting failover points, since we're NOW sitting on a valid primary point. Maybe.
-      if (p.isValid) {
-        --now;
-      }
-      PointCollection secondary = this->failoverTimeseries()->pointCollection(TimeRange(prevTime+1, now));
-      secondary.convertToUnits(myUnits);
-      BOOST_FOREACH(Point sp, secondary.points) {
-        if (sp.isValid) {
-          thePoints.push_back( sp );
-        }
-      }
-    }
-    
-    // even if we added secondary points, there is still a good point here. maybe.
-    if (p.isValid) {
-      thePoints.push_back(p);
-    }
-    
-    prevTime = p.time;
+    return secondaryData;
   }
   
+  vector<Point> merged;
   
-  PointCollection outData(thePoints, myUnits);
+  vector<Point> paddedPrimary;
+  paddedPrimary.reserve(primaryData.count() + 2);
+  
+  if (primaryData.points.cbegin()->time > range.start) {
+    // pad with fake point.
+    Point fakeP;
+    fakeP.time = range.start - _stale - 1;
+    paddedPrimary.push_back(fakeP);
+  }
+  
+  // fold in the data
+  paddedPrimary.insert(paddedPrimary.end(), primaryData.points.begin(), primaryData.points.end());
+  
+  if (primaryData.points.crbegin()->time < range.end) {
+    // primary data ends before the end of the needed range. put a fake point at the end
+    // as a marker for the while-iteration below, so that we can safely go off the
+    // end of the valid data.
+    Point fakePoint;
+    fakePoint.time = range.end + _stale;
+    paddedPrimary.push_back(fakePoint);
+  }
+  
+  vector<Point>::const_iterator it = paddedPrimary.cbegin();
+  vector<Point>::const_iterator end = paddedPrimary.cend();
+  
+  TimeRange gap;
+  gap.start = it->time;
+  ++it;
+  gap.end = it->time;
+  
+  while (gap.duration() > 0) {
+    
+    if (gap.duration() > _stale) {
+      vector<Point> sec = secondaryData.trimmedToRange(TimeRange(gap.start+1,gap.end-1)).points;
+      merged.insert(merged.end(), sec.begin(), sec.end());
+    }
+    if (it->isValid) {
+      merged.push_back(*it);
+    }
+    
+    gap.start = gap.end;
+    ++it;
+    if (it != end) {
+      gap.end = it->time;
+    }
+    
+  }
+  
+  PointCollection outData(merged, this->units());
+  
   if (this->willResample()) {
-    outData.resample(this->clock()->timeValuesInRange(range));
+    outData.resample(this->timeValuesInRange(range));
   }
   
   return outData;
-  
 }
 
 
