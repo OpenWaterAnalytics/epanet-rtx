@@ -58,10 +58,7 @@ TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(Time
 
   // get raw values, exclude outliers, then resample if needed.
   PointCollection raw = this->source()->pointCollection(sourceQuery);
-  set<time_t> rawTimes;
-  BOOST_FOREACH(const Point& p, raw.points) {
-    rawTimes.insert(p.time);
-  }
+  set<time_t> rawTimes = raw.times();
   
   set<time_t> proposedOutTimes; // = this->timeValuesInRange(range); // can't do this because recursion.
   if (this->clock()) {
