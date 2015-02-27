@@ -305,6 +305,9 @@ time_t TimeSeriesFilter::timeAfter(time_t t) {
   if (this->clock()) {
     return this->clock()->timeAfter(t);
   }
+  else if (this->canDropPoints()) {
+    return this->pointAfter(t).time;
+  }
   else {
     return this->source()->timeAfter(t);
   }
@@ -316,6 +319,9 @@ time_t TimeSeriesFilter::timeBefore(time_t t) {
   }
   if (this->clock()) {
     return this->clock()->timeBefore(t);
+  }
+  else if (this->canDropPoints()) {
+    return this->pointBefore(t).time;
   }
   else {
     return this->source()->timeBefore(t);
