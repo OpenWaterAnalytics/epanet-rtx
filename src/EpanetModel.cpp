@@ -548,8 +548,7 @@ double EpanetModel::reservoirLevel(const string &reservoir) {
 }
 
 double EpanetModel::tankLevel(const string &tank) {
-  // no difference in epanet
-  return reservoirLevel(tank);
+  return junctionHead(tank) - nodeWithName(tank)->elevation(); // node elevation & head in same Epanet units
 }
 
 double EpanetModel::pipeFlow(const string &pipe) {

@@ -973,7 +973,7 @@ void Model::saveNetworkStates(time_t time) {
     tank->state_head = head;
     
     double level;
-    level = head - Units::convertValue(tank->elevation(), headUnits(), tank->head()->units());
+    level = Units::convertValue(tankLevel(tank->name()), headUnits(), tank->head()->units());
     Point levelPoint(time, level);
     tank->level()->insert(levelPoint);
     tank->state_level = level;
