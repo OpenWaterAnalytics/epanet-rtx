@@ -14,11 +14,13 @@
 #include "StatsTimeSeries.h"
 #include "GainTimeSeries.h"
 #include "MathOpsTimeSeries.h"
+#include "IntegratorTimeSeries.h"
+
 
 using namespace RTX;
 using namespace std;
 
-ModelPerformance::ModelPerformance(Model::_sp model, StatsType statsType, AggregationType aggregationType, LocationType locationType) {
+ModelPerformance::ModelPerformance(Model::_sp model, StatsType statsType, AggregationType aggregationType, MetricType locationType) {
   
   if (!model) {
     return;
@@ -31,6 +33,86 @@ ModelPerformance::ModelPerformance(Model::_sp model, StatsType statsType, Aggreg
   this->rebuildPerformanceCalculation();
   
 }
+
+map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForElementAndMetricType(Element::_sp element, MetricType type, Clock::_sp samplingWindow, double quantile) {
+  
+  map<ModelPerformance::StatsType, TimeSeries::_sp> errorSeries;
+  
+  // get the ts pair.
+  TimeSeries::_sp ts1,ts2;
+  
+  pair<TimeSeries::_sp,TimeSeries::_sp> pair = tsPairForElementWithLocationType(element, type);
+  ts1 = pair.first;
+  ts2 = pair.second;
+  
+  if (!ts1 || !ts2) {
+    return errorSeries;
+  }
+  
+  AggregatorTimeSeries::_sp error(new AggregatorTimeSeries);
+  error->addSource(ts1);
+  error->addSource(ts2, -1);
+  
+  StatsTimeSeries::_sp meanErr(new StatsTimeSeries);
+  meanErr->setStatsType(StatsTimeSeries::StatsTimeSeriesMean);
+  meanErr->setWindow(samplingWindow);
+  meanErr->setSource(error);
+  
+  StatsTimeSeries::_sp rmse(new StatsTimeSeries);
+  rmse->setStatsType(StatsTimeSeries::StatsTimeSeriesRMS);
+  rmse->setWindow(samplingWindow);
+  rmse->setSource(error);
+
+  CorrelatorTimeSeries::_sp corr(new CorrelatorTimeSeries());
+  corr->setCorrelationWindow(samplingWindow);
+  corr->setCorrelatorTimeSeries(ts2);
+  corr->setSource(ts1);
+  
+  MathOpsTimeSeries::_sp absError(new MathOpsTimeSeries());
+  absError->setMathOpsType(MathOpsTimeSeries::MathOpsTimeSeriesAbs);
+  absError->setSource(error);
+  
+  StatsTimeSeries::_sp meanAbsErr(new StatsTimeSeries);
+  meanAbsErr->setStatsType(StatsTimeSeries::StatsTimeSeriesMean);
+  meanAbsErr->setWindow(samplingWindow);
+  meanAbsErr->setSource(absError);
+  
+  StatsTimeSeries::_sp quantileAbsErr(new StatsTimeSeries);
+  quantileAbsErr->setStatsType(StatsTimeSeries::StatsTimeSeriesPercentile);
+  quantileAbsErr->setArbitraryPercentile(quantile);
+  quantileAbsErr->setWindow(samplingWindow);
+  quantileAbsErr->setSource(absError);
+  
+  IntegratorTimeSeries::_sp integratedAbs(new IntegratorTimeSeries);
+  integratedAbs->setResetClock(samplingWindow);
+  integratedAbs->setSource(absError);
+  
+  StatsTimeSeries::_sp quantileTs(new StatsTimeSeries);
+  quantileTs->setWindow(samplingWindow);
+  quantileTs->setStatsType(StatsTimeSeries::StatsTimeSeriesPercentile);
+  quantileTs->setArbitraryPercentile(quantile);
+  quantileTs->setSource(absError);
+  
+  IntegratorTimeSeries::_sp integrated(new IntegratorTimeSeries);
+  integrated->setResetClock(samplingWindow);
+  integrated->setSource(error);
+  
+  
+  
+  errorSeries[ModelPerformanceStatsError] = error;
+  errorSeries[ModelPerformanceStatsMeanError] = meanErr;
+  errorSeries[ModelPerformanceStatsQuantileError] = quantileTs;
+  errorSeries[ModelPerformanceStatsIntegratedError] = integrated;
+  errorSeries[ModelPerformanceStatsAbsError] = absError;
+  errorSeries[ModelPerformanceStatsMeanAbsError] = meanAbsErr;
+  errorSeries[ModelPerformanceStatsQuantileAbsError] = quantileAbsErr;
+  errorSeries[ModelPerformanceStatsIntegratedAbsError] = integratedAbs;
+  errorSeries[ModelPerformanceStatsRMSE] = rmse;
+  errorSeries[ModelPerformanceStatsCorrelationCoefficient] = corr;
+  
+  return errorSeries;
+}
+
 
 // specify the model and get the important information
 Model::_sp ModelPerformance::model() {
@@ -66,11 +148,11 @@ void ModelPerformance::setAggregationType(ModelPerformance::AggregationType type
 }
 
 
-ModelPerformance::LocationType ModelPerformance::locationType() {
+ModelPerformance::MetricType ModelPerformance::locationType() {
   return _locationType;
 }
 
-void ModelPerformance::setLocationType(ModelPerformance::LocationType type) {
+void ModelPerformance::setLocationType(ModelPerformance::MetricType type) {
   _locationType = type;
   this->rebuildPerformanceCalculation();
 }
@@ -128,7 +210,7 @@ void ModelPerformance::rebuildPerformanceCalculation() {
 }
 
 
-vector<Element::_sp> ModelPerformance::elementsWithModelForLocationType(Model::_sp model, LocationType locationType) {
+vector<Element::_sp> ModelPerformance::elementsWithModelForLocationType(Model::_sp model, MetricType locationType) {
   
   // get the collection of elements to consider.
   vector<Element::_sp> elementsToConsider;
@@ -198,7 +280,7 @@ void ModelPerformance::buildPerformanceCalculatorWithElements(std::vector<Elemen
   // go through the elements
   BOOST_FOREACH(Element::_sp e, elements) {
     // decide what time series pair to use.
-    pair<TimeSeries::_sp,TimeSeries::_sp> tsPair = this->tsPairForElementWithLocationType(e, this->locationType());
+    pair<TimeSeries::_sp,TimeSeries::_sp> tsPair = tsPairForElementWithLocationType(e, this->locationType());
     
     // assemble the difference or correlator
     TimeSeries::_sp error = this->errorForPair(tsPair);
@@ -298,7 +380,7 @@ TimeSeries::_sp ModelPerformance::errorForPair(std::pair<TimeSeries::_sp, TimeSe
 
 
 
-pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithLocationType(Element::_sp e, ModelPerformance::LocationType location) {
+pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithLocationType(Element::_sp e, ModelPerformance::MetricType location) {
   
   TimeSeries::_sp measured, modeled;
   switch (location) {

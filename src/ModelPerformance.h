@@ -21,16 +21,23 @@ namespace RTX {
   public:
     
     typedef enum {
-      ModelPerformanceStatsRMSE                    = 0,
-      ModelPerformanceStatsMeanAbsoluteError       = 1,
-      ModelPerformanceStatsCorrelationCoefficient  = 2,
-      ModelPerformanceStatsAbsoluteErrorQuantile   = 3
+      ModelPerformanceStatsError                   = 0,
+      ModelPerformanceStatsMeanError               = 1,
+      ModelPerformanceStatsQuantileError           = 2,
+      ModelPerformanceStatsIntegratedError         = 3,
+      ModelPerformanceStatsAbsError                = 4,
+      ModelPerformanceStatsMeanAbsError            = 5,
+      ModelPerformanceStatsQuantileAbsError        = 6,
+      ModelPerformanceStatsIntegratedAbsError      = 7,
+      ModelPerformanceStatsRMSE                    = 8,
+      ModelPerformanceStatsCorrelationCoefficient  = 9,
     } StatsType;
     
     typedef enum {
       ModelPerformanceAggregationSum  = 0,
-      ModelPerformanceAggregationMean = 1/*,
-      ModelPerformanceAggregationMax  = 2*/
+      ModelPerformanceAggregationMean = 1,
+      ModelPerformanceAggregationMax  = 2,
+      ModelPerformanceAggregationMin  = 3
     } AggregationType;
     
     typedef enum {
@@ -38,15 +45,18 @@ namespace RTX {
       ModelPerformanceLocationPressure = 1,
       ModelPerformanceLocationHead     = 2,
       ModelPerformanceLocationTank     = 3
-    } LocationType;
+    } MetricType;
     
+    
+    // static class method for constructing error series from an element
+    static std::map<StatsType,TimeSeries::_sp> errorsForElementAndMetricType(Element::_sp element, MetricType type, Clock::_sp samplingWindow, double quantile);
     
     RTX_SHARED_POINTER(ModelPerformance);
     
     ModelPerformance(Model::_sp model,
                      StatsType statsType = ModelPerformanceStatsRMSE,
                      AggregationType aggregationType = ModelPerformanceAggregationMean,
-                     LocationType locationType = ModelPerformanceLocationTank);
+                     MetricType mType = ModelPerformanceLocationTank);
     
     // specify the model and get the important information
     Model::_sp model();
@@ -60,8 +70,8 @@ namespace RTX {
     AggregationType aggregationType();
     void setAggregationType(AggregationType type);
     
-    LocationType locationType();
-    void setLocationType(LocationType type);
+    MetricType locationType();
+    void setLocationType(MetricType type);
     
     
     // properties for statistic computation
@@ -84,7 +94,7 @@ namespace RTX {
     Model::_sp _model;
     StatsType _statsType;
     AggregationType _aggregationType;
-    LocationType _locationType;
+    MetricType _locationType;
     Clock::_sp _samplingWindow, _errorClock;
     std::vector<std::pair<Element::_sp, TimeSeries::_sp> > _errorComponents;
     TimeSeries::_sp _performance;
@@ -92,8 +102,8 @@ namespace RTX {
     double _quantile;
     
     void rebuildPerformanceCalculation();  /*!< rebuild calculation time series workflow */
-    std::vector<Element::_sp> elementsWithModelForLocationType(Model::_sp model, LocationType locationType);
-    std::pair<TimeSeries::_sp, TimeSeries::_sp> tsPairForElementWithLocationType(Element::_sp e, ModelPerformance::LocationType location);
+    std::vector<Element::_sp> elementsWithModelForLocationType(Model::_sp model, MetricType locationType);
+    static std::pair<TimeSeries::_sp, TimeSeries::_sp> tsPairForElementWithLocationType(Element::_sp e, ModelPerformance::MetricType location);
     TimeSeries::_sp errorForPair(std::pair<TimeSeries::_sp, TimeSeries::_sp> tsPair);
 
   };
