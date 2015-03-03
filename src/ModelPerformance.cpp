@@ -350,7 +350,7 @@ TimeSeries::_sp ModelPerformance::errorForPair(std::pair<TimeSeries::_sp, TimeSe
       corr->setCorrelatorTimeSeries(tsPair.second);
       err = corr;
     }
-    case ModelPerformanceStatsAbsoluteErrorQuantile:
+    case ModelPerformanceStatsQuantileError:
     {
       AggregatorTimeSeries::_sp diff(new AggregatorTimeSeries);
       diff->addSource(tsPair.second, -1);  // will adopt the uniform model units
