@@ -48,6 +48,9 @@ namespace RTX {
     
     // states
     TimeSeries::_sp level(); // directly related to head
+    TimeSeries::_sp volume();
+    TimeSeries::_sp flow();
+    
     TimeSeries::_sp volumeMeasure(); // based on tank geometry
     TimeSeries::_sp flowMeasure();  // flow into the tank (computed)
     
@@ -56,6 +59,7 @@ namespace RTX {
     TimeSeries::_sp _levelMeasure;
     CurveFunction::_sp _volumeMeasure;
     FirstDerivative::_sp _flowMeasure;
+    TimeSeries::_sp _volume,_flow;
     double _minLevel, _maxLevel;
     std::vector< std::pair<double,double> > _geometry;
     Units _geometryLevelUnits;

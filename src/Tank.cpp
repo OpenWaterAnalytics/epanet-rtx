@@ -37,6 +37,15 @@ Tank::Tank(const std::string& name) : Junction(name) {
   _flowMeasure->setUnits(RTX_LITER_PER_SECOND);
   _flowMeasure->setSource(_volumeMeasure);
   _flowMeasure->setName(name + " flow measure");
+  
+  _volume.reset( new TimeSeries );
+  _volume->setUnits(RTX_LITER);
+  _volume->setName(name + ".volume");
+  
+  _flow.reset( new TimeSeries );
+  _flow->setUnits(RTX_LITER_PER_SECOND);
+  _flow->setName(name + ".flow");
+  
 }
 
 Tank::~Tank() {
@@ -168,6 +177,15 @@ void Tank::setHeadMeasure(TimeSeries::_sp head) {
 TimeSeries::_sp Tank::level() {
   return _level;
 }
+TimeSeries::_sp Tank::flow() {
+  return _flow;
+}
+TimeSeries::_sp Tank::volume() {
+  return _volume;
+}
+
+
+
 TimeSeries::_sp Tank::flowMeasure() {
   return _flowMeasure;
 }

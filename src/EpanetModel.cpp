@@ -244,6 +244,9 @@ void EpanetModel::createRtxWrappers() {
         
         newTank->level()->setUnits(headUnits());
         newTank->flowMeasure()->setUnits(flowUnits());
+        newTank->volumeMeasure()->setUnits(volumeUnits());
+        newTank->flow()->setUnits(flowUnits());
+        newTank->volume()->setUnits(volumeUnits());
         //volumeCurveTs = boost::static_pointer_cast<CurveFunction>(newTank->volumeMeasure());
         //volumeCurveTs->setInputUnits(headUnits());
         //volumeCurveTs->setUnits(volumeUnits);
