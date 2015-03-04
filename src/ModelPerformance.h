@@ -41,10 +41,12 @@ namespace RTX {
     } AggregationType;
     
     typedef enum {
-      ModelPerformanceLocationFlow     = 0,
-      ModelPerformanceLocationPressure = 1,
-      ModelPerformanceLocationHead     = 2,
-      ModelPerformanceLocationTank     = 3
+      ModelPerformanceMetricFlow     = 0,
+      ModelPerformanceMetricPressure = 1,
+      ModelPerformanceMetricHead     = 2,
+      ModelPerformanceMetricLevel    = 3,
+      ModelPerformanceMetricVolume   = 4,
+      ModelPerformanceMetricConcentration = 7
     } MetricType;
     
     
@@ -56,7 +58,7 @@ namespace RTX {
     ModelPerformance(Model::_sp model,
                      StatsType statsType = ModelPerformanceStatsRMSE,
                      AggregationType aggregationType = ModelPerformanceAggregationMean,
-                     MetricType mType = ModelPerformanceLocationTank);
+                     MetricType mType = ModelPerformanceMetricLevel);
     
     // specify the model and get the important information
     Model::_sp model();
@@ -103,7 +105,7 @@ namespace RTX {
     
     void rebuildPerformanceCalculation();  /*!< rebuild calculation time series workflow */
     std::vector<Element::_sp> elementsWithModelForLocationType(Model::_sp model, MetricType locationType);
-    static std::pair<TimeSeries::_sp, TimeSeries::_sp> tsPairForElementWithLocationType(Element::_sp e, ModelPerformance::MetricType location);
+    static std::pair<TimeSeries::_sp, TimeSeries::_sp> tsPairForElementWithMetricType(Element::_sp e, ModelPerformance::MetricType location);
     TimeSeries::_sp errorForPair(std::pair<TimeSeries::_sp, TimeSeries::_sp> tsPair);
 
   };

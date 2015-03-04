@@ -41,7 +41,7 @@ map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForEle
   // get the ts pair.
   TimeSeries::_sp ts1,ts2;
   
-  pair<TimeSeries::_sp,TimeSeries::_sp> pair = tsPairForElementWithLocationType(element, type);
+  pair<TimeSeries::_sp,TimeSeries::_sp> pair = tsPairForElementWithMetricType(element, type);
   ts1 = pair.first;
   ts2 = pair.second;
   
@@ -216,7 +216,7 @@ vector<Element::_sp> ModelPerformance::elementsWithModelForLocationType(Model::_
   vector<Element::_sp> elementsToConsider;
   
   switch (this->locationType()) {
-    case ModelPerformanceLocationFlow:
+    case ModelPerformanceMetricFlow:
     {
       BOOST_FOREACH( Pipe::_sp p, model->pipes()) {
         if (p->flowMeasure()) {
@@ -235,7 +235,7 @@ vector<Element::_sp> ModelPerformance::elementsWithModelForLocationType(Model::_
       }
     }
       break;
-    case ModelPerformanceLocationPressure:
+    case ModelPerformanceMetricPressure:
     {
       BOOST_FOREACH(Junction::_sp j, model->junctions()) {
         if (j->pressureMeasure()) {
@@ -244,7 +244,7 @@ vector<Element::_sp> ModelPerformance::elementsWithModelForLocationType(Model::_
       }
     }
       break;
-    case ModelPerformanceLocationHead:
+    case ModelPerformanceMetricHead:
     {
       BOOST_FOREACH(Junction::_sp j, model->junctions()) {
         if (j->headMeasure()) {
@@ -253,10 +253,10 @@ vector<Element::_sp> ModelPerformance::elementsWithModelForLocationType(Model::_
       }
     }
       break;
-    case ModelPerformanceLocationTank:
+    case ModelPerformanceMetricLevel:
     {
       BOOST_FOREACH(Tank::_sp t, model->tanks()) {
-        if (t->headMeasure()) {
+        if (t->levelMeasure()) {
           elementsToConsider.push_back(t);
         }
       }
@@ -280,7 +280,7 @@ void ModelPerformance::buildPerformanceCalculatorWithElements(std::vector<Elemen
   // go through the elements
   BOOST_FOREACH(Element::_sp e, elements) {
     // decide what time series pair to use.
-    pair<TimeSeries::_sp,TimeSeries::_sp> tsPair = tsPairForElementWithLocationType(e, this->locationType());
+    pair<TimeSeries::_sp,TimeSeries::_sp> tsPair = tsPairForElementWithMetricType(e, this->locationType());
     
     // assemble the difference or correlator
     TimeSeries::_sp error = this->errorForPair(tsPair);
@@ -380,36 +380,82 @@ TimeSeries::_sp ModelPerformance::errorForPair(std::pair<TimeSeries::_sp, TimeSe
 
 
 
-pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithLocationType(Element::_sp e, ModelPerformance::MetricType location) {
+pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithMetricType(Element::_sp e, ModelPerformance::MetricType location) {
   
   TimeSeries::_sp measured, modeled;
   switch (location) {
-    case ModelPerformanceLocationFlow:
+    case ModelPerformanceMetricFlow:
     {
-      Pipe::_sp p = boost::dynamic_pointer_cast<Pipe>(e);
-      measured = p->flowMeasure();
-      modeled = p->flow();
+      // could be link or tank.
+      if (e->type() == Element::TANK) {
+        Tank::_sp t = boost::dynamic_pointer_cast<Tank>(e);
+        if (!t) {
+          break;
+        }
+        measured = t->flowMeasure();
+        modeled = t->flow();
+      }
+      else {
+        Pipe::_sp p = boost::dynamic_pointer_cast<Pipe>(e);
+        if (!p) {
+          break;
+        }
+        measured = p->flowMeasure();
+        modeled = p->flow();
+      }
     }
       break;
-    case ModelPerformanceLocationHead:
+    case ModelPerformanceMetricHead:
     {
       Junction::_sp j = boost::dynamic_pointer_cast<Junction>(e);
+      if (!j) {
+        break;
+      }
       measured = j->headMeasure();
       modeled = j->head();
     }
       break;
-    case ModelPerformanceLocationPressure:
+    case ModelPerformanceMetricPressure:
     {
       Junction::_sp j = boost::dynamic_pointer_cast<Junction>(e);
+      if (!j) {
+        break;
+      }
       measured = j->pressureMeasure();
       modeled = j->pressure();
     }
       break;
-    case ModelPerformanceLocationTank:
+    case ModelPerformanceMetricLevel:
     {
       Tank::_sp t = boost::dynamic_pointer_cast<Tank>(e);
+      if (!t) {
+        break;
+      }
       measured = t->levelMeasure();
       modeled = t->level();
+    }
+    case ModelPerformanceMetricVolume:
+    {
+      Tank::_sp t = boost::dynamic_pointer_cast<Tank>(e);
+      if (!t) {
+        break;
+      }
+      measured = t->volumeMeasure();
+      modeled = t->volume();
+    }
+      break;
+    case ModelPerformanceMetricConcentration:
+    {
+      Junction::_sp j = boost::dynamic_pointer_cast<Junction>(e);
+      if (j) {
+        measured = j->qualityMeasure();
+        modeled = j->quality();
+        break;
+      }
+      Pipe::_sp p = boost::dynamic_pointer_cast<Pipe>(e);
+      if (p) {
+        /// TO-DO
+      }
     }
       break;
     default:
