@@ -117,9 +117,7 @@ void AggregatorTimeSeries::setMultiplierForSource(TimeSeries::_sp timeSeries, do
 }
 
 
-
-Point AggregatorTimeSeries::pointBefore(time_t time) {
-
+time_t AggregatorTimeSeries::timeBefore(time_t time) {
   std::set<time_t> timeSet;
   
   if (this->clock()) {
@@ -130,20 +128,25 @@ Point AggregatorTimeSeries::pointBefore(time_t time) {
       timeSet.insert(item.timeseries->timeBefore(time));
     }
   }
-    
+  
   if (timeSet.empty()) {
-    return Point();
+    return 0;
   }
   
   set<time_t>::reverse_iterator rIt = timeSet.rbegin();
   time_t before = *rIt;
+  return before;
+}
+
+Point AggregatorTimeSeries::pointBefore(time_t time) {
+
+  time_t before = this->timeBefore(time);
   
   return this->point(before);
 }
 
 
-Point AggregatorTimeSeries::pointAfter(time_t time) {
-  
+time_t AggregatorTimeSeries::timeAfter(time_t time) {
   std::set<time_t> timeSet;
   
   if (this->clock()) {
@@ -156,11 +159,17 @@ Point AggregatorTimeSeries::pointAfter(time_t time) {
   }
   
   if (timeSet.empty()) {
-    return Point();
+    return 0;
   }
   
   set<time_t>::iterator rIt = timeSet.begin();
   time_t after = *rIt;
+  return after;
+}
+
+Point AggregatorTimeSeries::pointAfter(time_t time) {
+  
+  time_t after = this->timeAfter(time);
   
   return this->point(after);
 }

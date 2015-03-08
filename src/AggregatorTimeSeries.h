@@ -45,7 +45,7 @@ namespace RTX {
     };
     
     virtual std::ostream& toStream(std::ostream &stream);
-    
+    AggregatorTimeSeries();
     TimeSeries::_sp source();
     void setSource(TimeSeries::_sp ts);
     
@@ -62,6 +62,8 @@ namespace RTX {
     // must reimplement these searching methods
     virtual Point pointBefore(time_t time);
     virtual Point pointAfter(time_t time);
+    virtual time_t timeBefore(time_t time);
+    virtual time_t timeAfter(time_t time);
     
   protected:
     PointCollection filterPointsInRange(TimeRange range);
