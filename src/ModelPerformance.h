@@ -21,16 +21,18 @@ namespace RTX {
   public:
     
     typedef enum {
-      ModelPerformanceStatsError                   = 0,
-      ModelPerformanceStatsMeanError               = 1,
-      ModelPerformanceStatsQuantileError           = 2,
-      ModelPerformanceStatsIntegratedError         = 3,
-      ModelPerformanceStatsAbsError                = 4,
-      ModelPerformanceStatsMeanAbsError            = 5,
-      ModelPerformanceStatsQuantileAbsError        = 6,
-      ModelPerformanceStatsIntegratedAbsError      = 7,
-      ModelPerformanceStatsRMSE                    = 8,
-      ModelPerformanceStatsCorrelationCoefficient  = 9,
+      ModelPerformanceStatsModel                   = 0,
+      ModelPerformanceStatsMeasure                 = 1,
+      ModelPerformanceStatsError                   = 2,
+      ModelPerformanceStatsMeanError               = 3,
+      ModelPerformanceStatsQuantileError           = 4,
+      ModelPerformanceStatsIntegratedError         = 5,
+      ModelPerformanceStatsAbsError                = 6,
+      ModelPerformanceStatsMeanAbsError            = 7,
+      ModelPerformanceStatsQuantileAbsError        = 8,
+      ModelPerformanceStatsIntegratedAbsError      = 9,
+      ModelPerformanceStatsRMSE                    = 10,
+      ModelPerformanceStatsCorrelationCoefficient  = 11,
     } StatsType;
     
     typedef enum {
@@ -41,12 +43,12 @@ namespace RTX {
     } AggregationType;
     
     typedef enum {
-      ModelPerformanceMetricFlow     = 0,
-      ModelPerformanceMetricPressure = 1,
-      ModelPerformanceMetricHead     = 2,
-      ModelPerformanceMetricLevel    = 3,
-      ModelPerformanceMetricVolume   = 4,
-      ModelPerformanceMetricConcentration = 7
+      ModelPerformanceMetricFlow          = 0,
+      ModelPerformanceMetricPressure      = 1,
+      ModelPerformanceMetricHead          = 2,
+      ModelPerformanceMetricLevel         = 3,
+      ModelPerformanceMetricVolume        = 4,
+      ModelPerformanceMetricConcentration = 5
     } MetricType;
     
     

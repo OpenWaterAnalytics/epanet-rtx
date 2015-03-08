@@ -39,19 +39,21 @@ map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForEle
   map<ModelPerformance::StatsType, TimeSeries::_sp> errorSeries;
   
   // get the ts pair.
-  TimeSeries::_sp ts1,ts2;
+  TimeSeriesFilter::_sp measured(new TimeSeriesFilter), modeled(new TimeSeriesFilter);
   
   pair<TimeSeries::_sp,TimeSeries::_sp> pair = tsPairForElementWithMetricType(element, type);
-  ts1 = pair.first;
-  ts2 = pair.second;
   
-  if (!ts1 || !ts2) {
+  
+  if (!pair.first || !pair.second) {
     return errorSeries;
   }
   
+  measured->setSource(pair.first);
+  modeled->setSource(pair.second);
+  
   AggregatorTimeSeries::_sp error(new AggregatorTimeSeries);
-  error->addSource(ts1);
-  error->addSource(ts2, -1);
+  error->addSource(modeled);
+  error->addSource(measured, -1);
   
   StatsTimeSeries::_sp meanErr(new StatsTimeSeries);
   meanErr->setStatsType(StatsTimeSeries::StatsTimeSeriesMean);
@@ -65,8 +67,8 @@ map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForEle
 
   CorrelatorTimeSeries::_sp corr(new CorrelatorTimeSeries());
   corr->setCorrelationWindow(samplingWindow);
-  corr->setCorrelatorTimeSeries(ts2);
-  corr->setSource(ts1);
+  corr->setCorrelatorTimeSeries(modeled);
+  corr->setSource(measured);
   
   MathOpsTimeSeries::_sp absError(new MathOpsTimeSeries());
   absError->setMathOpsType(MathOpsTimeSeries::MathOpsTimeSeriesAbs);
@@ -98,7 +100,8 @@ map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForEle
   integrated->setSource(error);
   
   
-  
+  errorSeries[ModelPerformanceStatsModel] = modeled;
+  errorSeries[ModelPerformanceStatsMeasure] = measured;
   errorSeries[ModelPerformanceStatsError] = error;
   errorSeries[ModelPerformanceStatsMeanError] = meanErr;
   errorSeries[ModelPerformanceStatsQuantileError] = quantileTs;
@@ -434,6 +437,7 @@ pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithMet
       measured = t->levelMeasure();
       modeled = t->level();
     }
+      break;
     case ModelPerformanceMetricVolume:
     {
       Tank::_sp t = boost::dynamic_pointer_cast<Tank>(e);
