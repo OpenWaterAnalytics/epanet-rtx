@@ -61,9 +61,9 @@ TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range
     // expand range
     qRange.start = this->source()->timeBefore(range.start + 1);
     qRange.end = this->source()->timeAfter(range.end - 1);
+    qRange.correctWithRange(range);
   }
   
-  qRange.correctWithRange(range);
   
   set<time_t> times = this->timeValuesInRange(qRange);
   
@@ -226,6 +226,9 @@ Units StatsTimeSeries::statsUnits(Units sourceUnits, StatsTimeSeriesType type) {
       return sourceUnits * sourceUnits;
       break;
     case StatsTimeSeriesRMS:
+      return sourceUnits;
+      break;
+    case StatsTimeSeriesPercentile:
       return sourceUnits;
       break;
     default:
