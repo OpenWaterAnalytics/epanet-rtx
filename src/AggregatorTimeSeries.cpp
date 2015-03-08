@@ -29,6 +29,11 @@ ostream& AggregatorTimeSeries::toStream(ostream &stream) {
   return stream;
 }
 
+
+AggregatorTimeSeries::AggregatorTimeSeries() {
+  _mode = AggregatorModeSum;
+}
+
 AggregatorTimeSeries::AggregatorMode AggregatorTimeSeries::aggregatorMode() {
   return _mode;
 }
