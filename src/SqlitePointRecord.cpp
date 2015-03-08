@@ -80,6 +80,9 @@ void SqlitePointRecord::setPath(std::string path) {
 
 
 void SqlitePointRecord::dbConnect() throw(RtxException) {
+  // lock mutex
+  scoped_lock<boost::signals2::mutex> lock(*_mutex);
+  
   if (RTX_STRINGS_ARE_EQUAL(_path, "")) {
     errorMessage = "No File Specified";
     return;
@@ -504,13 +507,16 @@ void SqlitePointRecord::insertRange(const std::string& id, std::vector<Point> po
     BOOST_FOREACH(const Point &p, points) {
       this->insertSingleInTransaction(id, p);
     }
-    
-    ret = sqlite3_exec(_dbHandle, "end transaction", NULL, NULL, &errmsg);
-    if (ret != SQLITE_OK) {
-      logDbError();
-      return;
+    {
+      scoped_lock<boost::signals2::mutex> lock(*_mutex);
+      ret = sqlite3_exec(_dbHandle, "end transaction", NULL, NULL, &errmsg);
+      if (ret != SQLITE_OK) {
+        logDbError();
+        return;
+      }
     }
-    // end scoped lock
+    
+    
   }
   
 }
