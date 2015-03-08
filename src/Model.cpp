@@ -116,6 +116,7 @@ void Model::setFlowUnits(Units units)    {
   }
   BOOST_FOREACH(Tank::_sp t, this->tanks()) {
     t->flowMeasure()->setUnits(units);
+    t->flow()->setUnits(units);
   }
   BOOST_FOREACH(Pipe::_sp p, this->pipes()) {
     p->flow()->setUnits(units);
@@ -164,6 +165,9 @@ void Model::setQualityUnits(Units units) {
 
 void Model::setVolumeUnits(RTX::Units units) {
   _volumeUnits = units;
+  BOOST_FOREACH(Tank::_sp t, this->tanks()) {
+    t->volume()->setUnits(units);
+  }
 }
 
 #pragma mark - Storage
@@ -983,6 +987,18 @@ void Model::saveNetworkStates(time_t time) {
     Point qualityPoint(time, quality);
     tank->quality()->insert(qualityPoint);
     tank->state_quality = quality;
+    
+    double volume;
+    volume = Units::convertValue(tankVolume(tank->name()), this->volumeUnits(), tank->volume()->units());
+    Point volumePoint(time,volume);
+    tank->volume()->insert(volumePoint);
+    tank->state_volume = volume;
+    
+    double flow;
+    flow = Units::convertValue(tankFlow(tank->name()), this->flowUnits(), tank->flow()->units());
+    Point flowPoint(time,flow);
+    tank->flow()->insert(flowPoint);
+    tank->state_flow = flow;
     
   }
   

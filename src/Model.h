@@ -167,6 +167,8 @@ namespace RTX {
     // recreating or wrapping basic api functionality here.
     virtual double reservoirLevel(const string& reservoirName) { return 0; };
     virtual double tankLevel(const string& tankName) { return 0; };
+    virtual double tankVolume(const std::string& tank) { return 0; };
+    virtual double tankFlow(const std::string& tank) { return 0; };
     virtual double junctionHead(const string& junction) { return 0; };
     virtual double junctionPressure(const string& junction) { return 0; };
     virtual double junctionDemand(const string& junctionName) { return 0; };

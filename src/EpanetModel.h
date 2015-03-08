@@ -45,6 +45,8 @@ namespace RTX {
     // node elements
     double reservoirLevel(const std::string& reservoir);
     double tankLevel(const std::string& tank);
+    double tankVolume(const std::string& tank);
+    double tankFlow(const std::string& tank);
     double junctionDemand(const std::string& junction);
     double junctionHead(const std::string& junction);
     double junctionPressure(const std::string& junction);

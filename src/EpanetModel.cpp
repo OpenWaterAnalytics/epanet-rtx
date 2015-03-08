@@ -554,6 +554,14 @@ double EpanetModel::tankLevel(const string &tank) {
   return junctionHead(tank) - nodeWithName(tank)->elevation(); // node elevation & head in same Epanet units
 }
 
+double EpanetModel::tankVolume(const string& tank) {
+  return getNodeValue(EN_TANKVOLUME, tank);
+}
+
+double EpanetModel::tankFlow(const string& tank) {
+  return getNodeValue(EN_DEMAND, tank);
+}
+
 double EpanetModel::pipeFlow(const string &pipe) {
   return getLinkValue(EN_FLOW, pipe);
 }
