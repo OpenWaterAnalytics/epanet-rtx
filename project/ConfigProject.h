@@ -11,8 +11,6 @@
 
 #define CONFIGVERSION "1.0"
 
-#include <libconfig.h++>
-
 #include "ProjectFile.h"
 
 namespace RTX {
