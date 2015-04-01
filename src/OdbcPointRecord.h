@@ -43,7 +43,6 @@ namespace RTX {
   public:
     // types
     
-    
     typedef enum {
       NO_CONNECTOR,
       wonderware_mssql,
@@ -103,8 +102,11 @@ namespace RTX {
     virtual std::vector<std::string> identifiers();
     virtual std::ostream& toStream(std::ostream &stream);
     
-    void setTimeFormat(PointRecordTime::time_format_t timeFormat) { _timeFormat = timeFormat;};
-    PointRecordTime::time_format_t timeFormat() { return _timeFormat; };
+    void setTimeFormat(PointRecordTime::time_format_t timeFormat);
+    PointRecordTime::time_format_t timeFormat();
+    
+    std::string timeZoneString();
+    void setTimeZoneString(const std::string& tzStr);
     
     virtual bool supportsBoundedQueries();
     
@@ -164,11 +166,16 @@ namespace RTX {
     
     boost::signals2::mutex _odbcMutex;
     
+    PointRecordTime::time_format_t _timeFormat;
+    boost::local_time::time_zone_ptr _specifiedTimeZone;
+    std::string _specifiedTimeZoneString;
+    
   private:
     vector<string> _dsnList;
     bool _connectionOk;
     
-    PointRecordTime::time_format_t _timeFormat;
+    
+    
     Sql_Connector_t _connectorType;
     
     

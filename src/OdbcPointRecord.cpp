@@ -18,8 +18,17 @@
 
 using namespace RTX;
 using namespace std;
+using boost::local_time::posix_time_zone;
+using boost::local_time::time_zone_ptr;
+
 
 OdbcPointRecord::OdbcPointRecord() {
+  
+  std::string nyc("EST-5EDT,M4.1.0,M10.5.0");
+  _specifiedTimeZoneString = nyc;
+  _specifiedTimeZone.reset(new posix_time_zone(nyc));
+  
+  
   _connectionOk = false;
   _connectorType = NO_CONNECTOR;
   _timeFormat = PointRecordTime::UTC;
@@ -155,6 +164,35 @@ OdbcPointRecord::Sql_Connector_t OdbcPointRecord::connectorType() {
 }
 
 
+#pragma mark - time zone support
+
+void OdbcPointRecord::setTimeFormat(PointRecordTime::time_format_t timeFormat) {
+  _timeFormat = timeFormat;
+}
+
+PointRecordTime::time_format_t OdbcPointRecord::timeFormat() {
+  return _timeFormat;
+}
+
+std::string OdbcPointRecord::timeZoneString() {
+  return _specifiedTimeZoneString;
+}
+
+void OdbcPointRecord::setTimeZoneString(const std::string& tzStr) {
+  
+  try {
+    time_zone_ptr newTimeZone(new posix_time_zone(tzStr));
+    if (newTimeZone) {
+      _specifiedTimeZoneString = tzStr;
+      _specifiedTimeZone = newTimeZone;
+    }
+  } catch (...) {
+    cerr << "could not set time zone string" << endl;
+  }
+}
+
+
+
 #pragma mark -
 
 void OdbcPointRecord::setConnectorType(Sql_Connector_t connectorType) {
@@ -204,7 +242,7 @@ void OdbcPointRecord::rebuildQueries() {
 }
 
 void OdbcPointRecord::dbConnect() throw(RtxException) {
-  
+  scoped_lock<boost::signals2::mutex> lock(_odbcMutex);
   if (_connectionOk) {
     SQLDisconnect(_handles.SCADAdbc);
     SQLFreeHandle(SQL_HANDLE_DBC, _handles.SCADAdbc);
@@ -315,7 +353,13 @@ std::vector<Point> OdbcPointRecord::pointsFromStatement(SQLHSTMT statement) {
   
   BOOST_FOREACH(const ScadaRecord& record, records) {
     Point p;
-    time_t t = PointRecordTime::time(record.time);
+    time_t t;
+    if (_timeFormat == PointRecordTime::UTC) {
+      t = PointRecordTime::time(record.time);
+    }
+    else {
+      t = PointRecordTime::timeFromZone(record.time, _specifiedTimeZone);
+    }
     double v = record.value;
     Point::PointQuality q = Point::opc_good;
     q = (Point::PointQuality)record.quality;
