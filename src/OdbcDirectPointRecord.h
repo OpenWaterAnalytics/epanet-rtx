@@ -39,7 +39,7 @@ namespace RTX {
     std::string stringQueryForRange(const std::string& id, time_t start, time_t end);
     std::string stringQueryForSinglyBoundedRange(const std::string& id, time_t bound, OdbcQueryBoundType boundType);
     std::string stringQueryForIds();
-    SQLHSTMT _directStatment;
+    SQLHSTMT _directTagQueryStmt, _directRangeQueryStmt;
     
   };
 }

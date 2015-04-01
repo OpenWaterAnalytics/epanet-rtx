@@ -27,6 +27,8 @@ void OdbcDirectPointRecord::dbConnect() throw(RtxException) {
 
 
 vector<string> OdbcDirectPointRecord::identifiers() {
+  scoped_lock<boost::signals2::mutex> lock(_odbcMutex);
+  
   vector<string> ids;
   if (!isConnected()) {
     return ids;
@@ -43,17 +45,17 @@ vector<string> OdbcDirectPointRecord::identifiers() {
   SQLLEN tagLengthInd;
   SQLRETURN retcode;
   
-  retcode = SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directStatment);
-  retcode = SQLExecDirect(_directStatment, (SQLCHAR*)tagQuery.c_str(), SQL_NTS);
+  retcode = SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directTagQueryStmt);
+  retcode = SQLExecDirect(_directTagQueryStmt, (SQLCHAR*)tagQuery.c_str(), SQL_NTS);
   
-  while (SQL_SUCCEEDED(SQLFetch(_directStatment))) {
-    SQLGetData(_directStatment, 1, SQL_C_CHAR, tagName, 512, &tagLengthInd);
+  while (SQL_SUCCEEDED(SQLFetch(_directTagQueryStmt))) {
+    SQLGetData(_directTagQueryStmt, 1, SQL_C_CHAR, tagName, 512, &tagLengthInd);
     string newTag((char*)tagName);
     ids.push_back(newTag);
   }
   
-  SQLFreeStmt(_directStatment, SQL_CLOSE);
-  SQLFreeHandle(SQL_HANDLE_STMT, _directStatment);
+  SQLFreeStmt(_directTagQueryStmt, SQL_CLOSE);
+  SQLFreeHandle(SQL_HANDLE_STMT, _directTagQueryStmt);
   
   return ids;
 }
@@ -75,20 +77,21 @@ std::vector<Point> OdbcDirectPointRecord::selectRange(const std::string& id, tim
   int iFetchAttempt = 0;
   do {
     // execute the query and get a result set
-    SQLRETURN retcode = SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directStatment);
-    if (SQL_SUCCEEDED(SQLExecDirect(_directStatment, (SQLCHAR*)q.c_str(), SQL_NTS))) {
+    SQLRETURN retcode = SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directRangeQueryStmt);
+    if (SQL_SUCCEEDED(SQLExecDirect(_directRangeQueryStmt, (SQLCHAR*)q.c_str(), SQL_NTS))) {
       fetchSuccess = true;
-      points = this->pointsFromStatement(_directStatment);
+      points = this->pointsFromStatement(_directRangeQueryStmt);
     }
     else {
-      cerr << extract_error("SQLExecDirect", _directStatment, SQL_HANDLE_STMT) << endl;
+      cerr << extract_error("SQLExecDirect", _directRangeQueryStmt, SQL_HANDLE_STMT) << endl;
       cerr << "query did not succeed: " << q << endl;
       // do something more intelligent here. re-check connection?
       this->dbConnect();
     }
     
     ++iFetchAttempt;
-    SQLFreeHandle(SQL_HANDLE_STMT, _directStatment);
+    SQLFreeStmt(_directRangeQueryStmt, SQL_CLOSE);
+    SQLFreeHandle(SQL_HANDLE_STMT, _directRangeQueryStmt);
     
   } while (!fetchSuccess && iFetchAttempt < RTX_ODBCDIRECT_MAX_RETRY);
   
@@ -110,11 +113,11 @@ Point OdbcDirectPointRecord::selectNext(const std::string& id, time_t time) {
     int iFetchAttempt = 0;
 
     do {
-      SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directStatment);
+      SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directRangeQueryStmt);
       string q = stringQueryForSinglyBoundedRange(id, time, OdbcQueryBoundLower);
-      if (SQL_SUCCEEDED(SQLExecDirect(_directStatment, (SQLCHAR*)q.c_str(), SQL_NTS))) {
+      if (SQL_SUCCEEDED(SQLExecDirect(_directRangeQueryStmt, (SQLCHAR*)q.c_str(), SQL_NTS))) {
         fetchSuccess = true;
-        points = pointsFromStatement(_directStatment);
+        points = pointsFromStatement(_directRangeQueryStmt);
       }
       else {
         cerr << "query did not succeed: " << q << endl;
@@ -122,7 +125,8 @@ Point OdbcDirectPointRecord::selectNext(const std::string& id, time_t time) {
       }
       
       ++iFetchAttempt;
-      SQLFreeHandle(SQL_HANDLE_STMT, _directStatment);
+      SQLFreeStmt(_directRangeQueryStmt, SQL_CLOSE);
+      SQLFreeHandle(SQL_HANDLE_STMT, _directRangeQueryStmt);
 
     } while (!fetchSuccess && iFetchAttempt < RTX_ODBCDIRECT_MAX_RETRY);
     
@@ -153,14 +157,14 @@ Point OdbcDirectPointRecord::selectNextIteratively(const std::string &id, time_t
   
   string q;
   
-  SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directStatment);
+  SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directRangeQueryStmt);
   
   while (points.size() == 0 && lookahead < time + max_margin) {
     
     q = this->stringQueryForRange(id, lookahead, lookahead+margin);
     
-    if (SQL_SUCCEEDED(SQLExecDirect(_directStatment, (SQLCHAR*)q.c_str(), SQL_NTS))) {
-      points = pointsFromStatement(_directStatment);
+    if (SQL_SUCCEEDED(SQLExecDirect(_directRangeQueryStmt, (SQLCHAR*)q.c_str(), SQL_NTS))) {
+      points = pointsFromStatement(_directRangeQueryStmt);
     }
     else {
       cerr << "query did not succeed: " << q << endl;
@@ -168,7 +172,8 @@ Point OdbcDirectPointRecord::selectNextIteratively(const std::string &id, time_t
     lookahead += margin;
   }
   
-  SQLFreeHandle(SQL_HANDLE_STMT, _directStatment);
+  SQLFreeStmt(_directRangeQueryStmt, SQL_CLOSE);
+  SQLFreeHandle(SQL_HANDLE_STMT, _directRangeQueryStmt);
   
   
   if (points.size() > 0) {
@@ -196,10 +201,10 @@ Point OdbcDirectPointRecord::selectPrevious(const std::string& id, time_t time) 
     
     vector<Point> points;
     
-    SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directStatment);
+    SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directRangeQueryStmt);
     string q = stringQueryForSinglyBoundedRange(id, time, OdbcQueryBoundUpper);
-    if (SQL_SUCCEEDED(SQLExecDirect(_directStatment, (SQLCHAR*)q.c_str(), SQL_NTS))) {
-      points = pointsFromStatement(_directStatment);
+    if (SQL_SUCCEEDED(SQLExecDirect(_directRangeQueryStmt, (SQLCHAR*)q.c_str(), SQL_NTS))) {
+      points = pointsFromStatement(_directRangeQueryStmt);
     }
     else {
       cerr << "query did not succeed: " << q << endl;
@@ -211,6 +216,10 @@ Point OdbcDirectPointRecord::selectPrevious(const std::string& id, time_t time) 
     else {
       cerr << "no points found for " << id << endl;
     }
+    
+    
+    SQLFreeStmt(_directRangeQueryStmt, SQL_CLOSE);
+    SQLFreeHandle(SQL_HANDLE_STMT, _directRangeQueryStmt);
     
   }
   else {
@@ -231,14 +240,14 @@ Point OdbcDirectPointRecord::selectPreviousIteratively(const std::string &id, ti
   
   string q;
   
-  SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directStatment);
+  SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directRangeQueryStmt);
   
   while (points.size() == 0 && lookBehind > time - max_margin) {
     
     q = this->stringQueryForRange(id, lookBehind-margin, lookBehind+1);
     
-    if (SQL_SUCCEEDED(SQLExecDirect(_directStatment, (SQLCHAR*)q.c_str(), SQL_NTS))) {
-      points = pointsFromStatement(_directStatment);
+    if (SQL_SUCCEEDED(SQLExecDirect(_directRangeQueryStmt, (SQLCHAR*)q.c_str(), SQL_NTS))) {
+      points = pointsFromStatement(_directRangeQueryStmt);
     }
     else {
       cerr << "query did not succeed: " << q << endl;
@@ -246,7 +255,8 @@ Point OdbcDirectPointRecord::selectPreviousIteratively(const std::string &id, ti
     lookBehind -= margin;
   }
   
-  SQLFreeHandle(SQL_HANDLE_STMT, _directStatment);
+  SQLFreeStmt(_directRangeQueryStmt, SQL_CLOSE);
+  SQLFreeHandle(SQL_HANDLE_STMT, _directRangeQueryStmt);
   
   
   if (points.size() > 0) {
@@ -267,9 +277,19 @@ Point OdbcDirectPointRecord::selectPreviousIteratively(const std::string &id, ti
 std::string OdbcDirectPointRecord::stringQueryForRange(const std::string& id, time_t start, time_t end) {
   
   string query = _querySyntax.rangeSelect;
+  string startStr,endStr;
   
-  string startDateStr = "'" + PointRecordTime::utcDateStringFromUnix(start-1) + "'"; // minus one because of wonderware's bullshit "initial value" in delta retrieval.
-  string endDateStr = "'" + PointRecordTime::utcDateStringFromUnix(end+1) + "'"; // because wonderware does fractional seconds
+  if (this->timeFormat() == PointRecordTime::UTC) {
+    startStr = PointRecordTime::utcDateStringFromUnix(start-1);
+    endStr = PointRecordTime::utcDateStringFromUnix(end+1);
+  }
+  else {
+    startStr = PointRecordTime::localDateStringFromUnix(start-1, _specifiedTimeZone);
+    endStr = PointRecordTime::localDateStringFromUnix(end+1, _specifiedTimeZone);
+  }
+  
+  string startDateStr = "'" + startStr + "'"; // minus one because of wonderware's bullshit "initial value" in delta retrieval.
+  string endDateStr = "'" + endStr + "'"; // because wonderware does fractional seconds
   string idStr = "'" + id + "'";
   
   boost::replace_first(query, "?", idStr);
