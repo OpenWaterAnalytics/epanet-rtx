@@ -80,54 +80,56 @@ void SqlitePointRecord::setPath(std::string path) {
 
 
 void SqlitePointRecord::dbConnect() throw(RtxException) {
-  // lock mutex
-  scoped_lock<boost::signals2::mutex> lock(*_mutex);
-  
-  if (RTX_STRINGS_ARE_EQUAL(_path, "")) {
-    errorMessage = "No File Specified";
-    return;
-  }
-  
-  int returnCode;
-  returnCode = sqlite3_open_v2(_path.c_str(), &_dbHandle, SQLITE_OPEN_READWRITE, NULL); // only if exists
-  if (returnCode == SQLITE_CANTOPEN) {
-    // attempt to create the db.
-    returnCode = sqlite3_open_v2(_path.c_str(), &_dbHandle, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
-    if (returnCode == SQLITE_OK) {
-      if (!this->initTables()) {
+
+  { // lock mutex
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
+    
+    if (RTX_STRINGS_ARE_EQUAL(_path, "")) {
+      errorMessage = "No File Specified";
+      return;
+    }
+    
+    int returnCode;
+    returnCode = sqlite3_open_v2(_path.c_str(), &_dbHandle, SQLITE_OPEN_READWRITE, NULL); // only if exists
+    if (returnCode == SQLITE_CANTOPEN) {
+      // attempt to create the db.
+      returnCode = sqlite3_open_v2(_path.c_str(), &_dbHandle, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+      if (returnCode == SQLITE_OK) {
+        if (!this->initTables()) {
+          return;
+        }
+      }
+    }
+    if( returnCode != SQLITE_OK ){
+      this->logDbError();
+      sqlite3_close(_dbHandle);
+      return;
+    }
+    
+    // check schema
+    int databaseVersion = this->dbSchemaVersion();
+    if (databaseVersion < sqlitePointRecordCurrentDbVersion) {
+      cerr << "Point Record Database Schema version not compatible. Require version " << sqlitePointRecordCurrentDbVersion << " or greater. Updating." << endl;
+      bool ok = this->updateSchema();
+    }
+    
+    // prepare the select & insert statments
+    
+    string statmentStrings[] =           {selectNamesStr,    singleSelectStr,    rangeSelectStr,    prevSelectStr,        nextSelectStr,    singleInsertStr,    firstSelectStr,    lastSelectStr  };
+    sqlite3_stmt** preparedStatments[] = {&_selectNamesStmt, &_selectSingleStmt, &_selectRangeStmt, &_selectPreviousStmt, &_selectNextStmt, &_insertSingleStmt, &_selectFirstStmt, &_selectLastStmt};
+    int nStmts = 8;
+    
+    for (int iStmt = 0; iStmt < nStmts; ++iStmt) {
+      sqlite3_stmt **stmt = preparedStatments[iStmt];
+      returnCode = sqlite3_prepare_v2(_dbHandle, statmentStrings[iStmt].c_str(), -1, stmt, NULL);
+      if (returnCode != SQLITE_OK) {
+        this->logDbError();
         return;
       }
     }
+    errorMessage = "OK";
+    _connected = true;
   }
-  if( returnCode != SQLITE_OK ){
-    this->logDbError();
-    sqlite3_close(_dbHandle);
-    return;
-  }
-  
-  // check schema
-  int databaseVersion = this->dbSchemaVersion();
-  if (databaseVersion < sqlitePointRecordCurrentDbVersion) {
-    cerr << "Point Record Database Schema version not compatible. Require version " << sqlitePointRecordCurrentDbVersion << " or greater. Updating." << endl;
-    bool ok = this->updateSchema();
-  }
-  
-  // prepare the select & insert statments
-  
-  string statmentStrings[] =           {selectNamesStr,    singleSelectStr,    rangeSelectStr,    prevSelectStr,        nextSelectStr,    singleInsertStr,    firstSelectStr,    lastSelectStr  };
-  sqlite3_stmt** preparedStatments[] = {&_selectNamesStmt, &_selectSingleStmt, &_selectRangeStmt, &_selectPreviousStmt, &_selectNextStmt, &_insertSingleStmt, &_selectFirstStmt, &_selectLastStmt};
-  int nStmts = 8;
-  
-  for (int iStmt = 0; iStmt < nStmts; ++iStmt) {
-    sqlite3_stmt **stmt = preparedStatments[iStmt];
-    returnCode = sqlite3_prepare_v2(_dbHandle, statmentStrings[iStmt].c_str(), -1, stmt, NULL);
-    if (returnCode != SQLITE_OK) {
-      this->logDbError();
-      return;
-    }
-  }
-  errorMessage = "OK";
-  _connected = true;
   BOOST_FOREACH(const string &name, DB_PR_SUPER::identifiers()) {
     this->registerAndGetIdentifier(name);
   }
