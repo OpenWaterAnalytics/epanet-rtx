@@ -253,7 +253,9 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, time_t startTi
     BOOST_FOREACH(const Point& p, merged) {
       if (addedTimes.count(p.time) == 0) {
         addedTimes.insert(p.time);
-        deDuped.push_back(p);
+        if (startTime <= p.time && p.time <= endTime) {
+          deDuped.push_back(p);
+        }
       }
     }
     
