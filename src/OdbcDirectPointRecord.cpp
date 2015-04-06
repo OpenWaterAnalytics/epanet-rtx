@@ -64,8 +64,6 @@ vector<string> OdbcDirectPointRecord::identifiers() {
 
 std::vector<Point> OdbcDirectPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
   
-  scoped_lock<boost::signals2::mutex> lock(_odbcMutex);
-  
   this->checkConnected();
   
   // construct the static query text
@@ -77,14 +75,21 @@ std::vector<Point> OdbcDirectPointRecord::selectRange(const std::string& id, tim
   int iFetchAttempt = 0;
   do {
     // execute the query and get a result set
-    SQLRETURN retcode = SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directRangeQueryStmt);
-    if (SQL_SUCCEEDED(SQLExecDirect(_directRangeQueryStmt, (SQLCHAR*)q.c_str(), SQL_NTS))) {
-      fetchSuccess = true;
-      points = this->pointsFromStatement(_directRangeQueryStmt);
+    {
+      scoped_lock<boost::signals2::mutex> lock(_odbcMutex);
+      SQLRETURN retcode = SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directRangeQueryStmt);
+      if (SQL_SUCCEEDED(SQLExecDirect(_directRangeQueryStmt, (SQLCHAR*)q.c_str(), SQL_NTS))) {
+        fetchSuccess = true;
+        points = this->pointsFromStatement(_directRangeQueryStmt);
+      }
     }
-    else {
-      cerr << extract_error("SQLExecDirect", _directRangeQueryStmt, SQL_HANDLE_STMT) << endl;
-      cerr << "query did not succeed: " << q << endl;
+    
+    if(!fetchSuccess) {
+      {
+        scoped_lock<boost::signals2::mutex> lock(_odbcMutex);
+        cerr << extract_error("SQLExecDirect", _directRangeQueryStmt, SQL_HANDLE_STMT) << endl;
+        cerr << "query did not succeed: " << q << endl;
+      }
       // do something more intelligent here. re-check connection?
       this->dbConnect();
     }
