@@ -9,6 +9,7 @@
 
 #include "CorrelatorTimeSeries.h"
 #include "AggregatorTimeSeries.h"
+#include "LagTimeSeries.h"
 
 #include <boost/foreach.hpp>
 #include <boost/accumulators/accumulators.hpp>
@@ -146,7 +147,7 @@ bool CorrelatorTimeSeries::canChangeToUnits(Units units) {
 
 
 // static methods
-TimeSeries::_sp correlationArray(TimeSeries::_sp primary, TimeSeries::_sp secondary, Clock::_sp window, int nLags) {
+TimeSeries::_sp CorrelatorTimeSeries::correlationArray(TimeSeries::_sp primary, TimeSeries::_sp secondary, Clock::_sp window, int nLags) {
   
   if (!primary || !primary->clock() || !secondary) {
     TimeSeries::_sp blank;
@@ -156,15 +157,25 @@ TimeSeries::_sp correlationArray(TimeSeries::_sp primary, TimeSeries::_sp second
   AggregatorTimeSeries::_sp maxCor(new AggregatorTimeSeries);
   
   maxCor->setName(primary->name() + "." + secondary->name() + ".maxCorrelation" );
+  maxCor->setAggregatorMode(AggregatorTimeSeries::AggregatorModeMax);
   
   int period = primary->clock()->period();
   
+  for (time_t lagTime = (time_t)(-period*nLags); lagTime < (time_t)(period*nLags); lagTime += (time_t)period) {
+    // create lagged correlation:
+    CorrelatorTimeSeries::_sp cor(new CorrelatorTimeSeries);
+    LagTimeSeries::_sp lagTs(new LagTimeSeries);
+    
+    lagTs->setOffset(lagTime);
+    lagTs->setSource(secondary);
+    cor->setSource(primary);
+    cor->setCorrelatorTimeSeries(lagTs);
+    cor->setCorrelationWindow(window);
+    
+    maxCor->addSource(cor);
+    maxCor->addSneakyConfidenceFlagMapping(cor,lagTime);
+  }
   
-  
-  
-  
-  
-  
-  
+  return maxCor;
 }
 

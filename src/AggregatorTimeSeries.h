@@ -65,6 +65,10 @@ namespace RTX {
     virtual time_t timeBefore(time_t time);
     virtual time_t timeAfter(time_t time);
     
+    // sneaky:: this will override the confidence field with a user-specified value, depending on the aggregator source being used.
+    // only valid for min/max mode.
+    void addSneakyConfidenceFlagMapping(TimeSeries::_sp ts, double sneakyConfidence);
+    
   protected:
     PointCollection filterPointsInRange(TimeRange range);
     std::set<time_t> timeValuesInRange(TimeRange range);
@@ -77,6 +81,8 @@ namespace RTX {
     // _tsList[x].first == TimeSeries, _tsList[x].second == multipier
     std::vector< AggregatorSource > _tsList;
     AggregatorMode _mode;
+    std::map<TimeSeries::_sp, double> _sneakyMapping;
+    bool _useSneakyMapping;
     
   };
   

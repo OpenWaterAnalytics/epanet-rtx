@@ -32,6 +32,7 @@ ostream& AggregatorTimeSeries::toStream(ostream &stream) {
 
 AggregatorTimeSeries::AggregatorTimeSeries() {
   _mode = AggregatorModeSum;
+  _useSneakyMapping = false;
 }
 
 AggregatorTimeSeries::AggregatorMode AggregatorTimeSeries::aggregatorMode() {
@@ -245,6 +246,7 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
     // do the aggregation.
     BOOST_FOREACH(Point& p, aggregated) {
       if (sourcePointMap.count(p.time) > 0) {
+        bool checkForSneaky = false;
         Point pointToAggregate = sourcePointMap[p.time] * multiplier;
         
         switch (_mode) {
@@ -257,6 +259,7 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
           {
             if (p.value < pointToAggregate.value) {
               p = pointToAggregate;
+              checkForSneaky = true;
             }
           }
             break;
@@ -269,10 +272,16 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
           {
             if (p.value > pointToAggregate.value) {
               p = pointToAggregate;
+              checkForSneaky = true;
             }
           }
           default:
             break;
+        }
+        
+        // sneaky
+        if (_useSneakyMapping && checkForSneaky && _sneakyMapping.count(aggSource.timeseries) > 0) {
+          p.confidence = _sneakyMapping[aggSource.timeseries];
         }
         
       }
@@ -314,4 +323,12 @@ bool AggregatorTimeSeries::canChangeToUnits(Units units) {
   else {
     return false;
   }
+}
+
+
+void AggregatorTimeSeries::addSneakyConfidenceFlagMapping(TimeSeries::_sp ts, double sneakyConfidence) {
+  _useSneakyMapping = true;
+  
+  _sneakyMapping[ts] = sneakyConfidence;
+  
 }
