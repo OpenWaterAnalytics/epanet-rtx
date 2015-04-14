@@ -32,6 +32,10 @@ namespace RTX {
     Clock::_sp correlationWindow();
     void setCorrelationWindow(Clock::_sp correlationWindow);
     
+    ///! this will yield a timeseries who's points are the maximum correlation, and who's confidence is the lag at which
+    //   that correlation occurs. Lag indexes are calculated at the primary clock frequency.
+    static TimeSeries::_sp correlationArray(TimeSeries::_sp primary, TimeSeries::_sp secondary, Clock::_sp window, int nLags);
+    
   protected:
     PointCollection filterPointsInRange(TimeRange range);
     bool canSetSource(TimeSeries::_sp ts);

@@ -8,6 +8,7 @@
 
 
 #include "CorrelatorTimeSeries.h"
+#include "AggregatorTimeSeries.h"
 
 #include <boost/foreach.hpp>
 #include <boost/accumulators/accumulators.hpp>
@@ -143,4 +144,27 @@ bool CorrelatorTimeSeries::canChangeToUnits(Units units) {
   return false;
 }
 
+
+// static methods
+TimeSeries::_sp correlationArray(TimeSeries::_sp primary, TimeSeries::_sp secondary, Clock::_sp window, int nLags) {
+  
+  if (!primary || !primary->clock() || !secondary) {
+    TimeSeries::_sp blank;
+    return blank;
+  }
+  
+  AggregatorTimeSeries::_sp maxCor(new AggregatorTimeSeries);
+  
+  maxCor->setName(primary->name() + "." + secondary->name() + ".maxCorrelation" );
+  
+  int period = primary->clock()->period();
+  
+  
+  
+  
+  
+  
+  
+  
+}
 
