@@ -27,6 +27,7 @@ using namespace std;
 CorrelatorTimeSeries::CorrelatorTimeSeries() {
   Clock::_sp c( new Clock(3600) );
   _corWindow = c;
+  _lagSeconds = 0;
 }
 
 
@@ -55,6 +56,17 @@ void CorrelatorTimeSeries::setCorrelationWindow(Clock::_sp window) {
 }
 
 
+int CorrelatorTimeSeries::lagSeconds() {
+  return _lagSeconds;
+}
+
+void CorrelatorTimeSeries::setLagSeconds(int nSeconds) {
+  _lagSeconds = abs(nSeconds);
+  this->invalidate();
+}
+
+
+
 #pragma mark - superclass overrides
 
 TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange range) {
@@ -66,65 +78,96 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange 
   
   // force pre-cache
   TimeRange preFetchRange(range.start - this->correlationWindow()->period(), range.end);
-  this->source()->points(preFetchRange);
-  this->correlatorTimeSeries()->points(preFetchRange);
+  TimeRange correlatorFetchRange = preFetchRange;
+  // widen for inclusion of lags
+  time_t correlatorPrior = correlatorFetchRange.start - this->lagSeconds();
+  time_t correlatorNext = correlatorFetchRange.end + this->lagSeconds();
+  // widen for resampling capabilities
+  correlatorFetchRange.start = this->correlatorTimeSeries()->timeBefore(correlatorPrior + 1);
+  correlatorFetchRange.end = this->correlatorTimeSeries()->timeAfter(correlatorNext - 1);
+  correlatorFetchRange.correctWithRange(TimeRange(correlatorPrior,correlatorNext)); // get rid of zero-range
+  
+  PointCollection m_primaryCollection = this->source()->pointCollection(preFetchRange);
+  PointCollection m_secondaryCollection = this->correlatorTimeSeries()->pointCollection(correlatorFetchRange);
+  m_secondaryCollection.convertToUnits(m_primaryCollection.units);
   
   TimeSeries::_sp sourceTs = this->source();
   time_t windowWidth = this->correlationWindow()->period();
   
-  set<time_t> times = this->timeValuesInRange(range);
+  set<time_t> times = m_primaryCollection.trimmedToRange(range).times(); //this->timeValuesInRange(range);
   vector<Point> thePoints;
   thePoints.reserve(times.size());
   
   BOOST_FOREACH(time_t t, times) {
     double corrcoef = 0;
     TimeRange q(t-windowWidth, t);
-    PointCollection sourceCollection = sourceTs->pointCollection(q);
+    PointCollection sourceCollection = m_primaryCollection.trimmedToRange(q); //sourceTs->pointCollection(q);
     
-    set<time_t> sourceTimeValues;
-    BOOST_FOREACH(const Point& p, sourceCollection.points) {
-      sourceTimeValues.insert(p.time);
+    set<time_t> sourceTimeValues = sourceCollection.times();
+    
+    set<time_t> lagEvaluationTimes = sourceCollection.trimmedToRange(TimeRange(t - _lagSeconds, t + _lagSeconds)).times();
+    if (lagEvaluationTimes.size() == 0) {
+      continue; // next time.
     }
     
-    // expand the query range for the secondary collection
-    TimeRange primaryRange(*(sourceTimeValues.begin()), *(sourceTimeValues.rbegin()));
-    TimeRange secondaryRange;
-    secondaryRange.start = this->correlatorTimeSeries()->timeBefore(primaryRange.start + 1);
-    secondaryRange.end = this->correlatorTimeSeries()->timeAfter(primaryRange.end - 1);
+    pair<double, int> maxCorrelationAtLaggedTime(-MAXFLOAT,0);
     
-    PointCollection secondaryCollection = this->correlatorTimeSeries()->pointCollection(secondaryRange);
-    secondaryCollection.resample(sourceTimeValues);
-    
-    if (sourceCollection.count() == 0 || secondaryCollection.count() == 0) {
-      continue; // no points to correlate
+    BOOST_FOREACH(time_t lagTime, lagEvaluationTimes) {
+      
+      int timeDistance = (int)(t - lagTime);
+      PointCollection sourceCollectionForAnalysis = sourceCollection;
+      PointCollection secondaryCollection = m_secondaryCollection;
+      // perform a time lag on the secondary points if needed.
+      if (timeDistance != 0) {
+        BOOST_FOREACH(Point& p, secondaryCollection.points) {
+          p.time -= timeDistance;
+        }
+      }
+      
+      // resample secondary points for the correlation analysis.
+      secondaryCollection.resample(sourceCollection.times());
+      
+      if (secondaryCollection.count() < 2) {
+        continue;
+      }
+      // trim points on primary?
+      if (secondaryCollection.count() != sourceCollectionForAnalysis.count()) {
+        sourceCollectionForAnalysis.resample(secondaryCollection.times());
+      }
+      
+      if (secondaryCollection.count() != sourceCollectionForAnalysis.count()) {
+        continue; // skip this. something is wrong.
+      }
+      
+      // do the correlation calculation.
+      
+      accumulator_set<double, stats<tag::mean, tag::variance> > acc1;
+      accumulator_set<double, stats<tag::mean, tag::variance> > acc2;
+      accumulator_set<double, stats<tag::covariance<double, tag::covariate1> > > acc3;
+      for (int i = 0; i < sourceCollectionForAnalysis.count(); i++) {
+        Point p1 = sourceCollectionForAnalysis.points.at(i);
+        Point p2 = secondaryCollection.points.at(i);
+        acc1(p1.value);
+        acc2(p2.value);
+        acc3(p1.value, covariate1 = p2.value);
+      }
+      corrcoef = covariance(acc3)/sqrt(variance(acc1))/sqrt(variance(acc2));
+      
+      
+      if (corrcoef > maxCorrelationAtLaggedTime.first) {
+        maxCorrelationAtLaggedTime.first = corrcoef;
+        maxCorrelationAtLaggedTime.second = timeDistance;
+      }
+      
     }
     
-    if (sourceCollection.count() != secondaryCollection.count()) {
-      cout << "Unequal number of points" << endl;
-      return PointCollection(vector<Point>(), this->units());
-    }
     
-    // get consistent units
-    secondaryCollection.convertToUnits(sourceCollection.units);
     
-    // correlation coefficient
-    accumulator_set<double, stats<tag::mean, tag::variance> > acc1;
-    accumulator_set<double, stats<tag::mean, tag::variance> > acc2;
-    accumulator_set<double, stats<tag::covariance<double, tag::covariate1> > > acc3;
-    for (int i = 0; i < sourceCollection.count(); i++) {
-      Point p1 = sourceCollection.points.at(i);
-      Point p2 = secondaryCollection.points.at(i);
-      acc1(p1.value);
-      acc2(p2.value);
-      acc3(p1.value, covariate1 = p2.value);
-    }
-    corrcoef = covariance(acc3)/sqrt(variance(acc1))/sqrt(variance(acc2));
-    
-    thePoints.push_back(Point(t,corrcoef));
+    thePoints.push_back(Point(t,maxCorrelationAtLaggedTime.first, Point::opc_rtx_override, (double)(maxCorrelationAtLaggedTime.second)));
     
   }
   
-  return PointCollection(thePoints, this->units());
+  return PointCollection(thePoints, RTX_DIMENSIONLESS);
 }
 
 bool CorrelatorTimeSeries::canSetSource(TimeSeries::_sp ts) {
@@ -143,39 +186,5 @@ bool CorrelatorTimeSeries::canChangeToUnits(Units units) {
     return true;
   }
   return false;
-}
-
-
-// static methods
-TimeSeries::_sp CorrelatorTimeSeries::correlationArray(TimeSeries::_sp primary, TimeSeries::_sp secondary, Clock::_sp window, int nLags) {
-  
-  if (!primary || !primary->clock() || !secondary) {
-    TimeSeries::_sp blank;
-    return blank;
-  }
-  
-  AggregatorTimeSeries::_sp maxCor(new AggregatorTimeSeries);
-  
-  maxCor->setName(primary->name() + "." + secondary->name() + ".maxCorrelation" );
-  maxCor->setAggregatorMode(AggregatorTimeSeries::AggregatorModeMax);
-  
-  int period = primary->clock()->period();
-  
-  for (time_t lagTime = (time_t)(-period*nLags); lagTime < (time_t)(period*nLags); lagTime += (time_t)period) {
-    // create lagged correlation:
-    CorrelatorTimeSeries::_sp cor(new CorrelatorTimeSeries);
-    LagTimeSeries::_sp lagTs(new LagTimeSeries);
-    
-    lagTs->setOffset(lagTime);
-    lagTs->setSource(secondary);
-    cor->setSource(primary);
-    cor->setCorrelatorTimeSeries(lagTs);
-    cor->setCorrelationWindow(window);
-    
-    maxCor->addSource(cor);
-    maxCor->addSneakyConfidenceFlagMapping(cor,lagTime);
-  }
-  
-  return maxCor;
 }
 

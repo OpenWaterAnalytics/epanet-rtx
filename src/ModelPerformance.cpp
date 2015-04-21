@@ -15,7 +15,7 @@
 #include "GainTimeSeries.h"
 #include "MathOpsTimeSeries.h"
 #include "IntegratorTimeSeries.h"
-
+#include "MetaTimeSeries.h"
 
 using namespace RTX;
 using namespace std;
@@ -65,10 +65,15 @@ map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForEle
   rmse->setWindow(samplingWindow);
   rmse->setSource(error);
 
-  CorrelatorTimeSeries::_sp corr(new CorrelatorTimeSeries());
-  corr->setCorrelationWindow(samplingWindow);
-  corr->setCorrelatorTimeSeries(modeled);
-  corr->setSource(measured);
+  int lag = 24 * 60 * 60;
+  CorrelatorTimeSeries::_sp maxCor(new CorrelatorTimeSeries);
+  maxCor->setLagSeconds(lag);
+  maxCor->setSource(measured);
+  maxCor->setCorrelationWindow(samplingWindow);
+  maxCor->setCorrelatorTimeSeries(modeled);
+  MetaTimeSeries::_sp maxCorLag(new MetaTimeSeries);
+  maxCorLag->setSource(maxCor);
+  maxCorLag->setMetaMode(MetaTimeSeries::MetaModeConfidence); // sneaky! 💩
   
   MathOpsTimeSeries::_sp absError(new MathOpsTimeSeries());
   absError->setMathOpsType(MathOpsTimeSeries::MathOpsTimeSeriesAbs);
@@ -111,7 +116,8 @@ map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForEle
   errorSeries[ModelPerformanceStatsQuantileAbsError] = quantileAbsErr;
   errorSeries[ModelPerformanceStatsIntegratedAbsError] = integratedAbs;
   errorSeries[ModelPerformanceStatsRMSE] = rmse;
-  errorSeries[ModelPerformanceStatsCorrelationCoefficient] = corr;
+  errorSeries[ModelPerformanceStatsMaxCorrelation] = maxCor;
+  errorSeries[ModelPerformanceStatsCorrelationLag] = maxCorLag;
   
   return errorSeries;
 }
@@ -344,8 +350,11 @@ TimeSeries::_sp ModelPerformance::errorForPair(std::pair<TimeSeries::_sp, TimeSe
       err = rmse;
     }
       break;
-    case ModelPerformanceStatsCorrelationCoefficient:
+    case ModelPerformanceStatsMaxCorrelation:
     {
+      int nLags = (24*60*60) / tsPair.first->clock()->period();
+      //TimeSeries::_sp maxCor = CorrelatorTimeSeries::correlationArray(tsPair.first, tsPair.second, this->samplingWindow(), nLags);
+      
       CorrelatorTimeSeries::_sp corr(new CorrelatorTimeSeries());
       corr->setClock(this->errorClock());
       corr->setCorrelationWindow(this->samplingWindow());
@@ -353,6 +362,13 @@ TimeSeries::_sp ModelPerformance::errorForPair(std::pair<TimeSeries::_sp, TimeSe
       corr->setCorrelatorTimeSeries(tsPair.second);
       err = corr;
     }
+      break;
+    case ModelPerformanceStatsCorrelationLag:
+    {
+      // not complete!!!
+    }
+      break;
+      
     case ModelPerformanceStatsQuantileError:
     {
       AggregatorTimeSeries::_sp diff(new AggregatorTimeSeries);

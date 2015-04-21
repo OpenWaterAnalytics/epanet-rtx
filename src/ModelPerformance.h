@@ -32,7 +32,8 @@ namespace RTX {
       ModelPerformanceStatsQuantileAbsError        = 8,
       ModelPerformanceStatsIntegratedAbsError      = 9,
       ModelPerformanceStatsRMSE                    = 10,
-      ModelPerformanceStatsCorrelationCoefficient  = 11,
+      ModelPerformanceStatsMaxCorrelation          = 11,
+      ModelPerformanceStatsCorrelationLag          = 12
     } StatsType;
     
     typedef enum {
