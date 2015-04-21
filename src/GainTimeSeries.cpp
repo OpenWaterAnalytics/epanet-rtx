@@ -57,5 +57,6 @@ bool GainTimeSeries::canChangeToUnits(Units units) {
     return true;
   }
   
+  return false;
 }
 
