@@ -2383,7 +2383,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/sam/Dropbox,
+					/usr/local/lib,
 					"(CitiLogics)/Code/build/EPANET-RTX",
 					Pakage,
 					Libraries,
@@ -2427,7 +2427,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/sam/Dropbox,
+					/usr/local/lib,
 					"(CitiLogics)/Code/build/EPANET-RTX",
 					Pakage,
 					Libraries,
