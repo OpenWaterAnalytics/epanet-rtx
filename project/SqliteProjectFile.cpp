@@ -36,6 +36,7 @@
 
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -52,10 +53,11 @@ using namespace std;
 
 
 /////////////////////////////////////////////////////////////
-static int sqlRequiredUserVersion = 10;
+static int sqlRequiredUserVersion = 17;
 
 //---------------------------------------------------------//
-static string sqlSelectRecords =    "select id,name,type from point_records";
+static string sqlSelectRecords =    "select id,name,type from db_records";
+static string sqlSelectRecordProperties = "select key,value from db_record_properties where record_id = ?";
 static string sqlSelectClocks = "select id,name,type,period,offset from clocks";
 static string sqlSelectTimeseries = "select id,type from time_series";
 static string sqlGetTsById =        "select name,units,record,clock from time_series where id=?";
@@ -298,7 +300,7 @@ void SqliteProjectFile::loadRecordsFromDb() {
     }
     
   }
-  
+  sqlite3_reset(stmt);
   sqlite3_finalize(stmt);
   
   
@@ -309,13 +311,25 @@ void SqliteProjectFile::loadRecordsFromDb() {
   BOOST_FOREACH(const pointRecordEntity& entity, recordEntities) {
     
     if (RTX_STRINGS_ARE_EQUAL(entity.type, "sqlite")) {
-      string sqlGetSqliteAttr = "select dbPath from point_records where id=?";
-      sqlite3_prepare_v2(_dbHandle, sqlGetSqliteAttr.c_str(), -1, &stmt, NULL);
+      sqlite3_prepare_v2(_dbHandle, sqlSelectRecordProperties.c_str(), -1, &stmt, NULL);
       sqlite3_bind_int(stmt, 1, entity.uid);
-      if (sqlite3_step(stmt) == SQLITE_ROW) {
-        boost::filesystem::path dbPath(string((char*)sqlite3_column_text(stmt, 0)));
-        string absDbPath = boost::filesystem::absolute(dbPath,projPath.parent_path()).string();
-        boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->setPath(absDbPath);
+      while (sqlite3_step(stmt) == SQLITE_ROW) {
+        
+        string key = string((char*)sqlite3_column_text(stmt, 0));
+        string value = string((char*)sqlite3_column_text(stmt, 1));
+        
+        // which key?
+        if (RTX_STRINGS_ARE_EQUAL(key, "dbPath")) {
+          boost::filesystem::path dbPath(value);
+          string absDbPath = boost::filesystem::absolute(dbPath,projPath.parent_path()).string();
+          boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->setPath(absDbPath);
+        }
+        else if (RTX_STRINGS_ARE_EQUAL(key, "readonly")) {
+          // string one or zero (1,0)
+          bool readOnly = boost::lexical_cast<bool>(value);
+          boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->setReadonly(readOnly);
+        }
+        
       }
       sqlite3_reset(stmt);
       sqlite3_finalize(stmt);
