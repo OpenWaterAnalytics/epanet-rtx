@@ -1133,7 +1133,9 @@ vector<TimeSeries::_sp> Model::networkStatesWithOptions(elementOption_t options)
         Tank::_sp t = boost::dynamic_pointer_cast<Tank>(element);
         if (t) {
           if ((t->levelMeasure() && (options & ElementOptionMeasuredTanks)) || (options & ElementOptionAllTanks) ) {
-            states.push_back(t->level());
+            states.push_back(t->level()); // with level we get volume and flow
+            states.push_back(t->volume());
+            states.push_back(t->flow());
           }
         }
       }
