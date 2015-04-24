@@ -79,6 +79,9 @@ namespace RTX {
     virtual time_pair_t range(const string& id);
     
     virtual std::ostream& toStream(std::ostream &stream);
+    
+    virtual void beginBulkOperation() {};
+    virtual void endBulkOperation() {};
 
   protected:
 //    std::string _cachedPointId;

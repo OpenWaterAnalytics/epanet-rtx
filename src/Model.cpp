@@ -13,6 +13,8 @@
 #include "Model.h"
 #include "Units.h"
 
+#include "DbPointRecord.h"
+
 
 #include <boost/config.hpp>
 #include <vector>
@@ -24,6 +26,8 @@
 
 using namespace RTX;
 using namespace std;
+
+bool _rtxmodel_isDbRecord(PointRecord::_sp record);
 
 
 Model::Model() : _flowUnits(1), _headUnits(1), _pressureUnits(1) {
@@ -459,6 +463,63 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
   struct tm * timeinfo;
   bool success;
   
+  
+  
+  
+  
+  // get the record(s) being used
+  set<PointRecord::_sp> stateRecordsUsed;
+  BOOST_FOREACH(Junction::_sp e, this->junctions()) {
+    vector<PointRecord::_sp> elementRecords;
+    elementRecords.push_back(e->pressure()->record());
+    elementRecords.push_back(e->head()->record());
+    elementRecords.push_back(e->quality()->record());
+    elementRecords.push_back(e->demand()->record());
+    
+    BOOST_FOREACH(PointRecord::_sp r, elementRecords) {
+      if (_rtxmodel_isDbRecord(r)) {
+        stateRecordsUsed.insert(r);
+      }
+    }
+  }
+  BOOST_FOREACH(Tank::_sp t, this->tanks()) {
+    vector<PointRecord::_sp> recVec;
+    recVec.push_back(t->level()->record());
+    recVec.push_back(t->flow()->record());
+    BOOST_FOREACH(PointRecord::_sp r, recVec) {
+      if (_rtxmodel_isDbRecord(r)) {
+        stateRecordsUsed.insert(r);
+      }
+    }
+  }
+  BOOST_FOREACH(Pipe::_sp p, this->pipes()) {
+    vector<PointRecord::_sp> recVec;
+    recVec.push_back(p->flow()->record());
+    BOOST_FOREACH(PointRecord::_sp r, recVec) {
+      if (_rtxmodel_isDbRecord(r)) {
+        stateRecordsUsed.insert(r);
+      }
+    }
+  }
+  BOOST_FOREACH(Valve::_sp p, this->valves()) {
+    vector<PointRecord::_sp> recVec;
+    recVec.push_back(p->flow()->record());
+    BOOST_FOREACH(PointRecord::_sp r, recVec) {
+      if (_rtxmodel_isDbRecord(r)) {
+        stateRecordsUsed.insert(r);
+      }
+    }
+  }
+  BOOST_FOREACH(Pump::_sp p, this->pumps()) {
+    vector<PointRecord::_sp> recVec;
+    recVec.push_back(p->flow()->record());
+    BOOST_FOREACH(PointRecord::_sp r, recVec) {
+      if (_rtxmodel_isDbRecord(r)) {
+        stateRecordsUsed.insert(r);
+      }
+    }
+  }
+  
   while (simulationTime < end) {
     
     // get parameters from the RTX elements, and pull them into the simulation
@@ -537,7 +598,13 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
       
       // tell each element to update its derived states (simulation-computed values)
       if (!_simReportClock || _simReportClock->isValid(simulationTime)) {
+        BOOST_FOREACH(PointRecord::_sp r, stateRecordsUsed) {
+          r->beginBulkOperation();
+        }
         saveNetworkStates(simulationTime);
+        BOOST_FOREACH(PointRecord::_sp r, stateRecordsUsed) {
+          r->endBulkOperation();
+        }
       }
       // get time to next simulation period
       nextSimulationTime = nextHydraulicStep(simulationTime);
@@ -1185,5 +1252,11 @@ void Model::setRecordForElementOutput(PointRecord::_sp record, elementOption_t o
     ts->setRecord(record);
   }
 }
+
+
+bool _rtxmodel_isDbRecord(PointRecord::_sp record) {
+  return (boost::dynamic_pointer_cast<DbPointRecord>(record)) ? true : false;
+}
+
 
 

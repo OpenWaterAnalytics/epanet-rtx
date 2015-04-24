@@ -228,7 +228,6 @@ namespace RTX {
     vector<Pipe::_sp> _dmaPipesToIgnore;
     bool _dmaShouldDetectClosedLinks;
     
-    PointRecord::_sp _record;         // default record for results
     Clock::_sp _regularMasterClock, _simReportClock;
     TimeSeries::_sp _relativeError;
     TimeSeries::_sp _iterations;

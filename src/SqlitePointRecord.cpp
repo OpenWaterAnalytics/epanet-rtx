@@ -33,8 +33,9 @@ SqlitePointRecord::SqlitePointRecord() {
   _connected = false;
   
   _inTransaction = false;
+  _inBulkOperation = false;
   _transactionStackCount = 0;
-  _maxTransactionStackCount = 500;
+  _maxTransactionStackCount = 5000;
   
   _mutex.reset(new boost::signals2::mutex );
   
@@ -446,13 +447,34 @@ Point SqlitePointRecord::selectPrevious(const std::string& id, time_t time) {
   
 }
 
-#pragma mark FIXME :: this makes things slow
+
+void SqlitePointRecord::beginBulkOperation() {
+  if (_inBulkOperation) {
+    return;
+  }
+  this->checkTransactions(false);
+  _inBulkOperation = true;
+}
+void SqlitePointRecord::endBulkOperation() {
+  if (!_inBulkOperation) {
+    return;
+  }
+  this->checkTransactions(true);
+  _inBulkOperation = false;
+}
 
 void SqlitePointRecord::insertSingle(const std::string &id, RTX::Point point) {
   
-  this->checkTransactions(false);
-  this->insertSingleInTransaction(id, point);
-  this->checkTransactions(true);
+  if (_inBulkOperation) { // caller has promised to end the bulk operation eventually.
+    insertSingleInTransaction(id, point);
+    this->checkTransactions(false); // only flush if we've reached the stride size.
+  }
+  
+  else {
+    this->checkTransactions(false);
+    this->insertSingleInTransaction(id, point);
+    this->checkTransactions(true);
+  }
   
 }
 

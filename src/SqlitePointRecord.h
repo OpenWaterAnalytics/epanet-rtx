@@ -39,6 +39,9 @@ namespace RTX {
     virtual void truncate();
 
     
+    virtual void beginBulkOperation();
+    virtual void endBulkOperation();
+    
   protected:
     virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);
     virtual Point selectNext(const std::string& id, time_t time);
@@ -57,7 +60,7 @@ namespace RTX {
     std::string _path;
     bool _connected;
     
-    bool _inTransaction;
+    bool _inTransaction, _inBulkOperation;
     int _transactionStackCount;
     int _maxTransactionStackCount;
     void checkTransactions(bool forceEndTranaction);
