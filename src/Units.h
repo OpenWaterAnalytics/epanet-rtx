@@ -34,6 +34,7 @@
 #define RTX_CUBIC_FOOT_PER_SECOND   RTX::Units(.0283168466,  0,3,-1)
 #define RTX_GALLON_PER_SECOND       RTX::Units(.00378541178, 0,3,-1)
 #define RTX_GALLON_PER_MINUTE       RTX::Units(.00006309020, 0,3,-1)
+#define RTX_GALLON_PER_DAY          RTX::Units(43.812638888E-9, 0,3,-1)
 #define RTX_MILLION_GALLON_PER_DAY  RTX::Units(.0438126364,  0,3,-1)
 #define RTX_LITER_PER_SECOND        RTX::Units(.001,         0,3,-1)
 #define RTX_LITER_PER_MINUTE        RTX::Units(.00001666667, 0,3,-1)

@@ -199,6 +199,7 @@ map<string, Units> Units::unitStringMap() {
   m["cfs"] = RTX_CUBIC_FOOT_PER_SECOND;
   m["gps"] = RTX_GALLON_PER_SECOND;
   m["gpm"] = RTX_GALLON_PER_MINUTE;
+  m["gpd"] = RTX_GALLON_PER_DAY;
   m["mgd"] = RTX_MILLION_GALLON_PER_DAY;
   m["lps"] = RTX_LITER_PER_SECOND;
   m["lpm"] = RTX_LITER_PER_MINUTE;
