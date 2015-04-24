@@ -140,15 +140,11 @@ vector<Point> ForecastTimeSeries::pointsFromPandas(std::string varName) {
 
 void ForecastTimeSeries::pointsToPandas(std::vector<Point> points, std::string pandasVarName) {
   
-  
-  
-  
   stringstream delVal, delTime;
   delVal << pandasVarName << "_values = None";
   delTime << pandasVarName << "_times = None";
   _python->exec(delVal.str());
   _python->exec(delTime.str());
-  
   
   stringstream newVal, newTm;
   

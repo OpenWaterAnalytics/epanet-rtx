@@ -303,9 +303,6 @@ void SqliteProjectFile::loadRecordsFromDb() {
   sqlite3_reset(stmt);
   sqlite3_finalize(stmt);
   
-  
-  
-  
   // now load up each point record's connection attributes.
   boost::filesystem::path projPath(_path);
   BOOST_FOREACH(const pointRecordEntity& entity, recordEntities) {
@@ -335,12 +332,10 @@ void SqliteProjectFile::loadRecordsFromDb() {
       sqlite3_finalize(stmt);
     }
     
+    // ignore all other types
+    
+    
   }
-  
-  
-
-  
-  
 }
 
 void SqliteProjectFile::loadClocksFromDb() {
@@ -402,7 +397,7 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
       // we should already have the info to find it in _elementOutput
       
       if (_elementOutput.find(uid) == _elementOutput.end()) {
-        cerr << "Warning: could not find output element specifed with time series UID " << uid << endl;
+        cerr << "Warning: could not find output element specifed with time series UID " << uid << " - check that the ts exists in model_element_storage table." << endl;
         continue;
       }
       
