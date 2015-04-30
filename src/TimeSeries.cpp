@@ -22,7 +22,7 @@ using namespace RTX;
 using namespace std;
 using namespace boost::accumulators;
 
-#pragma mark -
+#pragma mark - Point Collection methods
 
 TimeSeries::PointCollection::PointCollection(vector<Point> points, Units units) : points(points), units(units) {
   // simple
@@ -129,15 +129,25 @@ double TimeSeries::PointCollection::variance() {
 
 
 bool TimeSeries::PointCollection::resample(set<time_t> timeList, TimeSeriesResampleMode mode) {
+  PointCollection c = this->resampledAtTimes(timeList,mode);
+  this->points = c.points;
+  
+  if (this->count() > 0) {
+    return true;
+  }
+  return false;
+}
+
+TimeSeries::PointCollection TimeSeries::PointCollection::resampledAtTimes(std::set<time_t> timeList, TimeSeriesResampleMode mode) {
   
   typedef std::vector<Point>::const_iterator pVec_cIt;
   
   // sanity
   if (timeList.empty()) {
-    return false;
+    return PointCollection();
   }
   if (this->count() < 1) {
-    return false;
+    return PointCollection();
   }
   
   
@@ -188,8 +198,7 @@ bool TimeSeries::PointCollection::resample(set<time_t> timeList, TimeSeriesResam
     }
   }
   
-  this->points = resampled;
-  return true;
+  return PointCollection(resampled,this->units);
 }
 
 
@@ -208,10 +217,27 @@ TimeSeries::PointCollection TimeSeries::PointCollection::trimmedToRange(TimeRang
 }
 
 
+TimeSeries::PointCollection TimeSeries::PointCollection::asDelta() {
+  
+  vector<Point> deltaPoints;
+  
+  if (this->count() > 0) {
+    Point lastP = this->points.front();
+    deltaPoints.push_back(lastP);
+    
+    BOOST_FOREACH(const Point& p, this->points) {
+      if (p.value != lastP.value) {
+        lastP = p;
+        deltaPoints.push_back(lastP);
+      }
+    }
+  }
+  
+  return PointCollection(deltaPoints, this->units);
+}
 
 
-
-#pragma mark -
+#pragma mark - Time Series methods
 
 
 TimeSeries::TimeSeries() : _units(1) {

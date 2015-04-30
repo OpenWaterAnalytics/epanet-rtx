@@ -79,6 +79,8 @@ namespace RTX {
       
       // non-mutating
       PointCollection trimmedToRange(TimeRange range);
+      PointCollection resampledAtTimes(std::set<time_t> times, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
+      PointCollection asDelta();
       
       // statistical methods on the collection
       double min();
