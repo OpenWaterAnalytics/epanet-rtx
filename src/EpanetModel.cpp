@@ -128,7 +128,6 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   
   this->setVolumeUnits(volumeUnits);
   
-  
   // what units are quality in? who knows!
   this->setQualityUnits(RTX_MICROSIEMENS_PER_CM);
   OW_API_CHECK(OW_setqualtype(_enModel, CHEM, (char*)"rtxConductivity", (char*)"us/cm", (char*)""), "OW_setqualtype");
@@ -137,9 +136,6 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   OW_API_CHECK(OW_gettimeparam(_enModel, EN_HYDSTEP, &enTimeStep), "OW_gettimeparam EN_HYDSTEP");
   
   this->setHydraulicTimeStep((int)enTimeStep);
-  
-  
-  
   
   int nodeCount, tankCount, linkCount;
   char enName[RTX_MAX_CHAR_STRING];
@@ -160,8 +156,6 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
     // keep track of this element index
     _linkIndex[string(enName)] = iLink;
   }
-  
-  
   
 }
 
