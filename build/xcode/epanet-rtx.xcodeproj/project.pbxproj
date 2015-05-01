@@ -246,6 +246,9 @@
 		223663B81A699E8000420EE4 /* TimeSeriesFilterSinglePoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223663B11A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.cpp */; };
 		223663B91A69A59C00420EE4 /* CurveFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22253D8D16022FB6002F7256 /* CurveFunction.cpp */; };
 		223663BA1A69A59E00420EE4 /* GainTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22A842D3173BF445009CE769 /* GainTimeSeries.cpp */; };
+		223947EA1AF3B27000C8AE4F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223947E91AF3B27000C8AE4F /* main.cpp */; };
+		223947F71AF3B45300C8AE4F /* libepanet-rtx-project.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */; };
+		223947F81AF3B45300C8AE4F /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 220F9E4C18F9E68B00BB842C /* libepanet-rtx.dylib */; };
 		223AF33018F6E4C0002E846F /* InversionTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223AF32E18F6E4C0002E846F /* InversionTimeSeries.cpp */; };
 		223AF33118F6E4C0002E846F /* InversionTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 223AF32F18F6E4C0002E846F /* InversionTimeSeries.h */; };
 		223AF35418F7121F002E846F /* SqliteProjectFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223AF35218F7121F002E846F /* SqliteProjectFile.cpp */; };
@@ -449,6 +452,20 @@
 			remoteGlobalIDString = 22BEDCFA187E0B5300855B68;
 			remoteInfo = "epanetmsx-static";
 		};
+		223947F31AF3B43E00C8AE4F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 220F9DDB18F9E68B00BB842C;
+			remoteInfo = "epanet-rtx-sqlite-only";
+		};
+		223947F51AF3B44300C8AE4F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 228A76F918450CBD00905D8E;
+			remoteInfo = "epanet-rtx-project";
+		};
 		224A92641A8BABC900D8FBE2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
@@ -578,6 +595,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		223947E51AF3B27000C8AE4F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		228A836C16DBE5E7008E9C35 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -697,6 +723,8 @@
 		223646901A8AB8D7007DC074 /* libpython.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpython.dylib; path = usr/lib/libpython.dylib; sourceTree = SDKROOT; };
 		223663B11A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesFilterSinglePoint.cpp; path = ../../src/TimeSeriesFilterSinglePoint.cpp; sourceTree = "<group>"; };
 		223663B21A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeSeriesFilterSinglePoint.h; path = ../../src/TimeSeriesFilterSinglePoint.h; sourceTree = "<group>"; };
+		223947E71AF3B27000C8AE4F /* model exporter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "model exporter"; sourceTree = BUILT_PRODUCTS_DIR; };
+		223947E91AF3B27000C8AE4F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		223AF32E18F6E4C0002E846F /* InversionTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InversionTimeSeries.cpp; path = ../../src/InversionTimeSeries.cpp; sourceTree = "<group>"; };
 		223AF32F18F6E4C0002E846F /* InversionTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InversionTimeSeries.h; path = ../../src/InversionTimeSeries.h; sourceTree = "<group>"; };
 		223AF35218F7121F002E846F /* SqliteProjectFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SqliteProjectFile.cpp; path = ../../project/SqliteProjectFile.cpp; sourceTree = "<group>"; };
@@ -853,6 +881,15 @@
 				221BFD7A1A8E8AD000143FCC /* libboost_system.a in Frameworks */,
 				221BFD7B1A8E8AD000143FCC /* libmysqlcppconn-static.a in Frameworks */,
 				221BFD7C1A8E8AD000143FCC /* libepanetmsx-static.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		223947E41AF3B27000C8AE4F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				223947F71AF3B45300C8AE4F /* libepanet-rtx-project.dylib in Frameworks */,
+				223947F81AF3B45300C8AE4F /* libepanet-rtx.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1035,6 +1072,14 @@
 			name = "Single Point Filter";
 			sourceTree = "<group>";
 		};
+		223947E81AF3B27000C8AE4F /* model exporter */ = {
+			isa = PBXGroup;
+			children = (
+				223947E91AF3B27000C8AE4F /* main.cpp */,
+			);
+			path = "model exporter";
+			sourceTree = "<group>";
+		};
 		224C418E1A434F9F008852C4 /* Model Performance */ = {
 			isa = PBXGroup;
 			children = (
@@ -1191,6 +1236,7 @@
 			children = (
 				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
 				22C34357187D9441000100A4 /* epanetmsx.xcodeproj */,
+				223947E81AF3B27000C8AE4F /* model exporter */,
 				228A76FE18450CC700905D8E /* RTX Project */,
 				22D9830C17F4AF9F00DD7EB4 /* simulator client */,
 				22CF1C3A1A6842DC00161188 /* testTsFilter */,
@@ -1223,6 +1269,7 @@
 				220F9E4C18F9E68B00BB842C /* libepanet-rtx.dylib */,
 				22CF1C391A6842DC00161188 /* testTsFilter */,
 				221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */,
+				223947E71AF3B27000C8AE4F /* model exporter */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1611,6 +1658,25 @@
 			productReference = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
+		223947E61AF3B27000C8AE4F /* model exporter */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 223947F21AF3B27000C8AE4F /* Build configuration list for PBXNativeTarget "model exporter" */;
+			buildPhases = (
+				223947E31AF3B27000C8AE4F /* Sources */,
+				223947E41AF3B27000C8AE4F /* Frameworks */,
+				223947E51AF3B27000C8AE4F /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				223947F61AF3B44300C8AE4F /* PBXTargetDependency */,
+				223947F41AF3B43E00C8AE4F /* PBXTargetDependency */,
+			);
+			name = "model exporter";
+			productName = "model exporter";
+			productReference = 223947E71AF3B27000C8AE4F /* model exporter */;
+			productType = "com.apple.product-type.tool";
+		};
 		228A76F918450CBD00905D8E /* epanet-rtx-project */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 228A76FB18450CBD00905D8E /* Build configuration list for PBXNativeTarget "epanet-rtx-project" */;
@@ -1784,6 +1850,9 @@
 			attributes = {
 				LastUpgradeCheck = 0610;
 				TargetAttributes = {
+					223947E61AF3B27000C8AE4F = {
+						CreatedOnToolsVersion = 6.2;
+					};
 					22CF1C381A6842DC00161188 = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
@@ -1822,6 +1891,7 @@
 				22D9831817F62B4900DD7EB4 /* testLemonTiger */,
 				22CF1C381A6842DC00161188 /* testTsFilter */,
 				221BFD311A8E8AD000143FCC /* epanet-rtx static deps */,
+				223947E61AF3B27000C8AE4F /* model exporter */,
 			);
 		};
 /* End PBXProject section */
@@ -2009,6 +2079,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		223947E31AF3B27000C8AE4F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				223947EA1AF3B27000C8AE4F /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		228A76F618450CBD00905D8E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2181,6 +2259,16 @@
 			isa = PBXTargetDependency;
 			name = "epanetmsx-static";
 			targetProxy = 221BFD351A8E8AD000143FCC /* PBXContainerItemProxy */;
+		};
+		223947F41AF3B43E00C8AE4F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 220F9DDB18F9E68B00BB842C /* epanet-rtx-sqlite-only */;
+			targetProxy = 223947F31AF3B43E00C8AE4F /* PBXContainerItemProxy */;
+		};
+		223947F61AF3B44300C8AE4F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 228A76F918450CBD00905D8E /* epanet-rtx-project */;
+			targetProxy = 223947F51AF3B44300C8AE4F /* PBXContainerItemProxy */;
 		};
 		224A92651A8BABC900D8FBE2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2374,6 +2462,64 @@
 				PRODUCT_NAME = "epanet-rtx";
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		223947EB1AF3B27000C8AE4F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		223947EC1AF3B27000C8AE4F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -2952,6 +3098,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		223947F21AF3B27000C8AE4F /* Build configuration list for PBXNativeTarget "model exporter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				223947EB1AF3B27000C8AE4F /* Debug */,
+				223947EC1AF3B27000C8AE4F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 		228A76FB18450CBD00905D8E /* Build configuration list for PBXNativeTarget "epanet-rtx-project" */ = {
 			isa = XCConfigurationList;

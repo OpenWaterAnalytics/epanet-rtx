@@ -17,8 +17,13 @@
 namespace RTX {
   class InpTextPattern {
   public:
-    static std::string textPatternWithTimeSeries(TimeSeries::_sp ts, const std::string& patternName, time_t from, time_t to, int step, TimeSeries::TimeSeriesResampleMode interp);
+    typedef enum {
+      InpControlTypeSetting, // real
+      InpControlTypeStatus   // OPEN / CLOSED
+    } controlType;
     
+    static std::string textPatternWithTimeSeries(TimeSeries::_sp ts, const std::string& patternName, time_t from, time_t to, int step, TimeSeries::TimeSeriesResampleMode interp);
+    static std::string textControlWithTimeSeries(TimeSeries::_sp ts, const std::string& linkName, time_t from, time_t to, controlType type);
   };
 }
 
