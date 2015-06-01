@@ -328,11 +328,13 @@
 		22909B3A147DDCEB00945449 /* EpanetModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 22909B39147DDCEB00945449 /* EpanetModel.h */; };
 		22909B3C147DDE2A00945449 /* EpanetModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22909B3B147DDE2A00945449 /* EpanetModel.cpp */; };
 		22956CE01A792FAE0014D7EF /* TimeSeriesSynthetic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2211D2041A6D69EA00E34B9B /* TimeSeriesSynthetic.cpp */; };
+		229E11361B06309C007766F3 /* libepanet-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22A667A719E4819500CEB0BC /* libepanet-static.a */; };
+		229E11391B063161007766F3 /* libboost_timer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 43E5BC011A8B0BEB00CC93D6 /* libboost_timer.a */; };
+		229E113A1B063177007766F3 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD3173C2E9700309C2F /* libboost_system.a */; };
 		229FBEA3190807B3004FE5A4 /* InfluxDbPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 229FBEA0190807B3004FE5A4 /* InfluxDbPointRecord.cpp */; };
 		229FBEA4190807B3004FE5A4 /* InfluxDbPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */; };
 		229FBEA5190807B3004FE5A4 /* InfluxDbPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */; };
 		22A4B41914E1B93D006D01C3 /* Clock.h in Headers */ = {isa = PBXBuildFile; fileRef = 22A4B41814E1B93D006D01C3 /* Clock.h */; };
-		22A4B5751909CD160085B75E /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 220F9E4C18F9E68B00BB842C /* libepanet-rtx.dylib */; };
 		22A667A919E481B900CEB0BC /* libepanet-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22A667A719E4819500CEB0BC /* libepanet-static.a */; };
 		22A7B70916778A7A00538839 /* sampletown_realtime.cfg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 221C06C716077FD200B8969C /* sampletown_realtime.cfg */; };
 		22A7B70A16778A7A00538839 /* sampletown_synthetic.cfg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 221C06C816077FD200B8969C /* sampletown_synthetic.cfg */; };
@@ -529,12 +531,12 @@
 			remoteGlobalIDString = 221BFD311A8E8AD000143FCC;
 			remoteInfo = "epanet-rtx static deps";
 		};
-		22A1CBC71A325948009F58FC /* PBXContainerItemProxy */ = {
+		229E11371B0630A6007766F3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
+			containerPortal = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 22C62ABF1439ED6300841E60;
-			remoteInfo = "epanet-rtx";
+			remoteGlobalIDString = 2255753A17551217009946B1;
+			remoteInfo = "epanet-static";
 		};
 		22A667A219E4819500CEB0BC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -781,7 +783,7 @@
 		229FBEA0190807B3004FE5A4 /* InfluxDbPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InfluxDbPointRecord.cpp; path = ../../src/InfluxDbPointRecord.cpp; sourceTree = "<group>"; };
 		229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = InfluxDbPointRecord.h; path = ../../src/InfluxDbPointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		22A4B41814E1B93D006D01C3 /* Clock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Clock.h; path = ../../src/Clock.h; sourceTree = "<group>"; };
-		22A6679C19E4819500CEB0BC /* epanet.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = epanet.xcodeproj; path = "../../../Water-Distribution-Network-Model/build/Xcode/epanet/epanet.xcodeproj"; sourceTree = "<group>"; };
+		22A6679C19E4819500CEB0BC /* epanet.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = epanet.xcodeproj; path = "../../../EPANET/build/Xcode/epanet/epanet.xcodeproj"; sourceTree = "<group>"; };
 		22A842D3173BF445009CE769 /* GainTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GainTimeSeries.cpp; path = ../../src/GainTimeSeries.cpp; sourceTree = "<group>"; };
 		22A842D4173BF445009CE769 /* GainTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GainTimeSeries.h; path = ../../src/GainTimeSeries.h; sourceTree = "<group>"; };
 		22AB022D187B1BF000706EEA /* PointRecordTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PointRecordTime.cpp; path = ../../src/PointRecordTime.cpp; sourceTree = "<group>"; };
@@ -908,7 +910,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22A4B5751909CD160085B75E /* libepanet-rtx.dylib in Frameworks */,
+				229E113A1B063177007766F3 /* libboost_system.a in Frameworks */,
+				229E11391B063161007766F3 /* libboost_timer.a in Frameworks */,
+				229E11361B06309C007766F3 /* libepanet-static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1706,7 +1710,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				22A1CBC81A325948009F58FC /* PBXTargetDependency */,
+				229E11381B0630A6007766F3 /* PBXTargetDependency */,
 			);
 			name = data_access_profiling;
 			productName = data_access_profiling;
@@ -2315,10 +2319,10 @@
 			target = 221BFD311A8E8AD000143FCC /* epanet-rtx static deps */;
 			targetProxy = 228CA8E31AA0D9CE00D0353E /* PBXContainerItemProxy */;
 		};
-		22A1CBC81A325948009F58FC /* PBXTargetDependency */ = {
+		229E11381B0630A6007766F3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 22C62ABF1439ED6300841E60 /* epanet-rtx */;
-			targetProxy = 22A1CBC71A325948009F58FC /* PBXContainerItemProxy */;
+			name = "epanet-static";
+			targetProxy = 229E11371B0630A6007766F3 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2342,8 +2346,8 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/include/python2.7,
 					/usr/local/include,
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/src",
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/include",
+					"${SRCROOT}/../../../EPANET/src",
+					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,
 					"${SRCROOT}/../../../epanet-msx/include",
 					/usr/local/include/iODBC,
@@ -2380,8 +2384,8 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/include/python2.7,
 					/usr/local/include,
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/src",
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/include",
+					"${SRCROOT}/../../../EPANET/src",
+					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,
 					"${SRCROOT}/../../../epanet-msx/include",
 					/usr/local/include/iODBC,
@@ -2414,8 +2418,8 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/include/python2.7,
 					/usr/local/include,
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/src",
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/include",
+					"${SRCROOT}/../../../EPANET/src",
+					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,
 					"${SRCROOT}/../../../epanet-msx/include",
 				);
@@ -2447,8 +2451,8 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/include/python2.7,
 					/usr/local/include,
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/src",
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/include",
+					"${SRCROOT}/../../../EPANET/src",
+					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,
 					"${SRCROOT}/../../../epanet-msx/include",
 				);
@@ -2550,8 +2554,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/src",
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/include",
+					"${SRCROOT}/../../../EPANET/src",
+					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,
 					/usr/local/include/iODBC,
 				);
@@ -2591,8 +2595,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/src",
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/include",
+					"${SRCROOT}/../../../EPANET/src",
+					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,
 					/usr/local/include/iODBC,
 				);
@@ -2622,6 +2626,11 @@
 				);
 				GCC_VERSION = "";
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					"${SRCROOT}/../../../EPANET/include",
+					"${SRCROOT}/../../../EPANET/src",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -2645,6 +2654,11 @@
 				);
 				GCC_VERSION = "";
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					"${SRCROOT}/../../../EPANET/include",
+					"${SRCROOT}/../../../EPANET/src",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -2763,8 +2777,8 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/include/python2.7,
 					/usr/local/include,
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/src",
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/include",
+					"${SRCROOT}/../../../EPANET/src",
+					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,
 					"${SRCROOT}/../../../epanet-msx/include",
 				);
@@ -2798,8 +2812,8 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/include/python2.7,
 					/usr/local/include,
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/src",
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/include",
+					"${SRCROOT}/../../../EPANET/src",
+					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,
 					"${SRCROOT}/../../../epanet-msx/include",
 				);
@@ -2824,7 +2838,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/include",
+					"${SRCROOT}/../../../EPANET/include",
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2838,7 +2852,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/include",
+					"${SRCROOT}/../../../EPANET/include",
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2927,8 +2941,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/src",
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/include",
+					"${SRCROOT}/../../../EPANET/src",
+					"${SRCROOT}/../../../EPANET/include",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2956,8 +2970,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/src",
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/include",
+					"${SRCROOT}/../../../EPANET/src",
+					"${SRCROOT}/../../../EPANET/include",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3043,7 +3057,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/include",
+					"${SRCROOT}/../../../EPANET/include",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -3072,7 +3086,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
-					"${SRCROOT}/../../../Water-Distribution-Network-Model/include",
+					"${SRCROOT}/../../../EPANET/include",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -3106,6 +3120,7 @@
 				223947EC1AF3B27000C8AE4F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		228A76FB18450CBD00905D8E /* Build configuration list for PBXNativeTarget "epanet-rtx-project" */ = {
 			isa = XCConfigurationList;
