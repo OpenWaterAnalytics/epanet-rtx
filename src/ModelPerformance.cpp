@@ -104,6 +104,13 @@ map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForEle
   integrated->setResetClock(samplingWindow);
   integrated->setSource(error);
   
+  // special case for integrated errors: if we are integrating flow, then set volume units
+  if (type == ModelPerformanceMetricVolume) {
+    Units u = RTX_GALLON;
+    integrated->setUnits(u);
+    integratedAbs->setUnits(u);
+  }
+  
   
   errorSeries[ModelPerformanceStatsModel] = modeled;
   errorSeries[ModelPerformanceStatsMeasure] = measured;

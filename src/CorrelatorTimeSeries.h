@@ -32,7 +32,7 @@ namespace RTX {
     Clock::_sp correlationWindow();
     void setCorrelationWindow(Clock::_sp correlationWindow);
     
-    ///! this will yield a timeseries who's points are the maximum correlation, and who's confidence is the lag (in seconds) at which that correlation occurs.
+    ///! if set, this will cause the correlator to yield points which represent the maximum correlation, and who's confidence is the lag (in seconds) at which that correlation occurs.
     int lagSeconds();
     void setLagSeconds(int nSeconds);
     
