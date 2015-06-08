@@ -107,7 +107,6 @@
 		221BFC711A8E584500143FCC /* IntegratorTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 221BFC6E1A8E584500143FCC /* IntegratorTimeSeries.h */; };
 		221BFC721A8E584500143FCC /* IntegratorTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 221BFC6E1A8E584500143FCC /* IntegratorTimeSeries.h */; };
 		221BFD371A8E8AD000143FCC /* TimeSeriesSynthetic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2211D2041A6D69EA00E34B9B /* TimeSeriesSynthetic.cpp */; };
-		221BFD381A8E8AD000143FCC /* CsvPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22CE31EB17399403008AC1F9 /* CsvPointRecord.cpp */; };
 		221BFD391A8E8AD000143FCC /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BF02D215EBCABC00F66465 /* Point.cpp */; };
 		221BFD3A1A8E8AD000143FCC /* AggregatorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C62ACB1439EE0B00841E60 /* AggregatorTimeSeries.cpp */; };
 		221BFD3B1A8E8AD000143FCC /* MovingAverage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C62AD21439EE0B00841E60 /* MovingAverage.cpp */; };
@@ -783,7 +782,7 @@
 		229FBEA0190807B3004FE5A4 /* InfluxDbPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InfluxDbPointRecord.cpp; path = ../../src/InfluxDbPointRecord.cpp; sourceTree = "<group>"; };
 		229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = InfluxDbPointRecord.h; path = ../../src/InfluxDbPointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		22A4B41814E1B93D006D01C3 /* Clock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Clock.h; path = ../../src/Clock.h; sourceTree = "<group>"; };
-		22A6679C19E4819500CEB0BC /* epanet.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = epanet.xcodeproj; path = "../../../EPANET/build/Xcode/epanet/epanet.xcodeproj"; sourceTree = "<group>"; };
+		22A6679C19E4819500CEB0BC /* epanet.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = epanet.xcodeproj; path = ../../../EPANET/build/Xcode/epanet/epanet.xcodeproj; sourceTree = "<group>"; };
 		22A842D3173BF445009CE769 /* GainTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GainTimeSeries.cpp; path = ../../src/GainTimeSeries.cpp; sourceTree = "<group>"; };
 		22A842D4173BF445009CE769 /* GainTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GainTimeSeries.h; path = ../../src/GainTimeSeries.h; sourceTree = "<group>"; };
 		22AB022D187B1BF000706EEA /* PointRecordTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PointRecordTime.cpp; path = ../../src/PointRecordTime.cpp; sourceTree = "<group>"; };
@@ -2025,7 +2024,6 @@
 			files = (
 				228C2D941A9E15BF003C826D /* TimeRange.cpp in Sources */,
 				221BFD371A8E8AD000143FCC /* TimeSeriesSynthetic.cpp in Sources */,
-				221BFD381A8E8AD000143FCC /* CsvPointRecord.cpp in Sources */,
 				221BFD391A8E8AD000143FCC /* Point.cpp in Sources */,
 				221BFD3A1A8E8AD000143FCC /* AggregatorTimeSeries.cpp in Sources */,
 				221BFD3B1A8E8AD000143FCC /* MovingAverage.cpp in Sources */,

@@ -49,7 +49,7 @@ namespace RTX {
     } StatsSamplingMode_t;
     
     
-    typedef std::pair< Point, PointCollection > pointSummaryPair_t;
+    typedef std::map< time_t, PointCollection > pointSummaryMap_t;
     
     RTX_SHARED_POINTER(BaseStatsTimeSeries);
     BaseStatsTimeSeries();
@@ -67,7 +67,7 @@ namespace RTX {
     
   protected:
     virtual PointCollection filterPointsInRange(TimeRange range) = 0; // pure virtual. don't use this class directly.
-    std::vector<pointSummaryPair_t> filterSummaryCollection(std::set<time_t> times);
+    pointSummaryMap_t filterSummaryCollection(std::set<time_t> times);
     
   private:
     Clock::_sp _window;

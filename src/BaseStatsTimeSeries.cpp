@@ -50,10 +50,10 @@ BaseStatsTimeSeries::StatsSamplingMode_t BaseStatsTimeSeries::samplingMode() {
 }
 
 
-vector<BaseStatsTimeSeries::pointSummaryPair_t> BaseStatsTimeSeries::filterSummaryCollection(std::set<time_t> times) {
+BaseStatsTimeSeries::pointSummaryMap_t BaseStatsTimeSeries::filterSummaryCollection(std::set<time_t> times) {
   
   if (times.size() == 0) {
-    return vector<BaseStatsTimeSeries::pointSummaryPair_t> ();
+    return pointSummaryMap_t();
   }
   
   TimeSeries::_sp sourceTs = this->source();
@@ -87,30 +87,20 @@ vector<BaseStatsTimeSeries::pointSummaryPair_t> BaseStatsTimeSeries::filterSumma
   }
   
   
-  vector< pointSummaryPair_t > sPoints;
+  pointSummaryMap_t outSummaries;
   
   // force a pre-cache on the source time series
   TimeRange preFetchRange(fromTime - lagDistance, toTime + leadDistance);
   PointCollection preFetch = sourceTs->pointCollection(preFetchRange);
   
-  // if no data, then quit.
-  if (preFetch.count() == 0) {
-    return sPoints;
-  }
-  
-  PointCollection sourceResampled = preFetch;
-  sourceResampled.resample(times); // for output sequence
-  
-  sPoints.reserve(sourceResampled.count());
-  
-  BOOST_FOREACH(const Point& p, sourceResampled.points) {
+  BOOST_FOREACH(const time_t t, times) {
     // get sub-ranges of the larger pre-fetched collection
-    TimeRange subrange(p.time - lagDistance, p.time + leadDistance);
+    TimeRange subrange(t - lagDistance, t + leadDistance);
     PointCollection subCollection = preFetch.trimmedToRange(subrange);
-    sPoints.push_back(make_pair(p, subCollection));
+    outSummaries[t] = subCollection;
   }
   
-  return sPoints;
+  return outSummaries;
 }
 
 

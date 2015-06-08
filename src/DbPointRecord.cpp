@@ -376,7 +376,7 @@ Point DbPointRecord::pointWithOpcFilter(Point p) {
       break;
     case OpcWhiteList:
       if (this->opcFilterList().count(p.quality) > 0) {
-        pOut.quality = Point::opc_rtx_override;
+        pOut = Point(p.time, p.value, Point::opc_rtx_override, p.confidence);
       }
       else {
         pOut = Point();
@@ -387,12 +387,12 @@ Point DbPointRecord::pointWithOpcFilter(Point p) {
         pOut = Point();
       }
       else {
-        pOut.quality = Point::opc_rtx_override;
+        pOut = Point(p.time, p.value, Point::opc_rtx_override, p.confidence);
       }
       break;
     case OpcCodesToValues:
     {
-      pOut.value = (double)p.quality;
+      pOut = Point(p.time, (double)p.quality, Point::opc_rtx_override, p.confidence);
     }
     default:
       break;

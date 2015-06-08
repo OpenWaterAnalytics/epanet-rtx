@@ -69,7 +69,7 @@ TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(Time
     proposedOutTimes = trim.times();
   }
   
-  vector<pointSummaryPair_t> summaries = this->filterSummaryCollection(rawTimes);
+  map<time_t, PointCollection> summaries = this->filterSummaryCollection(rawTimes);
   TimeSeries::_sp sourceTs = this->source();
   
   
@@ -78,18 +78,18 @@ TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(Time
   
   goodPoints.reserve(summaries.size());
   
-  BOOST_FOREACH(const pointSummaryPair_t& psp, summaries) {
-    
-    // fetch pair values from the source summary collection
-    Point p = psp.first;
-    PointCollection col = psp.second;
-    Point summaryPoint = this->pointWithCollectionAndPoint(col, p);
-    
-    if (summaryPoint.isValid) {
-      goodPoints.push_back(summaryPoint);
+  // we have to re-map the points to the summaries that surround the points
+  BOOST_FOREACH(const Point& p, raw.points) {
+    // find the summary corresponding to this point's time
+    PointCollection col;
+    if (summaries.find(p.time) != summaries.end()) {
+      col = summaries[p.time];
+      Point summaryPoint = this->pointWithCollectionAndPoint(col, p);
+      if (summaryPoint.isValid) {
+        goodPoints.push_back(summaryPoint);
+      }
     }
-    
-  }// end for each summary
+  }// end for each raw point
   
   PointCollection outCollection(goodPoints, this->units());
   if (this->willResample()) {

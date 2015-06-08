@@ -67,18 +67,18 @@ TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range
   
   set<time_t> times = this->timeValuesInRange(qRange);
   
-  vector<pointSummaryPair_t> summaries = this->filterSummaryCollection(times);
+  pointSummaryMap_t summaries = this->filterSummaryCollection(times);
   vector<Point> outPoints;
   outPoints.reserve(summaries.size());
   
-  BOOST_FOREACH(pointSummaryPair_t summary, summaries) {
-    Point p = summary.first;
-    PointCollection col = summary.second;
-    if (col.count() == 0) {
+  BOOST_FOREACH(pointSummaryMap_t::value_type time_collection, summaries) {
+    time_t t = time_collection.first;
+    PointCollection col = time_collection.second;
+    if (col.count() == 0 && this->statsType() != StatsTimeSeriesCount) {
       continue;
     }
     double v = this->valueFromSummary(col);
-    Point outPoint(p.time, v);
+    Point outPoint(t, v);
     if (outPoint.isValid) {
       outPoints.push_back(outPoint);
     }
@@ -147,7 +147,13 @@ double StatsTimeSeries::valueFromSummary(TimeSeries::PointCollection col) {
     default:
       break;
   }
-  return Units::convertValue(v, source()->units(), this->units());
+  
+  
+  // convert units?
+  Units u1 = this->statsUnits(this->source()->units(), this->statsType());
+  Units u2 = this->units();
+  
+  return Units::convertValue(v, u1, u2);
 }
 
 
