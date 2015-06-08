@@ -392,6 +392,7 @@ void EpanetModel::createRtxWrappers() {
       case EN_TCV:
       case EN_GPV:
         newValve.reset( new Valve(linkName, startNode, endNode) );
+        newValve->valveType = (int)linkType;
         newPipe = newValve;
         addValve(newValve);
         break;
@@ -449,7 +450,7 @@ void EpanetModel::overrideControls() throw(RTX::RtxException) {
     int controlCount;
     OW_API_CHECK( OW_getcount(_enModel, EN_CONTROLCOUNT, &controlCount), "OW_getcount(EN_CONTROLCOUNT)" );
     for( int iControl = 1; iControl <= controlCount; iControl++ ) {
-      OW_API_CHECK( OW_setcontrol(_enModel, iControl, 0, 0, 0, 0, 0 ), "OW_setcontrol" );
+      OW_API_CHECK( OW_setControlEnabled(_enModel, iControl, EN_DISABLE), "OW_setControlEnabled" );
     }
     
     // disregard rules (don't have a way to do that yet)
