@@ -86,6 +86,8 @@ namespace RTX {
     Node::_sp nodeWithName(const string& name);
     vector<Element::_sp> elements();
     vector<Dma::_sp> dmas();
+    vector<Node::_sp> nodes();
+    vector<Link::_sp> links();
     vector<Junction::_sp> junctions();
     vector<Tank::_sp> tanks();
     vector<Reservoir::_sp> reservoirs();
@@ -106,6 +108,7 @@ namespace RTX {
     void setInitialJunctionUniformQuality(double qual);
     void setInitialJunctionQualityFromMeasurements(time_t time);
     virtual void setInitialModelQuality() { };
+    vector<Node::_sp> nearestNodes(Node::_sp junc, double maxDistance);
 
     virtual time_t currentSimulationTime();
     TimeSeries::_sp iterations() {return _iterations;}
@@ -197,7 +200,9 @@ namespace RTX {
     
     virtual void setCurrentSimulationTime(time_t time);
     
-    double nodeDistanceXY(Node::_sp n1, Node::_sp n2);
+    double nodeDirectDistance(Node::_sp n1, Node::_sp n2);
+    double toRadians(double degrees);
+    
     
     
   private:

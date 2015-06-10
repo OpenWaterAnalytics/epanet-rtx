@@ -699,8 +699,24 @@ void SqliteProjectFile::loadModelFromDb() {
   sqlite3_finalize(stmt);
 
   
+  static string sqlSelectNodeCoords = "select uid,latitude,longitude from model_junctions";
+  retCode = sqlite3_prepare_v2(_dbHandle, sqlSelectNodeCoords.c_str(), -1, &stmt, NULL);
+  if (retCode != SQLITE_OK) {
+    cerr << "can't prepare statement: " << sqlSelectNodeCoords << " -- error: " << sqlite3_errmsg(_dbHandle) << endl;
+    return;
+  }
   
-  
+  while (sqlite3_step(stmt) == SQLITE_ROW) {
+    int e_uid = sqlite3_column_int(stmt, 0);
+    double e_lat = sqlite3_column_double(stmt, 1);
+    double e_lon = sqlite3_column_double(stmt, 2);
+    
+    Node::_sp theNode = boost::dynamic_pointer_cast<Node>(_elementUidLookup[e_uid]);
+    if (theNode) {
+      theNode->setCoordinates(e_lon, e_lat);
+    }
+  }
+
 }
 
 

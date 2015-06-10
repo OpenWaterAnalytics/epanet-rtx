@@ -412,6 +412,22 @@ std::vector<Element::_sp> Model::elements() {
   return _elements;
 }
 
+std::vector<Node::_sp> Model::nodes() {
+  std::vector<Node::_sp> nodes;
+  BOOST_FOREACH(Node::_sp node, _nodes | boost::adaptors::map_values) {
+    nodes.push_back(node);
+  }
+  return nodes;
+}
+
+std::vector<Link::_sp> Model::links() {
+  std::vector<Link::_sp> links;
+  BOOST_FOREACH(Link::_sp link, _links | boost::adaptors::map_values) {
+    links.push_back(link);
+  }
+  return links;
+}
+
 std::vector<Dma::_sp> Model::dmas() {
   return _dmas;
 }
@@ -750,7 +766,7 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
     double minDistance = DBL_MAX;
     double initQuality = 0;
     BOOST_FOREACH(mjunc, measuredJunctions) {
-      double d = nodeDistanceXY(junc, mjunc.first);
+      double d = nodeDirectDistance(junc, mjunc.first);
       if (d < minDistance) {
         minDistance = d;
         initQuality = mjunc.second;
@@ -766,7 +782,7 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
     double minDistance = DBL_MAX;
     double initQuality = 0;
     BOOST_FOREACH(mjunc, measuredJunctions) {
-      double d = nodeDistanceXY(tank, mjunc.first);
+      double d = nodeDirectDistance(tank, mjunc.first);
       if (d < minDistance) {
         minDistance = d;
         initQuality = mjunc.second;
@@ -778,6 +794,19 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
   }
   
 }
+
+std::vector<Node::_sp> Model::nearestNodes(Node::_sp node, double maxDistance) {
+  // simple enumeration -- max distance in meters
+  vector<Node::_sp> nodeList;
+  BOOST_FOREACH(Node::_sp n, _nodes | boost::adaptors::map_values) {
+    if (nodeDirectDistance(n, node) <= maxDistance) {
+      nodeList.push_back(n);
+    }
+  }
+
+  return nodeList;
+}
+
 
 #pragma mark - Protected Methods
 
@@ -1109,10 +1138,27 @@ time_t Model::currentSimulationTime() {
   return _currentSimulationTime;
 }
 
-double Model::nodeDistanceXY(Node::_sp n1, Node::_sp n2) {
+#define LOCAL_PI 3.1415926535897932385
+double Model::toRadians(double degrees) {
+  double radians = degrees * LOCAL_PI / 180.0;
+  return radians;
+}
+double Model::nodeDirectDistance(Node::_sp n1, Node::_sp n2) {
+  // distance in meters
   std::pair<double, double> x1 = n1->coordinates();
   std::pair<double, double> x2 = n2->coordinates();
-  return sqrt( pow(x1.first - x2.first, 2) + pow(x1.second - x2.second, 2) );
+  double lng1 = x1.first;
+  double lat1 = x1.second;
+  double lng2 = x2.first;
+  double lat2 = x2.second;
+  double earthRadius = 3958.75;
+  double dLat = toRadians(lat2-lat1);
+  double dLng = toRadians(lng2-lng1);
+  double a = sin(dLat/2) * sin(dLat/2) + cos(toRadians(lat1)) * cos(toRadians(lat2)) * sin(dLng/2) * sin(dLng/2);
+  double c = 2 * atan2(sqrt(a), sqrt(1-a));
+  double dist = earthRadius * c;
+  double meterConversion = 1609.00;
+  return dist * meterConversion;
 }
 
 // get output states
