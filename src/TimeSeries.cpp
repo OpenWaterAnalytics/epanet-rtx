@@ -67,13 +67,28 @@ double TimeSeries::PointCollection::percentile(double p) {
   int cacheSize = (int)this->points.size();
   using namespace boost::accumulators;
   
-  accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::left> > > centile( tag::tail<boost::accumulators::left>::cache_size = cacheSize );
-  BOOST_FOREACH(const Point& point, this->points) {
-    centile(point.value);
+  if (cacheSize == 1 && p == 0.5) {
+    // single point median
+    return this->points.front().value;
   }
   
-  double pct = quantile(centile, quantile_probability = p);
-  return pct;
+  if (p <= 0.5) {
+    accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::left> > > centile( tag::tail<boost::accumulators::left>::cache_size = cacheSize );
+    BOOST_FOREACH(const Point& point, this->points) {
+      centile(point.value);
+    }
+    double pct = quantile(centile, quantile_probability = p);
+    return pct;
+  }
+  else {
+    accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::right> > > centile( tag::tail<boost::accumulators::right>::cache_size = cacheSize );
+    BOOST_FOREACH(const Point& point, this->points) {
+      centile(point.value);
+    }
+    double pct = quantile(centile, quantile_probability = p);
+    return pct;
+  }
+  
 }
 
 size_t TimeSeries::PointCollection::count() {
