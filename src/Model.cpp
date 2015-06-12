@@ -195,6 +195,64 @@ void Model::setRecordForSimulationStats(PointRecord::_sp record) {
 }
 
 
+set<PointRecord::_sp> Model::recordsForModeledStates() {
+  set<PointRecord::_sp> stateRecordsUsed;
+  BOOST_FOREACH(Junction::_sp e, this->junctions()) {
+    vector<PointRecord::_sp> elementRecords;
+    elementRecords.push_back(e->pressure()->record());
+    elementRecords.push_back(e->head()->record());
+    elementRecords.push_back(e->quality()->record());
+    elementRecords.push_back(e->demand()->record());
+    
+    BOOST_FOREACH(PointRecord::_sp r, elementRecords) {
+      if (_rtxmodel_isDbRecord(r)) {
+        stateRecordsUsed.insert(r);
+      }
+    }
+  }
+  BOOST_FOREACH(Tank::_sp t, this->tanks()) {
+    vector<PointRecord::_sp> recVec;
+    recVec.push_back(t->level()->record());
+    recVec.push_back(t->flow()->record());
+    BOOST_FOREACH(PointRecord::_sp r, recVec) {
+      if (_rtxmodel_isDbRecord(r)) {
+        stateRecordsUsed.insert(r);
+      }
+    }
+  }
+  BOOST_FOREACH(Pipe::_sp p, this->pipes()) {
+    vector<PointRecord::_sp> recVec;
+    recVec.push_back(p->flow()->record());
+    BOOST_FOREACH(PointRecord::_sp r, recVec) {
+      if (_rtxmodel_isDbRecord(r)) {
+        stateRecordsUsed.insert(r);
+      }
+    }
+  }
+  BOOST_FOREACH(Valve::_sp p, this->valves()) {
+    vector<PointRecord::_sp> recVec;
+    recVec.push_back(p->flow()->record());
+    BOOST_FOREACH(PointRecord::_sp r, recVec) {
+      if (_rtxmodel_isDbRecord(r)) {
+        stateRecordsUsed.insert(r);
+      }
+    }
+  }
+  BOOST_FOREACH(Pump::_sp p, this->pumps()) {
+    vector<PointRecord::_sp> recVec;
+    recVec.push_back(p->flow()->record());
+    BOOST_FOREACH(PointRecord::_sp r, recVec) {
+      if (_rtxmodel_isDbRecord(r)) {
+        stateRecordsUsed.insert(r);
+      }
+    }
+  }
+  
+  return stateRecordsUsed;
+
+}
+
+
 #pragma mark - Demand dmas
 
 
@@ -480,61 +538,8 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
   bool success;
   
   
-  
-  
-  
   // get the record(s) being used
-  set<PointRecord::_sp> stateRecordsUsed;
-  BOOST_FOREACH(Junction::_sp e, this->junctions()) {
-    vector<PointRecord::_sp> elementRecords;
-    elementRecords.push_back(e->pressure()->record());
-    elementRecords.push_back(e->head()->record());
-    elementRecords.push_back(e->quality()->record());
-    elementRecords.push_back(e->demand()->record());
-    
-    BOOST_FOREACH(PointRecord::_sp r, elementRecords) {
-      if (_rtxmodel_isDbRecord(r)) {
-        stateRecordsUsed.insert(r);
-      }
-    }
-  }
-  BOOST_FOREACH(Tank::_sp t, this->tanks()) {
-    vector<PointRecord::_sp> recVec;
-    recVec.push_back(t->level()->record());
-    recVec.push_back(t->flow()->record());
-    BOOST_FOREACH(PointRecord::_sp r, recVec) {
-      if (_rtxmodel_isDbRecord(r)) {
-        stateRecordsUsed.insert(r);
-      }
-    }
-  }
-  BOOST_FOREACH(Pipe::_sp p, this->pipes()) {
-    vector<PointRecord::_sp> recVec;
-    recVec.push_back(p->flow()->record());
-    BOOST_FOREACH(PointRecord::_sp r, recVec) {
-      if (_rtxmodel_isDbRecord(r)) {
-        stateRecordsUsed.insert(r);
-      }
-    }
-  }
-  BOOST_FOREACH(Valve::_sp p, this->valves()) {
-    vector<PointRecord::_sp> recVec;
-    recVec.push_back(p->flow()->record());
-    BOOST_FOREACH(PointRecord::_sp r, recVec) {
-      if (_rtxmodel_isDbRecord(r)) {
-        stateRecordsUsed.insert(r);
-      }
-    }
-  }
-  BOOST_FOREACH(Pump::_sp p, this->pumps()) {
-    vector<PointRecord::_sp> recVec;
-    recVec.push_back(p->flow()->record());
-    BOOST_FOREACH(PointRecord::_sp r, recVec) {
-      if (_rtxmodel_isDbRecord(r)) {
-        stateRecordsUsed.insert(r);
-      }
-    }
-  }
+  set<PointRecord::_sp> stateRecordsUsed = this->recordsForModeledStates();
   
   while (simulationTime < end) {
     
@@ -553,65 +558,6 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
     _convergence->insert(convergenceStatus);
     
     if (success) {
-      // simulation succeeded
-      
-//      // debugging the DMA demands
-//      BOOST_FOREACH(Dma::_sp dma, this->dmas()) {
-//        cout << endl << "*** DMA " << dma->name() << " ***" << endl;
-//        
-//        double dmaDemand = 0.0;
-//        double dmaInflow = 0.0;
-//        double dmaOutflow = 0.0;
-//        double tankDemand = 0.0;
-//        double reservoirDemand = 0.0;
-//        
-//        // what should be there
-//        Units myUnits = dma->demand()->units();
-//        Units modelUnits = _flowUnits;
-//        Point dPoint = dma->demand()->pointAtOrBefore(simulationTime);
-//        double dmaDemandFromData = Units::convertValue(dPoint.value, myUnits, modelUnits);
-//        
-//        // demand accumulation by element type
-//        set<Junction::_sp> juncs = dma->junctions();
-//        BOOST_FOREACH(Junction::_sp junc, juncs) {
-//          double juncDemand = junctionDemand(junc->name());
-//          if (junc->type() == Element::JUNCTION) {
-//            //          cout << "      " << junc->name() << ": " << juncDemand << endl;
-//            dmaDemand += juncDemand;
-//          }
-//          else if (junc->type() == Element::RESERVOIR) {
-//            //          cout << "      RESERVOIR " << junc->name() << ": " << juncDemand << endl;
-//            reservoirDemand += juncDemand;
-//          }
-//          else if (junc->type() == Element::TANK) {
-//                      cout << "      TANK " << junc->name() << ": " << juncDemand << endl;
-//            tankDemand += juncDemand;
-//          }
-//        }
-//        
-//        // accumulate the boundary flows
-//        vector<Dma::pipeDirPair_t> boundaryPipes = dma->measuredBoundaryPipes();
-//        BOOST_FOREACH(const Dma::pipeDirPair_t& pd, boundaryPipes) {
-//          Pipe::_sp p = pd.first;
-//          double q = pipeFlow(p->name());
-//          Pipe::direction_t dir = pd.second;
-//          if (dir == Pipe::inDirection) {
-//            dmaInflow += q;
-//          }
-//          else {
-//            dmaOutflow += q;
-//          }
-//        }
-//        
-//        cout << "TOTAL DMA DEMAND (SCADA): " << dmaDemandFromData << endl;
-//        cout << "TOTAL DMA DEMAND (EPANET): " << dmaDemand << endl;
-//        cout << "   Inflow: " << dmaInflow << endl;
-//        cout << "   Outflow: " << dmaOutflow << endl;
-//        cout << "   Tank Demand: " << tankDemand << endl;
-//        cout << "   Reservoir Demand: " << reservoirDemand << endl;
-//        cout << "   NET Demand (In - Out - Demand): " << dmaInflow - dmaOutflow - tankDemand - reservoirDemand - dmaDemand << endl;
-//      }
-      
       // tell each element to update its derived states (simulation-computed values)
       if (!_simReportClock || _simReportClock->isValid(simulationTime)) {
         BOOST_FOREACH(PointRecord::_sp r, stateRecordsUsed) {
@@ -654,6 +600,85 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
   
   
 }
+
+
+void Model::runForecast(time_t start, time_t end) {
+  
+  time_t simulationTime = start;
+  time_t nextClockTime = start;
+  time_t nextReportTime = start;
+  time_t nextSimulationTime = start;
+  time_t nextResetTime = start;
+  time_t stepToTime = start;
+  struct tm * timeinfo;
+  bool success;
+  
+  
+  this->enableControls();
+  
+  // get the record(s) being used
+  set<PointRecord::_sp> stateRecordsUsed = this->recordsForModeledStates();
+  
+  while (simulationTime < end) {
+    
+    // get parameters from the RTX elements, and pull them into the simulation
+    setSimulationParameters(simulationTime);
+    
+    // simulate this period, find the next timestep boundary.
+    success = solveSimulation(simulationTime);
+    
+    // save simulation stats here so we can track convergence issues
+    Point error(simulationTime, relativeError(simulationTime));
+    _relativeError->insert(error);
+    Point iterationCount(simulationTime, iterations(simulationTime));
+    _iterations->insert(iterationCount);
+    Point convergenceStatus(simulationTime, success);
+    _convergence->insert(convergenceStatus);
+    
+    if (success) {
+      // tell each element to update its derived states (simulation-computed values)
+      if (!_simReportClock || _simReportClock->isValid(simulationTime)) {
+        BOOST_FOREACH(PointRecord::_sp r, stateRecordsUsed) {
+          r->beginBulkOperation();
+        }
+        saveNetworkStates(simulationTime);
+        BOOST_FOREACH(PointRecord::_sp r, stateRecordsUsed) {
+          r->endBulkOperation();
+        }
+      }
+      // get time to next simulation period
+      nextSimulationTime = nextHydraulicStep(simulationTime);
+      nextClockTime = _regularMasterClock->timeAfter(simulationTime);
+      nextReportTime = (_simReportClock) ? _simReportClock->timeAfter(simulationTime) : nextSimulationTime;
+      if ( _tankResetClock ) {
+        nextResetTime = _tankResetClock->timeAfter(simulationTime);
+      }
+      else {
+        nextResetTime = nextSimulationTime;
+      }
+      stepToTime = min( min( min( nextClockTime, nextSimulationTime ), nextReportTime ), nextResetTime);
+      
+      // and step the simulation to that time.
+      stepSimulation(stepToTime);
+      simulationTime = currentSimulationTime();
+      
+      timeinfo = localtime (&simulationTime);
+      cout << "Simulation time :: " << asctime(timeinfo) << endl;
+    }
+    else {
+      // simulation failed -- advance the time and reset tank levels
+      nextClockTime = _regularMasterClock->timeAfter(simulationTime);
+      simulationTime = nextClockTime;
+      setCurrentSimulationTime(simulationTime);
+      cout << "will reset tanks" << endl;
+      this->setTanksNeedReset(true);
+    }
+    
+  } // simulation loop
+  
+  
+}
+
 
 void Model::setReportTimeStep(int seconds) {
   _simReportClock.reset( new Clock(seconds) );

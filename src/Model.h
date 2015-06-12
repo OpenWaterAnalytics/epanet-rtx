@@ -59,10 +59,20 @@ namespace RTX {
     virtual void loadModelFromFile(const string& filename) throw(std::exception);
     string modelFile();
     virtual void overrideControls() throw(RtxException);
+    
+    
+    /// simulation methods
     void runSinglePeriod(time_t time);
     void runExtendedPeriod(time_t start, time_t end);
+    void runForecast(time_t start, time_t end);
+    
+    std::set<PointRecord::_sp>recordsForModeledStates();
+    
     void setStorage(PointRecord::_sp record);
     void setParameterSource(PointRecord::_sp record);
+    
+    virtual void disableControls() = 0;
+    virtual void enableControls() = 0;
     
     bool shouldRunWaterQuality();
     void setShouldRunWaterQuality(bool run);

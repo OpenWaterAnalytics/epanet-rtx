@@ -68,6 +68,9 @@ namespace RTX {
     // quality
     void setJunctionQuality(const std::string& junction, double quality);
     
+    virtual void disableControls();
+    virtual void enableControls();
+    
     // simulation methods
     virtual bool solveSimulation(time_t time);
     virtual time_t nextHydraulicStep(time_t time);

@@ -446,14 +446,8 @@ void EpanetModel::overrideControls() throw(RTX::RtxException) {
     // set the global demand multiplier is unity as well.
     OW_setoption(_enModel, EN_DEMANDMULT, 1.);
     
-    // disregard controls.
-    int controlCount;
-    OW_API_CHECK( OW_getcount(_enModel, EN_CONTROLCOUNT, &controlCount), "OW_getcount(EN_CONTROLCOUNT)" );
-    for( int iControl = 1; iControl <= controlCount; iControl++ ) {
-      OW_API_CHECK( OW_setControlEnabled(_enModel, iControl, EN_DISABLE), "OW_setControlEnabled" );
-    }
-    
-    // disregard rules (don't have a way to do that yet)
+    // disregard controls and rules.
+    this->disableControls();
   }
   catch(string error) {
     std::cerr << "ERROR: " << error;
@@ -564,6 +558,35 @@ double EpanetModel::pipeFlow(const string &pipe) {
 double EpanetModel::pumpEnergy(const string &pump) {
   return getLinkValue(EN_ENERGY, pump);
 }
+
+#pragma mark - Sim options
+void EpanetModel::enableControls() {
+  int nC;
+  OW_getcount(_enModel, EN_CONTROLCOUNT, &nC);
+  
+  for (int i = 1; i <= nC; ++i) {
+    OW_setControlEnabled(_enModel, i, EN_ENABLE);
+  }
+  OW_getcount(_enModel, EN_RULECOUNT, &nC);
+  for (int i = 1; i <= nC; ++i) {
+    OW_setRuleEnabled(_enModel, i, EN_ENABLE);
+  }
+}
+
+void EpanetModel::disableControls() {
+  int nC;
+  OW_getcount(_enModel, EN_CONTROLCOUNT, &nC);
+  
+  for (int i = 1; i <= nC; ++i) {
+    OW_setControlEnabled(_enModel, i, EN_DISABLE);
+  }
+  
+  OW_getcount(_enModel, EN_RULECOUNT, &nC);
+  for (int i = 1; i <= nC; ++i) {
+    OW_setRuleEnabled(_enModel, i, EN_DISABLE);
+  }
+}
+
 
 
 #pragma mark Simulation Methods
