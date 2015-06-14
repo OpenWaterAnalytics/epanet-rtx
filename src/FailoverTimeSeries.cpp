@@ -175,6 +175,51 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
 }
 
 
+Point FailoverTimeSeries::pointBefore(time_t time) {
+  if (!this->source()) {
+    return Point();
+  }
+  
+  Point p = this->source()->pointBefore(time);
+  
+  if (!p.isValid) {
+    if (this->failoverTimeseries()) {
+      return this->failoverTimeseries()->pointBefore(time);
+    }
+    return Point();
+  }
+  
+  // check staleness
+  if ((time - p.time) > this->maximumStaleness()) {
+    if (this->failoverTimeseries()) {
+      p = this->failoverTimeseries()->pointBefore(time);
+    }
+  }
+  
+  return p;
+}
+
+Point FailoverTimeSeries::pointAfter(time_t time) {
+  if (!this->source()) {
+    return Point();
+  }
+  
+  // going forward is a different scenario.
+  
+  // rewind so we can really test for staleness
+  Point bef = this->pointBefore(time);
+  time_t maxTime = bef.time + this->maximumStaleness();
+  
+  Point aft = this->source()->pointAfter(time);
+  
+  if (aft.isValid && aft.time <= maxTime) {
+    return aft;
+  } else if (this->failoverTimeseries()) {
+    return this->failoverTimeseries()->pointAfter(maxTime - 1);
+  }
+  return Point();
+}
+
 bool FailoverTimeSeries::canSetSource(TimeSeries::_sp ts) {
   
   if (this->failoverTimeseries() && !this->failoverTimeseries()->units().isSameDimensionAs(ts->units())) {

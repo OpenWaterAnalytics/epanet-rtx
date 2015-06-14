@@ -27,7 +27,9 @@ namespace RTX {
     void setFailoverTimeseries(TimeSeries::_sp ts);
     
     void swapSourceWithFailover();
-  
+    
+    Point pointBefore(time_t time);
+    Point pointAfter(time_t time);
 
   protected:
     PointCollection filterPointsInRange(TimeRange range);
