@@ -77,6 +77,11 @@ Point LagTimeSeries::pointAfter(time_t time) {
 }
 
 bool LagTimeSeries::willResample() {
+  
+  if (!this->clock()) {
+    return false;
+  }
+  
   bool resample = TimeSeriesFilter::willResample();
   
   if (!resample) {
