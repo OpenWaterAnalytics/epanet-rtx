@@ -301,6 +301,10 @@
 		2275942A1A855BF3007C4137 /* libboost_regex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD2173C2E9700309C2F /* libboost_regex.a */; };
 		2275942B1A855BF3007C4137 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD3173C2E9700309C2F /* libboost_system.a */; };
 		2275942D1A855BF3007C4137 /* libboost_python.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2275942C1A855BF3007C4137 /* libboost_python.a */; };
+		227BCEF31B2B6CDB00B0AC52 /* LogicTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227BCEF11B2B6CDB00B0AC52 /* LogicTimeSeries.cpp */; };
+		227BCEF41B2B6CDB00B0AC52 /* LogicTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227BCEF11B2B6CDB00B0AC52 /* LogicTimeSeries.cpp */; };
+		227BCEF51B2B6CDB00B0AC52 /* LogicTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 227BCEF21B2B6CDB00B0AC52 /* LogicTimeSeries.h */; };
+		227BCEF61B2B6CDB00B0AC52 /* LogicTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 227BCEF21B2B6CDB00B0AC52 /* LogicTimeSeries.h */; };
 		227CEC9F16BADD6000E8E7C8 /* DbPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227CEC9E16BADD6000E8E7C8 /* DbPointRecord.cpp */; };
 		227FF7B81A8284A70019E82D /* InfluxDbPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 229FBEA0190807B3004FE5A4 /* InfluxDbPointRecord.cpp */; };
 		22804094158F8243004222DA /* Pipe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22804093158F8243004222DA /* Pipe.cpp */; };
@@ -759,6 +763,8 @@
 		227510E616D4231800B2BA62 /* BufferPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BufferPointRecord.cpp; path = ../../src/BufferPointRecord.cpp; sourceTree = "<group>"; };
 		227510E716D4231800B2BA62 /* BufferPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = BufferPointRecord.h; path = ../../src/BufferPointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2275942C1A855BF3007C4137 /* libboost_python.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_python.a; path = /usr/local/lib/libboost_python.a; sourceTree = "<absolute>"; };
+		227BCEF11B2B6CDB00B0AC52 /* LogicTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LogicTimeSeries.cpp; path = ../../src/LogicTimeSeries.cpp; sourceTree = "<group>"; };
+		227BCEF21B2B6CDB00B0AC52 /* LogicTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LogicTimeSeries.h; path = ../../src/LogicTimeSeries.h; sourceTree = "<group>"; };
 		227CEC9E16BADD6000E8E7C8 /* DbPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DbPointRecord.cpp; path = ../../src/DbPointRecord.cpp; sourceTree = "<group>"; };
 		22804093158F8243004222DA /* Pipe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Pipe.cpp; path = ../../src/Pipe.cpp; sourceTree = "<group>"; };
 		22804096158F827E004222DA /* Pipe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Pipe.h; path = ../../src/Pipe.h; sourceTree = "<group>"; };
@@ -1299,6 +1305,8 @@
 				22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */,
 				226AC1471733F996009B7C90 /* ValidRangeTimeSeries.h */,
 				226AC1461733F996009B7C90 /* ValidRangeTimeSeries.cpp */,
+				227BCEF21B2B6CDB00B0AC52 /* LogicTimeSeries.h */,
+				227BCEF11B2B6CDB00B0AC52 /* LogicTimeSeries.cpp */,
 				22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */,
 				22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */,
 				2223206B1A6EF32E00B32D6A /* LagTimeSeries.h */,
@@ -1439,6 +1447,7 @@
 				220F9E1818F9E68B00BB842C /* MovingAverage.h in Headers */,
 				220F9E1918F9E68B00BB842C /* Point.h in Headers */,
 				228CA8DA1AA0CBFF00D0353E /* InpTextPattern.h in Headers */,
+				227BCEF61B2B6CDB00B0AC52 /* LogicTimeSeries.h in Headers */,
 				224C419C1A434FCB008852C4 /* ModelPerformance.h in Headers */,
 				220F9E1A18F9E68B00BB842C /* TimeSeries.h in Headers */,
 				220F9E1B18F9E68B00BB842C /* InversionTimeSeries.h in Headers */,
@@ -1603,6 +1612,7 @@
 				2280409D158F8326004222DA /* Valve.h in Headers */,
 				22E2962C16010A65003D378A /* Units.h in Headers */,
 				22707A9716309D4100FEB4DD /* OffsetTimeSeries.h in Headers */,
+				227BCEF51B2B6CDB00B0AC52 /* LogicTimeSeries.h in Headers */,
 				22F63D3816C5735100A15368 /* SineTimeSeries.h in Headers */,
 				2211D2071A6D69EA00E34B9B /* TimeSeriesSynthetic.h in Headers */,
 				227510E916D4231800B2BA62 /* BufferPointRecord.h in Headers */,
@@ -1970,6 +1980,7 @@
 				220F9DE018F9E68B00BB842C /* MovingAverage.cpp in Sources */,
 				220F9DE118F9E68B00BB842C /* TimeSeries.cpp in Sources */,
 				220F9DE218F9E68B00BB842C /* Model.cpp in Sources */,
+				227BCEF41B2B6CDB00B0AC52 /* LogicTimeSeries.cpp in Sources */,
 				220F9DE618F9E68B00BB842C /* Element.cpp in Sources */,
 				220F9DE718F9E68B00BB842C /* Node.cpp in Sources */,
 				22BFAB02196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp in Sources */,
@@ -2152,6 +2163,7 @@
 				22804094158F8243004222DA /* Pipe.cpp in Sources */,
 				22AB022F187B1BF000706EEA /* PointRecordTime.cpp in Sources */,
 				2280409B158F82EF004222DA /* Pump.cpp in Sources */,
+				227BCEF31B2B6CDB00B0AC52 /* LogicTimeSeries.cpp in Sources */,
 				2280409F158F8352004222DA /* Valve.cpp in Sources */,
 				222FDDD615C1BC2F0065DAF6 /* FirstDerivative.cpp in Sources */,
 				22B9285A1A76EF1B006DBC57 /* MathOpsTimeSeries.cpp in Sources */,
