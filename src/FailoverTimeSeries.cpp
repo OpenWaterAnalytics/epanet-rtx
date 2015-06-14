@@ -119,8 +119,9 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
   vector<Point> paddedPrimary;
   paddedPrimary.reserve(primaryData.count() + 2);
   
-  if (primaryData.points.cbegin()->time > range.start) {
-    // pad with fake point.
+  if (primaryData.points.cbegin()->time >= range.start) {
+    // pad with fake point. This is important because the while-loop below will ignore the first point
+    // and only use the time information to inspect the gap.
     Point fakeP;
     fakeP.time = range.start - _stale - 1;
     paddedPrimary.push_back(fakeP);
