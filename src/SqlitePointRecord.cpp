@@ -15,15 +15,6 @@ typedef const unsigned char* sqltext;
 
 /******************************************************************************************/
 static string initTablesStr = "CREATE TABLE 'meta' ('series_id' INTEGER PRIMARY KEY ASC AUTOINCREMENT, 'name' TEXT UNIQUE ON CONFLICT ABORT, 'units' TEXT, 'regular_period' INTEGER, 'regular_offset' INTEGER); CREATE TABLE 'points' ('time' INTEGER, 'series_id' INTEGER REFERENCES 'meta'('series_id'), 'value' REAL, 'confidence' REAL, 'quality' INTEGER, UNIQUE (series_id, time asc) ON CONFLICT IGNORE); PRAGMA user_version = 2";
-static string selectPreamble = "SELECT time, value, quality, confidence FROM points INNER JOIN meta USING (series_id) WHERE name = ? AND ";
-static string singleSelectStr = selectPreamble + "time = ? order by time asc";
-static string rangeSelectStr = selectPreamble + "time >= ? AND time <= ? order by time asc";
-static string nextSelectStr = selectPreamble + "time > ? order by time asc LIMIT 1";
-static string prevSelectStr = selectPreamble + "time < ? order by time desc LIMIT 1";
-static string singleInsertStr = "INSERT INTO points (time, series_id, value, quality, confidence) SELECT ?,series_id,?,?,? FROM meta WHERE name = ?";
-static string firstSelectStr = selectPreamble + "1 order by time asc limit 1";
-static string lastSelectStr = selectPreamble + "1 order by time desc limit 1";
-static string selectNamesStr = "select name from meta order by name asc";
 /******************************************************************************************/
 
 
@@ -115,6 +106,40 @@ void SqlitePointRecord::dbConnect() throw(RtxException) {
     }
     
     // prepare the select & insert statments
+    string selectPreamble = "SELECT time, value, quality, confidence FROM points INNER JOIN meta USING (series_id) WHERE name = ? AND ";
+    string singleSelectStr = selectPreamble + "time = ? order by time asc";
+    
+    // unpack the filtering clause incase there is a black/white list
+    string qualClause = "";
+    if ((this->opcFilterType() == OpcBlackList || this->opcFilterType() == OpcWhiteList) && this->opcFilterList().size() > 0) {
+      stringstream filterSS;
+      filterSS << " AND quality";
+      if (this->opcFilterType() == OpcBlackList) {
+        filterSS << " NOT";
+      }
+      filterSS << " IN (";
+      set<unsigned int> codes = this->opcFilterList();
+      set<unsigned int>::const_iterator it = codes.begin();
+      filterSS << *it;
+      ++it;
+      while (it != codes.end()) {
+        filterSS << "," << *it;
+        ++it;
+      }
+      filterSS << ")";
+      qualClause = filterSS.str();
+    }
+    
+    
+    string rangeSelectStr = selectPreamble + "time >= ? AND time <= ?" + qualClause + " order by time asc";
+    string nextSelectStr = selectPreamble + "time > ?" + qualClause + " order by time asc LIMIT 1";
+    string prevSelectStr = selectPreamble + "time < ?" + qualClause + " order by time desc LIMIT 1";
+    string singleInsertStr = "INSERT INTO points (time, series_id, value, quality, confidence) SELECT ?,series_id,?,?,? FROM meta WHERE name = ?";
+    string firstSelectStr = selectPreamble + "1 order by time asc limit 1";
+    string lastSelectStr = selectPreamble + "1 order by time desc limit 1";
+    string selectNamesStr = "select name from meta order by name asc";
+    
+    
     
     string statmentStrings[] =           {selectNamesStr,    singleSelectStr,    rangeSelectStr,    prevSelectStr,        nextSelectStr,    singleInsertStr,    firstSelectStr,    lastSelectStr  };
     sqlite3_stmt** preparedStatments[] = {&_selectNamesStmt, &_selectSingleStmt, &_selectRangeStmt, &_selectPreviousStmt, &_selectNextStmt, &_insertSingleStmt, &_selectFirstStmt, &_selectLastStmt};

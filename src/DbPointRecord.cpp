@@ -325,6 +325,7 @@ void DbPointRecord::setOpcFilterType(OpcFilterType type) {
   if (_filterType != type) {
     BufferPointRecord::reset(); // mem cache
     _filterType = type;
+    this->dbConnect();
   }
 }
 
@@ -339,17 +340,20 @@ std::set<unsigned int> DbPointRecord::opcFilterList() {
 void DbPointRecord::clearOpcFilterList() {
   _opcFilterCodes.clear();
   BufferPointRecord::reset(); // mem cache
+  this->dbConnect();
 }
 
 void DbPointRecord::addOpcFilterCode(unsigned int code) {
   _opcFilterCodes.insert(code);
   BufferPointRecord::reset(); // mem cache
+  this->dbConnect();
 }
 
 void DbPointRecord::removeOpcFilterCode(unsigned int code) {
   if (_opcFilterCodes.count(code) > 0) {
     _opcFilterCodes.erase(code);
     BufferPointRecord::reset(); // mem cache
+    this->dbConnect();
   }
 }
 
