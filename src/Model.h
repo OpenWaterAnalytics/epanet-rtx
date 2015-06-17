@@ -50,6 +50,16 @@ namespace RTX {
     RTX_SHARED_POINTER(Model);
     
     
+    // Control is a public class of Model
+    class Control {
+    public:
+      typedef enum {
+        ModelControlStatus,
+        ModelControlSetting
+      } ControlType;
+      std::vector<std::pair< Pipe::_sp, ControlType > > pipes;
+    };
+    
     Model();
     virtual ~Model();
     virtual void initEngine() { };

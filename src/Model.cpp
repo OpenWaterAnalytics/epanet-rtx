@@ -6,6 +6,7 @@
 //  See README.md and license.txt for more information
 //  
 
+
 #include <iostream>
 #include <set>
 #include <boost/foreach.hpp>
@@ -601,7 +602,16 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
   
 }
 
-
+/**
+ @brief Run a Forecasted simulation.
+ @param start The start time
+ @param end The end time
+ 
+ This method will re-enable any Rules or Controls that would otherwise be disabled during realtime (or retrospective) analysis. The simulation PointRecord destination will be changed for participating elements to the forecasting record.
+ 
+ If it is desired for the tank levels to be reset for the start of the forecast, then be sure to call tanksNeedReset() on the Model object before calling this method. Otherwise the previous tank levels (as simulated) will be used to begin the forecast simulation.
+ 
+ */
 void Model::runForecast(time_t start, time_t end) {
   
   time_t simulationTime = start;
