@@ -41,9 +41,9 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
     this->createRtxWrappers();
     
   }
-  catch(...) {
+  catch(const std::string& errStr) {
     std::cerr << "ERROR: ";
-    throw RtxException("File Loading");
+    throw RtxException("File Loading Error: " + errStr);
   }
   
 }
@@ -57,9 +57,9 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   long enTimeStep;
   try {
     OW_API_CHECK( OW_open((char*)filename.c_str(), &_enModel, (char*)"", (char*)""), "OW_open" );
-  } catch (...) {
-    cerr << "cannot open epanet file" << endl;
-    throw "cannot open epanet file";
+  } catch (const std::string& errStr) {
+    cerr << "model not formatted correctly. " << errStr << endl;
+    throw "model not formatted correctly. " + errStr;
   }
   
   
