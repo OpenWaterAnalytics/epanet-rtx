@@ -9,6 +9,8 @@
 using namespace RTX;
 using namespace std;
 
+const int _tsfilter_maxStrides = 12; // FIXME 💩
+
 TimeSeriesFilter::TimeSeriesFilter() {
   _resampleMode = TimeSeriesResampleModeLinear;
 }
@@ -125,12 +127,11 @@ Point TimeSeriesFilter::pointBefore(time_t time) {
     // search iteratively?
     
     time_t stride = 60*60*12; // 12 hour
-    int maxStrides = 4;
     PointCollection c;
     
     TimeRange q(time - stride, time);
     
-    while ( q.start > time - (stride * maxStrides) ) {
+    while ( q.start > time - (stride * _tsfilter_maxStrides) ) {
       c = TimeSeries::pointCollection(q);
       if (c.count() > 0) {
         break; // found something
@@ -167,11 +168,11 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
     // search iteratively?
     
     time_t stride = 60*60*12; // 12 hour
-    int maxStrides = 4;
+    
     PointCollection c;
     TimeRange q(time, time + stride);
     
-    while ( q.end < time + (stride * maxStrides) ) {
+    while ( q.end < time + (stride * _tsfilter_maxStrides) ) {
       c = this->pointCollection(q);
       if (c.count() > 0) {
         break; // found something
