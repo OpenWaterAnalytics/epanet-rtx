@@ -39,7 +39,8 @@ namespace RTX {
     void useEpanetFile(const std::string& filename);
     virtual void overrideControls() throw(RtxException);
     virtual std::ostream& toStream(std::ostream &stream);
-
+    OW_Project *epanetModelPointer();
+    
   protected:
     // overridden accessors
     // node elements

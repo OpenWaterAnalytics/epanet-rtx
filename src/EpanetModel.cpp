@@ -28,6 +28,10 @@ EpanetModel::~EpanetModel() {
   this->closeEngine();
 }
 
+OW_Project* EpanetModel::epanetModelPointer() {
+  return _enModel;
+}
+
 #pragma mark - Loading
 
 void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exception) {
