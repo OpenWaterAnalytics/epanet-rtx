@@ -25,6 +25,10 @@
 #include <boost/graph/connected_components.hpp>
 #include <boost/range/adaptors.hpp>
 
+#include <boost/interprocess/sync/scoped_lock.hpp>
+using boost::signals2::mutex;
+using boost::interprocess::scoped_lock;
+
 using namespace RTX;
 using namespace std;
 
@@ -1167,9 +1171,11 @@ void Model::saveNetworkStates(time_t time) {
 }
 
 void Model::setCurrentSimulationTime(time_t time) {
+  scoped_lock<boost::signals2::mutex> bigLock(_currentSimulationTimeMutex);
   _currentSimulationTime = time;
 }
 time_t Model::currentSimulationTime() {
+  scoped_lock<boost::signals2::mutex> bigLock(_currentSimulationTimeMutex);
   return _currentSimulationTime;
 }
 

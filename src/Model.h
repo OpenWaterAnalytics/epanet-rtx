@@ -13,6 +13,7 @@
 #include <map>
 #include <time.h>
 
+#include <boost/signals2/mutex.hpp>
 #include <boost/foreach.hpp>
 
 #include "rtxExceptions.h"
@@ -264,7 +265,7 @@ namespace RTX {
     time_t _currentSimulationTime;
     
     Units _flowUnits, _headUnits, _pressureUnits, _qualityUnits, _volumeUnits;
-
+    boost::signals2::mutex _currentSimulationTimeMutex;
     
   };
   
