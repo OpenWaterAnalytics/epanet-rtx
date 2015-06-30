@@ -161,6 +161,20 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
     _linkIndex[string(enName)] = iLink;
   }
   
+  
+  // get the valve types
+  BOOST_FOREACH(Valve::_sp v, this->valves()) {
+    int enIdx = _linkIndex[v->name()];
+    EN_LinkType type = EN_PIPE;
+    OW_getlinktype(_enModel, enIdx, &type);
+    if (type == EN_PIPE) {
+      // should not happen
+      continue;
+    }
+    v->valveType = (int)type;
+  }
+  
+  
 }
 
 void EpanetModel::initEngine() {
