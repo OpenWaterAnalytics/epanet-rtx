@@ -21,11 +21,13 @@ using namespace std;
 EpanetModel::EpanetModel() : Model() {
   // nothing to do, right?
   _enOpened = false;
-  OW_API_CHECK( OW_newModel(&_enModel), "OW_newModel");
+  //OW_API_CHECK( OW_newModel(&_enModel), "OW_newModel");
 }
 
 EpanetModel::~EpanetModel() {
   this->closeEngine();
+  OW_API_CHECK( OW_close(_enModel), "OW_close");
+//  OW_API_CHECK(OW_freeModel(_enModel), "OW_freeModel");
 }
 
 OW_Project* EpanetModel::epanetModelPointer() {
@@ -35,6 +37,10 @@ OW_Project* EpanetModel::epanetModelPointer() {
 #pragma mark - Loading
 
 void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exception) {
+  
+  if (_enOpened) {
+    this->closeEngine();
+  }
   
   // base class invocation
   Model::loadModelFromFile(filename);
@@ -54,8 +60,6 @@ void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exce
 
 
 void EpanetModel::useEpanetFile(const std::string& filename) {
-  
-  Model::loadModelFromFile(filename);
   
   Units volumeUnits(0);
   long enTimeStep;
@@ -202,7 +206,7 @@ void EpanetModel::closeEngine() {
     }
     _enOpened = false;
   }
-  OW_API_CHECK( OW_close(_enModel), "OW_close");
+  
 }
 
 
