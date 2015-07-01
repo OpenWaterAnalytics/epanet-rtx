@@ -1060,6 +1060,15 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
       outl->setOutlierMultiplier(val);
     }
   }
+  else if (typeEquals(dbMathOpsName)) {
+    MathOpsTimeSeries::_sp mo = boost::dynamic_pointer_cast<MathOpsTimeSeries>(ts);
+    if (RTX_STRINGS_ARE_EQUAL(key, "opsType")) {
+      mo->setMathOpsType((MathOpsTimeSeriesType)val);
+    }
+    else if (RTX_STRINGS_ARE_EQUAL(key, "argument")) {
+      mo->setArgument(val);
+    }
+  }
   else {
     cerr << "unknown type name: " << type << endl;
   }
