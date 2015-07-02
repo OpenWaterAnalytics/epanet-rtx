@@ -59,7 +59,7 @@ Model::Model() : _flowUnits(1), _headUnits(1), _pressureUnits(1) {
   setPressureUnits(RTX_PASCAL);
   setHeadUnits(RTX_METER);
   _name = "Model";
-  
+  _shouldCancelSimulation = false;
   _tanksNeedReset = false;
 }
 Model::~Model() {
@@ -542,11 +542,23 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
   struct tm * timeinfo;
   bool success;
   
+  {
+    // of course we don't want to cancel - we just started!
+    scoped_lock<boost::signals2::mutex> l(_simulationInProcessMutex);
+    _shouldCancelSimulation = false;
+  }
   
   // get the record(s) being used
   set<PointRecord::_sp> stateRecordsUsed = this->recordsForModeledStates();
   
   while (simulationTime < end) {
+    
+    {
+      scoped_lock<boost::signals2::mutex> l(_simulationInProcessMutex);
+      if (_shouldCancelSimulation) {
+        break;
+      }
+    }
     
     // get parameters from the RTX elements, and pull them into the simulation
     setSimulationParameters(simulationTime);
@@ -601,9 +613,12 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
       this->setTanksNeedReset(true);
     }
     
-  } // simulation loop
+  } // simulation while-loop
   
-  
+  {
+    scoped_lock<boost::signals2::mutex> l(_simulationInProcessMutex);
+    _shouldCancelSimulation = false;
+  }
 }
 
 /**
@@ -693,6 +708,11 @@ void Model::runForecast(time_t start, time_t end) {
   
 }
 
+
+void Model::cancelSimulation() {
+  scoped_lock<boost::signals2::mutex> l(_simulationInProcessMutex);
+  _shouldCancelSimulation = true;
+}
 
 void Model::setReportTimeStep(int seconds) {
   _simReportClock.reset( new Clock(seconds) );
@@ -1171,11 +1191,11 @@ void Model::saveNetworkStates(time_t time) {
 }
 
 void Model::setCurrentSimulationTime(time_t time) {
-  scoped_lock<boost::signals2::mutex> bigLock(_currentSimulationTimeMutex);
+  scoped_lock<boost::signals2::mutex> bigLock(_simulationInProcessMutex);
   _currentSimulationTime = time;
 }
 time_t Model::currentSimulationTime() {
-  scoped_lock<boost::signals2::mutex> bigLock(_currentSimulationTimeMutex);
+  scoped_lock<boost::signals2::mutex> bigLock(_simulationInProcessMutex);
   return _currentSimulationTime;
 }
 

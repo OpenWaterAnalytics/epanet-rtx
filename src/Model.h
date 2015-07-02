@@ -77,6 +77,8 @@ namespace RTX {
     void runExtendedPeriod(time_t start, time_t end);
     void runForecast(time_t start, time_t end);
     
+    void cancelSimulation();
+    
     std::set<PointRecord::_sp>recordsForModeledStates();
     
     void setStorage(PointRecord::_sp record);
@@ -261,11 +263,12 @@ namespace RTX {
     Clock::_sp _tankResetClock;
     int _qualityTimeStep;
     bool _doesOverrideDemands;
+    bool _shouldCancelSimulation;
     
     time_t _currentSimulationTime;
     
     Units _flowUnits, _headUnits, _pressureUnits, _qualityUnits, _volumeUnits;
-    boost::signals2::mutex _currentSimulationTimeMutex;
+    boost::signals2::mutex _simulationInProcessMutex;
     
   };
   
