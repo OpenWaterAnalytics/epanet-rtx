@@ -12,6 +12,12 @@ MultiplierTimeSeries::MultiplierTimeSeries() {
 void MultiplierTimeSeries::setMultiplier(TimeSeries::_sp ts) {
   _multiplierBasis = ts;
   this->invalidate();
+  
+  
+  // post-fix units
+  this->didSetSource(this->source()); // trigger re-evaluation of units.
+
+  
 }
 TimeSeries::_sp MultiplierTimeSeries::multiplier() {
   return _multiplierBasis;
@@ -62,6 +68,7 @@ bool MultiplierTimeSeries::canSetSource(TimeSeries::_sp ts) {
 
 void MultiplierTimeSeries::didSetSource(TimeSeries::_sp ts) {
   if (!this->source() || !this->multiplier()) {
+    this->setUnits(RTX_DIMENSIONLESS);
     return;
   }
   
