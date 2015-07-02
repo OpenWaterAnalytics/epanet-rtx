@@ -21,13 +21,14 @@ using namespace std;
 EpanetModel::EpanetModel() : Model() {
   // nothing to do, right?
   _enOpened = false;
+  _enModel = NULL;
   //OW_API_CHECK( OW_newModel(&_enModel), "OW_newModel");
 }
 
 EpanetModel::~EpanetModel() {
   this->closeEngine();
   OW_API_CHECK( OW_close(_enModel), "OW_close");
-//  OW_API_CHECK(OW_freeModel(_enModel), "OW_freeModel");
+  //  OW_API_CHECK(OW_freeModel(_enModel), "OW_freeModel");
 }
 
 OW_Project* EpanetModel::epanetModelPointer() {
