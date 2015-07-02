@@ -150,6 +150,9 @@ string Units::unitString() {
     Units theseUnits = it->second;
     if (theseUnits == (*this)) {
       return it->first;
+    } // OR APPROXIMATE UNITS
+    else if (theseUnits.isSameDimensionAs(*this) && fabs(theseUnits.conversion() - this->conversion()) < 0.00005 ) {
+      return it->first;
     }
     ++it;
   }
