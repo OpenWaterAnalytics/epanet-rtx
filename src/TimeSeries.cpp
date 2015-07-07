@@ -384,12 +384,12 @@ Point TimeSeries::pointAtOrBefore(time_t time) {
 
 
 void TimeSeries::setRecord(PointRecord::_sp record) {
-  
   if (!record) {
     PointRecord::_sp pr( new PointRecord() );
-    _points = pr;
+    record = pr;
   }
-  else if (record->registerAndGetIdentifier(this->name())) {
+  
+  if (record->registerAndGetIdentifier(this->name())) {
     _points = record;
   }
   

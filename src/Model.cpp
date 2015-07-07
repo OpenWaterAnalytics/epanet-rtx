@@ -909,32 +909,20 @@ void Model::setSimulationParameters(time_t time) {
   
   // allocate junction demands based on dmas, and set the junction demand values in the model.
   if (_doesOverrideDemands) {
+    // by dma, insert demand point into each junction timeseries at the current simulation time
     BOOST_FOREACH(Dma::_sp dma, this->dmas()) {
       dma->allocateDemandToJunctions(time);
     }
     // hydraulic junctions - set demand values.
     BOOST_FOREACH(Junction::_sp junction, this->junctions()) {
-      if (junction->boundaryFlow()) {
-        // junction is separate from the allocation scheme (but allocateDemandToJunctions already inserts this into demand() series?)
-        Point p = junction->boundaryFlow()->pointAtOrBefore(time);
-        if (p.isValid) {
-          double demandValue = Units::convertValue(p.value, junction->boundaryFlow()->units(), flowUnits());
-          setJunctionDemand(junction->name(), demandValue);
-        }
-        else {
-          cerr << "ERR: Invalid boundary flow point for Junction " << junction->name() << " at time " << time << endl;
-        }
+      Point p = junction->demand()->pointAtOrBefore(time);
+      if (p.isValid) {
+        double demandValue = Units::convertValue(p.value, junction->demand()->units(), flowUnits());
+        setJunctionDemand(junction->name(), demandValue);
       }
       else {
-        Point p = junction->demand()->pointAtOrBefore(time);
-        if (p.isValid) {
-          double demandValue = Units::convertValue(p.value, junction->demand()->units(), flowUnits());
-          setJunctionDemand(junction->name(), demandValue);
-        }
-        else {
-          // default when allocation doesn't/can't set demand -- should this happen?
-          setJunctionDemand(junction->name(), 0.0);
-        }
+        // default when allocation doesn't/can't set demand -- should this happen?
+        setJunctionDemand(junction->name(), 0.0);
       }
     }
   }
