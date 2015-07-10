@@ -156,7 +156,8 @@ Point Point::inverse() {
     value = (1 / this->value);
   }
   else {
-    q = opc_bad;
+    // nan
+    return Point();
   }
   
   if (this->confidence != 0.) {
