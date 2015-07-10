@@ -51,7 +51,6 @@
 		220F9E0018F9E68B00BB842C /* FailoverTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220324C918AC05A800BD7790 /* FailoverTimeSeries.cpp */; };
 		220F9E0218F9E68B00BB842C /* SineTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22F63D3516C5735100A15368 /* SineTimeSeries.cpp */; };
 		220F9E0318F9E68B00BB842C /* BufferPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227510E616D4231800B2BA62 /* BufferPointRecord.cpp */; };
-		220F9E0418F9E68B00BB842C /* MapPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223F52C516D51F330086DC8F /* MapPointRecord.cpp */; };
 		220F9E0618F9E68B00BB842C /* ThresholdTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43627ECF171F286C007AE0F5 /* ThresholdTimeSeries.cpp */; };
 		220F9E0718F9E68B00BB842C /* SqlitePointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C0AE54184F86190013D51F /* SqlitePointRecord.cpp */; };
 		220F9E0818F9E68B00BB842C /* ConstantTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22E4ED0E1725C1C60076E93D /* ConstantTimeSeries.cpp */; };
@@ -150,7 +149,6 @@
 		221BFD631A8E8AD000143FCC /* SineTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22F63D3516C5735100A15368 /* SineTimeSeries.cpp */; };
 		221BFD641A8E8AD000143FCC /* BufferPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227510E616D4231800B2BA62 /* BufferPointRecord.cpp */; };
 		221BFD651A8E8AD000143FCC /* LagTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2223206A1A6EF32E00B32D6A /* LagTimeSeries.cpp */; };
-		221BFD661A8E8AD000143FCC /* MapPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223F52C516D51F330086DC8F /* MapPointRecord.cpp */; };
 		221BFD681A8E8AD000143FCC /* ThresholdTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43627ECF171F286C007AE0F5 /* ThresholdTimeSeries.cpp */; };
 		221BFD691A8E8AD000143FCC /* TimeSeriesFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22CF1C271A68094300161188 /* TimeSeriesFilter.cpp */; };
 		221BFD6A1A8E8AD000143FCC /* SqlitePointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C0AE54184F86190013D51F /* SqlitePointRecord.cpp */; };
@@ -252,7 +250,6 @@
 		223AF33118F6E4C0002E846F /* InversionTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 223AF32F18F6E4C0002E846F /* InversionTimeSeries.h */; };
 		223AF35418F7121F002E846F /* SqliteProjectFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223AF35218F7121F002E846F /* SqliteProjectFile.cpp */; };
 		223AF35518F7121F002E846F /* SqliteProjectFile.h in Headers */ = {isa = PBXBuildFile; fileRef = 223AF35318F7121F002E846F /* SqliteProjectFile.h */; };
-		223F52C716D51F330086DC8F /* MapPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223F52C516D51F330086DC8F /* MapPointRecord.cpp */; };
 		223F52C816D51F330086DC8F /* MapPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 223F52C616D51F330086DC8F /* MapPointRecord.h */; };
 		22459FA71A44C41800AFD0BD /* CorrelatorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */; };
 		22459FA81A44C41800AFD0BD /* CorrelatorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */; };
@@ -279,6 +276,11 @@
 		224E04811979431D0039E3F9 /* StatsTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224E047E1979431C0039E3F9 /* StatsTimeSeries.cpp */; };
 		224E04821979431D0039E3F9 /* StatsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 224E047F1979431C0039E3F9 /* StatsTimeSeries.h */; };
 		224E04831979431D0039E3F9 /* StatsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 224E047F1979431C0039E3F9 /* StatsTimeSeries.h */; };
+		224EDECE1B4D8E040029FC37 /* influx_api.h in Headers */ = {isa = PBXBuildFile; fileRef = 224EDECC1B4D8E040029FC37 /* influx_api.h */; };
+		224EDECF1B4D8E040029FC37 /* influx_api.h in Headers */ = {isa = PBXBuildFile; fileRef = 224EDECC1B4D8E040029FC37 /* influx_api.h */; };
+		224EDED01B4D8E040029FC37 /* influx_client.c in Sources */ = {isa = PBXBuildFile; fileRef = 224EDECD1B4D8E040029FC37 /* influx_client.c */; };
+		224EDED11B4D8E040029FC37 /* influx_client.c in Sources */ = {isa = PBXBuildFile; fileRef = 224EDECD1B4D8E040029FC37 /* influx_client.c */; };
+		224EDED31B4D8E380029FC37 /* libjson-c.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 224EDED21B4D8E380029FC37 /* libjson-c.a */; };
 		2251FFEF1A0A7CEC00C4D483 /* libepanet-rtx-project.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */; };
 		2251FFF01A0A7E2900C4D483 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22C62AC01439ED6300841E60 /* libepanet-rtx.dylib */; };
 		225954411AE92FE400ADF8C6 /* libepanet-rtx-project.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */; };
@@ -381,7 +383,6 @@
 		22CF1C431A68435000161188 /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BF02D215EBCABC00F66465 /* Point.cpp */; };
 		22CF1C441A68435000161188 /* PointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22DEE91B153F5C44008F75AE /* PointRecord.cpp */; };
 		22CF1C451A68435000161188 /* BufferPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227510E616D4231800B2BA62 /* BufferPointRecord.cpp */; };
-		22CF1C461A68435000161188 /* DbPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227CEC9E16BADD6000E8E7C8 /* DbPointRecord.cpp */; };
 		22CF1C471A68435000161188 /* SqlitePointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C0AE54184F86190013D51F /* SqlitePointRecord.cpp */; };
 		22CF1C491A6856CB00161188 /* Clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B7154D14DC2C2C00041167 /* Clock.cpp */; };
 		22D308E018FEC3ED0004E1DC /* libmysqlcppconn-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22249A9B17C918D400874859 /* libmysqlcppconn-static.a */; };
@@ -747,6 +748,9 @@
 		224D40D619786C3000160BD5 /* BaseStatsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BaseStatsTimeSeries.h; path = ../../src/BaseStatsTimeSeries.h; sourceTree = "<group>"; };
 		224E047E1979431C0039E3F9 /* StatsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StatsTimeSeries.cpp; path = ../../src/StatsTimeSeries.cpp; sourceTree = "<group>"; };
 		224E047F1979431C0039E3F9 /* StatsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StatsTimeSeries.h; path = ../../src/StatsTimeSeries.h; sourceTree = "<group>"; };
+		224EDECC1B4D8E040029FC37 /* influx_api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = influx_api.h; path = ../../src/influx_api.h; sourceTree = "<group>"; };
+		224EDECD1B4D8E040029FC37 /* influx_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = influx_client.c; path = ../../src/influx_client.c; sourceTree = "<group>"; };
+		224EDED21B4D8E380029FC37 /* libjson-c.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libjson-c.a"; path = "../../../../../../../usr/local/Cellar/json-c/0.11/lib/libjson-c.a"; sourceTree = "<group>"; };
 		225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MysqlPointRecord.cpp; path = ../../src/MysqlPointRecord.cpp; sourceTree = "<group>"; };
 		226861C814716D2A000DDDEF /* Units.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Units.cpp; path = ../../src/Units.cpp; sourceTree = "<group>"; };
 		226936CD19AD1ED600B4BCDB /* ForecastTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ForecastTimeSeries.cpp; path = ../../src/ForecastTimeSeries.cpp; sourceTree = "<group>"; };
@@ -933,6 +937,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				224EDED31B4D8E380029FC37 /* libjson-c.a in Frameworks */,
 				224A927D1A8BB3CB00D8FBE2 /* libsqlite3.dylib in Frameworks */,
 				223646911A8AB8D7007DC074 /* libpython.dylib in Frameworks */,
 				2236468F1A8AB8CF007DC074 /* libcurl.dylib in Frameworks */,
@@ -1053,6 +1058,7 @@
 				22C0AE54184F86190013D51F /* SqlitePointRecord.cpp */,
 				229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */,
 				229FBEA0190807B3004FE5A4 /* InfluxDbPointRecord.cpp */,
+				224EDEBA1B4D8D4D0029FC37 /* Influx-C */,
 				22067EB51873429500BAFF61 /* ODBC */,
 			);
 			name = db;
@@ -1096,6 +1102,15 @@
 				224C41971A434FCB008852C4 /* ModelPerformance.cpp */,
 			);
 			name = "Model Performance";
+			sourceTree = "<group>";
+		};
+		224EDEBA1B4D8D4D0029FC37 /* Influx-C */ = {
+			isa = PBXGroup;
+			children = (
+				224EDECC1B4D8E040029FC37 /* influx_api.h */,
+				224EDECD1B4D8E040029FC37 /* influx_client.c */,
+			);
+			name = "Influx-C";
 			sourceTree = "<group>";
 		};
 		226861C414715E53000DDDEF /* units */ = {
@@ -1243,6 +1258,7 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
+				224EDED21B4D8E380029FC37 /* libjson-c.a */,
 				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
 				22C34357187D9441000100A4 /* epanetmsx.xcodeproj */,
 				223947E81AF3B27000C8AE4F /* model exporter */,
@@ -1451,6 +1467,7 @@
 				224C419C1A434FCB008852C4 /* ModelPerformance.h in Headers */,
 				220F9E1A18F9E68B00BB842C /* TimeSeries.h in Headers */,
 				220F9E1B18F9E68B00BB842C /* InversionTimeSeries.h in Headers */,
+				224EDECF1B4D8E040029FC37 /* influx_api.h in Headers */,
 				220F9E1C18F9E68B00BB842C /* OdbcPreparedPointRecord.h in Headers */,
 				223663B61A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.h in Headers */,
 				220F9E1D18F9E68B00BB842C /* rtxExceptions.h in Headers */,
@@ -1576,6 +1593,7 @@
 				22C62ADC1439EE0B00841E60 /* AggregatorTimeSeries.h in Headers */,
 				22DC12D91ADD844D0033DD5E /* MetaTimeSeries.h in Headers */,
 				22C62AE31439EE0B00841E60 /* MovingAverage.h in Headers */,
+				224EDECE1B4D8E040029FC37 /* influx_api.h in Headers */,
 				22C62AE51439EE0B00841E60 /* Point.h in Headers */,
 				224C419B1A434FCB008852C4 /* ModelPerformance.h in Headers */,
 				22C62AEA1439EE0B00841E60 /* TimeSeries.h in Headers */,
@@ -2015,8 +2033,8 @@
 				228C2D931A9E15BF003C826D /* TimeRange.cpp in Sources */,
 				221BFC701A8E584500143FCC /* IntegratorTimeSeries.cpp in Sources */,
 				220F9E0318F9E68B00BB842C /* BufferPointRecord.cpp in Sources */,
-				220F9E0418F9E68B00BB842C /* MapPointRecord.cpp in Sources */,
 				220F9E0618F9E68B00BB842C /* ThresholdTimeSeries.cpp in Sources */,
+				224EDED11B4D8E040029FC37 /* influx_client.c in Sources */,
 				224D40D819786C3000160BD5 /* BaseStatsTimeSeries.cpp in Sources */,
 				22459FA81A44C41800AFD0BD /* CorrelatorTimeSeries.cpp in Sources */,
 				220F9E0718F9E68B00BB842C /* SqlitePointRecord.cpp in Sources */,
@@ -2080,7 +2098,6 @@
 				221BFD631A8E8AD000143FCC /* SineTimeSeries.cpp in Sources */,
 				221BFD641A8E8AD000143FCC /* BufferPointRecord.cpp in Sources */,
 				221BFD651A8E8AD000143FCC /* LagTimeSeries.cpp in Sources */,
-				221BFD661A8E8AD000143FCC /* MapPointRecord.cpp in Sources */,
 				221BFD681A8E8AD000143FCC /* ThresholdTimeSeries.cpp in Sources */,
 				221BFD691A8E8AD000143FCC /* TimeSeriesFilter.cpp in Sources */,
 				221BFD6A1A8E8AD000143FCC /* SqlitePointRecord.cpp in Sources */,
@@ -2172,13 +2189,13 @@
 				221BFC6F1A8E584500143FCC /* IntegratorTimeSeries.cpp in Sources */,
 				22BFAB01196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp in Sources */,
 				22707A9616309D4100FEB4DD /* OffsetTimeSeries.cpp in Sources */,
+				224EDED01B4D8E040029FC37 /* influx_client.c in Sources */,
 				224C41991A434FCB008852C4 /* ModelPerformance.cpp in Sources */,
 				227CEC9F16BADD6000E8E7C8 /* DbPointRecord.cpp in Sources */,
 				220324CB18AC05A800BD7790 /* FailoverTimeSeries.cpp in Sources */,
 				22F63D3716C5735100A15368 /* SineTimeSeries.cpp in Sources */,
 				227510E816D4231800B2BA62 /* BufferPointRecord.cpp in Sources */,
 				2223206C1A6EF32E00B32D6A /* LagTimeSeries.cpp in Sources */,
-				223F52C716D51F330086DC8F /* MapPointRecord.cpp in Sources */,
 				43627ED0171F286C007AE0F5 /* ThresholdTimeSeries.cpp in Sources */,
 				22CF1C291A68094300161188 /* TimeSeriesFilter.cpp in Sources */,
 				22C0AE56184F86190013D51F /* SqlitePointRecord.cpp in Sources */,
@@ -2207,7 +2224,6 @@
 				22CF1C431A68435000161188 /* Point.cpp in Sources */,
 				22CF1C441A68435000161188 /* PointRecord.cpp in Sources */,
 				22CF1C451A68435000161188 /* BufferPointRecord.cpp in Sources */,
-				22CF1C461A68435000161188 /* DbPointRecord.cpp in Sources */,
 				22CF1C471A68435000161188 /* SqlitePointRecord.cpp in Sources */,
 				22CF1C401A68432E00161188 /* TimeSeries.cpp in Sources */,
 				22CF1C411A68432E00161188 /* TimeSeriesFilter.cpp in Sources */,
@@ -2799,6 +2815,7 @@
 					"/usr/local/mysql-5.5.14-osx10.6-x86_64/lib",
 					/Library/Frameworks,
 					"$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
+					"/usr/local/Cellar/json-c/0.11/lib",
 				);
 				OTHER_LDFLAGS = "-liodbc";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2834,6 +2851,7 @@
 					"/usr/local/mysql-5.5.14-osx10.6-x86_64/lib",
 					/Library/Frameworks,
 					"$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
+					"/usr/local/Cellar/json-c/0.11/lib",
 				);
 				OTHER_LDFLAGS = "-liodbc";
 				PRODUCT_NAME = "$(TARGET_NAME)";

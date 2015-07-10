@@ -61,14 +61,14 @@ namespace RTX {
     
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
-    bool insertIdentifier(const std::string& recordName);
-    virtual std::vector<std::string> identifiers();
-    virtual std::vector<std::pair<std::string, Units> >availableData();
+    bool insertIdentifierAndUnits(const std::string& recordName, Units units);
+    virtual std::vector<PointRecord::nameUnitsPair> identifiersAndUnits();
     
     virtual time_pair_t range(const string& id);
     virtual std::ostream& toStream(std::ostream &stream);
     
     virtual bool supportsBoundedQueries();
+    bool supportsUnitsColumn() { return true; };
     
   protected:
     virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);

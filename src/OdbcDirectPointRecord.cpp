@@ -25,11 +25,10 @@ void OdbcDirectPointRecord::dbConnect() throw(RtxException) {
   OdbcPointRecord::dbConnect();
 }
 
-
-vector<string> OdbcDirectPointRecord::identifiers() {
+vector<PointRecord::nameUnitsPair> OdbcDirectPointRecord::identifiersAndUnits() {
   scoped_lock<boost::signals2::mutex> lock(_odbcMutex);
   
-  vector<string> ids;
+  vector<nameUnitsPair> ids;
   if (!isConnected()) {
     return ids;
   }
@@ -51,7 +50,7 @@ vector<string> OdbcDirectPointRecord::identifiers() {
   while (SQL_SUCCEEDED(SQLFetch(_directTagQueryStmt))) {
     SQLGetData(_directTagQueryStmt, 1, SQL_C_CHAR, tagName, 512, &tagLengthInd);
     string newTag((char*)tagName);
-    ids.push_back(newTag);
+    ids.push_back(make_pair(newTag,RTX_DIMENSIONLESS));
   }
   
   SQLFreeStmt(_directTagQueryStmt, SQL_CLOSE);

@@ -34,30 +34,35 @@ std::ostream& BufferPointRecord::toStream(std::ostream &stream) {
 }
 
 
-bool BufferPointRecord::registerAndGetIdentifier(std::string recordName) {
+bool BufferPointRecord::registerAndGetIdentifierForSeriesWithUnits(std::string recordName, Units units) {
   // register the recordName internally and generate a buffer and mutex
   
-  // check to see if it's there first
-  if (_keyedBufferMutex.find(recordName) == _keyedBufferMutex.end()) {
-    PointBuffer_t buffer;
-    buffer.set_capacity(_defaultCapacity);
-    // shared pointer since it's not copy-constructable.
-    boost::shared_ptr< boost::signals2::mutex >mutexPtr(new boost::signals2::mutex );
-    BufferMutexPair_t bmPair(buffer, mutexPtr);
-    _keyedBufferMutex.insert(make_pair(recordName, bmPair));
+  if (_keyedBuffers.find(recordName) != _keyedBuffers.end()) {
+    // got the name - do the units match?
+    Buffer b = _keyedBuffers[recordName];
+    if (b.units == units) {
+      // total match! use it.
+      return true;
+    }
+  }
+  
+  // check to see that it's not there
+  if (_keyedBuffers.find(recordName) == _keyedBuffers.end()) {
+    Buffer b;
+    b.circularBuffer.set_capacity(_defaultCapacity);
+    b.units = units;
+    _keyedBuffers[recordName] = b;
   }
   
   return true;
 }
 
-
-std::vector<std::string> BufferPointRecord::identifiers() {
-  typedef std::map<std::string, BufferMutexPair_t >::value_type& nameMapValue_t;
-  vector<string> names;
-  BOOST_FOREACH(nameMapValue_t name, _keyedBufferMutex) {
-    names.push_back(name.first);
+std::vector< PointRecord::nameUnitsPair > BufferPointRecord::identifiersAndUnits() {
+  vector< nameUnitsPair > ids;
+  BOOST_FOREACH(StringBufferPair p, _keyedBuffers) {
+    ids.push_back(make_pair(p.first, p.second.units));
   }
-  return names;
+  return ids;
 }
 
 Point BufferPointRecord::point(const string& identifier, time_t time) {
@@ -69,23 +74,18 @@ Point BufferPointRecord::point(const string& identifier, time_t time) {
   
   scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
   
-  KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
-  if (it == _keyedBufferMutex.end()) {
+  KeyedBufferMap_t::iterator it = _keyedBuffers.find(identifier);
+  if (it == _keyedBuffers.end()) {
     // nobody here by that name
     return Point();
   }
   
   // get the constituents
-  boost::signals2::mutex *mtx = (it->second.second.get());
-  PointBuffer_t& buffer = (it->second.first);
+  PointBuffer_t& buffer = (it->second.circularBuffer);
   
   if (buffer.empty()) {
     return Point();
   }
-  
-  // lock the buffer
-  scoped_lock<boost::signals2::mutex> lock(*mtx);
-  //mtx->lock();
   
   Point pFirst = buffer.front();
   Point pLast = buffer.back();
@@ -93,14 +93,7 @@ Point BufferPointRecord::point(const string& identifier, time_t time) {
   if (pFirst.time <= time && time <= pLast.time) {
     // search the buffer
     Point finder(time, 0);
-    /*
-    if (!idsMatch || _cacheIterator.m_buff == NULL) {
-      _cacheIterator = buffer.begin();
-    }
-     */
     PointBuffer_t::iterator startIterator = /*(_cacheIterator->time < pFirst.time) ? _cacheIterator :*/ buffer.begin();
-    
-    
     PointBuffer_t::iterator pbIt = std::lower_bound(startIterator, buffer.end(), finder, &Point::comparePointTime);
     if (pbIt != buffer.end() && pbIt->time == time) {
       Point p = *pbIt;
@@ -113,12 +106,7 @@ Point BufferPointRecord::point(const string& identifier, time_t time) {
   }
   
   
-  // ok, all done
-  //mutex->unlock();
-  
-  return Point();//this->pointBefore(identifier, time);
-
-  
+  return Point();
 }
 
 
@@ -131,13 +119,10 @@ Point BufferPointRecord::pointBefore(const string& identifier, time_t time) {
   //TimePointPair_t finder(time, PointPair_t(0,0));
   Point finder(time, 0);
   
-  KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
-  if (it != _keyedBufferMutex.end()) {
+  KeyedBufferMap_t::iterator it = _keyedBuffers.find(identifier);
+  if (it != _keyedBuffers.end()) {
     // get the constituents
-    boost::signals2::mutex *mtx = (it->second.second.get());
-    PointBuffer_t& buffer = (it->second.first);
-    // lock the buffer
-    scoped_lock<boost::signals2::mutex> lock(*mtx);
+    PointBuffer_t& buffer = (it->second.circularBuffer);
     
     PointBuffer_t::const_iterator it  = lower_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
     if (it != buffer.begin()) {
@@ -170,13 +155,10 @@ Point BufferPointRecord::pointAfter(const string& identifier, time_t time) {
   //TimePointPair_t finder(time, PointPair_t(0,0));
   Point finder(time, 0);
   
-  KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
-  if (it != _keyedBufferMutex.end()) {
+  KeyedBufferMap_t::iterator it = _keyedBuffers.find(identifier);
+  if (it != _keyedBuffers.end()) {
     // get the constituents
-    boost::signals2::mutex *mtx = (it->second.second.get());
-    PointBuffer_t& buffer = (it->second.first);
-    // lock the buffer
-    scoped_lock<boost::signals2::mutex> lock(*mtx);
+    PointBuffer_t& buffer = (it->second.circularBuffer);
     
     PointBuffer_t::const_iterator it = upper_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
     if (it != buffer.end()) {
@@ -202,14 +184,10 @@ std::vector<Point> BufferPointRecord::pointsInRange(const string& identifier, ti
   //TimePointPair_t finder(startTime, PointPair_t(0,0));
   Point finder(startTime, 0);
   
-  KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
-  if (it != _keyedBufferMutex.end()) {
+  KeyedBufferMap_t::iterator it = _keyedBuffers.find(identifier);
+  if (it != _keyedBuffers.end()) {
     // get the constituents
-    boost::signals2::mutex *mtx = (it->second.second.get());
-    PointBuffer_t& buffer = (it->second.first);
-    // lock the buffer
-//    mtx->lock();
-    scoped_lock<boost::signals2::mutex> lock(*mtx);
+    PointBuffer_t& buffer = (it->second.circularBuffer);
     
     PointBuffer_t::const_iterator it = lower_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
     while ( (it != buffer.end()) && (it->time <= endTime) ) {
@@ -217,9 +195,6 @@ std::vector<Point> BufferPointRecord::pointsInRange(const string& identifier, ti
       pointVector.push_back(newPoint);
       it++;
     }
-    
-    // all done.
-//    mtx->unlock();
   }
   
   return pointVector;
@@ -245,11 +220,9 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
   scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
   
   // check the cache size, and upgrade if needed.
-  KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
-  if (it != _keyedBufferMutex.end()) {
-    PointBuffer_t& buffer = (it->second.first);
-    boost::signals2::mutex *mutex = (it->second.second.get());
-    
+  KeyedBufferMap_t::iterator it = _keyedBuffers.find(identifier);
+  if (it != _keyedBuffers.end()) {
+    PointBuffer_t& buffer = (it->second.circularBuffer);
     size_t capacity = buffer.capacity();
     if (capacity < points.size()) {
       // plenty of room
@@ -267,11 +240,9 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
     // make sure they're in order
     std::sort(points.begin(), points.end(), &Point::comparePointTime);
     
-    // scoped lock so we don't have to worry about cleanup.
-    // locking the buffer because we're changing it.
+    // scoped for clarity
     {
-      scoped_lock<boost::signals2::mutex> lock(*mutex);
-      // more gap detection? righ on!
+      // more gap detection? right on!
       bool gap = true;
       
       if (firstInsertionTime <= existingRange.second && existingRange.second < lastInsertionTime) {
@@ -330,56 +301,47 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
           buffer.push_back(p);
         }
       } // gap
-    }// scoped mutex lock
+    }// scoped
   }
 }
 
 
 
 void BufferPointRecord::reset() {
-  _keyedBufferMutex.clear();
+  _keyedBuffers.clear();
 }
 
 void BufferPointRecord::reset(const string& identifier) {
-  
   scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
-  
-  KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(identifier);
-  if (it != _keyedBufferMutex.end()) {
-    PointBuffer_t& buffer = (it->second.first);
+  KeyedBufferMap_t::iterator it = _keyedBuffers.find(identifier);
+  if (it != _keyedBuffers.end()) {
+    PointBuffer_t& buffer = (it->second.circularBuffer);
     buffer.clear();
   }
-  
 }
 
 
 
 Point BufferPointRecord::firstPoint(const string& id) {
   Point foundPoint;
-  KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(id);
-  if (it != _keyedBufferMutex.end()) {
-    // get the constituents
-    //boost::signals2::mutex *mutex = (it->second.second.get());
-    PointBuffer_t& buffer = (it->second.first);
-    
+  KeyedBufferMap_t::iterator it = _keyedBuffers.find(id);
+  if (it != _keyedBuffers.end()) {
+    PointBuffer_t& buffer = (it->second.circularBuffer);
     if (buffer.empty()) {
       return foundPoint;
     }
-    
-    //TimePointPair_t tpPair = buffer.front();
     foundPoint = buffer.front(); // Point(tpPair.first, tpPair.second.first);
-    
   }
   return foundPoint;
 }
 
 Point BufferPointRecord::lastPoint(const string& id) {
   Point foundPoint;
-  KeyedBufferMutexMap_t::iterator it = _keyedBufferMutex.find(id);
-  if (it != _keyedBufferMutex.end()) {
+  KeyedBufferMap_t::iterator it = _keyedBuffers.find(id);
+  if (it != _keyedBuffers.end()) {
     // get the constituents
     //boost::signals2::mutex *mutex = (it->second.second.get());
-    PointBuffer_t& buffer = (it->second.first);
+    PointBuffer_t& buffer = (it->second.circularBuffer);
     
     if (buffer.empty()) {
       return foundPoint;

@@ -37,40 +37,57 @@ DbPointRecord::DbPointRecord() : request("",0,0) {
 }
 
 
-//void DbPointRecord::setConnectionString(const std::string& connection) {
-//  _connectionString = connection;
-//}
-//const std::string& DbPointRecord::connectionString() {
-//  return _connectionString;
-//}
 
 bool DbPointRecord::readonly() {
   return _readOnly;
 }
+
 void DbPointRecord::setReadonly(bool readOnly) {
   _readOnly = readOnly;
 }
 
-bool DbPointRecord::registerAndGetIdentifier(string name) {
+bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Units units) {
   
-  if (this->readonly()) {
-    
-    // check existing
-    vector<string> existing = this->identifiers();
-    BOOST_FOREACH(const string& n, existing) {
-      if (RTX_STRINGS_ARE_EQUAL_CS(n, name)) {
-        DB_PR_SUPER::registerAndGetIdentifier(name);
-        return true;
+  bool nameExists = false;
+  bool unitsMatch = false;
+  
+  vector< pair<string,Units> > existing = this->identifiersAndUnits();
+  typedef pair<string,Units> sup_t;
+  BOOST_FOREACH(const sup_t p, existing) {
+    string n = p.first;
+    Units u = p.second;
+    if ( RTX_STRINGS_ARE_EQUAL_CS(n, name)) {
+      nameExists = true;
+      if (u == units) {
+        unitsMatch = true;
       }
     }
-    
-    return false;
   }
   
-  if (this->insertIdentifier(name) && DB_PR_SUPER::registerAndGetIdentifier(name) ) {
-    return true;
+  if (this->readonly()) {
+    // handle a read-only database.
+    if (nameExists && (unitsMatch || !this->supportsUnitsColumn()) ) {
+      // everything is awesome. name matches, units match (or we don't support it and therefore don't care).
+      // make a cache and return affirmative.
+      DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
+      return true;
+    }
+    else {
+      // names don't match (or units prevent us from using this record) and we can't write to this db. fail.
+      return false;
+    }
   }
-  
+  else {
+    // not a readonly db.
+    if (nameExists && !unitsMatch) {
+      // must remove the old record. units don't match.
+      this->removeRecord(name);
+    }
+    if (this->insertIdentifierAndUnits(name, units) && DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units) ) {
+      // insertion went well! good to go.
+      return true;
+    }
+  }
   return false;
 }
 
@@ -78,26 +95,12 @@ bool DbPointRecord::registerAndGetIdentifier(string name) {
 void DbPointRecord::setSearchDistance(time_t time) {
   _searchDistance = time;
 }
+
 time_t DbPointRecord::searchDistance() {
   return _searchDistance;
 }
 
-// trying to unify some of the cache-checking code so it's not spread out over the subclasses.
-// we only want to hit the db if we absolutely need to.
 
-/*
-bool DbPointRecord::isPointAvailable(const string& id, time_t time) {
-  if (DB_PR_SUPER::isPointAvailable(id, time)) {
-    return true;
-  }
-  else if ( !(reqRange.first <= time && time <= reqRange.second) ) {
-    // force a fetch/cache operation
-    time_t margin = 60*60*12;
-    vector<Point> points = this->pointsInRange(id, time - margin, time + margin);
-  }
-  return DB_PR_SUPER::isPointAvailable(id, time);
-}
-*/
 Point DbPointRecord::point(const string& id, time_t time) {
   
   Point p = DB_PR_SUPER::point(id, time);

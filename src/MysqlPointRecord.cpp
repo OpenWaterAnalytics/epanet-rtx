@@ -167,7 +167,7 @@ bool MysqlPointRecord::isConnected() {
   return connected;
 }
 
-bool MysqlPointRecord::insertIdentifier(const std::string& recordName) {
+bool MysqlPointRecord::insertIdentifierAndUnits(const std::string &recordName, RTX::Units units) {
   // insert the identifier, or make sure it's in the db.
   bool ok = false;
   
@@ -176,6 +176,7 @@ bool MysqlPointRecord::insertIdentifier(const std::string& recordName) {
     try {
       boost::shared_ptr<sql::PreparedStatement> seriesNameStatement( _mysqlCon->prepareStatement("INSERT IGNORE INTO timeseries_meta (name,units) VALUES (?,?)") );
       seriesNameStatement->setString(1,recordName);
+      seriesNameStatement->setString(2, units.unitString());
       seriesNameStatement->executeUpdate();
       _mysqlCon->commit();
       ok = true;
@@ -254,7 +255,7 @@ void MysqlPointRecord::setDb(string db) {
 
 #pragma mark - db meta
 
-vector< pair<string, Units> > MysqlPointRecord::availableData() {
+vector< pair<string, Units> > MysqlPointRecord::identifiersAndUnits() {
   vector< pair<string, Units> > available;
   
   if (isConnected()) {
@@ -276,7 +277,7 @@ vector< pair<string, Units> > MysqlPointRecord::availableData() {
   
 }
 
-
+/*
 std::vector<std::string> MysqlPointRecord::identifiers() {
   std::vector<std::string> ids;
   if (!isConnected()) {
@@ -292,7 +293,7 @@ std::vector<std::string> MysqlPointRecord::identifiers() {
   }
   return ids;
 }
-
+*/
 
 
 /*

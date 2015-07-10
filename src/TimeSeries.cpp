@@ -24,12 +24,8 @@ using namespace boost::accumulators;
 
 #pragma mark - Point Collection methods
 
-TimeSeries::PointCollection::PointCollection(vector<Point> points, Units units) : points(points), units(units) {
-  // simple
-}
-TimeSeries::PointCollection::PointCollection() : points(vector<Point>()), units(1) {
-  
-}
+TimeSeries::PointCollection::PointCollection(vector<Point> points, Units units) : points(points), units(units) { }
+TimeSeries::PointCollection::PointCollection() : points(vector<Point>()), units(1) { }
 
 set<time_t> TimeSeries::PointCollection::times() {
   set<time_t> t;
@@ -255,11 +251,11 @@ TimeSeries::PointCollection TimeSeries::PointCollection::asDelta() {
 #pragma mark - Time Series methods
 
 
-TimeSeries::TimeSeries() : _units(1) {
+TimeSeries::TimeSeries() {
   _name = "";
   _points.reset( new PointRecord() );
   setName("Time Series");
-  _units = RTX_DIMENSIONLESS;
+  _units = RTX_NO_UNITS;
 }
 
 
@@ -273,12 +269,12 @@ std::ostream& RTX::operator<< (std::ostream &out, TimeSeries &ts) {
 }
 
 
-#pragma mark - Public Methods
+#pragma mark Public Methods
 
 
 void TimeSeries::setName(const std::string& name) {
   _name = name;
-  _points->registerAndGetIdentifier(name);
+  _points->registerAndGetIdentifierForSeriesWithUnits(name, this->units());
 }
 
 std::string TimeSeries::name() {
@@ -389,7 +385,7 @@ void TimeSeries::setRecord(PointRecord::_sp record) {
     PointRecord::_sp pr( new PointRecord() );
     _points = pr;
   }
-  else if (record->registerAndGetIdentifier(this->name())) {
+  else if (record->registerAndGetIdentifierForSeriesWithUnits(this->name(),this->units())) {
     _points = record;
   }
   
@@ -408,7 +404,10 @@ void TimeSeries::resetCache() {
 void TimeSeries::invalidate() {
   if(_points) {
     _points->invalidate(this->name());
-    _points->registerAndGetIdentifier(this->name());
+    if (!_points->registerAndGetIdentifierForSeriesWithUnits(this->name(), this->units())) {
+      PointRecord::_sp pr( new PointRecord() );
+      _points = pr;
+    }
   }
 }
 
@@ -417,7 +416,15 @@ void TimeSeries::setUnits(Units newUnits) {
   // changing units means the values here are no good anymore.
   if (this->canChangeToUnits(newUnits)) {
     if (! (newUnits == this->units())) {
+      // if original units were NONE, then we don't need to invalidate. we are just setting this up for the first time.
+      bool shouldInvalidate = true;
+      if (_units == RTX_NO_UNITS) {
+        shouldInvalidate = false;
+      }
       _units = newUnits;
+      if (shouldInvalidate) {
+        this->invalidate();
+      }
     }
   }
 }
@@ -427,7 +434,7 @@ Units TimeSeries::units() {
 }
 
 
-#pragma mark - Protected Methods
+#pragma mark Protected Methods
 
 std::ostream& TimeSeries::toStream(std::ostream &stream) {
   stream << "Time Series: \"" << _name << "\"\n";

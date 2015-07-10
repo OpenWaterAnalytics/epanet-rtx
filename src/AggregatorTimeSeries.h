@@ -65,12 +65,13 @@ namespace RTX {
     virtual time_t timeBefore(time_t time);
     virtual time_t timeAfter(time_t time);
     
+    bool canChangeToUnits(Units units);
+    
   protected:
     PointCollection filterPointsInRange(TimeRange range);
     std::set<time_t> timeValuesInRange(TimeRange range);
     bool canSetSource(TimeSeries::_sp ts);
     void didSetSource(TimeSeries::_sp ts);
-    bool canChangeToUnits(Units units);
 
   private:
     // need to store several TimeSeries references...

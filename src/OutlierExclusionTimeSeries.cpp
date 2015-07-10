@@ -24,7 +24,7 @@ OutlierExclusionTimeSeries::OutlierExclusionTimeSeries() {
 
 void OutlierExclusionTimeSeries::setExclusionMode(exclusion_mode_t mode) {
   _exclusionMode = mode;
-  this->record()->invalidate(this->name());
+  this->invalidate();
 }
 OutlierExclusionTimeSeries::exclusion_mode_t OutlierExclusionTimeSeries::exclusionMode() {
   return _exclusionMode;
@@ -33,7 +33,7 @@ OutlierExclusionTimeSeries::exclusion_mode_t OutlierExclusionTimeSeries::exclusi
 
 void OutlierExclusionTimeSeries::setOutlierMultiplier(double multiplier) {
   _outlierMultiplier = multiplier;
-  this->record()->invalidate(this->name());
+  this->invalidate();
 }
 double OutlierExclusionTimeSeries::outlierMultiplier() {
   return _outlierMultiplier;

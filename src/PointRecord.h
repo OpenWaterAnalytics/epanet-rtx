@@ -16,6 +16,7 @@
 #include <fstream>
 
 #include "Point.h"
+#include "Units.h"
 #include "rtxMacros.h"
 #include "rtxExceptions.h"
 
@@ -52,6 +53,9 @@ namespace RTX {
   class PointRecord {
     
   public:
+    
+    typedef std::pair<std::string,Units> nameUnitsPair;
+    
     RTX_SHARED_POINTER(PointRecord);
     typedef std::pair<time_t, time_t> time_pair_t;
     
@@ -61,8 +65,8 @@ namespace RTX {
     std::string name();
     void setName(std::string name);
     
-    virtual bool registerAndGetIdentifier(std::string recordName);    // registering record names.
-    virtual std::vector<std::string> identifiers();
+    virtual bool registerAndGetIdentifierForSeriesWithUnits(std::string recordName, Units units);    // registering record names.
+    virtual std::vector< nameUnitsPair > identifiersAndUnits();
     
     //virtual bool isPointAvailable(const string& identifier, time_t time);
     virtual Point point(const string& identifier, time_t time);

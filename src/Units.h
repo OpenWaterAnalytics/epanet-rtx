@@ -13,6 +13,7 @@
 #include <map>
 
 // convenience defines ------------ unit= conversion,   dimension (m,l,t,current,temp,amount,intensity)
+#define RTX_NO_UNITS                RTX::Units(0)
 #define RTX_DIMENSIONLESS           RTX::Units(1)
 // Pressure
 #define RTX_PSI                     RTX::Units(6894.75728,   1,-1,-2)
@@ -114,6 +115,8 @@ namespace RTX {
     Units operator/(const Units& unit) const;
     Units operator^(const double power) const;
     bool operator==(const Units& unit) const;
+    bool operator!=(const Units& unit) const;
+    
     
     bool isSameDimensionAs(const Units& unit) const;
     bool isDimensionless();

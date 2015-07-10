@@ -137,7 +137,7 @@ void SqlitePointRecord::dbConnect() throw(RtxException) {
     string singleInsertStr = "INSERT INTO points (time, series_id, value, quality, confidence) SELECT ?,series_id,?,?,? FROM meta WHERE name = ?";
     string firstSelectStr = selectPreamble + "1 order by time asc limit 1";
     string lastSelectStr = selectPreamble + "1 order by time desc limit 1";
-    string selectNamesStr = "select name from meta order by name asc";
+    string selectNamesStr = "select name,units from meta order by name asc";
     
     
     
@@ -156,8 +156,8 @@ void SqlitePointRecord::dbConnect() throw(RtxException) {
     errorMessage = "OK";
     _connected = true;
   }
-  BOOST_FOREACH(const string &name, DB_PR_SUPER::identifiers()) {
-    this->registerAndGetIdentifier(name);
+  BOOST_FOREACH(const nameUnitsPair p, DB_PR_SUPER::identifiersAndUnits()) {
+    this->registerAndGetIdentifierForSeriesWithUnits(p.first,p.second);
   }
 }
 
@@ -244,7 +244,107 @@ bool SqlitePointRecord::isConnected() {
   return _connected;
 }
 
-bool SqlitePointRecord::insertIdentifier(const std::string& recordName) {
+
+bool SqlitePointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Units units) {
+  // mostly a copy of DbPointRecord implementation. but we allow for upgrading an "old" database with new units.
+  
+  bool nameExists = false;
+  bool unitsMatch = false;
+  Units existingUnits;
+  
+  vector< pair<string,Units> > existing = this->identifiersAndUnits();
+  typedef pair<string,Units> sup_t;
+  BOOST_FOREACH(const sup_t p, existing) {
+    string n = p.first;
+    if ( RTX_STRINGS_ARE_EQUAL_CS(n, name)) {
+      existingUnits = p.second;
+      nameExists = true;
+      if (existingUnits == units) {
+        unitsMatch = true;
+      }
+      break;
+    }
+  }
+  
+  if (this->readonly()) {
+    // handle a read-only database.
+    if (nameExists && (unitsMatch || !this->supportsUnitsColumn()) ) {
+      // everything is awesome. name matches, units match (or we don't support it and therefore don't care).
+      // make a cache and return affirmative.
+      DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
+      return true;
+    }
+    else {
+      
+      // SPECIAL CASE FOR OLD RECORDS: we can update the units field if no units are specified.
+      if (existingUnits == RTX_NO_UNITS) {
+        this->assignUnitsToRecord(name, units);
+        DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
+        return true;
+      }
+      
+      
+      // names don't match (or units prevent us from using this record) and we can't write to this db. fail.
+      return false;
+    }
+  }
+  else {
+    // not a readonly db.
+    if (nameExists && !unitsMatch) {
+      // two possibilities: the units actually don't match, or my units haven't ever been set.
+      if (existingUnits == RTX_NO_UNITS) {
+        // aha. update my units then.
+        this->assignUnitsToRecord(name, units);
+      }
+      else {
+        // must remove the old record. units don't match for real.
+        this->removeRecord(name);
+      }
+    }
+    if (this->insertIdentifierAndUnits(name, units) && DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units) ) {
+      // this will either insert a new record name, or ignore because it's already there.
+      return true;
+    }
+  }
+  return false;
+}
+
+bool SqlitePointRecord::assignUnitsToRecord(const std::string &name, RTX::Units units) {
+  
+  int ret = 0;
+  bool success = false;
+  
+  // has to be connected, otherwise there may not be a row for this guy in the meta table.
+  // TODO -- check for errors when inserting data??
+  if (!this->isConnected()) {
+    this->dbConnect();
+  }
+  
+  if (this->isConnected()) {
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
+    
+    string unitsStr = units.unitString();
+    sqlite3_stmt *stmt;
+    string q = "update meta set units = ? where name = \'" + name + "\'";
+    sqlite3_prepare_v2(_dbHandle, q.c_str(), -1, &stmt, NULL);
+    sqlite3_bind_text(stmt, 1, unitsStr.c_str(), -1, NULL);
+    ret = sqlite3_step(stmt);
+    if (ret != SQLITE_DONE) {
+      logDbError();
+    }
+    else {
+      success = true;
+    }
+    sqlite3_reset(stmt);
+    sqlite3_finalize(stmt);
+    
+  }
+  
+  return success;
+  
+}
+
+bool SqlitePointRecord::insertIdentifierAndUnits(const std::string &id, RTX::Units units) {
   
   int ret = 0;
   bool success = false;
@@ -260,10 +360,12 @@ bool SqlitePointRecord::insertIdentifier(const std::string& recordName) {
     
     // insert a name here.
     // INSERT IGNORE INTO meta (name,units) VALUES (?,?)
+    string unitsStr = units.unitString();
     
     sqlite3_stmt *stmt;
-    sqlite3_prepare_v2(_dbHandle, "insert or ignore into meta (name) values (?)", -1, &stmt, NULL);
-    sqlite3_bind_text(stmt, 1, recordName.c_str(), -1, NULL);
+    sqlite3_prepare_v2(_dbHandle, "insert or ignore into meta (name,units) values (?,?)", -1, &stmt, NULL);
+    sqlite3_bind_text(stmt, 1, id.c_str(), -1, NULL);
+    sqlite3_bind_text(stmt, 2, unitsStr.c_str(), -1, NULL);
     ret = sqlite3_step(stmt);
     if (ret != SQLITE_DONE) {
       logDbError();
@@ -280,8 +382,8 @@ bool SqlitePointRecord::insertIdentifier(const std::string& recordName) {
 }
 
 
-std::vector<std::string> SqlitePointRecord::identifiers() {
-  vector<string> names;
+std::vector< PointRecord::nameUnitsPair > SqlitePointRecord::identifiersAndUnits() {
+  vector<nameUnitsPair> ids;
   
   if (!this->isConnected()) {
     this->dbConnect();
@@ -291,14 +393,23 @@ std::vector<std::string> SqlitePointRecord::identifiers() {
     scoped_lock<boost::signals2::mutex> lock(*_mutex);
     int ret = sqlite3_step(_selectNamesStmt);
     while (ret == SQLITE_ROW) {
-      sqltext row = sqlite3_column_text(_selectNamesStmt, 0);
-      names.push_back(string((char*)row));
+      string name = string((char*)sqlite3_column_text(_selectNamesStmt, 0));
+      int type = sqlite3_column_type(_selectNamesStmt, 1);
+      Units units;
+      if (type == SQLITE_NULL) {
+        units = RTX_NO_UNITS;
+      }
+      else {
+        string unitsStr = string((char*)sqlite3_column_text(_selectNamesStmt, 1));
+        units = Units::unitOfType(unitsStr);
+      }
+      ids.push_back(make_pair(name, units));
       ret = sqlite3_step(_selectNamesStmt);
     }
     sqlite3_reset(_selectNamesStmt);
   }
   
-  return names;
+  return ids;
 }
 
 
@@ -577,15 +688,13 @@ void SqlitePointRecord::removeRecord(const std::string& id) {
     return;
   }
   char *errmsg;
-  string sqlStr = "delete from points where series_id = (SELECT series_id FROM meta where name = \'" + id + "\')";
+  string sqlStr = "delete from points where series_id = (SELECT series_id FROM meta where name = \'" + id + "\'); delete from meta where name = \'" + id + "\'";
   const char *sql = sqlStr.c_str();
   int ret = sqlite3_exec(_dbHandle, sql, NULL, NULL, &errmsg);
   if (ret != SQLITE_OK) {
     logDbError();
     return;
   }
-  
-  // INSERT INTO points (time, series_id, value, quality, confidence) SELECT ?,series_id,?,?,? FROM meta WHERE name = ?
 }
 
 void SqlitePointRecord::truncate() {

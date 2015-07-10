@@ -83,6 +83,9 @@ bool Units::operator==(const RTX::Units &unit) const {
   return false;
 }
 
+bool Units::operator!=(const RTX::Units &unit) const {
+  return !(*this == unit);
+}
 
 bool Units::isSameDimensionAs(const Units& unit) const {
   
@@ -121,8 +124,12 @@ ostream& RTX::operator<< (ostream &out, Units &unit) {
 }
 
 ostream& Units::toStream(ostream &stream) {
-  if (isDimensionless()) {
+  if (isDimensionless() && conversion() == 1) {
     stream << "dimensionless";
+    return stream;
+  }
+  else if (isDimensionless() && conversion() == 0) {
+    stream << "no_units";
     return stream;
   }
   
@@ -241,6 +248,7 @@ map<string, Units> Units::unitStringMap() {
   m["celsius"] = RTX_DEGREE_CELSIUS;
   m["farenheit"] = RTX_DEGREE_FARENHEIT;
   
+  m["xx-no-units"] = RTX_NO_UNITS;
   //m["%"] = RTX_DIMENSIONLESS;
   
   return m;
@@ -248,6 +256,10 @@ map<string, Units> Units::unitStringMap() {
 
 // factory for string input
 Units Units::unitOfType(const string& unitString) {
+  
+  if (RTX_STRINGS_ARE_EQUAL(unitString, "")) {
+    return RTX_NO_UNITS;
+  }
   
   double conversionFactor = 1;
   int mass=0, length=0, time=0, current=0, temperature=0, amount=0, intensity=0, offset=0;

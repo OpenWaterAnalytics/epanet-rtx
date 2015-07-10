@@ -37,7 +37,10 @@ namespace RTX {
     bool readonly();
     void setReadonly(bool readOnly);
     
-    bool registerAndGetIdentifier(std::string name);
+    virtual bool supportsUnitsColumn() = 0; /// subs must implement!
+    
+    virtual bool registerAndGetIdentifierForSeriesWithUnits(std::string name, Units units);
+    virtual std::vector< nameUnitsPair > identifiersAndUnits() = 0;
     
     // end of the road for these guys; no virtuals.
     Point point(const string& id, time_t time);
@@ -51,9 +54,7 @@ namespace RTX {
     void reset(const string& id);
     virtual void invalidate(const string& identifier);
     virtual void truncate()=0; // specific implementation must override this
-    
-    virtual std::vector<std::pair<std::string, Units> >availableData() {std::vector<std::pair<std::string,Units> > blank; return blank;};
-    
+        
     virtual void dbConnect() throw(RtxException){};
     virtual bool isConnected(){return false;} // abstract base can't have a connection;
     
@@ -84,6 +85,9 @@ namespace RTX {
     Point pointWithOpcFilter(Point p);
     std::vector<Point> pointsWithOpcFilter(std::vector<Point> points);
     
+    
+    
+    
     /*--------------------------------------------*/
     
     
@@ -100,6 +104,8 @@ namespace RTX {
     
     std::string errorMessage;
     
+    
+    
   protected:
     
     // select statements
@@ -111,7 +117,7 @@ namespace RTX {
     virtual void insertSingle(const std::string& id, Point point)=0;
     virtual void insertRange(const std::string& id, std::vector<Point> points)=0;
     virtual void removeRecord(const std::string& id)=0;
-    virtual bool insertIdentifier(const std::string& id)=0;
+    virtual bool insertIdentifierAndUnits(const std::string& id, Units units)=0;
     
     
     

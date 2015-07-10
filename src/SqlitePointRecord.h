@@ -24,11 +24,13 @@ namespace RTX {
     SqlitePointRecord();
     virtual ~SqlitePointRecord();
     
-    bool insertIdentifier(const std::string& recordName);
+    bool registerAndGetIdentifierForSeriesWithUnits(std::string name, Units units);
+    bool supportsUnitsColumn() { return true; };
+    bool insertIdentifierAndUnits(const std::string& id, Units units);
+    virtual std::vector< nameUnitsPair > identifiersAndUnits();
     
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
-    virtual std::vector<std::string> identifiers();
     
     virtual time_pair_t range(const string& id);
     
@@ -76,6 +78,7 @@ namespace RTX {
     bool updateSchema();
     int dbSchemaVersion();
     void setDbSchemaVersion(int v);
+    bool assignUnitsToRecord(const std::string& name, Units units);
     
   };
   

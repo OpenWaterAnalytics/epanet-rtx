@@ -98,8 +98,7 @@ namespace RTX {
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
     
-    virtual bool registerAndGetIdentifier(std::string recordName);
-    virtual std::vector<std::string> identifiers();
+    virtual std::vector< nameUnitsPair > identifiersAndUnits();
     virtual std::ostream& toStream(std::ostream &stream);
     
     void setTimeFormat(PointRecordTime::time_format_t timeFormat);
@@ -109,10 +108,11 @@ namespace RTX {
     void setTimeZoneString(const std::string& tzStr);
     
     virtual bool supportsBoundedQueries();
+    bool supportsUnitsColumn() { return false; };
     
   protected:
     void initDsnList();
-    virtual bool insertIdentifier(const std::string& id) { return false; };
+    virtual bool insertIdentifierAndUnits(const std::string& id, Units units){ return false; };
     // abstract stubs
     virtual void rebuildQueries(); // must call base
     virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime)=0;
