@@ -34,22 +34,89 @@ InfluxDbPointRecord::InfluxDbPointRecord() {
   
 }
 
+#pragma mark Connecting
+
 void InfluxDbPointRecord::dbConnect() throw(RtxException) {
+  _connected = false;
+  this->errorMessage = "Connecting...";
   
   stringstream q;
   q << "/ping?u=" << this->user << "&p=" << this->pass;
   
   JsonDocPtr doc = this->jsonFromPath(q.str());
   if (!doc) {
-    _connected = false;
     cerr << "could not connect" << endl;
-    errorMessage = "Could Not Connect";
+    this->errorMessage = "Could Not Connect";
+    return;
   }
   else {
+    // see if the database needs to be created
+    bool dbExists = false;
+    q.str("");
+    q << "/query?u=" << this->user << "&p=" << this->pass << "&q=" << this->urlEncode("SHOW DATABASES");
+    doc = this->jsonFromPath(q.str());
+    
+    if (!doc || !doc->HasMember("results")) {
+      this->errorMessage = "Could not get Databases";
+      return;
+    }
+    
+    // get list of databases, see if i'm there.
+    const rapidjson::SizeType zero = 0;
+    const rapidjson::Value& results = (*doc)["results"];
+    if (!results.IsArray() || results.Size() == 0) {
+      this->errorMessage = "JSON Format Not Recognized";
+      return;
+    }
+    const rapidjson::Value& firstResult = results[zero];
+    if (!firstResult.HasMember("series")) {
+      this->errorMessage = "JSON Format Not Recognized";
+      return;
+    }
+    
+    const rapidjson::Value& series = firstResult["series"];
+    if (!series.IsArray() || series.Size() == 0) {
+      this->errorMessage = "JSON Format Not Recognized";
+      return;
+    }
+    
+    const rapidjson::Value& tsData = series[zero];
+    if (tsData.HasMember("values")) {
+      // there are databases here.
+      const rapidjson::Value& valuesList = tsData["values"];
+      if (valuesList.IsArray()) {
+        for (rapidjson::SizeType i = 0; i < valuesList.Size(); ++i) {
+          string dbName = "";
+          // measurement name?
+          const rapidjson::Value& thisDbNameRow = valuesList[i];
+          if (thisDbNameRow.IsArray() && thisDbNameRow.Size() > 0) {
+            // first and only element is the name.
+            const rapidjson::Value& dbNameJs = thisDbNameRow[zero];
+            dbName = dbNameJs.GetString();
+          }
+          if (RTX_STRINGS_ARE_EQUAL(dbName, this->db)) {
+            dbExists = true;
+          }
+        }
+      }
+      
+    }
+    
+    if (!dbExists) {
+      // create the database
+      q.str("");
+      q << "/query?u=" << this->user << "&p=" << this->pass << "&q=" << this->urlEncode("CREATE DATABASE " + this->db);
+      JsonDocPtr doc = this->jsonFromPath(q.str());
+    }
+    
+    
+    // made it this far? at least we are connected.
     _connected = true;
-    errorMessage = "OK";
+    this->errorMessage = "OK";
+    
+    
+    return;
   }
-  
 }
 
 
@@ -95,6 +162,9 @@ void InfluxDbPointRecord::setConnectionString(const std::string &str) {
   
   return;
 }
+
+
+#pragma mark Listing and creating series
 
 
 bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::Units units) {
@@ -159,6 +229,117 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
 }
 
 
+
+vector< PointRecord::nameUnitsPair > InfluxDbPointRecord::identifiersAndUnits() {
+  
+  /*
+   
+   perform a query to get all the series.
+   response will be nested in terms of "measurement", and then each array in the "values" array will denote an individual time series:
+   
+   series: [
+   {   name: flow
+   columns:  [asset_id, asset_type, dma, ... ]
+   values: [ [33410,    pump,       brecon, ...],
+   [33453,    pipe,       mt.\ washington, ...],
+   [...]
+   ]
+   },
+   {   name: pressure
+   columns:   [asset_id, asset_type, dma, ...]
+   values: [  [44305,    junction,   brecon, ...],
+   [43205,    junction,   mt.\ washington, ...],
+   [...]
+   ]
+   }
+   
+   */
+  
+  
+  
+  
+  vector< nameUnitsPair > seriesList;
+  
+  if (!this->isConnected()) {
+    this->dbConnect();
+  }
+  if (!this->isConnected()) {
+    return seriesList;
+  }
+  
+  
+  string q = "show series";
+  string url = this->urlForQuery(q,false);
+  JsonDocPtr js = this->jsonFromPath(url);
+  
+  if (js) {
+    
+    rapidjson::SizeType zero = 0;
+    const rapidjson::Value& result = (*js)["results"][zero];
+    const rapidjson::Value& series = result["series"];
+    rapidjson::Type t = series.GetType();
+    if (!series.IsArray()) {
+      return seriesList;
+    }
+    for (rapidjson::SizeType i = 0; i < series.Size(); ++i) {
+      // measurement name?
+      const rapidjson::Value& thisSeries = series[i];
+      const string measureName = thisSeries["name"].GetString();
+      const rapidjson::Value& columns = thisSeries["columns"];
+      const rapidjson::Value& valuesArr = thisSeries["values"];
+      // valuesArr is an array of arrays.
+      for (rapidjson::SizeType iVal = 0; iVal < valuesArr.Size(); ++iVal) {
+        
+        // this is where a time series is defined!
+        map<string,string> kv;
+        
+        const rapidjson::Value& thisTsValues = valuesArr[iVal];
+        // size of thisTsValues should == size of columns.
+        for (rapidjson::SizeType j = 0; j < thisTsValues.Size(); ++j) {
+          const string tsKeyStr = columns[j].GetString();
+          const string tsValStr = thisTsValues[j].GetString();
+          
+          // exclude internal influx _key:
+          if (RTX_STRINGS_ARE_EQUAL(tsKeyStr, "_key")) {
+            continue;
+          }
+          
+          // exclude empty valued keys
+          if (RTX_STRINGS_ARE_EQUAL(tsValStr, "")) {
+            continue;
+          }
+          
+          kv[tsKeyStr] = tsValStr;
+        }
+        
+        // now we have all kv pairs that define a time series.
+        // do we have units info?
+        Units units = RTX_NO_UNITS;
+        if (kv.find("units") != kv.end()) {
+          units = Units::unitOfType(kv["units"]);
+        }
+        
+        // now assemble the complete name:
+        stringstream namestr;
+        namestr << measureName;
+        typedef pair<string,string> stringPair;
+        BOOST_FOREACH(stringPair p, kv) {
+          namestr << "," << p.first << "=" << p.second;
+        }
+        
+        // the name has been assembled!
+        seriesList.push_back(make_pair(namestr.str(), units));
+        
+      } // for each values array (ts definition)
+    } // for each measurement
+  } // if js body exists
+  
+  return seriesList;
+}
+
+
+
+
 InfluxDbPointRecord::MetricInfo InfluxDbPointRecord::metricInfoFromName(const std::string &name) {
   
   MetricInfo m;
@@ -190,26 +371,7 @@ const string InfluxDbPointRecord::nameFromMetricInfo(RTX::InfluxDbPointRecord::M
 }
 
 
-const string InfluxDbPointRecord::nameAndWhereClause(const string& name) {
-  MetricInfo m = this->metricInfoFromName(name);
-  
-  stringstream ss;
-  ss << "\"" << m.measurement << "\" WHERE ";
-  typedef pair<string,string> stringPair;
-  
-  int i = 0;
-  BOOST_FOREACH( stringPair p, m.tags) {
-    if (i > 0) {
-      ss << " AND ";
-    }
-    ss << p.first << "='" << p.second << "'";
-    ++i;
-  }
-  
-  const string select = ss.str();
-  return select;
-}
-
+#pragma mark SELECT
 
 
 std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
@@ -341,6 +503,7 @@ Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
 }
 
 
+#pragma mark INSERT
 
 void InfluxDbPointRecord::insertSingle(const std::string& id, Point point) {
   
@@ -391,9 +554,11 @@ void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> 
 }
 
 
+#pragma mark DELETE
+
 void InfluxDbPointRecord::removeRecord(const std::string& id) {
   // to-do fix this. influx bug related to dropping a series:
-//  return;
+  return;
   
   
   stringstream sqlss;
@@ -407,128 +572,132 @@ void InfluxDbPointRecord::removeRecord(const std::string& id) {
 
 void InfluxDbPointRecord::truncate() {
   
-  stringstream dropSS;
-  dropSS << "DROP DATABASE " << this->db;
-  
   stringstream truncateSS;
   truncateSS << "/query?u=" << this->user << "&p=" << this->pass << "&q=" << this->urlEncode("DROP DATABASE " + this->db);
   JsonDocPtr d = this->jsonFromPath(truncateSS.str());
   
-  stringstream createSS;
-  createSS << "/query?u=" << this->user << "&p=" << this->pass << "&q=" << this->urlEncode("CREATE DATABASE " + this->db);
-  JsonDocPtr c = this->jsonFromPath(createSS.str());
-  
-  
+  // reconnecting will re-create the database.
+  this->dbConnect();
 }
 
 
-vector< PointRecord::nameUnitsPair > InfluxDbPointRecord::identifiersAndUnits() {
 
-  /*
-   
-   perform a query to get all the series.
-   response will be nested in terms of "measurement", and then each array in the "values" array will denote an individual time series:
-   
-series: [
-  {   name: flow
-      columns:  [asset_id, asset_type, dma, ... ]
-      values: [ [33410,    pump,       brecon, ...],
-                [33453,    pipe,       mt.\ washington, ...],
-                [...]
-              ]
-  },
-  {   name: pressure
-      columns:   [asset_id, asset_type, dma, ...]
-      values: [  [44305,    junction,   brecon, ...],
-                 [43205,    junction,   mt.\ washington, ...],
-                 [...]
-              ]
-  }
-   
-   */
+
+#pragma mark Query Building
+
+
+const string InfluxDbPointRecord::nameAndWhereClause(const string& name) {
+  MetricInfo m = this->metricInfoFromName(name);
   
+  stringstream ss;
+  ss << "\"" << m.measurement << "\" WHERE ";
+  typedef pair<string,string> stringPair;
   
-  
-  
-  vector< nameUnitsPair > seriesList;
-  
-  if (!this->isConnected()) {
-    this->dbConnect();
-  }
-  if (!this->isConnected()) {
-    return seriesList;
-  }
-  
-  
-  string q = "show series";
-  string url = this->urlForQuery(q,false);
-  JsonDocPtr js = this->jsonFromPath(url);
-  
-  if (js) {
-    
-    rapidjson::SizeType zero = 0;
-    const rapidjson::Value& result = (*js)["results"][zero];
-    const rapidjson::Value& series = result["series"];
-    rapidjson::Type t = series.GetType();
-    if (!series.IsArray()) {
-      return seriesList;
+  int i = 0;
+  BOOST_FOREACH( stringPair p, m.tags) {
+    if (i > 0) {
+      ss << " AND ";
     }
-    for (rapidjson::SizeType i = 0; i < series.Size(); ++i) {
-      // measurement name?
-      const rapidjson::Value& thisSeries = series[i];
-      const string measureName = thisSeries["name"].GetString();
-      const rapidjson::Value& columns = thisSeries["columns"];
-      const rapidjson::Value& valuesArr = thisSeries["values"];
-      // valuesArr is an array of arrays.
-      for (rapidjson::SizeType iVal = 0; iVal < valuesArr.Size(); ++iVal) {
-        
-        // this is where a time series is defined!
-        map<string,string> kv;
-        
-        const rapidjson::Value& thisTsValues = valuesArr[iVal];
-        // size of thisTsValues should == size of columns.
-        for (rapidjson::SizeType j = 0; j < thisTsValues.Size(); ++j) {
-          const string tsKeyStr = columns[j].GetString();
-          const string tsValStr = thisTsValues[j].GetString();
-          
-          // exclude internal influx _key:
-          if (RTX_STRINGS_ARE_EQUAL(tsKeyStr, "_key")) {
-            continue;
-          }
-          
-          // exclude empty valued keys
-          if (RTX_STRINGS_ARE_EQUAL(tsValStr, "")) {
-            continue;
-          }
-          
-          kv[tsKeyStr] = tsValStr;
-        }
-        
-        // now we have all kv pairs that define a time series.
-        // do we have units info?
-        Units units = RTX_NO_UNITS;
-        if (kv.find("units") != kv.end()) {
-          units = Units::unitOfType(kv["units"]);
-        }
-        
-        // now assemble the complete name:
-        stringstream namestr;
-        namestr << measureName;
-        typedef pair<string,string> stringPair;
-        BOOST_FOREACH(stringPair p, kv) {
-          namestr << "," << p.first << "=" << p.second;
-        }
-        
-        // the name has been assembled!
-        seriesList.push_back(make_pair(namestr.str(), units));
-        
-      } // for each values array (ts definition)
-    } // for each measurement
-  } // if js body exists
+    ss << p.first << "='" << p.second << "'";
+    ++i;
+  }
   
-  return seriesList;
+  const string select = ss.str();
+  return select;
 }
 
+
+
+const std::string InfluxDbPointRecord::urlEncode(std::string s) {
+  
+  std::string encStr("");
+  
+  CURL *curl;
+  curl = curl_easy_init();
+  if (curl) {
+    char *enc;
+    enc = curl_easy_escape(curl, s.c_str(), 0);
+    encStr = string(enc);
+    curl_easy_cleanup(curl);
+  }
+  
+  //  cout << s << endl;
+  return encStr;
+}
+
+
+const string InfluxDbPointRecord::urlForQuery(const std::string& query, bool appendTimePrecision) {
+  stringstream queryss;
+  queryss << "/query?db=" << this->db;
+  queryss << "&u=" << this->user;
+  queryss << "&p=" << this->pass;
+  queryss << "&q=" << this->urlEncode(query);
+  if (appendTimePrecision) {
+    queryss << "&epoch=s";
+  }
+  
+  return queryss.str();
+}
+
+
+#pragma mark Parsing
+
+
+
+JsonDocPtr InfluxDbPointRecord::jsonFromPath(const std::string &url) {
+  JsonDocPtr documentOut;
+  InfluxConnectInfo_t connectionInfo;
+  
+  connectionInfo.sockStream.connect(this->host, to_string(this->port));
+  if (!connectionInfo.sockStream) {
+    cerr << "cannot connect" << endl;
+    return documentOut;
+  }
+  
+  string body;
+  
+  {
+    connectionInfo.sockStream << "GET " << url << " HTTP/1.0\r\n";
+    connectionInfo.sockStream << "Host: " << this->host << "\r\n";
+    connectionInfo.sockStream << "Accept: */*\r\n";
+    connectionInfo.sockStream << "Connection: close\r\n\r\n";
+    connectionInfo.sockStream >> connectionInfo.httpVersion;
+    connectionInfo.sockStream >> connectionInfo.statusCode;
+    getline(connectionInfo.sockStream, connectionInfo.statusMessage);
+    
+    string headerStr;
+    connectionInfo.sockStream >> headerStr;
+    while (std::getline(connectionInfo.sockStream, headerStr) && headerStr != "\r") {
+      // nothing
+    }
+    
+    
+    std::getline(connectionInfo.sockStream, body);
+    cout << connectionInfo.sockStream.rdbuf() << endl;
+    connectionInfo.sockStream.flush();
+    connectionInfo.sockStream.close();
+    
+  }
+  
+  
+  documentOut.reset(new rapidjson::Document);
+  
+  if (connectionInfo.statusCode == 204 /* no content */) {
+    return documentOut;
+  }
+  
+  
+  documentOut.get()->Parse<0>(body.c_str());
+  
+  cout << body << endl;
+  
+  rapidjson::StringBuffer buffer;
+  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+  documentOut->Accept(writer);
+  std::cout << buffer.GetString() << std::endl;
+  
+  return documentOut;
+}
 
 
 
@@ -594,83 +763,6 @@ vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
   
   
   return points;
-}
-
-
-
-
-
-JsonDocPtr InfluxDbPointRecord::jsonFromPath(const std::string &url) {
-  JsonDocPtr documentOut;
-  InfluxConnectInfo_t connectionInfo;
-  
-  connectionInfo.sockStream.connect(this->host, to_string(this->port));
-  if (!connectionInfo.sockStream) {
-    cerr << "cannot connect" << endl;
-    return documentOut;
-  }
-  
-  string body;
-  
-  {
-    connectionInfo.sockStream << "GET " << url << " HTTP/1.0\r\n";
-    connectionInfo.sockStream << "Host: " << this->host << "\r\n";
-    connectionInfo.sockStream << "Accept: */*\r\n";
-    connectionInfo.sockStream << "Connection: close\r\n\r\n";
-    connectionInfo.sockStream >> connectionInfo.httpVersion;
-    connectionInfo.sockStream >> connectionInfo.statusCode;
-    getline(connectionInfo.sockStream, connectionInfo.statusMessage);
-    
-    string headerStr;
-    connectionInfo.sockStream >> headerStr;
-    while (std::getline(connectionInfo.sockStream, headerStr) && headerStr != "\r") {
-      // nothing
-    }
-    
-    
-    std::getline(connectionInfo.sockStream, body);
-    cout << connectionInfo.sockStream.rdbuf() << endl;
-    connectionInfo.sockStream.flush();
-    connectionInfo.sockStream.close();
-    
-  }
-  
-  
-  documentOut.reset(new rapidjson::Document);
-  
-  if (connectionInfo.statusCode == 204 /* no content */) {
-    return documentOut;
-  }
-  
-  
-  documentOut.get()->Parse<0>(body.c_str());
-  
-  cout << body << endl;
-  
-  rapidjson::StringBuffer buffer;
-  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-  documentOut->Accept(writer);
-  std::cout << buffer.GetString() << std::endl;
-  
-  return documentOut;
-}
-
-
-const std::string InfluxDbPointRecord::urlEncode(std::string s) {
-  
-  std::string encStr("");
-  
-  CURL *curl;
-  curl = curl_easy_init();
-  if (curl) {
-    char *enc;
-    enc = curl_easy_escape(curl, s.c_str(), 0);
-    encStr = string(enc);
-    curl_easy_cleanup(curl);
-  }
-  
-//  cout << s << endl;
-  return encStr;
 }
 
 
@@ -789,18 +881,7 @@ void InfluxDbPointRecord::sendPointsWithString(const string& content) {
 //  return serialized;
 //}
 
-const string InfluxDbPointRecord::urlForQuery(const std::string& query, bool appendTimePrecision) {
-  stringstream queryss;
-  queryss << "/query?db=" << this->db;
-  queryss << "&u=" << this->user;
-  queryss << "&p=" << this->pass;
-  queryss << "&q=" << this->urlEncode(query);
-  if (appendTimePrecision) {
-    queryss << "&epoch=s";
-  }
-  
-  return queryss.str();
-}
+
 //
 //JsonDocPtr InfluxDbPointRecord::insertionJsonFromPoints(const std::string& tsName, std::vector<Point> points) {
 //  
