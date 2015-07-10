@@ -533,12 +533,13 @@ void Model::runSinglePeriod(time_t time) {
 }
 
 void Model::runExtendedPeriod(time_t start, time_t end) {
-  time_t simulationTime = start;
-  time_t nextClockTime = start;
-  time_t nextReportTime = start;
-  time_t nextSimulationTime = start;
-  time_t nextResetTime = start;
-  time_t stepToTime = start;
+  TimeRange range(start,end);
+  time_t simulationTime = range.start;
+  time_t nextClockTime = range.start;
+  time_t nextReportTime = range.start;
+  time_t nextSimulationTime = range.start;
+  time_t nextResetTime = range.start;
+  time_t stepToTime = range.start;
   struct tm * timeinfo;
   bool success;
   
@@ -551,7 +552,17 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
   // get the record(s) being used
   set<PointRecord::_sp> stateRecordsUsed = this->recordsForModeledStates();
   
-  while (simulationTime < end) {
+//  // pre-fetch simulation input data for entire period -- testing only
+//  string scratchPath = "/var/tmp/RTX_scratch.sqlite";
+//  SqlitePointRecord::_sp scratchdb( new SqlitePointRecord());
+//  scratchdb->setPath(scratchPath);
+//  scratchdb->dbConnect();
+//  scratchdb->truncate();
+//  this->setRecordForElementInputs(scratchdb);
+//  this->fetchElementInputs(range);
+
+  // Extended period simulation
+  while (simulationTime < range.end) {
     
     {
       scoped_lock<boost::signals2::mutex> l(_simulationInProcessMutex);
@@ -909,32 +920,20 @@ void Model::setSimulationParameters(time_t time) {
   
   // allocate junction demands based on dmas, and set the junction demand values in the model.
   if (_doesOverrideDemands) {
+    // by dma, insert demand point into each junction timeseries at the current simulation time
     BOOST_FOREACH(Dma::_sp dma, this->dmas()) {
       dma->allocateDemandToJunctions(time);
     }
     // hydraulic junctions - set demand values.
     BOOST_FOREACH(Junction::_sp junction, this->junctions()) {
-      if (junction->boundaryFlow()) {
-        // junction is separate from the allocation scheme (but allocateDemandToJunctions already inserts this into demand() series?)
-        Point p = junction->boundaryFlow()->pointAtOrBefore(time);
-        if (p.isValid) {
-          double demandValue = Units::convertValue(p.value, junction->boundaryFlow()->units(), flowUnits());
-          setJunctionDemand(junction->name(), demandValue);
-        }
-        else {
-          cerr << "ERR: Invalid boundary flow point for Junction " << junction->name() << " at time " << time << endl;
-        }
+      Point p = junction->demand()->pointAtOrBefore(time);
+      if (p.isValid) {
+        double demandValue = Units::convertValue(p.value, junction->demand()->units(), flowUnits());
+        setJunctionDemand(junction->name(), demandValue);
       }
       else {
-        Point p = junction->demand()->pointAtOrBefore(time);
-        if (p.isValid) {
-          double demandValue = Units::convertValue(p.value, junction->demand()->units(), flowUnits());
-          setJunctionDemand(junction->name(), demandValue);
-        }
-        else {
-          // default when allocation doesn't/can't set demand -- should this happen?
-          setJunctionDemand(junction->name(), 0.0);
-        }
+        // default when allocation doesn't/can't set demand -- should this happen?
+        setJunctionDemand(junction->name(), 0.0);
       }
     }
   }
@@ -1292,17 +1291,17 @@ vector<TimeSeries::_sp> Model::networkInputSeries(elementOption_t options) {
   
   BOOST_FOREACH(Element::_sp element, modelElements) {
     switch (element->type()) {
-      case Element::JUNCTION:
       case Element::TANK:
       {
         Tank::_sp t = boost::dynamic_pointer_cast<Tank>(element);
-        if (t && t->levelMeasure() && (options & ElementOptionMeasuredTanks)) {
+        if (t->levelMeasure() && (options & ElementOptionMeasuredTanks)) {
           measures.push_back(t->levelMeasure());
         }
-        if (t && t->flowMeasure() && (options & ElementOptionMeasuredTanks)) {
+        if (t->flowMeasure() && (options & ElementOptionMeasuredTanks)) {
           measures.push_back(t->flowMeasure());
         }
       }
+      case Element::JUNCTION:
       case Element::RESERVOIR:
       {
         Junction::_sp junc;
@@ -1362,6 +1361,21 @@ void Model::setRecordForElementOutput(PointRecord::_sp record, elementOption_t o
   }
 }
 
+void Model::fetchElementInputs(TimeRange range) {
+  time_t chunkSize = 60*60*24*7;
+  vector<TimeSeries::_sp> inputs = this->networkInputSeries(ElementOptionMeasuredAll);
+  time_t t1 = range.start;
+  time_t t2 = range.start + chunkSize;
+  while (t1 < range.end) {
+    TimeRange tr(t1,t2);
+    BOOST_FOREACH(TimeSeries::_sp ts, inputs) {
+      cout << "Pre-fetching " << ts->name()  << " :: Times " << t1 << "-" << t2 << endl;
+      ts->points(tr);
+    }
+    t1 += chunkSize;
+    t2 = min(t1 + chunkSize, range.end);
+  }
+}
 
 bool _rtxmodel_isDbRecord(PointRecord::_sp record) {
   return (boost::dynamic_pointer_cast<DbPointRecord>(record)) ? true : false;

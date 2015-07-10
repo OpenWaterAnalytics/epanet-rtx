@@ -168,6 +168,8 @@ namespace RTX {
     vector<TimeSeries::_sp> networkStatesWithOptions(elementOption_t options);
     vector<TimeSeries::_sp> networkInputSeries(elementOption_t options);
 
+    // fetch points for a group of series
+    void fetchElementInputs(TimeRange range);
     
     // units
     Units flowUnits();

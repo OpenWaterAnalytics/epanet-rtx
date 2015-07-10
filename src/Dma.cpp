@@ -603,10 +603,7 @@ void Dma::allocateDemandToJunctions(time_t time) {
   BOOST_FOREACH(Junction::_sp junction, _junctions) {
     
     if ( junction->boundaryFlow() ) {
-      Point dp = junction->boundaryFlow()->point(time);
-      if (!dp.isValid) {
-        dp = junction->boundaryFlow()->pointBefore(time);
-      }
+      Point dp = junction->boundaryFlow()->pointAtOrBefore(time);
       if (dp.isValid) {
         double demand = Units::convertValue(dp.value, junction->boundaryFlow()->units(), myUnits);
         meteredDemand += demand;
@@ -642,7 +639,7 @@ void Dma::allocateDemandToJunctions(time_t time) {
   cout << "allocable: " << allocableDemand << endl;
   cout << "dma base demand: " << totalBaseDemand << endl;
   */
-  // set the demand values for unmetered junctions, according to their base demands.
+  // insert junction demand points at current simulation time
   BOOST_FOREACH(Junction::_sp junction, _junctions) {
     if (junction->boundaryFlow()) {
       // junction does have boundary flow...
@@ -650,22 +647,26 @@ void Dma::allocateDemandToJunctions(time_t time) {
       Point dp = junction->boundaryFlow()->pointAtOrBefore(time);
       if (dp.isValid) {
         Point newDemandPoint = Point::convertPoint(dp, junction->boundaryFlow()->units(), junction->demand()->units());
+        newDemandPoint.time = time;
         junction->demand()->insert( newDemandPoint );
       }
       else {
         cerr << "ERR: invalid junction boundary flow point -- " << this->name() << endl;
       }
     }
-    else {
+    else if (totalBaseDemand > 0) {
       // junction relies on us to set its demand value... but only set it if the total base demand > 0
-      if (totalBaseDemand > 0) {
-        double baseDemand = Units::convertValue(junction->baseDemand(), modelUnits, myUnits);
-        double newDemand = baseDemand * ( allocableDemand / totalBaseDemand );
-        Point demandPoint(time, newDemand);
-        junction->demand()->insert( Point::convertPoint(demandPoint, myUnits, junction->demand()->units()) );
-      }
+      double baseDemand = Units::convertValue(junction->baseDemand(), modelUnits, myUnits);
+      double newDemand = baseDemand * ( allocableDemand / totalBaseDemand );
+      Point newDemandPoint(time, newDemand);
+      junction->demand()->insert( Point::convertPoint(newDemandPoint, myUnits, junction->demand()->units()) );
+    }
+    else {
+      // for instance if totalBaseDemand == 0 then this demand = 0
+      junction->demand()->insert( Point(time, 0) );
     }
   }
   
 }
+
 

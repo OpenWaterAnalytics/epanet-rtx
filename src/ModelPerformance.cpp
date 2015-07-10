@@ -105,7 +105,7 @@ map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForEle
   integrated->setSource(error);
   
   // special case for integrated errors: if we are integrating flow, then set volume units
-  if (type == ModelPerformanceMetricVolume) {
+  if (type == ModelPerformanceMetricFlow) {
     Units u = RTX_GALLON;
     integrated->setUnits(u);
     integratedAbs->setUnits(u);

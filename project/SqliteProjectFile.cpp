@@ -1063,7 +1063,7 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
   else if (typeEquals(dbMathOpsName)) {
     MathOpsTimeSeries::_sp mo = boost::dynamic_pointer_cast<MathOpsTimeSeries>(ts);
     if (RTX_STRINGS_ARE_EQUAL(key, "opsType")) {
-      mo->setMathOpsType((MathOpsTimeSeriesType)val);
+      mo->setMathOpsType((MathOpsTimeSeries::MathOpsTimeSeriesType)val);
     }
     else if (RTX_STRINGS_ARE_EQUAL(key, "argument")) {
       mo->setArgument(val);

@@ -380,12 +380,12 @@ Point TimeSeries::pointAtOrBefore(time_t time) {
 
 
 void TimeSeries::setRecord(PointRecord::_sp record) {
-  
   if (!record) {
     PointRecord::_sp pr( new PointRecord() );
-    _points = pr;
+    record = pr;
   }
-  else if (record->registerAndGetIdentifierForSeriesWithUnits(this->name(),this->units())) {
+  
+  if (record->registerAndGetIdentifierForSeriesWithUnits(this->name(),this->units())) {
     _points = record;
   }
   
