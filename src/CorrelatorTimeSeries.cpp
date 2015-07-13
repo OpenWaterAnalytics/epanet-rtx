@@ -43,6 +43,14 @@ void CorrelatorTimeSeries::setCorrelatorTimeSeries(TimeSeries::_sp ts) {
   }
   
   _secondary = ts;
+  
+  if (this->source() && ts) {
+    this->setUnits(RTX_DIMENSIONLESS);
+  }
+  else {
+    this->setUnits(RTX_NO_UNITS);
+  }
+  
   this->invalidate();
 }
 

@@ -278,7 +278,7 @@ TimeSeries::PointCollection TimeSeriesFilter::filterPointsInRange(TimeRange rang
 set<time_t> TimeSeriesFilter::timeValuesInRange(TimeRange range) {
   set<time_t> times;
   
-  if (!range.isValid()) {
+  if (!range.isValid() || !this->source()) {
     return times;
   }
   
