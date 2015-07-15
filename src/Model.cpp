@@ -15,7 +15,6 @@
 #include "Units.h"
 
 #include "DbPointRecord.h"
-#include "SqlitePointRecord.h"
 
 
 #include <boost/config.hpp>
@@ -553,24 +552,14 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
   // get the record(s) being used
   set<PointRecord::_sp> stateRecordsUsed = this->recordsForModeledStates();
   
-  // pre-fetch simulation input data for entire period -- testing only
-  string scratchPath = "/var/tmp/RTX_scratch.sqlite";
-  SqlitePointRecord::_sp scratchdb( new SqlitePointRecord());
-  scratchdb->setPath(scratchPath);
-  scratchdb->dbConnect();
-  scratchdb->truncate();
-  this->setRecordForElementInputs(scratchdb);
-  this->fetchElementInputs(range);
-  
-  // wq initial conditions
-  this->setInitialJunctionUniformQuality(350);
-  // Store the initial conditions in the model
-  this->setInitialModelQuality();
-  // run water quality
-  this->setShouldRunWaterQuality(true);
-  // set quality units
-  this->setQualityUnits(RTX_MICROSIEMENS_PER_CM);
-
+//  // pre-fetch simulation input data for entire period -- testing only
+//  string scratchPath = "/var/tmp/RTX_scratch.sqlite";
+//  SqlitePointRecord::_sp scratchdb( new SqlitePointRecord());
+//  scratchdb->setPath(scratchPath);
+//  scratchdb->dbConnect();
+//  scratchdb->truncate();
+//  this->setRecordForElementInputs(scratchdb);
+//  this->fetchElementInputs(range);
 
   // Extended period simulation
   while (simulationTime < range.end) {

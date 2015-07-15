@@ -452,7 +452,6 @@ void EpanetModel::overrideControls() throw(RTX::RtxException) {
     // eliminate all patterns and control rules
     
     int nPatterns;
-    double sourcePat;
     double zeroPattern[2];
     zeroPattern[0] = 0;
     
@@ -466,13 +465,6 @@ void EpanetModel::overrideControls() throw(RTX::RtxException) {
       // set pattern to index 0 (unity multiplier). this also rids us of any multiple demand patterns.
       OW_API_CHECK( OW_setnodevalue(_enModel, iNode, EN_PATTERN, 0 ), "OW_setnodevalue(EN_PATTERN)" );  // demand patterns to unity
       OW_API_CHECK( OW_setnodevalue(_enModel, iNode, EN_BASEDEMAND, 0. ), "OW_setnodevalue(EN_BASEDEMAND)" );	// set base demand to zero
-      // look for a quality source and nullify its existance
-      int errCode = OW_getnodevalue(_enModel, iNode, EN_SOURCEPAT, &sourcePat);
-      if (errCode != OW_ERR_UNDEF_SOURCE) {
-        OW_API_CHECK( OW_setnodevalue(_enModel, iNode, EN_SOURCETYPE, EN_CONCEN), "OW_setnodevalue(EN_SOURCETYPE)" );
-        OW_API_CHECK( OW_setnodevalue(_enModel, iNode, EN_SOURCEQUAL, 0.), "OW_setnodevalue(EN_SOURCEQUAL)" );
-        OW_API_CHECK( OW_setnodevalue(_enModel, iNode, EN_SOURCEPAT, 0.), "OW_setnodevalue(EN_SOURCEPAT)" );
-      }
     }
     // set the global demand multiplier is unity as well.
     OW_setoption(_enModel, EN_DEMANDMULT, 1.);
