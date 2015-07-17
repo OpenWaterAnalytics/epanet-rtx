@@ -425,6 +425,11 @@ void TimeSeries::setUnits(Units newUnits) {
       if (shouldInvalidate) {
         this->invalidate();
       }
+      else {
+        if (_points) {
+          _points->registerAndGetIdentifierForSeriesWithUnits(this->name(), this->units());
+        }
+      }
     }
   }
 }

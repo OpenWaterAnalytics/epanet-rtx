@@ -73,6 +73,8 @@ void SqlitePointRecord::setPath(std::string path) {
 
 void SqlitePointRecord::dbConnect() throw(RtxException) {
 
+  _identifiersAndUnitsCache.clear();
+  
   { // lock mutex
     scoped_lock<boost::signals2::mutex> lock(*_mutex);
     
@@ -156,9 +158,7 @@ void SqlitePointRecord::dbConnect() throw(RtxException) {
     errorMessage = "OK";
     _connected = true;
   }
-  BOOST_FOREACH(const nameUnitsPair p, DB_PR_SUPER::identifiersAndUnits()) {
-    this->registerAndGetIdentifierForSeriesWithUnits(p.first,p.second);
-  }
+  this->identifiersAndUnits();
 }
 
 
