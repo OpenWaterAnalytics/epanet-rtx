@@ -40,7 +40,7 @@ namespace RTX {
     virtual bool supportsUnitsColumn() = 0; /// subs must implement!
     
     virtual bool registerAndGetIdentifierForSeriesWithUnits(std::string name, Units units);
-    virtual std::vector< nameUnitsPair > identifiersAndUnits() = 0;
+    virtual std::vector< nameUnitsPair > identifiersAndUnits(); /// simple cache
     
     // end of the road for these guys; no virtuals.
     Point point(const string& id, time_t time);
@@ -119,7 +119,8 @@ namespace RTX {
     virtual void removeRecord(const std::string& id)=0;
     virtual bool insertIdentifierAndUnits(const std::string& id, Units units)=0;
     
-    
+    std::vector< nameUnitsPair > _identifiersAndUnitsCache; /// for subs to use
+    time_t _lastIdRequest;
     
     class request_t {
     public:

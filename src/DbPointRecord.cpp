@@ -91,6 +91,10 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
   return false;
 }
 
+vector<PointRecord::nameUnitsPair> DbPointRecord::identifiersAndUnits() {
+  return _identifiersAndUnitsCache;
+}
+
 
 void DbPointRecord::setSearchDistance(time_t time) {
   _searchDistance = time;

@@ -301,8 +301,11 @@ bool SqlitePointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, 
         this->removeRecord(name);
       }
     }
-    if (this->insertIdentifierAndUnits(name, units) && DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units) ) {
+    else if ( ( !nameExists || !unitsMatch ) && this->insertIdentifierAndUnits(name, units) && DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units) ) {
       // this will either insert a new record name, or ignore because it's already there.
+      return true;
+    }
+    else if (nameExists && unitsMatch) {
       return true;
     }
   }
@@ -338,6 +341,8 @@ bool SqlitePointRecord::assignUnitsToRecord(const std::string &name, RTX::Units 
     sqlite3_reset(stmt);
     sqlite3_finalize(stmt);
     
+    // invalidate cache
+    _identifiersAndUnitsCache.clear();
   }
   
   return success;
@@ -376,6 +381,8 @@ bool SqlitePointRecord::insertIdentifierAndUnits(const std::string &id, RTX::Uni
     sqlite3_reset(stmt);
     sqlite3_finalize(stmt);
     
+    // invalidate the cache.
+    _identifiersAndUnitsCache.clear();
   }
   
   return success;
@@ -384,6 +391,14 @@ bool SqlitePointRecord::insertIdentifierAndUnits(const std::string &id, RTX::Uni
 
 std::vector< PointRecord::nameUnitsPair > SqlitePointRecord::identifiersAndUnits() {
   vector<nameUnitsPair> ids;
+  
+  time_t now = time(NULL);
+  time_t stale = now - _lastIdRequest;
+  _lastIdRequest = now;
+  
+  if (stale < 5 && !_identifiersAndUnitsCache.empty()) {
+    return DbPointRecord::identifiersAndUnits();
+  }
   
   if (!this->isConnected()) {
     this->dbConnect();
@@ -409,6 +424,7 @@ std::vector< PointRecord::nameUnitsPair > SqlitePointRecord::identifiersAndUnits
     sqlite3_reset(_selectNamesStmt);
   }
   
+  _identifiersAndUnitsCache = ids;
   return ids;
 }
 
@@ -687,6 +703,8 @@ void SqlitePointRecord::removeRecord(const std::string& id) {
   if (!_connected) {
     return;
   }
+  _identifiersAndUnitsCache.clear();
+  
   char *errmsg;
   string sqlStr = "delete from points where series_id = (SELECT series_id FROM meta where name = \'" + id + "\'); delete from meta where name = \'" + id + "\'";
   const char *sql = sqlStr.c_str();
@@ -701,6 +719,8 @@ void SqlitePointRecord::truncate() {
   if (!_connected) {
     return;
   }
+  _identifiersAndUnitsCache.clear();
+  
   char *errmsg;
   int ret = sqlite3_exec(_dbHandle, "delete from points", NULL, NULL, &errmsg);
   if (ret != SQLITE_OK) {
