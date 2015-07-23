@@ -49,7 +49,8 @@ namespace RTX {
       ModelPerformanceMetricHead          = 2,
       ModelPerformanceMetricLevel         = 3,
       ModelPerformanceMetricVolume        = 4,
-      ModelPerformanceMetricConcentration = 5
+      ModelPerformanceMetricConcentration = 5,
+      ModelPerformanceMetricEnergy        = 6
     } MetricType;
     
     

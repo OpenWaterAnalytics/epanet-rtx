@@ -485,6 +485,15 @@ pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithMet
       }
     }
       break;
+    case ModelPerformanceMetricEnergy:
+    {
+      Pump::_sp p = boost::dynamic_pointer_cast<Pump>(e);
+      if (p) {
+        measured = p->energyMeasure();
+        modeled = p->energy();
+      }
+    }
+      break;
     default:
       break;
   }

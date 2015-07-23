@@ -72,11 +72,13 @@
 #define RTX_DEGREE_CELSIUS          RTX::Units(1,            0,0,0,0,1,0,0,273.15)
 #define RTX_DEGREE_FARENHEIT        RTX::Units(0.55555555555,0,0,0,0,1,0,0,459.67)
 
-
+// power and energy
+#define RTX_KILOWATT_HOUR          RTX::Units(3600000,       1,2,-2)
+#define RTX_JOULE                  RTX::Units(1,             1,2,-2)
+#define RTX_MEGAJOULE              RTX::Units(1000000,       1,2,-2)
+#define RTX_WATT                   RTX::Units(1,             1,2,-3)
 
 namespace RTX {
-  
-  
   /*!
    \class Units
    \brief Keep track of dimensions and units of measure.
@@ -101,11 +103,6 @@ namespace RTX {
    The default dimensional exponents are all zero (0), which means dimensionless. See Units.h for some predefined units of measure.
    
    */
-  
-  
-  
-  
-  
   
   class Units {
   public:
