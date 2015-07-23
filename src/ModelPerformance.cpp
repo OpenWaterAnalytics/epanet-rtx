@@ -29,9 +29,7 @@ ModelPerformance::ModelPerformance(Model::_sp model, StatsType statsType, Aggreg
   _statsType = statsType;
   _aggregationType = aggregationType;
   _locationType = locationType;
-  
   this->rebuildPerformanceCalculation();
-  
 }
 
 map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForElementAndMetricType(Element::_sp element, MetricType type, Clock::_sp samplingWindow, double quantile) {

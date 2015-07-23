@@ -248,9 +248,9 @@ map<string, Units> Units::unitStringMap() {
   m["celsius"] = RTX_DEGREE_CELSIUS;
   m["farenheit"] = RTX_DEGREE_FARENHEIT;
   
-  m["kilowatt-hours"] = RTX_KILOWATT_HOUR;
-  m["megajoules"] = RTX_MEGAJOULE;
-  m["joules"] = RTX_JOULE;
+  m["kwh"] = RTX_KILOWATT_HOUR;
+  m["mj"] = RTX_MEGAJOULE;
+  m["j"] = RTX_JOULE;
   
   m["xx-no-units"] = RTX_NO_UNITS;
   //m["%"] = RTX_DIMENSIONLESS;
