@@ -57,7 +57,7 @@ namespace RTX {
     
   private:
     sqlite3 *_dbHandle;
-    sqlite3_stmt *_selectRangeStmt, *_selectSingleStmt, *_selectNamesStmt, *_selectPreviousStmt, *_selectNextStmt, *_insertSingleStmt, *_selectFirstStmt, *_selectLastStmt;
+    std::string _selectRangeStr, _selectSingleStr, _selectNamesStr, _selectPreviousStr, _selectNextStr, _insertSingleStr, _selectFirstStr, _selectLastStr;
     
     std::string _path;
     bool _connected;

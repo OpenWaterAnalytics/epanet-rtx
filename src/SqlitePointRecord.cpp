@@ -22,40 +22,17 @@ static string initTablesStr = "CREATE TABLE 'meta' ('series_id' INTEGER PRIMARY 
 SqlitePointRecord::SqlitePointRecord() {
   _path = "";
   _connected = false;
-  
   _inTransaction = false;
   _inBulkOperation = false;
   _transactionStackCount = 0;
   _maxTransactionStackCount = 5000;
-  
   _mutex.reset(new boost::signals2::mutex );
-  
-  _insertSingleStmt = NULL;
-  _selectFirstStmt = NULL;
-  _selectLastStmt = NULL;
-  _selectNamesStmt = NULL;
-  _selectNextStmt = NULL;
-  _selectPreviousStmt = NULL;
-  _selectRangeStmt = NULL;
-  _selectSingleStmt = NULL;
   _dbHandle = NULL;
-  
 }
 
 SqlitePointRecord::~SqlitePointRecord() {
   this->setPath("");
-  
-  sqlite3_finalize(_insertSingleStmt);
-  sqlite3_finalize(_selectFirstStmt);
-  sqlite3_finalize(_selectLastStmt);
-  sqlite3_finalize(_selectNamesStmt);
-  sqlite3_finalize(_selectNextStmt);
-  sqlite3_finalize(_selectPreviousStmt);
-  sqlite3_finalize(_selectRangeStmt);
-  sqlite3_finalize(_selectSingleStmt);
-  
   sqlite3_close(_dbHandle);
-  
 }
 
 
@@ -109,7 +86,7 @@ void SqlitePointRecord::dbConnect() throw(RtxException) {
     
     // prepare the select & insert statments
     string selectPreamble = "SELECT time, value, quality, confidence FROM points INNER JOIN meta USING (series_id) WHERE name = ? AND ";
-    string singleSelectStr = selectPreamble + "time = ? order by time asc";
+    _selectSingleStr = selectPreamble + "time = ? order by time asc";
     
     // unpack the filtering clause incase there is a black/white list
     string qualClause = "";
@@ -133,28 +110,15 @@ void SqlitePointRecord::dbConnect() throw(RtxException) {
     }
     
     
-    string rangeSelectStr = selectPreamble + "time >= ? AND time <= ?" + qualClause + " order by time asc";
-    string nextSelectStr = selectPreamble + "time > ?" + qualClause + " order by time asc LIMIT 1";
-    string prevSelectStr = selectPreamble + "time < ?" + qualClause + " order by time desc LIMIT 1";
-    string singleInsertStr = "INSERT INTO points (time, series_id, value, quality, confidence) SELECT ?,series_id,?,?,? FROM meta WHERE name = ?";
-    string firstSelectStr = selectPreamble + "1 order by time asc limit 1";
-    string lastSelectStr = selectPreamble + "1 order by time desc limit 1";
-    string selectNamesStr = "select name,units from meta order by name asc";
+    _selectRangeStr = selectPreamble + "time >= ? AND time <= ?" + qualClause + " order by time asc";
+    _selectNextStr = selectPreamble + "time > ?" + qualClause + " order by time asc LIMIT 1";
+    _selectPreviousStr = selectPreamble + "time < ?" + qualClause + " order by time desc LIMIT 1";
+    _insertSingleStr = "INSERT INTO points (time, series_id, value, quality, confidence) SELECT ?,series_id,?,?,? FROM meta WHERE name = ?";
+    _selectFirstStr = selectPreamble + "1 order by time asc limit 1";
+    _selectLastStr = selectPreamble + "1 order by time desc limit 1";
+    _selectNamesStr = "select name,units from meta order by name asc";
     
     
-    
-    string statmentStrings[] =           {selectNamesStr,    singleSelectStr,    rangeSelectStr,    prevSelectStr,        nextSelectStr,    singleInsertStr,    firstSelectStr,    lastSelectStr  };
-    sqlite3_stmt** preparedStatments[] = {&_selectNamesStmt, &_selectSingleStmt, &_selectRangeStmt, &_selectPreviousStmt, &_selectNextStmt, &_insertSingleStmt, &_selectFirstStmt, &_selectLastStmt};
-    int nStmts = 8;
-    
-    for (int iStmt = 0; iStmt < nStmts; ++iStmt) {
-      sqlite3_stmt **stmt = preparedStatments[iStmt];
-      returnCode = sqlite3_prepare_v2(_dbHandle, statmentStrings[iStmt].c_str(), -1, stmt, NULL);
-      if (returnCode != SQLITE_OK) {
-        this->logDbError();
-        return;
-      }
-    }
     errorMessage = "OK";
     _connected = true;
   }
@@ -406,22 +370,26 @@ std::vector< PointRecord::nameUnitsPair > SqlitePointRecord::identifiersAndUnits
   
   if (this->isConnected()) {
     scoped_lock<boost::signals2::mutex> lock(*_mutex);
-    int ret = sqlite3_step(_selectNamesStmt);
+    sqlite3_stmt *selectIdsStmt;
+    int ret;
+    ret = sqlite3_prepare_v2(_dbHandle, _selectNamesStr.c_str(), -1, &selectIdsStmt, NULL);
+    ret = sqlite3_step(selectIdsStmt);
     while (ret == SQLITE_ROW) {
-      string name = string((char*)sqlite3_column_text(_selectNamesStmt, 0));
-      int type = sqlite3_column_type(_selectNamesStmt, 1);
+      string name = string((char*)sqlite3_column_text(selectIdsStmt, 0));
+      int type = sqlite3_column_type(selectIdsStmt, 1);
       Units units;
       if (type == SQLITE_NULL) {
         units = RTX_NO_UNITS;
       }
       else {
-        string unitsStr = string((char*)sqlite3_column_text(_selectNamesStmt, 1));
+        string unitsStr = string((char*)sqlite3_column_text(selectIdsStmt, 1));
         units = Units::unitOfType(unitsStr);
       }
       ids.push_back(make_pair(name, units));
-      ret = sqlite3_step(_selectNamesStmt);
+      ret = sqlite3_step(selectIdsStmt);
     }
-    sqlite3_reset(_selectNamesStmt);
+    sqlite3_reset(selectIdsStmt);
+    sqlite3_finalize(selectIdsStmt);
   }
   
   _identifiersAndUnitsCache = ids;
@@ -470,17 +438,27 @@ PointRecord::time_pair_t SqlitePointRecord::range(const string& id) {
     
     // non-optimized code -- deprecate
     else {
-      sqlite3_bind_text(_selectFirstStmt, 1, id.c_str(), -1, NULL);
-      points = pointsFromPreparedStatement(_selectFirstStmt);
+      int ret;
+      sqlite3_stmt *selectFirstStmt;
+      ret = sqlite3_prepare_v2(_dbHandle, _selectFirstStr.c_str(), -1, &selectFirstStmt, NULL);
+      sqlite3_bind_text(selectFirstStmt, 1, id.c_str(), -1, NULL);
+      points = pointsFromPreparedStatement(selectFirstStmt);
       if (points.size() > 0) {
         first = points.front();
       }
       
-      sqlite3_bind_text(_selectLastStmt, 1, id.c_str(), -1, NULL);
-      points = pointsFromPreparedStatement(_selectLastStmt);
+      sqlite3_stmt *selectLastStmt;
+      ret = sqlite3_prepare_v2(_dbHandle, _selectLastStr.c_str(), -1, &selectLastStmt, NULL);
+      sqlite3_bind_text(selectLastStmt, 1, id.c_str(), -1, NULL);
+      points = pointsFromPreparedStatement(selectLastStmt);
       if (points.size() > 0) {
         last = points.front();
       }
+      
+      sqlite3_reset(selectFirstStmt);
+      sqlite3_reset(selectLastStmt);
+      sqlite3_finalize(selectFirstStmt);
+      sqlite3_finalize(selectLastStmt);
     }
     /*
      
@@ -506,11 +484,18 @@ std::vector<Point> SqlitePointRecord::selectRange(const std::string& id, time_t 
     
     scoped_lock<boost::signals2::mutex> lock(*_mutex);
     
-    sqlite3_bind_text(_selectRangeStmt, 1, id.c_str(), -1, NULL);
-    sqlite3_bind_int(_selectRangeStmt, 2, (int)startTime);
-    sqlite3_bind_int(_selectRangeStmt, 3, (int)endTime);
+    sqlite3_stmt *s;
+    int ret = sqlite3_prepare_v2(_dbHandle, _selectRangeStr.c_str(), -1, &s, NULL);
     
-    return pointsFromPreparedStatement(_selectRangeStmt);
+    sqlite3_bind_text(s, 1, id.c_str(), -1, NULL);
+    sqlite3_bind_int(s, 2, (int)startTime);
+    sqlite3_bind_int(s, 3, (int)endTime);
+    
+    points = pointsFromPreparedStatement(s);
+    
+    sqlite3_reset(s);
+    sqlite3_finalize(s);
+    
   }
   return points;
 }
@@ -541,9 +526,14 @@ Point SqlitePointRecord::selectNext(const std::string& id, time_t time) {
     // suffer then long execution of the unbounded query.
     if (points.size() == 0) {
       // slow query
-      sqlite3_bind_text(_selectNextStmt, 1, id.c_str(), -1, NULL);
-      sqlite3_bind_int(_selectNextStmt, 2, (int)time);
-      points = pointsFromPreparedStatement(_selectNextStmt);
+      
+      sqlite3_stmt *s;
+      sqlite3_prepare_v2(_dbHandle, _selectNextStr.c_str(), -1, &s, NULL);
+      
+      sqlite3_bind_text(s, 1, id.c_str(), -1, NULL);
+      sqlite3_bind_int(s, 2, (int)time);
+      points = pointsFromPreparedStatement(s);
+      sqlite3_finalize(s);
     }
     
     
@@ -584,9 +574,12 @@ Point SqlitePointRecord::selectPrevious(const std::string& id, time_t time) {
     // if the iterative lookbehind did not work
     if (points.size() == 0) {
       // slow query
-      sqlite3_bind_text(_selectPreviousStmt, 1, id.c_str(), -1, NULL);
-      sqlite3_bind_int(_selectPreviousStmt, 2, (int)time);
-      points = pointsFromPreparedStatement(_selectPreviousStmt);
+      sqlite3_stmt *s;
+      sqlite3_prepare_v2(_dbHandle, _selectPreviousStr.c_str(), -1, &s, NULL);
+      sqlite3_bind_text(s, 1, id.c_str(), -1, NULL);
+      sqlite3_bind_int(s, 2, (int)time);
+      points = pointsFromPreparedStatement(s);
+      sqlite3_finalize(s);
     }
     
     if (points.size() > 0) {
@@ -643,17 +636,21 @@ void SqlitePointRecord::insertSingleInTransaction(const std::string& id, Point p
     
     // INSERT INTO points (time, series_id, value, quality, confidence) SELECT ?,series_id,?,?,? FROM meta WHERE name = ?
     
-    ret = sqlite3_bind_int(    _insertSingleStmt, 1, (int)point.time      );
-    ret = sqlite3_bind_double( _insertSingleStmt, 2, point.value          );
-    ret = sqlite3_bind_int(    _insertSingleStmt, 3, point.quality        );
-    ret = sqlite3_bind_double( _insertSingleStmt, 4, point.confidence     );
-    ret = sqlite3_bind_text(   _insertSingleStmt, 5, id.c_str(), -1, NULL );
+    sqlite3_stmt *s;
+    sqlite3_prepare_v2(_dbHandle, _insertSingleStr.c_str(), -1, &s, NULL);
     
-    ret = sqlite3_step(_insertSingleStmt);
+    ret = sqlite3_bind_int(    s, 1, (int)point.time      );
+    ret = sqlite3_bind_double( s, 2, point.value          );
+    ret = sqlite3_bind_int(    s, 3, point.quality        );
+    ret = sqlite3_bind_double( s, 4, point.confidence     );
+    ret = sqlite3_bind_text(   s, 5, id.c_str(), -1, NULL );
+    
+    ret = sqlite3_step(s);
     if (ret != SQLITE_DONE) {
       logDbError();
     }
-    sqlite3_reset(_insertSingleStmt);
+    sqlite3_reset(s);
+    sqlite3_finalize(s);
   }
   
   return;
