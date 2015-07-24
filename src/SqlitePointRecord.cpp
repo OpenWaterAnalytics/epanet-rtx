@@ -17,8 +17,6 @@ typedef const unsigned char* sqltext;
 static string initTablesStr = "CREATE TABLE 'meta' ('series_id' INTEGER PRIMARY KEY ASC AUTOINCREMENT, 'name' TEXT UNIQUE ON CONFLICT ABORT, 'units' TEXT, 'regular_period' INTEGER, 'regular_offset' INTEGER); CREATE TABLE 'points' ('time' INTEGER, 'series_id' INTEGER REFERENCES 'meta'('series_id'), 'value' REAL, 'confidence' REAL, 'quality' INTEGER, UNIQUE (series_id, time asc) ON CONFLICT IGNORE); PRAGMA user_version = 2";
 /******************************************************************************************/
 
-
-
 SqlitePointRecord::SqlitePointRecord() {
   _path = "";
   _connected = false;
@@ -34,7 +32,6 @@ SqlitePointRecord::~SqlitePointRecord() {
   this->setPath("");
   sqlite3_close(_dbHandle);
 }
-
 
 string SqlitePointRecord::path() {
   return _path;
@@ -460,13 +457,7 @@ PointRecord::time_pair_t SqlitePointRecord::range(const string& id) {
       sqlite3_finalize(selectFirstStmt);
       sqlite3_finalize(selectLastStmt);
     }
-    /*
-     
-     */
-    
   }
-  
-  
   //  return make_pair(first.time, last.time);
   return make_pair(0, 0);
 }

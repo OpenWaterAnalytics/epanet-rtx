@@ -33,18 +33,14 @@ ForecastTimeSeries::ForecastTimeSeries() : _order(0,0,0) {
 
 
 
-ForecastTimeSeries::ArimaOrder ForecastTimeSeries::order() {
+ForecastTimeSeries::SARIMAOrder ForecastTimeSeries::order() {
   return _order;
 }
 
-void ForecastTimeSeries::setOrder(ForecastTimeSeries::ArimaOrder order) {
+void ForecastTimeSeries::setOrder(ForecastTimeSeries::SARIMAOrder order) {
   _order = order;
 }
 
-void ForecastTimeSeries::setOrder(int ar, int i, int ma) {
-  ArimaOrder theOrder(ar,i,ma);
-  this->setOrder(theOrder);
-}
 
 
 

@@ -24,31 +24,26 @@ namespace RTX {
    */
   
   /*!
-   \fn virtual Point TimeSeries::point(time_t time)
-   \brief Get a Point at a specific time.
-   \param time The requested time.
-   \return The requested Point, or the Point just prior to the passed time value.
-   \sa Point
+   \fn Clock::_sp ForecastTimeSeries::fitWindow();
+   \brief The window that the ForecastTimeSeries uses to poll its source for the fit population.
+   */
+  /**
+   \fn ForecastTimeSeries::SARIMAOrder ForecastTimeSeries::order();
+   \brief Set the SARIMA orders that the ForecastTimeSeries will use.
    */
   /*!
-   \fn virtual std::vector<Point> TimeSeries::points(time_t start, time_t end)
-   \brief Get a vector of Points within a specific time range.
-   \param start The beginning of the requested time range.
-   \param end The end of the requested time range.
-   \return The requested Points (as a vector)
-   
-   The base class provides some brute-force logic to retrieve points, by calling Point() repeatedly. For more efficient access, you may wish to override this method.
-   
-   \sa Point
+   \fn Clock::_sp ForecastTimeSeries::refitClock();
+   \brief The clock that ForecastTimeSeries will use to re-fit the model.
    */
   
   
   class ForecastTimeSeries : public TimeSeriesFilter {
   public:
     
-    class ArimaOrder {
+    class SARIMAOrder {
     public:
-      ArimaOrder(int autoregressive, int integratred, int movingaverage) : ar(autoregressive), i(integratred), ma(movingaverage) {};
+      SARIMAOrder(int seasonal, int autoregressive, int integratred, int movingaverage) : s(seasonal), ar(autoregressive), i(integratred), ma(movingaverage) {};
+      int s;
       int ar;
       int i;
       int ma;
@@ -65,9 +60,8 @@ namespace RTX {
     void setRefitClock(Clock::_sp clock);
     
     
-    ArimaOrder order();
-    void setOrder(ArimaOrder order);
-    void setOrder(int ar, int i, int ma);
+    SARIMAOrder order();
+    void setOrder(SARIMAOrder order);
     
     
   protected:
