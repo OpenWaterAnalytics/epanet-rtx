@@ -80,7 +80,7 @@ namespace RTX {
     virtual double relativeError(time_t time);
     virtual void setHydraulicTimeStep(int seconds);
     virtual void setQualityTimeStep(int seconds);
-    virtual void setInitialModelQuality();
+//    virtual void setInitialModelQuality();
     void OW_API_CHECK(int errorCode, std::string externalFunction) throw(std::string);
     
     // protected accessors

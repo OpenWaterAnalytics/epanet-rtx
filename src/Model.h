@@ -129,8 +129,9 @@ namespace RTX {
     int qualityTimeStep();
     
     void setInitialJunctionUniformQuality(double qual);
+    double initialUniformQuality();
     void setInitialJunctionQualityFromMeasurements(time_t time);
-    virtual void setInitialModelQuality() { };
+//    virtual void setInitialModelQuality() { };
     vector<Node::_sp> nearestNodes(Node::_sp junc, double maxDistance);
 
     virtual time_t currentSimulationTime();
@@ -271,6 +272,8 @@ namespace RTX {
     
     Units _flowUnits, _headUnits, _pressureUnits, _qualityUnits, _volumeUnits;
     boost::signals2::mutex _simulationInProcessMutex;
+    
+    double _initialQuality;
     
   };
   

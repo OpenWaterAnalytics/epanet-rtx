@@ -740,27 +740,27 @@ void EpanetModel::setQualityTimeStep(int seconds) {
   // call base class
   Model::setQualityTimeStep(seconds);
 }
-
-void EpanetModel::setInitialModelQuality() {
-  OW_API_CHECK(OW_closeQ(_enModel), "OW_closeQ");
-  OW_API_CHECK(OW_openQ(_enModel), "OW_openQ");
-
-  // Junctions
-  BOOST_FOREACH(Junction::_sp junc, this->junctions()) {
-    double qual = junc->initialQuality();
-    int iNode = _nodeIndex[junc->name()];
-    OW_API_CHECK(OW_setnodevalue(_enModel, iNode, EN_INITQUAL, qual), "OW_setnodevalue - EN_INITQUAL");
-  }
-  
-  // Tanks
-  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
-    double qual = tank->initialQuality();
-    int iNode = _nodeIndex[tank->name()];
-    OW_API_CHECK(OW_setnodevalue(_enModel, iNode, EN_INITQUAL, qual), "OW_setnodevalue - EN_INITQUAL");
-  }
-  
-  OW_API_CHECK(OW_initQ(_enModel, EN_NOSAVE), "ENinitQ");
-}
+//
+//void EpanetModel::setInitialModelQuality() {
+//  OW_API_CHECK(OW_closeQ(_enModel), "OW_closeQ");
+//  OW_API_CHECK(OW_openQ(_enModel), "OW_openQ");
+//
+//  // Junctions
+//  BOOST_FOREACH(Junction::_sp junc, this->junctions()) {
+//    double qual = junc->initialQuality();
+//    int iNode = _nodeIndex[junc->name()];
+//    OW_API_CHECK(OW_setnodevalue(_enModel, iNode, EN_INITQUAL, qual), "OW_setnodevalue - EN_INITQUAL");
+//  }
+//  
+//  // Tanks
+//  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
+//    double qual = tank->initialQuality();
+//    int iNode = _nodeIndex[tank->name()];
+//    OW_API_CHECK(OW_setnodevalue(_enModel, iNode, EN_INITQUAL, qual), "OW_setnodevalue - EN_INITQUAL");
+//  }
+//  
+//  OW_API_CHECK(OW_initQ(_enModel, EN_NOSAVE), "ENinitQ");
+//}
 
 #pragma mark -
 #pragma mark Internal Private Methods

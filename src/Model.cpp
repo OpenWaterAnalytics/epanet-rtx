@@ -750,7 +750,12 @@ int Model::qualityTimeStep() {
   return _qualityTimeStep;
 }
 
+double Model::initialUniformQuality() {
+  return _initialQuality;
+}
+
 void Model::setInitialJunctionUniformQuality(double qual) {
+  _initialQuality = qual;
   // Constant initial quality of Junctions and Tanks (Reservoirs are boundary conditions)
   BOOST_FOREACH(Junction::_sp junc, this->junctions()) {
     junc->setInitialQuality(qual);
