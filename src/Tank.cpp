@@ -21,9 +21,8 @@ Tank::Tank(const std::string& name) : Junction(name) {
   setType(TANK);
   // initialize time series states
   _willResetLevel = false;
-  _level.reset( new OffsetTimeSeries() );
-  _level->setSource(this->head());
-  _level->setName("N " + name + " Level Measure");
+  _level.reset( new TimeSeries() );
+  _level->setName("N " + name + " Level");
   
   _minLevel = 0;
   _maxLevel = 0;
@@ -90,8 +89,6 @@ pair<Units,Units> Tank::geometryUnits() {
 
 void Tank::setElevation(double elevation) {
   Node::setElevation(elevation);
-  // re-set the elevation offset for the level timeseries
-  _level->setOffset(-elevation);
   
   // do we have a head or level measure??
   OffsetTimeSeries::_sp offsetTs;

@@ -55,7 +55,7 @@ namespace RTX {
     TimeSeries::_sp flowMeasure();  // flow into the tank (computed)
     
   private:
-    OffsetTimeSeries::_sp _level;
+    TimeSeries::_sp _level;
     TimeSeries::_sp _levelMeasure;
     CurveFunction::_sp _volumeMeasure;
     FirstDerivative::_sp _flowMeasure;
