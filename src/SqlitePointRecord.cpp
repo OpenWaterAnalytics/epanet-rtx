@@ -214,18 +214,22 @@ bool SqlitePointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, 
   Units existingUnits;
   
   vector< pair<string,Units> > existing = this->identifiersAndUnits();
-  typedef pair<string,Units> sup_t;
-  BOOST_FOREACH(const sup_t p, existing) {
-    string n = p.first;
-    if ( RTX_STRINGS_ARE_EQUAL_CS(n, name)) {
-      existingUnits = p.second;
-      nameExists = true;
-      if (existingUnits == units) {
-        unitsMatch = true;
+  {
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
+    typedef pair<string,Units> sup_t;
+    BOOST_FOREACH(const sup_t p, existing) {
+      string n = p.first;
+      if ( RTX_STRINGS_ARE_EQUAL_CS(n, name)) {
+        existingUnits = p.second;
+        nameExists = true;
+        if (existingUnits == units) {
+          unitsMatch = true;
+        }
+        break;
       }
-      break;
     }
   }
+  
   
   if (this->readonly()) {
     // handle a read-only database.
@@ -389,7 +393,11 @@ std::vector< PointRecord::nameUnitsPair > SqlitePointRecord::identifiersAndUnits
     sqlite3_finalize(selectIdsStmt);
   }
   
-  _identifiersAndUnitsCache = ids;
+  {
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
+    _identifiersAndUnitsCache = ids;
+  }
+  
   return ids;
 }
 

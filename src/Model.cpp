@@ -763,6 +763,7 @@ void Model::setInitialJunctionUniformQuality(double qual) {
   BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
     tank->setInitialQuality(qual);
   }
+  this->applyInitialQuality();
 }
 
 void Model::setTankResetClock(Clock::_sp resetClock) {

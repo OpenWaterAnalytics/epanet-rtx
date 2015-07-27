@@ -131,7 +131,7 @@ namespace RTX {
     void setInitialJunctionUniformQuality(double qual);
     double initialUniformQuality();
     void setInitialJunctionQualityFromMeasurements(time_t time);
-//    virtual void setInitialModelQuality() { };
+    virtual void applyInitialQuality() { };
     vector<Node::_sp> nearestNodes(Node::_sp junc, double maxDistance);
 
     virtual time_t currentSimulationTime();

@@ -34,6 +34,7 @@ DbPointRecord::DbPointRecord() : request("",0,0) {
   errorMessage = "Not Connected";
   _readOnly = false;
   _filterType = OpcPassThrough;
+  _identifiersAndUnitsCache = std::vector< nameUnitsPair >();
 }
 
 
