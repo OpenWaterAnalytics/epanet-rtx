@@ -55,7 +55,7 @@ namespace RTX {
     
     
     // static class method for constructing error series from an element
-    static std::map<StatsType,TimeSeries::_sp> errorsForElementAndMetricType(Element::_sp element, MetricType type, Clock::_sp samplingWindow, double quantile);
+    static std::map<StatsType,TimeSeries::_sp> errorsForElementAndMetricType(Element::_sp element, MetricType type, Clock::_sp samplingWindow, double quantile, int correlationDiscretization, int correlationMaxLag);
     
     RTX_SHARED_POINTER(ModelPerformance);
     

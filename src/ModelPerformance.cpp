@@ -32,7 +32,7 @@ ModelPerformance::ModelPerformance(Model::_sp model, StatsType statsType, Aggreg
   this->rebuildPerformanceCalculation();
 }
 
-map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForElementAndMetricType(Element::_sp element, MetricType type, Clock::_sp samplingWindow, double quantile) {
+map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForElementAndMetricType(Element::_sp element, MetricType type, Clock::_sp samplingWindow, double quantile, int correlationDiscretization, int correlationMaxLag) {
   
   map<ModelPerformance::StatsType, TimeSeries::_sp> errorSeries;
   
@@ -63,11 +63,12 @@ map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForEle
   rmse->setWindow(samplingWindow);
   rmse->setSource(error);
 
-  int lag = 24 * 60 * 60;
   CorrelatorTimeSeries::_sp maxCor(new CorrelatorTimeSeries);
-  maxCor->setLagSeconds(lag);
+  maxCor->setLagSeconds(correlationMaxLag);
   maxCor->setSource(measured);
   maxCor->setCorrelationWindow(samplingWindow);
+  Clock::_sp corWindow(new Clock(correlationDiscretization));
+  maxCor->setClock(corWindow);
   maxCor->setCorrelatorTimeSeries(modeled);
   MetaTimeSeries::_sp maxCorLag(new MetaTimeSeries);
   maxCorLag->setSource(maxCor);
