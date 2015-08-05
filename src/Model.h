@@ -137,6 +137,7 @@ namespace RTX {
     virtual time_t currentSimulationTime();
     TimeSeries::_sp iterations() {return _iterations;}
     TimeSeries::_sp relativeError() {return _relativeError;}
+    TimeSeries::_sp convergence() {return _convergence;}
     
     void setTankResetClock(Clock::_sp resetClock);
     

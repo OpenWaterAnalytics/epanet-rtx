@@ -75,10 +75,19 @@ void SqlitePointRecord::dbConnect() throw(RtxException) {
     }
     
     // check schema
+    bool updateSuccess = true;
     int databaseVersion = this->dbSchemaVersion();
+    if (databaseVersion < 0) {
+      // db was opened, but we could not get the user_version from the db's internal data.
+      // that sucks, so it's gotta be corrupt.
+      errorMessage = "Corrupt Database";
+      _connected = false;
+      sqlite3_close(_dbHandle);
+      return;
+    }
     if (databaseVersion < sqlitePointRecordCurrentDbVersion) {
       cerr << "Point Record Database Schema version not compatible. Require version " << sqlitePointRecordCurrentDbVersion << " or greater. Updating." << endl;
-      bool ok = this->updateSchema();
+      updateSuccess = this->updateSchema();
     }
     
     // prepare the select & insert statments
@@ -146,6 +155,8 @@ int SqlitePointRecord::dbSchemaVersion() {
       vers = sqlite3_column_int(stmt_version, 0);
     }
   }
+  sqlite3_reset(stmt_version);
+  sqlite3_finalize(stmt_version);
   return vers;
 }
 void SqlitePointRecord::setDbSchemaVersion(int v) {
@@ -159,7 +170,7 @@ bool SqlitePointRecord::updateSchema() {
   
   int currentVersion = this->dbSchemaVersion();
   
-  while (currentVersion < sqlitePointRecordCurrentDbVersion) {
+  while (currentVersion >= 0 && currentVersion < sqlitePointRecordCurrentDbVersion) {
     
     switch (currentVersion) {
       case 0:
