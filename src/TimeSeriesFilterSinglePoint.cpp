@@ -24,7 +24,7 @@ TimeSeries::PointCollection TimeSeriesFilterSinglePoint::filterPointsInRange(Tim
   }
   
   qRange.correctWithRange(range);
-  PointCollection sourceData = this->source()->pointCollection(qRange);
+//  PointCollection sourceData = this->source()->pointCollection(qRange);
   
   PointCollection data = source()->pointCollection(qRange);
   
