@@ -45,9 +45,12 @@ Model::Model() : _flowUnits(1), _headUnits(1), _pressureUnits(1) {
   _iterations.reset( new TimeSeries() );
   _convergence.reset( new TimeSeries() );
   
-  _relativeError->setName("Relative Error");
-  _iterations->setName("Iterations");
-  _convergence->setName("Convergence Status");
+  _relativeError->setName("simulation_relative_error");
+  _relativeError->setUnits(RTX_DIMENSIONLESS);
+  _iterations->setName("simulation_iterations");
+  _iterations->setUnits(RTX_DIMENSIONLESS);
+  _convergence->setName("simulation_convergence");
+  _convergence->setUnits(RTX_DIMENSIONLESS);
   _doesOverrideDemands = false;
   _shouldRunWaterQuality = false;
   
