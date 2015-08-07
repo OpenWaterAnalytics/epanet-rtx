@@ -280,8 +280,8 @@ Units Units::unitOfType(const string& unitString) {
     boost::split(components, unitString, boost::is_any_of("*")); // split on multiplier
     
     if (components.size() < 1) {
-      cerr << "WARNING: Units not recognized: " << uStr << " - defaulting to dimensionless." << endl;
-      return RTX_DIMENSIONLESS;
+      cerr << "WARNING: Units not recognized: " << uStr << " - defaulting to NO UNITS." << endl;
+      return RTX_NO_UNITS;
     }
     
     // first component will be the unit conversion, so cast that into a number.
@@ -289,8 +289,8 @@ Units Units::unitOfType(const string& unitString) {
     try {
       conversionFactor = boost::lexical_cast<double>(components.front());
     } catch (...) {
-      cerr << "WARNING: Units not recognized: " << uStr << "- defaulting to dimensionless." << endl;
-      return RTX_DIMENSIONLESS;
+      cerr << "WARNING: Units not recognized: " << uStr << "- defaulting to NO UNITS." << endl;
+      return RTX_NO_UNITS;
     }
     
     components.pop_front();
