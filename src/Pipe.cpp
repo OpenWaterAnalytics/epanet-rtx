@@ -51,6 +51,13 @@ void Pipe::setLength(double length) {
   _length = length;
 }
 
+double Pipe::roughness() {
+  return _roughness;
+}
+void Pipe::setRoughness(double roughness) {
+  _roughness = roughness;
+}
+
 TimeSeries::_sp Pipe::flow() {
   return _flowState;
 }

@@ -29,6 +29,9 @@ namespace RTX {
     void setLength(double length);
     void setDiameter(double diameter);
     
+    double roughness();
+    void setRoughness(double roughness);
+    
     status_t fixedStatus();
     void setFixedStatus(status_t status);
     
@@ -52,6 +55,7 @@ namespace RTX {
     status_t _fixedStatus;
     double _length;
     double _diameter;
+    double _roughness;
     TimeSeries::_sp _flowState;
     TimeSeries::_sp _flowMeasure;
     TimeSeries::_sp _status;
