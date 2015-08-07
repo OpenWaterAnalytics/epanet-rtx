@@ -109,6 +109,7 @@ namespace RTX {
     Units(double conversion = 1., int mass = 0, int length = 0, int time = 0, int current = 0, int temperature = 0, int amount = 0, int intensity = 0, double offset = 0);
     
     Units operator*(const Units& unit) const;
+    Units operator*(const double factor) const;
     Units operator/(const Units& unit) const;
     Units operator^(const double power) const;
     bool operator==(const Units& unit) const;

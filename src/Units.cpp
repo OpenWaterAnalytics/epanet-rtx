@@ -51,6 +51,12 @@ Units Units::operator*(const Units& unit) const {
                _intensity + unit._intensity);
 }
 
+Units Units::operator*(const double factor) const {
+  return Units(_conversion * factor,
+               _mass, _length, _time, _current, _temperature, _amount, _intensity, _offset);
+}
+
+
 Units Units::operator/(const Units& unit) const {
   
   return Units(_conversion / unit._conversion,
@@ -254,6 +260,8 @@ map<string, Units> Units::unitStringMap() {
   
   m["xx-no-units"] = RTX_NO_UNITS;
   //m["%"] = RTX_DIMENSIONLESS;
+  
+  m["psi-to-ft"] = RTX_FOOT * 2.30665873688 / RTX_PSI;
   
   return m;
 }
