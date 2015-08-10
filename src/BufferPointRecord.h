@@ -67,7 +67,6 @@ namespace RTX {
   protected:
     
   private:
-    PointBuffer_t::iterator _cacheIterator;
     KeyedBufferMap_t _keyedBuffers;
     size_t _defaultCapacity;
     boost::signals2::mutex _bigMutex;

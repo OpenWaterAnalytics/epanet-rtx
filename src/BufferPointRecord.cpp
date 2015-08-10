@@ -93,7 +93,7 @@ Point BufferPointRecord::point(const string& identifier, time_t time) {
   if (pFirst.time <= time && time <= pLast.time) {
     // search the buffer
     Point finder(time, 0);
-    PointBuffer_t::iterator startIterator = /*(_cacheIterator->time < pFirst.time) ? _cacheIterator :*/ buffer.begin();
+    PointBuffer_t::iterator startIterator = buffer.begin();
     PointBuffer_t::iterator pbIt = std::lower_bound(startIterator, buffer.end(), finder, &Point::comparePointTime);
     if (pbIt != buffer.end() && pbIt->time == time) {
       Point p = *pbIt;
