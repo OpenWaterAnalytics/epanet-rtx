@@ -102,14 +102,17 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange 
   TimeSeries::_sp sourceTs = this->source();
   time_t windowWidth = this->correlationWindow()->period();
   
-  set<time_t> times = m_primaryCollection.trimmedToRange(range).times(); //this->timeValuesInRange(range);
+  set<time_t> sampleTimes;
   if (this->clock()) {
-    times = this->clock()->timeValuesInRange(range);
+    sampleTimes = this->clock()->timeValuesInRange(range);
+  }
+  else {
+    sampleTimes = m_primaryCollection.trimmedToRange(range).times(); //this->timeValuesInRange(range);
   }
   vector<Point> thePoints;
-  thePoints.reserve(times.size());
+  thePoints.reserve(sampleTimes.size());
   
-  BOOST_FOREACH(time_t t, times) {
+  BOOST_FOREACH(time_t t, sampleTimes) {
     double corrcoef = 0;
     TimeRange q(t-windowWidth, t);
     PointCollection sourceCollection = m_primaryCollection.trimmedToRange(q); //sourceTs->pointCollection(q);
