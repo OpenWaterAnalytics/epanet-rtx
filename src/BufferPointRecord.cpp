@@ -179,6 +179,8 @@ Point BufferPointRecord::pointAfter(const string& identifier, time_t time) {
 
 std::vector<Point> BufferPointRecord::pointsInRange(const string& identifier, time_t startTime, time_t endTime) {
   
+  scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
+  
   std::vector<Point> pointVector;
   
   //TimePointPair_t finder(startTime, PointPair_t(0,0));
