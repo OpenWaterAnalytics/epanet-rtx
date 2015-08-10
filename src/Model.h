@@ -187,6 +187,8 @@ namespace RTX {
     void setVolumeUnits(Units units);
     
     
+    void setSimulationLoggingCallback(std::function<void(std::string)> simCallback);
+    std::function<void(std::string)> simulationLoggingCallback();
     
   protected:
     
@@ -243,7 +245,9 @@ namespace RTX {
     // master list access
     void add(Junction::_sp newJunction);
     void add(Pipe::_sp newPipe);
-
+    
+    void logLine(const std::string& line);
+    
     // element lists
     // master node/link lists
 //    std::vector<Node::_sp> _nodes;
@@ -277,6 +281,8 @@ namespace RTX {
     boost::signals2::mutex _simulationInProcessMutex;
     
     double _initialQuality;
+    
+    std::function<void(std::string)> _simLogCallback;
     
   };
   

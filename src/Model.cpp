@@ -64,6 +64,8 @@ Model::Model() : _flowUnits(1), _headUnits(1), _pressureUnits(1) {
   _name = "Model";
   _shouldCancelSimulation = false;
   _tanksNeedReset = false;
+  
+  _simLogCallback = NULL;
 }
 Model::~Model() {
   
@@ -97,6 +99,34 @@ bool Model::shouldRunWaterQuality() {
 
 void Model::setShouldRunWaterQuality(bool run) {
   _shouldRunWaterQuality = run;
+}
+
+
+// logging
+
+std::function<void(std::string)> Model::simulationLoggingCallback()
+{
+  return _simLogCallback;
+}
+void Model::setSimulationLoggingCallback(std::function<void (std::string)> simCallback) {
+  
+  _simLogCallback = simCallback;
+  
+  try {
+    this->logLine("Setting Callback");
+  } catch (...) {
+    _simLogCallback = NULL;
+    std::cerr << "callback setting failed" << endl;
+  }
+  
+}
+
+void Model::logLine(const std::string& line) {
+  if (_simLogCallback != NULL) {
+    stringstream ss;
+    ss << line << endl;
+    _simLogCallback(ss.str());
+  }
 }
 
 
@@ -616,6 +646,11 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
       simulationTime = currentSimulationTime();
       
       timeinfo = localtime (&simulationTime);
+      
+      stringstream ss;
+      ss << "Simulation time: " << asctime(timeinfo);
+      this->logLine(ss.str());
+      
       cout << "Simulation time :: " << asctime(timeinfo) << endl;
     }
     else {
