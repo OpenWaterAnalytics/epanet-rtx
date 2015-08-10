@@ -103,6 +103,9 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange 
   time_t windowWidth = this->correlationWindow()->period();
   
   set<time_t> times = m_primaryCollection.trimmedToRange(range).times(); //this->timeValuesInRange(range);
+  if (this->clock()) {
+    times = this->clock()->timeValuesInRange(range);
+  }
   vector<Point> thePoints;
   thePoints.reserve(times.size());
   
