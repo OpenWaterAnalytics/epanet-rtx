@@ -84,8 +84,8 @@ void MetaTimeSeries::didSetSource(TimeSeries::_sp ts) {
 }
 
 bool MetaTimeSeries::canChangeToUnits(Units units) {
-  if (_metaMode == MetaModeGap && units.isSameDimensionAs(RTX_SECOND)) {
-    return true;
+  if (_metaMode == MetaModeGap) {
+    return (units.isSameDimensionAs(RTX_SECOND));
   }
   else if (units.isDimensionless()) {
     return true;
@@ -94,8 +94,16 @@ bool MetaTimeSeries::canChangeToUnits(Units units) {
 }
 
 void MetaTimeSeries::setMetaMode(RTX::MetaTimeSeries::MetaMode mode) {
+  if (mode == _metaMode) {
+    return;
+  }
+  
   _metaMode = mode;
   this->invalidate();
+  
+  if (_metaMode == MetaModeGap) {
+    this->setUnits(RTX_SECOND);
+  }
 }
 
 MetaTimeSeries::MetaMode MetaTimeSeries::metaMode() {
