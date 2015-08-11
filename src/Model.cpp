@@ -1108,7 +1108,7 @@ void Model::setSimulationParameters(time_t time) {
       }
       else {
         stringstream ss;
-        ss << "WARN: Ignoring setting for Pump because status is Closed" << pump->name() << " :: " << asctime(timeinfo);
+        ss << "WARN: Ignoring setting for Pump because status is Closed: " << pump->name() << " :: " << asctime(timeinfo);
         this->logLine(ss.str());
       }
     }
