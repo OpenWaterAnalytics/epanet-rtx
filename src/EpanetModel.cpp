@@ -794,6 +794,7 @@ void EpanetModel::OW_API_CHECK(int errorCode, string externalFunction) throw(str
   if (errorCode > 10) {
     char errorMsg[256];
     OW_geterror(errorCode, errorMsg, 255);
+    this->logLine(string(errorMsg));
     throw externalFunction + "::" + std::string(errorMsg);
   }
 }

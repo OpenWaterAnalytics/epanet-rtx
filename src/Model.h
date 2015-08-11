@@ -235,7 +235,7 @@ namespace RTX {
     double nodeDirectDistance(Node::_sp n1, Node::_sp n2);
     double toRadians(double degrees);
     
-    
+    void logLine(const std::string& line);
     
   private:
     string _name;
@@ -247,7 +247,7 @@ namespace RTX {
     void add(Junction::_sp newJunction);
     void add(Pipe::_sp newPipe);
     
-    void logLine(const std::string& line);
+    
     
     // element lists
     // master node/link lists
