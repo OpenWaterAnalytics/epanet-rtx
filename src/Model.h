@@ -50,6 +50,7 @@ namespace RTX {
   public:
     RTX_SHARED_POINTER(Model);
     
+    typedef void (^RTX_Logging_Callback_Block)(const char *msg);
     
     // Control is a public class of Model
     class Control {
@@ -187,8 +188,8 @@ namespace RTX {
     void setVolumeUnits(Units units);
     
     
-    void setSimulationLoggingCallback(std::function<void(std::string)> simCallback);
-    std::function<void(std::string)> simulationLoggingCallback();
+    void setSimulationLoggingCallback(RTX_Logging_Callback_Block);
+    RTX_Logging_Callback_Block simulationLoggingCallback();
     
   protected:
     
@@ -282,7 +283,9 @@ namespace RTX {
     
     double _initialQuality;
     
-    std::function<void(std::string)> _simLogCallback;
+    RTX_Logging_Callback_Block _simLogCallback;
+    
+//    std::function<void(std::string)> _simLogCallback;
     
   };
   

@@ -104,13 +104,13 @@ void Model::setShouldRunWaterQuality(bool run) {
 
 // logging
 
-std::function<void(std::string)> Model::simulationLoggingCallback()
+Model::RTX_Logging_Callback_Block Model::simulationLoggingCallback()
 {
   return _simLogCallback;
 }
-void Model::setSimulationLoggingCallback(std::function<void (std::string)> simCallback) {
+void Model::setSimulationLoggingCallback(Model::RTX_Logging_Callback_Block block) {
   
-  _simLogCallback = simCallback;
+  _simLogCallback = block;
   
   try {
     this->logLine("Setting Callback");
@@ -125,7 +125,8 @@ void Model::logLine(const std::string& line) {
   if (_simLogCallback != NULL) {
     stringstream ss;
     ss << line << endl;
-    _simLogCallback(ss.str());
+    const char *msg = ss.str().c_str();
+    _simLogCallback(msg);
   }
 }
 
