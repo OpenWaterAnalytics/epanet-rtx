@@ -20,6 +20,8 @@
 		220AE471145B29F7002F07B4 /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE470145B29F7002F07B4 /* Node.cpp */; };
 		220AE473145B2A0D002F07B4 /* Link.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE472145B2A0C002F07B4 /* Link.cpp */; };
 		220AE475145B2A28002F07B4 /* Dma.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE474145B2A28002F07B4 /* Dma.cpp */; };
+		220B46251B7E740000B81B90 /* libsqlite3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 220B46241B7E740000B81B90 /* libsqlite3.a */; };
+		220B46261B7E741300B81B90 /* libsqlite3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 220B46241B7E740000B81B90 /* libsqlite3.a */; };
 		220F9DD618F9E1BE00BB842C /* readConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220F9DD518F9E1BE00BB842C /* readConfig.cpp */; };
 		220F9DDD18F9E68B00BB842C /* CsvPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22CE31EB17399403008AC1F9 /* CsvPointRecord.cpp */; };
 		220F9DDE18F9E68B00BB842C /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BF02D215EBCABC00F66465 /* Point.cpp */; };
@@ -157,7 +159,6 @@
 		221BFD6D1A8E8AD000143FCC /* MultiplierTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 226AC14B17340D06009B7C90 /* MultiplierTimeSeries.cpp */; };
 		221BFD6E1A8E8AD000143FCC /* StatsTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224E047E1979431C0039E3F9 /* StatsTimeSeries.cpp */; };
 		221BFD6F1A8E8AD000143FCC /* GainTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22A842D3173BF445009CE769 /* GainTimeSeries.cpp */; };
-		221BFD711A8E8AD000143FCC /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 43E5BBE51A8AF55A00CC93D6 /* libsqlite3.dylib */; };
 		221BFD721A8E8AD000143FCC /* libpython.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 223646901A8AB8D7007DC074 /* libpython.dylib */; };
 		221BFD731A8E8AD000143FCC /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2236468E1A8AB8CF007DC074 /* libcurl.dylib */; };
 		221BFD741A8E8AD000143FCC /* libepanet-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22A667A719E4819500CEB0BC /* libepanet-static.a */; };
@@ -261,7 +262,6 @@
 		224A92691A8BABD300D8FBE2 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22C62AC01439ED6300841E60 /* libepanet-rtx.dylib */; };
 		224A927B1A8BAEAA00D8FBE2 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD3173C2E9700309C2F /* libboost_system.a */; };
 		224A927C1A8BAEAE00D8FBE2 /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD1173C2E9700309C2F /* libboost_filesystem.a */; };
-		224A927D1A8BB3CB00D8FBE2 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 43E5BBE51A8AF55A00CC93D6 /* libsqlite3.dylib */; };
 		224A92801A8BD4F100D8FBE2 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 220F9E4C18F9E68B00BB842C /* libepanet-rtx.dylib */; };
 		224A92821A8BD51E00D8FBE2 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 224A92811A8BD51E00D8FBE2 /* libsqlite3.dylib */; };
 		224C41991A434FCB008852C4 /* ModelPerformance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224C41971A434FCB008852C4 /* ModelPerformance.cpp */; };
@@ -695,6 +695,7 @@
 		220AE470145B29F7002F07B4 /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Node.cpp; path = ../../src/Node.cpp; sourceTree = "<group>"; };
 		220AE472145B2A0C002F07B4 /* Link.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Link.cpp; path = ../../src/Link.cpp; sourceTree = "<group>"; };
 		220AE474145B2A28002F07B4 /* Dma.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Dma.cpp; path = ../../src/Dma.cpp; sourceTree = "<group>"; };
+		220B46241B7E740000B81B90 /* libsqlite3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsqlite3.a; path = ../../../../../../../usr/local/lib/libsqlite3.a; sourceTree = "<group>"; };
 		220F9DD518F9E1BE00BB842C /* readConfig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = readConfig.cpp; path = ../../examples/readConfig.cpp; sourceTree = "<group>"; };
 		220F9E4C18F9E68B00BB842C /* libepanet-rtx.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libepanet-rtx.dylib"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2211D2041A6D69EA00E34B9B /* TimeSeriesSynthetic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesSynthetic.cpp; path = ../../src/TimeSeriesSynthetic.cpp; sourceTree = "<group>"; };
@@ -880,7 +881,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				221BFD711A8E8AD000143FCC /* libsqlite3.dylib in Frameworks */,
+				220B46261B7E741300B81B90 /* libsqlite3.a in Frameworks */,
 				221BFD721A8E8AD000143FCC /* libpython.dylib in Frameworks */,
 				221BFD731A8E8AD000143FCC /* libcurl.dylib in Frameworks */,
 				221BFD741A8E8AD000143FCC /* libepanet-static.a in Frameworks */,
@@ -937,8 +938,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				220B46251B7E740000B81B90 /* libsqlite3.a in Frameworks */,
 				224EDED31B4D8E380029FC37 /* libjson-c.a in Frameworks */,
-				224A927D1A8BB3CB00D8FBE2 /* libsqlite3.dylib in Frameworks */,
 				223646911A8AB8D7007DC074 /* libpython.dylib in Frameworks */,
 				2236468F1A8AB8CF007DC074 /* libcurl.dylib in Frameworks */,
 				22A667A919E481B900CEB0BC /* libepanet-static.a in Frameworks */,
@@ -1258,6 +1259,7 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
+				220B46241B7E740000B81B90 /* libsqlite3.a */,
 				224EDED21B4D8E380029FC37 /* libjson-c.a */,
 				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
 				22C34357187D9441000100A4 /* epanetmsx.xcodeproj */,
@@ -2451,6 +2453,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/com.citilogics.dev,
+					/usr/local/lib,
 					/usr/lib,
 					/Library/Frameworks,
 					"$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
@@ -2484,6 +2487,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/com.citilogics.dev,
+					/usr/local/lib,
 					/usr/lib,
 					/Library/Frameworks,
 					"$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
