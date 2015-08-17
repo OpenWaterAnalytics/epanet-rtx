@@ -1383,18 +1383,35 @@ vector<TimeSeries::_sp> Model::networkInputSeries(elementOption_t options) {
         if (t->levelMeasure() && (options & ElementOptionMeasuredTanks)) {
           measures.push_back(t->levelMeasure());
         }
-        if (t->flowMeasure() && (options & ElementOptionMeasuredTanks)) {
-          measures.push_back(t->flowMeasure());
+        if (t->headMeasure() && (options & ElementOptionMeasuredTanks)) {
+          measures.push_back(t->headMeasure());
         }
+        if (t->qualityMeasure() && (options & ElementOptionMeasuredQuality)) {
+          measures.push_back(t->qualityMeasure());
+        }
+        if (t->qualitySource() && (options & ElementOptionMeasuredQuality)) {
+          measures.push_back(t->qualitySource());
+        }
+        break;
+      }
+      case Element::RESERVOIR:
+      {
+        Reservoir::_sp r = boost::dynamic_pointer_cast<Reservoir>(element);
+        if (r->headMeasure() && (options & ElementOptionMeasuredTanks)) {
+          measures.push_back(r->headMeasure());
+        }
+        if (r->qualityMeasure() && (options & ElementOptionMeasuredQuality)) {
+          measures.push_back(r->qualityMeasure());
+        }
+        if (r->qualitySource() && (options & ElementOptionMeasuredQuality)) {
+          measures.push_back(r->qualitySource());
+        }
+        break;
       }
       case Element::JUNCTION:
-      case Element::RESERVOIR:
       {
         Junction::_sp junc;
         junc = boost::static_pointer_cast<Junction>(element);
-        if (junc->headMeasure() && (options & ElementOptionMeasuredTanks)) {
-          measures.push_back(junc->headMeasure());
-        }
         if (junc->qualityMeasure() && (options & ElementOptionMeasuredQuality)) {
           measures.push_back(junc->qualityMeasure());
         }
@@ -1406,6 +1423,9 @@ vector<TimeSeries::_sp> Model::networkInputSeries(elementOption_t options) {
         }
         if (junc->pressureMeasure() && (options & ElementOptionMeasuredPressures)) {
           measures.push_back(junc->pressureMeasure());
+        }
+        if (junc->headMeasure() && (options & ElementOptionMeasuredPressures)) {
+          measures.push_back(junc->headMeasure());
         }
         break;
       }

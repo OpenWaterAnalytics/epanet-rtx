@@ -130,7 +130,7 @@ string InfluxDbPointRecord::connectionString() {
 
 void InfluxDbPointRecord::setConnectionString(const std::string &str) {
   
-  // split the tokenized string. we're expecting something like "host=127.0.0.1&port=4242;"
+  // split the tokenized string. we're expecting something like "host=127.0.0.1&port=4242"
   std::map<std::string, std::string> kvPairs;
   {
     boost::regex kvReg("([^=]+)=([^&]+)&?"); // key - value pair

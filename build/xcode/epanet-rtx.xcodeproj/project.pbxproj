@@ -23,7 +23,6 @@
 		220B46251B7E740000B81B90 /* libsqlite3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 220B46241B7E740000B81B90 /* libsqlite3.a */; };
 		220B46261B7E741300B81B90 /* libsqlite3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 220B46241B7E740000B81B90 /* libsqlite3.a */; };
 		220F9DD618F9E1BE00BB842C /* readConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220F9DD518F9E1BE00BB842C /* readConfig.cpp */; };
-		220F9DDD18F9E68B00BB842C /* CsvPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22CE31EB17399403008AC1F9 /* CsvPointRecord.cpp */; };
 		220F9DDE18F9E68B00BB842C /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BF02D215EBCABC00F66465 /* Point.cpp */; };
 		220F9DDF18F9E68B00BB842C /* AggregatorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C62ACB1439EE0B00841E60 /* AggregatorTimeSeries.cpp */; };
 		220F9DE018F9E68B00BB842C /* MovingAverage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C62AD21439EE0B00841E60 /* MovingAverage.cpp */; };
@@ -279,7 +278,6 @@
 		224EDECE1B4D8E040029FC37 /* influx_api.h in Headers */ = {isa = PBXBuildFile; fileRef = 224EDECC1B4D8E040029FC37 /* influx_api.h */; };
 		224EDECF1B4D8E040029FC37 /* influx_api.h in Headers */ = {isa = PBXBuildFile; fileRef = 224EDECC1B4D8E040029FC37 /* influx_api.h */; };
 		224EDED01B4D8E040029FC37 /* influx_client.c in Sources */ = {isa = PBXBuildFile; fileRef = 224EDECD1B4D8E040029FC37 /* influx_client.c */; };
-		224EDED11B4D8E040029FC37 /* influx_client.c in Sources */ = {isa = PBXBuildFile; fileRef = 224EDECD1B4D8E040029FC37 /* influx_client.c */; };
 		224EDED31B4D8E380029FC37 /* libjson-c.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 224EDED21B4D8E380029FC37 /* libjson-c.a */; };
 		2251FFEF1A0A7CEC00C4D483 /* libepanet-rtx-project.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */; };
 		2251FFF01A0A7E2900C4D483 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22C62AC01439ED6300841E60 /* libepanet-rtx.dylib */; };
@@ -336,7 +334,6 @@
 		229E11361B06309C007766F3 /* libepanet-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22A667A719E4819500CEB0BC /* libepanet-static.a */; };
 		229E11391B063161007766F3 /* libboost_timer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 43E5BC011A8B0BEB00CC93D6 /* libboost_timer.a */; };
 		229E113A1B063177007766F3 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD3173C2E9700309C2F /* libboost_system.a */; };
-		229FBEA3190807B3004FE5A4 /* InfluxDbPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 229FBEA0190807B3004FE5A4 /* InfluxDbPointRecord.cpp */; };
 		229FBEA4190807B3004FE5A4 /* InfluxDbPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */; };
 		229FBEA5190807B3004FE5A4 /* InfluxDbPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */; };
 		22A4B41914E1B93D006D01C3 /* Clock.h in Headers */ = {isa = PBXBuildFile; fileRef = 22A4B41814E1B93D006D01C3 /* Clock.h */; };
@@ -411,7 +408,6 @@
 		22F63D3816C5735100A15368 /* SineTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F63D3616C5735100A15368 /* SineTimeSeries.h */; };
 		43627ECA171F27E3007AE0F5 /* ThresholdTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 43627EC9171F27E3007AE0F5 /* ThresholdTimeSeries.h */; };
 		43627ED0171F286C007AE0F5 /* ThresholdTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43627ECF171F286C007AE0F5 /* ThresholdTimeSeries.cpp */; };
-		43E5BBE61A8AF55A00CC93D6 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 43E5BBE51A8AF55A00CC93D6 /* libsqlite3.dylib */; };
 		43E5BBF31A8AF85400CC93D6 /* libpython.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 223646901A8AB8D7007DC074 /* libpython.dylib */; };
 		43E5BBF41A8AF87300CC93D6 /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2236468E1A8AB8CF007DC074 /* libcurl.dylib */; };
 		43E5BBF51A8AF88D00CC93D6 /* libepanet-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22A667A719E4819500CEB0BC /* libepanet-static.a */; };
@@ -420,6 +416,7 @@
 		43E5BC171A8B117C00CC93D6 /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD1173C2E9700309C2F /* libboost_filesystem.a */; };
 		43E5BC181A8B118400CC93D6 /* libboost_regex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD2173C2E9700309C2F /* libboost_regex.a */; };
 		43E5BC191A8B118900CC93D6 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD3173C2E9700309C2F /* libboost_system.a */; };
+		AC42DB7D1B8254C1002E17B8 /* libsqlite3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 220B46241B7E740000B81B90 /* libsqlite3.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -864,7 +861,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				43E5BBE61A8AF55A00CC93D6 /* libsqlite3.dylib in Frameworks */,
+				AC42DB7D1B8254C1002E17B8 /* libsqlite3.a in Frameworks */,
 				43E5BBF31A8AF85400CC93D6 /* libpython.dylib in Frameworks */,
 				43E5BBF41A8AF87300CC93D6 /* libcurl.dylib in Frameworks */,
 				43E5BBF51A8AF88D00CC93D6 /* libepanet-static.a in Frameworks */,
@@ -1993,7 +1990,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				220F9DDD18F9E68B00BB842C /* CsvPointRecord.cpp in Sources */,
 				228CA8D71AA0CBFF00D0353E /* InpTextPattern.cpp in Sources */,
 				220F9DDE18F9E68B00BB842C /* Point.cpp in Sources */,
 				220F9DDF18F9E68B00BB842C /* AggregatorTimeSeries.cpp in Sources */,
@@ -2013,7 +2009,6 @@
 				220F9DEF18F9E68B00BB842C /* Clock.cpp in Sources */,
 				220F9DF118F9E68B00BB842C /* PointRecord.cpp in Sources */,
 				220F9DF218F9E68B00BB842C /* EpanetSyntheticModel.cpp in Sources */,
-				229FBEA3190807B3004FE5A4 /* InfluxDbPointRecord.cpp in Sources */,
 				220F9DF318F9E68B00BB842C /* EpanetMsxModel.cpp in Sources */,
 				220F9DF418F9E68B00BB842C /* Junction.cpp in Sources */,
 				22CF1C2A1A68094300161188 /* TimeSeriesFilter.cpp in Sources */,
@@ -2036,7 +2031,6 @@
 				221BFC701A8E584500143FCC /* IntegratorTimeSeries.cpp in Sources */,
 				220F9E0318F9E68B00BB842C /* BufferPointRecord.cpp in Sources */,
 				220F9E0618F9E68B00BB842C /* ThresholdTimeSeries.cpp in Sources */,
-				224EDED11B4D8E040029FC37 /* influx_client.c in Sources */,
 				224D40D819786C3000160BD5 /* BaseStatsTimeSeries.cpp in Sources */,
 				22459FA81A44C41800AFD0BD /* CorrelatorTimeSeries.cpp in Sources */,
 				220F9E0718F9E68B00BB842C /* SqlitePointRecord.cpp in Sources */,

@@ -365,7 +365,13 @@ bool TimeSeriesFilter::canChangeToUnits(Units units) {
   return canChange;
 }
 
-
+TimeSeries::_sp TimeSeriesFilter::rootTimeSeries() {
+  TimeSeries::_sp source = this->source();
+  if (source) {
+    source = source->rootTimeSeries();
+  }
+  return source;
+}
 
 
 

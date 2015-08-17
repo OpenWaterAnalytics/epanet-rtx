@@ -37,6 +37,7 @@
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -325,6 +326,35 @@ void SqliteProjectFile::loadRecordsFromDb() {
           // string one or zero (1,0)
           bool readOnly = boost::lexical_cast<bool>(value);
           boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->setReadonly(readOnly);
+        }
+        else if (RTX_STRINGS_ARE_EQUAL(key, "filterString")) {
+          vector<string> parts;
+          boost::split(parts, value, boost::is_any_of(":"));
+          string filterTypeString = parts[0];
+          
+          DbPointRecord::OpcFilterType filterType;
+          if (boost::iequals(filterTypeString, "blacklist")) {
+            filterType = DbPointRecord::OpcFilterType::OpcBlackList;
+          }
+          else if (boost::iequals(filterTypeString, "whitelist")) {
+            filterType = DbPointRecord::OpcFilterType::OpcWhiteList;
+          }
+          else if (boost::iequals(filterTypeString, "codes")) {
+            filterType = DbPointRecord::OpcFilterType::OpcCodesToValues;
+          }
+          else {
+            filterType = DbPointRecord::OpcFilterType::OpcPassThrough;
+          }
+          boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->setOpcFilterType(filterType);
+          
+          if (parts.size() > 1) {
+            vector<string> codeStrings;
+            boost::split(codeStrings, parts[1], boost::is_any_of(","));
+            BOOST_FOREACH(string s, codeStrings) {
+              unsigned int code = boost::lexical_cast<int>(s);
+              boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->addOpcFilterCode(code);
+            }
+          }
         }
         
       }
