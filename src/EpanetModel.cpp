@@ -22,7 +22,7 @@ EpanetModel::EpanetModel() : Model() {
   // nothing to do, right?
   _enOpened = false;
   _enModel = NULL;
-  //OW_API_CHECK( OW_newModel(&_enModel), "OW_newModel");
+//  OW_API_CHECK( OW_newModel(&_enModel), "OW_newModel");
 }
 
 EpanetModel::~EpanetModel() {
@@ -745,6 +745,9 @@ void EpanetModel::setQualityTimeStep(int seconds) {
 }
 
 void EpanetModel::applyInitialQuality() {
+  if (!_enOpened) {
+    return;
+  }
   OW_API_CHECK(OW_closeQ(_enModel), "OW_closeQ");
   OW_API_CHECK(OW_openQ(_enModel), "OW_openQ");
 
