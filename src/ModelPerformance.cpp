@@ -64,6 +64,7 @@ map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForEle
   rmse->setSource(error);
 
   CorrelatorTimeSeries::_sp maxCor(new CorrelatorTimeSeries);
+  maxCor->setUnits(RTX_DIMENSIONLESS);
   maxCor->setLagSeconds(correlationMaxLag);
   maxCor->setSource(measured);
   maxCor->setCorrelationWindow(samplingWindow);
@@ -362,6 +363,7 @@ TimeSeries::_sp ModelPerformance::errorForPair(std::pair<TimeSeries::_sp, TimeSe
       //TimeSeries::_sp maxCor = CorrelatorTimeSeries::correlationArray(tsPair.first, tsPair.second, this->samplingWindow(), nLags);
       
       CorrelatorTimeSeries::_sp corr(new CorrelatorTimeSeries());
+      corr->setUnits(RTX_DIMENSIONLESS);
       corr->setClock(this->errorClock());
       corr->setCorrelationWindow(this->samplingWindow());
       corr->setSource(tsPair.first);
