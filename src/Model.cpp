@@ -36,6 +36,13 @@ bool _rtxmodel_isDbRecord(PointRecord::_sp record);
 
 
 Model::Model() : _flowUnits(1), _headUnits(1), _pressureUnits(1) {
+  this->initObj();
+}
+Model::~Model() {
+  
+}
+
+void Model::initObj() {
   // default reset clock is 24 hours, default reporting clock is 1 hour.
   // TODO -- configure boundary reset clock in a smarter way?
   _regularMasterClock.reset( new Clock(3600) );
@@ -67,9 +74,13 @@ Model::Model() : _flowUnits(1), _headUnits(1), _pressureUnits(1) {
   
   _simLogCallback = NULL;
 }
-Model::~Model() {
-  
+
+
+Model::Model(const std::string &filename) {
+  this->initObj();
+  _modelFile = filename;
 }
+
 std::ostream& RTX::operator<< (std::ostream &out, Model &model) {
   return model.toStream(out);
 }
@@ -84,10 +95,10 @@ string Model::name() {
 void Model::setName(string name) {
   _name = name;
 }
-
-void Model::loadModelFromFile(const std::string& filename) throw(std::exception) {
-  _modelFile = filename;
-}
+//
+//void Model::loadModelFromFile(const std::string& filename) throw(std::exception) {
+//  _modelFile = filename;
+//}
 
 std::string Model::modelFile() {
   return _modelFile;

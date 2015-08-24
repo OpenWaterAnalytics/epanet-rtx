@@ -63,12 +63,14 @@ namespace RTX {
     };
     
     Model();
+    Model(const std::string& filename);
     virtual ~Model();
+    
     virtual void initEngine() { };
     virtual void closeEngine() { };
     std::string name();
     void setName(std::string name);
-    virtual void loadModelFromFile(const string& filename) throw(std::exception);
+//    virtual void loadModelFromFile(const string& filename) throw(std::exception);
     string modelFile();
     virtual void overrideControls() throw(RtxException);
     
@@ -238,6 +240,7 @@ namespace RTX {
     void logLine(const std::string& line);
     
   private:
+    void initObj();
     string _name;
     string _modelFile;
     bool _shouldRunWaterQuality;

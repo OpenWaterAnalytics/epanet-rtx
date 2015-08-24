@@ -32,8 +32,9 @@ namespace RTX {
   public:
     RTX_SHARED_POINTER(EpanetModel);
     EpanetModel();
+    EpanetModel(const std::string& filename);
     ~EpanetModel();
-    void loadModelFromFile(const std::string& filename) throw(std::exception);
+//    void loadModelFromFile(const std::string& filename) throw(std::exception);
     virtual void initEngine();
     virtual void closeEngine();
     void useEpanetFile(const std::string& filename);

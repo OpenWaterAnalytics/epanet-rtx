@@ -35,30 +35,18 @@ OW_Project* EpanetModel::epanetModelPointer() {
   return _enModel;
 }
 
-#pragma mark - Loading
-
-void EpanetModel::loadModelFromFile(const std::string& filename) throw(std::exception) {
-  
-  if (_enOpened) {
-    this->closeEngine();
-  }
-  
-  // base class invocation
-  Model::loadModelFromFile(filename);
-  
+EpanetModel::EpanetModel(const std::string& filename) {
   try {
-    
     this->useEpanetFile(filename);
     this->createRtxWrappers();
-    
   }
   catch(const std::string& errStr) {
     std::cerr << "ERROR: ";
     throw RtxException("File Loading Error: " + errStr);
   }
-  
 }
 
+#pragma mark - Loading
 
 void EpanetModel::useEpanetFile(const std::string& filename) {
   
