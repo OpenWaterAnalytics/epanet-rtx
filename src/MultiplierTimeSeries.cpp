@@ -73,7 +73,7 @@ void MultiplierTimeSeries::didSetSource(TimeSeries::_sp ts) {
   }
   
   Units nativeDerivedUnits = this->source()->units() * this->multiplier()->units();
-  if (!this->units().isSameDimensionAs(nativeDerivedUnits)) {
+  if (!this->units().isSameDimensionAs(nativeDerivedUnits) || this->units() == RTX_NO_UNITS) {
     this->setUnits(nativeDerivedUnits);
   }
   
