@@ -40,7 +40,7 @@ namespace RTX {
     virtual bool supportsUnitsColumn() = 0; /// subs must implement!
     
     virtual bool registerAndGetIdentifierForSeriesWithUnits(std::string name, Units units);
-    virtual std::vector< nameUnitsPair > identifiersAndUnits(); /// simple cache
+    const virtual std::map<std::string,Units> identifiersAndUnits(); /// simple cache
     
     // end of the road for these guys; no virtuals.
     Point point(const string& id, time_t time);
@@ -59,6 +59,9 @@ namespace RTX {
     virtual bool isConnected(){return false;} // abstract base can't have a connection;
     
     virtual bool supportsBoundedQueries();
+    virtual bool canAssignUnits();
+    virtual bool assignUnitsToRecord(const std::string& name, const Units& units);
+    
     
     // db searching prefs
     void setSearchDistance(time_t time);
@@ -119,7 +122,7 @@ namespace RTX {
     virtual void removeRecord(const std::string& id)=0;
     virtual bool insertIdentifierAndUnits(const std::string& id, Units units)=0;
     
-    std::vector< nameUnitsPair > _identifiersAndUnitsCache; /// for subs to use
+    std::map<std::string,Units> _identifiersAndUnitsCache; /// for subs to use
     time_t _lastIdRequest;
     
     class request_t {

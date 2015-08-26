@@ -57,10 +57,10 @@ bool BufferPointRecord::registerAndGetIdentifierForSeriesWithUnits(std::string r
   return true;
 }
 
-std::vector< PointRecord::nameUnitsPair > BufferPointRecord::identifiersAndUnits() {
-  vector< nameUnitsPair > ids;
+const std::map<std::string,Units> BufferPointRecord::identifiersAndUnits() {
+  std::map<std::string,Units> ids;
   BOOST_FOREACH(StringBufferPair p, _keyedBuffers) {
-    ids.push_back(make_pair(p.first, p.second.units));
+    ids[p.first] = p.second.units;
   }
   return ids;
 }

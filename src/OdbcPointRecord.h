@@ -98,7 +98,7 @@ namespace RTX {
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
     
-    virtual std::vector< nameUnitsPair > identifiersAndUnits();
+    const virtual std::map<std::string,Units> identifiersAndUnits();
     virtual std::ostream& toStream(std::ostream &stream);
     
     void setTimeFormat(PointRecordTime::time_format_t timeFormat);

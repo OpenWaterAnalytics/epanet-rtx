@@ -101,6 +101,7 @@
 		2211D2071A6D69EA00E34B9B /* TimeSeriesSynthetic.h in Headers */ = {isa = PBXBuildFile; fileRef = 2211D2051A6D69EA00E34B9B /* TimeSeriesSynthetic.h */; };
 		221A19CC1579111A00F0699E /* EpanetSyntheticModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 221A19CB1579111900F0699E /* EpanetSyntheticModel.h */; };
 		221A19CF1579112B00F0699E /* EpanetSyntheticModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221A19CE1579112B00F0699E /* EpanetSyntheticModel.cpp */; };
+		221A4B061B8CC00C006967AE /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		221BFC6C1A8E493C00143FCC /* PointRecordTime.h in Headers */ = {isa = PBXBuildFile; fileRef = 22AB022E187B1BF000706EEA /* PointRecordTime.h */; };
 		221BFC6F1A8E584500143FCC /* IntegratorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221BFC6D1A8E584500143FCC /* IntegratorTimeSeries.cpp */; };
 		221BFC701A8E584500143FCC /* IntegratorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221BFC6D1A8E584500143FCC /* IntegratorTimeSeries.cpp */; };
@@ -420,6 +421,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		221A4AFF1B8CBFF5006967AE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 221BFD311A8E8AD000143FCC;
+			remoteInfo = "epanet-rtx static deps";
+		};
 		221BFD221A8E8A1B00143FCC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
@@ -917,6 +925,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				221A4B061B8CC00C006967AE /* libepanet-rtx.dylib in Frameworks */,
 				229E113A1B063177007766F3 /* libboost_system.a in Frameworks */,
 				229E11391B063161007766F3 /* libboost_timer.a in Frameworks */,
 				229E11361B06309C007766F3 /* libepanet-static.a in Frameworks */,
@@ -1736,6 +1745,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				221A4B001B8CBFF5006967AE /* PBXTargetDependency */,
 				229E11381B0630A6007766F3 /* PBXTargetDependency */,
 			);
 			name = data_access_profiling;
@@ -2261,6 +2271,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		221A4B001B8CBFF5006967AE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 221BFD311A8E8AD000143FCC /* epanet-rtx static deps */;
+			targetProxy = 221A4AFF1B8CBFF5006967AE /* PBXContainerItemProxy */;
+		};
 		221BFD231A8E8A1B00143FCC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = epanet;

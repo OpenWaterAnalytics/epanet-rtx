@@ -230,7 +230,7 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
 
 
 
-vector< PointRecord::nameUnitsPair > InfluxDbPointRecord::identifiersAndUnits() {
+const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
   
   /*
    
@@ -258,7 +258,7 @@ vector< PointRecord::nameUnitsPair > InfluxDbPointRecord::identifiersAndUnits() 
   
   
   
-  vector< nameUnitsPair > seriesList;
+  std::map<std::string,Units> seriesList;
   
   if (!this->isConnected()) {
     this->dbConnect();
@@ -328,7 +328,7 @@ vector< PointRecord::nameUnitsPair > InfluxDbPointRecord::identifiersAndUnits() 
         }
         
         // the name has been assembled!
-        seriesList.push_back(make_pair(namestr.str(), units));
+        seriesList[namestr.str()] = units;
         
       } // for each values array (ts definition)
     } // for each measurement

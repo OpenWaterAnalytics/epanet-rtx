@@ -20,7 +20,7 @@ namespace RTX {
     RTX_SHARED_POINTER(OdbcDirectPointRecord);
     OdbcDirectPointRecord();
     virtual ~OdbcDirectPointRecord();
-    std::vector< nameUnitsPair > identifiersAndUnits();
+    const std::map<std::string,Units> identifiersAndUnits();
     
   protected:
     void dbConnect() throw(RtxException);

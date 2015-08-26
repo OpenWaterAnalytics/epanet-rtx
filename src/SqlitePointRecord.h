@@ -24,10 +24,9 @@ namespace RTX {
     SqlitePointRecord();
     virtual ~SqlitePointRecord();
     
-    bool registerAndGetIdentifierForSeriesWithUnits(std::string name, Units units);
     bool supportsUnitsColumn() { return true; };
     bool insertIdentifierAndUnits(const std::string& id, Units units);
-    virtual std::vector< nameUnitsPair > identifiersAndUnits();
+    const virtual std::map<std::string,Units> identifiersAndUnits();
     
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
@@ -39,7 +38,8 @@ namespace RTX {
     
     virtual bool supportsBoundedQueries();
     virtual void truncate();
-
+    bool canAssignUnits();
+    bool assignUnitsToRecord(const std::string& name, const Units& units);
     
     virtual void beginBulkOperation();
     virtual void endBulkOperation();
@@ -58,6 +58,8 @@ namespace RTX {
   private:
     sqlite3 *_dbHandle;
     std::string _selectRangeStr, _selectSingleStr, _selectNamesStr, _selectPreviousStr, _selectNextStr, _insertSingleStr, _selectFirstStr, _selectLastStr;
+    
+    sqlite3_stmt *_insertSingleStmt;
     
     std::string _path;
     bool _connected;
@@ -78,7 +80,6 @@ namespace RTX {
     bool updateSchema();
     int dbSchemaVersion();
     void setDbSchemaVersion(int v);
-    bool assignUnitsToRecord(const std::string& name, Units units);
     
   };
   

@@ -32,7 +32,7 @@ namespace RTX {
     virtual ~MapPointRecord() {};
     
     virtual bool registerAndGetIdentifierForSeriesWithUnits(std::string recordName, Units units);    // registering record names.
-    virtual std::vector<nameUnitsPair> identifiersAndUnits();
+    const virtual std::map<std::string, Units> identifiersAndUnits();
     
     //virtual bool isPointAvailable(const string& identifier, time_t time);
     virtual Point point(const string& identifier, time_t time);

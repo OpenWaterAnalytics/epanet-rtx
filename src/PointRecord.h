@@ -14,6 +14,7 @@
 #include <vector>
 #include <deque>
 #include <fstream>
+#include <map>
 
 #include "Point.h"
 #include "Units.h"
@@ -66,7 +67,7 @@ namespace RTX {
     void setName(std::string name);
     
     virtual bool registerAndGetIdentifierForSeriesWithUnits(std::string recordName, Units units);    // registering record names.
-    virtual std::vector< nameUnitsPair > identifiersAndUnits();
+    const virtual std::map<std::string, Units> identifiersAndUnits();
     
     //virtual bool isPointAvailable(const string& identifier, time_t time);
     virtual Point point(const string& identifier, time_t time);

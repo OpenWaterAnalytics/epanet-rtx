@@ -45,9 +45,8 @@ bool PointRecord::registerAndGetIdentifierForSeriesWithUnits(std::string recordN
   return true;
 }
 
-std::vector< PointRecord::nameUnitsPair > PointRecord::identifiersAndUnits() {
-  std::vector< nameUnitsPair > blank;
-  return blank;
+const map<string, Units> PointRecord::identifiersAndUnits() {
+  return map<string, Units>();
 }
 
 

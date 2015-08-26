@@ -121,7 +121,7 @@ namespace RTX {
     double conversion() const;
     static double convertValue(double value, const Units& fromUnits, const Units& toUnits);
     static Units unitOfType(const std::string& unitString);
-    static std::map<std::string, Units> unitStringMap();
+    static std::map<std::string, Units> unitStringMap;
     std::string unitString();
     
     virtual std::ostream& toStream(std::ostream &stream);

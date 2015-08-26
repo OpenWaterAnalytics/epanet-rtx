@@ -62,7 +62,7 @@ namespace RTX {
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
     bool insertIdentifierAndUnits(const std::string& recordName, Units units);
-    virtual std::vector<PointRecord::nameUnitsPair> identifiersAndUnits();
+    const virtual std::map<std::string,Units> identifiersAndUnits();
     
     virtual time_pair_t range(const string& id);
     virtual std::ostream& toStream(std::ostream &stream);

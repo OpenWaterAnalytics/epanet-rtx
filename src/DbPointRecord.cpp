@@ -34,7 +34,7 @@ DbPointRecord::DbPointRecord() : request("",0,0) {
   errorMessage = "Not Connected";
   _readOnly = false;
   _filterType = OpcPassThrough;
-  _identifiersAndUnitsCache = std::vector< nameUnitsPair >();
+  _identifiersAndUnitsCache = std::map<std::string,Units>();
 }
 
 
@@ -48,20 +48,15 @@ void DbPointRecord::setReadonly(bool readOnly) {
 }
 
 bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Units units) {
-  
   bool nameExists = false;
   bool unitsMatch = false;
+  Units existingUnits;
   
-  vector< pair<string,Units> > existing = this->identifiersAndUnits();
-  typedef pair<string,Units> sup_t;
-  BOOST_FOREACH(const sup_t p, existing) {
-    string n = p.first;
-    Units u = p.second;
-    if ( RTX_STRINGS_ARE_EQUAL_CS(n, name)) {
-      nameExists = true;
-      if (u == units) {
-        unitsMatch = true;
-      }
+  const std::map<std::string,Units>& existing = this->identifiersAndUnits();
+  std::map<string,Units>::const_iterator found = existing.find(name);
+  if (found != existing.end()) {
+    if (found->second == units) {
+      unitsMatch = true;
     }
   }
   
@@ -74,6 +69,12 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
       return true;
     }
     else {
+      // SPECIAL CASE FOR OLD RECORDS: we can update the units field if no units are specified.
+      if (this->canAssignUnits() && existingUnits == RTX_NO_UNITS) {
+        this->assignUnitsToRecord(name, units);
+        DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
+        return true;
+      }
       // names don't match (or units prevent us from using this record) and we can't write to this db. fail.
       return false;
     }
@@ -81,18 +82,38 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
   else {
     // not a readonly db.
     if (nameExists && !unitsMatch) {
-      // must remove the old record. units don't match.
-      this->removeRecord(name);
+      // two possibilities: the units actually don't match, or my units haven't ever been set.
+      if (existingUnits == RTX_NO_UNITS) {
+        if (this->canAssignUnits()) {
+          // aha. update my units then.
+          this->assignUnitsToRecord(name, units);
+        }
+      }
+      else {
+        // must remove the old record. units don't match for real.
+        this->removeRecord(name);
+      }
     }
-    if (this->insertIdentifierAndUnits(name, units) && DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units) ) {
-      // insertion went well! good to go.
+    else if ( ( !nameExists || !unitsMatch ) && this->insertIdentifierAndUnits(name, units) && DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units) ) {
+      // this will either insert a new record name, or ignore because it's already there.
       return true;
+    }
+    else if (nameExists && unitsMatch) {
+      return DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
     }
   }
   return false;
 }
 
-vector<PointRecord::nameUnitsPair> DbPointRecord::identifiersAndUnits() {
+bool DbPointRecord::canAssignUnits() {
+  return false;
+}
+
+bool DbPointRecord::assignUnitsToRecord(const std::string& name, const Units& units) {
+  // nothing
+}
+
+const std::map<std::string,Units> DbPointRecord::identifiersAndUnits() {
   return _identifiersAndUnitsCache;
 }
 

@@ -155,7 +155,7 @@ ostream& Units::toStream(ostream &stream) {
 
 
 string Units::unitString() {
-  map<string, Units> unitMap = Units::unitStringMap();
+  map<string, Units> unitMap = Units::unitStringMap;
   
   map<string, Units>::const_iterator it = unitMap.begin();
   
@@ -191,7 +191,8 @@ double Units::convertValue(double value, const Units& fromUnits, const Units& to
 }
 
 
-map<string, Units> Units::unitStringMap() {
+std::map<std::string, Units> Units::unitStringMap = []()
+{
   map<string, Units> m;
   
   m["dimensionless"]= RTX_DIMENSIONLESS;
@@ -264,7 +265,7 @@ map<string, Units> Units::unitStringMap() {
   m["psi-to-ft"] = RTX_FOOT * 2.30665873688 / RTX_PSI;
   
   return m;
-}
+}();
 
 // factory for string input
 Units Units::unitOfType(const string& unitString) {
@@ -277,10 +278,11 @@ Units Units::unitOfType(const string& unitString) {
   int mass=0, length=0, time=0, current=0, temperature=0, amount=0, intensity=0, offset=0;
   
   
-  map<string, Units> unitMap = Units::unitStringMap();
+//  const map<string, Units> unitMap = Units::unitStringMap;
   string uStr = boost::algorithm::to_lower_copy(unitString);
-  if (unitMap.find(uStr) != unitMap.end()) {
-    return unitMap[uStr];
+  map<string, Units>::const_iterator found = Units::unitStringMap.find(uStr);
+  if (found != Units::unitStringMap.end()) {
+    return found->second;
   }
   else {
     // attempt to deserialize the streamed format of the unit conversion and dimension.

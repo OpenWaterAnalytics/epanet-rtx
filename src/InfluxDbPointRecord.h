@@ -24,7 +24,7 @@ namespace RTX {
     
     virtual bool isConnected() {return _connected;};
     bool insertIdentifierAndUnits(const std::string& id, Units units);
-    virtual std::vector< nameUnitsPair > identifiersAndUnits();
+    const virtual std::map<std::string,Units> identifiersAndUnits();
     
     
     void truncate();

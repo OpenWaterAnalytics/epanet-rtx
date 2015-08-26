@@ -6,6 +6,9 @@
 #include <ctime>
 #include <iostream>
 #include <iomanip>
+#include <string>
+#include <iostream>
+#include <sstream>
 #include <boost/timer/timer.hpp>
 #include <boost/foreach.hpp>
 
@@ -25,93 +28,69 @@
 using namespace std;
 using namespace RTX;
 
-#include "InfluxDbPointRecord.h"
+//#include "InfluxDbPointRecord.h"
 
 vector<Point> randomPoints(time_t start, int nPoints, time_t period = 0);
+
+void profile_no_prefetch(vector<TimeSeries::_sp> tsvec, time_t start, time_t duration);
+void profile_prefetch(vector<TimeSeries::_sp> tsvec, time_t start, time_t duration);
+
+
 
 int main(int argc, const char * argv[])
 {
   
+  int n_series = 1000;
   
-  TimeSeries::_sp ts( new TimeSeries);
+  time_t duration = (60*60*24*7);
+  time_t start = time(NULL) - duration;
+  time_t period = 60*10;
   
+  vector<TimeSeries::_sp> tsCollection;
+  tsCollection.reserve(n_series);
   
-  ts->insert(Point(1420088400,2.3));
+  SqlitePointRecord::_sp sqlitepr(new SqlitePointRecord);
+  sqlitepr->setPath("/Users/sam/Desktop/small_profile.db");
+  sqlitepr->dbConnect();
   
-  Point p = ts->point(1420088400);
-  
-  cout << p << endl;
-  
-  
-  
-  
-  InfluxDbPointRecord::_sp influxDb( new InfluxDbPointRecord() );
-  
-  influxDb->setName("Influx");
-  influxDb->setConnectionString("host=localhost&port=8086&db=testing&u=root&p=root");
-  
-  influxDb->dbConnect();
-  
-  
-  Clock::_sp reg_5m( new Clock(5*60) );
-  
-  
-  
-  ConstantTimeSeries::_sp constantTs( new ConstantTimeSeries );
-  Clock::_sp oneMinute (new Clock(60));
-  constantTs->setClock(oneMinute);
-  constantTs->setValue(100.221);
-  
-  SineTimeSeries::_sp sine( new SineTimeSeries );
-  sine->setClock(oneMinute);
-  
-  TimeSeriesFilter::_sp mod(new TimeSeriesFilter);
-  mod->setName("sys.gcww.dma.lebanon.demand");
-  mod->setSource(sine);
-  mod->setRecord(influxDb);
-  
-  influxDb->invalidate("ts_test");
-  
-  
-  time_t start = 1420088400; // the year two thousand fifteen!!!
-  time_t end = start + 60*60*24*365;
-  time_t increment = 60*60*24;
-  time_t chunk;
-  
-  
-  
+  {
+    {
+      boost::timer::auto_cpu_timer t;
+      cout << "setting up time series objects" << endl;
+      for (int i = 0; i < n_series; ++i) {
+        TimeSeries::_sp ts(new TimeSeries);
+        stringstream ss;
+        ss << "Series_" << i;
+        ts->setName(ss.str());
+        ts->setRecord(sqlitepr);
+        tsCollection.push_back(ts);
+      }
+    }
+    {
+      boost::timer::auto_cpu_timer t;
+      cout << "sending data" << endl;
+      
+      BOOST_FOREACH(TimeSeries::_sp ts, tsCollection) {
+        vector<Point> rando = randomPoints(start, (int)(duration/period), period);
+        ts->insertPoints(rando);
+      }
+    }
+  }
   
   
   {
     boost::timer::auto_cpu_timer t;
-    chunk = start;
-    while (chunk <= end) {
-      time_t thisEnd = (end < chunk + increment) ? end : chunk + increment;
-      mod->points(chunk, thisEnd);
-      chunk += increment;
+    cout << "resetting caches" << endl;
+    BOOST_FOREACH( TimeSeries::_sp ts, tsCollection) {
+      ts->resetCache();
     }
-    
-    cout << "influx results " << endl;
   }
   
   
   
-  SqlitePointRecord::_sp sqliteRecord(new SqlitePointRecord);
-  sqliteRecord->setPath("/tmp/sqlite_test.sqlite");
-  sqliteRecord->dbConnect();
-  mod->setRecord(sqliteRecord);
   
-  {
-    boost::timer::auto_cpu_timer t;
-    chunk = start;
-    while (chunk <= end) {
-      mod->points(chunk, chunk + increment);
-      chunk += increment;
-    }
-    
-    cout << "sqlite results " << endl;
-  }
-  
+  profile_no_prefetch(tsCollection, start, duration);
+  profile_prefetch(tsCollection, start, duration);
   
   
   
@@ -119,7 +98,39 @@ int main(int argc, const char * argv[])
 }
 
 
+void profile_no_prefetch(vector<TimeSeries::_sp> tsvec, time_t start, time_t duration) {
+  {
+    boost::timer::auto_cpu_timer t;
+    cout << "no prefetch: get all points in range from each series" << endl;
+    BOOST_FOREACH( TimeSeries::_sp ts, tsvec) {
+      Point p = ts->pointAfter(start);
+      while (p.time < start + duration - 60*60 && p.isValid) {
+        p = ts->pointAfter(p.time);
+      }
+    }
+  }
+}
 
+void profile_prefetch(vector<TimeSeries::_sp> tsvec, time_t start, time_t duration) {
+  {
+    boost::timer::auto_cpu_timer t;
+    cout << "fetching " << tsvec.size() << " timeseries from db..." << endl;
+    BOOST_FOREACH( TimeSeries::_sp ts, tsvec) {
+      ts->points(TimeRange(start, start + duration));
+    }
+  }
+  
+  {
+    boost::timer::auto_cpu_timer t;
+    cout << "with prefetch: get all points in range from each series" << endl;
+    BOOST_FOREACH( TimeSeries::_sp ts, tsvec) {
+      Point p = ts->pointAfter(start);
+      while (p.time < start + duration - 60*60 && p.isValid) {
+        p = ts->pointAfter(p.time);
+      }
+    }
+  }
+}
 
 
 
