@@ -125,8 +125,11 @@ void Tank::setLevelMeasure(TimeSeries::_sp levelMeasure) {
     offsetHeadMeasure->setOffset( (this->elevation()) );
   
     Junction::setHeadMeasure(offsetHeadMeasure);
-    _levelMeasure = levelMeasure;
-    _volumeMeasure->setSource(levelMeasure);
+    // test for success:
+    if (Junction::headMeasure() == offsetHeadMeasure) {
+      _levelMeasure = levelMeasure;
+      _volumeMeasure->setSource(levelMeasure);
+    }
   }
 }
 
