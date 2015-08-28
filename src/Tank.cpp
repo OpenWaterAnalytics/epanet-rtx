@@ -66,7 +66,9 @@ double Tank::maxLevel() {
 }
 
 
-void Tank::setGeometry(std::vector<std::pair<double, double> > levelVolumePoints, RTX::Units levelUnits, RTX::Units volumeUnits) {
+void Tank::setGeometry(std::vector<std::pair<double, double> > levelVolumePoints, RTX::Units levelUnits, RTX::Units volumeUnits, const std::string& curveName) {
+  
+  geometryName = curveName;
   
   _geometry = levelVolumePoints;
   _geometryLevelUnits = levelUnits;

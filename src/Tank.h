@@ -30,7 +30,7 @@ namespace RTX {
     // public ivars for temporary (that is, steady-state) solutions
     double state_level;
     
-    void setGeometry(std::vector< std::pair<double,double> > levelVolumePoints, Units levelUnits, Units volumeUnits);
+    void setGeometry(std::vector< std::pair<double,double> > levelVolumePoints, Units levelUnits, Units volumeUnits, const std::string& curveName);
     std::vector< std::pair<double,double> > geometry();
     std::pair<Units,Units> geometryUnits();
     std::string geometryName;
@@ -53,6 +53,7 @@ namespace RTX {
     
     TimeSeries::_sp volumeMeasure(); // based on tank geometry
     TimeSeries::_sp flowMeasure();  // flow into the tank (computed)
+    
     
   private:
     TimeSeries::_sp _level;

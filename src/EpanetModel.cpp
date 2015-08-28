@@ -292,12 +292,16 @@ void EpanetModel::createRtxWrappers() {
           curveGeometry.push_back(make_pair(minLevel, minVolume));
           curveGeometry.push_back(make_pair(maxLevel, maxVolume));
           
+          stringstream ss;
+          ss << "Tank " << newTank->name() << " Cylindrical Curve";
+          newTank->geometryName = ss.str();
+          
           //volumeCurveTs->addCurveCoordinate(minLevel, minVolume);
           //volumeCurveTs->addCurveCoordinate(maxLevel, maxVolume);
         }
         
         // set tank geometry
-        newTank->setGeometry(curveGeometry, headUnits(), this->volumeUnits());
+        newTank->setGeometry(curveGeometry, headUnits(), this->volumeUnits(), newTank->geometryName);
         
         newJunction = newTank;
         break;
