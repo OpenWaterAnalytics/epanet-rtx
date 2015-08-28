@@ -50,12 +50,14 @@ void DbPointRecord::setReadonly(bool readOnly) {
 bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Units units) {
   bool nameExists = false;
   bool unitsMatch = false;
-  Units existingUnits;
+  Units existingUnits = RTX_NO_UNITS;
   
   const std::map<std::string,Units>& existing = this->identifiersAndUnits();
   std::map<string,Units>::const_iterator found = existing.find(name);
   if (found != existing.end()) {
-    if (found->second == units) {
+    nameExists = true;
+    existingUnits = found->second;
+    if (existingUnits == units) {
       unitsMatch = true;
     }
   }
