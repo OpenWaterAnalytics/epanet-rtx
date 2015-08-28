@@ -113,6 +113,7 @@ bool DbPointRecord::canAssignUnits() {
 
 bool DbPointRecord::assignUnitsToRecord(const std::string& name, const Units& units) {
   // nothing
+  return false;
 }
 
 const std::map<std::string,Units> DbPointRecord::identifiersAndUnits() {
