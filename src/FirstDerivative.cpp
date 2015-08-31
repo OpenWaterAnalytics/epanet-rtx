@@ -77,7 +77,7 @@ void FirstDerivative::didSetSource(TimeSeries::_sp ts) {
   if (this->units().isDimensionless() || !this->units().isSameDimensionAs(ts->units() / RTX_SECOND)) {
     Units newUnits = ts->units() / RTX_SECOND;
     if (newUnits.isDimensionless()) {
-      newUnits = RTX_DIMENSIONLESS; // fix weird hr/sec units bug
+      newUnits = RTX_DIMENSIONLESS; // fix non-unity conversion in otherwise dimensionless unit
     }
     this->setUnits(newUnits);
   }
