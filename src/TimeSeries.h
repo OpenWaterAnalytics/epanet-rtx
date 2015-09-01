@@ -138,8 +138,6 @@ namespace RTX {
     
 
   protected:
-    // methods which may be needed by subclasses but shouldn't be public:
-    // refactor, move to filter class --> virtual bool isCompatibleWith(TimeSeries::_sp withTimeSeries);
     
   private:
     PointRecord::_sp _points;
@@ -147,7 +145,6 @@ namespace RTX {
     Units _units;
     std::pair<time_t, time_t> _validTimeRange;
     time_t _expectedPeriod;
-//    TimeSeries::Statistics getStats(std::vector<Point> points);
   
   };
 

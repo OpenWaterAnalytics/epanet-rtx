@@ -14,7 +14,7 @@
 using std::vector;
 
 
-/*
+/**
  a centered moving average filter, using the "source" timeseries as input.
  */
 
@@ -25,11 +25,10 @@ namespace RTX {
     MovingAverage();
     
     // class-specific properties
-    void setWindowSize(int numberOfPoints);   // set number of points to consider in the moving average calculation
-    int windowSize();                         // return the window size (see above)
+    void setWindowSize(int numberOfPoints);   /// set number of points to consider in the moving average calculation
+    int windowSize();                         /// return the window size (see above)
     
   protected:
-    // delegate methods
     PointCollection filterPointsInRange(TimeRange range);
     
   private:

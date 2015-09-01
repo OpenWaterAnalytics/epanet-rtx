@@ -171,8 +171,6 @@ TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) 
     // done with computing the average. Save the new value.
     meanPoint.value = mean(meanAccumulator);
     meanPoint.confidence = mean(confidenceAccum);
-//    cout << "accum: " << nAccumulated << endl;
-    
     filteredPoints.push_back(meanPoint);
   }
   
@@ -193,5 +191,3 @@ TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) 
   
   return PointCollection(vector<Point>(),this->units());
 }
-
-

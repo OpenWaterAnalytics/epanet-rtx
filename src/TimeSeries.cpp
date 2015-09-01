@@ -398,7 +398,6 @@ PointRecord::_sp TimeSeries::record() {
 
 void TimeSeries::resetCache() {
   _points->reset(name());
-  //_points->registerAndGetIdentifier(this->name(), this->units());
 }
 
 void TimeSeries::invalidate() {
