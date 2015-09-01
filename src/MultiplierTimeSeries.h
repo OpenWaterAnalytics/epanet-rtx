@@ -16,12 +16,21 @@ namespace RTX {
   class MultiplierTimeSeries : public TimeSeriesFilterSinglePoint {
     
   public:
+    
+    enum MultiplierMode : unsigned int {
+      MultiplierModeMultiply =  0,
+      MultiplierModeDivide =  1
+    };
+    
     RTX_SHARED_POINTER(MultiplierTimeSeries);
     MultiplierTimeSeries();
     
     TimeSeries::_sp multiplier();
     void setMultiplier(TimeSeries::_sp ts);
-        
+    
+    MultiplierMode multiplierMode();
+    void setMultiplierMode(MultiplierMode mode);
+    
     
   protected:
     Point filteredWithSourcePoint(Point sourcePoint);
@@ -32,6 +41,8 @@ namespace RTX {
   private:
     Point filteredSingle(Point p, Units sourceU);
     TimeSeries::_sp _multiplierBasis;
+    MultiplierMode _mode;
+    Units nativeUnits();
   };
 }
 

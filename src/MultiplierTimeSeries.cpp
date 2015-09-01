@@ -7,22 +7,27 @@ using namespace std;
 
 MultiplierTimeSeries::MultiplierTimeSeries() {
   _multiplierBasis = TimeSeries::_sp(new TimeSeries());
+  _mode = MultiplierModeMultiply;
 }
 
 void MultiplierTimeSeries::setMultiplier(TimeSeries::_sp ts) {
   _multiplierBasis = ts;
   this->invalidate();
-  
-  
   // post-fix units
   this->didSetSource(this->source()); // trigger re-evaluation of units.
-
-  
 }
 TimeSeries::_sp MultiplierTimeSeries::multiplier() {
   return _multiplierBasis;
 }
 
+MultiplierTimeSeries::MultiplierMode MultiplierTimeSeries::multiplierMode() {
+  return _mode;
+}
+void MultiplierTimeSeries::setMultiplierMode(MultiplierTimeSeries::MultiplierMode mode) {
+  _mode = mode;
+  this->invalidate();
+  this->didSetSource(this->source());
+}
 
 
 Point MultiplierTimeSeries::filteredWithSourcePoint(Point sourcePoint) {
@@ -54,16 +59,47 @@ Point MultiplierTimeSeries::filteredWithSourcePoint(Point sourcePoint) {
     return Point();
   }
   
-  Point multiplied = sourcePoint * x.value;
-  Point outPoint = Point::convertPoint(multiplied, this->source()->units() * this->multiplier()->units(), this->units());
+  Point derivedPoint;
   
+  switch (_mode) {
+    case MultiplierModeMultiply:
+      derivedPoint = sourcePoint * x.value;
+      break;
+    case MultiplierModeDivide:
+      derivedPoint = sourcePoint / x.value;
+      break;
+    default:
+      break;
+  }
+  
+  Point outPoint = Point::convertPoint(derivedPoint, this->nativeUnits(), this->units());
   return outPoint;
 }
 
 bool MultiplierTimeSeries::canSetSource(TimeSeries::_sp ts) {
-  
   return true;
+}
+
+
+Units MultiplierTimeSeries::nativeUnits() {
+  Units nativeDerivedUnits = RTX_NO_UNITS;
   
+  if (!this->source() || !this->multiplier()) {
+    return RTX_NO_UNITS;
+  }
+  
+  switch (_mode) {
+    case MultiplierModeMultiply:
+      nativeDerivedUnits = this->source()->units() * this->multiplier()->units();
+      break;
+    case MultiplierModeDivide:
+      nativeDerivedUnits = this->source()->units() / this->multiplier()->units();
+      break;
+    default:
+      break;
+  }
+  
+  return nativeDerivedUnits;
 }
 
 void MultiplierTimeSeries::didSetSource(TimeSeries::_sp ts) {
@@ -72,7 +108,8 @@ void MultiplierTimeSeries::didSetSource(TimeSeries::_sp ts) {
     return;
   }
   
-  Units nativeDerivedUnits = this->source()->units() * this->multiplier()->units();
+  Units nativeDerivedUnits = this->nativeUnits();
+  
   if (!this->units().isSameDimensionAs(nativeDerivedUnits) || this->units() == RTX_NO_UNITS) {
     this->setUnits(nativeDerivedUnits);
   }
@@ -83,7 +120,7 @@ bool MultiplierTimeSeries::canChangeToUnits(Units units) {
   if (!this->source() || !this->multiplier()) {
     return true; // if the inputs are not fully set, then accept any units.
   }
-  else if (units.isSameDimensionAs(this->source()->units() * this->multiplier()->units())) {
+  else if (units.isSameDimensionAs(this->nativeUnits())) {
     return true;
   }
   else {
