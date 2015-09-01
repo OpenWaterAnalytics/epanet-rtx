@@ -129,7 +129,7 @@ Point TimeSeriesFilter::pointBefore(time_t time) {
     time_t stride = 60*60*12; // 12 hour
     PointCollection c;
     
-    TimeRange q(time - stride, time);
+    TimeRange q(time - stride, time - 1);
     
     while ( q.start > time - (stride * _tsfilter_maxStrides) ) {
       c = TimeSeries::pointCollection(q);
@@ -170,7 +170,7 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
     time_t stride = 60*60*12; // 12 hour
     
     PointCollection c;
-    TimeRange q(time, time + stride);
+    TimeRange q(time + 1, time + stride);
     
     while ( q.end < time + (stride * _tsfilter_maxStrides) ) {
       c = this->pointCollection(q);
