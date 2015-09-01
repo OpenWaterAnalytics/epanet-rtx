@@ -194,6 +194,12 @@ bool CorrelatorTimeSeries::canSetSource(TimeSeries::_sp ts) {
 
 void CorrelatorTimeSeries::didSetSource(TimeSeries::_sp ts) {
   this->invalidate();
+  if (this->source() && this->correlatorTimeSeries()) {
+    this->setUnits(RTX_DIMENSIONLESS);
+  }
+  else {
+    this->setUnits(RTX_NO_UNITS);
+  }
 }
 
 bool CorrelatorTimeSeries::canChangeToUnits(Units units) {
