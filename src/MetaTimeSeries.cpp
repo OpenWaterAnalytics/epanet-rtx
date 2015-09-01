@@ -87,6 +87,9 @@ bool MetaTimeSeries::canChangeToUnits(Units units) {
   if (_metaMode == MetaModeGap) {
     return (units.isSameDimensionAs(RTX_SECOND));
   }
+  else if (_metaMode == MetaModeConfidence) {
+    return true;
+  }
   else if (units.isDimensionless()) {
     return true;
   }
