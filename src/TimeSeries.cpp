@@ -439,6 +439,13 @@ Units TimeSeries::units() {
 }
 
 
+time_t TimeSeries::expectedPeriod() {
+  return _expectedPeriod;
+}
+void TimeSeries::setExpectedPeriod(time_t seconds) {
+  _expectedPeriod = seconds;
+}
+
 #pragma mark Protected Methods
 
 std::ostream& TimeSeries::toStream(std::ostream &stream) {

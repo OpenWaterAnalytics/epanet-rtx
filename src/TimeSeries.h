@@ -132,6 +132,10 @@ namespace RTX {
     virtual void invalidate();
     
     virtual std::ostream& toStream(std::ostream &stream);
+    
+    time_t expectedPeriod();
+    void setExpectedPeriod(time_t seconds);
+    
 
   protected:
     // methods which may be needed by subclasses but shouldn't be public:
@@ -142,6 +146,7 @@ namespace RTX {
     std::string _name;
     Units _units;
     std::pair<time_t, time_t> _validTimeRange;
+    time_t _expectedPeriod;
 //    TimeSeries::Statistics getStats(std::vector<Point> points);
   
   };
