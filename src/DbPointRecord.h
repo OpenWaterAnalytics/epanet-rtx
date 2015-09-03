@@ -74,7 +74,8 @@ namespace RTX {
       OpcPassThrough   = 0, //!< all codes
       OpcBlackList     = 1, //!< explicitly exclude codes
       OpcWhiteList     = 2, //!< only allow these codes
-      OpcCodesToValues = 3  //!< convert opc codes to values
+      OpcCodesToValues = 3,  //!< convert opc codes to values
+      OpcCodesToConfidence = 4 //!< convert opc codes to point confidence field
     };
     
     void setOpcFilterType(OpcFilterType type);

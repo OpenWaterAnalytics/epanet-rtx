@@ -430,6 +430,12 @@ Point DbPointRecord::pointWithOpcFilter(Point p) {
     {
       pOut = Point(p.time, (double)p.quality, Point::opc_rtx_override, p.confidence);
     }
+      break;
+    case OpcCodesToConfidence:
+    {
+      pOut = Point(p.time, p.value, Point::opc_rtx_override, (double)p.quality);
+    }
+      break;
     default:
       break;
   }
