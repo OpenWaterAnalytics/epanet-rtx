@@ -52,6 +52,10 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
   bool unitsMatch = false;
   Units existingUnits = RTX_NO_UNITS;
   
+  if (!this->isConnected()) {
+    this->dbConnect();
+  }
+  
   const std::map<std::string,Units>& existing = this->identifiersAndUnits();
   std::map<string,Units>::const_iterator found = existing.find(name);
   if (found != existing.end()) {
