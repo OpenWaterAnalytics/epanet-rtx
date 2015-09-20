@@ -103,7 +103,7 @@ namespace RTX {
     void setJunctionFlowUnits(Units units);
     
     // business logic
-    virtual void allocateDemandToJunctions(time_t time);
+    virtual int allocateDemandToJunctions(time_t time);
         
   private:
     // void followJunction(Junction::_sp junction);

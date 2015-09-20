@@ -599,22 +599,12 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
   
   timeinfo = localtime (&simulationTime);
   stringstream ss;
-  ss << "INFO: Starting simulation at time: " << asctime(timeinfo);
+  ss << "INFO: Starting simulation :: " << asctime(timeinfo);
   this->logLine(ss.str());
-  
   
   // get the record(s) being used
   set<PointRecord::_sp> stateRecordsUsed = this->recordsForModeledStates();
   
-//  // pre-fetch simulation input data for entire period -- testing only
-//  string scratchPath = "/var/tmp/RTX_scratch.sqlite";
-//  SqlitePointRecord::_sp scratchdb( new SqlitePointRecord());
-//  scratchdb->setPath(scratchPath);
-//  scratchdb->dbConnect();
-//  scratchdb->truncate();
-//  this->setRecordForElementInputs(scratchdb);
-//  this->fetchElementInputs(range);
-
   // Extended period simulation
   while (simulationTime < range.end) {
     
@@ -650,6 +640,7 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
           r->endBulkOperation();
         }
       }
+      
       // get time to next simulation period
       nextSimulationTime = nextHydraulicStep(simulationTime);
       nextClockTime = _regularMasterClock->timeAfter(simulationTime);
@@ -669,14 +660,14 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
       timeinfo = localtime (&simulationTime);
       
       stringstream ss;
-      ss << "Simulation time: " << asctime(timeinfo);
+      ss << "INFO: Simulation step :: " << asctime(timeinfo);
 //      this->logLine(ss.str());
       
     }
     else {
       timeinfo = localtime (&simulationTime);
       stringstream ss;
-      ss << "ERR: Simulation Failed at time: " << asctime(timeinfo);
+      ss << "ERROR: Simulation failed :: " << asctime(timeinfo);
       this->logLine(ss.str());
       this->logLine("INFO: Resetting Tank Levels due to model non-convergence");
       
@@ -995,7 +986,11 @@ void Model::setSimulationParameters(time_t time) {
   if (_doesOverrideDemands) {
     // by dma, insert demand point into each junction timeseries at the current simulation time
     BOOST_FOREACH(Dma::_sp dma, this->dmas()) {
-      dma->allocateDemandToJunctions(time);
+      if ( dma->allocateDemandToJunctions(time) ) {
+        stringstream ss;
+        ss << "ERROR: Invalid demand value for DMA " << dma->name() << " :: " << asctime(timeinfo);
+        this->logLine(ss.str());
+      }
     }
     // hydraulic junctions - set demand values.
     BOOST_FOREACH(Junction::_sp junction, this->junctions()) {
@@ -1009,7 +1004,7 @@ void Model::setSimulationParameters(time_t time) {
         setJunctionDemand(junction->name(), 0.0);
         
         stringstream ss;
-        ss << "ERROR: Could not get demand for " << junction->name() << " :: " << asctime(timeinfo);
+        ss << "ERROR: Invalid flow boundary value for junction " << junction->name() << " :: " << asctime(timeinfo);
         this->logLine(ss.str());
         
       }
@@ -1027,7 +1022,7 @@ void Model::setSimulationParameters(time_t time) {
       }
       else {
         stringstream ss;
-        ss << "ERROR: Invalid Head Point for Reservoir: " << reservoir->name() << " :: " << asctime(timeinfo);
+        ss << "ERROR: Invalid head value for reservoir: " << reservoir->name() << " :: " << asctime(timeinfo);
         this->logLine(ss.str());
       }
     }
@@ -1040,7 +1035,7 @@ void Model::setSimulationParameters(time_t time) {
       }
       else {
         stringstream ss;
-        ss << "ERROR: Invalid Quality Point for Reservoir: " << reservoir->name() << " :: " << asctime(timeinfo);
+        ss << "ERROR: Invalid quality value for reservoir: " << reservoir->name() << " :: " << asctime(timeinfo);
         this->logLine(ss.str());
       }
     }
@@ -1065,7 +1060,7 @@ void Model::setSimulationParameters(time_t time) {
       }
       else {
         stringstream ss;
-        ss << "ERROR: Invalid Status for Valve: " << valve->name() << " :: " << asctime(timeinfo);
+        ss << "ERROR: Invalid status value for valve: " << valve->name() << " :: " << asctime(timeinfo);
         this->logLine(ss.str());
       }
     }
@@ -1077,14 +1072,14 @@ void Model::setSimulationParameters(time_t time) {
           setValveSetting( valve->name(), p.value );
         }
         else {stringstream ss;
-          ss << "ERROR: Invalid Setting Point for Valve: " << valve->name() << " :: " << asctime(timeinfo);
+          ss << "ERROR: Invalid setting value for Valve: " << valve->name() << " :: " << asctime(timeinfo);
           this->logLine(ss.str());
         }
       }
       else {
         stringstream ss;
         ss << "WARN: Ignoring setting for Valve because status is Closed: " << valve->name() << " :: " << asctime(timeinfo);
-        this->logLine(ss.str());
+//        this->logLine(ss.str());
       }
     }
   }
@@ -1101,7 +1096,7 @@ void Model::setSimulationParameters(time_t time) {
       }
       else {
         stringstream ss;
-        ss << "ERROR: Invalid status point for Pump: " << pump->name() << " :: " << asctime(timeinfo);
+        ss << "ERROR: Invalid status value for pump: " << pump->name() << " :: " << asctime(timeinfo);
         this->logLine(ss.str());
       }
     }
@@ -1113,14 +1108,14 @@ void Model::setSimulationParameters(time_t time) {
         }
         else {
           stringstream ss;
-          ss << "ERROR: Invalid setting point for Pump: " << pump->name() << " :: " << asctime(timeinfo);
+          ss << "ERROR: Invalid setting value for pump: " << pump->name() << " :: " << asctime(timeinfo);
           this->logLine(ss.str());
         }
       }
       else {
         stringstream ss;
         ss << "WARN: Ignoring setting for Pump because status is Closed: " << pump->name() << " :: " << asctime(timeinfo);
-        this->logLine(ss.str());
+//        this->logLine(ss.str());
       }
     }
   }
@@ -1134,7 +1129,7 @@ void Model::setSimulationParameters(time_t time) {
       }
       else {
         stringstream ss;
-        ss << "WARN: Invalid status point for Pipe" << pipe->name() << " :: " << asctime(timeinfo);
+        ss << "WARN: Invalid status value for pipe" << pipe->name() << " :: " << asctime(timeinfo);
         this->logLine(ss.str());
       }
     }
@@ -1153,7 +1148,7 @@ void Model::setSimulationParameters(time_t time) {
         }
         else {
           stringstream ss;
-          ss << "ERROR: Invalid quality point for junction" << j->name() << " :: " << asctime(timeinfo);
+          ss << "ERROR: Invalid quality value for junction" << j->name() << " :: " << asctime(timeinfo);
           this->logLine(ss.str());
         }
       }

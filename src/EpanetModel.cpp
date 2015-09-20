@@ -637,6 +637,15 @@ bool EpanetModel::solveSimulation(time_t time) {
   // check for success
   success = this->_didConverge(time, errorCode);
   
+  if (errorCode > 0) {
+    char errorMsg[256];
+    OW_geterror(errorCode, errorMsg, 255);
+    struct tm * timeinfo = localtime (&time);
+    stringstream ss;
+    ss << std::string(errorMsg) << " :: " << asctime(timeinfo);
+    this->logLine(ss.str());
+  }
+
   // how to deal with lack of hydraulic convergence here - reset boundary/initial conditions?
   if (this->shouldRunWaterQuality()) {
     OW_API_CHECK(OW_runQ(_enModel, &timestep), "OW_runQ");
@@ -706,7 +715,7 @@ double EpanetModel::relativeError(time_t time) {
 }
 
 bool EpanetModel::_didConverge(time_t time, int errorCode) {
-  // return true if the simulation did not converge
+  // return true if the simulation did converge
   EN_API_FLOAT_TYPE accuracy;
   
   OW_API_CHECK( OW_getoption(_enModel, EN_ACCURACY, &accuracy), "OW_getoption");

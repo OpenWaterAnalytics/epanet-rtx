@@ -580,14 +580,15 @@ TimeSeries::_sp Dma::demand() {
   return _demand;
 }
 
-void Dma::allocateDemandToJunctions(time_t time) {
+int Dma::allocateDemandToJunctions(time_t time) {
   // get each node's base demand for the current time
   // add the base demands together. this is the total base demand.
   // get the input demand value for the current time - from the demand() method
   // compute the global scaling factor
   // apply this to each base demand
   // add each scaled base demand to the appropriate node's demand pattern.
-  
+  int err = 0;
+
   typedef std::map< std::string, Junction::_sp > JunctionMapType;
   double totalBaseDemand = 0;
   double dmaDemand = 0;
@@ -609,6 +610,7 @@ void Dma::allocateDemandToJunctions(time_t time) {
         meteredDemand += demand;
       }
       else {
+        err = 1;
         cerr << "ERR: invalid junction boundary flow point -- " << this->name() << endl;
       }
     }
@@ -627,18 +629,17 @@ void Dma::allocateDemandToJunctions(time_t time) {
     allocableDemand = dmaDemand - meteredDemand; // the total unmetered demand
   }
   else {
+    err = 1;
     cerr << "ERR: invalid total demand point -- " << this->name() << endl;
   }
   
-  /*
-  cout << "-------------------" << endl;
-  cout << "dma: " << this->name() << endl;
-  cout << "time: " << time << endl;
-  cout << "dma demand: " << dmaDemand << endl;
-  cout << "metered: " << meteredDemand << endl;
-  cout << "allocable: " << allocableDemand << endl;
-  cout << "dma base demand: " << totalBaseDemand << endl;
-  */
+//  cout << "+++-------------------+++" << endl;
+//  cout << "dma: " << this->name() << endl;
+//  cout << "time: " << time << endl;
+//  cout << "measured dma demand: " << dmaDemand << endl;
+//  cout << "metered: " << meteredDemand << endl;
+//  cout << "allocable: " << allocableDemand << endl;
+//  cout << "dma base demand: " << totalBaseDemand << endl;
   // insert junction demand points at current simulation time
   BOOST_FOREACH(Junction::_sp junction, _junctions) {
     if (junction->boundaryFlow()) {
@@ -651,6 +652,7 @@ void Dma::allocateDemandToJunctions(time_t time) {
         junction->demand()->insert( newDemandPoint );
       }
       else {
+        err = 1;
         cerr << "ERR: invalid junction boundary flow point -- " << this->name() << endl;
       }
     }
@@ -666,6 +668,8 @@ void Dma::allocateDemandToJunctions(time_t time) {
       junction->demand()->insert( Point(time, 0) );
     }
   }
+  
+  return err;
   
 }
 
