@@ -83,6 +83,7 @@ namespace RTX {
     virtual void setQualityTimeStep(int seconds);
     virtual void applyInitialQuality();
     void OW_API_CHECK(int errorCode, std::string externalFunction) throw(std::string);
+    void updateEngineWithElementProperties(Element::_sp e);
     
     // protected accessors
     double getNodeValue(int epanetCode, const std::string& node);

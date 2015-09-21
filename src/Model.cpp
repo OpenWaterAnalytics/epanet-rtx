@@ -562,6 +562,12 @@ std::vector<Valve::_sp> Model::valves() {
 }
 
 
+#pragma mark - Engine
+
+void Model::updateEngineWithElementProperties(Element::_sp e) {
+  return;
+}
+
 
 #pragma mark - Publicly Accessible Simulation Methods
 

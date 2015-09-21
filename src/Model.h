@@ -121,6 +121,8 @@ namespace RTX {
     vector<Pump::_sp> pumps();
     vector<Valve::_sp> valves();
     
+    virtual void updateEngineWithElementProperties(Element::_sp e);
+    
     // simulation properties
     virtual void setHydraulicTimeStep(int seconds);
     int hydraulicTimeStep();

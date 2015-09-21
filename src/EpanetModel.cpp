@@ -769,6 +769,52 @@ void EpanetModel::applyInitialQuality() {
   OW_API_CHECK(OW_initQ(_enModel, EN_NOSAVE), "ENinitQ");
 }
 
+
+
+void EpanetModel::updateEngineWithElementProperties(Element::_sp e) {
+  
+  //! update hydraulic engine representation with full list of properties from this element.
+  
+  switch (e->type()) {
+    case Element::TANK:
+    {
+      Tank::_sp t = boost::dynamic_pointer_cast<Tank>(e);
+      this->setNodeValue(EN_MINLEVEL, t->name(), t->minLevel());
+      this->setNodeValue(EN_MAXLEVEL, t->name(), t->maxLevel());
+    }
+    case Element::JUNCTION:
+    case Element::RESERVOIR:
+    {
+      Junction::_sp j = boost::dynamic_pointer_cast<Junction>(e);
+      this->setNodeValue(EN_ELEVATION, j->name(), j->elevation());
+      this->setNodeValue(EN_BASEDEMAND, j->name(), j->baseDemand());
+    }
+      
+      break;
+      
+    case Element::PUMP:
+    {
+      
+    }
+    case Element::PIPE:
+    {
+      Pipe::_sp p = boost::dynamic_pointer_cast<Pipe>(e);
+      this->setLinkValue(EN_DIAMETER, p->name(), p->diameter());
+      this->setLinkValue(EN_ROUGHNESS, p->name(), p->roughness());
+      this->setLinkValue(EN_LENGTH, p->name(), p->length());
+      this->setLinkValue(EN_STATUS, p->name(), p->fixedStatus());
+    }
+      
+      break;
+      
+    default:
+      break;
+  }
+  
+  
+  
+}
+
 #pragma mark -
 #pragma mark Internal Private Methods
 
