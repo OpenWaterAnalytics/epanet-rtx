@@ -18,6 +18,7 @@ namespace RTX {
     Valve(const std::string& name, Node::_sp startNode, Node::_sp endNode);
     virtual ~Valve();
     int valveType;
+    double fixedSetting;
   };
 }
 
