@@ -167,6 +167,15 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
     v->valveType = (int)type;
   }
   
+  
+  // copy my comments into the model
+  BOOST_FOREACH(Node::_sp n, this->nodes()) {
+    this->setComment(n, n->userDescription());
+  }
+  BOOST_FOREACH(Link::_sp l, this->links()) {
+    this->setComment(l, l->userDescription());
+  }
+  
 }
 
 void EpanetModel::initEngine() {
@@ -796,10 +805,12 @@ void EpanetModel::updateEngineWithElementProperties(Element::_sp e) {
       Junction::_sp j = boost::dynamic_pointer_cast<Junction>(e);
       this->setNodeValue(EN_ELEVATION, j->name(), j->elevation());
       this->setNodeValue(EN_BASEDEMAND, j->name(), j->baseDemand());
+      this->setComment(j, j->userDescription());
     }
       
       break;
       
+    case Element::VALVE:
     case Element::PUMP:
     {
       
@@ -811,6 +822,7 @@ void EpanetModel::updateEngineWithElementProperties(Element::_sp e) {
       this->setLinkValue(EN_ROUGHNESS, p->name(), p->roughness());
       this->setLinkValue(EN_LENGTH, p->name(), p->length());
       this->setLinkValue(EN_STATUS, p->name(), p->fixedStatus());
+      this->setComment(p, p->userDescription());
     }
       
       break;
@@ -846,6 +858,32 @@ double EpanetModel::getLinkValue(int epanetCode, const string& link) {
 void EpanetModel::setLinkValue(int epanetCode, const string& link, double value) {
   int linkIndex = _linkIndex[link];
   OW_API_CHECK(OW_setlinkvalue(_enModel, linkIndex, epanetCode, value), "OW_setlinkvalue");
+}
+
+void EpanetModel::setComment(Element::_sp element, const std::string& comment)
+{
+  
+  switch (element->type()) {
+    case Element::JUNCTION:
+    case Element::TANK:
+    case Element::RESERVOIR:
+    {
+      int nodeIndex = _nodeIndex[element->name()];
+      OW_API_CHECK(OW_setnodecomment(_enModel, nodeIndex, comment.c_str()), "OW_setnodecomment");
+    }
+      break;
+    case Element::PIPE:
+    case Element::PUMP:
+    case Element::VALVE:
+    {
+      int linkIndex = _linkIndex[element->name()];
+      OW_API_CHECK(OW_setlinkcomment(_enModel, linkIndex, comment.c_str()), "OW_setlinkcomment");
+    }
+      break;
+    default:
+      break;
+  }
+  
 }
 
 void EpanetModel::OW_API_CHECK(int errorCode, string externalFunction) throw(string) {
