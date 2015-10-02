@@ -670,9 +670,17 @@ time_t EpanetModel::nextHydraulicStep(time_t time) {
   OW_API_CHECK( OW_gettimeparam(_enModel, EN_NEXTEVENT, &stepLength), "OW_gettimeparam(EN_NEXTEVENT)" );
   nextTime += stepLength;
   
-  // todo
-  //std::cout << "epanet step length: " << stepLength << std::endl;
-  //std::cout << "*** next sim time: " << nextTime << std::endl;
+  if (stepLength < actualTimeStep) {
+    long index;
+    OW_API_CHECK( OW_gettimeparam(_enModel, EN_NEXTEVENTINDEX, &index), "OW_gettimeparam(EN_NEXTEVENTINDEX)" );
+    if (index > 0) {
+      char id[256];
+      OW_API_CHECK( OW_getnodeid(_enModel, (int)index, id), "OW_getnodeid()" );
+      stringstream ss;
+      ss << "INFO: Simulation step restricted by tank :: " << id;
+      this->logLine(ss.str());
+    }
+  }
   
   return nextTime;
 }
