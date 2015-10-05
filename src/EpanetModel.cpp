@@ -677,29 +677,76 @@ time_t EpanetModel::nextHydraulicStep(time_t time) {
   int actualTimeStep = hydraulicTimeStep();
   OW_API_CHECK( OW_settimeparam(_enModel, EN_REPORTSTEP, (long)actualTimeStep), "OW_settimeparam(EN_REPORTSTEP)");
   OW_API_CHECK( OW_settimeparam(_enModel, EN_HYDSTEP, (long)actualTimeStep), "OW_settimeparam(EN_HYDSTEP)");
-  OW_API_CHECK( OW_gettimeparam(_enModel, EN_NEXTTANKEVENT, &tankTimeStep), "OW_gettimeparam(EN_NEXTTANKEVENT)" );
-  OW_API_CHECK( OW_gettimeparam(_enModel, EN_NEXTCONTROLEVENT, &controlTimeStep), "OW_gettimeparam(EN_NEXTCONTROLEVENT)" );
-  nextTime += min(tankTimeStep,controlTimeStep);
   
-  if (tankTimeStep < actualTimeStep) {
-    long index;
-    OW_API_CHECK( OW_gettimeparam(_enModel, EN_TANKEVENTINDEX, &index), "OW_gettimeparam(EN_TANKEVENTINDEX)" );
-    if (index > 0) {
-      char id[256];
-      OW_API_CHECK( OW_getnodeid(_enModel, (int)index, id), "OW_getnodeid()" );
-      stringstream ss;
-      ss << "INFO: Simulation step restricted to " << tankTimeStep << " seconds by tank :: " << id;
-      this->logLine(ss.str());
+  // get time to next hydraulic event
+  EN_TimestepEvent eventType;
+  long duration = 0;
+  int elementIndex = 0;
+  OW_API_CHECK(OW_timeToNextEvent(_enModel, &eventType, &duration, &elementIndex), "OW_timeToNextEvent");
+  nextTime += duration;
+  
+  if (eventType == EN_STEP_TANKEVENT || eventType == EN_STEP_CONTROLEVENT) {
+    
+    string elementTypeStr("");
+    string elementDescStr("");
+    
+    if (eventType == EN_STEP_TANKEVENT) {
+      elementTypeStr = "Tank";
+      char id[MAXID+1];
+      OW_API_CHECK( OW_getnodeid(_enModel, elementIndex, id), "OW_getnodeid()" );
+      elementDescStr = string(id);
     }
-  }
-  if (controlTimeStep < actualTimeStep) {
-    long index;
-    OW_API_CHECK( OW_gettimeparam(_enModel, EN_CONTROLEVENTINDEX, &index), "OW_gettimeparam(EN_CONTROLEVENTINDEX)" );
-    if (index > 0) {
-      stringstream ss;
-      ss << "INFO: Simulation step restricted to " << controlTimeStep << " seconds by control index :: " << index;
-      this->logLine(ss.str());
+    else {
+      elementTypeStr = "Control";
+      elementDescStr = "index " + to_string(elementIndex) + " :: ";
+      
+      int controlType, linkIndex, nodeIndex;
+      double setting, level;
+      OW_getcontrol(_enModel, elementIndex, &controlType, &linkIndex, &setting, &nodeIndex, &level);
+      //
+      //#define EN_LOWLEVEL     0   /* Control types.  */
+      //#define EN_HILEVEL      1   /* See ControlType */
+      //#define EN_TIMER        2   /* in TYPES.H.     */
+      //#define EN_TIMEOFDAY    3
+      
+      char linkName[1024];
+      OW_getlinkid(_enModel, linkIndex, linkName);
+      
+      string nodeOrTime("");
+      if (nodeIndex == 0) {
+        nodeOrTime = "Time";
+      }
+      else {
+        char nodeId[1024];
+        OW_getnodeid(_enModel, nodeIndex, nodeId);
+        nodeOrTime = string(nodeId);
+      }
+      
+      stringstream controlString;
+      switch (controlType) {
+        case 0:
+          controlString << "Low Level: "<< linkName << "= " << setting << " when " << nodeOrTime << " < " << level;
+          break;
+        case 1:
+          controlString << "High Level: " << linkName << " = " << setting << " when " << nodeOrTime << " > " << level;
+          break;
+        case 2:
+          controlString << "Timer: " << linkName << " = " << setting << " when " << nodeOrTime << " = " << level;
+          break;
+        case 3:
+          controlString << "Time of Day: " << linkName << " = " << setting << " when " << nodeOrTime << " = " << level;
+          break;
+        default:
+          break;
+      }
+
+      elementDescStr += controlString.str();
+      
     }
+    
+    stringstream ss;
+    ss << "INFO: Simulation step restricted to " << duration << " seconds by " << elementTypeStr << " :: " << elementDescStr;
+    this->logLine(ss.str());
   }
   
   return nextTime;
