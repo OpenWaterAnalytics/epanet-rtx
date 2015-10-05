@@ -669,24 +669,35 @@ time_t EpanetModel::nextHydraulicStep(time_t time) {
     cerr << "time not synchronized!" << endl;
   }
   // get the time of the next hydraulic event (according to the simulation)
-  long stepLength = 0;
+  long tankTimeStep = 0;
+  long controlTimeStep = 0;
   time_t nextTime = time;
   // re-set the epanet engine's hydstep parameter to the original value,
   // so that the step length figurer-outerer works.
   int actualTimeStep = hydraulicTimeStep();
   OW_API_CHECK( OW_settimeparam(_enModel, EN_REPORTSTEP, (long)actualTimeStep), "OW_settimeparam(EN_REPORTSTEP)");
   OW_API_CHECK( OW_settimeparam(_enModel, EN_HYDSTEP, (long)actualTimeStep), "OW_settimeparam(EN_HYDSTEP)");
-  OW_API_CHECK( OW_gettimeparam(_enModel, EN_NEXTEVENT, &stepLength), "OW_gettimeparam(EN_NEXTEVENT)" );
-  nextTime += stepLength;
+  OW_API_CHECK( OW_gettimeparam(_enModel, EN_NEXTTANKEVENT, &tankTimeStep), "OW_gettimeparam(EN_NEXTTANKEVENT)" );
+  OW_API_CHECK( OW_gettimeparam(_enModel, EN_NEXTCONTROLEVENT, &controlTimeStep), "OW_gettimeparam(EN_NEXTCONTROLEVENT)" );
+  nextTime += min(tankTimeStep,controlTimeStep);
   
-  if (stepLength < actualTimeStep) {
+  if (tankTimeStep < actualTimeStep) {
     long index;
-    OW_API_CHECK( OW_gettimeparam(_enModel, EN_NEXTEVENTINDEX, &index), "OW_gettimeparam(EN_NEXTEVENTINDEX)" );
+    OW_API_CHECK( OW_gettimeparam(_enModel, EN_TANKEVENTINDEX, &index), "OW_gettimeparam(EN_TANKEVENTINDEX)" );
     if (index > 0) {
       char id[256];
       OW_API_CHECK( OW_getnodeid(_enModel, (int)index, id), "OW_getnodeid()" );
       stringstream ss;
-      ss << "INFO: Simulation step restricted by tank :: " << id;
+      ss << "INFO: Simulation step restricted to " << tankTimeStep << " seconds by tank :: " << id;
+      this->logLine(ss.str());
+    }
+  }
+  if (controlTimeStep < actualTimeStep) {
+    long index;
+    OW_API_CHECK( OW_gettimeparam(_enModel, EN_CONTROLEVENTINDEX, &index), "OW_gettimeparam(EN_CONTROLEVENTINDEX)" );
+    if (index > 0) {
+      stringstream ss;
+      ss << "INFO: Simulation step restricted to " << controlTimeStep << " seconds by control index :: " << index;
       this->logLine(ss.str());
     }
   }
@@ -701,20 +712,21 @@ void EpanetModel::stepSimulation(time_t time) {
   
   //std::cout << "set step to: " << step << std::endl;
   
-  long timeLeftInStep = 0;
+  long computedStep = 0;
   
   OW_API_CHECK( OW_settimeparam(_enModel, EN_HYDSTEP, step), "OW_settimeparam(EN_HYDSTEP)" );
   OW_API_CHECK( OW_settimeparam(_enModel, EN_DURATION, step), "OW_settimeparam(EN_DURATION)");
-  OW_API_CHECK( OW_nextH(_enModel, &timeLeftInStep), "OW_nextH()" );
+  OW_API_CHECK( OW_nextH(_enModel, &computedStep), "OW_nextH()" );
   
   if (this->shouldRunWaterQuality()) {
     OW_API_CHECK(OW_nextQ(_enModel, &qstep), "OW_nextQ");
   }
   
-  long supposedStep = time - currentSimulationTime();
-  if (step != supposedStep) {
+  if (step != computedStep) {
     // it's an intermediate step
-    cerr << "model returned step: " << step << ", expecting " << supposedStep << endl;
+    stringstream ss;
+    ss << "ERROR: Simulation step used for updating tank levels different than expected";
+    this->logLine(ss.str());
   }
   setCurrentSimulationTime( currentSimulationTime() + step );
 }
