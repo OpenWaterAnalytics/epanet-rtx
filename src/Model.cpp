@@ -667,8 +667,6 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
       
       stringstream ss;
       ss << "INFO: Simulation step :: " << asctime(timeinfo);
-//      this->logLine(ss.str());
-      
     }
     else {
       timeinfo = localtime (&simulationTime);

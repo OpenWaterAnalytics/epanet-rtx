@@ -675,8 +675,7 @@ time_t EpanetModel::nextHydraulicStep(time_t time) {
   // re-set the epanet engine's hydstep parameter to the original value,
   // so that the step length figurer-outerer works.
   int actualTimeStep = hydraulicTimeStep();
-  OW_API_CHECK( OW_settimeparam(_enModel, EN_REPORTSTEP, (long)actualTimeStep), "OW_settimeparam(EN_REPORTSTEP)");
-  OW_API_CHECK( OW_settimeparam(_enModel, EN_HYDSTEP, (long)actualTimeStep), "OW_settimeparam(EN_HYDSTEP)");
+  this->setHydraulicTimeStep(actualTimeStep);
   
   // get time to next hydraulic event
   EN_TimestepEvent eventType;
@@ -754,15 +753,15 @@ time_t EpanetModel::nextHydraulicStep(time_t time) {
 
 // evolve tank levels
 void EpanetModel::stepSimulation(time_t time) {
-  long step = (long)(time - currentSimulationTime());
+  int step = (int)(time - this->currentSimulationTime());
   long qstep = step;
   
   //std::cout << "set step to: " << step << std::endl;
   
   long computedStep = 0;
   
-  OW_API_CHECK( OW_settimeparam(_enModel, EN_HYDSTEP, step), "OW_settimeparam(EN_HYDSTEP)" );
-  OW_API_CHECK( OW_settimeparam(_enModel, EN_DURATION, step), "OW_settimeparam(EN_DURATION)");
+  int actualStep = this->hydraulicTimeStep();
+  this->setHydraulicTimeStep(step);
   OW_API_CHECK( OW_nextH(_enModel, &computedStep), "OW_nextH()" );
   
   if (this->shouldRunWaterQuality()) {
@@ -775,6 +774,8 @@ void EpanetModel::stepSimulation(time_t time) {
     ss << "ERROR: Simulation step used for updating tank levels different than expected";
     this->logLine(ss.str());
   }
+  
+  this->setHydraulicTimeStep(actualStep);
   setCurrentSimulationTime( currentSimulationTime() + step );
 }
 
