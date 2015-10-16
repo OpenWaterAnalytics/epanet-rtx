@@ -86,7 +86,7 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange 
   }
   
   // force pre-cache
-  TimeRange preFetchRange(range.start - this->correlationWindow()->period(), range.end);
+  TimeRange preFetchRange(range.start - this->correlationWindow()->period(), range.end + _lagSeconds);
   TimeRange correlatorFetchRange = preFetchRange;
   // widen for inclusion of lags
   time_t correlatorPrior = correlatorFetchRange.start - this->lagSeconds();
@@ -120,7 +120,7 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange 
     
     set<time_t> sourceTimeValues = sourceCollection.times();
     
-    set<time_t> lagEvaluationTimes = sourceCollection.trimmedToRange(TimeRange(t - _lagSeconds, t + _lagSeconds)).times();
+    set<time_t> lagEvaluationTimes = m_primaryCollection.trimmedToRange(TimeRange(t - _lagSeconds, t + _lagSeconds)).times();
     if (lagEvaluationTimes.size() == 0) {
       continue; // next time.
     }
