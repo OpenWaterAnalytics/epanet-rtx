@@ -52,6 +52,8 @@ map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForEle
   AggregatorTimeSeries::_sp error(new AggregatorTimeSeries);
   error->addSource(modeled);
   error->addSource(measured, -1);
+  Clock::_sp errClock(new Clock(900)); // temporary fixed error clock
+  error->setClock(errClock);
   
   StatsTimeSeries::_sp meanErr(new StatsTimeSeries);
   meanErr->setStatsType(StatsTimeSeries::StatsTimeSeriesMean);

@@ -636,8 +636,8 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
 void SqliteProjectFile::loadModelFromDb() {
   int ret;
   string modelContents;
-  EpanetModel::_sp enModel( new EpanetModel );
-  // error here? implement the new version of this.
+  boost::filesystem::path tempFile = boost::filesystem::temp_directory_path();
+  
   // de-serialize the model file from meta.key="model_contents"
   sqlite3_stmt *stmt;
   ret = sqlite3_prepare_v2(_dbHandle, selectModelFileStr.c_str(), -1, &stmt, NULL);
@@ -647,7 +647,6 @@ void SqliteProjectFile::loadModelFromDb() {
   if (sqlite3_step(stmt) == SQLITE_ROW) {
     modelContents = string((char*)sqlite3_column_text(stmt, 0));
     try {
-      boost::filesystem::path tempFile = boost::filesystem::temp_directory_path();
       boost::filesystem::path tempNameHash = boost::filesystem::unique_path();
       const std::string tempstr    = tempNameHash.native();  // optional
       
@@ -661,7 +660,6 @@ void SqliteProjectFile::loadModelFromDb() {
       modelFileStream << modelContents;
       modelFileStream.close();
       
-      enModel->loadModelFromFile(tempFile.string());
       
     } catch (std::exception &e) {
       cerr << e.what();
@@ -673,6 +671,7 @@ void SqliteProjectFile::loadModelFromDb() {
   }
   sqlite3_finalize(stmt);
   
+  EpanetModel::_sp enModel( new EpanetModel( tempFile.string() ) );
   _model = enModel;
   
   
@@ -1034,11 +1033,11 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
     else if (RTX_STRINGS_ARE_EQUAL(key, "gainUnits")) {
       unsigned int idx = 0;
       unsigned int desiredValue = (unsigned int)val;
-      map<string,Units> uMap = Units::unitStringMap();
+      map<string,Units> uMap = Units::unitStringMap;
       map<string,Units>::const_iterator it;
       for(it=uMap.begin();it!=uMap.end();it++) {
         if (idx == desiredValue) { // indices match
-          gn->setUnits(it->second);
+          gn->setGainUnits(it->second);
           break; // map iteration
         }
         ++idx;
