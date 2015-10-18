@@ -45,7 +45,6 @@ namespace RTX {
   
   using std::vector;
   using std::string;
-  using std::set;
   
   class Model {
   public:
@@ -163,13 +162,11 @@ namespace RTX {
       ElementOptionMeasuredFlows      = 1 << 2,
       ElementOptionMeasuredPressures  = 1 << 3,
       ElementOptionMeasuredQuality    = 1 << 4,
-      ElementOptionMeasuredSettings   = 1 << 5,
-      ElementOptionMeasuredStatuses   = 1 << 6,
-      ElementOptionAllTanks           = 1 << 7,
-      ElementOptionAllFlows           = 1 << 8,
-      ElementOptionAllPressures       = 1 << 9,
-      ElementOptionAllHeads           = 1 << 10,
-      ElementOptionAllQuality         = 1 << 11
+      ElementOptionAllTanks           = 1 << 5,
+      ElementOptionAllFlows           = 1 << 6,
+      ElementOptionAllPressures       = 1 << 7,
+      ElementOptionAllHeads           = 1 << 8,
+      ElementOptionAllQuality         = 1 << 9
     } elementOption_t;
     
     void setRecordForElementInputs(PointRecord::_sp record);
@@ -177,7 +174,6 @@ namespace RTX {
     
     vector<TimeSeries::_sp> networkStatesWithOptions(elementOption_t options);
     vector<TimeSeries::_sp> networkInputSeries(elementOption_t options);
-    set<TimeSeries::_sp> networkInputRootSeries(elementOption_t options);
 
     // fetch points for a group of series
     void fetchElementInputs(TimeRange range);

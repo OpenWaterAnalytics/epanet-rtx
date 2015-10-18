@@ -1382,7 +1382,7 @@ vector<TimeSeries::_sp> Model::networkInputSeries(elementOption_t options) {
   modelElements = this->elements();
   
   if (options & ElementOptionMeasuredAll) {
-    options = (elementOption_t)(options | ElementOptionMeasuredFlows | ElementOptionMeasuredPressures | ElementOptionMeasuredQuality | ElementOptionMeasuredTanks | ElementOptionMeasuredSettings | ElementOptionMeasuredStatuses);
+    options = (elementOption_t)(options | ElementOptionMeasuredFlows | ElementOptionMeasuredPressures | ElementOptionMeasuredQuality | ElementOptionMeasuredTanks);
   }
   
   BOOST_FOREACH(Element::_sp element, modelElements) {
@@ -1447,10 +1447,10 @@ vector<TimeSeries::_sp> Model::networkInputSeries(elementOption_t options) {
         if (pipe->flowMeasure() && (options & ElementOptionMeasuredFlows)) {
           measures.push_back(pipe->flowMeasure());
         }
-        if (pipe->settingParameter() && (options & ElementOptionMeasuredSettings)) {
+        if (pipe->settingParameter() && (options & ElementOptionMeasuredFlows)) {
           measures.push_back(pipe->settingParameter());
         }
-        if (pipe->statusParameter() && (options & ElementOptionMeasuredStatuses)) {
+        if (pipe->statusParameter() && (options & ElementOptionMeasuredFlows)) {
           measures.push_back(pipe->statusParameter());
         }
         break;
@@ -1461,17 +1461,6 @@ vector<TimeSeries::_sp> Model::networkInputSeries(elementOption_t options) {
   }
   return measures;
 }
-
-set<TimeSeries::_sp> Model::networkInputRootSeries(elementOption_t options) {
-  vector<TimeSeries::_sp> inputs = this->networkInputSeries(options);
-  set<TimeSeries::_sp> rootTs;
-  BOOST_FOREACH(TimeSeries::_sp ts, inputs) {
-    TimeSeries::_sp rTs = ts->rootTimeSeries();
-    rootTs.insert(rTs);
-  }
-  return rootTs;
-}
-
 
 // useful for pre-fetching simulation inputs
 void Model::setRecordForElementInputs(PointRecord::_sp pr) {
