@@ -313,6 +313,9 @@
 		2280409B158F82EF004222DA /* Pump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409A158F82EE004222DA /* Pump.cpp */; };
 		2280409D158F8326004222DA /* Valve.h in Headers */ = {isa = PBXBuildFile; fileRef = 2280409C158F8326004222DA /* Valve.h */; };
 		2280409F158F8352004222DA /* Valve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409E158F8351004222DA /* Valve.cpp */; };
+		2288C1241BE3C71900F9B8FB /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
+		2288C1251BE3C74600F9B8FB /* TimeSeriesDuplicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2288C10A1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.cpp */; };
+		2288C1271BE3C7BE00F9B8FB /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2288C1261BE3C7BE00F9B8FB /* libboost_system.a */; };
 		228C2D921A9E15BF003C826D /* TimeRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228C2D901A9E15BF003C826D /* TimeRange.cpp */; };
 		228C2D931A9E15BF003C826D /* TimeRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228C2D901A9E15BF003C826D /* TimeRange.cpp */; };
 		228C2D941A9E15BF003C826D /* TimeRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228C2D901A9E15BF003C826D /* TimeRange.cpp */; };
@@ -525,6 +528,13 @@
 			remoteGlobalIDString = 228A76F918450CBD00905D8E;
 			remoteInfo = "epanet-rtx-project";
 		};
+		2288C1221BE3C70F00F9B8FB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 221BFD311A8E8AD000143FCC;
+			remoteInfo = "epanet-rtx static deps";
+		};
 		228CA8DF1AA0D69400D0353E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
@@ -699,7 +709,7 @@
 		220AE470145B29F7002F07B4 /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Node.cpp; path = ../../src/Node.cpp; sourceTree = "<group>"; };
 		220AE472145B2A0C002F07B4 /* Link.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Link.cpp; path = ../../src/Link.cpp; sourceTree = "<group>"; };
 		220AE474145B2A28002F07B4 /* Dma.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Dma.cpp; path = ../../src/Dma.cpp; sourceTree = "<group>"; };
-		220B46241B7E740000B81B90 /* libsqlite3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsqlite3.a; path = ../../../../../../../usr/local/lib/libsqlite3.a; sourceTree = "<group>"; };
+		220B46241B7E740000B81B90 /* libsqlite3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsqlite3.a; path = /usr/local/lib/libsqlite3.a; sourceTree = "<absolute>"; };
 		220F9DD518F9E1BE00BB842C /* readConfig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = readConfig.cpp; path = ../../examples/readConfig.cpp; sourceTree = "<group>"; };
 		220F9E4C18F9E68B00BB842C /* libepanet-rtx.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libepanet-rtx.dylib"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2211D2041A6D69EA00E34B9B /* TimeSeriesSynthetic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesSynthetic.cpp; path = ../../src/TimeSeriesSynthetic.cpp; sourceTree = "<group>"; };
@@ -784,6 +794,10 @@
 		2281A75D15A744E60018EC0F /* DbPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DbPointRecord.h; path = ../../src/DbPointRecord.h; sourceTree = "<group>"; };
 		2281A75E15A7451F0018EC0F /* MysqlPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = MysqlPointRecord.h; path = ../../src/MysqlPointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2281A75F15A745520018EC0F /* OdbcPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = OdbcPointRecord.h; path = ../../src/OdbcPointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2288C10A1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesDuplicator.cpp; path = ../../examples/Duplicator/TimeSeriesDuplicator.cpp; sourceTree = "<group>"; };
+		2288C10B1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TimeSeriesDuplicator.h; path = ../../examples/Duplicator/TimeSeriesDuplicator.h; sourceTree = "<group>"; };
+		2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libTimeSeriesDuplicator.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		2288C1261BE3C7BE00F9B8FB /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = /usr/local/com.citilogics.dev/libboost_system.a; sourceTree = "<absolute>"; };
 		228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libepanet-rtx-project.dylib"; sourceTree = BUILT_PRODUCTS_DIR; };
 		228A836E16DBE5E7008E9C35 /* data_access_profiling */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = data_access_profiling; sourceTree = BUILT_PRODUCTS_DIR; };
 		228A837A16DBE644008E9C35 /* data_access.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = data_access.cpp; path = ../../examples/data_access_profiling/data_access.cpp; sourceTree = "<group>"; };
@@ -908,6 +922,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2288C10D1BE3C5DC00F9B8FB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2288C1271BE3C7BE00F9B8FB /* libboost_system.a in Frameworks */,
+				2288C1241BE3C71900F9B8FB /* libepanet-rtx.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		228A76F718450CBD00905D8E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1018,6 +1041,8 @@
 		220DFA9C15502E4100AF41D0 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				2288C1261BE3C7BE00F9B8FB /* libboost_system.a */,
+				220B46241B7E740000B81B90 /* libsqlite3.a */,
 				224A92811A8BD51E00D8FBE2 /* libsqlite3.dylib */,
 				43E5BC0B1A8B0CEA00CC93D6 /* libboost_python.dylib */,
 				43E5BBEF1A8AF5B200CC93D6 /* Python */,
@@ -1194,6 +1219,15 @@
 			name = "Model Classes";
 			sourceTree = "<group>";
 		};
+		2288C1041BE3C09F00F9B8FB /* TS Duplicator */ = {
+			isa = PBXGroup;
+			children = (
+				2288C10B1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.h */,
+				2288C10A1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.cpp */,
+			);
+			name = "TS Duplicator";
+			sourceTree = "<group>";
+		};
 		228A76FE18450CC700905D8E /* RTX Project */ = {
 			isa = PBXGroup;
 			children = (
@@ -1262,7 +1296,6 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
-				220B46241B7E740000B81B90 /* libsqlite3.a */,
 				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
 				22C34357187D9441000100A4 /* epanetmsx.xcodeproj */,
 				223947E81AF3B27000C8AE4F /* model exporter */,
@@ -1279,6 +1312,7 @@
 				2274871E19AE234200A48475 /* Python Interpreter */,
 				22C62AC91439ED9300841E60 /* time series classes */,
 				228CA8CE1AA0CBC400D0353E /* time series extensions */,
+				2288C1041BE3C09F00F9B8FB /* TS Duplicator */,
 				22C62AC11439ED6300841E60 /* Products */,
 				220DFA9C15502E4100AF41D0 /* Libraries */,
 			);
@@ -1299,6 +1333,7 @@
 				22CF1C391A6842DC00161188 /* testTsFilter */,
 				221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */,
 				223947E71AF3B27000C8AE4F /* model exporter */,
+				2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1581,6 +1616,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2288C10E1BE3C5DC00F9B8FB /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		228A76F818450CBD00905D8E /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -1711,6 +1753,24 @@
 			productName = "model exporter";
 			productReference = 223947E71AF3B27000C8AE4F /* model exporter */;
 			productType = "com.apple.product-type.tool";
+		};
+		2288C10F1BE3C5DC00F9B8FB /* TimeSeriesDuplicator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2288C1181BE3C5DC00F9B8FB /* Build configuration list for PBXNativeTarget "TimeSeriesDuplicator" */;
+			buildPhases = (
+				2288C10C1BE3C5DC00F9B8FB /* Sources */,
+				2288C10D1BE3C5DC00F9B8FB /* Frameworks */,
+				2288C10E1BE3C5DC00F9B8FB /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2288C1231BE3C70F00F9B8FB /* PBXTargetDependency */,
+			);
+			name = TimeSeriesDuplicator;
+			productName = TimeSeriesDuplicator;
+			productReference = 2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
 		};
 		228A76F918450CBD00905D8E /* epanet-rtx-project */ = {
 			isa = PBXNativeTarget;
@@ -1889,6 +1949,9 @@
 					223947E61AF3B27000C8AE4F = {
 						CreatedOnToolsVersion = 6.2;
 					};
+					2288C10F1BE3C5DC00F9B8FB = {
+						CreatedOnToolsVersion = 7.1;
+					};
 					22CF1C381A6842DC00161188 = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
@@ -1928,6 +1991,7 @@
 				22CF1C381A6842DC00161188 /* testTsFilter */,
 				221BFD311A8E8AD000143FCC /* epanet-rtx static deps */,
 				223947E61AF3B27000C8AE4F /* model exporter */,
+				2288C10F1BE3C5DC00F9B8FB /* TimeSeriesDuplicator */,
 			);
 		};
 /* End PBXProject section */
@@ -2116,6 +2180,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				223947EA1AF3B27000C8AE4F /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2288C10C1BE3C5DC00F9B8FB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2288C1251BE3C74600F9B8FB /* TimeSeriesDuplicator.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2342,6 +2414,11 @@
 			target = 228A76F918450CBD00905D8E /* epanet-rtx-project */;
 			targetProxy = 225954451AE92FF000ADF8C6 /* PBXContainerItemProxy */;
 		};
+		2288C1231BE3C70F00F9B8FB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 221BFD311A8E8AD000143FCC /* epanet-rtx static deps */;
+			targetProxy = 2288C1221BE3C70F00F9B8FB /* PBXContainerItemProxy */;
+		};
 		228CA8E01AA0D69400D0353E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 221BFD311A8E8AD000143FCC /* epanet-rtx static deps */;
@@ -2557,6 +2634,85 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		2288C1191BE3C5DC00F9B8FB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_CPP_EXCEPTIONS = YES;
+				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/com.citilogics.dev,
+				);
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		2288C11A1BE3C5DC00F9B8FB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_CPP_EXCEPTIONS = YES;
+				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/com.citilogics.dev,
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -3155,6 +3311,15 @@
 			buildConfigurations = (
 				223947EB1AF3B27000C8AE4F /* Debug */,
 				223947EC1AF3B27000C8AE4F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2288C1181BE3C5DC00F9B8FB /* Build configuration list for PBXNativeTarget "TimeSeriesDuplicator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2288C1191BE3C5DC00F9B8FB /* Debug */,
+				2288C11A1BE3C5DC00F9B8FB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
