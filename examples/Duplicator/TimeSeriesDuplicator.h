@@ -13,6 +13,7 @@ namespace RTX {
   class TimeSeriesDuplicator {
     
   public:
+    RTX_SHARED_POINTER(TimeSeriesDuplicator);
     typedef void (^RTX_Duplicator_Logging_Callback_Block)(const char *msg);
     
     PointRecord::_sp destinationRecord();

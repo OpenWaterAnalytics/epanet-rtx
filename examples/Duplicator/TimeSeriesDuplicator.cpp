@@ -25,25 +25,19 @@ void TimeSeriesDuplicator::setDestinationRecord(PointRecord::_sp record) {
 std::list<TimeSeries::_sp> TimeSeriesDuplicator::series() {
   return _sourceSeries;
 }
-
 void TimeSeriesDuplicator::setSeries(std::list<TimeSeries::_sp> series) {
-  
   if (!_destinationRecord) {
     return;
   }
-  
   this->stop();
-  
   _sourceSeries = series;
   this->_refreshDestinations();
-  
-  
 }
 
-void TimeSeriesDuplicator::_refreshDesinations() {
+void TimeSeriesDuplicator::_refreshDestinations() {
   _destinationSeries.clear();
   
-  BOOST_FOREACH(TimeSerie::_sp source, _sourceSeries) {
+  BOOST_FOREACH(TimeSeries::_sp source, _sourceSeries) {
     // make a simple modular ts
     TimeSeriesFilter::_sp mod( new TimeSeriesFilter() );
     mod->setSource(source);
@@ -70,6 +64,21 @@ void TimeSeriesDuplicator::setFetchFrequency(time_t seconds) {
   _fetchFrequency = seconds;
 }
 
+void TimeSeriesDuplicator::run() {
+  
+}
+void TimeSeriesDuplicator::stop() {
+  
+}
+void TimeSeriesDuplicator::runWithRetrospective(time_t start, time_t chunkSize) {
+  
+}
+bool TimeSeriesDuplicator::isRunning() {
+  return false;
+}
+double TimeSeriesDuplicator::pctCompleteFetch() {
+  return 0.;
+}
 
 
 // boost::this_thread::sleep_for(boost::posix_time::seconds(60));
