@@ -64,9 +64,8 @@ namespace RTX {
     
     class OdbcConnection {
     public:
-      string dsn;
-      string pwd;
-      string uid;
+      string driver;
+      string conInformation;
     };
     
     class OdbcSqlHandle {
@@ -85,7 +84,7 @@ namespace RTX {
     
     // public methods
     
-    vector<string>dsnList();
+//    vector<string>dsnList();
     std::list<std::string>driverList();
     
     // public class ivars for connection and syntax info. call dbConnect() after changing any of these properites.

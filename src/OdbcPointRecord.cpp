@@ -161,11 +161,11 @@ OdbcPointRecord::Sql_Connector_t OdbcPointRecord::typeForName(const string& conn
   cerr << "could not resolve connector type: " << connector << endl;
   return NO_CONNECTOR;
 }
-
-
-vector<string> OdbcPointRecord::dsnList() {
-  return _dsnList;
-}
+//
+//
+//vector<string> OdbcPointRecord::dsnList() {
+//  return _dsnList;
+//}
 
 
 
@@ -263,10 +263,9 @@ void OdbcPointRecord::dbConnect() throw(RtxException) {
   }
   
   _connectionOk = false;
-  if (RTX_STRINGS_ARE_EQUAL(this->connection.dsn, "") ||
-      RTX_STRINGS_ARE_EQUAL(this->connection.uid, "") ||
-      RTX_STRINGS_ARE_EQUAL(this->connection.pwd, "") ) {
-    errorMessage = "Incomplete Login";
+  if (RTX_STRINGS_ARE_EQUAL(this->connection.driver, "") ||
+      RTX_STRINGS_ARE_EQUAL(this->connection.conInformation, "") ) {
+    errorMessage = "Incomplete Connection Information";
     return;
   }
   
@@ -275,11 +274,14 @@ void OdbcPointRecord::dbConnect() throw(RtxException) {
   SQLRETURN sqlRet;
   
   try {
-    sqlRet = SQLConnect(_handles.SCADAdbc, (SQLCHAR*)this->connection.dsn.c_str(), SQL_NTS, (SQLCHAR*)this->connection.uid.c_str(), SQL_NTS, (SQLCHAR*)this->connection.pwd.c_str(), SQL_NTS);
+    string connStr = this->connection.driver + ";" + this->connection.conInformation;
+    SQLCHAR outConStr[1024];
+    SQLSMALLINT outConStrLen;
+    sqlRet = SQLDriverConnect(_handles.SCADAdbc, NULL, (SQLCHAR*)connStr.c_str(), strlen(connStr.c_str()), outConStr, 1024, &outConStrLen, SQL_DRIVER_COMPLETE);
+//    sqlRet = SQLConnect(_handles.SCADAdbc, (SQLCHAR*)connStr.c_str(), SQL_NTS, (SQLCHAR*)this->connection.uid.c_str(), SQL_NTS, (SQLCHAR*)this->connection.pwd.c_str(), SQL_NTS);
     SQL_CHECK(sqlRet, "SQLDriverConnect", _handles.SCADAdbc, SQL_HANDLE_DBC);
     _connectionOk = true;
     errorMessage = "Connected";
-    
   } catch (string err) {
     errorMessage = err;
     cerr << "Initialize failed: " << err << "\n";
