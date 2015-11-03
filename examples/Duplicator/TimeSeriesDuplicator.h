@@ -44,8 +44,10 @@ namespace RTX {
     time_t _fetchWindow, _fetchFrequency;
     RTX_Duplicator_Logging_Callback_Block _loggingFn;
     PointRecord::_sp _destinationRecord;
-    std::list<TimeSeries::_sp> _series;
+    std::list<TimeSeries::_sp> _sourceSeries, _destinationSeries;
     double _pctCompleteFetch;
+    bool _isRunning;
+    void _refreshDestinations();
   };
 }
 

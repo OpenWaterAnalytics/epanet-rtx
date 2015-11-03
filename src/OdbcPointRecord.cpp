@@ -74,11 +74,8 @@ OdbcPointRecord::~OdbcPointRecord() {
 }
 
 void OdbcPointRecord::initDsnList() {
-  
   SQLRETURN sqlRet;
-  
   _dsnList.clear();
-  
   SQLCHAR dsnChar[256];
   SQLCHAR desc[256];
   SQLSMALLINT dsn_ret;
@@ -92,9 +89,22 @@ void OdbcPointRecord::initDsnList() {
       cerr << "\tdata truncation\n" << endl;
     }
   }
-  
-  
-  
+}
+
+list<string> OdbcPointRecord::driverList() {
+  list<string> drivers;
+  SQLRETURN sqlRet;
+  SQLCHAR driverChar[256];
+  SQLCHAR driverAttr[1256];
+  SQLSMALLINT driver_ret, attr_ret;
+  SQLUSMALLINT direction = SQL_FETCH_FIRST;
+  while(SQL_SUCCEEDED(sqlRet = SQLDrivers(_handles.SCADAenv, direction, driverChar, 256, &driver_ret, driverAttr, 1256, &attr_ret))) {
+    direction = SQL_FETCH_NEXT;
+    string thisDriver = string((char*)driverChar);
+    string thisAttr = string((char*)driverAttr);
+    drivers.push_back(thisDriver);
+  }
+  return drivers;
 }
 
 ///! templates for selection queries

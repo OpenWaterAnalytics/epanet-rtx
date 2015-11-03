@@ -14,6 +14,7 @@
 #include "DbPointRecord.h"
 
 #include <deque>
+#include <list>
 
 #ifdef _WIN32
   #include <Windows.h>
@@ -85,6 +86,7 @@ namespace RTX {
     // public methods
     
     vector<string>dsnList();
+    std::list<std::string>driverList();
     
     // public class ivars for connection and syntax info. call dbConnect() after changing any of these properites.
     OdbcConnection connection;
