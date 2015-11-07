@@ -315,7 +315,6 @@
 		2280409F158F8352004222DA /* Valve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409E158F8351004222DA /* Valve.cpp */; };
 		2288C1241BE3C71900F9B8FB /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		2288C1251BE3C74600F9B8FB /* TimeSeriesDuplicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2288C10A1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.cpp */; };
-		2288C1271BE3C7BE00F9B8FB /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2288C1261BE3C7BE00F9B8FB /* libboost_system.a */; };
 		228C2D921A9E15BF003C826D /* TimeRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228C2D901A9E15BF003C826D /* TimeRange.cpp */; };
 		228C2D931A9E15BF003C826D /* TimeRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228C2D901A9E15BF003C826D /* TimeRange.cpp */; };
 		228C2D941A9E15BF003C826D /* TimeRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228C2D901A9E15BF003C826D /* TimeRange.cpp */; };
@@ -354,6 +353,11 @@
 		22B9285B1A76EF1B006DBC57 /* MathOpsTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B928581A76EF1B006DBC57 /* MathOpsTimeSeries.cpp */; };
 		22B9285C1A76EF1B006DBC57 /* MathOpsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B928591A76EF1B006DBC57 /* MathOpsTimeSeries.h */; };
 		22B9285D1A76EF1B006DBC57 /* MathOpsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B928591A76EF1B006DBC57 /* MathOpsTimeSeries.h */; };
+		22BBE1581BEE58D60066AEAE /* libboost_chrono-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BBE1531BEE58D60066AEAE /* libboost_chrono-mt.a */; };
+		22BBE1591BEE58D60066AEAE /* libboost_date_time-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BBE1541BEE58D60066AEAE /* libboost_date_time-mt.a */; };
+		22BBE15A1BEE58D60066AEAE /* libboost_filesystem-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BBE1551BEE58D60066AEAE /* libboost_filesystem-mt.a */; };
+		22BBE15B1BEE58D60066AEAE /* libboost_system-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BBE1561BEE58D60066AEAE /* libboost_system-mt.a */; };
+		22BBE15C1BEE58D60066AEAE /* libboost_thread-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BBE1571BEE58D60066AEAE /* libboost_thread-mt.a */; };
 		22BEDD1F187E0BE300855B68 /* libepanetmsx-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BEDCF4187E09A100855B68 /* libepanetmsx-static.a */; };
 		22BF02D315EBCABC00F66465 /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BF02D215EBCABC00F66465 /* Point.cpp */; };
 		22BFAB01196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */; };
@@ -766,6 +770,9 @@
 		224EDECC1B4D8E040029FC37 /* influx_api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = influx_api.h; path = ../../src/influx_api.h; sourceTree = "<group>"; };
 		224EDECD1B4D8E040029FC37 /* influx_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = influx_client.c; path = ../../src/influx_client.c; sourceTree = "<group>"; };
 		225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MysqlPointRecord.cpp; path = ../../src/MysqlPointRecord.cpp; sourceTree = "<group>"; };
+		2265C5FE1BEBF19E00F37406 /* libboost_date_time.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_date_time.a; path = ../../../../../../../usr/local/com.citilogics.dev/libboost_date_time.a; sourceTree = "<group>"; };
+		2265C6031BEE504600F37406 /* libboost_thread.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_thread.a; path = ../../../../../../../usr/local/lib/libboost_thread.a; sourceTree = "<group>"; };
+		2265C6051BEE508E00F37406 /* libboost_chrono.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_chrono.a; path = ../../../../../../../usr/local/lib/libboost_chrono.a; sourceTree = "<group>"; };
 		226861C814716D2A000DDDEF /* Units.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Units.cpp; path = ../../src/Units.cpp; sourceTree = "<group>"; };
 		226936CD19AD1ED600B4BCDB /* ForecastTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ForecastTimeSeries.cpp; path = ../../src/ForecastTimeSeries.cpp; sourceTree = "<group>"; };
 		226936CE19AD1ED600B4BCDB /* ForecastTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ForecastTimeSeries.h; path = ../../src/ForecastTimeSeries.h; sourceTree = "<group>"; };
@@ -823,6 +830,12 @@
 		22B8A79C1603CA6100EECAA5 /* timeseries_demo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = timeseries_demo; sourceTree = BUILT_PRODUCTS_DIR; };
 		22B928581A76EF1B006DBC57 /* MathOpsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MathOpsTimeSeries.cpp; path = ../../src/MathOpsTimeSeries.cpp; sourceTree = "<group>"; };
 		22B928591A76EF1B006DBC57 /* MathOpsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MathOpsTimeSeries.h; path = ../../src/MathOpsTimeSeries.h; sourceTree = "<group>"; };
+		22BBE1511BEE54540066AEAE /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = ../../../../../../../usr/local/com.citilogics.dev/libboost_filesystem.a; sourceTree = "<group>"; };
+		22BBE1531BEE58D60066AEAE /* libboost_chrono-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_chrono-mt.a"; path = "../../../../../../../usr/local/Cellar/boost/1.59.0/lib/libboost_chrono-mt.a"; sourceTree = "<group>"; };
+		22BBE1541BEE58D60066AEAE /* libboost_date_time-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_date_time-mt.a"; path = "../../../../../../../usr/local/Cellar/boost/1.59.0/lib/libboost_date_time-mt.a"; sourceTree = "<group>"; };
+		22BBE1551BEE58D60066AEAE /* libboost_filesystem-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_filesystem-mt.a"; path = "../../../../../../../usr/local/Cellar/boost/1.59.0/lib/libboost_filesystem-mt.a"; sourceTree = "<group>"; };
+		22BBE1561BEE58D60066AEAE /* libboost_system-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_system-mt.a"; path = "../../../../../../../usr/local/Cellar/boost/1.59.0/lib/libboost_system-mt.a"; sourceTree = "<group>"; };
+		22BBE1571BEE58D60066AEAE /* libboost_thread-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_thread-mt.a"; path = "../../../../../../../usr/local/Cellar/boost/1.59.0/lib/libboost_thread-mt.a"; sourceTree = "<group>"; };
 		22BF02D215EBCABC00F66465 /* Point.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Point.cpp; path = ../../src/Point.cpp; sourceTree = "<group>"; };
 		22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OutlierExclusionTimeSeries.cpp; path = ../../src/OutlierExclusionTimeSeries.cpp; sourceTree = "<group>"; };
 		22BFAB00196AFBD800B5B77C /* OutlierExclusionTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OutlierExclusionTimeSeries.h; path = ../../src/OutlierExclusionTimeSeries.h; sourceTree = "<group>"; };
@@ -926,7 +939,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2288C1271BE3C7BE00F9B8FB /* libboost_system.a in Frameworks */,
+				22BBE1581BEE58D60066AEAE /* libboost_chrono-mt.a in Frameworks */,
+				22BBE1591BEE58D60066AEAE /* libboost_date_time-mt.a in Frameworks */,
+				22BBE15A1BEE58D60066AEAE /* libboost_filesystem-mt.a in Frameworks */,
+				22BBE15B1BEE58D60066AEAE /* libboost_system-mt.a in Frameworks */,
+				22BBE15C1BEE58D60066AEAE /* libboost_thread-mt.a in Frameworks */,
 				2288C1241BE3C71900F9B8FB /* libepanet-rtx.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1296,6 +1313,15 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
+				22BBE1531BEE58D60066AEAE /* libboost_chrono-mt.a */,
+				22BBE1541BEE58D60066AEAE /* libboost_date_time-mt.a */,
+				22BBE1551BEE58D60066AEAE /* libboost_filesystem-mt.a */,
+				22BBE1561BEE58D60066AEAE /* libboost_system-mt.a */,
+				22BBE1571BEE58D60066AEAE /* libboost_thread-mt.a */,
+				22BBE1511BEE54540066AEAE /* libboost_filesystem.a */,
+				2265C6051BEE508E00F37406 /* libboost_chrono.a */,
+				2265C6031BEE504600F37406 /* libboost_thread.a */,
+				2265C5FE1BEBF19E00F37406 /* libboost_date_time.a */,
 				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
 				22C34357187D9441000100A4 /* epanetmsx.xcodeproj */,
 				223947E81AF3B27000C8AE4F /* model exporter */,
@@ -1979,6 +2005,7 @@
 			);
 			projectRoot = "";
 			targets = (
+				221BFD311A8E8AD000143FCC /* epanet-rtx static deps */,
 				22C62ABF1439ED6300841E60 /* epanet-rtx */,
 				220F9DDB18F9E68B00BB842C /* epanet-rtx-sqlite-only */,
 				228A76F918450CBD00905D8E /* epanet-rtx-project */,
@@ -1989,7 +2016,6 @@
 				22D982EF17F4A3CD00DD7EB4 /* rt_simulator */,
 				22D9831817F62B4900DD7EB4 /* testLemonTiger */,
 				22CF1C381A6842DC00161188 /* testTsFilter */,
-				221BFD311A8E8AD000143FCC /* epanet-rtx static deps */,
 				223947E61AF3B27000C8AE4F /* model exporter */,
 				2288C10F1BE3C5DC00F9B8FB /* TimeSeriesDuplicator */,
 			);
@@ -2672,6 +2698,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/com.citilogics.dev,
+					/usr/local/Cellar/boost/1.59.0/lib,
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2712,6 +2739,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/com.citilogics.dev,
+					/usr/local/Cellar/boost/1.59.0/lib,
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";

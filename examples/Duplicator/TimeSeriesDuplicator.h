@@ -23,17 +23,11 @@ namespace RTX {
     void setSeries(std::list<TimeSeries::_sp> series);
     
     // view / change state
-    void run();
-    void runWithRetrospective(time_t start, time_t chunkSize);
+    void run(time_t fetchWindow, time_t frequency); /// run starting now
+    void runRetrospective(time_t start, time_t retroChunkSize); // catch up to current and stop
     void stop();
     bool isRunning();
     double pctCompleteFetch();
-    
-    // fetch parameters
-    time_t fetchWindow();
-    void setFetchWindow(time_t seconds);
-    time_t fetchFrequency();
-    void setFetchFrequency(time_t seconds);
     
     // logging
     void setLoggingFunction(RTX_Duplicator_Logging_Callback_Block);
@@ -42,13 +36,14 @@ namespace RTX {
     
   private:
     boost::signals2::mutex _mutex;
-    time_t _fetchWindow, _fetchFrequency;
     RTX_Duplicator_Logging_Callback_Block _loggingFn;
     PointRecord::_sp _destinationRecord;
     std::list<TimeSeries::_sp> _sourceSeries, _destinationSeries;
     double _pctCompleteFetch;
     bool _isRunning;
     void _refreshDestinations();
+    void _logLine(const std::string& str);
+    bool _shouldRun;
   };
 }
 

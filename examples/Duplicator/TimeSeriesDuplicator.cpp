@@ -48,38 +48,78 @@ void TimeSeriesDuplicator::_refreshDestinations() {
   
 }
 
-time_t TimeSeriesDuplicator::fetchWindow() {
-  return _fetchWindow;
-}
-void TimeSeriesDuplicator::setFetchWindow(time_t seconds) {
-  scoped_lock<boost::signals2::mutex> lock(_mutex);
-  _fetchWindow = seconds;
-}
-
-time_t TimeSeriesDuplicator::fetchFrequency() {
-  return _fetchFrequency;
-}
-void TimeSeriesDuplicator::setFetchFrequency(time_t seconds) {
-  scoped_lock<boost::signals2::mutex> lock(_mutex);
-  _fetchFrequency = seconds;
-}
-
-void TimeSeriesDuplicator::run() {
+void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
+  _shouldRun = true;
+  time_t nextFetch = time(NULL);
   
+  while (_shouldRun) {
+    _isRunning = true;
+    time_t loopStarted = time(NULL);
+    nextFetch += frequency;
+    
+    // do work
+    this->_logLine("Copying Series...");
+    
+    _pctCompleteFetch = 0.;
+    size_t nSeries = this->series().size();
+    BOOST_FOREACH(TimeSeries::_sp ts, this->series()) {
+      ts->points(TimeRange(loopStarted - fetchWindow, loopStarted));
+      _pctCompleteFetch += 1./(double)nSeries;
+    }
+    _pctCompleteFetch = 1.;
+    time_t postFetch = time(NULL);
+    time_t fetchDuration = postFetch - loopStarted;
+
+    time_t waitLength = nextFetch - time(NULL);
+    if (waitLength < 0) {
+      waitLength = 0;
+    }
+    stringstream ss;
+    ss << "Fetch took " << fetchDuration << " seconds. Waiting for " << waitLength << " seconds";
+    this->_logLine(ss.str());
+    while (_shouldRun && nextFetch > time(NULL)) {
+      boost::this_thread::sleep_for(boost::chrono::seconds(1));
+    }
+  }
+  
+  // outside the loop means it was cancelled by user.
+  _isRunning = false;
 }
 void TimeSeriesDuplicator::stop() {
-  
+  _shouldRun = false;
 }
-void TimeSeriesDuplicator::runWithRetrospective(time_t start, time_t chunkSize) {
+void TimeSeriesDuplicator::runRetrospective(time_t start, time_t chunkSize) {
   
 }
 bool TimeSeriesDuplicator::isRunning() {
-  return false;
+  return _isRunning;
 }
 double TimeSeriesDuplicator::pctCompleteFetch() {
-  return 0.;
+  return _pctCompleteFetch;
 }
 
 
-// boost::this_thread::sleep_for(boost::posix_time::seconds(60));
+
+void TimeSeriesDuplicator::setLoggingFunction(RTX_Duplicator_Logging_Callback_Block fn) {
+  _loggingFn = fn;
+}
+
+TimeSeriesDuplicator::RTX_Duplicator_Logging_Callback_Block TimeSeriesDuplicator::loggingFunction() {
+  return _loggingFn;
+}
+
+void TimeSeriesDuplicator::_logLine(const std::string& line) {
+  if (_loggingFn == NULL) {
+    return;
+  }
+  string myLine(line);
+  if (_loggingFn != NULL) {
+    size_t loc = myLine.find("\n");
+    if (loc == string::npos) {
+      myLine += "\n";
+    }
+    const char *msg = myLine.c_str();
+    _loggingFn(msg);
+  }
+}
 
