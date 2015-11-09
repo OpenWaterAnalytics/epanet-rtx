@@ -52,17 +52,13 @@ void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
   while (_shouldRun) {
     _isRunning = true;
     time_t loopStarted = time(NULL);
-    nextFetch += frequency;
-    
-    // do work
-    this->_logLine("Copying Series...");
     
     _pctCompleteFetch = 0.;
     size_t nSeries = _destinationSeries.size();
     BOOST_FOREACH(TimeSeries::_sp ts, _destinationSeries) {
       if (_shouldRun) {
         ts->resetCache();
-        TimeSeries::PointCollection pc = ts->pointCollection(TimeRange(loopStarted - fetchWindow, loopStarted));
+        TimeSeries::PointCollection pc = ts->pointCollection(TimeRange(nextFetch - fetchWindow, nextFetch));
         stringstream tsSS;
         tsSS << ts->name() << " : " << pc.count() << " points (max:" << pc.max() << " min:" << pc.min() << " avg:" << pc.mean() << ")";
         this->_logLine(tsSS.str());
@@ -73,7 +69,7 @@ void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
     _pctCompleteFetch = 1.;
     time_t postFetch = time(NULL);
     time_t fetchDuration = postFetch - loopStarted;
-
+    nextFetch += frequency;
     time_t waitLength = nextFetch - time(NULL);
     if (waitLength < 0) {
       waitLength = 0;
