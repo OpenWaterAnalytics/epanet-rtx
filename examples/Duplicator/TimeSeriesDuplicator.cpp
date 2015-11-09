@@ -26,9 +26,6 @@ std::list<TimeSeries::_sp> TimeSeriesDuplicator::series() {
   return _sourceSeries;
 }
 void TimeSeriesDuplicator::setSeries(std::list<TimeSeries::_sp> series) {
-  if (!_destinationRecord) {
-    return;
-  }
   this->stop();
   _sourceSeries = series;
   this->_refreshDestinations();
@@ -61,10 +58,17 @@ void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
     this->_logLine("Copying Series...");
     
     _pctCompleteFetch = 0.;
-    size_t nSeries = this->series().size();
-    BOOST_FOREACH(TimeSeries::_sp ts, this->series()) {
-      ts->points(TimeRange(loopStarted - fetchWindow, loopStarted));
-      _pctCompleteFetch += 1./(double)nSeries;
+    size_t nSeries = _destinationSeries.size();
+    BOOST_FOREACH(TimeSeries::_sp ts, _destinationSeries) {
+      if (_shouldRun) {
+        ts->resetCache();
+        TimeSeries::PointCollection pc = ts->pointCollection(TimeRange(loopStarted - fetchWindow, loopStarted));
+        stringstream tsSS;
+        tsSS << ts->name() << " : " << pc.count() << " points (max:" << pc.max() << " min:" << pc.min() << " avg:" << pc.mean() << ")";
+        this->_logLine(tsSS.str());
+        _pctCompleteFetch += 1./(double)nSeries;
+      }
+      
     }
     _pctCompleteFetch = 1.;
     time_t postFetch = time(NULL);

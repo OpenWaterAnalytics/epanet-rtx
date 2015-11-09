@@ -18,8 +18,9 @@ namespace RTX {
   
   class SqliteProjectFile : public ProjectFile {
   public:
-    void loadProjectFile(const string& path);
-    void saveProjectFile(const string& path);
+    RTX_SHARED_POINTER(SqliteProjectFile);
+    bool loadProjectFile(const string& path);
+    bool saveProjectFile(const string& path);
     void clear();
     
     RTX_LIST<TimeSeries::_sp> timeSeries();
@@ -32,6 +33,8 @@ namespace RTX {
     void insertTimeSeries(TimeSeries::_sp ts) {};
     void insertClock(Clock::_sp clock) {};
     void insertRecord(PointRecord::_sp record) {};
+    
+    std::string metaValueForKey(const std::string& key);
     
   private:
     // maps are keyed by uuid from database

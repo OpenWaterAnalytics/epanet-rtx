@@ -155,7 +155,7 @@ namespace RTX {
 
 
 
-void SqliteProjectFile::loadProjectFile(const string& path) {
+bool SqliteProjectFile::loadProjectFile(const string& path) {
   boost::filesystem::path p(path);
   _path = boost::filesystem::absolute(p).string();
 //  char *zErrMsg = 0;
@@ -164,7 +164,7 @@ void SqliteProjectFile::loadProjectFile(const string& path) {
   if( returnCode ){
     fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(_dbHandle));
     sqlite3_close(_dbHandle);
-    return;
+    return false;
   }
   
   
@@ -179,7 +179,7 @@ void SqliteProjectFile::loadProjectFile(const string& path) {
   
   if (databaseVersion < sqlRequiredUserVersion) {
     cerr << "Config Database Schema version not compatible. Require version " << sqlRequiredUserVersion << " or greater." << endl;
-    return;
+    return false;
   }
   
   
@@ -197,10 +197,12 @@ void SqliteProjectFile::loadProjectFile(const string& path) {
   
   // close db
   sqlite3_close(_dbHandle);
+  return true;
 }
 
-void SqliteProjectFile::saveProjectFile(const string& path) {
+bool SqliteProjectFile::saveProjectFile(const string& path) {
   // nope
+  return false;
 }
 
 void SqliteProjectFile::clear() {
@@ -241,6 +243,26 @@ RTX_LIST<PointRecord::_sp> SqliteProjectFile::records() {
   return list;
 }
 
+
+string SqliteProjectFile::metaValueForKey(const std::string& key) {
+  
+  sqlite3_stmt *stmt;
+  sqlite3_prepare_v2(_dbHandle, "select value from meta where key=?", -1, &stmt, NULL);
+  sqlite3_bind_text(stmt, 1, key.c_str(), -1, NULL);
+  
+  if (sqlite3_step(stmt) != SQLITE_ROW) {
+    cerr << "could not get meta key-value" << endl;
+    return string("");
+  }
+  
+  sqltext value = sqlite3_column_text(stmt, 0);
+  string v = string((char*)value);
+  
+  sqlite3_reset(stmt);
+  sqlite3_finalize(stmt);
+  
+  return v;
+}
 
 
 
@@ -667,7 +689,9 @@ void SqliteProjectFile::loadModelFromDb() {
     
   }
   else {
-    cerr << "can't step sqlite -- error: " << sqlite3_errmsg(_dbHandle) << endl;
+    cerr << "can't step sqlite or no model found: " << sqlite3_errmsg(_dbHandle) << endl;
+    sqlite3_finalize(stmt);
+    return;
   }
   sqlite3_finalize(stmt);
   

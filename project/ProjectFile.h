@@ -72,8 +72,8 @@ namespace RTX {
     
     RTX_SHARED_POINTER(ProjectFile);
     
-    virtual void loadProjectFile(const string& path) = 0;
-    virtual void saveProjectFile(const string& path) = 0;
+    virtual bool loadProjectFile(const string& path) = 0;
+    virtual bool saveProjectFile(const string& path) = 0;
     virtual void clear() = 0;
     
     virtual RTX_LIST<TimeSeries::_sp> timeSeries() = 0;
