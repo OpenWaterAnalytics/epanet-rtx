@@ -810,8 +810,6 @@
 		2265C6031BEE504600F37406 /* libboost_thread.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_thread.a; path = ../../../../../../../usr/local/lib/libboost_thread.a; sourceTree = "<group>"; };
 		2265C6051BEE508E00F37406 /* libboost_chrono.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_chrono.a; path = ../../../../../../../usr/local/lib/libboost_chrono.a; sourceTree = "<group>"; };
 		226861C814716D2A000DDDEF /* Units.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Units.cpp; path = ../../src/Units.cpp; sourceTree = "<group>"; };
-		226936CD19AD1ED600B4BCDB /* ForecastTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ForecastTimeSeries.cpp; path = ../../src/ForecastTimeSeries.cpp; sourceTree = "<group>"; };
-		226936CE19AD1ED600B4BCDB /* ForecastTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ForecastTimeSeries.h; path = ../../src/ForecastTimeSeries.h; sourceTree = "<group>"; };
 		226AC1461733F996009B7C90 /* ValidRangeTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ValidRangeTimeSeries.cpp; path = ../../src/ValidRangeTimeSeries.cpp; sourceTree = "<group>"; };
 		226AC1471733F996009B7C90 /* ValidRangeTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ValidRangeTimeSeries.h; path = ../../src/ValidRangeTimeSeries.h; sourceTree = "<group>"; };
 		226AC14B17340D06009B7C90 /* MultiplierTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MultiplierTimeSeries.cpp; path = ../../src/MultiplierTimeSeries.cpp; sourceTree = "<group>"; };
@@ -1133,8 +1131,6 @@
 				221F3CD518F467AD00D63C5A /* WarpingTimeSeries.cpp */,
 				220500D117B984470062D02B /* RunTimeStatusModularTimeSeries.h */,
 				220500D017B984470062D02B /* RunTimeStatusModularTimeSeries.cpp */,
-				226936CE19AD1ED600B4BCDB /* ForecastTimeSeries.h */,
-				226936CD19AD1ED600B4BCDB /* ForecastTimeSeries.cpp */,
 			);
 			name = "OLD CLASSES";
 			sourceTree = "<group>";
