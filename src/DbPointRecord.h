@@ -13,7 +13,6 @@
 
 #include <set>
 
-#include "MapPointRecord.h"
 #include "BufferPointRecord.h"
 #include "rtxExceptions.h"
 
