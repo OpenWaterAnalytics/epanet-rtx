@@ -90,7 +90,6 @@
 		220F9E3818F9E68B00BB842C /* OffsetTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22707A9516309D4100FEB4DD /* OffsetTimeSeries.h */; };
 		220F9E3A18F9E68B00BB842C /* SineTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F63D3616C5735100A15368 /* SineTimeSeries.h */; };
 		220F9E3B18F9E68B00BB842C /* BufferPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 227510E716D4231800B2BA62 /* BufferPointRecord.h */; };
-		220F9E3C18F9E68B00BB842C /* MapPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 223F52C616D51F330086DC8F /* MapPointRecord.h */; };
 		220F9E3E18F9E68B00BB842C /* ThresholdTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 43627EC9171F27E3007AE0F5 /* ThresholdTimeSeries.h */; };
 		220F9E3F18F9E68B00BB842C /* ConstantTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22E4ED0F1725C1C60076E93D /* ConstantTimeSeries.h */; };
 		220F9E4118F9E68B00BB842C /* ValidRangeTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 226AC1471733F996009B7C90 /* ValidRangeTimeSeries.h */; };
@@ -211,7 +210,6 @@
 		221BFDA51A8E8AD000143FCC /* SineTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F63D3616C5735100A15368 /* SineTimeSeries.h */; };
 		221BFDA61A8E8AD000143FCC /* TimeSeriesSynthetic.h in Headers */ = {isa = PBXBuildFile; fileRef = 2211D2051A6D69EA00E34B9B /* TimeSeriesSynthetic.h */; };
 		221BFDA71A8E8AD000143FCC /* BufferPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 227510E716D4231800B2BA62 /* BufferPointRecord.h */; };
-		221BFDA91A8E8AD000143FCC /* MapPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 223F52C616D51F330086DC8F /* MapPointRecord.h */; };
 		221BFDAA1A8E8AD000143FCC /* CorrelatorTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */; };
 		221BFDAC1A8E8AD000143FCC /* ThresholdTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 43627EC9171F27E3007AE0F5 /* ThresholdTimeSeries.h */; };
 		221BFDAD1A8E8AD000143FCC /* ConstantTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22E4ED0F1725C1C60076E93D /* ConstantTimeSeries.h */; };
@@ -255,7 +253,6 @@
 		223AF33118F6E4C0002E846F /* InversionTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 223AF32F18F6E4C0002E846F /* InversionTimeSeries.h */; };
 		223AF35418F7121F002E846F /* SqliteProjectFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223AF35218F7121F002E846F /* SqliteProjectFile.cpp */; };
 		223AF35518F7121F002E846F /* SqliteProjectFile.h in Headers */ = {isa = PBXBuildFile; fileRef = 223AF35318F7121F002E846F /* SqliteProjectFile.h */; };
-		223F52C816D51F330086DC8F /* MapPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 223F52C616D51F330086DC8F /* MapPointRecord.h */; };
 		22459FA71A44C41800AFD0BD /* CorrelatorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */; };
 		22459FA81A44C41800AFD0BD /* CorrelatorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */; };
 		22459FA91A44C41800AFD0BD /* CorrelatorTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */; };
@@ -790,8 +787,6 @@
 		223AF32F18F6E4C0002E846F /* InversionTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InversionTimeSeries.h; path = ../../src/InversionTimeSeries.h; sourceTree = "<group>"; };
 		223AF35218F7121F002E846F /* SqliteProjectFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SqliteProjectFile.cpp; path = ../../project/SqliteProjectFile.cpp; sourceTree = "<group>"; };
 		223AF35318F7121F002E846F /* SqliteProjectFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SqliteProjectFile.h; path = ../../project/SqliteProjectFile.h; sourceTree = "<group>"; };
-		223F52C516D51F330086DC8F /* MapPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapPointRecord.cpp; path = ../../src/MapPointRecord.cpp; sourceTree = "<group>"; };
-		223F52C616D51F330086DC8F /* MapPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = MapPointRecord.h; path = ../../src/MapPointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CorrelatorTimeSeries.cpp; path = ../../src/CorrelatorTimeSeries.cpp; sourceTree = "<group>"; };
 		22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CorrelatorTimeSeries.h; path = ../../src/CorrelatorTimeSeries.h; sourceTree = "<group>"; };
 		2246439D150BD6E0005EA3BA /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../../src/Node.h; sourceTree = "<group>"; };
@@ -1456,8 +1451,6 @@
 			children = (
 				2281A75915A743410018EC0F /* PointRecord.h */,
 				22DEE91B153F5C44008F75AE /* PointRecord.cpp */,
-				223F52C616D51F330086DC8F /* MapPointRecord.h */,
-				223F52C516D51F330086DC8F /* MapPointRecord.cpp */,
 				227510E716D4231800B2BA62 /* BufferPointRecord.h */,
 				227510E616D4231800B2BA62 /* BufferPointRecord.cpp */,
 				22CE31EA173993ED008AC1F9 /* csv */,
@@ -1612,7 +1605,6 @@
 				220F9E3818F9E68B00BB842C /* OffsetTimeSeries.h in Headers */,
 				220F9E3A18F9E68B00BB842C /* SineTimeSeries.h in Headers */,
 				220F9E3B18F9E68B00BB842C /* BufferPointRecord.h in Headers */,
-				220F9E3C18F9E68B00BB842C /* MapPointRecord.h in Headers */,
 				22459FAA1A44C41800AFD0BD /* CorrelatorTimeSeries.h in Headers */,
 				220F9E3E18F9E68B00BB842C /* ThresholdTimeSeries.h in Headers */,
 				220F9E3F18F9E68B00BB842C /* ConstantTimeSeries.h in Headers */,
@@ -1672,7 +1664,6 @@
 				221BFDA61A8E8AD000143FCC /* TimeSeriesSynthetic.h in Headers */,
 				221BFDA71A8E8AD000143FCC /* BufferPointRecord.h in Headers */,
 				228C2D971A9E15BF003C826D /* TimeRange.h in Headers */,
-				221BFDA91A8E8AD000143FCC /* MapPointRecord.h in Headers */,
 				221BFDAA1A8E8AD000143FCC /* CorrelatorTimeSeries.h in Headers */,
 				221BFDAC1A8E8AD000143FCC /* ThresholdTimeSeries.h in Headers */,
 				221BFDAD1A8E8AD000143FCC /* ConstantTimeSeries.h in Headers */,
@@ -1751,7 +1742,6 @@
 				2211D2071A6D69EA00E34B9B /* TimeSeriesSynthetic.h in Headers */,
 				227510E916D4231800B2BA62 /* BufferPointRecord.h in Headers */,
 				228C2D951A9E15BF003C826D /* TimeRange.h in Headers */,
-				223F52C816D51F330086DC8F /* MapPointRecord.h in Headers */,
 				22459FA91A44C41800AFD0BD /* CorrelatorTimeSeries.h in Headers */,
 				43627ECA171F27E3007AE0F5 /* ThresholdTimeSeries.h in Headers */,
 				22E4ED111725C1C60076E93D /* ConstantTimeSeries.h in Headers */,
