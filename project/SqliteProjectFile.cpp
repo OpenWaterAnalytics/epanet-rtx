@@ -329,20 +329,25 @@ void SqliteProjectFile::loadRecordsFromDb() {
   // now load up each point record's connection attributes.
   boost::filesystem::path projPath(_path);
   BOOST_FOREACH(const pointRecordEntity& entity, recordEntities) {
+    // collect the k-v pairs
+    map<string, string> kvMap;
+    sqlite3_prepare_v2(_dbHandle, sqlSelectRecordProperties.c_str(), -1, &stmt, NULL);
+    sqlite3_bind_int(stmt, 1, entity.uid);
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+      string key = string((char*)sqlite3_column_text(stmt, 0));
+      string value = string((char*)sqlite3_column_text(stmt, 1));
+      kvMap[key] = value;
+    }
+    sqlite3_reset(stmt);
+    sqlite3_finalize(stmt);
+    
     
     if (RTX_STRINGS_ARE_EQUAL(entity.type, "sqlite")) {
-      sqlite3_prepare_v2(_dbHandle, sqlSelectRecordProperties.c_str(), -1, &stmt, NULL);
-      sqlite3_bind_int(stmt, 1, entity.uid);
-      while (sqlite3_step(stmt) == SQLITE_ROW) {
-        
-        string key = string((char*)sqlite3_column_text(stmt, 0));
-        string value = string((char*)sqlite3_column_text(stmt, 1));
-        
-        // which key?
+      BOOST_FOREACH(const std::string& key, kvMap | boost::adaptors::map_keys) {
         if (RTX_STRINGS_ARE_EQUAL(key, "dbPath")) {
           boost::filesystem::path dbPath(value);
           string absDbPath = boost::filesystem::absolute(dbPath,projPath.parent_path()).string();
-          boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->setPath(absDbPath);
+          boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->setPath(absDbPath);
         }
         else if (RTX_STRINGS_ARE_EQUAL(key, "readonly")) {
           // string one or zero (1,0)
@@ -374,16 +379,27 @@ void SqliteProjectFile::loadRecordsFromDb() {
             boost::split(codeStrings, parts[1], boost::is_any_of(","));
             BOOST_FOREACH(string s, codeStrings) {
               unsigned int code = boost::lexical_cast<int>(s);
-              boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->addOpcFilterCode(code);
+              boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->addOpcFilterCode(code);
             }
           }
         }
         
       }
-      sqlite3_reset(stmt);
-      sqlite3_finalize(stmt);
     }
-    
+    else if (RTX_STRINGS_ARE_EQUAL(entity.type, "odbc")) {
+#ifndef RTX_NO_ODBC
+      BOOST_FOREACH(const std::string& key, kvMap | boost::adaptors::map_keys) {
+        
+      }
+      
+      
+      
+      
+#endif
+    }
+    else if (RTX_STRINGS_ARE_EQUAL(entity.type, "influx")) {
+      
+    }
     // ignore all other types
     
     
