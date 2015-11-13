@@ -771,7 +771,7 @@ void EpanetModel::stepSimulation(time_t time) {
   if (step != computedStep) {
     // it's an intermediate step
     stringstream ss;
-    ss << "ERROR: Simulation step used for updating tank levels different than expected";
+    ss << "ERROR: Simulation step used for updating tank levels different than expected: set " << step << " and simulated " << computedStep;
     this->logLine(ss.str());
   }
   
