@@ -178,7 +178,8 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
    measurement,key1=value1,key2=value2,units=units_string
    */
   if ( m.tags.find("units") == m.tags.end() ) {
-    return false;
+    m.tags["units"] = units.unitString();
+    return true;
   }
   else if ( !RTX_STRINGS_ARE_EQUAL(m.tags["units"], units.unitString()) ) {
     // units don't match. reject.
@@ -377,14 +378,11 @@ const string InfluxDbPointRecord::nameFromMetricInfo(RTX::InfluxDbPointRecord::M
 std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
   std::vector<Point> points;
   
-  stringstream sqlss;
+  DbPointRecord::Query q = this->queryPartsFromMetricId(id);
+  q.where.push_back("time >= " + to_string(startTime) + "s");
+  q.where.push_back("time <= " + to_string(endTime) + "s");
   
-  sqlss << "SELECT * FROM " << this->nameAndWhereClause(id);
-  
-  sqlss << " and time >= " << startTime << "s";
-  sqlss << " and time <= "   << endTime << "s";
-  //sqlss << " order asc";
-  string url = this->urlForQuery(sqlss.str());
+  string url = this->urlForQuery(q.selectStr());
 
   JsonDocPtr doc = this->jsonFromPath(url);
   return this->pointsFromJson(doc);
@@ -392,13 +390,13 @@ std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_
 
 
 Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
-
   std::vector<Point> points;
-  stringstream sqlss;
   
-  sqlss << "SELECT * FROM " << this->nameAndWhereClause(id) << " and time > " << time << "s" << " order by time asc LIMIT 1";
-  string url = this->urlForQuery(sqlss.str());
+  DbPointRecord::Query q = this->queryPartsFromMetricId(id);
+  q.where.push_back("time > " + to_string(time) + "s");
+  q.order = "time asc limit 1";
   
+  string url = this->urlForQuery(q.selectStr());
   JsonDocPtr doc = this->jsonFromPath(url);
   points = this->pointsFromJson(doc);
   
@@ -411,14 +409,13 @@ Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
 
 
 Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
-  
   std::vector<Point> points;
-  stringstream sqlss;
   
-  sqlss << "SELECT * FROM " << this->nameAndWhereClause(id);
-  sqlss << " and time < " << time << "s" << " order by time desc LIMIT 1";
-  string url = this->urlForQuery(sqlss.str());
+  DbPointRecord::Query q = this->queryPartsFromMetricId(id);
+  q.where.push_back("time < " + to_string(time) + "s");
+  q.order = "time desc limit 1";
   
+  string url = this->urlForQuery(q.selectStr());
   JsonDocPtr doc = this->jsonFromPath(url);
   points = this->pointsFromJson(doc);
   
@@ -487,14 +484,13 @@ void InfluxDbPointRecord::removeRecord(const std::string& id) {
   // to-do fix this. influx bug related to dropping a series:
   return;
   
+  DbPointRecord::Query q = this->queryPartsFromMetricId(id);
   
   stringstream sqlss;
-  sqlss << "DROP SERIES FROM " << this->nameAndWhereClause(id);
+  sqlss << "DROP SERIES FROM " << q.nameAndWhereClause();
   string url = this->urlForQuery(sqlss.str(),false);
   
   JsonDocPtr doc = this->jsonFromPath(url);
-  
-  
 }
 
 void InfluxDbPointRecord::truncate() {
@@ -511,26 +507,23 @@ void InfluxDbPointRecord::truncate() {
 
 
 #pragma mark Query Building
-
-
-const string InfluxDbPointRecord::nameAndWhereClause(const string& name) {
+DbPointRecord::Query InfluxDbPointRecord::queryPartsFromMetricId(const std::string& name) {
   MetricInfo m = this->metricInfoFromName(name);
   
-  stringstream ss;
-  ss << "\"" << m.measurement << "\" WHERE ";
-  typedef pair<string,string> stringPair;
+  DbPointRecord::Query q;
   
-  int i = 0;
-  BOOST_FOREACH( stringPair p, m.tags) {
-    if (i > 0) {
-      ss << " AND ";
+  q.from = m.measurement;
+  
+  typedef pair<string,string> stringPair;
+  if (m.tags.size() > 0) {
+    BOOST_FOREACH( stringPair p, m.tags) {
+      stringstream ss;
+      ss << p.first << "='" << p.second << "'";
+      q.where.push_back(ss.str());
     }
-    ss << p.first << "='" << p.second << "'";
-    ++i;
   }
   
-  const string select = ss.str();
-  return select;
+  return q;
 }
 
 

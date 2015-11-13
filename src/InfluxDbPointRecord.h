@@ -84,7 +84,7 @@ namespace RTX {
     
     MetricInfo metricInfoFromName(const std::string& name);
     const std::string nameFromMetricInfo(MetricInfo info);
-    const std::string nameAndWhereClause(const std::string& name);
+    DbPointRecord::Query queryPartsFromMetricId(const std::string& name);
     
   };
 }

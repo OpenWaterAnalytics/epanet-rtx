@@ -29,6 +29,15 @@ namespace RTX {
   class DbPointRecord : public DB_PR_SUPER {
   public:
     
+    class Query {
+    public:
+      std::vector<std::string> select,where;
+      std::string from,order;
+      std::string selectStr();
+      std::string nameAndWhereClause();
+    };
+    
+    
     RTX_SHARED_POINTER(DbPointRecord);
     DbPointRecord();
     virtual ~DbPointRecord() {};
