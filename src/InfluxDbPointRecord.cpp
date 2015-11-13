@@ -383,7 +383,7 @@ std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_
   q.where.push_back("time <= " + to_string(endTime) + "s");
   
   string url = this->urlForQuery(q.selectStr());
-
+  
   JsonDocPtr doc = this->jsonFromPath(url);
   return this->pointsFromJson(doc);
 }
@@ -562,8 +562,6 @@ const string InfluxDbPointRecord::urlForQuery(const std::string& query, bool app
 
 #pragma mark Parsing
 
-
-
 JsonDocPtr InfluxDbPointRecord::jsonFromPath(const std::string &url) {
   JsonDocPtr documentOut;
   InfluxConnectInfo_t connectionInfo;
@@ -587,30 +585,20 @@ JsonDocPtr InfluxDbPointRecord::jsonFromPath(const std::string &url) {
     
     string headerStr;
     connectionInfo.sockStream >> headerStr;
-    while (std::getline(connectionInfo.sockStream, headerStr) && headerStr != "\r") {
-      // nothing
-    }
-    
+    while (std::getline(connectionInfo.sockStream, headerStr) && headerStr != "\r") {/* nothing */}
     
     std::getline(connectionInfo.sockStream, body);
     cout << connectionInfo.sockStream.rdbuf() << endl;
     connectionInfo.sockStream.flush();
     connectionInfo.sockStream.close();
-    
   }
   
-  
   documentOut.reset(new rapidjson::Document);
-  
   if (connectionInfo.statusCode == 204 /* no content */) {
     return documentOut;
   }
   
-  
   documentOut.get()->Parse<0>(body.c_str());
-  
-  cout << body << endl;
-  
   rapidjson::StringBuffer buffer;
   rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
   documentOut->Accept(writer);
@@ -618,9 +606,6 @@ JsonDocPtr InfluxDbPointRecord::jsonFromPath(const std::string &url) {
   
   return documentOut;
 }
-
-
-
 
 vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
   vector<Point> points;
@@ -641,7 +626,12 @@ vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
     return points;
   }
   
-  const rapidjson::Value& series = results[zero]["series"];
+  const rapidjson::Value& rzero = results[zero];
+  if(!rzero.IsObject() || !rzero.HasMember("series")) {
+    return points;
+  }
+  
+  const rapidjson::Value& series = rzero["series"];
   if (!series.IsArray() || series.Size() == 0) {
     return points;
   }
