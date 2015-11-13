@@ -392,37 +392,7 @@ std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_
 
 
 Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
-//  
-//  Point p;
-//  vector<Point> points;
-//  time_t margin = 60*60*12;
-//  time_t max_margin = this->searchDistance();
-//  time_t lookahead = time + 1;
-//  
-//  while (points.size() == 0 && lookahead < time + max_margin) {
-//    points = this->selectRange(id, lookahead, lookahead + margin);
-//    lookahead += margin;
-//  }
-//  
-//  // make sure the points are sorted
-//  std::sort(points.begin(), points.end(), &Point::comparePointTime);
-//  
-//  if (points.size() > 0) {
-//    p = points.front();
-//    int i = 0;
-//    while (p.time <= time && i < points.size()) {
-//      p = points.at(i);
-//      ++i;
-//    }
-//  }
-//  else {
-//    cerr << "no points found for " << id << " :: range " << time - 1 << " - " << lookahead + margin << endl;
-//  }
-//  
-//  return p;
-  
-  
-  
+
   std::vector<Point> points;
   stringstream sqlss;
   
@@ -441,46 +411,6 @@ Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
 
 
 Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
-//  
-//  
-//  // influx 0.9.1 only supports ORDER ASC - so we have to select iteratively
-//  
-//  
-//  Point p;
-//  vector<Point> points;
-//  time_t margin = 60*60*12;
-//  time_t max_margin = this->searchDistance();
-//  time_t lookBehind = time - 1;
-//  string q;
-//  
-//  while (points.size() == 0 && lookBehind > time - max_margin) {
-//    points = this->selectRange(id, lookBehind - margin, lookBehind + 1);
-//    lookBehind -= margin;
-//  }
-//  
-//  // make sure the points are sorted
-//  std::sort(points.begin(), points.end(), &Point::comparePointTime);
-//  
-//  if (points.size() > 0) {
-//    p = points.back();
-//    while ( p.time >= time && points.size() > 0 ) {
-//      points.pop_back();
-//      p = points.back();
-//    }
-//  }
-//  else {
-//    cerr << "no points found for " << id << endl;
-//  }
-//  
-//  return p;
-//
-//  
-//  
-//  
-//  
-//  
-//  
-//  
   
   std::vector<Point> points;
   stringstream sqlss;
