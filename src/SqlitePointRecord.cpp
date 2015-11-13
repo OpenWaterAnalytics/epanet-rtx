@@ -30,17 +30,17 @@ SqlitePointRecord::SqlitePointRecord() {
 }
 
 SqlitePointRecord::~SqlitePointRecord() {
-  this->setPath("");
+  this->setConnectionString("");
   
   sqlite3_finalize(_insertSingleStmt);
   sqlite3_close(_dbHandle);
 }
 
-string SqlitePointRecord::path() {
+string SqlitePointRecord::connectionString() {
   return _path;
 }
 
-void SqlitePointRecord::setPath(std::string path) {
+void SqlitePointRecord::setConnectionString(std::string path) {
   if (this->isConnected()) {
     sqlite3_close(_dbHandle);
   }

@@ -42,6 +42,9 @@ namespace RTX {
     DbPointRecord();
     virtual ~DbPointRecord() {};
     
+    virtual std::string connectionString();
+    virtual void setConnectionString(const std::string& string);
+    
     bool readonly();
     void setReadonly(bool readOnly);
     

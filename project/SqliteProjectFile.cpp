@@ -329,6 +329,7 @@ void SqliteProjectFile::loadRecordsFromDb() {
   // now load up each point record's connection attributes.
   boost::filesystem::path projPath(_path);
   BOOST_FOREACH(const pointRecordEntity& entity, recordEntities) {
+    
     // collect the k-v pairs
     map<string, string> kvMap;
     sqlite3_prepare_v2(_dbHandle, sqlSelectRecordProperties.c_str(), -1, &stmt, NULL);
@@ -342,65 +343,54 @@ void SqliteProjectFile::loadRecordsFromDb() {
     sqlite3_finalize(stmt);
     
     
-    if (RTX_STRINGS_ARE_EQUAL(entity.type, "sqlite")) {
-      BOOST_FOREACH(const std::string& key, kvMap | boost::adaptors::map_keys) {
-        if (RTX_STRINGS_ARE_EQUAL(key, "dbPath")) {
-          boost::filesystem::path dbPath(value);
-          string absDbPath = boost::filesystem::absolute(dbPath,projPath.parent_path()).string();
-          boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->setPath(absDbPath);
+    if (kvMap.count("filterString")) {
+      vector<string> parts;
+      boost::split(parts, value, boost::is_any_of(":"));
+      string filterTypeString = parts[0];
+      
+      DbPointRecord::OpcFilterType filterType;
+      if (boost::iequals(filterTypeString, "blacklist")) {
+        filterType = DbPointRecord::OpcFilterType::OpcBlackList;
+      }
+      else if (boost::iequals(filterTypeString, "whitelist")) {
+        filterType = DbPointRecord::OpcFilterType::OpcWhiteList;
+      }
+      else if (boost::iequals(filterTypeString, "codes")) {
+        filterType = DbPointRecord::OpcFilterType::OpcCodesToValues;
+      }
+      else {
+        filterType = DbPointRecord::OpcFilterType::OpcPassThrough;
+      }
+      boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->setOpcFilterType(filterType);
+      
+      if (parts.size() > 1) {
+        vector<string> codeStrings;
+        boost::split(codeStrings, parts[1], boost::is_any_of(","));
+        BOOST_FOREACH(string s, codeStrings) {
+          unsigned int code = boost::lexical_cast<int>(s);
+          boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->addOpcFilterCode(code);
         }
-        else if (RTX_STRINGS_ARE_EQUAL(key, "readonly")) {
-          // string one or zero (1,0)
-          bool readOnly = boost::lexical_cast<bool>(value);
-          boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->setReadonly(readOnly);
-        }
-        else if (RTX_STRINGS_ARE_EQUAL(key, "filterString")) {
-          vector<string> parts;
-          boost::split(parts, value, boost::is_any_of(":"));
-          string filterTypeString = parts[0];
-          
-          DbPointRecord::OpcFilterType filterType;
-          if (boost::iequals(filterTypeString, "blacklist")) {
-            filterType = DbPointRecord::OpcFilterType::OpcBlackList;
-          }
-          else if (boost::iequals(filterTypeString, "whitelist")) {
-            filterType = DbPointRecord::OpcFilterType::OpcWhiteList;
-          }
-          else if (boost::iequals(filterTypeString, "codes")) {
-            filterType = DbPointRecord::OpcFilterType::OpcCodesToValues;
-          }
-          else {
-            filterType = DbPointRecord::OpcFilterType::OpcPassThrough;
-          }
-          boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->setOpcFilterType(filterType);
-          
-          if (parts.size() > 1) {
-            vector<string> codeStrings;
-            boost::split(codeStrings, parts[1], boost::is_any_of(","));
-            BOOST_FOREACH(string s, codeStrings) {
-              unsigned int code = boost::lexical_cast<int>(s);
-              boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->addOpcFilterCode(code);
-            }
-          }
-        }
-        
       }
     }
-    else if (RTX_STRINGS_ARE_EQUAL(entity.type, "odbc")) {
-#ifndef RTX_NO_ODBC
-      BOOST_FOREACH(const std::string& key, kvMap | boost::adaptors::map_keys) {
-        
+    
+    if(kvMap.count("readonly")) {
+      // string one or zero (1,0)
+      bool readOnly = boost::lexical_cast<bool>(value);
+      boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->setReadonly(readOnly);
+    }
+    
+    if (kvMap.count("connectionString")) {
+      if (RTX_STRINGS_ARE_EQUAL(entity.type, "sqlite")) {
+        boost::filesystem::path dbPath(kvMap["connectionString"]);
+        string absDbPath = boost::filesystem::absolute(dbPath,projPath.parent_path()).string();
+        boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->setConnectionString(absDbPath);
       }
-      
-      
-      
-      
-#endif
+      else {
+        string conn = kvMap["connectionString"];
+        boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->setConnectionString(conn);
+      }
     }
-    else if (RTX_STRINGS_ARE_EQUAL(entity.type, "influx")) {
-      
-    }
-    // ignore all other types
+    
     
     
   }
