@@ -787,9 +787,9 @@
 		224EDECC1B4D8E040029FC37 /* influx_api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = influx_api.h; path = ../../src/influx_api.h; sourceTree = "<group>"; };
 		224EDECD1B4D8E040029FC37 /* influx_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = influx_client.c; path = ../../src/influx_client.c; sourceTree = "<group>"; };
 		225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MysqlPointRecord.cpp; path = ../../src/MysqlPointRecord.cpp; sourceTree = "<group>"; };
-		2265C5FE1BEBF19E00F37406 /* libboost_date_time.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_date_time.a; path = ../../../../../../../usr/local/com.citilogics.dev/libboost_date_time.a; sourceTree = "<group>"; };
-		2265C6031BEE504600F37406 /* libboost_thread.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_thread.a; path = ../../../../../../../usr/local/lib/libboost_thread.a; sourceTree = "<group>"; };
-		2265C6051BEE508E00F37406 /* libboost_chrono.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_chrono.a; path = ../../../../../../../usr/local/lib/libboost_chrono.a; sourceTree = "<group>"; };
+		2265C5FE1BEBF19E00F37406 /* libboost_date_time.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_date_time.a; path = /usr/local/com.citilogics.dev/libboost_date_time.a; sourceTree = "<absolute>"; };
+		2265C6031BEE504600F37406 /* libboost_thread.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_thread.a; path = /usr/local/lib/libboost_thread.a; sourceTree = "<absolute>"; };
+		2265C6051BEE508E00F37406 /* libboost_chrono.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_chrono.a; path = /usr/local/lib/libboost_chrono.a; sourceTree = "<absolute>"; };
 		226861C814716D2A000DDDEF /* Units.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Units.cpp; path = ../../src/Units.cpp; sourceTree = "<group>"; };
 		226AC1461733F996009B7C90 /* ValidRangeTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ValidRangeTimeSeries.cpp; path = ../../src/ValidRangeTimeSeries.cpp; sourceTree = "<group>"; };
 		226AC1471733F996009B7C90 /* ValidRangeTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ValidRangeTimeSeries.h; path = ../../src/ValidRangeTimeSeries.h; sourceTree = "<group>"; };
@@ -842,12 +842,12 @@
 		22B8A79C1603CA6100EECAA5 /* timeseries_demo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = timeseries_demo; sourceTree = BUILT_PRODUCTS_DIR; };
 		22B928581A76EF1B006DBC57 /* MathOpsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MathOpsTimeSeries.cpp; path = ../../src/MathOpsTimeSeries.cpp; sourceTree = "<group>"; };
 		22B928591A76EF1B006DBC57 /* MathOpsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MathOpsTimeSeries.h; path = ../../src/MathOpsTimeSeries.h; sourceTree = "<group>"; };
-		22BBE1511BEE54540066AEAE /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = ../../../../../../../usr/local/com.citilogics.dev/libboost_filesystem.a; sourceTree = "<group>"; };
-		22BBE1531BEE58D60066AEAE /* libboost_chrono-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_chrono-mt.a"; path = "../../../../../../../usr/local/Cellar/boost/1.59.0/lib/libboost_chrono-mt.a"; sourceTree = "<group>"; };
-		22BBE1541BEE58D60066AEAE /* libboost_date_time-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_date_time-mt.a"; path = "../../../../../../../usr/local/Cellar/boost/1.59.0/lib/libboost_date_time-mt.a"; sourceTree = "<group>"; };
-		22BBE1551BEE58D60066AEAE /* libboost_filesystem-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_filesystem-mt.a"; path = "../../../../../../../usr/local/Cellar/boost/1.59.0/lib/libboost_filesystem-mt.a"; sourceTree = "<group>"; };
-		22BBE1561BEE58D60066AEAE /* libboost_system-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_system-mt.a"; path = "../../../../../../../usr/local/Cellar/boost/1.59.0/lib/libboost_system-mt.a"; sourceTree = "<group>"; };
-		22BBE1571BEE58D60066AEAE /* libboost_thread-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_thread-mt.a"; path = "../../../../../../../usr/local/Cellar/boost/1.59.0/lib/libboost_thread-mt.a"; sourceTree = "<group>"; };
+		22BBE1511BEE54540066AEAE /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = /usr/local/com.citilogics.dev/libboost_filesystem.a; sourceTree = "<absolute>"; };
+		22BBE1531BEE58D60066AEAE /* libboost_chrono-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_chrono-mt.a"; path = "/usr/local/Cellar/boost/1.59.0/lib/libboost_chrono-mt.a"; sourceTree = "<absolute>"; };
+		22BBE1541BEE58D60066AEAE /* libboost_date_time-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_date_time-mt.a"; path = "/usr/local/Cellar/boost/1.59.0/lib/libboost_date_time-mt.a"; sourceTree = "<absolute>"; };
+		22BBE1551BEE58D60066AEAE /* libboost_filesystem-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_filesystem-mt.a"; path = "/usr/local/Cellar/boost/1.59.0/lib/libboost_filesystem-mt.a"; sourceTree = "<absolute>"; };
+		22BBE1561BEE58D60066AEAE /* libboost_system-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_system-mt.a"; path = "/usr/local/Cellar/boost/1.59.0/lib/libboost_system-mt.a"; sourceTree = "<absolute>"; };
+		22BBE1571BEE58D60066AEAE /* libboost_thread-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_thread-mt.a"; path = "/usr/local/Cellar/boost/1.59.0/lib/libboost_thread-mt.a"; sourceTree = "<absolute>"; };
 		22BF02D215EBCABC00F66465 /* Point.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Point.cpp; path = ../../src/Point.cpp; sourceTree = "<group>"; };
 		22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OutlierExclusionTimeSeries.cpp; path = ../../src/OutlierExclusionTimeSeries.cpp; sourceTree = "<group>"; };
 		22BFAB00196AFBD800B5B77C /* OutlierExclusionTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OutlierExclusionTimeSeries.h; path = ../../src/OutlierExclusionTimeSeries.h; sourceTree = "<group>"; };
@@ -1078,6 +1078,15 @@
 		220DFA9C15502E4100AF41D0 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				22BBE1531BEE58D60066AEAE /* libboost_chrono-mt.a */,
+				22BBE1541BEE58D60066AEAE /* libboost_date_time-mt.a */,
+				22BBE1551BEE58D60066AEAE /* libboost_filesystem-mt.a */,
+				22BBE1561BEE58D60066AEAE /* libboost_system-mt.a */,
+				22BBE1571BEE58D60066AEAE /* libboost_thread-mt.a */,
+				22BBE1511BEE54540066AEAE /* libboost_filesystem.a */,
+				2265C6051BEE508E00F37406 /* libboost_chrono.a */,
+				2265C6031BEE504600F37406 /* libboost_thread.a */,
+				2265C5FE1BEBF19E00F37406 /* libboost_date_time.a */,
 				2288C1261BE3C7BE00F9B8FB /* libboost_system.a */,
 				220B46241B7E740000B81B90 /* libsqlite3.a */,
 				224A92811A8BD51E00D8FBE2 /* libsqlite3.dylib */,
@@ -1325,15 +1334,6 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
-				22BBE1531BEE58D60066AEAE /* libboost_chrono-mt.a */,
-				22BBE1541BEE58D60066AEAE /* libboost_date_time-mt.a */,
-				22BBE1551BEE58D60066AEAE /* libboost_filesystem-mt.a */,
-				22BBE1561BEE58D60066AEAE /* libboost_system-mt.a */,
-				22BBE1571BEE58D60066AEAE /* libboost_thread-mt.a */,
-				22BBE1511BEE54540066AEAE /* libboost_filesystem.a */,
-				2265C6051BEE508E00F37406 /* libboost_chrono.a */,
-				2265C6031BEE504600F37406 /* libboost_thread.a */,
-				2265C5FE1BEBF19E00F37406 /* libboost_date_time.a */,
 				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
 				22C34357187D9441000100A4 /* epanetmsx.xcodeproj */,
 				223947E81AF3B27000C8AE4F /* model exporter */,
