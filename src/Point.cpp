@@ -14,7 +14,8 @@
 #include <math.h>
 #include <iostream>
 
-using namespace std;
+using std::cout;
+using std::endl;
 using namespace RTX;
 
 
@@ -22,8 +23,8 @@ Point::Point() : time(0),value(0),quality(PointQuality::opc_bad),isValid(false),
   
 }
 
-Point::Point(time_t t, double v, PointQuality q, double c) : time(t),value(v),quality(q),isValid((std::isnan(v)) ? false : true),confidence(c) {
-  if (std::isnan(v)) {
+Point::Point(time_t t, double v, PointQuality q, double c) : time(t),value(v),quality(q),isValid((isnan(v)) ? false : true),confidence(c) {
+  if (isnan(v)) {
     cout << "nan" << endl;
   }
   if (time == 0) {

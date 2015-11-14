@@ -383,7 +383,6 @@
 		22CF1C471A68435000161188 /* SqlitePointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C0AE54184F86190013D51F /* SqlitePointRecord.cpp */; };
 		22CF1C491A6856CB00161188 /* Clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B7154D14DC2C2C00041167 /* Clock.cpp */; };
 		22D308E018FEC3ED0004E1DC /* libmysqlcppconn-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22249A9B17C918D400874859 /* libmysqlcppconn-static.a */; };
-		22D982EA17F4A29C00DD7EB4 /* CsvPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22CE31EB17399403008AC1F9 /* CsvPointRecord.cpp */; };
 		22D9830E17F4AFDE00DD7EB4 /* rt_simulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22D9830D17F4AFDE00DD7EB4 /* rt_simulator.cpp */; };
 		22DC12D61ADD844D0033DD5E /* MetaTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22DC12D41ADD844D0033DD5E /* MetaTimeSeries.cpp */; };
 		22DC12D71ADD844D0033DD5E /* MetaTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22DC12D41ADD844D0033DD5E /* MetaTimeSeries.cpp */; };
@@ -2281,7 +2280,6 @@
 			files = (
 				228C2D921A9E15BF003C826D /* TimeRange.cpp in Sources */,
 				2211D2061A6D69EA00E34B9B /* TimeSeriesSynthetic.cpp in Sources */,
-				22D982EA17F4A29C00DD7EB4 /* CsvPointRecord.cpp in Sources */,
 				22BF02D315EBCABC00F66465 /* Point.cpp in Sources */,
 				22C62ADB1439EE0B00841E60 /* AggregatorTimeSeries.cpp in Sources */,
 				22C62AE21439EE0B00841E60 /* MovingAverage.cpp in Sources */,

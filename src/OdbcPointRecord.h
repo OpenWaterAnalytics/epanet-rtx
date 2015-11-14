@@ -87,9 +87,15 @@ namespace RTX {
 //    vector<string>dsnList();
     std::list<std::string>driverList();
     
+    
+    
     // public class ivars for connection and syntax info. call dbConnect() after changing any of these properites.
     OdbcConnection connection;
     OdbcTableDescription tableDescription;
+    
+    std::string connectionString() {return connection.conInformation;};
+    void setConnectionString(const std::string& con) {connection.conInformation = con;};
+
     
     Sql_Connector_t connectorType();
     void setConnectorType(Sql_Connector_t connectorType);
