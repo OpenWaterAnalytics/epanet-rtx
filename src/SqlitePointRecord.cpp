@@ -40,7 +40,7 @@ string SqlitePointRecord::connectionString() {
   return _path;
 }
 
-void SqlitePointRecord::setConnectionString(std::string path) {
+void SqlitePointRecord::setConnectionString(const std::string& path) {
   if (this->isConnected()) {
     sqlite3_close(_dbHandle);
   }
