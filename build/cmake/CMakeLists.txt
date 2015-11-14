@@ -11,9 +11,10 @@ project (EPANET-RTX)
 file(GLOB EPANET_SOURCES ../../../EPANET/src/*.c)
 file(GLOB RTX_SOURCES ../../src/*.cpp)
 
-# peanut
+# epanet
 include_directories(../../../EPANET/include ../../../EPANET/src)
 add_library(epanet STATIC ${EPANET_SOURCES})
+SET_TARGET_PROPERTIES(epanet PROPERTIES LINKER_LANGUAGE C)
 
 # the rtx library
 include_directories(../../src ../../project ../../../EPANET/include ../../../EPANET/src ../../../epanet-msx/include /usr/local/include /usr/local/include/iODBC /usr/include/python2.7)

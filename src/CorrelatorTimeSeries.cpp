@@ -11,6 +11,7 @@
 #include "AggregatorTimeSeries.h"
 #include "LagTimeSeries.h"
 
+#include <math.h>
 #include <boost/foreach.hpp>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/covariance.hpp>
