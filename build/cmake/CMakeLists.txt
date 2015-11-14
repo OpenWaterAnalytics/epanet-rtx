@@ -2,7 +2,7 @@
 ## make
 
 cmake_minimum_required (VERSION 2.6)
-SET(CMAKE_CXX_FLAGS "-std=c++0x")
+SET(CMAKE_CXX_FLAGS "-std=c++0x -fblocks“)
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
