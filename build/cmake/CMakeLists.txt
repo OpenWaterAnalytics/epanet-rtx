@@ -20,6 +20,7 @@ SET_TARGET_PROPERTIES(epanet PROPERTIES LINKER_LANGUAGE C)
 include_directories(../../src ../../project ../../../EPANET/include ../../../EPANET/src ../../../epanet-msx/include /usr/local/include /usr/local/include/iODBC /usr/include/python2.7 /usr/include)
 add_library(epanet-rtx STATIC  ${RTX_SOURCES})
 target_link_libraries(epanet-rtx epanet curl boost_system boost_filesystem boost_date_time boost_regex mysqlcppconn-static mysqlclient iodbc sqlite3)
+target_compile_definitions(epanet-rtx PRIVATE MAXFLOAT=3.40282347e+38F)
 
 # the project library
 include_directories(../../project)
