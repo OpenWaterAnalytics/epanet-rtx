@@ -344,6 +344,7 @@ void SqliteProjectFile::loadRecordsFromDb() {
     
     
     if (kvMap.count("filterString")) {
+      string value = kvMap["filterString"];
       vector<string> parts;
       boost::split(parts, value, boost::is_any_of(":"));
       string filterTypeString = parts[0];
@@ -374,6 +375,7 @@ void SqliteProjectFile::loadRecordsFromDb() {
     }
     
     if(kvMap.count("readonly")) {
+      string value = kvMap["readonly"];
       // string one or zero (1,0)
       bool readOnly = boost::lexical_cast<bool>(value);
       boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->setReadonly(readOnly);
