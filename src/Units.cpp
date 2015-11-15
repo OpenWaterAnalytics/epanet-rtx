@@ -95,7 +95,7 @@ bool Units::operator!=(const RTX::Units &unit) const {
 
 bool Units::isSameDimensionAs(const Units& unit) const {
   
-  if (_conversion == 0 | unit._conversion == 0) {
+  if (_conversion == 0 || unit._conversion == 0) {
     // if no units assigned, can't be same dimension, right?
     return false;
   }
