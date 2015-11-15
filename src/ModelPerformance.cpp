@@ -74,6 +74,7 @@ map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForEle
   MetaTimeSeries::_sp maxCorLag(new MetaTimeSeries);
   maxCorLag->setSource(maxCor);
   maxCorLag->setMetaMode(MetaTimeSeries::MetaModeConfidence); // sneaky! 💩
+  maxCorLag->setUnits(RTX_SECOND);
   
   MathOpsTimeSeries::_sp absError(new MathOpsTimeSeries());
   absError->setMathOpsType(MathOpsTimeSeries::MathOpsTimeSeriesAbs);
