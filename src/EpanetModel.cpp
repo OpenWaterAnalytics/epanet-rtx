@@ -808,7 +808,7 @@ bool EpanetModel::_didConverge(time_t time, int errorCode) {
 
 
 void EpanetModel::setHydraulicTimeStep(int seconds) {
-  
+  OW_API_CHECK( OW_settimeparam(_enModel, EN_DURATION, (long)seconds), "OW_settimeparam(EN_DURATION)" );
   OW_API_CHECK( OW_settimeparam(_enModel, EN_REPORTSTEP, (long)seconds), "OW_settimeparam(EN_REPORTSTEP)" );
   OW_API_CHECK( OW_settimeparam(_enModel, EN_HYDSTEP, (long)seconds), "OW_settimeparam(EN_HYDSTEP)" );
   // base class method
