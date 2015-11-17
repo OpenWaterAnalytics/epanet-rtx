@@ -49,6 +49,12 @@ void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
   _shouldRun = true;
   time_t nextFetch = time(NULL);
   
+  
+  stringstream s;
+  s << "Starting fetch: freq-" << frequency << " win-" << fetchWindow;
+  this->_logLine(s.str());
+  
+  
   while (_shouldRun) {
     _isRunning = true;
     time_t loopStarted = time(NULL);

@@ -86,6 +86,8 @@ int main (int argc, const char * argv[])
   time_t fetchWindow = boost::lexical_cast<time_t>(winStr);
   time_t fetchFrequency = boost::lexical_cast<time_t>(freqStr);
   
+  cout << "Starting duplication service from " << sourceRecord->name() << " to " << _duplicator->destinationRecord()->name() << " for " project->timeSeries().size() << " time series" << endl;
+  
   _duplicator->run(fetchWindow, fetchFrequency);
   
   
