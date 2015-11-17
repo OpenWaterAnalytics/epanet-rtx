@@ -275,13 +275,26 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
   
   if (js) {
     
-    rapidjson::SizeType zero = 0;
-    const rapidjson::Value& result = (*js)["results"][zero];
-    const rapidjson::Value& series = result["series"];
-    rapidjson::Type t = series.GetType();
-    if (!series.IsArray()) {
+    if (!js->HasMember("results")) {
       return seriesList;
     }
+    
+    const rapidjson::SizeType zero = 0;
+    const rapidjson::Value& results = (*js)["results"];
+    if (!results.IsArray() || results.Size() == 0) {
+      return seriesList;
+    }
+    
+    const rapidjson::Value& rzero = results[zero];
+    if(!rzero.IsObject() || !rzero.HasMember("series")) {
+      return seriesList;
+    }
+    
+    const rapidjson::Value& series = rzero["series"];
+    if (!series.IsArray() || series.Size() == 0) {
+      return seriesList;
+    }
+    
     for (rapidjson::SizeType i = 0; i < series.Size(); ++i) {
       // measurement name?
       const rapidjson::Value& thisSeries = series[i];
