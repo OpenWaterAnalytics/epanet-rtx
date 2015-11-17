@@ -7,6 +7,7 @@
 #include "MysqlPointRecord.h"
 #endif
 #include "SqlitePointRecord.h"
+#include "InfluxDbPointRecord.h"
 
 #include "TimeSeries.h"
 #include "ConstantTimeSeries.h"
@@ -100,6 +101,7 @@ static string dbOutlierName = "OutlierExclusion";
 static string dbOdbcRecordName =  "odbc";
 static string dbMysqlRecordName = "mysql";
 static string dbSqliteRecordName = "sqlite";
+static string dbInfluxRecordName = "influx";
 //---------------------------------------------------------//
 /////////////////////////////////////////////////////////////
 
@@ -144,6 +146,7 @@ namespace RTX {
   public:
     static PointRecord::_sp createSqliteRecordFromRow(sqlite3_stmt *stmt);
     static PointRecord::_sp createCsvPointRecordFromRow(sqlite3_stmt *stmt);
+    static PointRecord::_sp createInfluxRecordFromRow(sqlite3_stmt *stmt);
 #ifndef RTX_NO_ODBC
     static PointRecord::_sp createOdbcRecordFromRow(sqlite3_stmt *stmt);
 #endif
@@ -284,7 +287,7 @@ void SqliteProjectFile::loadRecordsFromDb() {
 #endif
   
   prCreators[dbSqliteRecordName] = PointRecordFactory::createSqliteRecordFromRow;
-  
+  prCreators[dbInfluxRecordName] = PointRecordFactory::createInfluxRecordFromRow;
   
   sqlite3_stmt *stmt;
   
@@ -798,6 +801,10 @@ PointRecord::_sp PointRecordFactory::createMysqlRecordFromRow(sqlite3_stmt *stmt
 #endif
 PointRecord::_sp PointRecordFactory::createSqliteRecordFromRow(sqlite3_stmt *stmt) {
   SqlitePointRecord::_sp pr( new SqlitePointRecord );
+  return pr;
+}
+PointRecord::_sp PointRecordFactory::createInfluxRecordFromRow(sqlite3_stmt *stmt) {
+  InfluxDbPointRecord::_sp pr( new InfluxDbPointRecord );
   return pr;
 }
 
