@@ -173,25 +173,26 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
   MetricInfo m = this->metricInfoFromName(id);
   
   /*
-   NAMES MUST HAVE A UNITS STRING:
+   Names can optionally have a units string. not required but makes life simpler:
    measurement,units=units_string
    measurement,key1=value1,key2=value2,units=units_string
-   */
+   
   if ( m.tags.find("units") == m.tags.end() ) {
-    return false;
+    m.tags["units"] = units.unitString();
+    return true;
   }
   else if ( !RTX_STRINGS_ARE_EQUAL(m.tags["units"], units.unitString()) ) {
     // units don't match. reject.
     return false;
   }
   
+  */
   
   
   
   
-  /*
   
-   we don't require validation here - just assume that everything will write ok
+   //we don't require validation here - just assume that everything will write ok
    
    
    
@@ -202,7 +203,7 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
   
   bool alreadyInIndex = false;
   
-  vector<nameUnitsPair> existing = this->identifiersAndUnits();
+  std::map<std::string,Units> existing = this->identifiersAndUnits();
   BOOST_FOREACH( const nameUnitsPair p, existing) {
     string name = p.first;
     Units units = p.second;
@@ -216,14 +217,22 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
   if (!alreadyInIndex) {
     
     // insert dummy point, then delete it.
-    this->insertSingle(id, Point(time(NULL) - 60*60*24*365));
+    // add the units string if needed.
+    
+    MetricInfo m = this->metricInfoFromName(id);
+    if (m.tags.find("units") == m.tags.end()) {
+      m.tags["units"] = units.unitString();
+    }
+    string properId = this->nameFromMetricInfo(m);
+    
+    this->insertSingle(properId, Point(time(NULL) - 60*60*24*365));
     stringstream ss;
     ss << "delete from " << id << " where time < now()";
     string url = this->urlForQuery(ss.str(),false);
     JsonDocPtr doc = this->jsonFromPath(url);
     
   }
-  */
+  
   
   return true;
 }
@@ -274,13 +283,26 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
   
   if (js) {
     
-    rapidjson::SizeType zero = 0;
-    const rapidjson::Value& result = (*js)["results"][zero];
-    const rapidjson::Value& series = result["series"];
-    rapidjson::Type t = series.GetType();
-    if (!series.IsArray()) {
+    if (!js->HasMember("results")) {
       return seriesList;
     }
+    
+    const rapidjson::SizeType zero = 0;
+    const rapidjson::Value& results = (*js)["results"];
+    if (!results.IsArray() || results.Size() == 0) {
+      return seriesList;
+    }
+    
+    const rapidjson::Value& rzero = results[zero];
+    if(!rzero.IsObject() || !rzero.HasMember("series")) {
+      return seriesList;
+    }
+    
+    const rapidjson::Value& series = rzero["series"];
+    if (!series.IsArray() || series.Size() == 0) {
+      return seriesList;
+    }
+    
     for (rapidjson::SizeType i = 0; i < series.Size(); ++i) {
       // measurement name?
       const rapidjson::Value& thisSeries = series[i];
@@ -317,7 +339,11 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
         Units units = RTX_NO_UNITS;
         if (kv.find("units") != kv.end()) {
           units = Units::unitOfType(kv["units"]);
+          // remove units from string name.
+          kv.erase("units");
         }
+        
+       
         
         // now assemble the complete name:
         stringstream namestr;
@@ -377,129 +403,52 @@ const string InfluxDbPointRecord::nameFromMetricInfo(RTX::InfluxDbPointRecord::M
 std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
   std::vector<Point> points;
   
-  stringstream sqlss;
+  DbPointRecord::Query q = this->queryPartsFromMetricId(id);
+  q.where.push_back("time >= " + to_string(startTime) + "s");
+  q.where.push_back("time <= " + to_string(endTime) + "s");
   
-  sqlss << "SELECT * FROM " << this->nameAndWhereClause(id);
+  string url = this->urlForQuery(q.selectStr());
   
-  sqlss << " and time >= " << startTime << "s";
-  sqlss << " and time <= "   << endTime << "s";
-  //sqlss << " order asc";
-  string url = this->urlForQuery(sqlss.str());
-
   JsonDocPtr doc = this->jsonFromPath(url);
   return this->pointsFromJson(doc);
 }
 
 
 Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
+  std::vector<Point> points;
   
-  Point p;
-  vector<Point> points;
-  time_t margin = 60*60*12;
-  time_t max_margin = this->searchDistance();
-  time_t lookahead = time + 1;
+  DbPointRecord::Query q = this->queryPartsFromMetricId(id);
+  q.where.push_back("time > " + to_string(time) + "s");
+  q.order = "time asc limit 1";
   
-  while (points.size() == 0 && lookahead < time + max_margin) {
-    points = this->selectRange(id, lookahead, lookahead + margin);
-    lookahead += margin;
+  string url = this->urlForQuery(q.selectStr());
+  JsonDocPtr doc = this->jsonFromPath(url);
+  points = this->pointsFromJson(doc);
+  
+  if (points.size() == 0) {
+    return Point();
   }
   
-  // make sure the points are sorted
-  std::sort(points.begin(), points.end(), &Point::comparePointTime);
-  
-  if (points.size() > 0) {
-    p = points.front();
-    int i = 0;
-    while (p.time <= time && i < points.size()) {
-      p = points.at(i);
-      ++i;
-    }
-  }
-  else {
-    cerr << "no points found for " << id << " :: range " << time - 1 << " - " << lookahead + margin << endl;
-  }
-  
-  return p;
-  
-//  
-//  
-//  std::vector<Point> points;
-//  stringstream sqlss;
-//  
-//  sqlss << "SELECT * FROM " << this->nameAndWhereClause(id);
-//  sqlss << " and time > " << time << "s" << " LIMIT 1";
-//  //sqlss << " order asc";
-//  string url = this->urlForQuery(sqlss.str());
-//  
-//  JsonDocPtr doc = this->jsonFromPath(url);
-//  points = this->pointsFromJson(doc);
-//  
-//  if (points.size() == 0) {
-//    return Point();
-//  }
-//  
-//  return points.front();
+  return points.front();
 }
 
 
 Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
+  std::vector<Point> points;
   
+  DbPointRecord::Query q = this->queryPartsFromMetricId(id);
+  q.where.push_back("time < " + to_string(time) + "s");
+  q.order = "time desc limit 1";
   
-  // influx 0.9.1 only supports ORDER ASC - so we have to select iteratively
+  string url = this->urlForQuery(q.selectStr());
+  JsonDocPtr doc = this->jsonFromPath(url);
+  points = this->pointsFromJson(doc);
   
-  
-  Point p;
-  vector<Point> points;
-  time_t margin = 60*60*12;
-  time_t max_margin = this->searchDistance();
-  time_t lookBehind = time - 1;
-  string q;
-  
-  while (points.size() == 0 && lookBehind > time - max_margin) {
-    points = this->selectRange(id, lookBehind - margin, lookBehind + 1);
-    lookBehind -= margin;
+  if (points.size() == 0) {
+    return Point();
   }
   
-  // make sure the points are sorted
-  std::sort(points.begin(), points.end(), &Point::comparePointTime);
-  
-  if (points.size() > 0) {
-    p = points.back();
-    while ( p.time >= time && points.size() > 0 ) {
-      points.pop_back();
-      p = points.back();
-    }
-  }
-  else {
-    cerr << "no points found for " << id << endl;
-  }
-  
-  return p;
-
-  
-//  
-//  
-//  
-//  
-//  
-//  
-//  
-//  std::vector<Point> points;
-//  stringstream sqlss;
-//  
-//  sqlss << "SELECT * FROM " << this->nameAndWhereClause(id);
-//  sqlss << " and time < " << time << "s" << " LIMIT 1";
-//  //sqlss << " order asc";
-//  string url = this->urlForQuery(sqlss.str());
-//  
-//  JsonDocPtr doc = this->jsonFromPath(url);
-//  points = this->pointsFromJson(doc);
-//  
-//  if (points.size() == 0) {
-//    return Point();
-//  }
-//  
-//  return points.front();
+  return points.front();
 }
 
 
@@ -560,14 +509,13 @@ void InfluxDbPointRecord::removeRecord(const std::string& id) {
   // to-do fix this. influx bug related to dropping a series:
   return;
   
+  DbPointRecord::Query q = this->queryPartsFromMetricId(id);
   
   stringstream sqlss;
-  sqlss << "DROP SERIES FROM " << this->nameAndWhereClause(id);
+  sqlss << "DROP SERIES FROM " << q.nameAndWhereClause();
   string url = this->urlForQuery(sqlss.str(),false);
   
   JsonDocPtr doc = this->jsonFromPath(url);
-  
-  
 }
 
 void InfluxDbPointRecord::truncate() {
@@ -584,26 +532,23 @@ void InfluxDbPointRecord::truncate() {
 
 
 #pragma mark Query Building
-
-
-const string InfluxDbPointRecord::nameAndWhereClause(const string& name) {
+DbPointRecord::Query InfluxDbPointRecord::queryPartsFromMetricId(const std::string& name) {
   MetricInfo m = this->metricInfoFromName(name);
   
-  stringstream ss;
-  ss << "\"" << m.measurement << "\" WHERE ";
-  typedef pair<string,string> stringPair;
+  DbPointRecord::Query q;
   
-  int i = 0;
-  BOOST_FOREACH( stringPair p, m.tags) {
-    if (i > 0) {
-      ss << " AND ";
+  q.from = m.measurement;
+  
+  typedef pair<string,string> stringPair;
+  if (m.tags.size() > 0) {
+    BOOST_FOREACH( stringPair p, m.tags) {
+      stringstream ss;
+      ss << p.first << "='" << p.second << "'";
+      q.where.push_back(ss.str());
     }
-    ss << p.first << "='" << p.second << "'";
-    ++i;
   }
   
-  const string select = ss.str();
-  return select;
+  return q;
 }
 
 
@@ -642,8 +587,6 @@ const string InfluxDbPointRecord::urlForQuery(const std::string& query, bool app
 
 #pragma mark Parsing
 
-
-
 JsonDocPtr InfluxDbPointRecord::jsonFromPath(const std::string &url) {
   JsonDocPtr documentOut;
   InfluxConnectInfo_t connectionInfo;
@@ -667,30 +610,20 @@ JsonDocPtr InfluxDbPointRecord::jsonFromPath(const std::string &url) {
     
     string headerStr;
     connectionInfo.sockStream >> headerStr;
-    while (std::getline(connectionInfo.sockStream, headerStr) && headerStr != "\r") {
-      // nothing
-    }
-    
+    while (std::getline(connectionInfo.sockStream, headerStr) && headerStr != "\r") {/* nothing */}
     
     std::getline(connectionInfo.sockStream, body);
     cout << connectionInfo.sockStream.rdbuf() << endl;
     connectionInfo.sockStream.flush();
     connectionInfo.sockStream.close();
-    
   }
   
-  
   documentOut.reset(new rapidjson::Document);
-  
   if (connectionInfo.statusCode == 204 /* no content */) {
     return documentOut;
   }
   
-  
   documentOut.get()->Parse<0>(body.c_str());
-  
-  cout << body << endl;
-  
   rapidjson::StringBuffer buffer;
   rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
   documentOut->Accept(writer);
@@ -698,9 +631,6 @@ JsonDocPtr InfluxDbPointRecord::jsonFromPath(const std::string &url) {
   
   return documentOut;
 }
-
-
-
 
 vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
   vector<Point> points;
@@ -721,7 +651,12 @@ vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
     return points;
   }
   
-  const rapidjson::Value& series = results[zero]["series"];
+  const rapidjson::Value& rzero = results[zero];
+  if(!rzero.IsObject() || !rzero.HasMember("series")) {
+    return points;
+  }
+  
+  const rapidjson::Value& series = rzero["series"];
   if (!series.IsArray() || series.Size() == 0) {
     return points;
   }

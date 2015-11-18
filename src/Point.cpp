@@ -14,8 +14,10 @@
 #include <math.h>
 #include <iostream>
 
-using namespace std;
+using std::cout;
+using std::endl;
 using namespace RTX;
+
 
 Point::Point() : time(0),value(0),quality(PointQuality::opc_bad),isValid(false),confidence(0) {
   

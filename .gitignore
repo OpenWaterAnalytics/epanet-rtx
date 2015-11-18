@@ -28,7 +28,6 @@ doxygen_out/
 xcuserdata
 
 # Build products
-build/
 *.o
 *.LinkFileList
 *.hmap
@@ -53,7 +52,6 @@ build/
 [Dd]ebug/
 [Rr]elease/
 x64/
-build/
 [Bb]in/
 [Oo]bj/
 
@@ -186,3 +184,5 @@ Desktop.ini
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
 
+build/cmake/*
+!build/cmake/CMakeLists.txt

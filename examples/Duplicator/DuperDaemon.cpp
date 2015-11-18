@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <cstdio>
 #include "TimeSeriesDuplicator.h"
 #include "SqliteProjectFile.h"
 #include <boost/lexical_cast.hpp>
@@ -17,7 +18,8 @@ void handleInterrupt(int sig) {
 }
 
 void(^logMsgCallback)(const char*) = ^(const char* msg) {
-  cout << msg;
+  std::cout << msg;
+  std::cout << endl;
 };
 
 int main (int argc, const char * argv[])
@@ -40,7 +42,7 @@ int main (int argc, const char * argv[])
     projectPath = string(configPathChar);
   }
   else if (argc == 1) {
-    projectPath = "/usr/local/DuperDaemon/config.rtx";
+    projectPath = "/etc/opt/rtx/rtxduplicator.rtx";
   }
   else {
     cerr << "usage: " << argv[0] << " [/path/to/config.rtx]" << endl;
@@ -83,6 +85,8 @@ int main (int argc, const char * argv[])
   
   time_t fetchWindow = boost::lexical_cast<time_t>(winStr);
   time_t fetchFrequency = boost::lexical_cast<time_t>(freqStr);
+  
+  cout << "Starting duplication service from " << sourceRecord->name() << " to " << _duplicator->destinationRecord()->name() << " for " << to_string(project->timeSeries().size()) << " time series" << endl;
   
   _duplicator->run(fetchWindow, fetchFrequency);
   

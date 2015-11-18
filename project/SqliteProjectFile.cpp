@@ -7,6 +7,7 @@
 #include "MysqlPointRecord.h"
 #endif
 #include "SqlitePointRecord.h"
+#include "InfluxDbPointRecord.h"
 
 #include "TimeSeries.h"
 #include "ConstantTimeSeries.h"
@@ -100,6 +101,7 @@ static string dbOutlierName = "OutlierExclusion";
 static string dbOdbcRecordName =  "odbc";
 static string dbMysqlRecordName = "mysql";
 static string dbSqliteRecordName = "sqlite";
+static string dbInfluxRecordName = "influx";
 //---------------------------------------------------------//
 /////////////////////////////////////////////////////////////
 
@@ -144,6 +146,7 @@ namespace RTX {
   public:
     static PointRecord::_sp createSqliteRecordFromRow(sqlite3_stmt *stmt);
     static PointRecord::_sp createCsvPointRecordFromRow(sqlite3_stmt *stmt);
+    static PointRecord::_sp createInfluxRecordFromRow(sqlite3_stmt *stmt);
 #ifndef RTX_NO_ODBC
     static PointRecord::_sp createOdbcRecordFromRow(sqlite3_stmt *stmt);
 #endif
@@ -284,7 +287,7 @@ void SqliteProjectFile::loadRecordsFromDb() {
 #endif
   
   prCreators[dbSqliteRecordName] = PointRecordFactory::createSqliteRecordFromRow;
-  
+  prCreators[dbInfluxRecordName] = PointRecordFactory::createInfluxRecordFromRow;
   
   sqlite3_stmt *stmt;
   
@@ -330,61 +333,69 @@ void SqliteProjectFile::loadRecordsFromDb() {
   boost::filesystem::path projPath(_path);
   BOOST_FOREACH(const pointRecordEntity& entity, recordEntities) {
     
-    if (RTX_STRINGS_ARE_EQUAL(entity.type, "sqlite")) {
-      sqlite3_prepare_v2(_dbHandle, sqlSelectRecordProperties.c_str(), -1, &stmt, NULL);
-      sqlite3_bind_int(stmt, 1, entity.uid);
-      while (sqlite3_step(stmt) == SQLITE_ROW) {
-        
-        string key = string((char*)sqlite3_column_text(stmt, 0));
-        string value = string((char*)sqlite3_column_text(stmt, 1));
-        
-        // which key?
-        if (RTX_STRINGS_ARE_EQUAL(key, "dbPath")) {
-          boost::filesystem::path dbPath(value);
-          string absDbPath = boost::filesystem::absolute(dbPath,projPath.parent_path()).string();
-          boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->setPath(absDbPath);
-        }
-        else if (RTX_STRINGS_ARE_EQUAL(key, "readonly")) {
-          // string one or zero (1,0)
-          bool readOnly = boost::lexical_cast<bool>(value);
-          boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->setReadonly(readOnly);
-        }
-        else if (RTX_STRINGS_ARE_EQUAL(key, "filterString")) {
-          vector<string> parts;
-          boost::split(parts, value, boost::is_any_of(":"));
-          string filterTypeString = parts[0];
-          
-          DbPointRecord::OpcFilterType filterType;
-          if (boost::iequals(filterTypeString, "blacklist")) {
-            filterType = DbPointRecord::OpcFilterType::OpcBlackList;
-          }
-          else if (boost::iequals(filterTypeString, "whitelist")) {
-            filterType = DbPointRecord::OpcFilterType::OpcWhiteList;
-          }
-          else if (boost::iequals(filterTypeString, "codes")) {
-            filterType = DbPointRecord::OpcFilterType::OpcCodesToValues;
-          }
-          else {
-            filterType = DbPointRecord::OpcFilterType::OpcPassThrough;
-          }
-          boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->setOpcFilterType(filterType);
-          
-          if (parts.size() > 1) {
-            vector<string> codeStrings;
-            boost::split(codeStrings, parts[1], boost::is_any_of(","));
-            BOOST_FOREACH(string s, codeStrings) {
-              unsigned int code = boost::lexical_cast<int>(s);
-              boost::dynamic_pointer_cast<SqlitePointRecord>(entity.record)->addOpcFilterCode(code);
-            }
-          }
-        }
-        
+    // collect the k-v pairs
+    map<string, string> kvMap;
+    sqlite3_prepare_v2(_dbHandle, sqlSelectRecordProperties.c_str(), -1, &stmt, NULL);
+    sqlite3_bind_int(stmt, 1, entity.uid);
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+      string key = string((char*)sqlite3_column_text(stmt, 0));
+      string value = string((char*)sqlite3_column_text(stmt, 1));
+      kvMap[key] = value;
+    }
+    sqlite3_reset(stmt);
+    sqlite3_finalize(stmt);
+    
+    
+    if (kvMap.count("filterString")) {
+      string value = kvMap["filterString"];
+      vector<string> parts;
+      boost::split(parts, value, boost::is_any_of(":"));
+      string filterTypeString = parts[0];
+      
+      DbPointRecord::OpcFilterType filterType;
+      if (boost::iequals(filterTypeString, "blacklist")) {
+        filterType = DbPointRecord::OpcFilterType::OpcBlackList;
       }
-      sqlite3_reset(stmt);
-      sqlite3_finalize(stmt);
+      else if (boost::iequals(filterTypeString, "whitelist")) {
+        filterType = DbPointRecord::OpcFilterType::OpcWhiteList;
+      }
+      else if (boost::iequals(filterTypeString, "codes")) {
+        filterType = DbPointRecord::OpcFilterType::OpcCodesToValues;
+      }
+      else {
+        filterType = DbPointRecord::OpcFilterType::OpcPassThrough;
+      }
+      boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->setOpcFilterType(filterType);
+      
+      if (parts.size() > 1) {
+        vector<string> codeStrings;
+        boost::split(codeStrings, parts[1], boost::is_any_of(","));
+        BOOST_FOREACH(string s, codeStrings) {
+          unsigned int code = boost::lexical_cast<int>(s);
+          boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->addOpcFilterCode(code);
+        }
+      }
     }
     
-    // ignore all other types
+    if(kvMap.count("readonly")) {
+      string value = kvMap["readonly"];
+      // string one or zero (1,0)
+      bool readOnly = boost::lexical_cast<bool>(value);
+      boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->setReadonly(readOnly);
+    }
+    
+    if (kvMap.count("connectionString")) {
+      if (RTX_STRINGS_ARE_EQUAL(entity.type, "sqlite")) {
+        boost::filesystem::path dbPath(kvMap["connectionString"]);
+        string absDbPath = boost::filesystem::absolute(dbPath,projPath.parent_path()).string();
+        boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->setConnectionString(absDbPath);
+      }
+      else {
+        string conn = kvMap["connectionString"];
+        boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->setConnectionString(conn);
+      }
+    }
+    
     
     
   }
@@ -790,6 +801,10 @@ PointRecord::_sp PointRecordFactory::createMysqlRecordFromRow(sqlite3_stmt *stmt
 #endif
 PointRecord::_sp PointRecordFactory::createSqliteRecordFromRow(sqlite3_stmt *stmt) {
   SqlitePointRecord::_sp pr( new SqlitePointRecord );
+  return pr;
+}
+PointRecord::_sp PointRecordFactory::createInfluxRecordFromRow(sqlite3_stmt *stmt) {
+  InfluxDbPointRecord::_sp pr( new InfluxDbPointRecord );
   return pr;
 }
 

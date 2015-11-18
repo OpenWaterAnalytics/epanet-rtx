@@ -33,8 +33,8 @@ namespace RTX {
     
     virtual time_pair_t range(const string& id);
     
-    std::string path();
-    void setPath(std::string path);
+    std::string connectionString();
+    void setConnectionString(const std::string& path);
     
     virtual bool supportsBoundedQueries();
     virtual void truncate();

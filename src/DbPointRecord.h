@@ -13,7 +13,6 @@
 
 #include <set>
 
-#include "MapPointRecord.h"
 #include "BufferPointRecord.h"
 #include "rtxExceptions.h"
 
@@ -30,9 +29,21 @@ namespace RTX {
   class DbPointRecord : public DB_PR_SUPER {
   public:
     
+    class Query {
+    public:
+      std::vector<std::string> select,where;
+      std::string from,order;
+      std::string selectStr();
+      std::string nameAndWhereClause();
+    };
+    
+    
     RTX_SHARED_POINTER(DbPointRecord);
     DbPointRecord();
     virtual ~DbPointRecord() {};
+    
+    virtual std::string connectionString() {return "";};
+    virtual void setConnectionString(const std::string& string) {};
     
     bool readonly();
     void setReadonly(bool readOnly);

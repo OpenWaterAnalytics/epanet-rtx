@@ -1075,7 +1075,8 @@ void Model::setSimulationParameters(time_t time) {
           // TODO -- set units based on type of valve (pressure or flow model units)
           setValveSetting( valve->name(), p.value );
         }
-        else {stringstream ss;
+        else {
+          stringstream ss;
           ss << "ERROR: Invalid setting value for Valve: " << valve->name() << " :: " << asctime(timeinfo);
           this->logLine(ss.str());
         }

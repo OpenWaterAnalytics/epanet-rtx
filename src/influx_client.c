@@ -508,7 +508,7 @@ size_t influx_get_url(influx *db, const char *endpoint, const char *query, char 
   if (strcmp(endpoint, "query") == 0) {
     // sanitize formatting character. do we trust the user?
     char clean_query[INFLUX_URL_MAX_SIZE];
-    strlcpy(clean_query, query, INFLUX_URL_MAX_SIZE);
+    strncpy(clean_query, query, INFLUX_URL_MAX_SIZE);
     char *fmt_char;
     fmt_char = strchr(clean_query, '%');
     while (fmt_char != NULL) {
@@ -526,7 +526,7 @@ size_t influx_get_url(influx *db, const char *endpoint, const char *query, char 
     snprintf(buffer, INFLUX_URL_MAX_SIZE, "%s://%s/%s?db=%s&precision=%s&u=%s&p=%s", db->schema, db->host, endpoint, db->database, precision_str, username_enc, password_enc);
   }
   
-  strlcpy(url_out, buffer, INFLUX_URL_MAX_SIZE);
+  strncpy(url_out, buffer, INFLUX_URL_MAX_SIZE);
   free(buffer);
   
   return strlen(buffer);
