@@ -21,11 +21,20 @@ using boost::asio::ip::tcp;
 #define HTTP_OK 200
 
 
+/*
+ 
+ influx will handle units a litte differently since it doesn't have a straightforward k/v store.
+ in each metric name, the format is measurement,tag=value,tag=value[,...]
+ we use this tag=value to also store units, but we don't want to expose that to the user on this end.
+ influx will keep track of it, but we will have to manually intercept that portion of the name bidirectionally.
+ 
+ */
+
 
 InfluxDbPointRecord::InfluxDbPointRecord() {
   _connected = false;
   _range = make_pair(0,0);
-  
+  _lastIdRequest = time(NULL);
   host = "*HOST*";
   user = "*USER*";
   pass = "*PASS*";
@@ -57,7 +66,7 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
     doc = this->jsonFromPath(q.str());
     
     if (!doc || !doc->HasMember("results")) {
-      this->errorMessage = "Could not get Databases";
+      this->errorMessage = "SHOW DATABASES failed: Could not get Databases";
       return;
     }
     
@@ -103,10 +112,11 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
     }
     
     if (!dbExists) {
-      // create the database
+      // create the database?
       q.str("");
       q << "/query?u=" << this->user << "&p=" << this->pass << "&q=" << this->urlEncode("CREATE DATABASE " + this->db);
       JsonDocPtr doc = this->jsonFromPath(q.str());
+      // TODO: handle unable to create db.
     }
     
     
@@ -168,36 +178,27 @@ void InfluxDbPointRecord::setConnectionString(const std::string &str) {
 
 
 bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::Units units) {
-
   
-  MetricInfo m = this->metricInfoFromName(id);
   
-  /*
-   Names can optionally have a units string. not required but makes life simpler:
-   measurement,units=units_string
-   measurement,key1=value1,key2=value2,units=units_string
-   
-  if ( m.tags.find("units") == m.tags.end() ) {
-    m.tags["units"] = units.unitString();
-    return true;
+  MetricInfo m = InfluxDbPointRecord::metricInfoFromName(id);
+  if (m.tags.find("units") != m.tags.end()) {
+    m.tags.erase("units"); // get rid of units if they are included.
   }
-  else if ( !RTX_STRINGS_ARE_EQUAL(m.tags["units"], units.unitString()) ) {
-    // units don't match. reject.
-    return false;
+  string properId = InfluxDbPointRecord::nameFromMetricInfo(m);
+  
+  if (this->readonly()) {
+    // already here. ok if units match. otherwise no-no
+    return (_identifiersAndUnitsCache.count(properId) && _identifiersAndUnitsCache[properId] == units);
   }
   
-  */
+  // otherwise, fine. add the series.
+  _identifiersAndUnitsCache[properId] = units;
   
-  
-  
-  
-  
-   //we don't require validation here - just assume that everything will write ok
+  // no futher validation.
+  return true;
    
    
-   
-   
-   
+   /*
   
   // placeholder in db. insert a point to create the ts, then drop the points (but not the ts)
   
@@ -219,11 +220,13 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
     // insert dummy point, then delete it.
     // add the units string if needed.
     
-    MetricInfo m = this->metricInfoFromName(id);
+    MetricInfo m = InfluxDbPointRecord::metricInfoFromName(id);
     if (m.tags.find("units") == m.tags.end()) {
       m.tags["units"] = units.unitString();
     }
-    string properId = this->nameFromMetricInfo(m);
+    string properId = InfluxDbPointRecord::nameFromMetricInfo(m);
+    
+    _identifiersAndUnitsCache[properId] = units;
     
     this->insertSingle(properId, Point(time(NULL) - 60*60*24*365));
     stringstream ss;
@@ -235,6 +238,8 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
   
   
   return true;
+    
+    */
 }
 
 
@@ -264,18 +269,21 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
    
    */
   
+  // quick cache hit. 5-second validity window.
+  time_t now = time(NULL);
+  if (now - _lastIdRequest < 5 && !_identifiersAndUnitsCache.empty()) {
+    return DbPointRecord::identifiersAndUnits();
+  }
+  _lastIdRequest = now;
   
-  
-  
-  std::map<std::string,Units> seriesList;
+  _identifiersAndUnitsCache.clear();
   
   if (!this->isConnected()) {
     this->dbConnect();
   }
   if (!this->isConnected()) {
-    return seriesList;
+    return _identifiersAndUnitsCache;
   }
-  
   
   string q = "show series";
   string url = this->urlForQuery(q,false);
@@ -284,36 +292,32 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
   if (js) {
     
     if (!js->HasMember("results")) {
-      return seriesList;
+      return _identifiersAndUnitsCache;
     }
-    
     const rapidjson::SizeType zero = 0;
     const rapidjson::Value& results = (*js)["results"];
     if (!results.IsArray() || results.Size() == 0) {
-      return seriesList;
+      return _identifiersAndUnitsCache;
     }
-    
     const rapidjson::Value& rzero = results[zero];
     if(!rzero.IsObject() || !rzero.HasMember("series")) {
-      return seriesList;
+      return _identifiersAndUnitsCache;
     }
-    
     const rapidjson::Value& series = rzero["series"];
     if (!series.IsArray() || series.Size() == 0) {
-      return seriesList;
+      return _identifiersAndUnitsCache;
     }
-    
     for (rapidjson::SizeType i = 0; i < series.Size(); ++i) {
       // measurement name?
+      MetricInfo m;
       const rapidjson::Value& thisSeries = series[i];
-      const string measureName = thisSeries["name"].GetString();
+      m.measurement = thisSeries["name"].GetString();
       const rapidjson::Value& columns = thisSeries["columns"];
       const rapidjson::Value& valuesArr = thisSeries["values"];
       // valuesArr is an array of arrays.
       for (rapidjson::SizeType iVal = 0; iVal < valuesArr.Size(); ++iVal) {
         
         // this is where a time series is defined!
-        map<string,string> kv;
         
         const rapidjson::Value& thisTsValues = valuesArr[iVal];
         // size of thisTsValues should == size of columns.
@@ -331,36 +335,29 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
             continue;
           }
           
-          kv[tsKeyStr] = tsValStr;
+          m.tags[tsKeyStr] = tsValStr;
         }
         
         // now we have all kv pairs that define a time series.
-        // do we have units info?
+        // do we have units info? strip it off before showing the user.
         Units units = RTX_NO_UNITS;
-        if (kv.find("units") != kv.end()) {
-          units = Units::unitOfType(kv["units"]);
+        if (m.tags.find("units") != m.tags.end()) {
+          units = Units::unitOfType(m.tags["units"]);
           // remove units from string name.
-          kv.erase("units");
+          m.tags.erase("units");
         }
-        
-       
         
         // now assemble the complete name:
-        stringstream namestr;
-        namestr << measureName;
-        typedef pair<string,string> stringPair;
-        BOOST_FOREACH(stringPair p, kv) {
-          namestr << "," << p.first << "=" << p.second;
-        }
+        string properId = InfluxDbPointRecord::nameFromMetricInfo(m);
         
         // the name has been assembled!
-        seriesList[namestr.str()] = units;
+        _identifiersAndUnitsCache[properId] = units;
         
       } // for each values array (ts definition)
     } // for each measurement
   } // if js body exists
   
-  return seriesList;
+  return _identifiersAndUnitsCache;
 }
 
 
@@ -396,6 +393,33 @@ const string InfluxDbPointRecord::nameFromMetricInfo(RTX::InfluxDbPointRecord::M
   return name;
 }
 
+std::string InfluxDbPointRecord::properId(const std::string& id) {
+  return InfluxDbPointRecord::nameFromMetricInfo(InfluxDbPointRecord::metricInfoFromName(id));
+}
+
+
+string InfluxDbPointRecord::_influxIdForTsId(const string& id) {
+  // put named keys in proper order...
+  MetricInfo m = InfluxDbPointRecord::metricInfoFromName(id);
+  if (m.tags.count("units")) {
+    m.tags.erase("units");
+  }
+  string tsId = InfluxDbPointRecord::nameFromMetricInfo(m);
+  
+  if (_identifiersAndUnitsCache.find(tsId) == _identifiersAndUnitsCache.end()) {
+    cerr << "no registered ts with that id: " << tsId << endl;
+    return "";
+  }
+  
+  Units u = _identifiersAndUnitsCache[tsId];
+  m.tags["units"] = u.unitString();
+  string dbId = InfluxDbPointRecord::nameFromMetricInfo(m);
+  return dbId;
+}
+
+
+
+
 
 #pragma mark SELECT
 
@@ -403,7 +427,9 @@ const string InfluxDbPointRecord::nameFromMetricInfo(RTX::InfluxDbPointRecord::M
 std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
   std::vector<Point> points;
   
-  DbPointRecord::Query q = this->queryPartsFromMetricId(id);
+  string dbId = InfluxDbPointRecord::_influxIdForTsId(id);
+  
+  DbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time >= " + to_string(startTime) + "s");
   q.where.push_back("time <= " + to_string(endTime) + "s");
   
@@ -416,8 +442,8 @@ std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_
 
 Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
   std::vector<Point> points;
-  
-  DbPointRecord::Query q = this->queryPartsFromMetricId(id);
+  string dbId = InfluxDbPointRecord::_influxIdForTsId(id);
+  DbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time > " + to_string(time) + "s");
   q.order = "time asc limit 1";
   
@@ -435,8 +461,8 @@ Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
 
 Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
   std::vector<Point> points;
-  
-  DbPointRecord::Query q = this->queryPartsFromMetricId(id);
+  string dbId = InfluxDbPointRecord::_influxIdForTsId(id);
+  DbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time < " + to_string(time) + "s");
   q.order = "time desc limit 1";
   
@@ -464,18 +490,15 @@ void InfluxDbPointRecord::insertSingle(const std::string& id, Point point) {
 }
 
 void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> points) {
-  if (points.size() == 0) {
-    return;
-  }
+  vector<Point> insertionPoints;
+  string dbId = InfluxDbPointRecord::_influxIdForTsId(id);
   
   vector<Point> existing;
-  existing = this->selectRange(id, points.front().time - 1, points.back().time + 1);
+  existing = this->selectRange(dbId, points.front().time - 1, points.back().time + 1);
   map<time_t,bool> existingMap;
   BOOST_FOREACH(const Point& p, existing) {
     existingMap[p.time] = true;
   }
-  
-  vector<Point> insertionPoints;
   
   BOOST_FOREACH(const Point& p, points) {
     if (existingMap.find(p.time) == existingMap.end()) {
@@ -487,7 +510,7 @@ void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> 
     return;
   }
   
-  const string content = this->insertionDataFromPoints(id, insertionPoints);
+  const string content = this->insertionDataFromPoints(dbId, insertionPoints);
   this->sendPointsWithString(content);
   
   // cache the inserted range.
@@ -533,7 +556,7 @@ void InfluxDbPointRecord::truncate() {
 
 #pragma mark Query Building
 DbPointRecord::Query InfluxDbPointRecord::queryPartsFromMetricId(const std::string& name) {
-  MetricInfo m = this->metricInfoFromName(name);
+  MetricInfo m = InfluxDbPointRecord::metricInfoFromName(name);
   
   DbPointRecord::Query q;
   
@@ -725,7 +748,9 @@ const string InfluxDbPointRecord::insertionDataFromPoints(const string& tsName, 
       ss << '\n';
     }
     string valueStr = to_string(p.value);
-    if (valueStr.find(".") == string::npos) {
+    // test for no-decimal condition
+    // does this ever evaluate to true? or is to_string well-behaved for this application?
+    if ( p.value == double(int(p.value)) && valueStr.find(".") == string::npos) {
       valueStr.append(".");
     }
     

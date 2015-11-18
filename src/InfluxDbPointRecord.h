@@ -82,8 +82,10 @@ namespace RTX {
       std::string measurement;
     };
     
-    MetricInfo metricInfoFromName(const std::string& name);
-    const std::string nameFromMetricInfo(MetricInfo info);
+    static MetricInfo metricInfoFromName(const std::string& name);
+    static const std::string nameFromMetricInfo(MetricInfo info);
+    static std::string properId(const std::string& id);
+    std::string _influxIdForTsId(const std::string& id);
     DbPointRecord::Query queryPartsFromMetricId(const std::string& name);
     
   };
