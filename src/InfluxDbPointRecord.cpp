@@ -173,10 +173,10 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
   MetricInfo m = this->metricInfoFromName(id);
   
   /*
-   NAMES MUST HAVE A UNITS STRING:
+   Names can optionally have a units string. not required but makes life simpler:
    measurement,units=units_string
    measurement,key1=value1,key2=value2,units=units_string
-   */
+   
   if ( m.tags.find("units") == m.tags.end() ) {
     m.tags["units"] = units.unitString();
     return true;
@@ -186,13 +186,13 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
     return false;
   }
   
+  */
   
   
   
   
-  /*
   
-   we don't require validation here - just assume that everything will write ok
+   //we don't require validation here - just assume that everything will write ok
    
    
    
@@ -203,7 +203,7 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
   
   bool alreadyInIndex = false;
   
-  vector<nameUnitsPair> existing = this->identifiersAndUnits();
+  std::map<std::string,Units> existing = this->identifiersAndUnits();
   BOOST_FOREACH( const nameUnitsPair p, existing) {
     string name = p.first;
     Units units = p.second;
@@ -217,14 +217,22 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
   if (!alreadyInIndex) {
     
     // insert dummy point, then delete it.
-    this->insertSingle(id, Point(time(NULL) - 60*60*24*365));
+    // add the units string if needed.
+    
+    MetricInfo m = this->metricInfoFromName(id);
+    if (m.tags.find("units") == m.tags.end()) {
+      m.tags["units"] = units.unitString();
+    }
+    string properId = this->nameFromMetricInfo(m);
+    
+    this->insertSingle(properId, Point(time(NULL) - 60*60*24*365));
     stringstream ss;
     ss << "delete from " << id << " where time < now()";
     string url = this->urlForQuery(ss.str(),false);
     JsonDocPtr doc = this->jsonFromPath(url);
     
   }
-  */
+  
   
   return true;
 }
@@ -331,7 +339,11 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
         Units units = RTX_NO_UNITS;
         if (kv.find("units") != kv.end()) {
           units = Units::unitOfType(kv["units"]);
+          // remove units from string name.
+          kv.erase("units");
         }
+        
+       
         
         // now assemble the complete name:
         stringstream namestr;
