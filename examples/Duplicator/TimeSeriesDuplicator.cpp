@@ -47,6 +47,7 @@ void TimeSeriesDuplicator::_refreshDestinations() {
 
 void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
   _shouldRun = true;
+  
   time_t nextFetch = time(NULL);
   
   

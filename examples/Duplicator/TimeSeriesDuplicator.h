@@ -33,6 +33,7 @@ namespace RTX {
     void setLoggingFunction(RTX_Duplicator_Logging_Callback_Block);
     RTX_Duplicator_Logging_Callback_Block loggingFunction();
     
+    bool _shouldRun;
     
   private:
     boost::signals2::mutex _mutex;
@@ -43,7 +44,6 @@ namespace RTX {
     bool _isRunning;
     void _refreshDestinations();
     void _logLine(const std::string& str);
-    bool _shouldRun;
   };
 }
 

@@ -3,13 +3,14 @@
 #include "TimeSeriesDuplicator.h"
 #include "SqliteProjectFile.h"
 #include <boost/lexical_cast.hpp>
+#include <boost/thread/thread.hpp>
 #include <signal.h>
 
 using namespace std;
 using namespace RTX;
 
 TimeSeriesDuplicator::_sp _duplicator;
-
+void handleInterrupt(int sig);
 void handleInterrupt(int sig) {
   if (!_duplicator) {
     return;
@@ -18,8 +19,13 @@ void handleInterrupt(int sig) {
 }
 
 void(^logMsgCallback)(const char*) = ^(const char* msg) {
-  std::cout << msg;
-  std::cout << endl;
+  string myLine(msg);
+  size_t loc = myLine.find("\n");
+  if (loc == string::npos) {
+    myLine += "\n";
+  }
+  const char *logmsg = myLine.c_str();
+  fprintf(stdout, "%s", logmsg);
 };
 
 int main (int argc, const char * argv[])
@@ -42,7 +48,7 @@ int main (int argc, const char * argv[])
     projectPath = string(configPathChar);
   }
   else if (argc == 1) {
-    projectPath = "/etc/opt/rtx/rtxduplicator.rtx";
+    projectPath = "/opt/rtx/rtxduplicator.rtx";
   }
   else {
     cerr << "usage: " << argv[0] << " [/path/to/config.rtx]" << endl;
@@ -52,9 +58,16 @@ int main (int argc, const char * argv[])
   _duplicator->setLoggingFunction(logMsgCallback);
   
   SqliteProjectFile::_sp project(new SqliteProjectFile());
-  if (!project->loadProjectFile(projectPath)) {
-    cerr << "could not find project file" << endl;
-    return 100;
+  
+  bool checkForConfig = true;
+  while (checkForConfig) {
+    if(project->loadProjectFile(projectPath)) {
+      checkForConfig = false;
+    }
+    else {
+      std::cerr << "Could not load config. Waiting 15s" << std::endl << std::flush;
+      boost::this_thread::sleep_for(boost::chrono::seconds(15));
+    }
   }
   
   _duplicator->setSeries(project->timeSeries()); /// these are source series.
@@ -88,7 +101,17 @@ int main (int argc, const char * argv[])
   
   cout << "Starting duplication service from " << sourceRecord->name() << " to " << _duplicator->destinationRecord()->name() << " for " << to_string(project->timeSeries().size()) << " time series" << endl;
   
-  _duplicator->run(fetchWindow, fetchFrequency);
+  
+  while (true) {
+    _duplicator->run(fetchWindow, fetchFrequency);
+    if (!_duplicator->_shouldRun) {
+      break;
+    }
+    std::cerr << "Duplication process quit for some reason. Restarting in 30s" << std::endl << std::flush;
+    boost::this_thread::sleep_for(boost::chrono::seconds(30));
+  }
+  
+  
   
   
   

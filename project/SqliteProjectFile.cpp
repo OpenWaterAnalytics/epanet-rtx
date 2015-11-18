@@ -303,7 +303,7 @@ void SqliteProjectFile::loadRecordsFromDb() {
     string name = string((char*)sqlite3_column_text(stmt, 1));
     string type = string((char*)sqlite3_column_text(stmt, 2));
     
-    cout << "record: " << uid << " \"" << name << "\" (" << type << ")" << endl;
+//    cout << "record: " << uid << " \"" << name << "\" (" << type << ")" << endl;
     
     // find the right function to create this type of record
     PointRecordFp creator = prCreators[type];
@@ -700,7 +700,7 @@ void SqliteProjectFile::loadModelFromDb() {
     
   }
   else {
-    cerr << "can't step sqlite or no model found: " << sqlite3_errmsg(_dbHandle) << endl;
+    std::cerr << "can't step sqlite or no model found: " << sqlite3_errmsg(_dbHandle) << endl;
     sqlite3_finalize(stmt);
     return;
   }
