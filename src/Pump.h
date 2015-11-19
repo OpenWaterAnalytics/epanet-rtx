@@ -22,6 +22,7 @@ namespace RTX {
     
     // states
     TimeSeries::_sp energy();
+    double energy_state;
     
     // parameters
     TimeSeries::_sp curveParameter();
@@ -29,6 +30,7 @@ namespace RTX {
     
     TimeSeries::_sp energyMeasure();
     void setEnergyMeasure(TimeSeries::_sp energy);
+    
     
   private:
     TimeSeries::_sp _energyState;        // state

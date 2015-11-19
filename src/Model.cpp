@@ -636,14 +636,25 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
     _convergence->insert(convergenceStatus);
     
     if (success) {
+      
       // tell each element to update its derived states (simulation-computed values)
       if (!_simReportClock || _simReportClock->isValid(simulationTime)) {
-        BOOST_FOREACH(PointRecord::_sp r, stateRecordsUsed) {
-          r->beginBulkOperation();
+        
+        // move short-term states into timeseries, and do so concurrently:
+        if (true) {
+          // just make sure the thread is idle...
+          if (_saveStateThread.joinable()) {
+            _saveStateThread.join();
+            // once join() returns, we know the queued operation is complete
+          }
+          // fetch sim results into object short-term storage
+          this->fetchSimulationStates();
+          // spin a new thread
+          boost::thread newSaveStateThread(&Model::saveNetworkStates, this, simulationTime, stateRecordsUsed);
+          _saveStateThread.swap(newSaveStateThread);
         }
-        saveNetworkStates(simulationTime);
-        BOOST_FOREACH(PointRecord::_sp r, stateRecordsUsed) {
-          r->endBulkOperation();
+        else {
+          saveNetworkStates(simulationTime, stateRecordsUsed);
         }
       }
       
@@ -738,13 +749,7 @@ void Model::runForecast(time_t start, time_t end) {
     if (success) {
       // tell each element to update its derived states (simulation-computed values)
       if (!_simReportClock || _simReportClock->isValid(simulationTime)) {
-        BOOST_FOREACH(PointRecord::_sp r, stateRecordsUsed) {
-          r->beginBulkOperation();
-        }
-        saveNetworkStates(simulationTime);
-        BOOST_FOREACH(PointRecord::_sp r, stateRecordsUsed) {
-          r->endBulkOperation();
-        }
+        saveNetworkStates(simulationTime, stateRecordsUsed);
       }
       // get time to next simulation period
       nextSimulationTime = nextHydraulicStep(simulationTime);
@@ -1165,43 +1170,34 @@ void Model::setSimulationParameters(time_t time) {
 }
 
 
-
-void Model::saveNetworkStates(time_t time) {
+void Model::fetchSimulationStates() {
   
-  // retrieve results from the hydraulic sim 
-  // then insert the state values into elements' time series.
+  // retrieve results from the hydraulic sim
+  // then insert the state values into elements' "short-term" memory
   
   // junctions, tanks, reservoirs
   BOOST_FOREACH(Junction::_sp junction, junctions()) {
     double head;
     head = Units::convertValue(junctionHead(junction->name()), headUnits(), junction->head()->units());
-    Point headPoint(time, head);
-    junction->head()->insert(headPoint);
     junction->state_head = head;
     
     double pressure;
     pressure = Units::convertValue(junctionPressure(junction->name()), pressureUnits(), junction->pressure()->units());
-    Point pressurePoint(time, pressure);
-    junction->pressure()->insert(pressurePoint);
     junction->state_pressure = pressure;
     
     // todo - more fine-grained quality data? at wq step resolution...
     if (this->shouldRunWaterQuality()) {
       double quality;
       quality = Units::convertValue(junctionQuality(junction->name()), this->qualityUnits(), junction->quality()->units());
-      Point qualityPoint(time, quality);
-      junction->quality()->insert(qualityPoint);
       junction->state_quality = quality;
     }
   }
   
-  // only save demand states if 
+  // only save demand states if
   if (!_doesOverrideDemands) {
     BOOST_FOREACH(Junction::_sp junction, junctions()) {
       double demand;
       demand = Units::convertValue(junctionDemand(junction->name()), flowUnits(), junction->demand()->units());
-      Point demandPoint(time, demand);
-      junction->demand()->insert(demandPoint);
       junction->state_demand = demand;
     }
   }
@@ -1209,46 +1205,32 @@ void Model::saveNetworkStates(time_t time) {
   BOOST_FOREACH(Reservoir::_sp reservoir, reservoirs()) {
     double head;
     head = Units::convertValue(junctionHead(reservoir->name()), headUnits(), reservoir->head()->units());
-    Point headPoint(time, head);
-    reservoir->head()->insert(headPoint);
     reservoir->state_head = head;
     
     double quality;
     quality = Units::convertValue(junctionQuality(reservoir->name()), this->qualityUnits(), reservoir->quality()->units());
-    Point qualityPoint(time, quality);
-    reservoir->quality()->insert(qualityPoint);
     reservoir->state_quality = quality;
   }
   
   BOOST_FOREACH(Tank::_sp tank, tanks()) {
     double head;
     head = Units::convertValue(junctionHead(tank->name()), headUnits(), tank->head()->units());
-    Point headPoint(time, head);
-    tank->head()->insert(headPoint);
     tank->state_head = head;
     
     double level;
     level = Units::convertValue(tankLevel(tank->name()), headUnits(), tank->head()->units());
-    Point levelPoint(time, level);
-    tank->level()->insert(levelPoint);
     tank->state_level = level;
     
     double quality;
     quality = Units::convertValue(junctionQuality(tank->name()), this->qualityUnits(), tank->quality()->units());
-    Point qualityPoint(time, quality);
-    tank->quality()->insert(qualityPoint);
     tank->state_quality = quality;
     
     double volume;
     volume = Units::convertValue(tankVolume(tank->name()), this->volumeUnits(), tank->volume()->units());
-    Point volumePoint(time,volume);
-    tank->volume()->insert(volumePoint);
     tank->state_volume = volume;
     
     double flow;
     flow = Units::convertValue(tankFlow(tank->name()), this->flowUnits(), tank->flow()->units());
-    Point flowPoint(time,flow);
-    tank->flow()->insert(flowPoint);
     tank->state_flow = flow;
     
   }
@@ -1257,16 +1239,12 @@ void Model::saveNetworkStates(time_t time) {
   BOOST_FOREACH(Pipe::_sp pipe, pipes()) {
     double flow;
     flow = Units::convertValue(pipeFlow(pipe->name()), flowUnits(), pipe->flow()->units());
-    Point aPoint(time, flow);
-    pipe->flow()->insert(aPoint);
     pipe->state_flow = flow;
   }
   
   BOOST_FOREACH(Valve::_sp valve, valves()) {
     double flow;
     flow = Units::convertValue(pipeFlow(valve->name()), flowUnits(), valve->flow()->units());
-    Point aPoint(time, flow);
-    valve->flow()->insert(aPoint);
     valve->state_flow = flow;
   }
   
@@ -1274,16 +1252,98 @@ void Model::saveNetworkStates(time_t time) {
   BOOST_FOREACH(Pump::_sp pump, pumps()) {
     double flow;
     flow = Units::convertValue(pipeFlow(pump->name()), flowUnits(), pump->flow()->units());
-    Point flowPoint(time, flow);
-    pump->flow()->insert(flowPoint);
     pump->state_flow = flow;
     
     double energy;
     energy = pumpEnergy(pump->name());
-    Point energyPoint(time, energy);
+    pump->energy_state = energy;
+  }
+  
+}
+
+
+void Model::saveNetworkStates(time_t time, std::set<PointRecord::_sp> bulkRecords) {
+  
+  BOOST_FOREACH(PointRecord::_sp r, bulkRecords) {
+    r->beginBulkOperation();
+  }
+  
+  
+  // retrieve results from the hydraulic sim
+  // then insert the state values into elements' time series.
+  
+  // junctions, tanks, reservoirs
+  BOOST_FOREACH(Junction::_sp junction, junctions()) {
+    Point headPoint(time, junction->state_head);
+    junction->head()->insert(headPoint);
+    
+    Point pressurePoint(time, junction->state_pressure);
+    junction->pressure()->insert(pressurePoint);
+    
+    // todo - more fine-grained quality data? at wq step resolution...
+    if (this->shouldRunWaterQuality()) {
+      Point qualityPoint(time, junction->state_quality);
+      junction->quality()->insert(qualityPoint);
+    }
+  }
+  
+  // only save demand states if
+  if (!_doesOverrideDemands) {
+    BOOST_FOREACH(Junction::_sp junction, junctions()) {
+      Point demandPoint(time, junction->state_demand);
+      junction->demand()->insert(demandPoint);
+    }
+  }
+  
+  BOOST_FOREACH(Reservoir::_sp reservoir, reservoirs()) {
+    Point headPoint(time, reservoir->state_head);
+    reservoir->head()->insert(headPoint);
+    
+    Point qualityPoint(time, reservoir->state_quality);
+    reservoir->quality()->insert(qualityPoint);
+  }
+  
+  BOOST_FOREACH(Tank::_sp tank, tanks()) {
+    Point headPoint(time, tank->state_head);
+    tank->head()->insert(headPoint);
+    
+    Point levelPoint(time, tank->state_level);
+    tank->level()->insert(levelPoint);
+    
+    Point qualityPoint(time, tank->state_quality);
+    tank->quality()->insert(qualityPoint);
+    
+    Point volumePoint(time,tank->state_volume);
+    tank->volume()->insert(volumePoint);
+    
+    Point flowPoint(time,tank->state_flow);
+    tank->flow()->insert(flowPoint);
+  }
+  
+  // pipe elements
+  BOOST_FOREACH(Pipe::_sp pipe, pipes()) {
+    Point aPoint(time, pipe->state_flow);
+    pipe->flow()->insert(aPoint);
+  }
+  
+  BOOST_FOREACH(Valve::_sp valve, valves()) {
+    Point aPoint(time, valve->state_flow);
+    valve->flow()->insert(aPoint);
+  }
+  
+  // pump energy
+  BOOST_FOREACH(Pump::_sp pump, pumps()) {
+    Point flowPoint(time, pump->state_flow);
+    pump->flow()->insert(flowPoint);
+    
+    Point energyPoint(time, pump->energy_state);
     pump->energy()->insert(energyPoint);
   }
   
+  
+  BOOST_FOREACH(PointRecord::_sp r, bulkRecords) {
+    r->endBulkOperation();
+  }
 }
 
 void Model::setCurrentSimulationTime(time_t time) {

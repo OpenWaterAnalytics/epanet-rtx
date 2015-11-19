@@ -15,6 +15,7 @@
 
 #include <boost/signals2/mutex.hpp>
 #include <boost/foreach.hpp>
+#include <boost/thread.hpp>
 
 #include "rtxExceptions.h"
 #include "Element.h"
@@ -198,7 +199,8 @@ namespace RTX {
   protected:
     
     void setSimulationParameters(time_t time);
-    void saveNetworkStates(time_t time);
+    void fetchSimulationStates();
+    void saveNetworkStates(time_t time, std::set<PointRecord::_sp> bulkOperationRecords);
     
     
     
@@ -289,6 +291,8 @@ namespace RTX {
     double _initialQuality;
     
     RTX_Logging_Callback_Block _simLogCallback;
+    
+    boost::thread _saveStateThread;
     
 //    std::function<void(std::string)> _simLogCallback;
     
