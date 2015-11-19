@@ -274,7 +274,7 @@ void OdbcPointRecord::dbConnect() throw(RtxException) {
   SQLRETURN sqlRet;
   
   try {
-    string connStr = this->connection.driver + ";" + this->connection.conInformation;
+    string connStr = "DRIVER=" + this->connection.driver + ";" + this->connection.conInformation;
     SQLCHAR outConStr[1024];
     SQLSMALLINT outConStrLen;
     sqlRet = SQLDriverConnect(_handles.SCADAdbc, NULL, (SQLCHAR*)connStr.c_str(), strlen(connStr.c_str()), outConStr, 1024, &outConStrLen, SQL_DRIVER_COMPLETE);
