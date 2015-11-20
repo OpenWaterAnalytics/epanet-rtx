@@ -332,6 +332,7 @@
 		229FBEA4190807B3004FE5A4 /* InfluxDbPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */; };
 		229FBEA5190807B3004FE5A4 /* InfluxDbPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */; };
 		22A2BD111BFE23F700A9564A /* libboost_thread-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22A2BD101BFE23F700A9564A /* libboost_thread-mt.a */; };
+		22A2BD181BFF986C00A9564A /* libboost_program_options.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22A2BD171BFF986C00A9564A /* libboost_program_options.a */; };
 		22A4B41914E1B93D006D01C3 /* Clock.h in Headers */ = {isa = PBXBuildFile; fileRef = 22A4B41814E1B93D006D01C3 /* Clock.h */; };
 		22A667A919E481B900CEB0BC /* libepanet-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22A667A719E4819500CEB0BC /* libepanet-static.a */; };
 		22A7B70916778A7A00538839 /* sampletown_realtime.cfg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 221C06C716077FD200B8969C /* sampletown_realtime.cfg */; };
@@ -829,7 +830,8 @@
 		22909B3B147DDE2A00945449 /* EpanetModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetModel.cpp; path = ../../src/EpanetModel.cpp; sourceTree = "<group>"; };
 		229FBEA0190807B3004FE5A4 /* InfluxDbPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InfluxDbPointRecord.cpp; path = ../../src/InfluxDbPointRecord.cpp; sourceTree = "<group>"; };
 		229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = InfluxDbPointRecord.h; path = ../../src/InfluxDbPointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		22A2BD101BFE23F700A9564A /* libboost_thread-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_thread-mt.a"; path = "../../../../../../../usr/local/com.citilogics.dev/libboost_thread-mt.a"; sourceTree = "<group>"; };
+		22A2BD101BFE23F700A9564A /* libboost_thread-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_thread-mt.a"; path = "/usr/local/com.citilogics.dev/libboost_thread-mt.a"; sourceTree = "<absolute>"; };
+		22A2BD171BFF986C00A9564A /* libboost_program_options.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_program_options.a; path = /usr/local/com.citilogics.dev/libboost_program_options.a; sourceTree = "<absolute>"; };
 		22A4B41814E1B93D006D01C3 /* Clock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Clock.h; path = ../../src/Clock.h; sourceTree = "<group>"; };
 		22A6679C19E4819500CEB0BC /* epanet.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = epanet.xcodeproj; path = ../../../EPANET/build/Xcode/epanet/epanet.xcodeproj; sourceTree = "<group>"; };
 		22A842D3173BF445009CE769 /* GainTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GainTimeSeries.cpp; path = ../../src/GainTimeSeries.cpp; sourceTree = "<group>"; };
@@ -908,6 +910,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22A2BD181BFF986C00A9564A /* libboost_program_options.a in Frameworks */,
 				22B284591BFD2F58007FD529 /* libboost_thread-mt.a in Frameworks */,
 				22284F801BF115D1000256B8 /* libepanet-rtx-project.dylib in Frameworks */,
 				22284F811BF115D1000256B8 /* libepanet-rtx.dylib in Frameworks */,
@@ -1082,6 +1085,8 @@
 		220DFA9C15502E4100AF41D0 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				22A2BD171BFF986C00A9564A /* libboost_program_options.a */,
+				22A2BD101BFE23F700A9564A /* libboost_thread-mt.a */,
 				22BBE1531BEE58D60066AEAE /* libboost_chrono-mt.a */,
 				22BBE1541BEE58D60066AEAE /* libboost_date_time-mt.a */,
 				22BBE1551BEE58D60066AEAE /* libboost_filesystem-mt.a */,
@@ -1338,7 +1343,6 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
-				22A2BD101BFE23F700A9564A /* libboost_thread-mt.a */,
 				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
 				22C34357187D9441000100A4 /* epanetmsx.xcodeproj */,
 				223947E81AF3B27000C8AE4F /* model exporter */,
@@ -2541,6 +2545,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/Cellar/boost/1.59.0/lib,
+					/usr/local/com.citilogics.dev,
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2575,6 +2580,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/Cellar/boost/1.59.0/lib,
+					/usr/local/com.citilogics.dev,
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2883,10 +2889,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					RTX_NO_MYSQL,
-					RTX_NO_ODBC,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
@@ -2924,10 +2927,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				EXECUTABLE_PREFIX = lib;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					RTX_NO_MYSQL,
-					RTX_NO_ODBC,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;

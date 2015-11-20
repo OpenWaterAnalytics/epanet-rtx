@@ -345,6 +345,9 @@ void SqliteProjectFile::loadRecordsFromDb() {
     sqlite3_reset(stmt);
     sqlite3_finalize(stmt);
     
+    if (kvMap.count("name")) {
+      entity.record->setName(kvMap["name"]);
+    }
     
     if (kvMap.count("filterString")) {
       string value = kvMap["filterString"];
@@ -396,7 +399,34 @@ void SqliteProjectFile::loadRecordsFromDb() {
       }
     }
     
-    
+    if (RTX_STRINGS_ARE_EQUAL(entity.type, "odbc")) {
+      // settings specific to ODBC connectors:
+      
+      /// driver
+      string driver = kvMap["driver"];
+      boost::dynamic_pointer_cast<OdbcPointRecord>(entity.record)->connection.driver = driver;
+      
+      /// connector type
+      string typestr = kvMap["connectorTypeStr"];
+      if (RTX_STRINGS_ARE_EQUAL(typestr, "mssql")) {
+        boost::dynamic_pointer_cast<OdbcPointRecord>(entity.record)->setConnectorType(OdbcPointRecord::mssql);
+      }
+      else if (RTX_STRINGS_ARE_EQUAL(typestr, "wonderware")) {
+        boost::dynamic_pointer_cast<OdbcPointRecord>(entity.record)->setConnectorType(OdbcPointRecord::wonderware_mssql);
+      }
+      
+      /// table descriptions
+      OdbcPointRecord::_sp pr = boost::dynamic_pointer_cast<OdbcPointRecord>(entity.record);
+      pr->tableDescription.dataTable = kvMap["dataTable"];
+      pr->tableDescription.dataDateCol = kvMap["dataDateColumn"];
+      pr->tableDescription.dataValueCol = kvMap["dataValueColumn"];
+      pr->tableDescription.dataQualityCol = kvMap["dataQualityColumn"];
+      pr->tableDescription.tagTable = kvMap["tagTable"];
+      pr->tableDescription.tagNameCol = kvMap["tagNameColumn"];
+      pr->tableDescription.tagUnitsCol = kvMap["tagUnitsColumn"];
+      pr->setTimeFormat(PointRecordTime::time_format_t(boost::lexical_cast<int>(kvMap["timeFormat"])));
+      pr->setTimeZoneString(kvMap["timeZoneString"]);
+    }
     
   }
 }
