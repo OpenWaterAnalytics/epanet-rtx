@@ -36,4 +36,4 @@ add_library(timeseries_duplicator STATIC ../../examples/Duplicator/TimeSeriesDup
 include_directories(../../examples/Duplicator)
 link_directories(/usr/local/lib)
 add_executable(rtxduplicator ../../examples/Duplicator/DuperDaemon.cpp)
-target_link_libraries(rtxduplicator LINK_PUBLIC timeseries_duplicator epanet-rtx epanet-rtx-project boost_thread-mt pthread BlocksRuntime)
+target_link_libraries(rtxduplicator LINK_PUBLIC timeseries_duplicator epanet-rtx epanet-rtx-project boost_thread-mt boost_program_options pthread BlocksRuntime)

@@ -87,21 +87,28 @@ void TimeSeriesDuplicator::runRetrospective(time_t start, time_t chunkSize, time
   s << "Starting catchup from " << start << " in " << chunkSize << "second chunks";
   this->_logLine(s.str());
   
+  bool inThePast = start < time(NULL);
   
-  while (_shouldRun) {
+  while (_shouldRun && inThePast) {
     _isRunning = true;
-    time_t fetchDuration = this->_fetchAll(nextFetch - chunkSize, nextFetch);
+    time_t fetchEndTime = nextFetch;
+    if (nextFetch > time(NULL)) {
+      fetchEndTime = time(NULL);
+      inThePast = false;
+    }
+    
+    time_t fetchDuration = this->_fetchAll(nextFetch - chunkSize, fetchEndTime);
     nextFetch += chunkSize;
     
     stringstream ss;
     ss << "Fetch took " << fetchDuration << " seconds.";
-    if (rateLimit > 0) {
+    if (rateLimit > 0 && inThePast) {
       ss << " Rate Limited - Waiting for " << rateLimit << " seconds";
     }
     this->_logLine(ss.str());
     
     time_t wakeup = time(NULL) + rateLimit;
-    while (_shouldRun && wakeup > time(NULL)) {
+    while (_shouldRun && wakeup > time(NULL) && inThePast) {
       boost::this_thread::sleep_for(boost::chrono::seconds(1));
     }
   }

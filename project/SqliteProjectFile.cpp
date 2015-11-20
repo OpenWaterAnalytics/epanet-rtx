@@ -418,6 +418,7 @@ void SqliteProjectFile::loadRecordsFromDb() {
       /// table descriptions
       OdbcPointRecord::_sp pr = boost::dynamic_pointer_cast<OdbcPointRecord>(entity.record);
       pr->tableDescription.dataTable = kvMap["dataTable"];
+      pr->tableDescription.dataNameCol = kvMap["dataNameColumn"];
       pr->tableDescription.dataDateCol = kvMap["dataDateColumn"];
       pr->tableDescription.dataValueCol = kvMap["dataValueColumn"];
       pr->tableDescription.dataQualityCol = kvMap["dataQualityColumn"];

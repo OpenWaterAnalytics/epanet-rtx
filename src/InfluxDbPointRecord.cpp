@@ -427,7 +427,7 @@ string InfluxDbPointRecord::_influxIdForTsId(const string& id) {
 std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
   std::vector<Point> points;
   
-  string dbId = InfluxDbPointRecord::_influxIdForTsId(id);
+  string dbId = _influxIdForTsId(id);
   
   DbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time >= " + to_string(startTime) + "s");
@@ -442,7 +442,7 @@ std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_
 
 Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
   std::vector<Point> points;
-  string dbId = InfluxDbPointRecord::_influxIdForTsId(id);
+  string dbId = _influxIdForTsId(id);
   DbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time > " + to_string(time) + "s");
   q.order = "time asc limit 1";
@@ -461,7 +461,7 @@ Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
 
 Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
   std::vector<Point> points;
-  string dbId = InfluxDbPointRecord::_influxIdForTsId(id);
+  string dbId = _influxIdForTsId(id);
   DbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time < " + to_string(time) + "s");
   q.order = "time desc limit 1";
@@ -491,7 +491,7 @@ void InfluxDbPointRecord::insertSingle(const std::string& id, Point point) {
 
 void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> points) {
   vector<Point> insertionPoints;
-  string dbId = InfluxDbPointRecord::_influxIdForTsId(id);
+  string dbId = _influxIdForTsId(id);
   
   vector<Point> existing;
   existing = this->selectRange(dbId, points.front().time - 1, points.back().time + 1);
@@ -560,7 +560,7 @@ DbPointRecord::Query InfluxDbPointRecord::queryPartsFromMetricId(const std::stri
   
   DbPointRecord::Query q;
   
-  q.from = m.measurement;
+  q.from = "\"" + m.measurement + "\"";
   
   typedef pair<string,string> stringPair;
   if (m.tags.size() > 0) {
