@@ -58,24 +58,7 @@ void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
   
   while (_shouldRun) {
     _isRunning = true;
-    time_t loopStarted = time(NULL);
-    
-    _pctCompleteFetch = 0.;
-    size_t nSeries = _destinationSeries.size();
-    BOOST_FOREACH(TimeSeries::_sp ts, _destinationSeries) {
-      if (_shouldRun) {
-        ts->resetCache();
-        TimeSeries::PointCollection pc = ts->pointCollection(TimeRange(nextFetch - fetchWindow, nextFetch));
-        stringstream tsSS;
-        tsSS << ts->name() << " : " << pc.count() << " points (max:" << pc.max() << " min:" << pc.min() << " avg:" << pc.mean() << ")";
-        this->_logLine(tsSS.str());
-        _pctCompleteFetch += 1./(double)nSeries;
-      }
-      
-    }
-    _pctCompleteFetch = 1.;
-    time_t postFetch = time(NULL);
-    time_t fetchDuration = postFetch - loopStarted;
+    time_t fetchDuration = this->_fetchAll(nextFetch - fetchWindow, nextFetch);
     nextFetch += frequency;
     time_t waitLength = nextFetch - time(NULL);
     if (waitLength < 0) {
@@ -95,9 +78,60 @@ void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
 void TimeSeriesDuplicator::stop() {
   _shouldRun = false;
 }
-void TimeSeriesDuplicator::runRetrospective(time_t start, time_t chunkSize) {
+void TimeSeriesDuplicator::runRetrospective(time_t start, time_t chunkSize, time_t rateLimit) {
+  
+  time_t nextFetch = start + chunkSize;
+  _shouldRun = true;
+  
+  stringstream s;
+  s << "Starting catchup from " << start << " in " << chunkSize << "second chunks";
+  this->_logLine(s.str());
+  
+  
+  while (_shouldRun) {
+    _isRunning = true;
+    time_t fetchDuration = this->_fetchAll(nextFetch - chunkSize, nextFetch);
+    nextFetch += chunkSize;
+    
+    stringstream ss;
+    ss << "Fetch took " << fetchDuration << " seconds.";
+    if (rateLimit > 0) {
+      ss << " Rate Limited - Waiting for " << rateLimit << " seconds";
+    }
+    this->_logLine(ss.str());
+    
+    time_t wakeup = time(NULL) + rateLimit;
+    while (_shouldRun && wakeup > time(NULL)) {
+      boost::this_thread::sleep_for(boost::chrono::seconds(1));
+    }
+  }
+  
+  // outside the loop means it was cancelled by user.
+  _isRunning = false;
   
 }
+
+
+time_t TimeSeriesDuplicator::_fetchAll(time_t start, time_t end) {
+  time_t fStart = time(NULL);
+  _pctCompleteFetch = 0.;
+  size_t nSeries = _destinationSeries.size();
+  BOOST_FOREACH(TimeSeries::_sp ts, _destinationSeries) {
+    if (_shouldRun) {
+      ts->resetCache();
+      TimeSeries::PointCollection pc = ts->pointCollection(TimeRange(start, end));
+      stringstream tsSS;
+      tsSS << ts->name() << " : " << pc.count() << " points (max:" << pc.max() << " min:" << pc.min() << " avg:" << pc.mean() << ")";
+      this->_logLine(tsSS.str());
+      _pctCompleteFetch += 1./(double)nSeries;
+    }
+    
+  }
+  _pctCompleteFetch = 1.;
+  return time(NULL) - fStart;
+}
+
+
 bool TimeSeriesDuplicator::isRunning() {
   return _isRunning;
 }

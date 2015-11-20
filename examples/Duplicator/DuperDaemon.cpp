@@ -4,10 +4,12 @@
 #include "SqliteProjectFile.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/program_options.hpp>
 #include <signal.h>
 
 using namespace std;
 using namespace RTX;
+namespace po = boost::program_options;
 
 TimeSeriesDuplicator::_sp _duplicator;
 void handleInterrupt(int sig);
@@ -33,6 +35,23 @@ int main (int argc, const char * argv[])
   
   signal(SIGINT, handleInterrupt);
   
+  
+  po::options_description desc("Allowed options");
+  desc.add_options()
+  ("help", "produce help message")
+  ("path", po::value<string>(), "config database path. default /opt/rtx/rtxduplicator.rtx")
+  ("catchup", po::value<int>(), "start [n] days ago, and catchup in 1-day increments")
+  ("ratelimit", po::value<int>(), "minimum number of seconds between duplication chunks (default 0, no limit)")
+  ;
+  po::variables_map vars;
+  po::store(po::parse_command_line(argc, argv, desc), vars);
+  po::notify(vars);
+  
+  if (vars.count("help")) {
+    cout << desc << "\n";
+    return 1;
+  }
+  
   // the requirements here are constrained.
   // you must specify the path for a SQLITE-formatted project file,
   // with a set of timeseries referencing a Source record, and a second
@@ -42,17 +61,13 @@ int main (int argc, const char * argv[])
   
   // if the argument is not supplied, then use a default location
   string projectPath;
-  
-  if (argc == 2) {
-    const char *configPathChar = argv[1];
-    projectPath = string(configPathChar);
-  }
-  else if (argc == 1) {
+  if (vars.count("path")) {
+    projectPath = vars["path"].as<string>();
+  } else {
     projectPath = "/opt/rtx/rtxduplicator.rtx";
   }
-  else {
-    cerr << "usage: " << argv[0] << " [/path/to/config.rtx]" << endl;
-  }
+  
+  
   
   _duplicator.reset(new TimeSeriesDuplicator);
   _duplicator->setLoggingFunction(logMsgCallback);
@@ -101,8 +116,24 @@ int main (int argc, const char * argv[])
   
   cout << "Starting duplication service from " << sourceRecord->name() << " to " << _duplicator->destinationRecord()->name() << " for " << to_string(project->timeSeries().size()) << " time series" << endl;
   
+  bool catchup = vars.count("catchup") > 0;
   
   while (true) {
+    
+    if (catchup) {
+      catchup = false;
+      int nDays = vars["catchup"].as<int>();
+      time_t limit = 0;
+      if (vars.count("ratelimit")) {
+        limit = vars["ratelimit"].as<time_t>();
+      }
+      _duplicator->runRetrospective(time(NULL) - (60*60*24*nDays), (60*60*24), limit); // catch up and stop.
+    }
+    if (!_duplicator->_shouldRun) {
+      break;
+    }
+    
+    
     _duplicator->run(fetchWindow, fetchFrequency);
     if (!_duplicator->_shouldRun) {
       break;

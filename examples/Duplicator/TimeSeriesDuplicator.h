@@ -24,7 +24,7 @@ namespace RTX {
     
     // view / change state
     void run(time_t fetchWindow, time_t frequency); /// run starting now
-    void runRetrospective(time_t start, time_t retroChunkSize); // catch up to current and stop
+    void runRetrospective(time_t start, time_t retroChunkSize, time_t rateLimit = 0); // catch up to current and stop
     void stop();
     bool isRunning();
     double pctCompleteFetch();
@@ -40,6 +40,7 @@ namespace RTX {
     RTX_Duplicator_Logging_Callback_Block _loggingFn;
     PointRecord::_sp _destinationRecord;
     std::list<TimeSeries::_sp> _sourceSeries, _destinationSeries;
+    time_t _fetchAll(time_t start, time_t end);
     double _pctCompleteFetch;
     bool _isRunning;
     void _refreshDestinations();
