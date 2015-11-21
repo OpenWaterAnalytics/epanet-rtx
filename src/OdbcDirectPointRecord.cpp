@@ -47,10 +47,15 @@ const std::map<std::string,Units> OdbcDirectPointRecord::identifiersAndUnits() {
   retcode = SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directTagQueryStmt);
   retcode = SQLExecDirect(_directTagQueryStmt, (SQLCHAR*)tagQuery.c_str(), SQL_NTS);
   
-  while (SQL_SUCCEEDED(SQLFetch(_directTagQueryStmt))) {
-    SQLGetData(_directTagQueryStmt, 1, SQL_C_CHAR, tagName, 512, &tagLengthInd);
-    string newTag((char*)tagName);
-    ids[newTag] = RTX_DIMENSIONLESS;
+  if (!SQL_SUCCEEDED(retcode)) {
+    errorMessage = "Could not read Tag table";
+  }
+  else {
+    while (SQL_SUCCEEDED(SQLFetch(_directTagQueryStmt))) {
+      SQLGetData(_directTagQueryStmt, 1, SQL_C_CHAR, tagName, 512, &tagLengthInd);
+      string newTag((char*)tagName);
+      ids[newTag] = RTX_DIMENSIONLESS;
+    }
   }
   
   SQLFreeStmt(_directTagQueryStmt, SQL_CLOSE);

@@ -53,7 +53,7 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
   q << "/ping?u=" << this->user << "&p=" << this->pass;
   
   JsonDocPtr doc = this->jsonFromPath(q.str());
-  if (!doc) {
+  if (!doc || doc->IsNull()) {
     cerr << "could not connect" << endl;
     this->errorMessage = "Could Not Connect";
     return;
@@ -65,7 +65,7 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
     q << "/query?u=" << this->user << "&p=" << this->pass << "&q=" << this->urlEncode("SHOW DATABASES");
     doc = this->jsonFromPath(q.str());
     
-    if (!doc || !doc->HasMember("results")) {
+    if (doc->IsNull() || !doc->HasMember("results")) {
       this->errorMessage = "SHOW DATABASES failed: Could not get Databases";
       return;
     }
@@ -644,7 +644,8 @@ JsonDocPtr InfluxDbPointRecord::jsonFromPath(const std::string &url) {
   }
   
   documentOut.reset(new rapidjson::Document);
-  if (connectionInfo.statusCode == 204 /* no content */) {
+  if (connectionInfo.statusCode == 204 /* no content but request OK*/) {
+    documentOut.get()->Parse<0>("{}");
     return documentOut;
   }
   

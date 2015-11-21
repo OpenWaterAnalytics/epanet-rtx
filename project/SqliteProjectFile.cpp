@@ -428,7 +428,6 @@ void SqliteProjectFile::loadRecordsFromDb() {
       pr->setTimeFormat(PointRecordTime::time_format_t(boost::lexical_cast<int>(kvMap["timeFormat"])));
       pr->setTimeZoneString(kvMap["timeZoneString"]);
     }
-    
   }
 }
 

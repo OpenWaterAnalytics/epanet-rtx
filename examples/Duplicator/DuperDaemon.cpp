@@ -124,6 +124,11 @@ int main (int argc, const char * argv[])
   string freqStr = project->metaValueForKey(string("duplicatorFetchFrequency"));
   string winStr = project->metaValueForKey(string("duplicatorFetchWindow"));
   
+  if (RTX_STRINGS_ARE_EQUAL(freqStr, "") || RTX_STRINGS_ARE_EQUAL(winStr, "")) {
+    logMsgCallback("Cannot use config: meta keys \"duplicatorFetchFrequency\" and \"duplicatorFetchWindow\" must be set!");
+    return 1;
+  }
+  
   time_t fetchWindow = boost::lexical_cast<time_t>(winStr);
   time_t fetchFrequency = boost::lexical_cast<time_t>(freqStr);
   
@@ -134,7 +139,6 @@ int main (int argc, const char * argv[])
   bool catchup = vars.count("catchup") > 0;
   
   while (true) {
-    
     if (catchup) {
       catchup = false;
       int nDays = vars["catchup"].as<int>();
@@ -147,7 +151,6 @@ int main (int argc, const char * argv[])
     if (!_duplicator->_shouldRun) {
       break;
     }
-    
     _duplicator->run(fetchWindow, fetchFrequency);
     if (!_duplicator->_shouldRun) {
       break;
