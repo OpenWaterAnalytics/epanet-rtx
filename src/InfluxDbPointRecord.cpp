@@ -493,6 +493,8 @@ void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> 
   vector<Point> insertionPoints;
   string dbId = _influxIdForTsId(id);
   
+  
+  
   vector<Point> existing;
   existing = this->selectRange(dbId, points.front().time - 1, points.back().time + 1);
   map<time_t,bool> existingMap;
