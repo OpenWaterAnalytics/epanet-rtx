@@ -60,7 +60,7 @@ int main (int argc, const char * argv[])
     string path = vars["odbcinst"].as<string>();
     err = setenv("ODBCINSTINI", path.c_str(), 1);
     if (err) {
-      logMsgCallback("could not set ENV var ODBCINSTINI");
+      logMsgCallback("ERROR: could not set ENV var ODBCINSTINI");
     }
   }
   
