@@ -13,12 +13,6 @@ namespace po = boost::program_options;
 
 TimeSeriesDuplicator::_sp _duplicator;
 void handleInterrupt(int sig);
-void handleInterrupt(int sig) {
-  if (!_duplicator) {
-    return;
-  }
-  _duplicator->stop();
-}
 
 void(^logMsgCallback)(const char*) = ^(const char* msg) {
   string myLine(msg);
@@ -30,16 +24,24 @@ void(^logMsgCallback)(const char*) = ^(const char* msg) {
   fprintf(stdout, "%s", logmsg);
 };
 
+void handleInterrupt(int sig) {
+  if (!_duplicator) {
+    return;
+  }
+  logMsgCallback("notifying duplication process to stop");
+  _duplicator->stop();
+}
+
 int main (int argc, const char * argv[])
 {
   
   signal(SIGINT, handleInterrupt);
-  
+  signal(SIGTERM, handleInterrupt);
   
   po::options_description desc("Allowed options");
   desc.add_options()
   ("help", "produce help message")
-  ("path", po::value<string>(), "config database path. default /opt/rtx/rtxduplicator.rtx")
+  ("path", po::value<string>()->default_value("/opt/rtx/rtxduplicator.rtx"), "config database path. default /opt/rtx/rtxduplicator.rtx")
   ("catchup", po::value<int>(), "start [n] days ago, and catchup in 1-day increments")
   ("ratelimit", po::value<int>(), "minimum number of seconds between duplication chunks (default 0, no limit)")
   ("odbcinst", po::value<string>(), "path to odbcinst.ini file declaring location of any relevant drivers referenced in your config")
@@ -53,11 +55,13 @@ int main (int argc, const char * argv[])
     return 1;
   }
   
-  
   if (vars.count("odbcinst")) {
     int err = 0;
     string path = vars["odbcinst"].as<string>();
     err = setenv("ODBCINSTINI", path.c_str(), 1);
+    if (err) {
+      logMsgCallback("could not set ENV var ODBCINSTINI");
+    }
   }
   
   
@@ -144,20 +148,13 @@ int main (int argc, const char * argv[])
       break;
     }
     
-    
     _duplicator->run(fetchWindow, fetchFrequency);
     if (!_duplicator->_shouldRun) {
       break;
     }
-    std::cerr << "Duplication process quit for some reason. Restarting in 30s" << std::endl << std::flush;
+    logMsgCallback("Duplication process quit for some reason. Restarting in 30s");
     boost::this_thread::sleep_for(boost::chrono::seconds(30));
   }
   
-  
-  
-  
-  
   return 0;
 }
-
-
