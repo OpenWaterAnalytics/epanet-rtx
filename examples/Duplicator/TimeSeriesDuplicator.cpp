@@ -56,16 +56,41 @@ void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
   this->_logLine(s.str());
   
   
+  
+  bool saveMetrics = true;
+  TimeSeries::_sp metricsPointCount( new TimeSeries );
+  metricsPointCount->setUnits(RTX_DIMENSIONLESS);
+  metricsPointCount->setName("metrics_point_count");
+  TimeSeries::_sp metricsTimeElapased( new TimeSeries );
+  metricsTimeElapased->setUnits(RTX_SECOND);
+  metricsTimeElapased->setName("metrics_time_elapsed");
+  if (saveMetrics) {
+    metricsPointCount->setRecord(_destinationRecord);
+    metricsTimeElapased->setRecord(_destinationRecord);
+  }
+  
+  
   while (_shouldRun) {
     _isRunning = true;
-    time_t fetchDuration = this->_fetchAll(nextFetch - fetchWindow, nextFetch);
+    
+    pair<time_t,int> fetchRes = this->_fetchAll(nextFetch - fetchWindow, nextFetch);
+    time_t fetchDuration = fetchRes.first;
+    int nPoints = fetchRes.second;
+    if (saveMetrics) {
+      metricsPointCount->insert(Point(time(NULL), (double)nPoints));
+      metricsTimeElapased->insert(Point(time(NULL), (double)fetchDuration));
+    }
+    
+    
     nextFetch += frequency;
     time_t waitLength = nextFetch - time(NULL);
     if (waitLength < 0) {
       waitLength = 0;
     }
     stringstream ss;
-    ss << "Fetch took " << fetchDuration << " seconds. Waiting for " << waitLength << " seconds";
+    char *tstr = asctime(localtime(&nextFetch));
+    tstr[24] = '\0';
+    ss << "Fetch: (" << tstr << ") took " << fetchDuration << " seconds. Waiting for " << waitLength << " seconds";
     this->_logLine(ss.str());
     while (_shouldRun && nextFetch > time(NULL)) {
       boost::this_thread::sleep_for(boost::chrono::seconds(1));
@@ -80,6 +105,19 @@ void TimeSeriesDuplicator::stop() {
 }
 void TimeSeriesDuplicator::runRetrospective(time_t start, time_t chunkSize, time_t rateLimit) {
   
+  
+  bool saveMetrics = true;
+  TimeSeries::_sp metricsPointCount( new TimeSeries );
+  metricsPointCount->setUnits(RTX_DIMENSIONLESS);
+  metricsPointCount->setName("metrics_point_count");
+  TimeSeries::_sp metricsTimeElapased( new TimeSeries );
+  metricsTimeElapased->setUnits(RTX_SECOND);
+  metricsTimeElapased->setName("metrics_time_elapsed");
+  if (saveMetrics) {
+    metricsPointCount->setRecord(_destinationRecord);
+    metricsTimeElapased->setRecord(_destinationRecord);
+  }
+  
   time_t nextFetch = start + chunkSize;
   _shouldRun = true;
   
@@ -90,22 +128,33 @@ void TimeSeriesDuplicator::runRetrospective(time_t start, time_t chunkSize, time
   bool inThePast = start < time(NULL);
   
   while (_shouldRun && inThePast) {
+    time_t thisLoop = time(NULL);
     _isRunning = true;
     time_t fetchEndTime = nextFetch;
-    if (nextFetch > time(NULL)) {
-      fetchEndTime = time(NULL);
+    if (nextFetch > thisLoop) {
+      fetchEndTime = thisLoop;
       inThePast = false;
     }
     
-    time_t fetchDuration = this->_fetchAll(nextFetch - chunkSize, fetchEndTime);
+    pair<time_t,int> fetchRes = this->_fetchAll(nextFetch - chunkSize, fetchEndTime);
+    time_t fetchDuration = fetchRes.first;
+    int nPoints = fetchRes.second;
+    
     nextFetch += chunkSize;
     
+    char *tstr = asctime(localtime(&fetchEndTime));
+    tstr[24] = '\0';
     stringstream ss;
-    ss << "Fetch took " << fetchDuration << " seconds.";
+    ss << "RETROSPECTIVE Fetch: (" << tstr << ") took " << fetchDuration << " seconds.";
     if (rateLimit > 0 && inThePast) {
       ss << " Rate Limited - Waiting for " << rateLimit << " seconds";
     }
     this->_logLine(ss.str());
+    
+    if (saveMetrics) {
+      metricsPointCount->insert(Point(time(NULL), (double)nPoints));
+      metricsTimeElapased->insert(Point(time(NULL), (double)fetchDuration));
+    }
     
     time_t wakeup = time(NULL) + rateLimit;
     while (_shouldRun && wakeup > time(NULL) && inThePast) {
@@ -119,8 +168,9 @@ void TimeSeriesDuplicator::runRetrospective(time_t start, time_t chunkSize, time
 }
 
 
-time_t TimeSeriesDuplicator::_fetchAll(time_t start, time_t end) {
+std::pair<time_t,int> TimeSeriesDuplicator::_fetchAll(time_t start, time_t end) {
   time_t fStart = time(NULL);
+  int nPoints = 0;
   _pctCompleteFetch = 0.;
   size_t nSeries = _destinationSeries.size();
   BOOST_FOREACH(TimeSeries::_sp ts, _destinationSeries) {
@@ -131,11 +181,12 @@ time_t TimeSeriesDuplicator::_fetchAll(time_t start, time_t end) {
       tsSS << ts->name() << " : " << pc.count() << " points (max:" << pc.max() << " min:" << pc.min() << " avg:" << pc.mean() << ")";
       this->_logLine(tsSS.str());
       _pctCompleteFetch += 1./(double)nSeries;
+      nPoints += pc.count();
     }
     
   }
   _pctCompleteFetch = 1.;
-  return time(NULL) - fStart;
+  return make_pair(time(NULL) - fStart, nPoints);
 }
 
 

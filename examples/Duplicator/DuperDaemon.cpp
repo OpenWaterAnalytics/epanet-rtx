@@ -45,6 +45,7 @@ int main (int argc, const char * argv[])
   ("catchup", po::value<int>(), "start [n] days ago, and catchup in 1-day increments")
   ("ratelimit", po::value<int>(), "minimum number of seconds between duplication chunks (default 0, no limit)")
   ("odbcinst", po::value<string>(), "path to odbcinst.ini file declaring location of any relevant drivers referenced in your config")
+  ("nometrics","do not store metrics in destination db.");
   ;
   po::variables_map vars;
   po::store(po::parse_command_line(argc, argv, desc), vars);
@@ -119,6 +120,7 @@ int main (int argc, const char * argv[])
     return 100;
   }
   
+  
   _duplicator->setDestinationRecord(destinationRecord);
   
   string freqStr = project->metaValueForKey(string("duplicatorFetchFrequency"));
@@ -146,11 +148,13 @@ int main (int argc, const char * argv[])
       if (vars.count("ratelimit")) {
         limit = (time_t)(vars["ratelimit"].as<int>());
       }
+      logMsgCallback("=== RUNNING RETROSPECTIVE DUPLICATION SERVICE ===");
       _duplicator->runRetrospective(time(NULL) - (60*60*24*nDays), (60*60*24), limit); // catch up and stop.
     }
     if (!_duplicator->_shouldRun) {
       break;
     }
+    logMsgCallback("=== RUNNING REALTIME DUPLICATION SERVICE ===");
     _duplicator->run(fetchWindow, fetchFrequency);
     if (!_duplicator->_shouldRun) {
       break;

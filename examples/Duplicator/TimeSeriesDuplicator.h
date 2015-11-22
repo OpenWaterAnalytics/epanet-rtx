@@ -40,7 +40,7 @@ namespace RTX {
     RTX_Duplicator_Logging_Callback_Block _loggingFn;
     PointRecord::_sp _destinationRecord;
     std::list<TimeSeries::_sp> _sourceSeries, _destinationSeries;
-    time_t _fetchAll(time_t start, time_t end);
+    std::pair<time_t,int> _fetchAll(time_t start, time_t end);
     double _pctCompleteFetch;
     bool _isRunning;
     void _refreshDestinations();
