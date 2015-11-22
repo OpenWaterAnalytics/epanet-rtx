@@ -291,7 +291,7 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
   
   if (js) {
     
-    if (!js->HasMember("results")) {
+    if (js->IsNull() || !js->HasMember("results")) {
       return _identifiersAndUnitsCache;
     }
     const rapidjson::SizeType zero = 0;
@@ -493,7 +493,9 @@ void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> 
   vector<Point> insertionPoints;
   string dbId = _influxIdForTsId(id);
   
-  
+  if (points.size() == 0) {
+    return;
+  }
   
   vector<Point> existing;
   existing = this->selectRange(dbId, points.front().time - 1, points.back().time + 1);
@@ -616,19 +618,25 @@ JsonDocPtr InfluxDbPointRecord::jsonFromPath(const std::string &url) {
   JsonDocPtr documentOut;
   InfluxConnectInfo_t connectionInfo;
   
+  // set a timeout for socket connection operations.
+  connectionInfo.sockStream.expires_from_now(boost::posix_time::seconds(20));
+  
   connectionInfo.sockStream.connect(this->host, to_string(this->port));
   if (!connectionInfo.sockStream) {
-    cerr << "cannot connect" << endl;
+    cerr << "influx cannot connect" << endl;
     return documentOut;
   }
   
   string body;
-  
   {
+    // TX
     connectionInfo.sockStream << "GET " << url << " HTTP/1.0\r\n";
     connectionInfo.sockStream << "Host: " << this->host << "\r\n";
     connectionInfo.sockStream << "Accept: */*\r\n";
     connectionInfo.sockStream << "Connection: close\r\n\r\n";
+    connectionInfo.sockStream.flush();
+    
+    // RX
     connectionInfo.sockStream >> connectionInfo.httpVersion;
     connectionInfo.sockStream >> connectionInfo.statusCode;
     getline(connectionInfo.sockStream, connectionInfo.statusMessage);
@@ -639,7 +647,10 @@ JsonDocPtr InfluxDbPointRecord::jsonFromPath(const std::string &url) {
     
     std::getline(connectionInfo.sockStream, body);
     cout << connectionInfo.sockStream.rdbuf() << endl;
-    connectionInfo.sockStream.flush();
+    
+    if (connectionInfo.statusCode != 204 && !connectionInfo.sockStream) {
+      std::cerr << "Influx Connection Error: " << connectionInfo.sockStream.error().message() << "\n";
+    }
     connectionInfo.sockStream.close();
   }
   
@@ -653,8 +664,6 @@ JsonDocPtr InfluxDbPointRecord::jsonFromPath(const std::string &url) {
   rapidjson::StringBuffer buffer;
   rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
   documentOut->Accept(writer);
-  std::cout << buffer.GetString() << std::endl;
-  
   return documentOut;
 }
 
@@ -784,7 +793,7 @@ void InfluxDbPointRecord::sendPointsWithString(const string& content) {
   InfluxConnectInfo_t connectionInfo;
   connectionInfo.sockStream.connect(this->host, to_string(this->port));
   if (!connectionInfo.sockStream) {
-    cerr << "cannot connect" << endl;
+    cerr << "influx cannot connect" << endl;
     return;
   }
   
