@@ -20,7 +20,7 @@ namespace RTX {
     void setDestinationRecord(PointRecord::_sp record);
     
     std::list<TimeSeries::_sp> series();
-    void setSeries(std::list<TimeSeries::_sp> series);
+    void setSeries(std::list<TimeSeries::_sp> series); /// source series !
     
     // view / change state
     void run(time_t fetchWindow, time_t frequency); /// run starting now
