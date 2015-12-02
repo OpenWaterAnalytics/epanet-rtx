@@ -544,35 +544,35 @@
 			remoteGlobalIDString = 221BFD311A8E8AD000143FCC;
 			remoteInfo = "epanet-rtx static deps";
 		};
-		22A3B3D21C04CA1500D31F9E /* PBXContainerItemProxy */ = {
+		228CD55A1C0F5E4E00C67802 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = D2AAC0630554660B00DB518D;
 			remoteInfo = epanet;
 		};
-		22A3B3D41C04CA1500D31F9E /* PBXContainerItemProxy */ = {
+		228CD55C1C0F5E4E00C67802 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 22322F66106833BB00641384;
 			remoteInfo = runepanet;
 		};
-		22A3B3D61C04CA1500D31F9E /* PBXContainerItemProxy */ = {
+		228CD55E1C0F5E4E00C67802 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 2255753B17551217009946B1;
 			remoteInfo = "epanet-static";
 		};
-		22A3B3D81C04CA1500D31F9E /* PBXContainerItemProxy */ = {
+		228CD5601C0F5E4E00C67802 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 222CBF5119F6E46F0049A22D;
 			remoteInfo = wdsInpFile;
 		};
-		22A3B3DA1C04CA1500D31F9E /* PBXContainerItemProxy */ = {
+		228CD5621C0F5E4E00C67802 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
 			proxyType = 2;
@@ -801,7 +801,7 @@
 		22A2BD101BFE23F700A9564A /* libboost_thread-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_thread-mt.a"; path = "/usr/local/com.citilogics.dev/libboost_thread-mt.a"; sourceTree = "<absolute>"; };
 		22A2BD171BFF986C00A9564A /* libboost_program_options.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_program_options.a; path = /usr/local/com.citilogics.dev/libboost_program_options.a; sourceTree = "<absolute>"; };
 		22A4B41814E1B93D006D01C3 /* Clock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Clock.h; path = ../../src/Clock.h; sourceTree = "<group>"; };
-		22A6679C19E4819500CEB0BC /* epanet.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = epanet.xcodeproj; path = "../../../../../../../../Dropbox (CitiLogics)/Code/EPANET/build/Xcode/epanet/epanet.xcodeproj"; sourceTree = BUILT_PRODUCTS_DIR; };
+		22A6679C19E4819500CEB0BC /* epanet.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = epanet.xcodeproj; path = ../../../EPANET/build/Xcode/epanet/epanet.xcodeproj; sourceTree = "<group>"; };
 		22A842D3173BF445009CE769 /* GainTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GainTimeSeries.cpp; path = ../../src/GainTimeSeries.cpp; sourceTree = "<group>"; };
 		22A842D4173BF445009CE769 /* GainTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GainTimeSeries.h; path = ../../src/GainTimeSeries.h; sourceTree = "<group>"; };
 		22AB022D187B1BF000706EEA /* PointRecordTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PointRecordTime.cpp; path = ../../src/PointRecordTime.cpp; sourceTree = "<group>"; };
@@ -1261,6 +1261,18 @@
 			name = "time series extensions";
 			sourceTree = "<group>";
 		};
+		228CD5531C0F5E4E00C67802 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				228CD55B1C0F5E4E00C67802 /* libepanet.dylib */,
+				228CD55D1C0F5E4E00C67802 /* runepanet */,
+				228CD55F1C0F5E4E00C67802 /* libepanet-static.a */,
+				228CD5611C0F5E4E00C67802 /* libwdsInpFile.dylib */,
+				228CD5631C0F5E4E00C67802 /* buildNetwork */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		228F6B6514857FD6007383D4 /* input files */ = {
 			isa = PBXGroup;
 			children = (
@@ -1270,18 +1282,6 @@
 				221C06C916077FD200B8969C /* sampletown.inp */,
 			);
 			name = "input files";
-			sourceTree = "<group>";
-		};
-		22A3B3CB1C04CA1500D31F9E /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				22A3B3D31C04CA1500D31F9E /* libepanet.dylib */,
-				22A3B3D51C04CA1500D31F9E /* runepanet */,
-				22A3B3D71C04CA1500D31F9E /* libepanet-static.a */,
-				22A3B3D91C04CA1500D31F9E /* libwdsInpFile.dylib */,
-				22A3B3DB1C04CA1500D31F9E /* buildNetwork */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		22B8A7971603CA1300EECAA5 /* demos */ = {
@@ -1989,7 +1989,7 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 22A3B3CB1C04CA1500D31F9E /* Products */;
+					ProductGroup = 228CD5531C0F5E4E00C67802 /* Products */;
 					ProjectRef = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
 				},
 				{
@@ -2018,39 +2018,39 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		22A3B3D31C04CA1500D31F9E /* libepanet.dylib */ = {
+		228CD55B1C0F5E4E00C67802 /* libepanet.dylib */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.dylib";
 			path = libepanet.dylib;
-			remoteRef = 22A3B3D21C04CA1500D31F9E /* PBXContainerItemProxy */;
+			remoteRef = 228CD55A1C0F5E4E00C67802 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		22A3B3D51C04CA1500D31F9E /* runepanet */ = {
+		228CD55D1C0F5E4E00C67802 /* runepanet */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.executable";
 			path = runepanet;
-			remoteRef = 22A3B3D41C04CA1500D31F9E /* PBXContainerItemProxy */;
+			remoteRef = 228CD55C1C0F5E4E00C67802 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		22A3B3D71C04CA1500D31F9E /* libepanet-static.a */ = {
+		228CD55F1C0F5E4E00C67802 /* libepanet-static.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = "libepanet-static.a";
-			remoteRef = 22A3B3D61C04CA1500D31F9E /* PBXContainerItemProxy */;
+			remoteRef = 228CD55E1C0F5E4E00C67802 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		22A3B3D91C04CA1500D31F9E /* libwdsInpFile.dylib */ = {
+		228CD5611C0F5E4E00C67802 /* libwdsInpFile.dylib */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.dylib";
 			path = libwdsInpFile.dylib;
-			remoteRef = 22A3B3D81C04CA1500D31F9E /* PBXContainerItemProxy */;
+			remoteRef = 228CD5601C0F5E4E00C67802 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		22A3B3DB1C04CA1500D31F9E /* buildNetwork */ = {
+		228CD5631C0F5E4E00C67802 /* buildNetwork */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.executable";
 			path = buildNetwork;
-			remoteRef = 22A3B3DA1C04CA1500D31F9E /* PBXContainerItemProxy */;
+			remoteRef = 228CD5621C0F5E4E00C67802 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		22BEDCF4187E09A100855B68 /* libepanetmsx-static.a */ = {
@@ -2609,6 +2609,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				EXECUTABLE_PREFIX = lib;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2624,6 +2625,7 @@
 					"${SRCROOT}/../../../epanet-msx/include",
 					/usr/local/include/iODBC,
 				);
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path";
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/com.citilogics.dev,
 					/usr/local/lib,
@@ -2644,6 +2646,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				EXECUTABLE_PREFIX = lib;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2659,6 +2662,7 @@
 					"${SRCROOT}/../../../epanet-msx/include",
 					/usr/local/include/iODBC,
 				);
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path";
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/com.citilogics.dev,
 					/usr/local/lib,
@@ -2748,6 +2752,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				EXECUTABLE_PREFIX = lib;
@@ -2758,6 +2763,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/com.citilogics.dev,
@@ -2785,6 +2791,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				EXECUTABLE_PREFIX = lib;
@@ -2795,6 +2802,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/com.citilogics.dev,
