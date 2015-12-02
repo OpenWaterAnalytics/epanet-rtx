@@ -83,7 +83,14 @@ Units Units::operator^(const double power) const {
 }
 
 bool Units::operator==(const RTX::Units &unit) const {
-  if (_conversion == unit._conversion && this->isSameDimensionAs(unit) && _offset == unit._offset) {
+  if (_conversion == unit._conversion &&
+      _mass         == unit._mass         &&
+      _length       == unit._length       &&
+      _time         == unit._time         &&
+      _current      == unit._current      &&
+      _temperature  == unit._temperature  &&
+      _amount       == unit._amount       &&
+      _intensity    == unit._intensity ) {
     return true;
   }
   return false;
