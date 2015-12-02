@@ -12,6 +12,10 @@ using boost::interprocess::scoped_lock;
 using namespace std;
 using namespace RTX;
 
+TimeSeriesDuplicator::TimeSeriesDuplicator() {
+  _isRunning = false;
+  _pctCompleteFetch = 0;
+}
 
 PointRecord::_sp TimeSeriesDuplicator::destinationRecord() {
   return _destinationRecord;
@@ -90,7 +94,7 @@ void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
     stringstream ss;
     char *tstr = asctime(localtime(&nextFetch));
     tstr[24] = '\0';
-    ss << "Fetch: (" << tstr << ") took " << fetchDuration << " seconds. Waiting for " << waitLength << " seconds";
+    ss << "Fetch: (" << tstr << ") took " << fetchDuration << " seconds." << "\n" << "Waiting for " << waitLength << " seconds";
     this->_logLine(ss.str());
     while (_shouldRun && nextFetch > time(NULL)) {
       boost::this_thread::sleep_for(boost::chrono::seconds(1));
@@ -147,7 +151,7 @@ void TimeSeriesDuplicator::runRetrospective(time_t start, time_t chunkSize, time
     stringstream ss;
     ss << "RETROSPECTIVE Fetch: (" << tstr << ") took " << fetchDuration << " seconds.";
     if (rateLimit > 0 && inThePast) {
-      ss << " Rate Limited - Waiting for " << rateLimit << " seconds";
+      ss << "\nRate Limited - Waiting for " << rateLimit << " seconds";
     }
     this->_logLine(ss.str());
     
