@@ -1064,7 +1064,7 @@ void Model::setSimulationParameters(time_t time) {
     if (valve->statusParameter()) {
       Point p = valve->statusParameter()->pointAtOrBefore(time);
       if (p.isValid) {
-        status = Pipe::status_t((int)(p.value));
+        status = Pipe::status_t((int)(p.value > 0));
         setPipeStatus( valve->name(), status );
       }
       else {
