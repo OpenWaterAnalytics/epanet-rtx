@@ -161,7 +161,7 @@ void TimeSeriesDuplicator::runRetrospective(time_t start, time_t chunkSize, time
     }
     
     time_t wakeup = time(NULL) + rateLimit;
-    while (_shouldRun && wakeup > time(NULL) && inThePast) {
+    while (_shouldRun && rateLimit > 0 && wakeup > time(NULL) && inThePast) {
       boost::this_thread::sleep_for(boost::chrono::seconds(1));
     }
   }
