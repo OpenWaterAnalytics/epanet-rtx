@@ -33,6 +33,15 @@ const std::map<std::string,Units> OdbcDirectPointRecord::identifiersAndUnits() {
     return ids;
   }
   
+  time_t now = time(NULL);
+  time_t stale = now - _lastIdRequest;
+  _lastIdRequest = now;
+  
+  if (stale < 5 && !_identifiersAndUnitsCache.empty()) {
+    return DbPointRecord::identifiersAndUnits();
+  }
+  
+  
   string tagQuery("");
   tagQuery += "SELECT " + tableDescription.tagNameCol;
   if (!RTX_STRINGS_ARE_EQUAL(tableDescription.tagUnitsCol,"")) {
@@ -61,6 +70,7 @@ const std::map<std::string,Units> OdbcDirectPointRecord::identifiersAndUnits() {
   SQLFreeStmt(_directTagQueryStmt, SQL_CLOSE);
   SQLFreeHandle(SQL_HANDLE_STMT, _directTagQueryStmt);
   
+  _identifiersAndUnitsCache = ids;
   return ids;
 }
 

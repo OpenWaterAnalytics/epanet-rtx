@@ -84,6 +84,11 @@ void DbPointRecord::setReadonly(bool readOnly) {
 }
 
 bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Units units) {
+  
+  if (name.length() == 0) {
+    return false;
+  }
+  
   bool nameExists = false;
   bool unitsMatch = false;
   Units existingUnits = RTX_NO_UNITS;

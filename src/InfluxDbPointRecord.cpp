@@ -194,6 +194,8 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
   // otherwise, fine. add the series.
   _identifiersAndUnitsCache[properId] = units;
   
+  this->addPoint(id, Point(1,0));
+  
   // no futher validation.
   return true;
    
