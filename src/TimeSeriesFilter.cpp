@@ -240,8 +240,8 @@ TimeSeries::PointCollection TimeSeriesFilter::filterPointsInRange(TimeRange rang
   TimeRange queryRange = range;
   if (this->willResample()) {
     // expand range
-    queryRange.start = this->source()->pointBefore(range.start + 1).time;
-    queryRange.end = this->source()->pointAfter(range.end - 1).time;
+    queryRange.start = this->source()->timeBefore(range.start + 1);
+    queryRange.end = this->source()->timeAfter(range.end - 1);
   }
   
   

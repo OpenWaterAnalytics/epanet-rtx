@@ -39,9 +39,8 @@ Point LagTimeSeries::pointBefore(time_t time) {
     c = this->filterPointsInRange(TimeRange(t,t));
   }
   else {
-    Point sourcePoint = this->source()->pointBefore(time - _lag);
-    time_t t = sourcePoint.time + _lag;
-    c = this->filterPointsInRange(TimeRange(t,t));
+    time_t sourceTime = this->source()->timeBefore(time - _lag);
+    c = this->filterPointsInRange(TimeRange(sourceTime,sourceTime));
   }
   
   if (c.count() == 0) {

@@ -227,10 +227,10 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
     TimeSeries::_sp sourceTs = aggSource.timeseries;
     double multiplier = aggSource.multiplier;
     TimeRange componentRange = range;
-    Point leftseek = sourceTs->pointBefore(range.start + 1);
-    Point rightseek = sourceTs->pointAfter(range.end - 1);
-    componentRange.start = leftseek.time > 0 ? leftseek.time : range.start;
-    componentRange.end = rightseek.time > 0 ? rightseek.time : range.end;
+    time_t leftSeekTime = sourceTs->timeBefore(range.start + 1);
+    time_t rightSeekTime = sourceTs->timeAfter(range.end - 1);
+    componentRange.start = leftSeekTime > 0 ? leftSeekTime : range.start;
+    componentRange.end = rightSeekTime > 0 ? rightSeekTime : range.end;
     
     PointCollection componentCollection = sourceTs->pointCollection(componentRange);
     componentCollection.resample(desiredTimes);
