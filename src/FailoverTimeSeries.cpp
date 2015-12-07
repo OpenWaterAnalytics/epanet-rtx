@@ -84,7 +84,7 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
   
   TimeRange qSecondary = range;
   time_t secPrev = this->failoverTimeseries()->timeBefore(range.start + 1);
-  time_t secNext = this->failoverTimeseries()->timeBefore(range.end - 1);
+  time_t secNext = this->failoverTimeseries()->timeAfter(range.end - 1);
   qSecondary = TimeRange(secPrev,secNext);
   
   // make these valid & queryable
@@ -119,11 +119,12 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
   vector<Point> paddedPrimary;
   paddedPrimary.reserve(primaryData.count() + 2);
   
-  if (primaryData.points.cbegin()->time >= range.start) {
+  time_t staleStart = range.start - (_stale + 1);
+  if (primaryData.points.cbegin()->time > staleStart) {
     // pad with fake point. This is important because the while-loop below will ignore the first point
     // and only use the time information to inspect the gap.
     Point fakeP;
-    fakeP.time = range.start - _stale - 1;
+    fakeP.time = staleStart;
     paddedPrimary.push_back(fakeP);
   }
   
@@ -169,6 +170,9 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
   
   if (this->willResample()) {
     outData.resample(this->timeValuesInRange(range));
+  }
+  else {
+    outData = outData.trimmedToRange(range);
   }
   
   return outData;
