@@ -24,7 +24,7 @@ SqlitePointRecord::SqlitePointRecord() {
   _inBulkOperation = false;
   _transactionStackCount = 0;
   _maxTransactionStackCount = 5000;
-  _mutex.reset(new boost::signals2::mutex );
+  _mutex.reset(new boost::signals2::mutex);
   _dbHandle = NULL;
   _insertSingleStmt = NULL;
 }
