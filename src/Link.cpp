@@ -45,6 +45,7 @@ Link::direction_t Link::directionRelativeToNode(Node::_sp node) {
   else {
     // should not happen
     std::cerr << "direction could not be found for pipe: " << name() << std::endl;
+    dir = inDirection;
   }
   return dir;
 }

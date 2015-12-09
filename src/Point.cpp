@@ -165,6 +165,9 @@ Point Point::inverse() {
   if (this->confidence != 0.) {
     confidence = (1 / this->confidence);  // TODO -- figure out confidence intervals.
   }
+  else {
+    confidence = 0;
+  }
   
   time = this->time;
   

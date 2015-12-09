@@ -573,7 +573,7 @@ void Model::updateEngineWithElementProperties(Element::_sp e) {
 
 void Model::runSinglePeriod(time_t time) {
   cerr << "whoops, not implemented" << endl;
-  
+  // FIXME
   time_t lastSimulationPeriod, boundaryReset, start;
   // to run a single period, we need boundary conditions.
   // so back up to either the most recent set of results, or the most recent boundary-reset event
