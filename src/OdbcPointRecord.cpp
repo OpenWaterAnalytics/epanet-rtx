@@ -349,7 +349,6 @@ std::vector<Point> OdbcPointRecord::pointsFromStatement(SQLHSTMT statement) {
     while (SQL_SUCCEEDED(SQLFetch(statement))) {
       records.push_back(_tempRecord);
     }
-    SQL_CHECK(SQLFreeStmt(statement, SQL_CLOSE), "SQLCancel", statement, SQL_HANDLE_STMT);
   }
   catch(string errorMessage) {
     cerr << errorMessage << endl;
@@ -358,6 +357,8 @@ std::vector<Point> OdbcPointRecord::pointsFromStatement(SQLHSTMT statement) {
     this->dbConnect();
     cerr << "Connection returned " << this->isConnected() << endl;
   }
+  
+  SQL_CHECK(SQLFreeStmt(statement, SQL_UNBIND), "SQL_UNBIND", statement, SQL_HANDLE_STMT);
   
   BOOST_FOREACH(const ScadaRecord& record, records) {
     Point p;

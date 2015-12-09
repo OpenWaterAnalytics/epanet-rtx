@@ -27,7 +27,8 @@ void OdbcDirectPointRecord::dbConnect() throw(RtxException) {
 
 const std::map<std::string,Units> OdbcDirectPointRecord::identifiersAndUnits() {
   scoped_lock<boost::signals2::mutex> lock(_odbcMutex);
-  
+  SQLHSTMT getIdsStmt = 0;
+
   std::map<std::string,Units> ids;
   if (!isConnected()) {
     return ids;
@@ -53,22 +54,22 @@ const std::map<std::string,Units> OdbcDirectPointRecord::identifiersAndUnits() {
   SQLLEN tagLengthInd;
   SQLRETURN retcode;
   
-  retcode = SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directTagQueryStmt);
-  retcode = SQLExecDirect(_directTagQueryStmt, (SQLCHAR*)tagQuery.c_str(), SQL_NTS);
+  retcode = SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &getIdsStmt);
+  retcode = SQLExecDirect(getIdsStmt, (SQLCHAR*)tagQuery.c_str(), SQL_NTS);
   
   if (!SQL_SUCCEEDED(retcode)) {
     errorMessage = "Could not read Tag table";
   }
   else {
-    while (SQL_SUCCEEDED(SQLFetch(_directTagQueryStmt))) {
-      SQLGetData(_directTagQueryStmt, 1, SQL_C_CHAR, tagName, 512, &tagLengthInd);
+    while (SQL_SUCCEEDED(SQLFetch(getIdsStmt))) {
+      SQLGetData(getIdsStmt, 1, SQL_C_CHAR, tagName, 512, &tagLengthInd);
       string newTag((char*)tagName);
       ids[newTag] = RTX_DIMENSIONLESS;
     }
   }
   
-  SQLFreeStmt(_directTagQueryStmt, SQL_CLOSE);
-  SQLFreeHandle(SQL_HANDLE_STMT, _directTagQueryStmt);
+  SQLFreeStmt(getIdsStmt, SQL_CLOSE);
+  SQLFreeHandle(SQL_HANDLE_STMT, getIdsStmt);
   
   _identifiersAndUnitsCache = ids;
   return ids;
@@ -83,7 +84,7 @@ std::vector<Point> OdbcDirectPointRecord::selectRange(const std::string& id, tim
   // construct the static query text
   string q = this->stringQueryForRange(id, startTime, endTime);
   vector<Point> points;
-  
+  SQLHSTMT rangeStmt = 0;
   
   bool fetchSuccess = false;
   int iFetchAttempt = 0;
@@ -91,27 +92,25 @@ std::vector<Point> OdbcDirectPointRecord::selectRange(const std::string& id, tim
     // execute the query and get a result set
     {
       scoped_lock<boost::signals2::mutex> lock(_odbcMutex);
-      SQLRETURN retcode = SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directRangeQueryStmt);
-      if (SQL_SUCCEEDED(SQLExecDirect(_directRangeQueryStmt, (SQLCHAR*)q.c_str(), SQL_NTS))) {
+      SQLRETURN retcode = SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &rangeStmt);
+      if (SQL_SUCCEEDED(SQLExecDirect(rangeStmt, (SQLCHAR*)q.c_str(), SQL_NTS))) {
         fetchSuccess = true;
-        points = this->pointsFromStatement(_directRangeQueryStmt);
+        points = this->pointsFromStatement(rangeStmt);
       }
+      SQLFreeStmt(rangeStmt, SQL_CLOSE);
+      SQLFreeHandle(SQL_HANDLE_STMT, rangeStmt);
     }
     
     if(!fetchSuccess) {
       {
         scoped_lock<boost::signals2::mutex> lock(_odbcMutex);
-        cerr << extract_error("SQLExecDirect", _directRangeQueryStmt, SQL_HANDLE_STMT) << endl;
+        cerr << extract_error("SQLExecDirect", rangeStmt, SQL_HANDLE_STMT) << endl;
         cerr << "query did not succeed: " << q << endl;
       }
       // do something more intelligent here. re-check connection?
       this->dbConnect();
     }
-    
     ++iFetchAttempt;
-    SQLFreeStmt(_directRangeQueryStmt, SQL_CLOSE);
-    SQLFreeHandle(SQL_HANDLE_STMT, _directRangeQueryStmt);
-    
   } while (!fetchSuccess && iFetchAttempt < RTX_ODBCDIRECT_MAX_RETRY);
   
   
@@ -124,6 +123,7 @@ std::vector<Point> OdbcDirectPointRecord::selectRange(const std::string& id, tim
 Point OdbcDirectPointRecord::selectNext(const std::string& id, time_t time) {
   scoped_lock<boost::signals2::mutex> lock(_odbcMutex);
   this->checkConnected();
+  SQLHSTMT rangeStmt = 0;
   
   if (this->supportsBoundedQueries()) {
     vector<Point> points;
@@ -132,11 +132,11 @@ Point OdbcDirectPointRecord::selectNext(const std::string& id, time_t time) {
     int iFetchAttempt = 0;
 
     do {
-      SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directRangeQueryStmt);
+      SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &rangeStmt);
       string q = stringQueryForSinglyBoundedRange(id, time, OdbcQueryBoundLower);
-      if (SQL_SUCCEEDED(SQLExecDirect(_directRangeQueryStmt, (SQLCHAR*)q.c_str(), SQL_NTS))) {
+      if (SQL_SUCCEEDED(SQLExecDirect(rangeStmt, (SQLCHAR*)q.c_str(), SQL_NTS))) {
         fetchSuccess = true;
-        points = pointsFromStatement(_directRangeQueryStmt);
+        points = pointsFromStatement(rangeStmt);
       }
       else {
         cerr << "query did not succeed: " << q << endl;
@@ -144,8 +144,8 @@ Point OdbcDirectPointRecord::selectNext(const std::string& id, time_t time) {
       }
       
       ++iFetchAttempt;
-      SQLFreeStmt(_directRangeQueryStmt, SQL_CLOSE);
-      SQLFreeHandle(SQL_HANDLE_STMT, _directRangeQueryStmt);
+      SQLFreeStmt(rangeStmt, SQL_CLOSE);
+      SQLFreeHandle(SQL_HANDLE_STMT, rangeStmt);
 
     } while (!fetchSuccess && iFetchAttempt < RTX_ODBCDIRECT_MAX_RETRY);
     
@@ -173,26 +173,26 @@ Point OdbcDirectPointRecord::selectNextIteratively(const std::string &id, time_t
   time_t max_margin = this->searchDistance();
   time_t lookahead = time;
   
-  
+  SQLHSTMT rangeStmt = 0;
   string q;
   
-  SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directRangeQueryStmt);
+  SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &rangeStmt);
   
   while (points.size() == 0 && lookahead < time + max_margin) {
     
     q = this->stringQueryForRange(id, lookahead, lookahead+margin);
     
-    if (SQL_SUCCEEDED(SQLExecDirect(_directRangeQueryStmt, (SQLCHAR*)q.c_str(), SQL_NTS))) {
-      points = pointsFromStatement(_directRangeQueryStmt);
+    if (SQL_SUCCEEDED(SQLExecDirect(rangeStmt, (SQLCHAR*)q.c_str(), SQL_NTS))) {
+      points = pointsFromStatement(rangeStmt);
     }
     else {
       cerr << "query did not succeed: " << q << endl;
     }
     lookahead += margin;
   }
-  
-  SQLFreeStmt(_directRangeQueryStmt, SQL_CLOSE);
-  SQLFreeHandle(SQL_HANDLE_STMT, _directRangeQueryStmt);
+  // cancel and then fre handle?
+  SQLFreeStmt(rangeStmt, SQL_CLOSE);
+  SQLFreeHandle(SQL_HANDLE_STMT, rangeStmt);
   
   
   if (points.size() > 0) {
@@ -213,17 +213,15 @@ Point OdbcDirectPointRecord::selectNextIteratively(const std::string &id, time_t
 Point OdbcDirectPointRecord::selectPrevious(const std::string& id, time_t time) {
   scoped_lock<boost::signals2::mutex> lock(_odbcMutex);
   this->checkConnected();
-  
-  
-  
+  SQLHSTMT rangeStmt = 0;
+
   if (this->supportsBoundedQueries()) {
-    
     vector<Point> points;
     
-    SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directRangeQueryStmt);
+    SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &rangeStmt);
     string q = stringQueryForSinglyBoundedRange(id, time, OdbcQueryBoundUpper);
-    if (SQL_SUCCEEDED(SQLExecDirect(_directRangeQueryStmt, (SQLCHAR*)q.c_str(), SQL_NTS))) {
-      points = pointsFromStatement(_directRangeQueryStmt);
+    if (SQL_SUCCEEDED(SQLExecDirect(rangeStmt, (SQLCHAR*)q.c_str(), SQL_NTS))) {
+      points = pointsFromStatement(rangeStmt);
     }
     else {
       cerr << "query did not succeed: " << q << endl;
@@ -236,10 +234,8 @@ Point OdbcDirectPointRecord::selectPrevious(const std::string& id, time_t time) 
       cerr << "no points found for " << id << endl;
     }
     
-    
-    SQLFreeStmt(_directRangeQueryStmt, SQL_CLOSE);
-    SQLFreeHandle(SQL_HANDLE_STMT, _directRangeQueryStmt);
-    
+    SQLFreeStmt(rangeStmt, SQL_CLOSE);
+    SQLFreeHandle(SQL_HANDLE_STMT, rangeStmt);
   }
   else {
     
@@ -256,17 +252,18 @@ Point OdbcDirectPointRecord::selectPreviousIteratively(const std::string &id, ti
   time_t margin = 60*60*12;
   time_t max_margin = this->searchDistance();
   time_t lookBehind = time;
-  
+  SQLHSTMT rangeStmt = 0;
+
   string q;
   
-  SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &_directRangeQueryStmt);
+  SQLAllocHandle(SQL_HANDLE_STMT, _handles.SCADAdbc, &rangeStmt);
   
   while (points.size() == 0 && lookBehind > time - max_margin) {
     
     q = this->stringQueryForRange(id, lookBehind-margin, lookBehind+1);
     
-    if (SQL_SUCCEEDED(SQLExecDirect(_directRangeQueryStmt, (SQLCHAR*)q.c_str(), SQL_NTS))) {
-      points = pointsFromStatement(_directRangeQueryStmt);
+    if (SQL_SUCCEEDED(SQLExecDirect(rangeStmt, (SQLCHAR*)q.c_str(), SQL_NTS))) {
+      points = pointsFromStatement(rangeStmt);
     }
     else {
       cerr << "query did not succeed: " << q << endl;
@@ -274,8 +271,8 @@ Point OdbcDirectPointRecord::selectPreviousIteratively(const std::string &id, ti
     lookBehind -= margin;
   }
   
-  SQLFreeStmt(_directRangeQueryStmt, SQL_CLOSE);
-  SQLFreeHandle(SQL_HANDLE_STMT, _directRangeQueryStmt);
+  SQLFreeStmt(rangeStmt, SQL_CLOSE);
+  SQLFreeHandle(SQL_HANDLE_STMT, rangeStmt);
   
   
   if (points.size() > 0) {
