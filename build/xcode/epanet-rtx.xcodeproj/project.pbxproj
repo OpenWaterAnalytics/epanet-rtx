@@ -2502,15 +2502,16 @@
 					RTX_NO_MYSQL,
 				);
 				HEADER_SEARCH_PATHS = (
+					/usr/local/com.citilogics.dev/include,
 					/usr/include/python2.7,
 					/usr/local/include,
 					"${SRCROOT}/../../../EPANET/src",
 					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,
 					"${SRCROOT}/../../../epanet-msx/include",
-					/usr/local/include/iODBC,
 				);
 				LIBRARY_SEARCH_PATHS = (
+					/usr/local/com.citilogics.dev/lib,
 					/usr/local/lib,
 					/usr/lib,
 					/Library/Frameworks,
@@ -2540,15 +2541,16 @@
 					RTX_NO_MYSQL,
 				);
 				HEADER_SEARCH_PATHS = (
+					/usr/local/com.citilogics.dev/include,
 					/usr/include/python2.7,
 					/usr/local/include,
 					"${SRCROOT}/../../../EPANET/src",
 					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,
 					"${SRCROOT}/../../../epanet-msx/include",
-					/usr/local/include/iODBC,
 				);
 				LIBRARY_SEARCH_PATHS = (
+					/usr/local/com.citilogics.dev/lib,
 					/usr/local/lib,
 					/usr/lib,
 					/Library/Frameworks,
@@ -2788,14 +2790,15 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				HEADER_SEARCH_PATHS = (
+					/usr/local/com.citilogics.dev/include,
 					/usr/local/include,
 					"${SRCROOT}/../../../EPANET/src",
 					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,
-					/usr/local/include/iODBC,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					/usr/local/com.citilogics.dev/lib,
 					/usr/local/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2827,14 +2830,14 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				HEADER_SEARCH_PATHS = (
+					/usr/local/com.citilogics.dev/include,
 					/usr/local/include,
 					"${SRCROOT}/../../../EPANET/src",
 					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,
-					/usr/local/include/iODBC,
 				);
 				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
+					/usr/local/com.citilogics.dev/lib,
 					/usr/local/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3007,6 +3010,7 @@
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = "EN_API_FLOAT_TYPE=double";
 				HEADER_SEARCH_PATHS = (
+					/usr/local/com.citilogics.dev/include,
 					/usr/include/python2.7,
 					/usr/local/include,
 					"${SRCROOT}/../../../EPANET/src",
@@ -3043,6 +3047,7 @@
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = "EN_API_FLOAT_TYPE=double";
 				HEADER_SEARCH_PATHS = (
+					/usr/local/com.citilogics.dev/include,
 					/usr/include/python2.7,
 					/usr/local/include,
 					"${SRCROOT}/../../../EPANET/src",

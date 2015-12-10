@@ -178,8 +178,9 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange 
     }
     
     
-    
-    thePoints.push_back(Point(t,maxCorrelationAtLaggedTime.first, Point::opc_rtx_override, (double)(maxCorrelationAtLaggedTime.second)));
+    if (maxCorrelationAtLaggedTime.first > -MAXFLOAT) {
+      thePoints.push_back(Point(t,maxCorrelationAtLaggedTime.first, Point::opc_rtx_override, (double)(maxCorrelationAtLaggedTime.second)));
+    }
     
   }
   
