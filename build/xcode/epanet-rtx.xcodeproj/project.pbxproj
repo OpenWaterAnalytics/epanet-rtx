@@ -19,8 +19,6 @@
 		220AE471145B29F7002F07B4 /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE470145B29F7002F07B4 /* Node.cpp */; };
 		220AE473145B2A0D002F07B4 /* Link.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE472145B2A0C002F07B4 /* Link.cpp */; };
 		220AE475145B2A28002F07B4 /* Dma.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220AE474145B2A28002F07B4 /* Dma.cpp */; };
-		220B46251B7E740000B81B90 /* libsqlite3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 220B46241B7E740000B81B90 /* libsqlite3.a */; };
-		220B46261B7E741300B81B90 /* libsqlite3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 220B46241B7E740000B81B90 /* libsqlite3.a */; };
 		220D42ED1BF0000200C9AB36 /* DuperDaemon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220D42EC1BF0000200C9AB36 /* DuperDaemon.cpp */; };
 		220F9DD618F9E1BE00BB842C /* readConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220F9DD518F9E1BE00BB842C /* readConfig.cpp */; };
 		220F9DDE18F9E68B00BB842C /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BF02D215EBCABC00F66465 /* Point.cpp */; };
@@ -156,15 +154,6 @@
 		221BFD6D1A8E8AD000143FCC /* MultiplierTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 226AC14B17340D06009B7C90 /* MultiplierTimeSeries.cpp */; };
 		221BFD6E1A8E8AD000143FCC /* StatsTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224E047E1979431C0039E3F9 /* StatsTimeSeries.cpp */; };
 		221BFD6F1A8E8AD000143FCC /* GainTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22A842D3173BF445009CE769 /* GainTimeSeries.cpp */; };
-		221BFD721A8E8AD000143FCC /* libpython.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 223646901A8AB8D7007DC074 /* libpython.dylib */; };
-		221BFD731A8E8AD000143FCC /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2236468E1A8AB8CF007DC074 /* libcurl.dylib */; };
-		221BFD751A8E8AD000143FCC /* libmysqlclient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2230FC591920FEE700C66708 /* libmysqlclient.a */; };
-		221BFD761A8E8AD000143FCC /* libboost_python.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2275942C1A855BF3007C4137 /* libboost_python.a */; };
-		221BFD771A8E8AD000143FCC /* libboost_date_time.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD0173C2E9700309C2F /* libboost_date_time.a */; };
-		221BFD781A8E8AD000143FCC /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD1173C2E9700309C2F /* libboost_filesystem.a */; };
-		221BFD791A8E8AD000143FCC /* libboost_regex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD2173C2E9700309C2F /* libboost_regex.a */; };
-		221BFD7A1A8E8AD000143FCC /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD3173C2E9700309C2F /* libboost_system.a */; };
-		221BFD7B1A8E8AD000143FCC /* libmysqlcppconn-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22249A9B17C918D400874859 /* libmysqlcppconn-static.a */; };
 		221BFD7C1A8E8AD000143FCC /* libepanetmsx-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BEDCF4187E09A100855B68 /* libepanetmsx-static.a */; };
 		221BFD7E1A8E8AD000143FCC /* AggregatorTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C62ACC1439EE0B00841E60 /* AggregatorTimeSeries.h */; };
 		221BFD7F1A8E8AD000143FCC /* MovingAverage.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C62AD31439EE0B00841E60 /* MovingAverage.h */; };
@@ -225,9 +214,6 @@
 		22284F811BF115D1000256B8 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		22284F821BF115D1000256B8 /* libTimeSeriesDuplicator.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */; };
 		222FDDD615C1BC2F0065DAF6 /* FirstDerivative.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */; };
-		2230FC5A1920FEE700C66708 /* libmysqlclient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2230FC591920FEE700C66708 /* libmysqlclient.a */; };
-		2236468F1A8AB8CF007DC074 /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2236468E1A8AB8CF007DC074 /* libcurl.dylib */; };
-		223646911A8AB8D7007DC074 /* libpython.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 223646901A8AB8D7007DC074 /* libpython.dylib */; };
 		223663A41A69710D00420EE4 /* MovingAverage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C62AD21439EE0B00841E60 /* MovingAverage.cpp */; };
 		223663AD1A69797300420EE4 /* OffsetTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22707A9416309D4000FEB4DD /* OffsetTimeSeries.cpp */; };
 		223663AE1A6999A900420EE4 /* ThresholdTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43627ECF171F286C007AE0F5 /* ThresholdTimeSeries.cpp */; };
@@ -255,10 +241,7 @@
 		224643A1150BD72E005EA3BA /* Link.h in Headers */ = {isa = PBXBuildFile; fileRef = 224643A0150BD72E005EA3BA /* Link.h */; };
 		224A92681A8BABD300D8FBE2 /* libepanet-rtx-project.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */; };
 		224A92691A8BABD300D8FBE2 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22C62AC01439ED6300841E60 /* libepanet-rtx.dylib */; };
-		224A927B1A8BAEAA00D8FBE2 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD3173C2E9700309C2F /* libboost_system.a */; };
-		224A927C1A8BAEAE00D8FBE2 /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD1173C2E9700309C2F /* libboost_filesystem.a */; };
 		224A92801A8BD4F100D8FBE2 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 220F9E4C18F9E68B00BB842C /* libepanet-rtx.dylib */; };
-		224A92821A8BD51E00D8FBE2 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 224A92811A8BD51E00D8FBE2 /* libsqlite3.dylib */; };
 		224C41991A434FCB008852C4 /* ModelPerformance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224C41971A434FCB008852C4 /* ModelPerformance.cpp */; };
 		224C419A1A434FCB008852C4 /* ModelPerformance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224C41971A434FCB008852C4 /* ModelPerformance.cpp */; };
 		224C419B1A434FCB008852C4 /* ModelPerformance.h in Headers */ = {isa = PBXBuildFile; fileRef = 224C41981A434FCB008852C4 /* ModelPerformance.h */; };
@@ -288,11 +271,6 @@
 		22707A9716309D4100FEB4DD /* OffsetTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22707A9516309D4100FEB4DD /* OffsetTimeSeries.h */; };
 		227510E816D4231800B2BA62 /* BufferPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227510E616D4231800B2BA62 /* BufferPointRecord.cpp */; };
 		227510E916D4231800B2BA62 /* BufferPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 227510E716D4231800B2BA62 /* BufferPointRecord.h */; };
-		227594281A855BF3007C4137 /* libboost_date_time.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD0173C2E9700309C2F /* libboost_date_time.a */; };
-		227594291A855BF3007C4137 /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD1173C2E9700309C2F /* libboost_filesystem.a */; };
-		2275942A1A855BF3007C4137 /* libboost_regex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD2173C2E9700309C2F /* libboost_regex.a */; };
-		2275942B1A855BF3007C4137 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD3173C2E9700309C2F /* libboost_system.a */; };
-		2275942D1A855BF3007C4137 /* libboost_python.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2275942C1A855BF3007C4137 /* libboost_python.a */; };
 		227BCEF31B2B6CDB00B0AC52 /* LogicTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227BCEF11B2B6CDB00B0AC52 /* LogicTimeSeries.cpp */; };
 		227BCEF41B2B6CDB00B0AC52 /* LogicTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227BCEF11B2B6CDB00B0AC52 /* LogicTimeSeries.cpp */; };
 		227BCEF51B2B6CDB00B0AC52 /* LogicTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 227BCEF21B2B6CDB00B0AC52 /* LogicTimeSeries.h */; };
@@ -325,12 +303,8 @@
 		22909B3A147DDCEB00945449 /* EpanetModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 22909B39147DDCEB00945449 /* EpanetModel.h */; };
 		22909B3C147DDE2A00945449 /* EpanetModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22909B3B147DDE2A00945449 /* EpanetModel.cpp */; };
 		22956CE01A792FAE0014D7EF /* TimeSeriesSynthetic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2211D2041A6D69EA00E34B9B /* TimeSeriesSynthetic.cpp */; };
-		229E11391B063161007766F3 /* libboost_timer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 43E5BC011A8B0BEB00CC93D6 /* libboost_timer.a */; };
-		229E113A1B063177007766F3 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD3173C2E9700309C2F /* libboost_system.a */; };
 		229FBEA4190807B3004FE5A4 /* InfluxDbPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */; };
 		229FBEA5190807B3004FE5A4 /* InfluxDbPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */; };
-		22A2BD111BFE23F700A9564A /* libboost_thread-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22A2BD101BFE23F700A9564A /* libboost_thread-mt.a */; };
-		22A2BD181BFF986C00A9564A /* libboost_program_options.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22A2BD171BFF986C00A9564A /* libboost_program_options.a */; };
 		22A4B41914E1B93D006D01C3 /* Clock.h in Headers */ = {isa = PBXBuildFile; fileRef = 22A4B41814E1B93D006D01C3 /* Clock.h */; };
 		22A7B70916778A7A00538839 /* sampletown_realtime.cfg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 221C06C716077FD200B8969C /* sampletown_realtime.cfg */; };
 		22A7B70A16778A7A00538839 /* sampletown_synthetic.cfg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 221C06C816077FD200B8969C /* sampletown_synthetic.cfg */; };
@@ -338,7 +312,6 @@
 		22A842D5173BF446009CE769 /* GainTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22A842D3173BF445009CE769 /* GainTimeSeries.cpp */; };
 		22A842D6173BF446009CE769 /* GainTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22A842D4173BF445009CE769 /* GainTimeSeries.h */; };
 		22AB022F187B1BF000706EEA /* PointRecordTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22AB022D187B1BF000706EEA /* PointRecordTime.cpp */; };
-		22B284591BFD2F58007FD529 /* libboost_thread-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BBE1571BEE58D60066AEAE /* libboost_thread-mt.a */; };
 		22B38B961A48BCEE0071DCF3 /* ProjectFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B38B901A48BCEE0071DCF3 /* ProjectFile.cpp */; };
 		22B38B971A48BCEE0071DCF3 /* ProjectFile.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B38B911A48BCEE0071DCF3 /* ProjectFile.h */; };
 		22B7154E14DC2C2C00041167 /* Clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B7154D14DC2C2C00041167 /* Clock.cpp */; };
@@ -346,11 +319,6 @@
 		22B9285B1A76EF1B006DBC57 /* MathOpsTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B928581A76EF1B006DBC57 /* MathOpsTimeSeries.cpp */; };
 		22B9285C1A76EF1B006DBC57 /* MathOpsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B928591A76EF1B006DBC57 /* MathOpsTimeSeries.h */; };
 		22B9285D1A76EF1B006DBC57 /* MathOpsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B928591A76EF1B006DBC57 /* MathOpsTimeSeries.h */; };
-		22BBE1581BEE58D60066AEAE /* libboost_chrono-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BBE1531BEE58D60066AEAE /* libboost_chrono-mt.a */; };
-		22BBE1591BEE58D60066AEAE /* libboost_date_time-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BBE1541BEE58D60066AEAE /* libboost_date_time-mt.a */; };
-		22BBE15A1BEE58D60066AEAE /* libboost_filesystem-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BBE1551BEE58D60066AEAE /* libboost_filesystem-mt.a */; };
-		22BBE15B1BEE58D60066AEAE /* libboost_system-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BBE1561BEE58D60066AEAE /* libboost_system-mt.a */; };
-		22BBE15C1BEE58D60066AEAE /* libboost_thread-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BBE1571BEE58D60066AEAE /* libboost_thread-mt.a */; };
 		22BEDD1F187E0BE300855B68 /* libepanetmsx-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BEDCF4187E09A100855B68 /* libepanetmsx-static.a */; };
 		22BF02D315EBCABC00F66465 /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BF02D215EBCABC00F66465 /* Point.cpp */; };
 		22BFAB01196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */; };
@@ -382,7 +350,37 @@
 		22CF1C451A68435000161188 /* BufferPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227510E616D4231800B2BA62 /* BufferPointRecord.cpp */; };
 		22CF1C471A68435000161188 /* SqlitePointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22C0AE54184F86190013D51F /* SqlitePointRecord.cpp */; };
 		22CF1C491A6856CB00161188 /* Clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B7154D14DC2C2C00041167 /* Clock.cpp */; };
-		22D308E018FEC3ED0004E1DC /* libmysqlcppconn-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22249A9B17C918D400874859 /* libmysqlcppconn-static.a */; };
+		22D8C1CE1C1A048300298C0C /* libboost_chrono-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1BF1C1A048300298C0C /* libboost_chrono-mt.a */; };
+		22D8C1CF1C1A048300298C0C /* libboost_date_time-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C01C1A048300298C0C /* libboost_date_time-mt.a */; };
+		22D8C1D01C1A048300298C0C /* libboost_date_time.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C11C1A048300298C0C /* libboost_date_time.a */; };
+		22D8C1D11C1A048300298C0C /* libboost_filesystem-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C21C1A048300298C0C /* libboost_filesystem-mt.a */; };
+		22D8C1D21C1A048300298C0C /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C31C1A048300298C0C /* libboost_filesystem.a */; };
+		22D8C1D31C1A048300298C0C /* libboost_program_options.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C41C1A048300298C0C /* libboost_program_options.a */; };
+		22D8C1D41C1A048300298C0C /* libboost_python.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C51C1A048300298C0C /* libboost_python.a */; };
+		22D8C1D51C1A048300298C0C /* libboost_regex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C61C1A048300298C0C /* libboost_regex.a */; };
+		22D8C1D61C1A048300298C0C /* libboost_system-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C71C1A048300298C0C /* libboost_system-mt.a */; };
+		22D8C1D71C1A048300298C0C /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C81C1A048300298C0C /* libboost_system.a */; };
+		22D8C1D81C1A048300298C0C /* libboost_thread-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C91C1A048300298C0C /* libboost_thread-mt.a */; };
+		22D8C1D91C1A048300298C0C /* libboost_timer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CA1C1A048300298C0C /* libboost_timer.a */; };
+		22D8C1DA1C1A048300298C0C /* libiodbc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CB1C1A048300298C0C /* libiodbc.a */; };
+		22D8C1DB1C1A048300298C0C /* libmysqlclient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CC1C1A048300298C0C /* libmysqlclient.a */; };
+		22D8C1DC1C1A048300298C0C /* libmysqlcppconn-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CD1C1A048300298C0C /* libmysqlcppconn-static.a */; };
+		22D8C2151C1A0A8F00298C0C /* libboost_chrono-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1BF1C1A048300298C0C /* libboost_chrono-mt.a */; };
+		22D8C2161C1A0A8F00298C0C /* libboost_date_time-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C01C1A048300298C0C /* libboost_date_time-mt.a */; };
+		22D8C2171C1A0A8F00298C0C /* libboost_date_time.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C11C1A048300298C0C /* libboost_date_time.a */; };
+		22D8C2181C1A0A8F00298C0C /* libboost_filesystem-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C21C1A048300298C0C /* libboost_filesystem-mt.a */; };
+		22D8C2191C1A0A8F00298C0C /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C31C1A048300298C0C /* libboost_filesystem.a */; };
+		22D8C21A1C1A0A8F00298C0C /* libboost_program_options.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C41C1A048300298C0C /* libboost_program_options.a */; };
+		22D8C21B1C1A0A8F00298C0C /* libboost_python.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C51C1A048300298C0C /* libboost_python.a */; };
+		22D8C21C1C1A0A8F00298C0C /* libboost_regex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C61C1A048300298C0C /* libboost_regex.a */; };
+		22D8C21D1C1A0A8F00298C0C /* libboost_system-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C71C1A048300298C0C /* libboost_system-mt.a */; };
+		22D8C21E1C1A0A8F00298C0C /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C81C1A048300298C0C /* libboost_system.a */; };
+		22D8C21F1C1A0A8F00298C0C /* libboost_thread-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C91C1A048300298C0C /* libboost_thread-mt.a */; };
+		22D8C2201C1A0A8F00298C0C /* libboost_timer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CA1C1A048300298C0C /* libboost_timer.a */; };
+		22D8C2211C1A0A8F00298C0C /* libiodbc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CB1C1A048300298C0C /* libiodbc.a */; };
+		22D8C2221C1A0A8F00298C0C /* libmysqlclient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CC1C1A048300298C0C /* libmysqlclient.a */; };
+		22D8C2231C1A0A8F00298C0C /* libmysqlcppconn-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CD1C1A048300298C0C /* libmysqlcppconn-static.a */; };
+		22D8C2261C1A0DFE00298C0C /* libcurl.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C2251C1A0DFE00298C0C /* libcurl.4.dylib */; };
 		22D9830E17F4AFDE00DD7EB4 /* rt_simulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22D9830D17F4AFDE00DD7EB4 /* rt_simulator.cpp */; };
 		22DC12D61ADD844D0033DD5E /* MetaTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22DC12D41ADD844D0033DD5E /* MetaTimeSeries.cpp */; };
 		22DC12D71ADD844D0033DD5E /* MetaTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22DC12D41ADD844D0033DD5E /* MetaTimeSeries.cpp */; };
@@ -407,14 +405,6 @@
 		22F63D3816C5735100A15368 /* SineTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F63D3616C5735100A15368 /* SineTimeSeries.h */; };
 		43627ECA171F27E3007AE0F5 /* ThresholdTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 43627EC9171F27E3007AE0F5 /* ThresholdTimeSeries.h */; };
 		43627ED0171F286C007AE0F5 /* ThresholdTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43627ECF171F286C007AE0F5 /* ThresholdTimeSeries.cpp */; };
-		43E5BBF31A8AF85400CC93D6 /* libpython.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 223646901A8AB8D7007DC074 /* libpython.dylib */; };
-		43E5BBF41A8AF87300CC93D6 /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2236468E1A8AB8CF007DC074 /* libcurl.dylib */; };
-		43E5BC151A8B117000CC93D6 /* libboost_python.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2275942C1A855BF3007C4137 /* libboost_python.a */; };
-		43E5BC161A8B117500CC93D6 /* libboost_date_time.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD0173C2E9700309C2F /* libboost_date_time.a */; };
-		43E5BC171A8B117C00CC93D6 /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD1173C2E9700309C2F /* libboost_filesystem.a */; };
-		43E5BC181A8B118400CC93D6 /* libboost_regex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD2173C2E9700309C2F /* libboost_regex.a */; };
-		43E5BC191A8B118900CC93D6 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22211AD3173C2E9700309C2F /* libboost_system.a */; };
-		AC42DB7D1B8254C1002E17B8 /* libsqlite3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 220B46241B7E740000B81B90 /* libsqlite3.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -702,7 +692,6 @@
 		220AE470145B29F7002F07B4 /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Node.cpp; path = ../../src/Node.cpp; sourceTree = "<group>"; };
 		220AE472145B2A0C002F07B4 /* Link.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Link.cpp; path = ../../src/Link.cpp; sourceTree = "<group>"; };
 		220AE474145B2A28002F07B4 /* Dma.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Dma.cpp; path = ../../src/Dma.cpp; sourceTree = "<group>"; };
-		220B46241B7E740000B81B90 /* libsqlite3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsqlite3.a; path = /usr/local/lib/libsqlite3.a; sourceTree = "<absolute>"; };
 		220D42DD1BEFFF9000C9AB36 /* RTX_DuperDaemon */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = RTX_DuperDaemon; sourceTree = BUILT_PRODUCTS_DIR; };
 		220D42EC1BF0000200C9AB36 /* DuperDaemon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DuperDaemon.cpp; path = ../../examples/Duplicator/DuperDaemon.cpp; sourceTree = "<group>"; };
 		220F9DD518F9E1BE00BB842C /* readConfig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = readConfig.cpp; path = ../../examples/readConfig.cpp; sourceTree = "<group>"; };
@@ -720,21 +709,11 @@
 		221C06C716077FD200B8969C /* sampletown_realtime.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; name = sampletown_realtime.cfg; path = ../../examples/validator/sampletown_realtime.cfg; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		221C06C816077FD200B8969C /* sampletown_synthetic.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; name = sampletown_synthetic.cfg; path = ../../examples/validator/sampletown_synthetic.cfg; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		221C06C916077FD200B8969C /* sampletown.inp */ = {isa = PBXFileReference; lastKnownFileType = text; name = sampletown.inp; path = ../../examples/validator/sampletown.inp; sourceTree = "<group>"; };
-		22211AD0173C2E9700309C2F /* libboost_date_time.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_date_time.a; path = /usr/local/lib/libboost_date_time.a; sourceTree = "<absolute>"; };
-		22211AD1173C2E9700309C2F /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = /usr/local/lib/libboost_filesystem.a; sourceTree = "<absolute>"; };
-		22211AD2173C2E9700309C2F /* libboost_regex.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_regex.a; path = /usr/local/lib/libboost_regex.a; sourceTree = "<absolute>"; };
-		22211AD3173C2E9700309C2F /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = /usr/local/lib/libboost_system.a; sourceTree = "<absolute>"; };
-		22211AD8173C2EAC00309C2F /* libconfig++.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libconfig++.a"; path = "/usr/local/lib/libconfig++.a"; sourceTree = "<absolute>"; };
 		2223206A1A6EF32E00B32D6A /* LagTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LagTimeSeries.cpp; path = ../../src/LagTimeSeries.cpp; sourceTree = "<group>"; };
 		2223206B1A6EF32E00B32D6A /* LagTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LagTimeSeries.h; path = ../../src/LagTimeSeries.h; sourceTree = "<group>"; };
-		22249A9917C9185D00874859 /* libiodbc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libiodbc.a; path = /usr/local/lib/libiodbc.a; sourceTree = "<absolute>"; };
-		22249A9B17C918D400874859 /* libmysqlcppconn-static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libmysqlcppconn-static.a"; path = "/usr/local/lib/libmysqlcppconn-static.a"; sourceTree = "<absolute>"; };
 		22253D8D16022FB6002F7256 /* CurveFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CurveFunction.cpp; path = ../../src/CurveFunction.cpp; sourceTree = "<group>"; };
 		222FDDD315C1BBE90065DAF6 /* FirstDerivative.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FirstDerivative.h; path = ../../src/FirstDerivative.h; sourceTree = "<group>"; };
 		222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FirstDerivative.cpp; path = ../../src/FirstDerivative.cpp; sourceTree = "<group>"; };
-		2230FC591920FEE700C66708 /* libmysqlclient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmysqlclient.a; path = /usr/local/mysql/lib/libmysqlclient.a; sourceTree = "<absolute>"; };
-		2236468E1A8AB8CF007DC074 /* libcurl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.dylib; path = usr/lib/libcurl.dylib; sourceTree = SDKROOT; };
-		223646901A8AB8D7007DC074 /* libpython.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpython.dylib; path = usr/lib/libpython.dylib; sourceTree = SDKROOT; };
 		223663B11A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesFilterSinglePoint.cpp; path = ../../src/TimeSeriesFilterSinglePoint.cpp; sourceTree = "<group>"; };
 		223663B21A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeSeriesFilterSinglePoint.h; path = ../../src/TimeSeriesFilterSinglePoint.h; sourceTree = "<group>"; };
 		223947E71AF3B27000C8AE4F /* model exporter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "model exporter"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -747,7 +726,6 @@
 		22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CorrelatorTimeSeries.h; path = ../../src/CorrelatorTimeSeries.h; sourceTree = "<group>"; };
 		2246439D150BD6E0005EA3BA /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../../src/Node.h; sourceTree = "<group>"; };
 		224643A0150BD72E005EA3BA /* Link.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Link.h; path = ../../src/Link.h; sourceTree = "<group>"; };
-		224A92811A8BD51E00D8FBE2 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		224C41971A434FCB008852C4 /* ModelPerformance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ModelPerformance.cpp; path = ../../src/ModelPerformance.cpp; sourceTree = "<group>"; };
 		224C41981A434FCB008852C4 /* ModelPerformance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ModelPerformance.h; path = ../../src/ModelPerformance.h; sourceTree = "<group>"; };
 		224D40D519786C3000160BD5 /* BaseStatsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BaseStatsTimeSeries.cpp; path = ../../src/BaseStatsTimeSeries.cpp; sourceTree = "<group>"; };
@@ -757,9 +735,6 @@
 		224EDECC1B4D8E040029FC37 /* influx_api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = influx_api.h; path = ../../src/influx_api.h; sourceTree = "<group>"; };
 		224EDECD1B4D8E040029FC37 /* influx_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = influx_client.c; path = ../../src/influx_client.c; sourceTree = "<group>"; };
 		225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MysqlPointRecord.cpp; path = ../../src/MysqlPointRecord.cpp; sourceTree = "<group>"; };
-		2265C5FE1BEBF19E00F37406 /* libboost_date_time.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_date_time.a; path = /usr/local/com.citilogics.dev/libboost_date_time.a; sourceTree = "<absolute>"; };
-		2265C6031BEE504600F37406 /* libboost_thread.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_thread.a; path = /usr/local/lib/libboost_thread.a; sourceTree = "<absolute>"; };
-		2265C6051BEE508E00F37406 /* libboost_chrono.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_chrono.a; path = /usr/local/lib/libboost_chrono.a; sourceTree = "<absolute>"; };
 		226861C814716D2A000DDDEF /* Units.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Units.cpp; path = ../../src/Units.cpp; sourceTree = "<group>"; };
 		226AC1461733F996009B7C90 /* ValidRangeTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ValidRangeTimeSeries.cpp; path = ../../src/ValidRangeTimeSeries.cpp; sourceTree = "<group>"; };
 		226AC1471733F996009B7C90 /* ValidRangeTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ValidRangeTimeSeries.h; path = ../../src/ValidRangeTimeSeries.h; sourceTree = "<group>"; };
@@ -769,7 +744,6 @@
 		22707A9516309D4100FEB4DD /* OffsetTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OffsetTimeSeries.h; path = ../../src/OffsetTimeSeries.h; sourceTree = "<group>"; };
 		227510E616D4231800B2BA62 /* BufferPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BufferPointRecord.cpp; path = ../../src/BufferPointRecord.cpp; sourceTree = "<group>"; };
 		227510E716D4231800B2BA62 /* BufferPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = BufferPointRecord.h; path = ../../src/BufferPointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2275942C1A855BF3007C4137 /* libboost_python.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_python.a; path = /usr/local/lib/libboost_python.a; sourceTree = "<absolute>"; };
 		227BCEF11B2B6CDB00B0AC52 /* LogicTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LogicTimeSeries.cpp; path = ../../src/LogicTimeSeries.cpp; sourceTree = "<group>"; };
 		227BCEF21B2B6CDB00B0AC52 /* LogicTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LogicTimeSeries.h; path = ../../src/LogicTimeSeries.h; sourceTree = "<group>"; };
 		227CEC9E16BADD6000E8E7C8 /* DbPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DbPointRecord.cpp; path = ../../src/DbPointRecord.cpp; sourceTree = "<group>"; };
@@ -786,7 +760,6 @@
 		2288C10A1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesDuplicator.cpp; path = ../../examples/Duplicator/TimeSeriesDuplicator.cpp; sourceTree = "<group>"; };
 		2288C10B1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TimeSeriesDuplicator.h; path = ../../examples/Duplicator/TimeSeriesDuplicator.h; sourceTree = "<group>"; };
 		2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libTimeSeriesDuplicator.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		2288C1261BE3C7BE00F9B8FB /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = /usr/local/com.citilogics.dev/libboost_system.a; sourceTree = "<absolute>"; };
 		228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libepanet-rtx-project.dylib"; sourceTree = BUILT_PRODUCTS_DIR; };
 		228A836E16DBE5E7008E9C35 /* data_access_profiling */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = data_access_profiling; sourceTree = BUILT_PRODUCTS_DIR; };
 		228A837A16DBE644008E9C35 /* data_access.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = data_access.cpp; path = ../../examples/data_access_profiling/data_access.cpp; sourceTree = "<group>"; };
@@ -798,8 +771,6 @@
 		22909B3B147DDE2A00945449 /* EpanetModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetModel.cpp; path = ../../src/EpanetModel.cpp; sourceTree = "<group>"; };
 		229FBEA0190807B3004FE5A4 /* InfluxDbPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InfluxDbPointRecord.cpp; path = ../../src/InfluxDbPointRecord.cpp; sourceTree = "<group>"; };
 		229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = InfluxDbPointRecord.h; path = ../../src/InfluxDbPointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		22A2BD101BFE23F700A9564A /* libboost_thread-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_thread-mt.a"; path = "/usr/local/com.citilogics.dev/libboost_thread-mt.a"; sourceTree = "<absolute>"; };
-		22A2BD171BFF986C00A9564A /* libboost_program_options.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_program_options.a; path = /usr/local/com.citilogics.dev/libboost_program_options.a; sourceTree = "<absolute>"; };
 		22A4B41814E1B93D006D01C3 /* Clock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Clock.h; path = ../../src/Clock.h; sourceTree = "<group>"; };
 		22A6679C19E4819500CEB0BC /* epanet.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = epanet.xcodeproj; path = ../../../EPANET/build/Xcode/epanet/epanet.xcodeproj; sourceTree = "<group>"; };
 		22A842D3173BF445009CE769 /* GainTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GainTimeSeries.cpp; path = ../../src/GainTimeSeries.cpp; sourceTree = "<group>"; };
@@ -814,12 +785,6 @@
 		22B8A79C1603CA6100EECAA5 /* timeseries_demo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = timeseries_demo; sourceTree = BUILT_PRODUCTS_DIR; };
 		22B928581A76EF1B006DBC57 /* MathOpsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MathOpsTimeSeries.cpp; path = ../../src/MathOpsTimeSeries.cpp; sourceTree = "<group>"; };
 		22B928591A76EF1B006DBC57 /* MathOpsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MathOpsTimeSeries.h; path = ../../src/MathOpsTimeSeries.h; sourceTree = "<group>"; };
-		22BBE1511BEE54540066AEAE /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = /usr/local/com.citilogics.dev/libboost_filesystem.a; sourceTree = "<absolute>"; };
-		22BBE1531BEE58D60066AEAE /* libboost_chrono-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_chrono-mt.a"; path = "/usr/local/Cellar/boost/1.59.0/lib/libboost_chrono-mt.a"; sourceTree = "<absolute>"; };
-		22BBE1541BEE58D60066AEAE /* libboost_date_time-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_date_time-mt.a"; path = "/usr/local/Cellar/boost/1.59.0/lib/libboost_date_time-mt.a"; sourceTree = "<absolute>"; };
-		22BBE1551BEE58D60066AEAE /* libboost_filesystem-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_filesystem-mt.a"; path = "/usr/local/Cellar/boost/1.59.0/lib/libboost_filesystem-mt.a"; sourceTree = "<absolute>"; };
-		22BBE1561BEE58D60066AEAE /* libboost_system-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_system-mt.a"; path = "/usr/local/Cellar/boost/1.59.0/lib/libboost_system-mt.a"; sourceTree = "<absolute>"; };
-		22BBE1571BEE58D60066AEAE /* libboost_thread-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_thread-mt.a"; path = "/usr/local/Cellar/boost/1.59.0/lib/libboost_thread-mt.a"; sourceTree = "<absolute>"; };
 		22BF02D215EBCABC00F66465 /* Point.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Point.cpp; path = ../../src/Point.cpp; sourceTree = "<group>"; };
 		22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OutlierExclusionTimeSeries.cpp; path = ../../src/OutlierExclusionTimeSeries.cpp; sourceTree = "<group>"; };
 		22BFAB00196AFBD800B5B77C /* OutlierExclusionTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OutlierExclusionTimeSeries.h; path = ../../src/OutlierExclusionTimeSeries.h; sourceTree = "<group>"; };
@@ -845,6 +810,22 @@
 		22CF1C391A6842DC00161188 /* testTsFilter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = testTsFilter; sourceTree = BUILT_PRODUCTS_DIR; };
 		22CF1C3B1A6842DC00161188 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		22D4D32118F8298300DA1648 /* readConfigTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = readConfigTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		22D8C1BF1C1A048300298C0C /* libboost_chrono-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_chrono-mt.a"; path = "/usr/local/com.citilogics.dev/lib/libboost_chrono-mt.a"; sourceTree = "<absolute>"; };
+		22D8C1C01C1A048300298C0C /* libboost_date_time-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_date_time-mt.a"; path = "/usr/local/com.citilogics.dev/lib/libboost_date_time-mt.a"; sourceTree = "<absolute>"; };
+		22D8C1C11C1A048300298C0C /* libboost_date_time.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_date_time.a; path = /usr/local/com.citilogics.dev/lib/libboost_date_time.a; sourceTree = "<absolute>"; };
+		22D8C1C21C1A048300298C0C /* libboost_filesystem-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_filesystem-mt.a"; path = "/usr/local/com.citilogics.dev/lib/libboost_filesystem-mt.a"; sourceTree = "<absolute>"; };
+		22D8C1C31C1A048300298C0C /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = /usr/local/com.citilogics.dev/lib/libboost_filesystem.a; sourceTree = "<absolute>"; };
+		22D8C1C41C1A048300298C0C /* libboost_program_options.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_program_options.a; path = /usr/local/com.citilogics.dev/lib/libboost_program_options.a; sourceTree = "<absolute>"; };
+		22D8C1C51C1A048300298C0C /* libboost_python.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_python.a; path = /usr/local/com.citilogics.dev/lib/libboost_python.a; sourceTree = "<absolute>"; };
+		22D8C1C61C1A048300298C0C /* libboost_regex.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_regex.a; path = /usr/local/com.citilogics.dev/lib/libboost_regex.a; sourceTree = "<absolute>"; };
+		22D8C1C71C1A048300298C0C /* libboost_system-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_system-mt.a"; path = "/usr/local/com.citilogics.dev/lib/libboost_system-mt.a"; sourceTree = "<absolute>"; };
+		22D8C1C81C1A048300298C0C /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = /usr/local/com.citilogics.dev/lib/libboost_system.a; sourceTree = "<absolute>"; };
+		22D8C1C91C1A048300298C0C /* libboost_thread-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_thread-mt.a"; path = "/usr/local/com.citilogics.dev/lib/libboost_thread-mt.a"; sourceTree = "<absolute>"; };
+		22D8C1CA1C1A048300298C0C /* libboost_timer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_timer.a; path = /usr/local/com.citilogics.dev/lib/libboost_timer.a; sourceTree = "<absolute>"; };
+		22D8C1CB1C1A048300298C0C /* libiodbc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libiodbc.a; path = /usr/local/com.citilogics.dev/lib/libiodbc.a; sourceTree = "<absolute>"; };
+		22D8C1CC1C1A048300298C0C /* libmysqlclient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmysqlclient.a; path = /usr/local/com.citilogics.dev/lib/libmysqlclient.a; sourceTree = "<absolute>"; };
+		22D8C1CD1C1A048300298C0C /* libmysqlcppconn-static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libmysqlcppconn-static.a"; path = "/usr/local/com.citilogics.dev/lib/libmysqlcppconn-static.a"; sourceTree = "<absolute>"; };
+		22D8C2251C1A0DFE00298C0C /* libcurl.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.4.dylib; path = /usr/lib/libcurl.4.dylib; sourceTree = "<absolute>"; };
 		22D982F017F4A3CD00DD7EB4 /* rt_simulator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rt_simulator; sourceTree = BUILT_PRODUCTS_DIR; };
 		22D9830D17F4AFDE00DD7EB4 /* rt_simulator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rt_simulator.cpp; path = ../../examples/rtxNetSim/rt_simulator.cpp; sourceTree = "<group>"; };
 		22D9831917F62B4A00DD7EB4 /* testLemonTiger */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = testLemonTiger; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -868,9 +849,6 @@
 		43627EC9171F27E3007AE0F5 /* ThresholdTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThresholdTimeSeries.h; path = ../../src/ThresholdTimeSeries.h; sourceTree = "<group>"; };
 		43627ECF171F286C007AE0F5 /* ThresholdTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ThresholdTimeSeries.cpp; path = ../../src/ThresholdTimeSeries.cpp; sourceTree = "<group>"; };
 		43E5BBE51A8AF55A00CC93D6 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = /usr/lib/libsqlite3.dylib; sourceTree = "<absolute>"; };
-		43E5BBEF1A8AF5B200CC93D6 /* Python */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = Python; path = /System/Library/Frameworks/Python.framework/Versions/2.7/Python; sourceTree = "<absolute>"; };
-		43E5BC011A8B0BEB00CC93D6 /* libboost_timer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_timer.a; path = /usr/local/lib/libboost_timer.a; sourceTree = "<absolute>"; };
-		43E5BC0B1A8B0CEA00CC93D6 /* libboost_python.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_python.dylib; path = /usr/local/lib/libboost_python.dylib; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -878,8 +856,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22A2BD181BFF986C00A9564A /* libboost_program_options.a in Frameworks */,
-				22B284591BFD2F58007FD529 /* libboost_thread-mt.a in Frameworks */,
+				22D8C1CE1C1A048300298C0C /* libboost_chrono-mt.a in Frameworks */,
+				22D8C1CF1C1A048300298C0C /* libboost_date_time-mt.a in Frameworks */,
+				22D8C1D01C1A048300298C0C /* libboost_date_time.a in Frameworks */,
+				22D8C1D11C1A048300298C0C /* libboost_filesystem-mt.a in Frameworks */,
+				22D8C1D21C1A048300298C0C /* libboost_filesystem.a in Frameworks */,
+				22D8C1D31C1A048300298C0C /* libboost_program_options.a in Frameworks */,
+				22D8C1D41C1A048300298C0C /* libboost_python.a in Frameworks */,
+				22D8C1D51C1A048300298C0C /* libboost_regex.a in Frameworks */,
+				22D8C1D61C1A048300298C0C /* libboost_system-mt.a in Frameworks */,
+				22D8C1D71C1A048300298C0C /* libboost_system.a in Frameworks */,
+				22D8C1D81C1A048300298C0C /* libboost_thread-mt.a in Frameworks */,
+				22D8C1D91C1A048300298C0C /* libboost_timer.a in Frameworks */,
+				22D8C1DA1C1A048300298C0C /* libiodbc.a in Frameworks */,
+				22D8C1DB1C1A048300298C0C /* libmysqlclient.a in Frameworks */,
+				22D8C1DC1C1A048300298C0C /* libmysqlcppconn-static.a in Frameworks */,
 				22284F801BF115D1000256B8 /* libepanet-rtx-project.dylib in Frameworks */,
 				22284F811BF115D1000256B8 /* libepanet-rtx.dylib in Frameworks */,
 				22284F821BF115D1000256B8 /* libTimeSeriesDuplicator.dylib in Frameworks */,
@@ -890,14 +881,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AC42DB7D1B8254C1002E17B8 /* libsqlite3.a in Frameworks */,
-				43E5BBF31A8AF85400CC93D6 /* libpython.dylib in Frameworks */,
-				43E5BBF41A8AF87300CC93D6 /* libcurl.dylib in Frameworks */,
-				43E5BC151A8B117000CC93D6 /* libboost_python.a in Frameworks */,
-				43E5BC161A8B117500CC93D6 /* libboost_date_time.a in Frameworks */,
-				43E5BC171A8B117C00CC93D6 /* libboost_filesystem.a in Frameworks */,
-				43E5BC181A8B118400CC93D6 /* libboost_regex.a in Frameworks */,
-				43E5BC191A8B118900CC93D6 /* libboost_system.a in Frameworks */,
 				220F9E1318F9E68B00BB842C /* libepanetmsx-static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -906,17 +889,22 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22A2BD111BFE23F700A9564A /* libboost_thread-mt.a in Frameworks */,
-				220B46261B7E741300B81B90 /* libsqlite3.a in Frameworks */,
-				221BFD721A8E8AD000143FCC /* libpython.dylib in Frameworks */,
-				221BFD731A8E8AD000143FCC /* libcurl.dylib in Frameworks */,
-				221BFD751A8E8AD000143FCC /* libmysqlclient.a in Frameworks */,
-				221BFD761A8E8AD000143FCC /* libboost_python.a in Frameworks */,
-				221BFD771A8E8AD000143FCC /* libboost_date_time.a in Frameworks */,
-				221BFD781A8E8AD000143FCC /* libboost_filesystem.a in Frameworks */,
-				221BFD791A8E8AD000143FCC /* libboost_regex.a in Frameworks */,
-				221BFD7A1A8E8AD000143FCC /* libboost_system.a in Frameworks */,
-				221BFD7B1A8E8AD000143FCC /* libmysqlcppconn-static.a in Frameworks */,
+				22D8C2261C1A0DFE00298C0C /* libcurl.4.dylib in Frameworks */,
+				22D8C2151C1A0A8F00298C0C /* libboost_chrono-mt.a in Frameworks */,
+				22D8C2161C1A0A8F00298C0C /* libboost_date_time-mt.a in Frameworks */,
+				22D8C2171C1A0A8F00298C0C /* libboost_date_time.a in Frameworks */,
+				22D8C2181C1A0A8F00298C0C /* libboost_filesystem-mt.a in Frameworks */,
+				22D8C2191C1A0A8F00298C0C /* libboost_filesystem.a in Frameworks */,
+				22D8C21A1C1A0A8F00298C0C /* libboost_program_options.a in Frameworks */,
+				22D8C21B1C1A0A8F00298C0C /* libboost_python.a in Frameworks */,
+				22D8C21C1C1A0A8F00298C0C /* libboost_regex.a in Frameworks */,
+				22D8C21D1C1A0A8F00298C0C /* libboost_system-mt.a in Frameworks */,
+				22D8C21E1C1A0A8F00298C0C /* libboost_system.a in Frameworks */,
+				22D8C21F1C1A0A8F00298C0C /* libboost_thread-mt.a in Frameworks */,
+				22D8C2201C1A0A8F00298C0C /* libboost_timer.a in Frameworks */,
+				22D8C2211C1A0A8F00298C0C /* libiodbc.a in Frameworks */,
+				22D8C2221C1A0A8F00298C0C /* libmysqlclient.a in Frameworks */,
+				22D8C2231C1A0A8F00298C0C /* libmysqlcppconn-static.a in Frameworks */,
 				221BFD7C1A8E8AD000143FCC /* libepanetmsx-static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -934,11 +922,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22BBE1581BEE58D60066AEAE /* libboost_chrono-mt.a in Frameworks */,
-				22BBE1591BEE58D60066AEAE /* libboost_date_time-mt.a in Frameworks */,
-				22BBE15A1BEE58D60066AEAE /* libboost_filesystem-mt.a in Frameworks */,
-				22BBE15B1BEE58D60066AEAE /* libboost_system-mt.a in Frameworks */,
-				22BBE15C1BEE58D60066AEAE /* libboost_thread-mt.a in Frameworks */,
 				2288C1241BE3C71900F9B8FB /* libepanet-rtx.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -947,10 +930,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				224A92821A8BD51E00D8FBE2 /* libsqlite3.dylib in Frameworks */,
 				224A92801A8BD4F100D8FBE2 /* libepanet-rtx.dylib in Frameworks */,
-				224A927B1A8BAEAA00D8FBE2 /* libboost_system.a in Frameworks */,
-				224A927C1A8BAEAE00D8FBE2 /* libboost_filesystem.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -959,8 +939,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				221A4B061B8CC00C006967AE /* libepanet-rtx.dylib in Frameworks */,
-				229E113A1B063177007766F3 /* libboost_system.a in Frameworks */,
-				229E11391B063161007766F3 /* libboost_timer.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -976,16 +954,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				220B46251B7E740000B81B90 /* libsqlite3.a in Frameworks */,
-				223646911A8AB8D7007DC074 /* libpython.dylib in Frameworks */,
-				2236468F1A8AB8CF007DC074 /* libcurl.dylib in Frameworks */,
-				2230FC5A1920FEE700C66708 /* libmysqlclient.a in Frameworks */,
-				2275942D1A855BF3007C4137 /* libboost_python.a in Frameworks */,
-				227594281A855BF3007C4137 /* libboost_date_time.a in Frameworks */,
-				227594291A855BF3007C4137 /* libboost_filesystem.a in Frameworks */,
-				2275942A1A855BF3007C4137 /* libboost_regex.a in Frameworks */,
-				2275942B1A855BF3007C4137 /* libboost_system.a in Frameworks */,
-				22D308E018FEC3ED0004E1DC /* libmysqlcppconn-static.a in Frameworks */,
 				22BEDD1F187E0BE300855B68 /* libepanetmsx-static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1049,35 +1017,23 @@
 		220DFA9C15502E4100AF41D0 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				22A2BD171BFF986C00A9564A /* libboost_program_options.a */,
-				22A2BD101BFE23F700A9564A /* libboost_thread-mt.a */,
-				22BBE1531BEE58D60066AEAE /* libboost_chrono-mt.a */,
-				22BBE1541BEE58D60066AEAE /* libboost_date_time-mt.a */,
-				22BBE1551BEE58D60066AEAE /* libboost_filesystem-mt.a */,
-				22BBE1561BEE58D60066AEAE /* libboost_system-mt.a */,
-				22BBE1571BEE58D60066AEAE /* libboost_thread-mt.a */,
-				22BBE1511BEE54540066AEAE /* libboost_filesystem.a */,
-				2265C6051BEE508E00F37406 /* libboost_chrono.a */,
-				2265C6031BEE504600F37406 /* libboost_thread.a */,
-				2265C5FE1BEBF19E00F37406 /* libboost_date_time.a */,
-				2288C1261BE3C7BE00F9B8FB /* libboost_system.a */,
-				220B46241B7E740000B81B90 /* libsqlite3.a */,
-				224A92811A8BD51E00D8FBE2 /* libsqlite3.dylib */,
-				43E5BC0B1A8B0CEA00CC93D6 /* libboost_python.dylib */,
-				43E5BBEF1A8AF5B200CC93D6 /* Python */,
+				22D8C2251C1A0DFE00298C0C /* libcurl.4.dylib */,
+				22D8C1BF1C1A048300298C0C /* libboost_chrono-mt.a */,
+				22D8C1C01C1A048300298C0C /* libboost_date_time-mt.a */,
+				22D8C1C11C1A048300298C0C /* libboost_date_time.a */,
+				22D8C1C21C1A048300298C0C /* libboost_filesystem-mt.a */,
+				22D8C1C31C1A048300298C0C /* libboost_filesystem.a */,
+				22D8C1C41C1A048300298C0C /* libboost_program_options.a */,
+				22D8C1C51C1A048300298C0C /* libboost_python.a */,
+				22D8C1C61C1A048300298C0C /* libboost_regex.a */,
+				22D8C1C71C1A048300298C0C /* libboost_system-mt.a */,
+				22D8C1C81C1A048300298C0C /* libboost_system.a */,
+				22D8C1C91C1A048300298C0C /* libboost_thread-mt.a */,
+				22D8C1CA1C1A048300298C0C /* libboost_timer.a */,
+				22D8C1CB1C1A048300298C0C /* libiodbc.a */,
+				22D8C1CC1C1A048300298C0C /* libmysqlclient.a */,
+				22D8C1CD1C1A048300298C0C /* libmysqlcppconn-static.a */,
 				43E5BBE51A8AF55A00CC93D6 /* libsqlite3.dylib */,
-				223646901A8AB8D7007DC074 /* libpython.dylib */,
-				2236468E1A8AB8CF007DC074 /* libcurl.dylib */,
-				43E5BC011A8B0BEB00CC93D6 /* libboost_timer.a */,
-				2275942C1A855BF3007C4137 /* libboost_python.a */,
-				2230FC591920FEE700C66708 /* libmysqlclient.a */,
-				22249A9917C9185D00874859 /* libiodbc.a */,
-				22249A9B17C918D400874859 /* libmysqlcppconn-static.a */,
-				22211AD8173C2EAC00309C2F /* libconfig++.a */,
-				22211AD0173C2E9700309C2F /* libboost_date_time.a */,
-				22211AD1173C2E9700309C2F /* libboost_filesystem.a */,
-				22211AD2173C2E9700309C2F /* libboost_regex.a */,
-				22211AD3173C2E9700309C2F /* libboost_system.a */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -2482,10 +2438,11 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = /usr/local/com.citilogics.dev/include;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/Cellar/boost/1.59.0/lib,
-					/usr/local/com.citilogics.dev,
+					/usr/local/com.citilogics.dev/lib,
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2517,10 +2474,11 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = /usr/local/com.citilogics.dev/include;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/Cellar/boost/1.59.0/lib,
-					/usr/local/com.citilogics.dev,
+					/usr/local/com.citilogics.dev/lib,
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2617,21 +2575,17 @@
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = "EN_API_FLOAT_TYPE=double";
 				HEADER_SEARCH_PATHS = (
-					/usr/include/python2.7,
-					/usr/local/include,
+					/usr/local/com.citilogics.dev/include,
 					"${SRCROOT}/../../../EPANET/src",
 					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,
 					"${SRCROOT}/../../../epanet-msx/include",
-					/usr/local/include/iODBC,
 				);
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path";
 				LIBRARY_SEARCH_PATHS = (
-					/usr/local/com.citilogics.dev,
-					/usr/local/lib,
+					/usr/local/com.citilogics.dev/lib,
 					/usr/lib,
 					/Library/Frameworks,
-					"$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
 				OTHER_LDFLAGS = "-liodbc";
 				PRODUCT_NAME = "epanet-rtx";
@@ -2654,21 +2608,17 @@
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = "EN_API_FLOAT_TYPE=double";
 				HEADER_SEARCH_PATHS = (
-					/usr/include/python2.7,
-					/usr/local/include,
+					/usr/local/com.citilogics.dev/include,
 					"${SRCROOT}/../../../EPANET/src",
 					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,
 					"${SRCROOT}/../../../epanet-msx/include",
-					/usr/local/include/iODBC,
 				);
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path";
 				LIBRARY_SEARCH_PATHS = (
-					/usr/local/com.citilogics.dev,
-					/usr/local/lib,
+					/usr/local/com.citilogics.dev/lib,
 					/usr/lib,
 					/Library/Frameworks,
-					"$(LOCAL_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
 				OTHER_LDFLAGS = "-liodbc";
 				PRODUCT_NAME = "epanet-rtx";
@@ -2763,10 +2713,11 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = /usr/local/com.citilogics.dev/include;
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/com.citilogics.dev,
+					/usr/local/com.citilogics.dev/lib,
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2802,10 +2753,11 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = /usr/local/com.citilogics.dev/include;
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/com.citilogics.dev,
+					/usr/local/com.citilogics.dev/lib,
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";

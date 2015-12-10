@@ -89,7 +89,7 @@ int main (int argc, const char * argv[])
   SqliteProjectFile::_sp project(new SqliteProjectFile());
   
   bool checkForConfig = true;
-  while (checkForConfig) {
+  while (checkForConfig && _duplicator->_shouldRun) {
     if(project->loadProjectFile(projectPath)) {
       checkForConfig = false;
     }
@@ -97,6 +97,10 @@ int main (int argc, const char * argv[])
       std::cerr << "Could not load config. Waiting 15s" << std::endl << std::flush;
       boost::this_thread::sleep_for(boost::chrono::seconds(15));
     }
+  }
+  
+  if (!_duplicator->_shouldRun) {
+    return 0;
   }
   
   _duplicator->setSeries(project->timeSeries()); /// these are source series.
