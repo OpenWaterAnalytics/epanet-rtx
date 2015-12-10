@@ -7,8 +7,8 @@ SET (CMAKE_C_COMPILER /usr/bin/clang)
 SET (CMAKE_CXX_COMPILER /usr/bin/clang++)
 SET (EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 SET (LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
-SET (CMAKE_C_FLAGS "-std=c99 -v")
-SET (CMAKE_CXX_FLAGS "-Wall -std=c++11 -stdlib=libstdc++ -fblocks -v")
+SET (CMAKE_C_FLAGS "-std=c99")
+SET (CMAKE_CXX_FLAGS "-Wall -std=c++11 -stdlib=libstdc++ -fblocks")
 
 add_definitions(-DRTX_NO_MYSQL)
 
@@ -25,8 +25,8 @@ SET_TARGET_PROPERTIES(epanet PROPERTIES LINKER_LANGUAGE C)
 # the rtx library
 include_directories(../../src ../../project ../../../EPANET/include ../../../EPANET/src ../../../epanet-msx/include /usr/local/include /usr/local/include/iODBC /usr/include/python2.7 /usr/include)
 add_library(epanet-rtx STATIC  ${RTX_SOURCES})
-target_link_libraries(epanet-rtx epanet curl boost_system boost_filesystem boost_date_time boost_regex iodbc sqlite3 m)
 target_compile_definitions(epanet-rtx PRIVATE MAXFLOAT=3.40282347e+38F)
+target_link_libraries(epanet-rtx epanet curl boost_system boost_filesystem boost_date_time boost_regex iodbc sqlite3 m)
 
 # the project library
 include_directories(../../project)
