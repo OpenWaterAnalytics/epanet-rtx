@@ -145,23 +145,30 @@ int main (int argc, const char * argv[])
   bool catchup = vars.count("catchup") > 0;
   
   while (true) {
-    if (catchup) {
-      catchup = false;
-      int nDays = vars["catchup"].as<int>();
-      time_t limit = 0;
-      if (vars.count("ratelimit")) {
-        limit = (time_t)(vars["ratelimit"].as<int>());
+    try {
+      if (catchup) {
+        catchup = false;
+        int nDays = vars["catchup"].as<int>();
+        time_t limit = 0;
+        if (vars.count("ratelimit")) {
+          limit = (time_t)(vars["ratelimit"].as<int>());
+        }
+        logMsgCallback("=== RUNNING RETROSPECTIVE DUPLICATION SERVICE ===");
+        _duplicator->runRetrospective(time(NULL) - (60*60*24*nDays), (60*60*24), limit); // catch up and stop.
       }
-      logMsgCallback("=== RUNNING RETROSPECTIVE DUPLICATION SERVICE ===");
-      _duplicator->runRetrospective(time(NULL) - (60*60*24*nDays), (60*60*24), limit); // catch up and stop.
-    }
-    if (!_duplicator->_shouldRun) {
-      break;
-    }
-    logMsgCallback("=== RUNNING REALTIME DUPLICATION SERVICE ===");
-    _duplicator->run(fetchWindow, fetchFrequency);
-    if (!_duplicator->_shouldRun) {
-      break;
+      if (!_duplicator->_shouldRun) {
+        break;
+      }
+      logMsgCallback("=== RUNNING REALTIME DUPLICATION SERVICE ===");
+      _duplicator->run(fetchWindow, fetchFrequency);
+      if (!_duplicator->_shouldRun) {
+        break;
+      }
+    } catch (std::string& err) {
+      logMsgCallback("Duplication Exception:");
+      logMsgCallback(err.c_str());
+    } catch (...) {
+      logMsgCallback("Unknown Duplication Exception.");
     }
     logMsgCallback("Duplication process quit for some reason. Restarting in 30s");
     boost::this_thread::sleep_for(boost::chrono::seconds(30));
