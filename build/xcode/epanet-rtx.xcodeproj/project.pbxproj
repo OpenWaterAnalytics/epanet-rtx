@@ -826,6 +826,7 @@
 		22D8C1CC1C1A048300298C0C /* libmysqlclient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmysqlclient.a; path = /usr/local/com.citilogics.dev/lib/libmysqlclient.a; sourceTree = "<absolute>"; };
 		22D8C1CD1C1A048300298C0C /* libmysqlcppconn-static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libmysqlcppconn-static.a"; path = "/usr/local/com.citilogics.dev/lib/libmysqlcppconn-static.a"; sourceTree = "<absolute>"; };
 		22D8C2251C1A0DFE00298C0C /* libcurl.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.4.dylib; path = /usr/lib/libcurl.4.dylib; sourceTree = "<absolute>"; };
+		22D8C2A11C1A419C00298C0C /* rtxduplicator-init.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = "rtxduplicator-init.sh"; path = "../../examples/Duplicator/rtxduplicator-init.sh"; sourceTree = "<group>"; };
 		22D982F017F4A3CD00DD7EB4 /* rt_simulator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rt_simulator; sourceTree = BUILT_PRODUCTS_DIR; };
 		22D9830D17F4AFDE00DD7EB4 /* rt_simulator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rt_simulator.cpp; path = ../../examples/rtxNetSim/rt_simulator.cpp; sourceTree = "<group>"; };
 		22D9831917F62B4A00DD7EB4 /* testLemonTiger */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = testLemonTiger; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1189,6 +1190,7 @@
 			isa = PBXGroup;
 			children = (
 				220D42EC1BF0000200C9AB36 /* DuperDaemon.cpp */,
+				22D8C2A11C1A419C00298C0C /* rtxduplicator-init.sh */,
 				2288C10B1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.h */,
 				2288C10A1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.cpp */,
 			);
