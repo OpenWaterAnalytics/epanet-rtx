@@ -7,12 +7,11 @@ SET (CMAKE_C_COMPILER /usr/bin/clang)
 SET (CMAKE_CXX_COMPILER /usr/bin/clang++)
 SET (EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 SET (LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
-SET (CMAKE_C_FLAGS "-std=c99")
-SET (CMAKE_CXX_FLAGS "-Wall -std=c++11 -stdlib=libstdc++ -fblocks")
-
-add_definitions(-DRTX_NO_MYSQL)
 
 project (EPANET-RTX)
+SET (CMAKE_C_FLAGS "-std=c99")
+SET (CMAKE_CXX_FLAGS "-Wall -std=c++11 -stdlib=libstdc++ -fblocks")
+add_definitions(-DRTX_NO_MYSQL)
 
 file(GLOB EPANET_SOURCES ../../../EPANET/src/*.c)
 file(GLOB RTX_SOURCES ../../src/*.cpp)
