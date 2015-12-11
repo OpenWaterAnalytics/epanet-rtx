@@ -63,20 +63,20 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "--path /etc/opt/rtx/milford_duper.rtx"
+            argument = "--path /usr/local/DuperDaemon/rtxconfig.rtx"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--odbcinst /etc/opt/rtx/odbcinst.ini"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--catchup 150"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--ratelimit 0"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
       <AdditionalOptions>

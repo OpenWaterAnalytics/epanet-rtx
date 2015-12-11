@@ -74,13 +74,7 @@ int main (int argc, const char * argv[])
   // of the config db. Keys are "duplicatorFetchFrequency" and "duplicatorFetchWindow"
   
   // if the argument is not supplied, then use a default location
-  string projectPath;
-  if (vars.count("path")) {
-    projectPath = vars["path"].as<string>();
-  } else {
-    projectPath = "/opt/rtx/rtxduplicator.rtx";
-  }
-  
+  string projectPath = vars["path"].as<string>();
   
   
   _duplicator.reset(new TimeSeriesDuplicator);

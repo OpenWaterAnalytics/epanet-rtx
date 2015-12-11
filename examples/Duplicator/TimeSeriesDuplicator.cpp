@@ -14,6 +14,7 @@ using namespace RTX;
 
 TimeSeriesDuplicator::TimeSeriesDuplicator() {
   _isRunning = false;
+  _shouldRun = true;
   _pctCompleteFetch = 0;
 }
 
@@ -33,6 +34,7 @@ void TimeSeriesDuplicator::setSeries(std::list<TimeSeries::_sp> series) {
   this->stop();
   _sourceSeries = series;
   this->_refreshDestinations();
+  this->_shouldRun = true;
 }
 
 void TimeSeriesDuplicator::_refreshDestinations() {

@@ -651,7 +651,7 @@ JsonDocPtr InfluxDbPointRecord::jsonFromPath(const std::string &url) {
     cout << connectionInfo.sockStream.rdbuf() << endl;
     
     if (connectionInfo.statusCode != 204 && !connectionInfo.sockStream) {
-      std::cerr << "Influx Connection Error: " << connectionInfo.sockStream.error().message() << "\n";
+      std::cerr << "Influx Connection Error: " << connectionInfo.statusMessage << "\n";
     }
     connectionInfo.sockStream.close();
   }
