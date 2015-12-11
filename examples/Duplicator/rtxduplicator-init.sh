@@ -60,7 +60,7 @@ do_start()
 
   start-stop-daemon --start --quiet --chuid $GROUP:$USER    \
     --make-pidfile --pidfile $PIDFILE --background       \
-    --startas /bin/bash -- -c "exec $DAEMON $DAEMON_ARGS $RTX_OPTS >>$LOGFILE 2>>$LOGFILE"
+    --startas /bin/bash -- -c "exec $DAEMON $DAEMON_ARGS $RTX_OPTS >>$LOGFILE 2>>$LOGFILE" \
 		|| return 2
 	# Add code here, if necessary, that waits for the process to be ready
 	# to handle requests from services started subsequently which depend
