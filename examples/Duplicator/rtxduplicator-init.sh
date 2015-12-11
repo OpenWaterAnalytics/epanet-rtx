@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 ### BEGIN INIT INFO
 # Provides:          rtxduplicator
 # Required-Start:    $remote_fs $syslog
@@ -24,6 +24,7 @@ USER=rtx
 DEFAULT=/etc/default/rtxduplicator
 RTX_OPTS=
 CONFIG=/opt/rtx/rtxconfig.rtx
+LOGFILE=/var/log/rtx/rtxduplicator.log
 
 # Overwrite init script variables with /etc/default/influxdb values
 if [ -r $DEFAULT ]; then
@@ -56,8 +57,7 @@ do_start()
 	#   2 if daemon could not be started
   start-stop-daemon --background --chuid $GROUP:$USER --start --quiet --pidfile $PIDFILE --exec $DAEMON --test > /dev/null \
 		|| return 1
-	start-stop-daemon --background --chuid $GROUP:$USER --start --quiet --pidfile $PIDFILE --exec $DAEMON -- $RTX_OPTS \
-		$DAEMON_ARGS \
+	start-stop-daemon --background --chuid $GROUP:$USER --start --quiet --pidfile $PIDFILE --exec $DAEMON -- $RTX_OPTS $DAEMON_ARGS  >>$LOGFILE 2>>$LOGFILE \
 		|| return 2
 	# Add code here, if necessary, that waits for the process to be ready
 	# to handle requests from services started subsequently which depend
