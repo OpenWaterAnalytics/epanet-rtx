@@ -107,12 +107,12 @@ void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
   // outside the loop means it was cancelled by user.
   _isRunning = false;
 }
+
 void TimeSeriesDuplicator::stop() {
   _shouldRun = false;
 }
+
 void TimeSeriesDuplicator::runRetrospective(time_t start, time_t chunkSize, time_t rateLimit) {
-  
-  
   bool saveMetrics = true;
   TimeSeries::_sp metricsPointCount( new TimeSeries );
   metricsPointCount->setUnits(RTX_DIMENSIONLESS);
