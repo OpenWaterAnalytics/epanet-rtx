@@ -57,7 +57,10 @@ do_start()
 	#   2 if daemon could not be started
   start-stop-daemon --background --chuid $GROUP:$USER --start --quiet --pidfile $PIDFILE --exec $DAEMON --test > /dev/null \
 		|| return 1
-	start-stop-daemon --background --chuid $GROUP:$USER --start --quiet --pidfile $PIDFILE --exec $DAEMON -- $RTX_OPTS $DAEMON_ARGS  >>$LOGFILE 2>>$LOGFILE \
+
+  start-stop-daemon --start --quiet --chuid $GROUP:$USER    \
+    --make-pidfile --pidfile $PIDFILE --background       \
+    --startas /bin/bash -- -c "exec $DAEMON $DAEMON_ARGS $RTX_OPTS >>$LOGFILE 2>>&$LOGFILE" \
 		|| return 2
 	# Add code here, if necessary, that waits for the process to be ready
 	# to handle requests from services started subsequently which depend
