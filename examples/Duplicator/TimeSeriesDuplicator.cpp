@@ -217,7 +217,7 @@ TimeSeriesDuplicator::RTX_Duplicator_Logging_Callback_Block TimeSeriesDuplicator
 }
 
 void TimeSeriesDuplicator::_logLine(const std::string& line, int level) {
-  if (this->logLevel <= level) {
+  if (this->logLevel < level) {
     return;
   }
   if (_loggingFn == NULL) {
