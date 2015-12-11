@@ -220,7 +220,7 @@ void TimeSeriesDuplicator::_logLine(const std::string& line) {
   string myLine(line);
   if (_loggingFn != NULL) {
     size_t loc = myLine.find("\n");
-    if (loc == string::npos) {
+    if (loc+1 != myLine.length()) {
       myLine += "\n";
     }
     const char *msg = myLine.c_str();

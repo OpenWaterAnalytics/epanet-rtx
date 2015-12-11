@@ -13,6 +13,7 @@ namespace po = boost::program_options;
 
 TimeSeriesDuplicator::_sp _duplicator;
 void handleInterrupt(int sig);
+volatile bool _duplicator_should_run;
 
 void(^logMsgCallback)(const char*) = ^(const char* msg) {
   string myLine(msg);
@@ -30,11 +31,12 @@ void handleInterrupt(int sig) {
   }
   logMsgCallback("notifying duplication process to stop");
   _duplicator->stop();
+  _duplicator_should_run = false;
 }
 
 int main (int argc, const char * argv[])
 {
-  
+  _duplicator_should_run = true;
   signal(SIGINT, handleInterrupt);
   signal(SIGTERM, handleInterrupt);
   
@@ -83,7 +85,7 @@ int main (int argc, const char * argv[])
   SqliteProjectFile::_sp project(new SqliteProjectFile());
   
   bool checkForConfig = true;
-  while (checkForConfig && _duplicator->_shouldRun) {
+  while (checkForConfig && _duplicator_should_run) {
     if(project->loadProjectFile(projectPath)) {
       checkForConfig = false;
     }
