@@ -16,6 +16,7 @@ TimeSeriesDuplicator::TimeSeriesDuplicator() {
   _isRunning = false;
   _shouldRun = true;
   _pctCompleteFetch = 0;
+  logLevel = RTX_DUPLICATOR_LOGLEVEL_ERROR;
 }
 
 PointRecord::_sp TimeSeriesDuplicator::destinationRecord() {
@@ -59,7 +60,7 @@ void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
   
   stringstream s;
   s << "Starting fetch: freq-" << frequency << " win-" << fetchWindow;
-  this->_logLine(s.str());
+  this->_logLine(s.str(),RTX_DUPLICATOR_LOGLEVEL_INFO);
   
   
   
@@ -97,7 +98,7 @@ void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
     char *tstr = asctime(localtime(&nextFetch));
     tstr[24] = '\0';
     ss << "Fetch: (" << tstr << ") took " << fetchDuration << " seconds." << "\n" << "Waiting for " << waitLength << " seconds";
-    this->_logLine(ss.str());
+    this->_logLine(ss.str(),RTX_DUPLICATOR_LOGLEVEL_INFO);
     while (_shouldRun && nextFetch > time(NULL)) {
       boost::this_thread::sleep_for(boost::chrono::seconds(1));
     }
@@ -129,7 +130,7 @@ void TimeSeriesDuplicator::runRetrospective(time_t start, time_t chunkSize, time
   
   stringstream s;
   s << "Starting catchup from " << start << " in " << chunkSize << "second chunks";
-  this->_logLine(s.str());
+  this->_logLine(s.str(),RTX_DUPLICATOR_LOGLEVEL_INFO);
   
   bool inThePast = start < time(NULL);
   
@@ -152,10 +153,12 @@ void TimeSeriesDuplicator::runRetrospective(time_t start, time_t chunkSize, time
     tstr[24] = '\0';
     stringstream ss;
     ss << "RETROSPECTIVE Fetch: (" << tstr << ") took " << fetchDuration << " seconds.";
+    this->_logLine(ss.str(), RTX_DUPLICATOR_LOGLEVEL_INFO);
     if (rateLimit > 0 && inThePast) {
+      ss.clear();
       ss << "\nRate Limited - Waiting for " << rateLimit << " seconds";
+      this->_logLine(ss.str(), RTX_DUPLICATOR_LOGLEVEL_VERBOSE);
     }
-    this->_logLine(ss.str());
     
     if (saveMetrics) {
       metricsPointCount->insert(Point(time(NULL), (double)nPoints));
@@ -185,7 +188,7 @@ std::pair<time_t,int> TimeSeriesDuplicator::_fetchAll(time_t start, time_t end) 
       TimeSeries::PointCollection pc = ts->pointCollection(TimeRange(start, end));
       stringstream tsSS;
       tsSS << ts->name() << " : " << pc.count() << " points (max:" << pc.max() << " min:" << pc.min() << " avg:" << pc.mean() << ")";
-      this->_logLine(tsSS.str());
+      this->_logLine(tsSS.str(),RTX_DUPLICATOR_LOGLEVEL_VERBOSE);
       _pctCompleteFetch += 1./(double)nSeries;
       nPoints += pc.count();
     }
@@ -213,7 +216,10 @@ TimeSeriesDuplicator::RTX_Duplicator_Logging_Callback_Block TimeSeriesDuplicator
   return _loggingFn;
 }
 
-void TimeSeriesDuplicator::_logLine(const std::string& line) {
+void TimeSeriesDuplicator::_logLine(const std::string& line, int level) {
+  if (this->logLevel <= level) {
+    return;
+  }
   if (_loggingFn == NULL) {
     return;
   }

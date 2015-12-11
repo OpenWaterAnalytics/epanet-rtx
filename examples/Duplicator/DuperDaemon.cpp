@@ -44,7 +44,8 @@ int main (int argc, const char * argv[])
   desc.add_options()
   ("help", "produce help message")
   ("path", po::value<string>()->default_value("/opt/rtx/rtxduplicator.rtx"), "config database path. default /opt/rtx/rtxduplicator.rtx")
-  ("catchup", po::value<int>(), "start [n] days ago, and catchup in 1-day increments")
+  ("catchup-lookbehind", po::value<int>(), "start [n] days ago")
+  ("catchup-window", po::value<int>(), "catch up in [h]-hour increments (default 24)")
   ("ratelimit", po::value<int>(), "minimum number of seconds between duplication chunks (default 0, no limit)")
   ("odbcinst", po::value<string>(), "path to odbcinst.ini file declaring location of any relevant drivers referenced in your config")
   ("nometrics","do not store metrics in destination db.");
@@ -81,6 +82,7 @@ int main (int argc, const char * argv[])
   
   _duplicator.reset(new TimeSeriesDuplicator);
   _duplicator->setLoggingFunction(logMsgCallback);
+  _duplicator->logLevel = RTX_DUPLICATOR_LOGLEVEL_INFO;
   
   SqliteProjectFile::_sp project(new SqliteProjectFile());
   
@@ -138,19 +140,20 @@ int main (int argc, const char * argv[])
   ss << "Starting duplication service from " << sourceRecord->name() << " to " << _duplicator->destinationRecord()->name() << " for " << to_string(project->timeSeries().size()) << " time series" << endl;
   logMsgCallback(ss.str().c_str());
   
-  bool catchup = vars.count("catchup") > 0;
+  bool catchup = vars.count("catchup-lookbehind") > 0;
   
   while (true) {
     try {
       if (catchup) {
         catchup = false;
-        int nDays = vars["catchup"].as<int>();
+        int nDays = vars["catchup-lookbehind"].as<int>();
+        int hourChunkSize = vars["catchup-window"].as<int>();
         time_t limit = 0;
         if (vars.count("ratelimit")) {
           limit = (time_t)(vars["ratelimit"].as<int>());
         }
         logMsgCallback("=== RUNNING RETROSPECTIVE DUPLICATION SERVICE ===");
-        _duplicator->runRetrospective(time(NULL) - (60*60*24*nDays), (60*60*24), limit); // catch up and stop.
+        _duplicator->runRetrospective(time(NULL) - (60*60*24*nDays), (60*60*hourChunkSize), limit); // catch up and stop.
       }
       if (!_duplicator->_shouldRun) {
         break;

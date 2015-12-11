@@ -9,6 +9,12 @@
 #include <stdio.h>
 #include <list>
 
+#define RTX_DUPLICATOR_LOGLEVEL_ERROR   0
+#define RTX_DUPLICATOR_LOGLEVEL_WARN    1
+#define RTX_DUPLICATOR_LOGLEVEL_INFO    2
+#define RTX_DUPLICATOR_LOGLEVEL_VERBOSE 3
+
+
 namespace RTX {
   class TimeSeriesDuplicator {
     
@@ -35,6 +41,7 @@ namespace RTX {
     void setLoggingFunction(RTX_Duplicator_Logging_Callback_Block);
     RTX_Duplicator_Logging_Callback_Block loggingFunction();
     
+    int logLevel;
     volatile bool _shouldRun;
     
   private:
@@ -46,7 +53,7 @@ namespace RTX {
     double _pctCompleteFetch;
     bool _isRunning;
     void _refreshDestinations();
-    void _logLine(const std::string& str);
+    void _logLine(const std::string& str, int level);
   };
 }
 
