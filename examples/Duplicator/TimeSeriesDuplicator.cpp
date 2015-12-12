@@ -83,14 +83,26 @@ void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
     pair<time_t,int> fetchRes = this->_fetchAll(nextFetch - fetchWindow, nextFetch);
     time_t fetchDuration = fetchRes.first;
     int nPoints = fetchRes.second;
+    time_t now = time(NULL);
     if (saveMetrics) {
-      metricsPointCount->insert(Point(time(NULL), (double)nPoints));
-      metricsTimeElapased->insert(Point(time(NULL), (double)fetchDuration));
+      metricsPointCount->insert(Point(now, (double)nPoints));
+      metricsTimeElapased->insert(Point(now, (double)fetchDuration));
     }
     
     
     nextFetch += frequency;
-    time_t waitLength = nextFetch - time(NULL);
+    
+    // edge case: sometimes system clock hasn't been set (maybe no ntp response yet)
+    if (nextFetch < now) {
+      // check how far off we are?
+      // arbitrarily, let us be off by 5 windows...
+      if (nextFetch + (5 * frequency) < now) {
+        nextFetch = now; // just skip a bunch and get us current.
+        this->_logLine("Skipping an interval due to too much lag", RTX_DUPLICATOR_LOGLEVEL_WARN);
+      }
+    }
+    
+    time_t waitLength = nextFetch - now;
     if (waitLength < 0) {
       waitLength = 0;
     }
@@ -223,7 +235,24 @@ void TimeSeriesDuplicator::_logLine(const std::string& line, int level) {
   if (_loggingFn == NULL) {
     return;
   }
-  string myLine(line);
+  string myLine;
+  
+  switch (level) {
+    case RTX_DUPLICATOR_LOGLEVEL_WARN:
+      myLine += "WARN: ";
+      break;
+    case RTX_DUPLICATOR_LOGLEVEL_ERROR:
+      myLine += "ERROR: ";
+      break;
+    case RTX_DUPLICATOR_LOGLEVEL_INFO:
+    case RTX_DUPLICATOR_LOGLEVEL_VERBOSE:
+      myLine += "INFO: ";
+      break;
+    default:
+      break;
+  }
+  
+  myLine += line;
   if (_loggingFn != NULL) {
     size_t loc = myLine.find("\n");
     if (loc+1 != myLine.length()) {
