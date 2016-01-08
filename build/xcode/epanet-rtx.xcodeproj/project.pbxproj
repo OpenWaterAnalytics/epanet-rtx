@@ -2586,6 +2586,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "EN_API_FLOAT_TYPE=double";
 				HEADER_SEARCH_PATHS = (
 					/usr/local/com.citilogics.dev/include,
+					/usr/local/com.citilogics.dev/include/iODBC,
 					"${SRCROOT}/../../../EPANET/src",
 					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,
@@ -2619,6 +2620,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "EN_API_FLOAT_TYPE=double";
 				HEADER_SEARCH_PATHS = (
 					/usr/local/com.citilogics.dev/include,
+					/usr/local/com.citilogics.dev/include/iODBC,
 					"${SRCROOT}/../../../EPANET/src",
 					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,

@@ -67,6 +67,14 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--catchup-lookbehind 2"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = " --catchup-window 4"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--odbcinst /etc/opt/rtx/odbcinst.ini"
             isEnabled = "NO">
          </CommandLineArgument>

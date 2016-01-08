@@ -674,7 +674,7 @@ vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
   
   // multiple time series might be returned eventually, but for now it's just a single-value array.
   
-  if (doc == NULL) {
+  if (doc == NULL || !doc->IsObject()) {
     return points;
   }
 
