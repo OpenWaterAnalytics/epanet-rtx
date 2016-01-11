@@ -271,7 +271,7 @@ std::map<std::string, Units> Units::unitStringMap = []()
   m["j"] = RTX_JOULE;
   
   m["xx-no-units"] = RTX_NO_UNITS;
-  //m["%"] = RTX_DIMENSIONLESS;
+  m["%"] = RTX_PERCENT;
   
   m["psi-to-ft"] = RTX_FOOT * 2.30665873688 / RTX_PSI;
   
