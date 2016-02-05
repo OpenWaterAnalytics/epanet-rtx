@@ -62,7 +62,9 @@ Units Units::operator*(const double factor) const {
 
 
 Units Units::operator/(const Units& unit) const {
-  
+  if ( this->isInvalid() || unit.isInvalid()) {
+    return RTX_NO_UNITS;
+  }
   return Units(_conversion / unit._conversion,
                _mass - unit._mass,
                _length - unit._length,
