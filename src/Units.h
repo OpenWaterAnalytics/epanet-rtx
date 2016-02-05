@@ -116,16 +116,16 @@ namespace RTX {
     bool operator==(const Units& unit) const;
     bool operator!=(const Units& unit) const;
     
-    
-    bool isSameDimensionAs(const Units& unit) const;
-    bool isDimensionless();
+    const bool isInvalid() const;
+    const bool isSameDimensionAs(const Units& unit) const;
+    const bool isDimensionless() const;
     double conversion() const;
     static double convertValue(double value, const Units& fromUnits, const Units& toUnits);
     static Units unitOfType(const std::string& unitString);
     static std::map<std::string, Units> unitStringMap;
-    std::string unitString();
+    std::string unitString() const;
     
-    virtual std::ostream& toStream(std::ostream &stream);
+    virtual std::ostream& toStream(std::ostream &stream) const;
     
   private:
     int _length;

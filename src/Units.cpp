@@ -41,6 +41,10 @@ double Units::conversion() const {
 
 Units Units::operator*(const Units& unit) const {
   
+  if ( this->isInvalid() || unit.isInvalid()) {
+    return RTX_NO_UNITS;
+  }
+  
   return Units(_conversion * unit._conversion,
                _mass + unit._mass,
                _length + unit._length,
@@ -100,7 +104,11 @@ bool Units::operator!=(const RTX::Units &unit) const {
   return !(*this == unit);
 }
 
-bool Units::isSameDimensionAs(const Units& unit) const {
+const bool Units::isInvalid() const {
+  return this->isDimensionless() && this->conversion() == 0;
+}
+
+const bool Units::isSameDimensionAs(const Units& unit) const {
   
   if (_conversion == 0 || unit._conversion == 0) {
     // if no units assigned, can't be same dimension, right?
@@ -120,7 +128,7 @@ bool Units::isSameDimensionAs(const Units& unit) const {
   }
 }
 
-bool Units::isDimensionless() {
+const bool Units::isDimensionless() const {
   if (_mass         == 0  &&
       _length       == 0  &&
       _time         == 0  &&
@@ -140,7 +148,7 @@ ostream& RTX::operator<< (ostream &out, Units &unit) {
   return unit.toStream(out);
 }
 
-ostream& Units::toStream(ostream &stream) {
+ostream& Units::toStream(ostream &stream) const {
   if (isDimensionless() && conversion() == 1) {
     stream << "dimensionless";
     return stream;
@@ -165,7 +173,7 @@ ostream& Units::toStream(ostream &stream) {
 }
 
 
-string Units::unitString() {
+string Units::unitString() const {
   map<string, Units> unitMap = Units::unitStringMap;
   
   map<string, Units>::const_iterator it = unitMap.begin();

@@ -58,6 +58,10 @@ bool GainTimeSeries::canChangeToUnits(Units units) {
     return true;
   }
   
+  if ((this->units().isInvalid() || units.isInvalid()) && units.isInvalid()) {
+    return true;
+  }
+  
   return false;
 }
 
