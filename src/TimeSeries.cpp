@@ -93,6 +93,9 @@ size_t TimeSeries::PointCollection::count() {
 
 
 double TimeSeries::PointCollection::min() {
+  if (this->count() == 0) {
+    return NAN;
+  }
   
   accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
   
@@ -105,6 +108,10 @@ double TimeSeries::PointCollection::min() {
 }
 
 double TimeSeries::PointCollection::max() {
+  if (this->count() == 0) {
+    return NAN;
+  }
+  
   accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
   BOOST_FOREACH(const Point& p, points) {
     acc(p.value);
@@ -115,6 +122,9 @@ double TimeSeries::PointCollection::max() {
 }
 
 double TimeSeries::PointCollection::mean() {
+  if (this->count() == 0) {
+    return NAN;
+  }
   accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
   
   BOOST_FOREACH(const Point& p, points) {
@@ -126,6 +136,9 @@ double TimeSeries::PointCollection::mean() {
 }
 
 double TimeSeries::PointCollection::variance() {
+  if (this->count() == 0) {
+    return NAN;
+  }
   accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
   
   BOOST_FOREACH(const Point& p, points) {
