@@ -496,6 +496,33 @@ pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithMet
       }
     }
       break;
+    case ModelPerformanceMetricSetting:
+    {
+      Pipe::_sp p = boost::dynamic_pointer_cast<Pipe>(e);
+      if (p) {
+        measured = p->settingParameter();
+        modeled = p->settingParameter();
+      }
+    }
+      break;
+    case ModelPerformanceMetricStatus:
+    {
+      Pipe::_sp p = boost::dynamic_pointer_cast<Pipe>(e);
+      if (p) {
+        measured = p->statusParameter();
+        modeled = p->statusParameter();
+      }
+    }
+      break;
+    case ModelPerformanceMetricDemand:
+    {
+      Junction::_sp j = boost::dynamic_pointer_cast<Junction>(e);
+      if (j) {
+        measured = j->boundaryFlow();
+        modeled = j->demand();
+      }
+    }
+      break;
     default:
       break;
   }

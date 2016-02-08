@@ -50,7 +50,10 @@ namespace RTX {
       ModelPerformanceMetricLevel         = 3,
       ModelPerformanceMetricVolume        = 4,
       ModelPerformanceMetricConcentration = 5,
-      ModelPerformanceMetricEnergy        = 6
+      ModelPerformanceMetricEnergy        = 6,
+      ModelPerformanceMetricSetting       = 7,
+      ModelPerformanceMetricStatus        = 8,
+      ModelPerformanceMetricDemand        = 9
     } MetricType;
     
     
