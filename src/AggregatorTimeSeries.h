@@ -41,7 +41,8 @@ namespace RTX {
       AggregatorModeSum =  0,
       AggregatorModeMin =  1,
       AggregatorModeMax =  2,
-      AggregatorModeMean = 3
+      AggregatorModeMean = 3,
+      AggregatorModeUnion= 4
     };
     
     virtual std::ostream& toStream(std::ostream &stream);

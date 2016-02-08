@@ -223,6 +223,8 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
     aggregated.push_back(p);
   }
   
+  set<time_t> unionSet;
+  
   BOOST_FOREACH(AggregatorSource aggSource, this->sources()) {
     TimeSeries::_sp sourceTs = aggSource.timeseries;
     double multiplier = aggSource.multiplier;
@@ -233,7 +235,9 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
     componentRange.end = rightSeekTime > 0 ? rightSeekTime : range.end;
     
     PointCollection componentCollection = sourceTs->pointCollection(componentRange);
-    componentCollection.resample(desiredTimes);
+    if (_mode != AggregatorModeUnion) {
+      componentCollection.resample(desiredTimes);
+    }
     componentCollection.convertToUnits(this->units());
     
     // make it easy to find any times that were dropped (bad points from a source series)
@@ -271,13 +275,24 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
               p = pointToAggregate;
             }
           }
+            break;
+          case AggregatorModeUnion:
+          {
+            if (unionSet.count(pointToAggregate.time) == 0) {
+              p = pointToAggregate;
+              unionSet.insert(pointToAggregate.time);
+            }
+          }
+            break;
           default:
             break;
         }
         
       }
       else {
-        droppedTimes.insert(p.time); // if any member is missing, then remove the point from the output
+        if (_mode != AggregatorModeUnion) {
+          droppedTimes.insert(p.time); // if any member is missing, then remove the point from the output
+        }
       }
     }
   }
