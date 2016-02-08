@@ -265,9 +265,9 @@ std::map<std::string, Units> Units::unitStringMap = []()
   m["fps"] = RTX_FOOT_PER_SECOND;
   m["ft/hr"] = RTX_FOOT_PER_HOUR;
   // acceleration
-  m["m/s/s"] = RTX_METER_PER_SECOND_SECOND;
-  m["ft/s/s"] = RTX_FOOT_PER_SECOND_SECOND;
-  m["ft/hr/hr"] = RTX_FOOT_PER_HOUR_HOUR;
+  m["m/s²"] = RTX_METER_PER_SECOND_SECOND;
+  m["ft/s²"] = RTX_FOOT_PER_SECOND_SECOND;
+  m["ft/hr²"] = RTX_FOOT_PER_HOUR_HOUR;
 
 //  m["mgd/s"] = RTX_MILLION_GALLON_PER_DAY_PER_SECOND;
   
