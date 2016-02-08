@@ -188,14 +188,14 @@ const string Units::unitString() const {
 const string Units::rawUnitString(bool ignoreZeroDimensions) const {
   stringstream stream;
   stream << _conversion;
-  if (_mass != 0        || !ignoreZeroDimensions) { stream << "*kg^"      << _mass; }
-  if (_length != 0      || !ignoreZeroDimensions) { stream << "*m^"       << _length; }
-  if (_time != 0        || !ignoreZeroDimensions) { stream << "*s^"       << _time; }
-  if (_current != 0     || !ignoreZeroDimensions) { stream << "*A^"       << _current; }
-  if (_temperature != 0 || !ignoreZeroDimensions) { stream << "*K^"       << _temperature; }
-  if (_amount != 0      || !ignoreZeroDimensions) { stream << "*mol^"     << _amount; }
-  if (_intensity != 0   || !ignoreZeroDimensions) { stream << "*cd^"      << _intensity; }
-  if (_offset != 0      || !ignoreZeroDimensions) { stream << "+offset="  << _offset; }
+  if (_mass != 0        || !ignoreZeroDimensions) { stream << "*[kg^"      << _mass         << "]"; }
+  if (_length != 0      || !ignoreZeroDimensions) { stream << "*[m^"       << _length       << "]"; }
+  if (_time != 0        || !ignoreZeroDimensions) { stream << "*[s^"       << _time         << "]"; }
+  if (_current != 0     || !ignoreZeroDimensions) { stream << "*[A^"       << _current      << "]"; }
+  if (_temperature != 0 || !ignoreZeroDimensions) { stream << "*[K^"       << _temperature  << "]"; }
+  if (_amount != 0      || !ignoreZeroDimensions) { stream << "*[mol^"     << _amount       << "]"; }
+  if (_intensity != 0   || !ignoreZeroDimensions) { stream << "*[cd^"      << _intensity    << "]"; }
+  if (_offset != 0      || !ignoreZeroDimensions) { stream << "+[offset="  << _offset       << "]"; }
   return stream.str();
 }
 
@@ -299,7 +299,6 @@ Units Units::unitOfType(const string& unitString) {
   double conversionFactor = 1;
   int mass=0, length=0, time=0, current=0, temperature=0, amount=0, intensity=0, offset=0;
   
-  
 //  const map<string, Units> unitMap = Units::unitStringMap;
   string uStr = boost::algorithm::to_lower_copy(unitString);
   map<string, Units>::const_iterator found = Units::unitStringMap.find(uStr);
@@ -309,7 +308,7 @@ Units Units::unitOfType(const string& unitString) {
   else {
     // attempt to deserialize the streamed format of the unit conversion and dimension.
     deque<string> components;
-    boost::split(components, unitString, boost::is_any_of("*+")); // split on separators
+    boost::split(components, unitString, boost::is_any_of("*+[]"), boost::algorithm::token_compress_on); // split on separators
     
     if (components.size() < 1) {
       cerr << "WARNING: Units not recognized: " << uStr << " - defaulting to NO UNITS." << endl;
@@ -332,27 +331,29 @@ Units Units::unitOfType(const string& unitString) {
       
       vector<string> dimensionPower;
       boost::split(dimensionPower, part, boost::is_any_of("^="));
-      
+      if (dimensionPower.size() != 2) {
+        continue;
+      }
       int power = boost::lexical_cast<int>(dimensionPower.back());
       dimensionPower.pop_back();
       string dim = dimensionPower.back();
       
       // match the SI dimension name
-      if (RTX_STRINGS_ARE_EQUAL_CS(dim, "kilograms")      || RTX_STRINGS_ARE_EQUAL_CS(dim, "kg")) {
+      if (RTX_STRINGS_ARE_EQUAL(dim, "kilograms")      || RTX_STRINGS_ARE_EQUAL_CS(dim, "kg")) {
         mass = power;
-      } else if (RTX_STRINGS_ARE_EQUAL_CS(dim, "meters")  || RTX_STRINGS_ARE_EQUAL_CS(dim, "m")) {
+      } else if (RTX_STRINGS_ARE_EQUAL(dim, "meters")  || RTX_STRINGS_ARE_EQUAL_CS(dim, "m")) {
         length = power;
-      } else if (RTX_STRINGS_ARE_EQUAL_CS(dim, "seconds") || RTX_STRINGS_ARE_EQUAL_CS(dim, "s")) {
+      } else if (RTX_STRINGS_ARE_EQUAL(dim, "seconds") || RTX_STRINGS_ARE_EQUAL_CS(dim, "s")) {
         time = power;
-      } else if (RTX_STRINGS_ARE_EQUAL_CS(dim, "ampere")  || RTX_STRINGS_ARE_EQUAL_CS(dim, "A")) {
+      } else if (RTX_STRINGS_ARE_EQUAL(dim, "ampere")  || RTX_STRINGS_ARE_EQUAL_CS(dim, "A")) {
         current = power;
-      } else if (RTX_STRINGS_ARE_EQUAL_CS(dim, "kelvin")  || RTX_STRINGS_ARE_EQUAL_CS(dim, "K")) {
+      } else if (RTX_STRINGS_ARE_EQUAL(dim, "kelvin")  || RTX_STRINGS_ARE_EQUAL_CS(dim, "K")) {
         temperature = power;
-      } else if (RTX_STRINGS_ARE_EQUAL_CS(dim, "mole")    || RTX_STRINGS_ARE_EQUAL_CS(dim, "mol")) {
+      } else if (RTX_STRINGS_ARE_EQUAL(dim, "mole")    || RTX_STRINGS_ARE_EQUAL_CS(dim, "mol")) {
         amount = power;
-      } else if (RTX_STRINGS_ARE_EQUAL_CS(dim, "candela") || RTX_STRINGS_ARE_EQUAL_CS(dim, "cd")) {
+      } else if (RTX_STRINGS_ARE_EQUAL(dim, "candela") || RTX_STRINGS_ARE_EQUAL_CS(dim, "cd")) {
         intensity = power;
-      } else if (RTX_STRINGS_ARE_EQUAL_CS(dim, "offset")) {
+      } else if (RTX_STRINGS_ARE_EQUAL(dim, "offset")) {
         offset = power;
       }
     }
