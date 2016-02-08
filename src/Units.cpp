@@ -228,11 +228,11 @@ std::map<std::string, Units> Units::unitStringMap = []()
   m["m"]   = RTX_METER;
   m["cm"]  = RTX_CENTIMETER;
   // volume
-  m["m3"]  = RTX_CUBIC_METER;
+  m["m³"]  = RTX_CUBIC_METER;
   m["gal"] = RTX_GALLON;
   m["mgal"]= RTX_MILLION_GALLON;
   m["liter"]=RTX_LITER;
-  m["ft3"] = RTX_CUBIC_FOOT;
+  m["ft³"] = RTX_CUBIC_FOOT;
   // flow
   m["cms"]= RTX_CUBIC_METER_PER_SECOND;
   m["cfs"] = RTX_CUBIC_FOOT_PER_SECOND;
@@ -243,8 +243,8 @@ std::map<std::string, Units> Units::unitStringMap = []()
   m["lps"] = RTX_LITER_PER_SECOND;
   m["lpm"] = RTX_LITER_PER_MINUTE;
   m["mld"] = RTX_MILLION_LITER_PER_DAY;
-  m["m3/hr"]=RTX_CUBIC_METER_PER_HOUR;
-  m["m3/d"]= RTX_CUBIC_METER_PER_DAY;
+  m["m³/hr"]=RTX_CUBIC_METER_PER_HOUR;
+  m["m³/d"]= RTX_CUBIC_METER_PER_DAY;
   m["acre-ft/d"]=RTX_ACRE_FOOT_PER_DAY;
   m["imgd"]= RTX_IMPERIAL_MILLION_GALLON_PER_DAY;
   // time
@@ -284,7 +284,7 @@ std::map<std::string, Units> Units::unitStringMap = []()
   m["xx-no-units"] = RTX_NO_UNITS;
   m["%"] = RTX_PERCENT;
   
-  m["psi-to-ft"] = RTX_FOOT * 2.30665873688 / RTX_PSI;
+  m["ft-per-psi"] = RTX_FOOT * 2.30665873688 / RTX_PSI;
   
   return m;
 }();
