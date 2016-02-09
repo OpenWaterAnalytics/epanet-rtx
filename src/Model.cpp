@@ -228,8 +228,6 @@ void Model::setVolumeUnits(RTX::Units units) {
 }
 
 #pragma mark - Storage
-#pragma mark - Storage
-
 
 void Model::setRecordForDmaDemands(PointRecord::_sp record) {
   
@@ -276,6 +274,8 @@ set<PointRecord::_sp> Model::recordsForModeledStates() {
   BOOST_FOREACH(Pipe::_sp p, this->pipes()) {
     vector<PointRecord::_sp> recVec;
     recVec.push_back(p->flow()->record());
+    recVec.push_back(p->setting()->record());
+    recVec.push_back(p->status()->record());
     BOOST_FOREACH(PointRecord::_sp r, recVec) {
       if (_rtxmodel_isDbRecord(r)) {
         stateRecordsUsed.insert(r);
@@ -1061,8 +1061,8 @@ void Model::setSimulationParameters(time_t time) {
   BOOST_FOREACH(Valve::_sp valve, this->valves()) {
     // status can affect settings and vice-versa; status rules
     Pipe::status_t status = valve->fixedStatus();
-    if (valve->statusParameter()) {
-      Point p = valve->statusParameter()->pointAtOrBefore(time);
+    if (valve->statusBoundary()) {
+      Point p = valve->statusBoundary()->pointAtOrBefore(time);
       if (p.isValid) {
         status = Pipe::status_t((int)(p.value > 0));
         setPipeStatus( valve->name(), status );
@@ -1073,9 +1073,9 @@ void Model::setSimulationParameters(time_t time) {
         this->logLine(ss.str());
       }
     }
-    if (valve->settingParameter()) {
+    if (valve->settingBoundary()) {
       if (status) {
-        Point p = valve->settingParameter()->pointAtOrBefore(time);
+        Point p = valve->settingBoundary()->pointAtOrBefore(time);
         if (p.isValid) {
           // TODO -- set units based on type of valve (pressure or flow model units)
           setValveSetting( valve->name(), p.value );
@@ -1098,8 +1098,8 @@ void Model::setSimulationParameters(time_t time) {
   BOOST_FOREACH(Pump::_sp pump, this->pumps()) {
     // status can affect settings and vice-versa; status rules
     Pipe::status_t status = pump->fixedStatus();
-    if (pump->statusParameter()) {
-      Point p = pump->statusParameter()->pointAtOrBefore(time);
+    if (pump->statusBoundary()) {
+      Point p = pump->statusBoundary()->pointAtOrBefore(time);
       if (p.isValid) {
         status = Pipe::status_t((int)(p.value));
         setPumpStatus( pump->name(), status );
@@ -1110,9 +1110,9 @@ void Model::setSimulationParameters(time_t time) {
         this->logLine(ss.str());
       }
     }
-    if (pump->settingParameter()) {
+    if (pump->settingBoundary()) {
       if (status == Pipe::OPEN) {
-        Point p = pump->settingParameter()->pointAtOrBefore(time);
+        Point p = pump->settingBoundary()->pointAtOrBefore(time);
         if (p.isValid) {
           setPumpSetting( pump->name(), p.value );
         }
@@ -1132,8 +1132,8 @@ void Model::setSimulationParameters(time_t time) {
   
   // for pipes, set status
   BOOST_FOREACH(Pipe::_sp pipe, this->pipes()) {
-    if (pipe->statusParameter()) {
-      Point p = pipe->statusParameter()->pointAtOrBefore(time);
+    if (pipe->statusBoundary()) {
+      Point p = pipe->statusBoundary()->pointAtOrBefore(time);
       if (p.isValid) {
         setPipeStatus(pipe->name(), Pipe::status_t((int)(p.value)));
       }
@@ -1240,6 +1240,12 @@ void Model::fetchSimulationStates() {
     double flow;
     flow = Units::convertValue(pipeFlow(pipe->name()), flowUnits(), pipe->flow()->units());
     pipe->state_flow = flow;
+    
+    double setting = pipeSetting(pipe->name());
+    pipe->state_setting = setting;
+    
+    double status = pipeStatus(pipe->name());
+    pipe->state_status = status;
   }
   
   BOOST_FOREACH(Valve::_sp valve, valves()) {
@@ -1322,8 +1328,14 @@ void Model::saveNetworkStates(time_t time, std::set<PointRecord::_sp> bulkRecord
   
   // pipe elements
   BOOST_FOREACH(Pipe::_sp pipe, pipes()) {
-    Point aPoint(time, pipe->state_flow);
-    pipe->flow()->insert(aPoint);
+    Point fp(time, pipe->state_flow);
+    pipe->flow()->insert(fp);
+    
+    Point sep(time, pipe->state_setting);
+    pipe->setting()->insert(sep);
+    
+    Point stp(time, pipe->state_status);
+    pipe->status()->insert(stp);
   }
   
   BOOST_FOREACH(Valve::_sp valve, valves()) {
@@ -1508,11 +1520,11 @@ vector<TimeSeries::_sp> Model::networkInputSeries(elementOption_t options) {
         if (pipe->flowMeasure() && (options & ElementOptionMeasuredFlows)) {
           measures.push_back(pipe->flowMeasure());
         }
-        if (pipe->settingParameter() && (options & ElementOptionMeasuredSettings)) {
-          measures.push_back(pipe->settingParameter());
+        if (pipe->settingBoundary() && (options & ElementOptionMeasuredSettings)) {
+          measures.push_back(pipe->settingBoundary());
         }
-        if (pipe->statusParameter() && (options & ElementOptionMeasuredStatuses)) {
-          measures.push_back(pipe->statusParameter());
+        if (pipe->statusBoundary() && (options & ElementOptionMeasuredStatuses)) {
+          measures.push_back(pipe->statusBoundary());
         }
         break;
       }

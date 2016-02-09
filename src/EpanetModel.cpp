@@ -589,6 +589,12 @@ double EpanetModel::tankFlow(const string& tank) {
 double EpanetModel::pipeFlow(const string &pipe) {
   return getLinkValue(EN_FLOW, pipe);
 }
+double EpanetModel::pipeStatus(const string &pipe) {
+  return getLinkValue(EN_STATUS, pipe);
+}
+double EpanetModel::pipeSetting(const string &pipe) {
+  return getLinkValue(EN_SETTING, pipe);
+}
 
 double EpanetModel::pumpEnergy(const string &pump) {
   return getLinkValue(EN_ENERGY, pump);

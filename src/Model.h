@@ -221,6 +221,8 @@ namespace RTX {
     virtual double junctionInitialQuality(const string& junctionName) { return 0; };
     // link elements
     virtual double pipeFlow(const string& pipe) { return 0; };
+    virtual double pipeSetting(const string& pipe) {return 0;};
+    virtual double pipeStatus(const string& pipe) {return 0;};
     virtual double pumpEnergy(const string& pump) { return 0; };
     
     virtual void setReservoirHead(const string& reservoir, double level) { };

@@ -98,10 +98,10 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
           }
           summary.push_back(s);
         }
-        if (pipe->settingParameter()) {
+        if (pipe->settingBoundary()) {
           ElementSummary s;
           s.element = element;
-          s.data = pipe->settingParameter()->rootTimeSeries();
+          s.data = pipe->settingBoundary()->rootTimeSeries();
           s.boundaryType = BoundaryTypeSetting;
           s.measureType = MeasureTypeNone;
           BOOST_FOREACH(Dma::_sp dma, Dmas) {
@@ -112,10 +112,10 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
           }
           summary.push_back(s);
         }
-        if (pipe->statusParameter()) {
+        if (pipe->statusBoundary()) {
           ElementSummary s;
           s.element = element;
-          s.data = pipe->statusParameter()->rootTimeSeries();
+          s.data = pipe->statusBoundary()->rootTimeSeries();
           s.boundaryType = BoundaryTypeStatus;
           s.measureType = MeasureTypeNone;
           BOOST_FOREACH(Dma::_sp dma, Dmas) {

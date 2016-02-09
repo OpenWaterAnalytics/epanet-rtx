@@ -1177,7 +1177,7 @@ void ConfigProject::configurePipeStatus(Setting &setting, Element::_sp pipe) {
   Pipe::_sp thisPipe = boost::dynamic_pointer_cast<Pipe>(pipe);
   if (thisPipe) {
     TimeSeries::_sp status = _timeSeriesList[setting["timeseries"]];
-    thisPipe->setStatusParameter(status);
+    thisPipe->setStatusBoundary(status);
   }
 }
 
@@ -1185,7 +1185,7 @@ void ConfigProject::configurePipeSetting(Setting &setting, Element::_sp pipe) {
   Pipe::_sp thisPipe = boost::dynamic_pointer_cast<Pipe>(pipe);
   if (thisPipe) {
     TimeSeries::_sp pipeSetting = _timeSeriesList[setting["timeseries"]];
-    thisPipe->setSettingParameter(pipeSetting);
+    thisPipe->setSettingBoundary(pipeSetting);
   }
 }
 

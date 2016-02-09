@@ -500,8 +500,8 @@ pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithMet
     {
       Pipe::_sp p = boost::dynamic_pointer_cast<Pipe>(e);
       if (p) {
-        measured = p->settingParameter();
-        modeled = p->settingParameter();
+        measured = p->settingBoundary();
+        modeled = p->settingBoundary();
       }
     }
       break;
@@ -509,8 +509,8 @@ pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithMet
     {
       Pipe::_sp p = boost::dynamic_pointer_cast<Pipe>(e);
       if (p) {
-        measured = p->statusParameter();
-        modeled = p->statusParameter();
+        measured = p->statusBoundary();
+        modeled = p->statusBoundary();
       }
     }
       break;

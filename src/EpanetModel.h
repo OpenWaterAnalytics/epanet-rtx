@@ -55,6 +55,8 @@ namespace RTX {
     double junctionQuality(const std::string& junction);
     // link elements
     double pipeFlow(const std::string& pipe);
+    double pipeSetting(const string& pipe);
+    double pipeStatus(const string& pipe);
     double pumpEnergy(const std::string& pump);
     
     // hydraulic

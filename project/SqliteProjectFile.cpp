@@ -1310,10 +1310,10 @@ void SqliteProjectFile::setJunctionParameter(Junction::_sp j, string paramName, 
 void SqliteProjectFile::setPipeParameter(Pipe::_sp p, string paramName, TimeSeries::_sp ts) {
   
   if (RTX_STRINGS_ARE_EQUAL(paramName, "statusBoundary")) {
-    p->setStatusParameter(ts);
+    p->setStatusBoundary(ts);
   }
   else if (RTX_STRINGS_ARE_EQUAL(paramName, "settingBoundary")) {
-    p->setSettingParameter(ts);
+    p->setSettingBoundary(ts);
   }
   else if (RTX_STRINGS_ARE_EQUAL(paramName, "flowMeasure")) {
     p->setFlowMeasure(ts);

@@ -17,11 +17,34 @@ Pipe::Pipe(const std::string& name, Node::_sp startNode, Node::_sp endNode) : Li
   _flowState.reset( new TimeSeries() );
   _flowState->setUnits(RTX_LITER_PER_SECOND);
   _flowState->setName("L " + name + " flow");
+  
+  _setting.reset( new TimeSeries() );
+  _setting->setUnits(RTX_DIMENSIONLESS);
+  _setting->setName("L " + name + " setting");
+  
+  _status.reset( new TimeSeries() );
+  _status->setUnits(RTX_DIMENSIONLESS);
+  _status->setName("L " + name + " status");
+  
   _fixedStatus = Pipe::OPEN;
+  
+  state_flow    = 0.;
+  state_setting = 0.;
+  state_status  = 0.;
 }
+
 Pipe::~Pipe() {
   
 }
+
+void Pipe::setRecord(PointRecord::_sp record) {
+  _flowState->setRecord(record);
+  _setting->setRecord(record);
+  _status->setRecord(record);
+}
+
+
+#pragma mark Physical Properties
 
 Pipe::status_t Pipe::fixedStatus() {
   return _fixedStatus;
@@ -29,10 +52,6 @@ Pipe::status_t Pipe::fixedStatus() {
 
 void Pipe::setFixedStatus(status_t status) {
   _fixedStatus = status;
-}
-
-void Pipe::setRecord(PointRecord::_sp record) {
-  _flowState->setRecord(record);
 }
 
 double Pipe::diameter() {
@@ -58,17 +77,38 @@ void Pipe::setRoughness(double roughness) {
   _roughness = roughness;
 }
 
+#pragma mark States
+
 TimeSeries::_sp Pipe::flow() {
   return _flowState;
 }
-
-
-TimeSeries::_sp Pipe::statusParameter() {
+TimeSeries::_sp Pipe::status() {
   return _status;
 }
-void Pipe::setStatusParameter(TimeSeries::_sp status) {
-  _status = status;
+TimeSeries::_sp Pipe::setting() {
+  return _setting;
 }
+
+
+#pragma mark Boundaries
+
+TimeSeries::_sp Pipe::statusBoundary() {
+  return _statusBoundary;
+}
+void Pipe::setStatusBoundary(TimeSeries::_sp status) {
+  _statusBoundary = status;
+}
+
+TimeSeries::_sp Pipe::settingBoundary() {
+  return _settingBoundary;
+}
+
+void Pipe::setSettingBoundary(TimeSeries::_sp setting) {
+  _settingBoundary = setting;
+}
+
+
+#pragma mark Measures
 
 TimeSeries::_sp Pipe::flowMeasure() {
   return _flowMeasure;
@@ -81,14 +121,5 @@ void Pipe::setFlowMeasure(TimeSeries::_sp flow) {
     return;
   }
   _flowMeasure = flow;
-  
 }
 
-
-TimeSeries::_sp Pipe::settingParameter() {
-  return _setting;
-}
-
-void Pipe::setSettingParameter(TimeSeries::_sp setting) {
-  _setting = setting;
-}
