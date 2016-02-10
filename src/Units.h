@@ -69,15 +69,16 @@
 
 // temperature
 #define RTX_DEGREE_KELVIN           RTX::Units(1,            0,0,0,0,1,0,0)
-#define RTX_DEGREE_RANKINE          RTX::Units(0.55555555555,0,0,0,0,1,0,0) //  K = R * 5/9
+#define RTX_DEGREE_RANKINE          RTX::Units(5./9.,        0,0,0,0,1,0,0) //  K = R * 5/9
 #define RTX_DEGREE_CELSIUS          RTX::Units(1,            0,0,0,0,1,0,0,273.15)
-#define RTX_DEGREE_FARENHEIT        RTX::Units(0.55555555555,0,0,0,0,1,0,0,459.67)
+#define RTX_DEGREE_FARENHEIT        RTX::Units(5./9.,        0,0,0,0,1,0,0,459.67)
 
 // power and energy
 #define RTX_KILOWATT_HOUR          RTX::Units(3600000,       1,2,-2)
 #define RTX_JOULE                  RTX::Units(1,             1,2,-2)
 #define RTX_MEGAJOULE              RTX::Units(1000000,       1,2,-2)
 #define RTX_WATT                   RTX::Units(1,             1,2,-3)
+#define RTX_KILOWATT               RTX::Units(1000,          1,2,-3)
 
 namespace RTX {
   /*!
@@ -119,7 +120,8 @@ namespace RTX {
     const bool isInvalid() const;
     const bool isSameDimensionAs(const Units& unit) const;
     const bool isDimensionless() const;
-    double conversion() const;
+    const double conversion() const;
+    const double offset() const;
     static double convertValue(double value, const Units& fromUnits, const Units& toUnits);
     static Units unitOfType(const std::string& unitString);
     static std::map<std::string, Units> unitStringMap;

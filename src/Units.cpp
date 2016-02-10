@@ -34,8 +34,11 @@ Units::Units(double conversion, int mass, int length, int time, int current, int
   _offset       = offset;
 }
 
-double Units::conversion() const {
+const double Units::conversion() const {
   return _conversion;
+}
+const double Units::offset() const {
+  return _offset;
 }
 
 
@@ -96,7 +99,8 @@ bool Units::operator==(const RTX::Units &unit) const {
       _current      == unit._current      &&
       _temperature  == unit._temperature  &&
       _amount       == unit._amount       &&
-      _intensity    == unit._intensity ) {
+      _intensity    == unit._intensity    &&
+      _offset       == unit._offset       ){
     return true;
   }
   return false;
@@ -176,7 +180,9 @@ const string Units::unitString() const {
     if (theseUnits == (*this)) {
       return it->first;
     } // OR APPROXIMATE UNITS
-    else if (theseUnits.isSameDimensionAs(*this) && fabs(theseUnits.conversion() - this->conversion()) < 0.00005 ) {
+    else if (theseUnits.isSameDimensionAs(*this) &&
+             fabs(theseUnits.conversion() - this->conversion())/this->conversion() < 0.00005 &&
+             this->offset() == theseUnits.offset() ) {
       return it->first;
     }
     ++it;
@@ -286,6 +292,9 @@ std::map<std::string, Units> Units::unitStringMap = []()
   
   m["ft-per-psi"] = RTX_FOOT * 2.30665873688 / RTX_PSI;
   
+  m["W"] = RTX_WATT;
+  m["kW"] = RTX_KILOWATT;
+  
   return m;
 }();
 
@@ -300,8 +309,7 @@ Units Units::unitOfType(const string& unitString) {
   int mass=0, length=0, time=0, current=0, temperature=0, amount=0, intensity=0, offset=0;
   
 //  const map<string, Units> unitMap = Units::unitStringMap;
-  string uStr = boost::algorithm::to_lower_copy(unitString);
-  map<string, Units>::const_iterator found = Units::unitStringMap.find(uStr);
+  map<string, Units>::const_iterator found = Units::unitStringMap.find(unitString);
   if (found != Units::unitStringMap.end()) {
     return found->second;
   }
@@ -311,7 +319,7 @@ Units Units::unitOfType(const string& unitString) {
     boost::split(components, unitString, boost::is_any_of("*+[]"), boost::algorithm::token_compress_on); // split on separators
     
     if (components.size() < 1) {
-      cerr << "WARNING: Units not recognized: " << uStr << " - defaulting to NO UNITS." << endl;
+      cerr << "WARNING: Units not recognized: " << unitString << " - defaulting to NO UNITS." << endl;
       return RTX_NO_UNITS;
     }
     
@@ -320,7 +328,7 @@ Units Units::unitOfType(const string& unitString) {
     try {
       conversionFactor = boost::lexical_cast<double>(components.front());
     } catch (...) {
-      cerr << "WARNING: Units not recognized: " << uStr << "- defaulting to NO UNITS." << endl;
+      cerr << "WARNING: Units not recognized: " << unitString << " - defaulting to NO UNITS." << endl;
       return RTX_NO_UNITS;
     }
     
