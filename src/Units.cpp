@@ -263,7 +263,7 @@ std::map<std::string, Units> Units::unitStringMap = []()
   m["g"]   = RTX_GRAM;
   m["kg"]  = RTX_KILOGRAM;
   // concentration
-  m["mg/l"]= RTX_MILLIGRAMS_PER_LITER;
+  m["mg/L"]= RTX_MILLIGRAMS_PER_LITER;
   // conductance
   m["us/cm"]=RTX_MICROSIEMENS_PER_CM;
   // velocity
@@ -314,6 +314,25 @@ Units Units::unitOfType(const string& unitString) {
     return found->second;
   }
   else {
+    
+    // superscript?
+    string uStr = unitString;
+    size_t loc3 = unitString.find("3");
+    if (loc3 != string::npos) {
+      uStr.replace(loc3,1,"³");
+    }
+    size_t loc2 = unitString.find("2");
+    if (loc2 != string::npos) {
+      uStr.replace(loc2,1,"²");
+    }
+    
+    // try again
+    found = Units::unitStringMap.find(uStr);
+    if (found != Units::unitStringMap.end()) {
+      return found->second;
+    }
+    
+    
     // attempt to deserialize the streamed format of the unit conversion and dimension.
     deque<string> components;
     boost::split(components, unitString, boost::is_any_of("*+[]"), boost::algorithm::token_compress_on); // split on separators
