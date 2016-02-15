@@ -403,6 +403,12 @@
 		22ED77D615878953002D67F1 /* Tank.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22ED77D515878953002D67F1 /* Tank.cpp */; };
 		22ED77D81587898D002D67F1 /* Reservoir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22ED77D71587898D002D67F1 /* Reservoir.cpp */; };
 		22EFA1BD1471CEC4001102E0 /* rtxMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 22EFA1BC1471CEC4001102E0 /* rtxMacros.h */; };
+		22F175F61C7235BB0042916C /* TimeSeriesFilterSecondary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22F175F41C7235BB0042916C /* TimeSeriesFilterSecondary.cpp */; };
+		22F175F71C7235BB0042916C /* TimeSeriesFilterSecondary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22F175F41C7235BB0042916C /* TimeSeriesFilterSecondary.cpp */; };
+		22F175F81C7235BB0042916C /* TimeSeriesFilterSecondary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22F175F41C7235BB0042916C /* TimeSeriesFilterSecondary.cpp */; };
+		22F175F91C7235BB0042916C /* TimeSeriesFilterSecondary.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F175F51C7235BB0042916C /* TimeSeriesFilterSecondary.h */; };
+		22F175FA1C7235BB0042916C /* TimeSeriesFilterSecondary.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F175F51C7235BB0042916C /* TimeSeriesFilterSecondary.h */; };
+		22F175FB1C7235BB0042916C /* TimeSeriesFilterSecondary.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F175F51C7235BB0042916C /* TimeSeriesFilterSecondary.h */; };
 		22F63D3716C5735100A15368 /* SineTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22F63D3516C5735100A15368 /* SineTimeSeries.cpp */; };
 		22F63D3816C5735100A15368 /* SineTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F63D3616C5735100A15368 /* SineTimeSeries.h */; };
 		43627ECA171F27E3007AE0F5 /* ThresholdTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 43627EC9171F27E3007AE0F5 /* ThresholdTimeSeries.h */; };
@@ -848,6 +854,8 @@
 		22ED77D515878953002D67F1 /* Tank.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Tank.cpp; path = ../../src/Tank.cpp; sourceTree = "<group>"; };
 		22ED77D71587898D002D67F1 /* Reservoir.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Reservoir.cpp; path = ../../src/Reservoir.cpp; sourceTree = "<group>"; };
 		22EFA1BC1471CEC4001102E0 /* rtxMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rtxMacros.h; path = ../../src/rtxMacros.h; sourceTree = "<group>"; };
+		22F175F41C7235BB0042916C /* TimeSeriesFilterSecondary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesFilterSecondary.cpp; path = ../../src/TimeSeriesFilterSecondary.cpp; sourceTree = "<group>"; };
+		22F175F51C7235BB0042916C /* TimeSeriesFilterSecondary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeSeriesFilterSecondary.h; path = ../../src/TimeSeriesFilterSecondary.h; sourceTree = "<group>"; };
 		22F63D3516C5735100A15368 /* SineTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SineTimeSeries.cpp; path = ../../src/SineTimeSeries.cpp; sourceTree = "<group>"; };
 		22F63D3616C5735100A15368 /* SineTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SineTimeSeries.h; path = ../../src/SineTimeSeries.h; sourceTree = "<group>"; };
 		43627EC9171F27E3007AE0F5 /* ThresholdTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThresholdTimeSeries.h; path = ../../src/ThresholdTimeSeries.h; sourceTree = "<group>"; };
@@ -1076,10 +1084,8 @@
 				22A842D3173BF445009CE769 /* GainTimeSeries.cpp */,
 				220AE463145AFB3C002F07B4 /* CurveFunction.h */,
 				22253D8D16022FB6002F7256 /* CurveFunction.cpp */,
-				226AC14C17340D06009B7C90 /* MultiplierTimeSeries.h */,
-				226AC14B17340D06009B7C90 /* MultiplierTimeSeries.cpp */,
-				22B928581A76EF1B006DBC57 /* MathOpsTimeSeries.cpp */,
 				22B928591A76EF1B006DBC57 /* MathOpsTimeSeries.h */,
+				22B928581A76EF1B006DBC57 /* MathOpsTimeSeries.cpp */,
 			);
 			name = "Single Point Filter";
 			sourceTree = "<group>";
@@ -1317,6 +1323,8 @@
 				22C62AD91439EE0B00841E60 /* TimeSeries.cpp */,
 				22CF1C281A68094300161188 /* TimeSeriesFilter.h */,
 				22CF1C271A68094300161188 /* TimeSeriesFilter.cpp */,
+				22F175F51C7235BB0042916C /* TimeSeriesFilterSecondary.h */,
+				22F175F41C7235BB0042916C /* TimeSeriesFilterSecondary.cpp */,
 				22C62AD31439EE0B00841E60 /* MovingAverage.h */,
 				22C62AD21439EE0B00841E60 /* MovingAverage.cpp */,
 				222FDDD315C1BBE90065DAF6 /* FirstDerivative.h */,
@@ -1339,6 +1347,8 @@
 				22DC12D41ADD844D0033DD5E /* MetaTimeSeries.cpp */,
 				220324CA18AC05A800BD7790 /* FailoverTimeSeries.h */,
 				220324C918AC05A800BD7790 /* FailoverTimeSeries.cpp */,
+				226AC14C17340D06009B7C90 /* MultiplierTimeSeries.h */,
+				226AC14B17340D06009B7C90 /* MultiplierTimeSeries.cpp */,
 				22C62ACC1439EE0B00841E60 /* AggregatorTimeSeries.h */,
 				22C62ACB1439EE0B00841E60 /* AggregatorTimeSeries.cpp */,
 				221BFC6E1A8E584500143FCC /* IntegratorTimeSeries.h */,
@@ -1506,6 +1516,7 @@
 				220F9E3818F9E68B00BB842C /* OffsetTimeSeries.h in Headers */,
 				220F9E3A18F9E68B00BB842C /* SineTimeSeries.h in Headers */,
 				220F9E3B18F9E68B00BB842C /* BufferPointRecord.h in Headers */,
+				22F175FB1C7235BB0042916C /* TimeSeriesFilterSecondary.h in Headers */,
 				22459FAA1A44C41800AFD0BD /* CorrelatorTimeSeries.h in Headers */,
 				220F9E3E18F9E68B00BB842C /* ThresholdTimeSeries.h in Headers */,
 				220F9E3F18F9E68B00BB842C /* ConstantTimeSeries.h in Headers */,
@@ -1573,6 +1584,7 @@
 				221BFDB21A8E8AD000143FCC /* GainTimeSeries.h in Headers */,
 				221BFDB31A8E8AD000143FCC /* IntegratorTimeSeries.h in Headers */,
 				221BFDB51A8E8AD000143FCC /* FailoverTimeSeries.h in Headers */,
+				22F175F91C7235BB0042916C /* TimeSeriesFilterSecondary.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1613,6 +1625,7 @@
 				228CA8D91AA0CBFF00D0353E /* InpTextPattern.h in Headers */,
 				22DDAD941443750600C1F188 /* Model.h in Headers */,
 				220AE464145AFB3C002F07B4 /* CurveFunction.h in Headers */,
+				22F175FA1C7235BB0042916C /* TimeSeriesFilterSecondary.h in Headers */,
 				220AE466145B0A8F002F07B4 /* Dma.h in Headers */,
 				22C34353187D9426000100A4 /* EpanetMsxModel.h in Headers */,
 				22EFA1BD1471CEC4001102E0 /* rtxMacros.h in Headers */,
@@ -2059,6 +2072,7 @@
 				220F9DE918F9E68B00BB842C /* Dma.cpp in Sources */,
 				220F9DEA18F9E68B00BB842C /* InversionTimeSeries.cpp in Sources */,
 				220F9DEB18F9E68B00BB842C /* Units.cpp in Sources */,
+				22F175F81C7235BB0042916C /* TimeSeriesFilterSecondary.cpp in Sources */,
 				220F9DEC18F9E68B00BB842C /* EpanetModel.cpp in Sources */,
 				22DC12D71ADD844D0033DD5E /* MetaTimeSeries.cpp in Sources */,
 				220F9DEF18F9E68B00BB842C /* Clock.cpp in Sources */,
@@ -2150,6 +2164,7 @@
 				221BFD651A8E8AD000143FCC /* LagTimeSeries.cpp in Sources */,
 				221BFD681A8E8AD000143FCC /* ThresholdTimeSeries.cpp in Sources */,
 				221BFD691A8E8AD000143FCC /* TimeSeriesFilter.cpp in Sources */,
+				22F175F61C7235BB0042916C /* TimeSeriesFilterSecondary.cpp in Sources */,
 				221BFD6A1A8E8AD000143FCC /* SqlitePointRecord.cpp in Sources */,
 				221BFD6B1A8E8AD000143FCC /* ConstantTimeSeries.cpp in Sources */,
 				221BFD6C1A8E8AD000143FCC /* ValidRangeTimeSeries.cpp in Sources */,
@@ -2218,6 +2233,7 @@
 				224D40D719786C3000160BD5 /* BaseStatsTimeSeries.cpp in Sources */,
 				22459FA71A44C41800AFD0BD /* CorrelatorTimeSeries.cpp in Sources */,
 				22DC12D61ADD844D0033DD5E /* MetaTimeSeries.cpp in Sources */,
+				22F175F71C7235BB0042916C /* TimeSeriesFilterSecondary.cpp in Sources */,
 				220AE46F145B283C002F07B4 /* Element.cpp in Sources */,
 				220AE471145B29F7002F07B4 /* Node.cpp in Sources */,
 				220AE473145B2A0D002F07B4 /* Link.cpp in Sources */,

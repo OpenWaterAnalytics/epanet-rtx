@@ -61,7 +61,9 @@ namespace RTX {
     Point& operator+=(const double value);
     Point operator*(const double factor) const;
     Point& operator*=(const double factor);
+    Point operator*(const Point p) const;
     Point operator/(const double factor) const;
+    Point operator/(const Point p) const;
 //    virtual std::ostream& toStream(std::ostream& stream);
 
     // simple tuple class, so no getters/setters
@@ -74,8 +76,9 @@ namespace RTX {
     // convenience
     const bool hasQual(PointQuality qual) const;
     void addQualFlag(PointQuality qual);
-    bool notFound() { return this->time == 0; };
-    Point inverse();
+    bool notFound() const { return this->time == 0; };
+    Point inverse() const;
+    Point converted(const Units& fromUnits, const Units& toUnits) const;
     
     // static class methods
     static Point convertPoint(const Point& point, const Units& fromUnits, const Units& toUnits);

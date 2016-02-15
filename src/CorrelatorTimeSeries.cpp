@@ -32,28 +32,23 @@ CorrelatorTimeSeries::CorrelatorTimeSeries() {
   this->setUnits(RTX_DIMENSIONLESS);
 }
 
-
-
-TimeSeries::_sp CorrelatorTimeSeries::correlatorTimeSeries() {
-  return _secondary;
+bool CorrelatorTimeSeries::canSetSecondary(TimeSeries::_sp secondary) {
+  if (this->source() && secondary && !this->source()->units().isSameDimensionAs(secondary->units())) {
+    return false; // can't do it.
+  }
+  else {
+    return true;
+  }
 }
 
-void CorrelatorTimeSeries::setCorrelatorTimeSeries(TimeSeries::_sp ts) {
-  
-  if (this->source() && ts && !this->source()->units().isSameDimensionAs(ts->units())) {
-    return; // can't do it.
-  }
-  
-  _secondary = ts;
-  
-  if (this->source() && ts) {
+void CorrelatorTimeSeries::didSetSecondary(TimeSeries::_sp secondary) {
+  if (this->source() && secondary) {
     this->setUnits(RTX_DIMENSIONLESS);
   }
   else {
     this->setUnits(RTX_NO_UNITS);
   }
-  
-  this->invalidate();
+  TimeSeriesFilterSecondary::didSetSecondary(secondary);
 }
 
 Clock::_sp CorrelatorTimeSeries::correlationWindow() {
@@ -82,7 +77,7 @@ void CorrelatorTimeSeries::setLagSeconds(int nSeconds) {
 TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange range) {
   
   PointCollection data(vector<Point>(), this->units());
-  if (!this->correlatorTimeSeries() || !this->source()) {
+  if (!this->secondary() || !this->source()) {
     return data;
   }
   
@@ -93,12 +88,12 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange 
   time_t correlatorPrior = correlatorFetchRange.start - this->lagSeconds();
   time_t correlatorNext = correlatorFetchRange.end + this->lagSeconds();
   // widen for resampling capabilities
-  correlatorFetchRange.start = this->correlatorTimeSeries()->timeBefore(correlatorPrior + 1);
-  correlatorFetchRange.end = this->correlatorTimeSeries()->timeAfter(correlatorNext - 1);
+  correlatorFetchRange.start = this->secondary()->timeBefore(correlatorPrior + 1);
+  correlatorFetchRange.end = this->secondary()->timeAfter(correlatorNext - 1);
   correlatorFetchRange.correctWithRange(TimeRange(correlatorPrior,correlatorNext)); // get rid of zero-range
   
   PointCollection m_primaryCollection = this->source()->pointCollection(preFetchRange);
-  PointCollection m_secondaryCollection = this->correlatorTimeSeries()->pointCollection(correlatorFetchRange);
+  PointCollection m_secondaryCollection = this->secondary()->pointCollection(correlatorFetchRange);
   m_secondaryCollection.convertToUnits(m_primaryCollection.units);
   
   TimeSeries::_sp sourceTs = this->source();
@@ -188,7 +183,7 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange 
 }
 
 bool CorrelatorTimeSeries::canSetSource(TimeSeries::_sp ts) {
-  if (this->correlatorTimeSeries() && !ts->units().isSameDimensionAs(this->correlatorTimeSeries()->units())) {
+  if (this->secondary() && !ts->units().isSameDimensionAs(this->secondary()->units())) {
     return false;
   }
   return true;
@@ -196,7 +191,7 @@ bool CorrelatorTimeSeries::canSetSource(TimeSeries::_sp ts) {
 
 void CorrelatorTimeSeries::didSetSource(TimeSeries::_sp ts) {
   this->invalidate();
-  if (this->source() && this->correlatorTimeSeries()) {
+  if (this->source() && this->secondary()) {
     this->setUnits(RTX_DIMENSIONLESS);
   }
   else {

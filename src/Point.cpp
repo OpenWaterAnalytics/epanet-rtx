@@ -107,17 +107,38 @@ Point& Point::operator*=(const double factor) {
   return *this;
 }
 
+Point Point::operator*(const Point p) const {
+  if (this->time != p.time) {
+    return Point();
+  }
+    
+  double value = (this->value * p.value);
+  double confidence = (this->confidence * p.confidence);  // TODO -- figure out confidence intervals.
+  time_t time = this->time;
+  PointQuality q = (PointQuality)(this->quality | p.quality);
+  
+  return Point(time, value, q, confidence);
+}
 
 Point Point::operator/(const double factor) const {
-  double value;
-  double confidence;
-  time_t time;
-  
-  value = (this->value / factor);
-  confidence = (this->confidence / factor);  // TODO -- figure out confidence intervals.
-  time = this->time;
+  double value = (this->value / factor);
+  double confidence = (this->confidence / factor);  // TODO -- figure out confidence intervals.
+  time_t time = this->time;
   
   return Point(time, value, opc_rtx_override, confidence);
+}
+
+Point Point::operator/(const Point p) const {
+  if (this->time != p.time) {
+    return Point();
+  }
+  
+  double value = (this->value / p.value);
+  double confidence = (this->confidence / p.confidence);  // TODO -- figure out confidence intervals.
+  time_t time = this->time;
+  PointQuality q = (PointQuality)(this->quality | p.quality);
+  
+  return Point(time, value, q, confidence);
 }
 
 
@@ -147,7 +168,7 @@ Point Point::linearInterpolate(const Point& p1, const Point& p2, const time_t& t
 }
 
 
-Point Point::inverse() {
+Point Point::inverse() const {
   double value;
   double confidence;
   time_t time;
@@ -175,26 +196,16 @@ Point Point::inverse() {
 }
 
 
-
-/*
-std::ostream& RTX::operator<< (std::ostream &out, Point &point) {
-  return point.toStream(out);
+Point Point::converted(const Units& fromUnits, const Units& toUnits) const {
+  double value = Units::convertValue(this->value, fromUnits, toUnits);
+  double confidence = Units::convertValue(this->confidence, fromUnits, toUnits);
+  return Point(this->time, value, this->quality, confidence);
 }
-*/
-//
-//std::ostream& Point::toStream(std::ostream &stream) {
-//  stream << "(" << time << "," << value << "," << quality << "," << confidence << ")";
-//  return stream;
-//}
-
-
 
 #pragma mark - Class Methods
 
 Point Point::convertPoint(const Point& point, const Units& fromUnits, const Units& toUnits) {
-  double value = Units::convertValue(point.value, fromUnits, toUnits);
-  double confidence = Units::convertValue(point.confidence, fromUnits, toUnits);
-  return Point(point.time, value, point.quality, confidence);
+  return point.converted(fromUnits, toUnits);
 }
 
 

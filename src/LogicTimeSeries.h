@@ -9,7 +9,8 @@
 #ifndef __epanet_rtx__LogicTimeSeries__
 #define __epanet_rtx__LogicTimeSeries__
 
-#include "TimeSeriesFilter.h"
+#include "TimeSeriesFilterSecondary.h"
+
 #include <iostream>
 
 namespace RTX {
@@ -18,7 +19,7 @@ namespace RTX {
   //! The logic filter implements common logical operations.
   
   
-  class LogicTimeSeries : public TimeSeriesFilter
+  class LogicTimeSeries : public TimeSeriesFilterSecondary
   {
   public:
     
@@ -33,12 +34,8 @@ namespace RTX {
     RTX_SHARED_POINTER(LogicTimeSeries);
     LogicTimeSeries();
     
-    TimeSeries::_sp secondaryTimeSeries();
-    void setSecondaryTimeSeries(TimeSeries::_sp ts);
-    
-    
-    
   protected:
+    bool canSetSecondary(TimeSeries::_sp secondary);
     PointCollection filterPointsInRange(TimeRange range);
     bool canSetSource(TimeSeries::_sp ts);
     void didSetSource(TimeSeries::_sp ts);

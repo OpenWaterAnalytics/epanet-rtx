@@ -1,23 +1,16 @@
 #include "MultiplierTimeSeries.h"
 
+#include <stdlib.h>
+#include <boost/foreach.hpp>
+#include <boost/range/adaptors.hpp>
+
 using namespace RTX;
 using namespace std;
 
 
 
 MultiplierTimeSeries::MultiplierTimeSeries() {
-  _multiplierBasis = TimeSeries::_sp(new TimeSeries());
   _mode = MultiplierModeMultiply;
-}
-
-void MultiplierTimeSeries::setMultiplier(TimeSeries::_sp ts) {
-  _multiplierBasis = ts;
-  this->invalidate();
-  // post-fix units
-  this->didSetSource(this->source()); // trigger re-evaluation of units.
-}
-TimeSeries::_sp MultiplierTimeSeries::multiplier() {
-  return _multiplierBasis;
 }
 
 MultiplierTimeSeries::MultiplierMode MultiplierTimeSeries::multiplierMode() {
@@ -29,51 +22,91 @@ void MultiplierTimeSeries::setMultiplierMode(MultiplierTimeSeries::MultiplierMod
   this->didSetSource(this->source());
 }
 
+void MultiplierTimeSeries::didSetSecondary(TimeSeries::_sp secondary) {
+  this->didSetSource(this->source());
+}
 
-Point MultiplierTimeSeries::filteredWithSourcePoint(Point sourcePoint) {
-  if (!this->multiplier()) {
-    return Point();
+std::set<time_t> MultiplierTimeSeries::timeValuesInRange(RTX::TimeRange range) {
+  std::set<time_t> timeSet;
+  if (this->clock()) {
+    return this->clock()->timeValuesInRange(range);
   }
-  set<time_t> t;
-  t.insert(sourcePoint.time);
+  if (this->secondary() && this->source()) {
+    timeSet = this->source()->timeValuesInRange(range);
+    set<time_t> secSet = this->secondary()->timeValuesInRange(range);
+    timeSet.insert(secSet.begin(), secSet.end());
+  }
+  return timeSet;
+}
+
+TimeSeries::PointCollection MultiplierTimeSeries::filterPointsInRange(RTX::TimeRange range) {
   
-  // get resampled point at this sourcepoint time value
-  TimeRange effectiveRange;
-  effectiveRange.start = this->multiplier()->timeBefore(sourcePoint.time + 1);
-  effectiveRange.end = this->multiplier()->timeAfter(sourcePoint.time - 1);
-  
-  // if there are no points before or after the requested range, just get the points that are there.
-  effectiveRange.correctWithRange(TimeRange(sourcePoint.time, sourcePoint.time));
-  
-  PointCollection nativePoints = this->multiplier()->pointCollection(effectiveRange);
-  nativePoints.resample(t);
-  vector<Point> multiplierPoint = nativePoints.points;
-  
-  if (multiplierPoint.size() < 1) {
-    return Point();
+  PointCollection data(vector<Point>(), this->units());
+  if (!this->secondary() || !this->source()) {
+    return data;
   }
   
-  Point x = multiplierPoint.front();
+  TimeRange queryRange = range;
+  if (this->willResample()) {
+    // expand range
+    queryRange.start = this->source()->timeBefore(range.start + 1);
+    queryRange.end = this->source()->timeAfter(range.end - 1);
+  }
+  queryRange.correctWithRange(range);
   
-  if (!x.isValid) {
-    return Point();
+  PointCollection primary = this->source()->pointCollection(queryRange);
+  
+  queryRange.start = this->secondary()->timeBefore(queryRange.start);
+  queryRange.end = this->secondary()->timeAfter(queryRange.end);
+  queryRange.correctWithRange(range);
+  
+  PointCollection secondary = this->secondary()->pointCollection(queryRange);
+  
+  set<time_t> pTimes = primary.times();
+  set<time_t> sTimes = secondary.times();
+  
+  set<time_t> combinedTimes;
+  combinedTimes.insert(pTimes.begin(), pTimes.end());
+  combinedTimes.insert(sTimes.begin(), sTimes.end());
+
+  primary.resample(combinedTimes);
+  secondary.resample(combinedTimes);
+  
+  typedef pair<Point,Point> PointPoint;
+  map<time_t, PointPoint> multiplyPoints;
+  
+  BOOST_FOREACH(const time_t t, combinedTimes) {
+    multiplyPoints[t] = make_pair(Point(), Point());
+  }
+  BOOST_FOREACH(const Point& p, primary.points) {
+    multiplyPoints[p.time].first = p;
+  }
+  BOOST_FOREACH(const Point& p, secondary.points) {
+    multiplyPoints[p.time].second = p;
   }
   
-  Point derivedPoint;
-  
-  switch (_mode) {
-    case MultiplierModeMultiply:
-      derivedPoint = sourcePoint * x.value;
-      break;
-    case MultiplierModeDivide:
-      derivedPoint = sourcePoint / x.value;
-      break;
-    default:
-      break;
+  BOOST_FOREACH(const PointPoint& pp, multiplyPoints | boost::adaptors::map_values ) {
+    if (pp.first.isValid && pp.second.isValid) {
+      Point mp;
+      switch (_mode) {
+        case MultiplierModeMultiply:
+          mp = (pp.first * pp.second).converted(primary.units * secondary.units, this->units());
+          break;
+        case MultiplierModeDivide:
+          mp = (pp.first / pp.second).converted(primary.units / secondary.units, this->units());
+          break;
+        default:
+          break;
+      }
+      data.points.push_back(mp);
+    }
   }
   
-  Point outPoint = Point::convertPoint(derivedPoint, this->nativeUnits(), this->units());
-  return outPoint;
+  if (this->willResample()) {
+    data.resample(this->timeValuesInRange(range));
+  }
+  
+  return data;
 }
 
 bool MultiplierTimeSeries::canSetSource(TimeSeries::_sp ts) {
@@ -84,16 +117,16 @@ bool MultiplierTimeSeries::canSetSource(TimeSeries::_sp ts) {
 Units MultiplierTimeSeries::nativeUnits() {
   Units nativeDerivedUnits = RTX_NO_UNITS;
   
-  if (!this->source() || !this->multiplier()) {
+  if (!this->source() || !this->secondary()) {
     return RTX_NO_UNITS;
   }
   
   switch (_mode) {
     case MultiplierModeMultiply:
-      nativeDerivedUnits = this->source()->units() * this->multiplier()->units();
+      nativeDerivedUnits = this->source()->units() * this->secondary()->units();
       break;
     case MultiplierModeDivide:
-      nativeDerivedUnits = this->source()->units() / this->multiplier()->units();
+      nativeDerivedUnits = this->source()->units() / this->secondary()->units();
       break;
     default:
       break;
@@ -103,7 +136,7 @@ Units MultiplierTimeSeries::nativeUnits() {
 }
 
 void MultiplierTimeSeries::didSetSource(TimeSeries::_sp ts) {
-  if (!this->source() || !this->multiplier()) {
+  if (!this->source() || !this->secondary()) {
     this->setUnits(RTX_DIMENSIONLESS);
     return;
   }
@@ -117,7 +150,7 @@ void MultiplierTimeSeries::didSetSource(TimeSeries::_sp ts) {
 }
 
 bool MultiplierTimeSeries::canChangeToUnits(Units units) {
-  if (!this->source() || !this->multiplier()) {
+  if (!this->source() || !this->secondary()) {
     return true; // if the inputs are not fully set, then accept any units.
   }
   else if (units.isSameDimensionAs(this->nativeUnits())) {

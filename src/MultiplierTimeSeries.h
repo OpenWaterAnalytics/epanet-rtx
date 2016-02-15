@@ -10,10 +10,10 @@
 #define __epanet_rtx__MultiplierTimeSeries__
 
 #include <iostream>
-#include "TimeSeriesFilterSinglePoint.h"
+#include "TimeSeriesFilterSecondary.h"
 
 namespace RTX {
-  class MultiplierTimeSeries : public TimeSeriesFilterSinglePoint {
+  class MultiplierTimeSeries : public TimeSeriesFilterSecondary {
     
   public:
     
@@ -25,18 +25,16 @@ namespace RTX {
     RTX_SHARED_POINTER(MultiplierTimeSeries);
     MultiplierTimeSeries();
     
-    TimeSeries::_sp multiplier();
-    void setMultiplier(TimeSeries::_sp ts);
-    
     MultiplierMode multiplierMode();
     void setMultiplierMode(MultiplierMode mode);
     
-    
   protected:
-    Point filteredWithSourcePoint(Point sourcePoint);
-    virtual bool canSetSource(TimeSeries::_sp ts);
-    virtual void didSetSource(TimeSeries::_sp ts);
-    virtual bool canChangeToUnits(Units units);
+    void didSetSecondary(TimeSeries::_sp secondary);
+    PointCollection filterPointsInRange(TimeRange range);
+    std::set<time_t> timeValuesInRange(TimeRange range);
+    bool canSetSource(TimeSeries::_sp ts);
+    void didSetSource(TimeSeries::_sp ts);
+    bool canChangeToUnits(Units units);
     
   private:
     Point filteredSingle(Point p, Units sourceU);

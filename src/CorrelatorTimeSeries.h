@@ -9,7 +9,7 @@
 #ifndef __epanet_rtx__CorrelatorTimeSeries__
 #define __epanet_rtx__CorrelatorTimeSeries__
 
-#include "TimeSeriesFilter.h"
+#include "TimeSeriesFilterSecondary.h"
 
 #include <iostream>
 
@@ -20,14 +20,11 @@ namespace RTX {
   //! The correlator will resample the secondary "correlatorTimeSeries" at the time values of its source, if needed.
   
   
-  class CorrelatorTimeSeries : public TimeSeriesFilter
+  class CorrelatorTimeSeries : public TimeSeriesFilterSecondary
   {
   public:
     RTX_SHARED_POINTER(CorrelatorTimeSeries);
     CorrelatorTimeSeries();
-    
-    TimeSeries::_sp correlatorTimeSeries();
-    void setCorrelatorTimeSeries(TimeSeries::_sp ts);
     
     Clock::_sp correlationWindow();
     void setCorrelationWindow(Clock::_sp correlationWindow);
@@ -37,13 +34,14 @@ namespace RTX {
     void setLagSeconds(int nSeconds);
     
   protected:
+    bool canSetSecondary(TimeSeries::_sp secondary);
+    void didSetSecondary(TimeSeries::_sp secondary);
     PointCollection filterPointsInRange(TimeRange range);
     bool canSetSource(TimeSeries::_sp ts);
     void didSetSource(TimeSeries::_sp ts);
     bool canChangeToUnits(Units units);
     
   private:
-    TimeSeries::_sp _secondary;
     Clock::_sp _corWindow;
     int _lagSeconds;
   };

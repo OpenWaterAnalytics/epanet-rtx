@@ -64,6 +64,5 @@ void TimeRange::correctWithRange(RTX::TimeRange otherRange) {
   if (this->end == 0) {
     this->end = otherRange.end;
   }
-  
 }
 

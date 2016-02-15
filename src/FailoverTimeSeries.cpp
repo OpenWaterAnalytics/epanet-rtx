@@ -31,36 +31,31 @@ void FailoverTimeSeries::setMaximumStaleness(time_t stale) {
   }
 }
 
-TimeSeries::_sp FailoverTimeSeries::failoverTimeseries() {
-  return _failover;
-}
-
-void FailoverTimeSeries::setFailoverTimeseries(TimeSeries::_sp ts) {
-  if (this->source() && ts && !this->source()->units().isSameDimensionAs(ts->units())) {
+bool FailoverTimeSeries::canSetSecondary(TimeSeries::_sp secondary) {
+  if (this->source() && secondary && !this->source()->units().isSameDimensionAs(secondary->units())) {
     // conflict
-    return;
+    return false;
   }
-  
-  _failover = ts;
+  else {
+    return true;
+  }
 }
-
-
 
 void FailoverTimeSeries::swapSourceWithFailover() {
-  if (!this->source() || !this->failoverTimeseries()) {
+  if (!this->source() || !this->secondary()) {
     cerr << "nothing to swap" << endl;
     return;
   }
   TimeSeries::_sp tmp = this->source();
-  this->setSource(this->failoverTimeseries());
-  this->setFailoverTimeseries(tmp);
+  this->setSource(this->secondary());
+  this->setSecondary(tmp);
 }
 
 
 
 
 set<time_t> FailoverTimeSeries::timeValuesInRange(TimeRange range) {
-  if (!this->failoverTimeseries() || this->clock()) {
+  if (!this->secondary() || this->clock()) {
     return TimeSeriesFilter::timeValuesInRange(range);
   }
   else if (!this->clock()) {
@@ -73,7 +68,7 @@ set<time_t> FailoverTimeSeries::timeValuesInRange(TimeRange range) {
 }
 
 TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange range) {
-  if (!this->failoverTimeseries()) {
+  if (!this->secondary()) {
     return TimeSeriesFilter::filterPointsInRange(range);
   }
   
@@ -83,8 +78,8 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
   qPrimary = TimeRange(priPrev,priNext);
   
   TimeRange qSecondary = range;
-  time_t secPrev = this->failoverTimeseries()->timeBefore(range.start + 1);
-  time_t secNext = this->failoverTimeseries()->timeAfter(range.end - 1);
+  time_t secPrev = this->secondary()->timeBefore(range.start + 1);
+  time_t secNext = this->secondary()->timeAfter(range.end - 1);
   qSecondary = TimeRange(secPrev,secNext);
   
   // make these valid & queryable
@@ -101,7 +96,7 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
   
   // get source and secondary data
   PointCollection primaryData = this->source()->pointCollection(qPrimary);
-  PointCollection secondaryData = this->failoverTimeseries()->pointCollection(qSecondary);
+  PointCollection secondaryData = this->secondary()->pointCollection(qSecondary);
   
   primaryData.convertToUnits(this->units());
   secondaryData.convertToUnits(this->units());
@@ -187,16 +182,16 @@ Point FailoverTimeSeries::pointBefore(time_t time) {
   Point p = this->source()->pointBefore(time);
   
   if (!p.isValid) {
-    if (this->failoverTimeseries()) {
-      return this->failoverTimeseries()->pointBefore(time);
+    if (this->secondary()) {
+      return this->secondary()->pointBefore(time);
     }
     return Point();
   }
   
   // check staleness
   if ((time - p.time) > this->maximumStaleness()) {
-    if (this->failoverTimeseries()) {
-      p = this->failoverTimeseries()->pointBefore(time);
+    if (this->secondary()) {
+      p = this->secondary()->pointBefore(time);
     }
   }
   
@@ -218,20 +213,18 @@ Point FailoverTimeSeries::pointAfter(time_t time) {
   
   if (aft.isValid && aft.time <= maxTime) {
     return aft;
-  } else if (this->failoverTimeseries()) {
-    return this->failoverTimeseries()->pointAfter(maxTime - 1);
+  } else if (this->secondary()) {
+    return this->secondary()->pointAfter(maxTime - 1);
   }
   return Point();
 }
 
 bool FailoverTimeSeries::canSetSource(TimeSeries::_sp ts) {
   
-  if (this->failoverTimeseries() && !this->failoverTimeseries()->units().isSameDimensionAs(ts->units())) {
+  if (this->secondary() && !this->secondary()->units().isSameDimensionAs(ts->units())) {
     return false;
   }
-  
   return true;
-  
 }
 
 

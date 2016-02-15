@@ -70,7 +70,7 @@ map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForEle
   maxCor->setCorrelationWindow(samplingWindow);
   Clock::_sp corWindow(new Clock(correlationDiscretization));
   maxCor->setClock(corWindow);
-  maxCor->setCorrelatorTimeSeries(modeled);
+  maxCor->setSecondary(modeled);
   MetaTimeSeries::_sp maxCorLag(new MetaTimeSeries);
   maxCorLag->setSource(maxCor);
   maxCorLag->setMetaMode(MetaTimeSeries::MetaModeConfidence); // sneaky! 💩
@@ -368,7 +368,7 @@ TimeSeries::_sp ModelPerformance::errorForPair(std::pair<TimeSeries::_sp, TimeSe
       corr->setClock(this->errorClock());
       corr->setCorrelationWindow(this->samplingWindow());
       corr->setSource(tsPair.first);
-      corr->setCorrelatorTimeSeries(tsPair.second);
+      corr->setSecondary(tsPair.second);
       err = corr;
     }
       break;
