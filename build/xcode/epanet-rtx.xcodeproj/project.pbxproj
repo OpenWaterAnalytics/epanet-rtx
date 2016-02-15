@@ -1044,13 +1044,6 @@
 			name = Libraries;
 			sourceTree = "<group>";
 		};
-		2211D2081A6D744D00E34B9B /* OLD CLASSES */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = "OLD CLASSES";
-			sourceTree = "<group>";
-		};
 		222F51B816D7D07400C86F71 /* db */ = {
 			isa = PBXGroup;
 			children = (
@@ -1352,7 +1345,6 @@
 				221BFC6D1A8E584500143FCC /* IntegratorTimeSeries.cpp */,
 				223663B71A699DC100420EE4 /* Single Point Filter */,
 				226AC14A1733FE56009B7C90 /* Synthetic */,
-				2211D2081A6D744D00E34B9B /* OLD CLASSES */,
 			);
 			name = "time series classes";
 			sourceTree = "<group>";
