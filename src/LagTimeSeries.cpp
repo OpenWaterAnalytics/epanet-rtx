@@ -26,53 +26,38 @@ time_t LagTimeSeries::offset() {
   return _lag;
 }
 
-Point LagTimeSeries::pointBefore(time_t time) {
+time_t LagTimeSeries::timeBefore(time_t t) {
   
-  Point p;
+  time_t bef = 0;
   if (!this->source()) {
-    return p;
+    return bef;
   }
-  
-  PointCollection c;
   if (this->clock()) {
-    time_t t = this->clock()->timeBefore(time);
-    c = this->filterPointsInRange(TimeRange(t,t));
-  }
-  else {
-    time_t sourceTime = this->source()->timeBefore(time - _lag);
-    c = this->filterPointsInRange(TimeRange(sourceTime,sourceTime));
+    return this->clock()->timeBefore(t);
   }
   
-  if (c.count() == 0) {
-    return p;
+  bef = this->source()->timeBefore(t - _lag);
+  if (bef != 0) {
+    bef += _lag;
   }
-  
-  return c.points.front();
+  return bef;
 }
 
-Point LagTimeSeries::pointAfter(time_t time) {
+time_t LagTimeSeries::timeAfter(time_t t) {
   
-  Point p;
+  time_t aft = 0;
   if (!this->source()) {
-    return p;
+    return aft;
   }
-  
-  PointCollection c;
   if (this->clock()) {
-    time_t t = this->clock()->timeAfter(time);
-    c = this->filterPointsInRange(TimeRange(t,t));
-  }
-  else {
-    Point sourcePoint = this->source()->pointAfter(time - _lag);
-    time_t t = sourcePoint.time + _lag;
-    c = this->filterPointsInRange(TimeRange(t,t));
+    return this->clock()->timeAfter(t);
   }
   
-  if (c.count() == 0) {
-    return p;
+  aft = this->source()->timeAfter(t - _lag);
+  if (aft != 0) {
+    aft += _lag;
   }
-  
-  return c.points.front();
+  return aft;
 }
 
 bool LagTimeSeries::willResample() {

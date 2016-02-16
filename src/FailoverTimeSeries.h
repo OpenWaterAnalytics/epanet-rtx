@@ -25,8 +25,8 @@ namespace RTX {
     
     void swapSourceWithFailover();
     
-    Point pointBefore(time_t time);
-    Point pointAfter(time_t time);
+    time_t timeBefore(time_t time);
+    time_t timeAfter(time_t time);
 
   protected:
     bool canSetSecondary(TimeSeries::_sp secondary);

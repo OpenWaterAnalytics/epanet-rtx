@@ -22,8 +22,8 @@ namespace RTX {
     void setOffset(time_t offset);
     time_t offset();
     
-    Point pointBefore(time_t time);
-    Point pointAfter(time_t time);
+    time_t timeAfter(time_t t);
+    time_t timeBefore(time_t t);
     
   protected:
     bool willResample();

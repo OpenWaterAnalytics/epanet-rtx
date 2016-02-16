@@ -173,50 +173,48 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
   return outData;
 }
 
-
-Point FailoverTimeSeries::pointBefore(time_t time) {
+time_t FailoverTimeSeries::timeBefore(time_t time) {
   if (!this->source()) {
-    return Point();
+    return 0;
+  }
+  if (this->clock()) {
+    return this->clock()->timeBefore(time);
   }
   
-  Point p = this->source()->pointBefore(time);
+  time_t t = this->source()->timeBefore(time);
   
-  if (!p.isValid) {
-    if (this->secondary()) {
-      return this->secondary()->pointBefore(time);
-    }
-    return Point();
+  if (t == 0 && this->secondary()) {
+    return this->secondary()->timeBefore(time);
   }
   
   // check staleness
-  if ((time - p.time) > this->maximumStaleness()) {
-    if (this->secondary()) {
-      p = this->secondary()->pointBefore(time);
-    }
+  if ((time - t) > this->maximumStaleness() && this->secondary()) {
+    t = this->secondary()->timeBefore(time);
   }
   
-  return p;
+  return t;
 }
 
-Point FailoverTimeSeries::pointAfter(time_t time) {
+time_t FailoverTimeSeries::timeAfter(time_t time) {
   if (!this->source()) {
-    return Point();
+    return 0;
   }
-  
+  if (this->clock()) {
+    return this->clock()->timeAfter(time);
+  }
   // going forward is a different scenario.
-  
   // rewind so we can really test for staleness
-  Point bef = this->pointBefore(time);
-  time_t maxTime = bef.time + this->maximumStaleness();
+  time_t bef = this->timeBefore(time);
+  time_t maxTime = bef + this->maximumStaleness();
   
-  Point aft = this->source()->pointAfter(time);
+  time_t aft = this->source()->timeAfter(time);
   
-  if (aft.isValid && aft.time <= maxTime) {
+  if (aft > 0 && aft <= maxTime) {
     return aft;
   } else if (this->secondary()) {
-    return this->secondary()->pointAfter(maxTime - 1);
+    return this->secondary()->timeAfter(maxTime - 1);
   }
-  return Point();
+  return 0;
 }
 
 bool FailoverTimeSeries::canSetSource(TimeSeries::_sp ts) {
