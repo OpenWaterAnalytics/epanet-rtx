@@ -887,7 +887,11 @@ void EpanetModel::updateEngineWithElementProperties(Element::_sp e) {
       this->setLinkValue(EN_DIAMETER, p->name(), p->diameter());
       this->setLinkValue(EN_ROUGHNESS, p->name(), p->roughness());
       this->setLinkValue(EN_LENGTH, p->name(), p->length());
-      this->setLinkValue(EN_STATUS, p->name(), p->fixedStatus());
+      // is it check valve? can't set status
+      Valve::_sp v = boost::dynamic_pointer_cast<Valve>(p);
+      if (v && v->valveType != EN_CVPIPE) {
+        this->setLinkValue(EN_STATUS, p->name(), p->fixedStatus());
+      }
       this->setComment(p, p->userDescription());
     }
       
