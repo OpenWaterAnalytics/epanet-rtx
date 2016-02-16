@@ -138,14 +138,6 @@ time_t AggregatorTimeSeries::timeBefore(time_t time) {
   return before;
 }
 
-Point AggregatorTimeSeries::pointBefore(time_t time) {
-
-  time_t before = this->timeBefore(time);
-  
-  return this->point(before);
-}
-
-
 time_t AggregatorTimeSeries::timeAfter(time_t time) {
   std::set<time_t> timeSet;
   
@@ -167,15 +159,6 @@ time_t AggregatorTimeSeries::timeAfter(time_t time) {
   return after;
 }
 
-Point AggregatorTimeSeries::pointAfter(time_t time) {
-  
-  time_t after = this->timeAfter(time);
-  
-  return this->point(after);
-}
-
-
-
 
 
 std::set<time_t> AggregatorTimeSeries::timeValuesInRange(TimeRange range) {
@@ -189,9 +172,7 @@ std::set<time_t> AggregatorTimeSeries::timeValuesInRange(TimeRange range) {
     // get the set of times from the aggregator sources
     BOOST_FOREACH(AggregatorSource aggSource, this->sources()) {
       set<time_t> sourceTimes = aggSource.timeseries->timeValuesInRange(range);
-      BOOST_FOREACH(time_t t, sourceTimes) {
-        timeList.insert(t);
-      }
+      timeList.insert(sourceTimes.begin(), sourceTimes.end());
     }
   }
   return timeList;
@@ -229,10 +210,9 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
     TimeSeries::_sp sourceTs = aggSource.timeseries;
     double multiplier = aggSource.multiplier;
     TimeRange componentRange = range;
-    time_t leftSeekTime = sourceTs->timeBefore(range.start + 1);
-    time_t rightSeekTime = sourceTs->timeAfter(range.end - 1);
-    componentRange.start = leftSeekTime > 0 ? leftSeekTime : range.start;
-    componentRange.end = rightSeekTime > 0 ? rightSeekTime : range.end;
+    componentRange.start = sourceTs->timeBefore(range.start + 1);
+    componentRange.end = sourceTs->timeAfter(range.end - 1);
+    componentRange.correctWithRange(range);
     
     PointCollection componentCollection = sourceTs->pointCollection(componentRange);
     if (_mode != AggregatorModeUnion) {
