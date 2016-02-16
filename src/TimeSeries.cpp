@@ -332,7 +332,6 @@ std::vector< Point > TimeSeries::points(TimeRange range) {
 }
 
 std::set<time_t> TimeSeries::timeValuesInRange(TimeRange range) {
-  
   vector<Point> points = this->points(range);
   set<time_t> times;
   BOOST_FOREACH(const Point& p, points) {
@@ -346,8 +345,7 @@ time_t TimeSeries::timeAfter(time_t t) {
     return this->clock()->timeAfter(t);
   }
   else {
-    time_t a = TimeSeries::pointAfter(t).time;
-    return a;
+    return TimeSeries::pointAfter(t).time;
   }
 }
 
@@ -357,30 +355,23 @@ time_t TimeSeries::timeBefore(time_t t) {
     return this->clock()->timeBefore(t);
   }
   else {
-    time_t b = TimeSeries::pointBefore(t).time;
-    return b;
+    return TimeSeries::pointBefore(t).time;
   }
 }
 
 
 Point TimeSeries::pointBefore(time_t time) {
-  Point myPoint;
   if (time == 0) {
-    return myPoint;
+    return Point();
   }
-  
-  myPoint = this->record()->pointBefore(this->name(), time);
-  return myPoint;
+  return this->record()->pointBefore(this->name(), time);
 }
 
 Point TimeSeries::pointAfter(time_t time) {
-  Point myPoint;
   if (time == 0) {
-    return myPoint;
+    return Point();
   }
-  
-  myPoint = this->record()->pointAfter(this->name(), time);
-  return myPoint;
+  return this->record()->pointAfter(this->name(), time);
 }
 
 Point TimeSeries::pointAtOrBefore(time_t time) {
@@ -397,11 +388,9 @@ void TimeSeries::setRecord(PointRecord::_sp record) {
     PointRecord::_sp pr( new PointRecord() );
     record = pr;
   }
-  
   if (record->registerAndGetIdentifierForSeriesWithUnits(this->name(),this->units())) {
     _points = record;
   }
-  
   return;
 }
 
