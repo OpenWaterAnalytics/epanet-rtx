@@ -873,14 +873,10 @@ void EpanetModel::updateEngineWithElementProperties(Element::_sp e) {
       this->setNodeValue(EN_BASEDEMAND, j->name(), j->baseDemand());
       this->setComment(j, j->userDescription());
     }
-      
       break;
       
     case Element::VALVE:
     case Element::PUMP:
-    {
-      
-    }
     case Element::PIPE:
     {
       Pipe::_sp p = boost::dynamic_pointer_cast<Pipe>(e);
@@ -894,15 +890,10 @@ void EpanetModel::updateEngineWithElementProperties(Element::_sp e) {
       }
       this->setComment(p, p->userDescription());
     }
-      
       break;
-      
     default:
       break;
   }
-  
-  
-  
 }
 
 #pragma mark -
