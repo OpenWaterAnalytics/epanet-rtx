@@ -587,13 +587,13 @@ void Model::runSinglePeriod(time_t time) {
 }
 
 void Model::runExtendedPeriod(time_t start, time_t end) {
-  TimeRange range(start,end);
-  time_t simulationTime = range.start;
-  time_t nextClockTime = range.start;
-  time_t nextReportTime = range.start;
-  time_t nextSimulationTime = range.start;
-  time_t nextResetTime = range.start;
-  time_t stepToTime = range.start;
+  TimeRange periodRange(start,end);
+  time_t simulationTime = periodRange.start;
+  time_t nextClockTime = periodRange.start;
+  time_t nextReportTime = periodRange.start;
+  time_t nextSimulationTime = periodRange.start;
+  time_t nextResetTime = periodRange.start;
+  time_t stepToTime = periodRange.start;
   struct tm * timeinfo;
   bool success;
   
@@ -612,7 +612,7 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
   set<PointRecord::_sp> stateRecordsUsed = this->recordsForModeledStates();
   
   // Extended period simulation
-  while (simulationTime < range.end) {
+  while (simulationTime < periodRange.end) {
     
     {
       scoped_lock<boost::signals2::mutex> l(_simulationInProcessMutex);
@@ -662,13 +662,14 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
       nextSimulationTime = nextHydraulicStep(simulationTime);
       nextClockTime = _regularMasterClock->timeAfter(simulationTime);
       nextReportTime = (_simReportClock) ? _simReportClock->timeAfter(simulationTime) : nextSimulationTime;
+      
       if ( _tankResetClock ) {
         nextResetTime = _tankResetClock->timeAfter(simulationTime);
       }
       else {
         nextResetTime = nextSimulationTime;
       }
-      stepToTime = min( min( min( nextClockTime, nextSimulationTime ), nextReportTime ), nextResetTime);
+      stepToTime = min( min( min( min( nextClockTime, nextSimulationTime ), nextReportTime ), nextResetTime), periodRange.end);
       
       // and step the simulation to that time.
       stepSimulation(stepToTime);
