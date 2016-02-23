@@ -16,15 +16,15 @@ Pipe::Pipe(const std::string& name, Node::_sp startNode, Node::_sp endNode) : Li
   setType(PIPE);
   _flowState.reset( new TimeSeries() );
   _flowState->setUnits(RTX_LITER_PER_SECOND);
-  _flowState->setName("L " + name + " flow");
+  _flowState->setName("L_" + name + "_Flow");
   
   _setting.reset( new TimeSeries() );
   _setting->setUnits(RTX_DIMENSIONLESS);
-  _setting->setName("L " + name + " setting");
+  _setting->setName("L_" + name + "_Setting");
   
   _status.reset( new TimeSeries() );
   _status->setUnits(RTX_DIMENSIONLESS);
-  _status->setName("L " + name + " status");
+  _status->setName("L_" + name + "_Status");
   
   _fixedStatus = Pipe::OPEN;
   

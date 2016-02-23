@@ -660,12 +660,12 @@ int Dma::allocateDemandToJunctions(time_t time) {
       // junction relies on us to set its demand value... but only set it if the total base demand > 0
       double baseDemand = Units::convertValue(junction->baseDemand(), modelUnits, myUnits);
       double newDemand = baseDemand * ( allocableDemand / totalBaseDemand );
-      Point newDemandPoint(time, newDemand);
-      junction->demand()->insert( Point::convertPoint(newDemandPoint, myUnits, junction->demand()->units()) );
+      newDemand = Units::convertValue(newDemand, myUnits, junction->demand()->units());
+      junction->state_demand = newDemand;
     }
     else {
       // for instance if totalBaseDemand == 0 then this demand = 0
-      junction->demand()->insert( Point(time, 0) );
+      junction->state_demand = 0;
     }
   }
   

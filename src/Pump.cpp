@@ -15,7 +15,7 @@ using namespace RTX;
 Pump::Pump(const std::string& name, Node::_sp startNode, Node::_sp endNode) : Pipe(name, startNode, endNode) {
   setType(PUMP);
   _energyState.reset( new TimeSeries() );
-  _energyState->setName("L " + name + " energy");
+  _energyState->setName("L_" + name + "_Energy");
   _energyState->setUnits(RTX_KILOWATT_HOUR);
 }
 Pump::~Pump() {

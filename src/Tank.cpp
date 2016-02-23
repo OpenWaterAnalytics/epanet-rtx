@@ -22,7 +22,7 @@ Tank::Tank(const std::string& name) : Junction(name) {
   // initialize time series states
   _willResetLevel = false;
   _level.reset( new TimeSeries() );
-  _level->setName("N " + name + " Level");
+  _level->setName("N_" + name + "_Level");
   
   _minLevel = 0;
   _maxLevel = 0;
@@ -30,20 +30,20 @@ Tank::Tank(const std::string& name) : Junction(name) {
   
   _volumeMeasure.reset( new CurveFunction() );
   _volumeMeasure->setUnits(RTX_LITER);
-  _volumeMeasure->setName("N " + name + " Calculated Volume");
+  _volumeMeasure->setName("N_" + name + "_Calculated_Volume");
   
   _flowMeasure.reset( new FirstDerivative() );
   _flowMeasure->setUnits(RTX_LITER_PER_SECOND);
   _flowMeasure->setSource(_volumeMeasure);
-  _flowMeasure->setName("N " + name + " Calculated Flow");
+  _flowMeasure->setName("N_" + name + "_Calculated Flow");
   
   _volume.reset( new TimeSeries );
   _volume->setUnits(RTX_LITER);
-  _volume->setName("N " + name + " Volume");
+  _volume->setName("N_" + name + "_Volume");
   
   _flow.reset( new TimeSeries );
   _flow->setUnits(RTX_LITER_PER_SECOND);
-  _flow->setName("N " + name + " Flow");
+  _flow->setName("N_" + name + "_Flow");
   
 }
 
