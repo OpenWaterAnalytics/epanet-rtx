@@ -72,8 +72,8 @@ DbPointRecord::DbPointRecord() : request("",0,0) {
   _filterType = OpcPassThrough;
   _identifiersAndUnitsCache = std::map<std::string,Units>();
   
-  iterativeSearchMaxIterations = 12;
-  iterativeSearchStride = 12*60*60;
+  iterativeSearchMaxIterations = 8;
+  iterativeSearchStride = 3*60*60;
   
 }
 
