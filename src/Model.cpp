@@ -586,122 +586,135 @@ void Model::runSinglePeriod(time_t time) {
   runExtendedPeriod(start, time);
 }
 
-void Model::runExtendedPeriod(time_t start, time_t end) {
-  TimeRange periodRange(start,end);
-  time_t simulationTime = periodRange.start;
-  time_t nextClockTime = periodRange.start;
-  time_t nextReportTime = periodRange.start;
-  time_t nextSimulationTime = periodRange.start;
-  time_t nextResetTime = periodRange.start;
-  time_t stepToTime = periodRange.start;
-  struct tm * timeinfo;
-  bool success;
+
+bool Model::solveInitial(time_t simTime) {
+  _regularMasterClock->setStart(simTime);
+  this->setCurrentSimulationTime(simTime);
   
+  return ( this->solveAndSaveOutputAtTime(simTime) );
+}
+
+
+bool Model::solveAndSaveOutputAtTime(time_t simulationTime) {
   {
-    // of course we don't want to cancel - we just started!
     scoped_lock<boost::signals2::mutex> l(_simulationInProcessMutex);
-    _shouldCancelSimulation = false;
+    if (_shouldCancelSimulation) {
+      return false;
+    }
   }
   
-  timeinfo = localtime (&simulationTime);
-  stringstream ss;
-  ss << "INFO: Starting simulation :: " << asctime(timeinfo);
-  this->logLine(ss.str());
+  // get parameters from the RTX elements, and pull them into the simulation
+  setSimulationParameters(simulationTime);
+  
+  // simulate this period, find the next timestep boundary.
+  bool success = solveSimulation(simulationTime);
+  
+  // save simulation stats here so we can track convergence issues
+  Point error(simulationTime, relativeError(simulationTime));
+  _relativeError->insert(error);
+  Point iterationCount(simulationTime, iterations(simulationTime));
+  _iterations->insert(iterationCount);
+  Point convergenceStatus(simulationTime, (double)success);
+  _convergence->insert(convergenceStatus);
   
   // get the record(s) being used
   set<PointRecord::_sp> stateRecordsUsed = this->recordsForModeledStates();
   
-  // Extended period simulation
-  while (simulationTime < periodRange.end) {
+  if (success) {
+    
+    // tell each element to update its derived states (simulation-computed values)
+    if (!_simReportClock || _simReportClock->isValid(simulationTime)) {
+      
+      // move short-term states into timeseries, and do so concurrently:
+      if (true) {
+        // just make sure the thread is idle...
+        if (_saveStateThread.joinable()) {
+          _saveStateThread.join();
+          // once join() returns, we know the queued operation is complete
+        }
+        // fetch sim results into object short-term storage
+        this->fetchSimulationStates();
+        // spin a new thread
+        boost::thread newSaveStateThread(&Model::saveNetworkStates, this, simulationTime, stateRecordsUsed);
+        _saveStateThread.swap(newSaveStateThread);
+      }
+      else {
+        saveNetworkStates(simulationTime, stateRecordsUsed);
+      }
+    }
+  }
+  return success;
+}
+
+
+bool Model::updateSimulationToTime(time_t updateToTime) {
+  
+  if (updateToTime <= this->currentSimulationTime()) {
+    return false;
+  }
+  
+  while (this->currentSimulationTime() < updateToTime) {
     
     {
       scoped_lock<boost::signals2::mutex> l(_simulationInProcessMutex);
       if (_shouldCancelSimulation) {
-        break;
+        return false;
       }
     }
     
-    // get parameters from the RTX elements, and pull them into the simulation
-    setSimulationParameters(simulationTime);
+    // what is the next step time? go there, and solve the network.
+    time_t nextSimNative, nextMasterClock, nextReport, nextTankReset;
+    time_t myTime = this->currentSimulationTime();
     
-    // simulate this period, find the next timestep boundary.
-    success = solveSimulation(simulationTime);
+    nextSimNative = nextHydraulicStep(myTime);
+    nextMasterClock = myTime + _regularMasterClock->period(); // ignoring start-offset
+    nextReport = (_simReportClock) ? _simReportClock->timeAfter(myTime) : nextSimNative;
+    nextTankReset = (_tankResetClock) ? _tankResetClock->timeAfter(myTime) : nextSimNative;
     
-    // save simulation stats here so we can track convergence issues
-    Point error(simulationTime, relativeError(simulationTime));
-    _relativeError->insert(error);
-    Point iterationCount(simulationTime, iterations(simulationTime));
-    _iterations->insert(iterationCount);
-    Point convergenceStatus(simulationTime, success);
-    _convergence->insert(convergenceStatus);
+    time_t stepToTime = min( min( min( min( nextSimNative, nextMasterClock ), nextReport ), nextTankReset), updateToTime);
     
-    if (success) {
-      
-      // tell each element to update its derived states (simulation-computed values)
-      if (!_simReportClock || _simReportClock->isValid(simulationTime)) {
-        
-        // move short-term states into timeseries, and do so concurrently:
-        if (true) {
-          // just make sure the thread is idle...
-          if (_saveStateThread.joinable()) {
-            _saveStateThread.join();
-            // once join() returns, we know the queued operation is complete
-          }
-          // fetch sim results into object short-term storage
-          this->fetchSimulationStates();
-          // spin a new thread
-          boost::thread newSaveStateThread(&Model::saveNetworkStates, this, simulationTime, stateRecordsUsed);
-          _saveStateThread.swap(newSaveStateThread);
-        }
-        else {
-          saveNetworkStates(simulationTime, stateRecordsUsed);
-        }
-      }
-      
-      // get time to next simulation period
-      nextSimulationTime = nextHydraulicStep(simulationTime);
-      nextClockTime = _regularMasterClock->timeAfter(simulationTime);
-      nextReportTime = (_simReportClock) ? _simReportClock->timeAfter(simulationTime) : nextSimulationTime;
-      
-      if ( _tankResetClock ) {
-        nextResetTime = _tankResetClock->timeAfter(simulationTime);
-      }
-      else {
-        nextResetTime = nextSimulationTime;
-      }
-      stepToTime = min( min( min( min( nextClockTime, nextSimulationTime ), nextReportTime ), nextResetTime), periodRange.end);
-      
-      // and step the simulation to that time.
-      stepSimulation(stepToTime);
-      simulationTime = currentSimulationTime();
-      
-      timeinfo = localtime (&simulationTime);
-      
-      stringstream ss;
-      ss << "INFO: Simulation step :: " << asctime(timeinfo);
-    }
-    else {
-      timeinfo = localtime (&simulationTime);
+    // and step the simulation to that time.
+    stepSimulation(stepToTime);
+    
+    struct tm * timeinfo;
+    timeinfo = localtime(&myTime);
+    stringstream ss;
+    ss << "INFO: Simulation step to :: " << asctime(timeinfo);
+    this->logLine(ss.str());
+    
+    // solve the simulation at this new time.
+    bool simOk = this->solveAndSaveOutputAtTime(this->currentSimulationTime());
+    
+    if(!simOk) {
+      timeinfo = localtime (&myTime);
       stringstream ss;
       ss << "ERROR: Simulation failed :: " << asctime(timeinfo);
       this->logLine(ss.str());
       this->logLine("INFO: Resetting Tank Levels due to model non-convergence");
       
-      
       // simulation failed -- advance the time and reset tank levels
-      nextClockTime = _regularMasterClock->timeAfter(simulationTime);
-      simulationTime = nextClockTime;
-      setCurrentSimulationTime(simulationTime);
+      this->setCurrentSimulationTime(_regularMasterClock->timeAfter(myTime));
       cout << "will reset tanks" << endl;
       this->setTanksNeedReset(true);
     }
-    
-  } // simulation while-loop
+  }
   
   {
     scoped_lock<boost::signals2::mutex> l(_simulationInProcessMutex);
     _shouldCancelSimulation = false;
   }
+  
+  return true;
+}
+
+
+
+
+void Model::runExtendedPeriod(time_t start, time_t end) {
+  
+  this->solveInitial(start);
+  this->updateSimulationToTime(end);
+  
 }
 
 /**
@@ -1004,20 +1017,8 @@ void Model::setSimulationParameters(time_t time) {
     }
     // hydraulic junctions - set demand values.
     BOOST_FOREACH(Junction::_sp junction, this->junctions()) {
-      Point p = junction->demand()->pointAtOrBefore(time);
-      if (p.isValid) {
-        double demandValue = Units::convertValue(p.value, junction->demand()->units(), flowUnits());
-        setJunctionDemand(junction->name(), demandValue);
-      }
-      else {
-        // default when allocation doesn't/can't set demand -- should this happen?
-        setJunctionDemand(junction->name(), 0.0);
-        
-        stringstream ss;
-        ss << "ERROR: Invalid flow boundary value for junction " << junction->name() << " :: " << asctime(timeinfo);
-        this->logLine(ss.str());
-        
-      }
+      double demandValue = Units::convertValue(junction->state_demand, junction->demand()->units(), flowUnits());
+      setJunctionDemand(junction->name(), demandValue);
     }
   }
   
@@ -1165,9 +1166,6 @@ void Model::setSimulationParameters(time_t time) {
       }
     }
   }
-  
-  
-  
 }
 
 
@@ -1194,11 +1192,9 @@ void Model::fetchSimulationStates() {
     }
   }
   
-  // only save demand states if
-  if (!_doesOverrideDemands) {
+  if (!_doesOverrideDemands) { // otherwise this state ivar is set by the containing DMA object
     BOOST_FOREACH(Junction::_sp junction, junctions()) {
-      double demand;
-      demand = Units::convertValue(junctionDemand(junction->name()), flowUnits(), junction->demand()->units());
+      double demand = Units::convertValue(junctionDemand(junction->name()), flowUnits(), junction->demand()->units());
       junction->state_demand = demand;
     }
   }
@@ -1274,83 +1270,58 @@ void Model::saveNetworkStates(time_t time, std::set<PointRecord::_sp> bulkRecord
   BOOST_FOREACH(PointRecord::_sp r, bulkRecords) {
     r->beginBulkOperation();
   }
-  
-  
   // retrieve results from the hydraulic sim
   // then insert the state values into elements' time series.
-  
   // junctions, tanks, reservoirs
   BOOST_FOREACH(Junction::_sp junction, junctions()) {
-    Point headPoint(time, junction->state_head);
-    junction->head()->insert(headPoint);
-    
-    Point pressurePoint(time, junction->state_pressure);
-    junction->pressure()->insert(pressurePoint);
-    
+    junction->head()->insert(Point(time, junction->state_head));
+    junction->pressure()->insert(Point(time, junction->state_pressure));
     // todo - more fine-grained quality data? at wq step resolution...
     if (this->shouldRunWaterQuality()) {
-      Point qualityPoint(time, junction->state_quality);
-      junction->quality()->insert(qualityPoint);
+      junction->quality()->insert(Point(time, junction->state_quality));
     }
   }
   
-  // only save demand states if
-  if (!_doesOverrideDemands) {
-    BOOST_FOREACH(Junction::_sp junction, junctions()) {
-      Point demandPoint(time, junction->state_demand);
-      junction->demand()->insert(demandPoint);
-    }
+  BOOST_FOREACH(Junction::_sp junction, junctions()) {
+    junction->demand()->insert(Point(time, junction->state_demand));
   }
   
   BOOST_FOREACH(Reservoir::_sp reservoir, reservoirs()) {
-    Point headPoint(time, reservoir->state_head);
-    reservoir->head()->insert(headPoint);
-    
-    Point qualityPoint(time, reservoir->state_quality);
-    reservoir->quality()->insert(qualityPoint);
+    reservoir->head()->insert(Point(time, reservoir->state_head));
+    if (this->shouldRunWaterQuality()) {
+      reservoir->quality()->insert(Point(time, reservoir->state_quality));
+    }
   }
   
   BOOST_FOREACH(Tank::_sp tank, tanks()) {
-    Point headPoint(time, tank->state_head);
-    tank->head()->insert(headPoint);
-    
-    Point levelPoint(time, tank->state_level);
-    tank->level()->insert(levelPoint);
-    
-    Point qualityPoint(time, tank->state_quality);
-    tank->quality()->insert(qualityPoint);
-    
-    Point volumePoint(time,tank->state_volume);
-    tank->volume()->insert(volumePoint);
-    
-    Point flowPoint(time,tank->state_flow);
-    tank->flow()->insert(flowPoint);
+    tank->head()->insert(Point(time, tank->state_head));
+    tank->level()->insert(Point(time, tank->state_level));
+    tank->volume()->insert(Point(time,tank->state_volume));
+    tank->flow()->insert(Point(time,tank->state_flow));
+    if (this->shouldRunWaterQuality()) {
+      tank->quality()->insert(Point(time, tank->state_quality));
+    }
   }
   
   // pipe elements
   BOOST_FOREACH(Pipe::_sp pipe, pipes()) {
-    Point fp(time, pipe->state_flow);
-    pipe->flow()->insert(fp);
-    
-    Point sep(time, pipe->state_setting);
-    pipe->setting()->insert(sep);
-    
-    Point stp(time, pipe->state_status);
-    pipe->status()->insert(stp);
+    pipe->flow()->insert(Point(time, pipe->state_flow));
+    pipe->setting()->insert(Point(time, pipe->state_setting));
+    pipe->status()->insert(Point(time, pipe->state_status));
   }
   
   BOOST_FOREACH(Valve::_sp valve, valves()) {
-    Point aPoint(time, valve->state_flow);
-    valve->flow()->insert(aPoint);
+    valve->flow()->insert(Point(time, valve->state_flow));
+    valve->setting()->insert(Point(time, valve->state_setting));
+    valve->status()->insert(Point(time, valve->state_status));
   }
   
   // pump energy
   BOOST_FOREACH(Pump::_sp pump, pumps()) {
-    Point flowPoint(time, pump->state_flow);
-    pump->flow()->insert(flowPoint);
-    
-    Point energyPoint(time, pump->energy_state);
-    pump->energy()->insert(energyPoint);
+    pump->flow()->insert(Point(time, pump->state_flow));
+    pump->energy()->insert(Point(time, pump->energy_state));
+    pump->setting()->insert(Point(time, pump->state_setting));
+    pump->status()->insert(Point(time, pump->state_status));
   }
   
   

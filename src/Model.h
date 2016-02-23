@@ -82,6 +82,11 @@ namespace RTX {
     void runExtendedPeriod(time_t start, time_t end);
     void runForecast(time_t start, time_t end);
     
+    bool solveAndSaveOutputAtTime(time_t simulationTime);
+    
+    bool solveInitial(time_t time);
+    bool updateSimulationToTime(time_t time);
+    
     void cancelSimulation();
     
     std::set<PointRecord::_sp>recordsForModeledStates();
@@ -236,7 +241,7 @@ namespace RTX {
     virtual void setPumpSetting(const std::string& pump, double setting) { };
     virtual void setValveSetting(const string& valve, double setting) { };
     
-    virtual bool solveSimulation(time_t time) { return 1; };
+    virtual bool solveSimulation(time_t time) { return false; };
     virtual time_t nextHydraulicStep(time_t time) { return 0; };
     virtual void stepSimulation(time_t time) { };
     virtual int iterations(time_t time) { return 0; };
