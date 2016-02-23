@@ -20,13 +20,11 @@ namespace RTX {
     
     InfluxDbPointRecord();
     
-    virtual void dbConnect() throw(RtxException);
+    void dbConnect() throw(RtxException);
     
-    virtual bool isConnected() {return _connected;};
+    bool isConnected() {return _connected;};
     bool insertIdentifierAndUnits(const std::string& id, Units units);
-    const virtual std::map<std::string,Units> identifiersAndUnits();
-    
-    
+    const std::map<std::string,Units> identifiersAndUnits();
     void truncate();
 
     std::string connectionString();
@@ -35,17 +33,18 @@ namespace RTX {
     std::string host, user, pass, db;
     int port;
     
-    virtual bool supportsBoundedQueries() {return false;};
+    bool supportsSinglyBoundedQueries() {return true;};
+    bool shouldSearchIteratively() {return true;};
     bool supportsUnitsColumn() {return false;};
     
   protected:
-    virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);
-    virtual Point selectNext(const std::string& id, time_t time);
-    virtual Point selectPrevious(const std::string& id, time_t time);
+    std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);
+    Point selectNext(const std::string& id, time_t time);
+    Point selectPrevious(const std::string& id, time_t time);
     
-    virtual void insertSingle(const std::string& id, Point point);
-    virtual void insertRange(const std::string& id, std::vector<Point> points);
-    virtual void removeRecord(const std::string& id);
+    void insertSingle(const std::string& id, Point point);
+    void insertRange(const std::string& id, std::vector<Point> points);
+    void removeRecord(const std::string& id);
     
   private:
     

@@ -114,7 +114,8 @@ namespace RTX {
     std::string timeZoneString();
     void setTimeZoneString(const std::string& tzStr);
     
-    virtual bool supportsBoundedQueries();
+    virtual bool shouldSearchIteratively() { return true; };
+    virtual bool supportsSinglyBoundedQueries();
     bool supportsUnitsColumn() { return false; };
     
   protected:

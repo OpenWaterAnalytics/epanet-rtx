@@ -71,6 +71,10 @@ DbPointRecord::DbPointRecord() : request("",0,0) {
   _readOnly = false;
   _filterType = OpcPassThrough;
   _identifiersAndUnitsCache = std::map<std::string,Units>();
+  
+  iterativeSearchMaxIterations = 12;
+  iterativeSearchStride = 12*60*60;
+  
 }
 
 
@@ -227,63 +231,115 @@ Point DbPointRecord::point(const string& id, time_t time) {
 
 Point DbPointRecord::pointBefore(const string& id, time_t time) {
   
+  // available in circular buffer?
   Point p = DB_PR_SUPER::pointBefore(id, time);
-  
-  if (!p.isValid) {
-    // check if last request covered before
-    if (request.contains(id, time-1)) {
-      return Point();
-    }
-    PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
-    request = request_t(id, time, time);
-    p = this->selectPrevious(id, time);
-    p = this->pointWithOpcFilter(p);
-    
-    if (range.first <= time && time <= range.second) {
-      // then we know this is continuous. add the point.
-      DB_PR_SUPER::addPoint(id, p);
-    }
-    else {
-      request = request_t("",0,0);
-    }
+  if (p.isValid) {
+    return p;
   }
+  
+  // if it's not buffered, but the last request covered this range, then there is no point here.
+  if (request.contains(id, time-1)) {
+    return Point();
+  }
+  
+  // should i search iteratively?
+  if (this->shouldSearchIteratively()) {
+    p = this->searchPreviousIteratively(id, time);
+  }
+  if (p.isValid) {
+    return p;
+  }
+  
+  // try a singly-bounded query
+  if (this->supportsSinglyBoundedQueries()) {
+    p = this->selectPrevious(id, time);
+  }
+  if (p.isValid) {
+    return this->pointWithOpcFilter(p);
+  }
+
   
   return p;
 }
 
 
 Point DbPointRecord::pointAfter(const string& id, time_t time) {
-  
+  // buffered?
   Point p = DB_PR_SUPER::pointAfter(id, time);
-  
-  if (!p.isValid) {
-    // lookahead prefetching
-    time_t distance = 60*60*12;
-    this->pointsInRange(id, time, time + distance);
-    p = DB_PR_SUPER::pointAfter(id, time);
+  if (p.isValid) {
+    return p;
   }
   
+  // last request covered this already?
+  if (request.contains(id, time + 1)) {
+    return Point();
+  }
   
-  if (!p.isValid) {
-    // check if last request covered after
-    if (request.contains(id, time+1)) {
-      return Point();
-    }
-    PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
-    request = request_t(id, time, time);
+  if (this->shouldSearchIteratively()) {
+    p = this->searchNextIteratively(id, time);
+  }
+  if (p.isValid) {
+    return p;
+  }
+  
+  // singly bounded?
+  if (this->supportsSinglyBoundedQueries()) {
     p = this->selectNext(id, time);
-    p = this->pointWithOpcFilter(p);
-    
-    if (range.first <= time && time <= range.second) {
-      // then we know this is continuous. add the point.
-      DB_PR_SUPER::addPoint(id, p);
-    }
-    else {
-      request = request_t("",0,0);
-    }
+  }
+  if (p.isValid) {
+    return this->pointWithOpcFilter(p);
   }
   
   return p;
+}
+
+
+Point DbPointRecord::searchPreviousIteratively(const string& id, time_t time) {
+  int lookBehindLimit = iterativeSearchMaxIterations;
+  
+  if (!isConnected()) {
+    this->dbConnect();
+  }
+  if (isConnected()) {
+    vector<Point> points;
+    // iterative lookbehind is faster than unbounded lookup
+    time_t searchStartTime = time - iterativeSearchStride;
+    time_t searchEndTime = time - 1;
+    while (points.size() == 0 && lookBehindLimit > 0) {
+      points = this->pointsInRange(id, searchStartTime, searchEndTime);
+      searchEndTime -= iterativeSearchStride;
+      searchStartTime -= iterativeSearchStride;
+      --lookBehindLimit;
+    }
+    if (points.size() > 0) {
+      return points.back();
+    }
+  }
+  return Point();
+}
+
+Point DbPointRecord::searchNextIteratively(const string& id, time_t time) {
+  int lookAheadLimit = iterativeSearchMaxIterations;
+  
+  if (!isConnected()) {
+    this->dbConnect();
+  }
+  if (isConnected()) {
+    vector<Point> points;
+    // iterative lookbehind is faster than unbounded lookup
+    time_t searchStartTime = time + 1;
+    time_t searchEndTime = time + iterativeSearchStride;
+    while (points.size() == 0 && lookAheadLimit > 0) {
+      points = this->pointsInRange(id, searchStartTime, searchEndTime);
+      searchStartTime += iterativeSearchStride;
+      searchEndTime += iterativeSearchStride;
+      --lookAheadLimit;
+    }
+    if (points.size() > 0) {
+      return points.front();
+    }
+  }
+  return Point();
 }
 
 
@@ -389,11 +445,6 @@ void DbPointRecord::invalidate(const string &identifier) {
     this->reset(identifier);
   }
 }
-
-bool DbPointRecord::supportsBoundedQueries() {
-  return false;
-}
-
 
 
 #pragma mark - opc filter list

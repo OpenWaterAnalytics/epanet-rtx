@@ -390,7 +390,7 @@ std::vector<Point> OdbcPointRecord::pointsFromStatement(SQLHSTMT statement) {
 }
 
 
-bool OdbcPointRecord::supportsBoundedQueries() {
+bool OdbcPointRecord::supportsSinglyBoundedQueries() {
   return (!RTX_STRINGS_ARE_EQUAL(_querySyntax.upperBound, "") && !RTX_STRINGS_ARE_EQUAL(_querySyntax.lowerBound, ""));
 }
 

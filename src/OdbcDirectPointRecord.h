@@ -30,12 +30,7 @@ namespace RTX {
     
     
   private:
-    
     typedef enum {OdbcQueryBoundLower,OdbcQueryBoundUpper} OdbcQueryBoundType;
-    
-    Point selectNextIteratively(const std::string& id, time_t time);
-    Point selectPreviousIteratively(const std::string& id, time_t time);
-    
     std::string stringQueryForRange(const std::string& id, time_t start, time_t end);
     std::string stringQueryForSinglyBoundedRange(const std::string& id, time_t bound, OdbcQueryBoundType boundType);
     std::string stringQueryForIds();

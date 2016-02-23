@@ -67,7 +67,8 @@ namespace RTX {
     virtual time_pair_t range(const string& id);
     virtual std::ostream& toStream(std::ostream &stream);
     
-    virtual bool supportsBoundedQueries();
+    bool supportsSinglyBoundedQueries() { return true; };
+    bool shouldSearchIteratively() { return true; };
     bool supportsUnitsColumn() { return true; };
     
   protected:

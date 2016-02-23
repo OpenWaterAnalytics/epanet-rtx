@@ -181,9 +181,7 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
   
   
   MetricInfo m = InfluxDbPointRecord::metricInfoFromName(id);
-  if (m.tags.find("units") != m.tags.end()) {
-    m.tags.erase("units"); // get rid of units if they are included.
-  }
+  m.tags.erase("units"); // get rid of units if they are included.
   string properId = InfluxDbPointRecord::nameFromMetricInfo(m);
   
   if (this->readonly()) {
@@ -651,7 +649,7 @@ JsonDocPtr InfluxDbPointRecord::jsonFromPath(const std::string &url) {
     cout << connectionInfo.sockStream.rdbuf() << endl;
     
     if (connectionInfo.statusCode != 204 && !connectionInfo.sockStream) {
-      std::cerr << "Influx Connection Error: " << connectionInfo.statusMessage << "\n";
+      std::cerr << "Influx Connection Error " << connectionInfo.statusCode << ": " << connectionInfo.statusMessage << "\n";
     }
     connectionInfo.sockStream.close();
   }

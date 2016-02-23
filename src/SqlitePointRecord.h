@@ -28,16 +28,17 @@ namespace RTX {
     bool insertIdentifierAndUnits(const std::string& id, Units units);
     const virtual std::map<std::string,Units> identifiersAndUnits();
     
-    virtual void dbConnect() throw(RtxException);
-    virtual bool isConnected();
+    void dbConnect() throw(RtxException);
+    bool isConnected();
     
-    virtual time_pair_t range(const string& id);
+    time_pair_t range(const string& id);
     
     std::string connectionString();
     void setConnectionString(const std::string& path);
     
-    virtual bool supportsBoundedQueries();
-    virtual void truncate();
+    bool supportsSinglyBoundedQueries() {return true;};
+    bool shouldSearchIteratively() {return true;};
+    void truncate();
     bool canAssignUnits();
     bool assignUnitsToRecord(const std::string& name, const Units& units);
     
@@ -45,15 +46,15 @@ namespace RTX {
     virtual void endBulkOperation();
     
   protected:
-    virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);
-    virtual Point selectNext(const std::string& id, time_t time);
-    virtual Point selectPrevious(const std::string& id, time_t time);
+    std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);
+    Point selectNext(const std::string& id, time_t time);
+    Point selectPrevious(const std::string& id, time_t time);
     
     // insertions or alterations may choose to ignore / deny
-    virtual void insertSingle(const std::string& id, Point point);
+    void insertSingle(const std::string& id, Point point);
     void insertSingleInTransaction(const std::string &id, Point point);
-    virtual void insertRange(const std::string& id, std::vector<Point> points);
-    virtual void removeRecord(const std::string& id);
+    void insertRange(const std::string& id, std::vector<Point> points);
+    void removeRecord(const std::string& id);
     
   private:
     sqlite3 *_dbHandle;

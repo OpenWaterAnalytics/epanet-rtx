@@ -69,9 +69,16 @@ namespace RTX {
     virtual void dbConnect() throw(RtxException){};
     virtual bool isConnected(){return false;} // abstract base can't have a connection;
     
-    virtual bool supportsBoundedQueries();
     virtual bool canAssignUnits();
     virtual bool assignUnitsToRecord(const std::string& name, const Units& units);
+    
+    virtual bool supportsSinglyBoundedQueries() = 0; //! override for dbs that support LIMIT
+    virtual bool shouldSearchIteratively()  = 0;     //! override for dbs with slow LIMIT queries or no support.
+    Point searchPreviousIteratively(const string& id, time_t time);
+    Point searchNextIteratively(const string& id, time_t time);
+    
+    int iterativeSearchStride;
+    int iterativeSearchMaxIterations;
     
     
     // db searching prefs

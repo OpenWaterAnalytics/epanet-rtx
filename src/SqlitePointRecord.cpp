@@ -456,95 +456,33 @@ std::vector<Point> SqlitePointRecord::selectRange(const std::string& id, time_t 
 }
 
 Point SqlitePointRecord::selectNext(const std::string& id, time_t time) {
-  Point p;
   
-  const time_t timeMargin = 60*60*24;
-  const int maxLookahead = 100; // 100 days
+  sqlite3_stmt *s;
+  sqlite3_prepare_v2(_dbHandle, _selectNextStr.c_str(), -1, &s, NULL);
+  sqlite3_bind_text(s, 1, id.c_str(), -1, NULL);
+  sqlite3_bind_int(s, 2, (int)time);
+  vector<Point> points = pointsFromPreparedStatement(s);
+  sqlite3_finalize(s);
   
-  if (!isConnected()) {
-    this->dbConnect();
+  if (points.size() > 0) {
+    return points.front();
   }
-  if (isConnected()) {
-    
-    vector<Point> points;
-    
-    // iterative lookahead, faster than unbounded query
-    time_t searchStartTime = time + 1;
-    int lookaheadsLeft = maxLookahead;
-    while (points.size() == 0 && lookaheadsLeft > 0) {
-      points = this->selectRange(id, searchStartTime, searchStartTime + timeMargin);
-      searchStartTime += timeMargin;
-      --lookaheadsLeft;
-    }
-    
-    // if iterative search fails, there still may be points here.
-    // suffer then long execution of the unbounded query.
-    if (points.size() == 0) {
-      // slow query
-      
-      sqlite3_stmt *s;
-      sqlite3_prepare_v2(_dbHandle, _selectNextStr.c_str(), -1, &s, NULL);
-      
-      sqlite3_bind_text(s, 1, id.c_str(), -1, NULL);
-      sqlite3_bind_int(s, 2, (int)time);
-      points = pointsFromPreparedStatement(s);
-      sqlite3_finalize(s);
-    }
-    
-    
-    if (points.size() > 0) {
-      return points.front();
-    }
-    return Point();
-  }
-  return p;
-  
-  
+  return Point();
 }
 
 Point SqlitePointRecord::selectPrevious(const std::string& id, time_t time) {
   
-  Point p;
+  sqlite3_stmt *s;
+  sqlite3_prepare_v2(_dbHandle, _selectPreviousStr.c_str(), -1, &s, NULL);
+  sqlite3_bind_text(s, 1, id.c_str(), -1, NULL);
+  sqlite3_bind_int(s, 2, (int)time);
+  vector<Point> points = pointsFromPreparedStatement(s);
+  sqlite3_finalize(s);
   
-  const time_t timeMargin = 60*60*24;
-  const int maxLookBehinds = 100; // 100 days
-  
-  if (!isConnected()) {
-    this->dbConnect();
+  if (points.size() > 0) {
+    return points.back();
   }
-  if (isConnected()) {
-    
-    vector<Point> points;
-    
-    
-    // iterative lookbehind is faster than unbounded lookup
-    time_t searchEndTime = time - 1;
-    int lookbehandsLeft = maxLookBehinds;
-    while (points.size() == 0 && lookbehandsLeft > 0) {
-      points = this->selectRange(id, searchEndTime - timeMargin, searchEndTime);
-      searchEndTime -= timeMargin;
-      --lookbehandsLeft;
-    }
-    
-    // if the iterative lookbehind did not work
-    if (points.size() == 0) {
-      // slow query
-      sqlite3_stmt *s;
-      sqlite3_prepare_v2(_dbHandle, _selectPreviousStr.c_str(), -1, &s, NULL);
-      sqlite3_bind_text(s, 1, id.c_str(), -1, NULL);
-      sqlite3_bind_int(s, 2, (int)time);
-      points = pointsFromPreparedStatement(s);
-      sqlite3_finalize(s);
-    }
-    
-    if (points.size() > 0) {
-      return points.back();
-    }
-    return Point();
-  }
-  return p;
-  
-  
+  return Point();
 }
 
 
@@ -707,10 +645,6 @@ Point SqlitePointRecord::pointFromStatment(sqlite3_stmt *stmt) {
   return Point(time, value, qual, c);
 }
 
-
-bool SqlitePointRecord::supportsBoundedQueries() {
-  return true;
-}
 
 
 void SqlitePointRecord::checkTransactions(bool forceEndTranaction) {
