@@ -228,16 +228,43 @@ TimeSeries::PointCollection TimeSeries::PointCollection::resampledAtTimes(std::s
 
 TimeSeries::PointCollection TimeSeries::PointCollection::trimmedToRange(TimeRange range) {
   
-  vector<Point> filtered;
+  vector<Point>::const_iterator it = this->points.begin();
+  vector<Point>::const_iterator r1 = it, r2 = it;
   
-  BOOST_FOREACH(const Point& p, this->points) {
-    if (range.contains(p.time)) {
-      filtered.push_back(p);
+  while (it != this->points.end()) {
+    if (range.contains(it->time)) {
+      r1 = it;
+      break;
     }
+    ++it;
   }
   
-  PointCollection pc(filtered, this->units);
-  return pc;
+  while (it != this->points.end()) {
+    if (!range.contains(it->time)) {
+      break;
+    }
+    r2 = it;
+    ++it;
+  }
+  
+  
+  vector<Point> filtered;
+  if (r1 != r2) {
+    filtered = vector<Point>(r1,r2);
+  }
+  
+  PointCollection c(filtered, this->units);
+  return c;
+//  
+//  
+//  BOOST_FOREACH(const Point& p, this->points) {
+//    if (range.contains(p.time)) {
+//      filtered.push_back(p);
+//    }
+//  }
+//  
+//  PointCollection pc(filtered, this->units);
+//  return pc;
 }
 
 
