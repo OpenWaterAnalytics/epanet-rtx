@@ -313,9 +313,11 @@ Units Units::unitOfType(const string& unitString) {
   if (found != Units::unitStringMap.end()) {
     return found->second;
   }
-  else {
-    
-    // superscript?
+  
+  
+  
+  // superscript?
+  {
     string uStr = unitString;
     size_t loc3 = unitString.find("3");
     if (loc3 != string::npos) {
@@ -331,62 +333,74 @@ Units Units::unitOfType(const string& unitString) {
     if (found != Units::unitStringMap.end()) {
       return found->second;
     }
-    
-    
-    // attempt to deserialize the streamed format of the unit conversion and dimension.
-    deque<string> components;
-    boost::split(components, unitString, boost::is_any_of("*+[]"), boost::algorithm::token_compress_on); // split on separators
-    
-    if (components.size() < 1) {
-      cerr << "WARNING: Units not recognized: " << unitString << " - defaulting to NO UNITS." << endl;
-      return RTX_NO_UNITS;
-    }
-    
-    // first component will be the unit conversion, so cast that into a number.
-    // this may fail, so catch it if so.
-    try {
-      conversionFactor = boost::lexical_cast<double>(components.front());
-    } catch (...) {
-      cerr << "WARNING: Units not recognized: " << unitString << " - defaulting to NO UNITS." << endl;
-      return RTX_NO_UNITS;
-    }
-    
-    components.pop_front();
-    
-    // get each dimensional power and set it.
-    BOOST_FOREACH(const string& part, components) {
-      
-      vector<string> dimensionPower;
-      boost::split(dimensionPower, part, boost::is_any_of("^="));
-      if (dimensionPower.size() != 2) {
-        continue;
-      }
-      int power = boost::lexical_cast<int>(dimensionPower.back());
-      dimensionPower.pop_back();
-      string dim = dimensionPower.back();
-      
-      // match the SI dimension name
-      if (RTX_STRINGS_ARE_EQUAL(dim, "kilograms")      || RTX_STRINGS_ARE_EQUAL_CS(dim, "kg")) {
-        mass = power;
-      } else if (RTX_STRINGS_ARE_EQUAL(dim, "meters")  || RTX_STRINGS_ARE_EQUAL_CS(dim, "m")) {
-        length = power;
-      } else if (RTX_STRINGS_ARE_EQUAL(dim, "seconds") || RTX_STRINGS_ARE_EQUAL_CS(dim, "s")) {
-        time = power;
-      } else if (RTX_STRINGS_ARE_EQUAL(dim, "ampere")  || RTX_STRINGS_ARE_EQUAL_CS(dim, "A")) {
-        current = power;
-      } else if (RTX_STRINGS_ARE_EQUAL(dim, "kelvin")  || RTX_STRINGS_ARE_EQUAL_CS(dim, "K")) {
-        temperature = power;
-      } else if (RTX_STRINGS_ARE_EQUAL(dim, "mole")    || RTX_STRINGS_ARE_EQUAL_CS(dim, "mol")) {
-        amount = power;
-      } else if (RTX_STRINGS_ARE_EQUAL(dim, "candela") || RTX_STRINGS_ARE_EQUAL_CS(dim, "cd")) {
-        intensity = power;
-      } else if (RTX_STRINGS_ARE_EQUAL(dim, "offset")) {
-        offset = power;
-      }
-    }
-    
-    return Units::Units(conversionFactor, mass, length, time, current, temperature, amount, intensity, offset);
   }
+  
+  
+  // case insensitive search?
+  typedef std::pair<std::string, Units> stringUnitsPair;
+  BOOST_FOREACH(const stringUnitsPair& sup, Units::unitStringMap) {
+    const string u = sup.first;
+    if (RTX_STRINGS_ARE_EQUAL(u, unitString)) {
+      return sup.second;
+    }
+  }
+  
+  
+  
+  // attempt to deserialize the streamed format of the unit conversion and dimension.
+  deque<string> components;
+  boost::split(components, unitString, boost::is_any_of("*+[]"), boost::algorithm::token_compress_on); // split on separators
+  
+  if (components.size() < 1) {
+    cerr << "WARNING: Units not recognized: " << unitString << " - defaulting to NO UNITS." << endl;
+    return RTX_NO_UNITS;
+  }
+  
+  // first component will be the unit conversion, so cast that into a number.
+  // this may fail, so catch it if so.
+  try {
+    conversionFactor = boost::lexical_cast<double>(components.front());
+  } catch (...) {
+    cerr << "WARNING: Units not recognized: " << unitString << " - defaulting to NO UNITS." << endl;
+    return RTX_NO_UNITS;
+  }
+  
+  components.pop_front();
+  
+  // get each dimensional power and set it.
+  BOOST_FOREACH(const string& part, components) {
+    
+    vector<string> dimensionPower;
+    boost::split(dimensionPower, part, boost::is_any_of("^="));
+    if (dimensionPower.size() != 2) {
+      continue;
+    }
+    int power = boost::lexical_cast<int>(dimensionPower.back());
+    dimensionPower.pop_back();
+    string dim = dimensionPower.back();
+    
+    // match the SI dimension name
+    if (RTX_STRINGS_ARE_EQUAL(dim, "kilograms")      || RTX_STRINGS_ARE_EQUAL_CS(dim, "kg")) {
+      mass = power;
+    } else if (RTX_STRINGS_ARE_EQUAL(dim, "meters")  || RTX_STRINGS_ARE_EQUAL_CS(dim, "m")) {
+      length = power;
+    } else if (RTX_STRINGS_ARE_EQUAL(dim, "seconds") || RTX_STRINGS_ARE_EQUAL_CS(dim, "s")) {
+      time = power;
+    } else if (RTX_STRINGS_ARE_EQUAL(dim, "ampere")  || RTX_STRINGS_ARE_EQUAL_CS(dim, "A")) {
+      current = power;
+    } else if (RTX_STRINGS_ARE_EQUAL(dim, "kelvin")  || RTX_STRINGS_ARE_EQUAL_CS(dim, "K")) {
+      temperature = power;
+    } else if (RTX_STRINGS_ARE_EQUAL(dim, "mole")    || RTX_STRINGS_ARE_EQUAL_CS(dim, "mol")) {
+      amount = power;
+    } else if (RTX_STRINGS_ARE_EQUAL(dim, "candela") || RTX_STRINGS_ARE_EQUAL_CS(dim, "cd")) {
+      intensity = power;
+    } else if (RTX_STRINGS_ARE_EQUAL(dim, "offset")) {
+      offset = power;
+    }
+  }
+  
+  return Units::Units(conversionFactor, mass, length, time, current, temperature, amount, intensity, offset);
+  
 }
 
 
