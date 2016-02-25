@@ -243,8 +243,8 @@ TimeSeries::PointCollection TimeSeries::PointCollection::trimmedToRange(TimeRang
     if (!range.contains(it->time)) {
       break;
     }
-    r2 = it;
     ++it;
+    r2 = it;
   }
   
   
