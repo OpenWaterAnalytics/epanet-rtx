@@ -126,7 +126,9 @@ namespace RTX {
     
     std::string errorMessage;
     
-    
+    bool useTransactions;
+    int maxTransactionInserts;
+    int transactionInsertCount;
     
   protected:
     

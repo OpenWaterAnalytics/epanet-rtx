@@ -65,7 +65,7 @@ namespace RTX {
     std::string _path;
     bool _connected;
     
-    bool _inTransaction, _inBulkOperation;
+    bool _inTransaction;
     int _transactionStackCount;
     int _maxTransactionStackCount;
     void checkTransactions(bool forceEndTranaction);

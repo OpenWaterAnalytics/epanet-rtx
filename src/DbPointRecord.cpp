@@ -75,6 +75,11 @@ DbPointRecord::DbPointRecord() : request("",0,0) {
   iterativeSearchMaxIterations = 8;
   iterativeSearchStride = 3*60*60;
   
+  
+  useTransactions = false;
+  maxTransactionInserts = 1000;
+  transactionInsertCount = 0;
+
 }
 
 

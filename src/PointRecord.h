@@ -91,6 +91,7 @@ namespace RTX {
   protected:
 //    std::string _cachedPointId;
 //    Point _cachedPoint;
+    bool _inBulkOperation;
     
     std::map<std::string,Point> _singlePointCache;
 //    std::map<std::string, std::vector<Point> > _pointVectorCache;

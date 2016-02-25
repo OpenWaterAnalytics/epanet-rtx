@@ -37,6 +37,9 @@ namespace RTX {
     bool shouldSearchIteratively() {return true;};
     bool supportsUnitsColumn() {return false;};
     
+    virtual void beginBulkOperation();
+    virtual void endBulkOperation();
+    
   protected:
     std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);
     Point selectNext(const std::string& id, time_t time);
@@ -54,26 +57,15 @@ namespace RTX {
       unsigned int statusCode;
     } InfluxConnectInfo_t;
     
-//    InfluxConnectInfo_t connectionInfo;
-    
-    
     JsonDocPtr jsonFromPath(const std::string& url);
-    const std::string insertionDataFromPoints(const std::string& tsName, std::vector<Point> points);
+    const std::string insertionLineFromPoints(const std::string& tsName, std::vector<Point> points);
     
-//    JsonDocPtr insertionJsonFromPoints(const std::string& tsName, std::vector<Point> points);
-//    const std::string serializedJson(JsonDocPtr doc);
     std::vector<Point> pointsFromJson(JsonDocPtr doc);
     const std::string urlForQuery(const std::string& query, bool appendTimePrecision = true); // unencoded query
     const std::string urlEncode(std::string s);
-//    void postPointsWithBody(const std::string& body);
     
-    const std::string insertionStringWithPoints(const std::string& tsName, std::vector<Point> points);
     void sendPointsWithString(const std::string& content);
-    
-//    boost::shared_ptr<boost::asio::ip::tcp::socket> _socket;
     bool _connected;
-    
-    PointRecord::time_pair_t _range;
     
     class MetricInfo {
     public:
@@ -86,6 +78,9 @@ namespace RTX {
     static std::string properId(const std::string& id);
     std::string _influxIdForTsId(const std::string& id);
     DbPointRecord::Query queryPartsFromMetricId(const std::string& name);
+    
+    void commitTransactionLines();
+    std::vector<std::string> _transactionLines;
     
   };
 }

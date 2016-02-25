@@ -33,7 +33,6 @@ using boost::asio::ip::tcp;
 
 InfluxDbPointRecord::InfluxDbPointRecord() {
   _connected = false;
-  _range = make_pair(0,0);
   _lastIdRequest = time(NULL);
   host = "*HOST*";
   user = "*USER*";
@@ -41,6 +40,8 @@ InfluxDbPointRecord::InfluxDbPointRecord() {
   port = 8086;
   db = "*DB*";
   
+  useTransactions = true;
+  _inBulkOperation = false;
 }
 
 #pragma mark Connecting
@@ -505,7 +506,7 @@ void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> 
   }
   
   BOOST_FOREACH(const Point& p, points) {
-    if (existingMap.find(p.time) == existingMap.end()) {
+    if (existingMap.count(p.time) == 0) {
       insertionPoints.push_back(p);
     }
   }
@@ -514,19 +515,40 @@ void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> 
     return;
   }
   
-  const string content = this->insertionDataFromPoints(dbId, insertionPoints);
-  this->sendPointsWithString(content);
+  const string content = this->insertionLineFromPoints(dbId, insertionPoints);
   
-  // cache the inserted range.
-  BOOST_FOREACH(const Point& p, insertionPoints) {
-    if (p.time > _range.second) {
-      _range.second = p.time;
-    }
-    if (p.time < _range.first || _range.first == 0) {
-      _range.first = p.time;
-    }
+  if (_inBulkOperation) {
+    _transactionLines.push_back(content);
+  }
+  else {
+    this->sendPointsWithString(content);
   }
   
+}
+
+#pragma mark TRANSACTION / BULK OPERATIONS
+
+void InfluxDbPointRecord::beginBulkOperation() {
+  _inBulkOperation = true;
+  _transactionLines.clear();
+}
+
+void InfluxDbPointRecord::endBulkOperation(){
+  this->commitTransactionLines();
+  _inBulkOperation = false;
+}
+
+void InfluxDbPointRecord::commitTransactionLines() {
+  string lines;
+  int i = 0;
+  BOOST_FOREACH(const string& line, _transactionLines) {
+    if (i != 0) {
+      lines.append("\n");
+    }
+    lines.append(line);
+    ++i;
+  }
+  this->sendPointsWithString(lines);
 }
 
 
@@ -739,8 +761,7 @@ vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
 
 
 
-const string InfluxDbPointRecord::insertionDataFromPoints(const string& tsName, vector<Point> points) {
-  
+const string InfluxDbPointRecord::insertionLineFromPoints(const string& tsName, vector<Point> points) {
   /*
    As you can see in the example below, you can post multiple points to multiple series at the same time by separating each point with a new line. Batching points in this manner will result in much higher performance.
    
@@ -748,15 +769,12 @@ const string InfluxDbPointRecord::insertionDataFromPoints(const string& tsName, 
    cpu_load_short,host=server01,region=us-west value=0.64
    cpu_load_short,host=server02,region=us-west value=0.55 1422568543702900257 
    cpu_load_short,direction=in,host=server01,region=us-west value=23422.0 1422568543702900257'
-   
    */
   
-  
   stringstream ss;
-  
   int i = 0;
   BOOST_FOREACH(const Point& p, points) {
-    if (i++ > 0) {
+    if (i > 0) {
       ss << '\n';
     }
     string valueStr = to_string(p.value);
@@ -765,8 +783,8 @@ const string InfluxDbPointRecord::insertionDataFromPoints(const string& tsName, 
     if ( p.value == double(int(p.value)) && valueStr.find(".") == string::npos) {
       valueStr.append(".");
     }
-    
     ss << tsName << " value=" << valueStr << "," << "quality=" << (int)p.quality << "," << "confidence=" << p.confidence << " " << p.time;
+    ++i;
   }
   
   string data = ss.str();
@@ -785,7 +803,7 @@ void InfluxDbPointRecord::sendPointsWithString(const string& content) {
   queryss << "&p=" << this->pass;
   queryss << "&precision=s";
   
-  string url("http://localhost:8086");
+  string url = "http://" + this->host + ":" + to_string(this->port);
   
   url.append(queryss.str());
   
