@@ -6,7 +6,7 @@
 #include <map>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
-
+#include <boost/algorithm/string/replace.hpp>
 
 
 #include <rapidjson/stringbuffer.h>
@@ -407,7 +407,7 @@ string InfluxDbPointRecord::_influxIdForTsId(const string& id) {
   }
   string tsId = InfluxDbPointRecord::nameFromMetricInfo(m);
   
-  if (_identifiersAndUnitsCache.find(tsId) == _identifiersAndUnitsCache.end()) {
+  if (_identifiersAndUnitsCache.count(tsId) == 0) {
     cerr << "no registered ts with that id: " << tsId << endl;
     return "";
   }
@@ -771,19 +771,18 @@ const string InfluxDbPointRecord::insertionLineFromPoints(const string& tsName, 
    cpu_load_short,direction=in,host=server01,region=us-west value=23422.0 1422568543702900257'
    */
   
+  // escape any spaces in the tsName
+  string tsNameEscaped = tsName;
+  boost::replace_all(tsNameEscaped, " ", "\\ ");
+  
   stringstream ss;
   int i = 0;
   BOOST_FOREACH(const Point& p, points) {
     if (i > 0) {
       ss << '\n';
     }
-    string valueStr = to_string(p.value);
-    // test for no-decimal condition
-    // does this ever evaluate to true? or is to_string well-behaved for this application?
-    if ( p.value == double(int(p.value)) && valueStr.find(".") == string::npos) {
-      valueStr.append(".");
-    }
-    ss << tsName << " value=" << valueStr << "," << "quality=" << (int)p.quality << "," << "confidence=" << p.confidence << " " << p.time;
+    string valueStr = to_string(p.value); // influxdb 0.10 supports integers, but only when followed by trailing "i"
+    ss << tsNameEscaped << " value=" << valueStr << "," << "quality=" << (int)p.quality << "," << "confidence=" << p.confidence << " " << p.time;
     ++i;
   }
   
