@@ -224,6 +224,8 @@ std::map<std::string, Units> Units::unitStringMap = []()
   map<string, Units> m;
   
   m["dimensionless"]= RTX_DIMENSIONLESS;
+  m["Hz"] = RTX_HERTZ;
+  m["rpm"] = RTX_RPM;
   // pressure
   m["psi"] = RTX_PSI;
   m["pa"]  = RTX_PASCAL;

@@ -15,6 +15,8 @@
 // convenience defines ------------ unit= conversion,   dimension (m,l,t,current,temp,amount,intensity)
 #define RTX_NO_UNITS                RTX::Units(0)
 #define RTX_DIMENSIONLESS           RTX::Units(1)
+#define RTX_HERTZ                   RTX::Units(1,            0,0,-1)
+#define RTX_RPM                     RTX::Units(0.016666666666667,0,0,-1)
 #define RTX_PERCENT                 RTX::Units(0.001)
 // Pressure
 #define RTX_PSI                     RTX::Units(6894.75728,   1,-1,-2)
