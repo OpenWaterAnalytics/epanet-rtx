@@ -310,14 +310,14 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
     }
     for (rapidjson::SizeType i = 0; i < series.Size(); ++i) {
       // measurement name?
-      MetricInfo m;
       const rapidjson::Value& thisSeries = series[i];
-      m.measurement = thisSeries["name"].GetString();
+      const string thisMeasureName = thisSeries["name"].GetString();
       const rapidjson::Value& columns = thisSeries["columns"];
       const rapidjson::Value& valuesArr = thisSeries["values"];
       // valuesArr is an array of arrays.
       for (rapidjson::SizeType iVal = 0; iVal < valuesArr.Size(); ++iVal) {
-        
+        MetricInfo m;
+        m.measurement = thisMeasureName;
         // this is where a time series is defined!
         
         const rapidjson::Value& thisTsValues = valuesArr[iVal];
