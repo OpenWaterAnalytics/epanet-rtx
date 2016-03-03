@@ -230,17 +230,21 @@ TimeSeries::PointCollection TimeSeries::PointCollection::trimmedToRange(TimeRang
   
   vector<Point>::const_iterator it = this->points.begin();
   vector<Point>::const_iterator r1 = it, r2 = it;
+  vector<Point>::const_iterator end = this->points.end();
   
-  while (it != this->points.end()) {
-    if (range.contains(it->time)) {
+  
+  while (it != end) {
+    time_t t = it->time;
+    if (range.contains(t)) {
       r1 = it;
       break;
     }
     ++it;
   }
   
-  while (it != this->points.end()) {
-    if (!range.contains(it->time)) {
+  while (it != end) {
+    time_t t = it->time;
+    if (!range.contains(t)) {
       break;
     }
     ++it;

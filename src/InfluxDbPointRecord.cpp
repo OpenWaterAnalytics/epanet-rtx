@@ -196,18 +196,20 @@ void InfluxDbPointRecord::setConnectionString(const std::string &str) {
 
 bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::Units units) {
   
-  scoped_lock<boost::signals2::mutex> lock(*_mutex);
+  
   MetricInfo m = InfluxDbPointRecord::metricInfoFromName(id);
   m.tags.erase("units"); // get rid of units if they are included.
   string properId = InfluxDbPointRecord::nameFromMetricInfo(m);
   
-  if (this->readonly()) {
-    // already here. ok if units match. otherwise no-no
-    return (_identifiersAndUnitsCache.count(properId) && _identifiersAndUnitsCache[properId] == units);
+  {
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
+    if (this->readonly()) {
+      // already here. ok if units match. otherwise no-no
+      return (_identifiersAndUnitsCache.count(properId) && _identifiersAndUnitsCache[properId] == units);
+    }
+    // otherwise, fine. add the series.
+    _identifiersAndUnitsCache[properId] = units;
   }
-  
-  // otherwise, fine. add the series.
-  _identifiersAndUnitsCache[properId] = units;
   
   this->addPoint(id, Point(1,0));
   
@@ -468,6 +470,12 @@ void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> 
   if (points.size() == 0) {
     return;
   }
+  
+  // is there anything here?
+  string q = "select count(value) from " + dbId;
+  string url = this->urlForQuery(q,false);
+  JsonDocPtr js = this->jsonFromPath(url);
+  
   
   vector<Point> existing;
   existing = this->selectRange(dbId, points.front().time - 1, points.back().time + 1);
