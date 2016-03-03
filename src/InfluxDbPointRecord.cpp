@@ -18,6 +18,12 @@ using namespace std;
 using namespace RTX;
 using boost::asio::ip::tcp;
 
+using rapidjson::SizeType;
+using rapidjson::Value;
+using rapidjson::StringBuffer;
+using rapidjson::Document;
+using rapidjson::Writer;
+
 #define HTTP_OK 200
 
 
@@ -72,36 +78,36 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
     }
     
     // get list of databases, see if i'm there.
-    const rapidjson::SizeType zero = 0;
-    const rapidjson::Value& results = (*doc)["results"];
+    const SizeType zero = 0;
+    const Value& results = (*doc)["results"];
     if (!results.IsArray() || results.Size() == 0) {
       this->errorMessage = "JSON Format Not Recognized";
       return;
     }
-    const rapidjson::Value& firstResult = results[zero];
+    const Value& firstResult = results[zero];
     if (!firstResult.HasMember("series")) {
       this->errorMessage = "JSON Format Not Recognized";
       return;
     }
     
-    const rapidjson::Value& series = firstResult["series"];
+    const Value& series = firstResult["series"];
     if (!series.IsArray() || series.Size() == 0) {
       this->errorMessage = "JSON Format Not Recognized";
       return;
     }
     
-    const rapidjson::Value& tsData = series[zero];
+    const Value& tsData = series[zero];
     if (tsData.HasMember("values")) {
       // there are databases here.
-      const rapidjson::Value& valuesList = tsData["values"];
+      const Value& valuesList = tsData["values"];
       if (valuesList.IsArray()) {
-        for (rapidjson::SizeType i = 0; i < valuesList.Size(); ++i) {
+        for (SizeType i = 0; i < valuesList.Size(); ++i) {
           string dbName = "";
           // measurement name?
-          const rapidjson::Value& thisDbNameRow = valuesList[i];
+          const Value& thisDbNameRow = valuesList[i];
           if (thisDbNameRow.IsArray() && thisDbNameRow.Size() > 0) {
             // first and only element is the name.
-            const rapidjson::Value& dbNameJs = thisDbNameRow[zero];
+            const Value& dbNameJs = thisDbNameRow[zero];
             dbName = dbNameJs.GetString();
           }
           if (RTX_STRINGS_ARE_EQUAL(dbName, this->db)) {
@@ -295,47 +301,43 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
     if (js->IsNull() || !js->HasMember("results")) {
       return _identifiersAndUnitsCache;
     }
-    const rapidjson::SizeType zero = 0;
-    const rapidjson::Value& results = (*js)["results"];
+    const SizeType zero = 0;
+    const Value& results = (*js)["results"];
     if (!results.IsArray() || results.Size() == 0) {
       return _identifiersAndUnitsCache;
     }
-    const rapidjson::Value& rzero = results[zero];
+    const Value& rzero = results[zero];
     if(!rzero.IsObject() || !rzero.HasMember("series")) {
       return _identifiersAndUnitsCache;
     }
-    const rapidjson::Value& series = rzero["series"];
+    const Value& series = rzero["series"];
     if (!series.IsArray() || series.Size() == 0) {
       return _identifiersAndUnitsCache;
     }
-    for (rapidjson::SizeType i = 0; i < series.Size(); ++i) {
+    for (SizeType i = 0; i < series.Size(); ++i) {
       // measurement name?
-      const rapidjson::Value& thisSeries = series[i];
+      const Value& thisSeries = series[i];
       const string thisMeasureName = thisSeries["name"].GetString();
-      const rapidjson::Value& columns = thisSeries["columns"];
-      const rapidjson::Value& valuesArr = thisSeries["values"];
+      const Value& columns = thisSeries["columns"];
+      const Value& valuesArr = thisSeries["values"];
       // valuesArr is an array of arrays.
-      for (rapidjson::SizeType iVal = 0; iVal < valuesArr.Size(); ++iVal) {
+      for (SizeType iVal = 0; iVal < valuesArr.Size(); ++iVal) {
         MetricInfo m;
         m.measurement = thisMeasureName;
         // this is where a time series is defined!
-        
-        const rapidjson::Value& thisTsValues = valuesArr[iVal];
-        // size of thisTsValues should == size of columns.
-        for (rapidjson::SizeType j = 0; j < thisTsValues.Size(); ++j) {
+        // parse the timeseries tag key-value pairs, store into metric info
+        const Value& thisTsValues = valuesArr[iVal];
+        for (SizeType j = 0; j < thisTsValues.Size(); ++j) {
           const string tsKeyStr = columns[j].GetString();
           const string tsValStr = thisTsValues[j].GetString();
-          
           // exclude internal influx _key:
           if (RTX_STRINGS_ARE_EQUAL(tsKeyStr, "_key")) {
             continue;
           }
-          
           // exclude empty valued keys
           if (RTX_STRINGS_ARE_EQUAL(tsValStr, "")) {
             continue;
           }
-          
           m.tags[tsKeyStr] = tsValStr;
         }
         
@@ -676,15 +678,15 @@ JsonDocPtr InfluxDbPointRecord::jsonFromPath(const std::string &url) {
     connectionInfo.sockStream.close();
   }
   
-  documentOut.reset(new rapidjson::Document);
+  documentOut.reset(new Document);
   if (connectionInfo.statusCode == 204 /* no content but request OK*/) {
     documentOut.get()->Parse<0>("{}");
     return documentOut;
   }
   
   documentOut.get()->Parse<0>(body.c_str());
-  rapidjson::StringBuffer buffer;
-  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+  StringBuffer buffer;
+  Writer<StringBuffer> writer(buffer);
   documentOut->Accept(writer);
   return documentOut;
 }
@@ -702,29 +704,29 @@ vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
     return points;
   }
   
-  const rapidjson::SizeType zero = 0;
-  const rapidjson::Value& results = (*doc)["results"];
+  const SizeType zero = 0;
+  const Value& results = (*doc)["results"];
   if (!results.IsArray() || results.Size() == 0) {
     return points;
   }
   
-  const rapidjson::Value& rzero = results[zero];
+  const Value& rzero = results[zero];
   if(!rzero.IsObject() || !rzero.HasMember("series")) {
     return points;
   }
   
-  const rapidjson::Value& series = rzero["series"];
+  const Value& series = rzero["series"];
   if (!series.IsArray() || series.Size() == 0) {
     return points;
   }
   
-  const rapidjson::Value& tsData = series[zero];
+  const Value& tsData = series[zero];
   string measureName = tsData["name"].GetString();
   
   // create a little map so we know what order the columns are in
   map<string,int> columnMap;
-  const rapidjson::Value& columns = tsData["columns"];
-  for (rapidjson::SizeType i = 0; i < columns.Size(); ++i) {
+  const Value& columns = tsData["columns"];
+  for (SizeType i = 0; i < columns.Size(); ++i) {
     string colName = columns[i].GetString();
     columnMap[colName] = (int)i;
   }
@@ -736,14 +738,14 @@ vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
   
   // now go through each returned row and create a point.
   // use the column name map to set point properties.
-  const rapidjson::Value& pointRows = tsData["values"];
+  const Value& pointRows = tsData["values"];
   if (!pointRows.IsArray() || pointRows.Size() == 0) {
     return points;
   }
   
   points.reserve((size_t)pointRows.Size());
-  for (rapidjson::SizeType i = 0; i < pointRows.Size(); ++i) {
-    const rapidjson::Value& row = pointRows[i];
+  for (SizeType i = 0; i < pointRows.Size(); ++i) {
+    const Value& row = pointRows[i];
     time_t pointTime = (time_t)row[timeIndex].GetInt();
     double pointValue = row[valueIndex].GetDouble();
     Point::PointQuality pointQuality = (row[qualityIndex].IsNull()) ? Point::opc_rtx_override : (Point::PointQuality)row[qualityIndex].GetInt();
@@ -810,7 +812,7 @@ void InfluxDbPointRecord::sendPointsWithString(const string& content) {
   InfluxConnectInfo_t connectionInfo;
   connectionInfo.sockStream.connect(this->host, to_string(this->port));
   if (!connectionInfo.sockStream) {
-    cerr << "influx cannot connect" << endl;
+    cerr << "influx cannot connect using URL" << url << endl;
     return;
   }
   
