@@ -24,6 +24,10 @@ using rapidjson::StringBuffer;
 using rapidjson::Document;
 using rapidjson::Writer;
 
+#include <boost/interprocess/sync/scoped_lock.hpp>
+using boost::signals2::mutex;
+using boost::interprocess::scoped_lock;
+
 #define HTTP_OK 200
 
 
@@ -48,11 +52,15 @@ InfluxDbPointRecord::InfluxDbPointRecord() {
   
   useTransactions = true;
   _inBulkOperation = false;
+  _mutex.reset(new boost::signals2::mutex);
 }
 
 #pragma mark Connecting
 
 void InfluxDbPointRecord::dbConnect() throw(RtxException) {
+  
+  
+  
   _connected = false;
   this->errorMessage = "Connecting...";
   
@@ -60,6 +68,7 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
   q << "/ping?u=" << this->user << "&p=" << this->pass;
   
   JsonDocPtr doc = this->jsonFromPath(q.str());
+  
   if (!doc || doc->IsNull()) {
     cerr << "could not connect" << endl;
     this->errorMessage = "Could Not Connect";
@@ -146,6 +155,7 @@ string InfluxDbPointRecord::connectionString() {
 }
 
 void InfluxDbPointRecord::setConnectionString(const std::string &str) {
+  scoped_lock<boost::signals2::mutex> lock(*_mutex);
   
   // split the tokenized string. we're expecting something like "host=127.0.0.1&port=4242"
   std::map<std::string, std::string> kvPairs;
@@ -186,7 +196,7 @@ void InfluxDbPointRecord::setConnectionString(const std::string &str) {
 
 bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::Units units) {
   
-  
+  scoped_lock<boost::signals2::mutex> lock(*_mutex);
   MetricInfo m = InfluxDbPointRecord::metricInfoFromName(id);
   m.tags.erase("units"); // get rid of units if they are included.
   string properId = InfluxDbPointRecord::nameFromMetricInfo(m);
@@ -203,50 +213,6 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
   
   // no futher validation.
   return true;
-   
-   
-   /*
-  
-  // placeholder in db. insert a point to create the ts, then drop the points (but not the ts)
-  
-  bool alreadyInIndex = false;
-  
-  std::map<std::string,Units> existing = this->identifiersAndUnits();
-  BOOST_FOREACH( const nameUnitsPair p, existing) {
-    string name = p.first;
-    Units units = p.second;
-    if (RTX_STRINGS_ARE_EQUAL_CS(name,id)) {
-      // already here.
-      alreadyInIndex = true;
-      break;
-    }
-  }
-  
-  if (!alreadyInIndex) {
-    
-    // insert dummy point, then delete it.
-    // add the units string if needed.
-    
-    MetricInfo m = InfluxDbPointRecord::metricInfoFromName(id);
-    if (m.tags.find("units") == m.tags.end()) {
-      m.tags["units"] = units.unitString();
-    }
-    string properId = InfluxDbPointRecord::nameFromMetricInfo(m);
-    
-    _identifiersAndUnitsCache[properId] = units;
-    
-    this->insertSingle(properId, Point(time(NULL) - 60*60*24*365));
-    stringstream ss;
-    ss << "delete from " << id << " where time < now()";
-    string url = this->urlForQuery(ss.str(),false);
-    JsonDocPtr doc = this->jsonFromPath(url);
-    
-  }
-  
-  
-  return true;
-    
-    */
 }
 
 
@@ -275,15 +241,19 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
    }
    
    */
-  
-  // quick cache hit. 5-second validity window.
-  time_t now = time(NULL);
-  if (now - _lastIdRequest < 5 && !_identifiersAndUnitsCache.empty()) {
-    return DbPointRecord::identifiersAndUnits();
+  {
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
+    
+    // quick cache hit. 5-second validity window.
+    time_t now = time(NULL);
+    if (now - _lastIdRequest < 5 && !_identifiersAndUnitsCache.empty()) {
+      return DbPointRecord::identifiersAndUnits();
+    }
+    _lastIdRequest = now;
+    
+    _identifiersAndUnitsCache.clear();
+    
   }
-  _lastIdRequest = now;
-  
-  _identifiersAndUnitsCache.clear();
   
   if (!this->isConnected()) {
     this->dbConnect();
@@ -297,7 +267,7 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
   JsonDocPtr js = this->jsonFromPath(url);
   
   if (js) {
-    
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
     if (js->IsNull() || !js->HasMember("results")) {
       return _identifiersAndUnitsCache;
     }
@@ -429,9 +399,7 @@ string InfluxDbPointRecord::_influxIdForTsId(const string& id) {
 
 std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
   std::vector<Point> points;
-  
   string dbId = _influxIdForTsId(id);
-  
   DbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time >= " + to_string(startTime) + "s");
   q.where.push_back("time <= " + to_string(endTime) + "s");
@@ -465,6 +433,7 @@ Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
 Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
   std::vector<Point> points;
   string dbId = _influxIdForTsId(id);
+  
   DbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time < " + to_string(time) + "s");
   q.order = "time desc limit 1";
@@ -642,6 +611,8 @@ JsonDocPtr InfluxDbPointRecord::jsonFromPath(const std::string &url) {
   JsonDocPtr documentOut;
   InfluxConnectInfo_t connectionInfo;
   
+  scoped_lock<boost::signals2::mutex> lock(*_mutex);
+  
   // set a timeout for socket connection operations.
   connectionInfo.sockStream.expires_from_now(boost::posix_time::seconds(20));
   
@@ -795,7 +766,7 @@ const string InfluxDbPointRecord::insertionLineFromPoints(const string& tsName, 
 
 void InfluxDbPointRecord::sendPointsWithString(const string& content) {
   
-  
+
   // host:port/write?db=my-db&precision=s
   
   stringstream queryss;
@@ -808,6 +779,7 @@ void InfluxDbPointRecord::sendPointsWithString(const string& content) {
   
   url.append(queryss.str());
   
+  scoped_lock<boost::signals2::mutex> lock(*_mutex);
   
   InfluxConnectInfo_t connectionInfo;
   connectionInfo.sockStream.connect(this->host, to_string(this->port));

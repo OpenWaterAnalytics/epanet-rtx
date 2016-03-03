@@ -7,7 +7,7 @@
 #include <rapidjson/document.h>
 
 #include <boost/asio.hpp>
-
+#include <boost/signals2/mutex.hpp>
 
 
 namespace RTX {
@@ -81,6 +81,8 @@ namespace RTX {
     
     void commitTransactionLines();
     std::vector<std::string> _transactionLines;
+    
+    boost::shared_ptr<boost::signals2::mutex> _mutex;
     
   };
 }
