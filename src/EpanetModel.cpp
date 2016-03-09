@@ -366,7 +366,7 @@ void EpanetModel::createRtxWrappers() {
     char enLinkName[RTX_MAX_CHAR_STRING], enFromName[RTX_MAX_CHAR_STRING], enToName[RTX_MAX_CHAR_STRING];
     int enFrom, enTo;
     EN_LinkType linkType;
-    double length, diameter, status, rough, setting;
+    double length, diameter, status, rough, mloss, setting;
     string linkName;
     Node::_sp startNode, endNode;
     Pipe::_sp newPipe;
@@ -383,6 +383,7 @@ void EpanetModel::createRtxWrappers() {
     OW_API_CHECK(OW_getlinkvalue(_enModel, iLink, EN_LENGTH, &length), "OW_getlinkvalue EN_LENGTH");
     OW_API_CHECK(OW_getlinkvalue(_enModel, iLink, EN_INITSTATUS, &status), "OW_getlinkvalue EN_STATUS");
     OW_API_CHECK(OW_getlinkvalue(_enModel, iLink, EN_ROUGHNESS, &rough), "OW_getlinkvalue EN_ROUGHNESS");
+    OW_API_CHECK(OW_getlinkvalue(_enModel, iLink, EN_MINORLOSS, &mloss), "OW_getlinkvalue EN_MINORLOSS");
     OW_API_CHECK(OW_getlinkvalue(_enModel, iLink, EN_INITSETTING, &setting), "OW_getlinkvalue EN_INITSETTING");
     
     linkName = string(enLinkName);
@@ -432,6 +433,7 @@ void EpanetModel::createRtxWrappers() {
     newPipe->setDiameter(diameter);
     newPipe->setLength(length);
     newPipe->setRoughness(rough);
+    newPipe->setMinorLoss(mloss);
     
     if (status == 0) {
       newPipe->setFixedStatus(Pipe::CLOSED);

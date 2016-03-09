@@ -31,6 +31,9 @@ Pipe::Pipe(const std::string& name, Node::_sp startNode, Node::_sp endNode) : Li
   state_flow    = 0.;
   state_setting = 0.;
   state_status  = 0.;
+  
+  _roughness = 100;
+  _minorLoss = 0;
 }
 
 Pipe::~Pipe() {
@@ -76,6 +79,14 @@ double Pipe::roughness() {
 void Pipe::setRoughness(double roughness) {
   _roughness = roughness;
 }
+
+double Pipe::minorLoss() {
+  return _minorLoss;
+}
+void Pipe::setMinorLoss(double minorLoss) {
+  _minorLoss = minorLoss;
+}
+
 
 #pragma mark States
 

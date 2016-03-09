@@ -31,6 +31,9 @@ public:
 
   double roughness();
   void setRoughness(double roughness);
+  
+  double minorLoss();
+  void setMinorLoss(double minorLoss);
 
   status_t fixedStatus();
   void setFixedStatus(status_t status);
@@ -59,6 +62,7 @@ private:
   double _length;
   double _diameter;
   double _roughness;
+  double _minorLoss;
   TimeSeries::_sp _flowState;
   TimeSeries::_sp _flowMeasure;
   TimeSeries::_sp _statusBoundary;
