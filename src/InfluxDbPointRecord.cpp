@@ -535,8 +535,8 @@ void InfluxDbPointRecord::commitTransactionLines() {
 
 void InfluxDbPointRecord::removeRecord(const std::string& id) {
   // to-do fix this. influx bug related to dropping a series:
-  return;
-  
+  //return;
+  const string dbId = this->_influxIdForTsId(id);
   DbPointRecord::Query q = this->queryPartsFromMetricId(id);
   
   stringstream sqlss;

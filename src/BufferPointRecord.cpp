@@ -44,6 +44,9 @@ bool BufferPointRecord::registerAndGetIdentifierForSeriesWithUnits(std::string r
       // total match! use it.
       return true;
     }
+    else {
+      _keyedBuffers.erase(recordName);
+    }
   }
   
   // check to see that it's not there

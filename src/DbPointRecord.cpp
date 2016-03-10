@@ -142,12 +142,13 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
       if (existingUnits == RTX_NO_UNITS) {
         if (this->canAssignUnits()) {
           // aha. update my units then.
-          this->assignUnitsToRecord(name, units);
+          return this->assignUnitsToRecord(name, units);
         }
       }
       else {
         // must remove the old record. units don't match for real.
         this->removeRecord(name);
+        return DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
       }
     }
     else if ( ( !nameExists || !unitsMatch ) && this->insertIdentifierAndUnits(name, units) && DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units) ) {

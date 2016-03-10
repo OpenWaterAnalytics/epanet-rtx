@@ -45,7 +45,7 @@ void TimeSeriesFilter::setResampleMode(TimeSeries::TimeSeriesResampleMode mode) 
 // filters can invalidate themselves.
 void TimeSeriesFilter::setUnits(RTX::Units newUnits) {
   if (! (newUnits == this->units())) {
-    this->invalidate();
+    //this->invalidate();
     TimeSeries::setUnits(newUnits);
   }
 }
