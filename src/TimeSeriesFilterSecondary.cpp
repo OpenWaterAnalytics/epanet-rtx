@@ -13,6 +13,7 @@ using namespace RTX;
 void TimeSeriesFilterSecondary::setSecondary(TimeSeries::_sp secondary) {
   if (this->canSetSecondary(secondary)) {
     _secondary = secondary;
+    this->didSetSecondary(secondary);
   }
 }
 
