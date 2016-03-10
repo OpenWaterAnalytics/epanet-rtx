@@ -28,6 +28,9 @@ namespace RTX {
     MultiplierMode multiplierMode();
     void setMultiplierMode(MultiplierMode mode);
     
+    time_t timeBefore(time_t t);
+    time_t timeAfter(time_t t);
+    
   protected:
     void didSetSecondary(TimeSeries::_sp secondary);
     PointCollection filterPointsInRange(TimeRange range);

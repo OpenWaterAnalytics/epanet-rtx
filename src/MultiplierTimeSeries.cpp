@@ -39,6 +39,28 @@ std::set<time_t> MultiplierTimeSeries::timeValuesInRange(RTX::TimeRange range) {
   return timeSet;
 }
 
+time_t MultiplierTimeSeries::timeBefore(time_t t) {
+  if (!this->source() || !this->secondary()) {
+    return 0;
+  }
+  time_t t1 = this->source()->timeBefore(t);
+  time_t t2 = this->secondary()->timeBefore(t);
+  // compensate for any zero-values (i.e., not-found)
+  t1 = (t1 == 0) ? t2 : t1;
+  t2 = (t2 == 0) ? t1 : t2;
+  return RTX_MIN(t1, t2);
+}
+
+time_t MultiplierTimeSeries::timeAfter(time_t t) {
+  if (!this->source() || !this->secondary()) {
+    return 0;
+  }
+  time_t t1 = this->source()->timeBefore(t);
+  time_t t2 = this->secondary()->timeBefore(t);
+  return RTX_MAX(t1, t2);
+}
+
+
 TimeSeries::PointCollection MultiplierTimeSeries::filterPointsInRange(RTX::TimeRange range) {
   
   PointCollection data(vector<Point>(), this->units());
