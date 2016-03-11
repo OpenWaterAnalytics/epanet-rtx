@@ -30,6 +30,7 @@ using boost::interprocess::scoped_lock;
 
 #define HTTP_OK 200
 
+const SizeType kZero = 0;
 
 /*
  
@@ -59,8 +60,6 @@ InfluxDbPointRecord::InfluxDbPointRecord() {
 
 void InfluxDbPointRecord::dbConnect() throw(RtxException) {
   
-  
-  
   _connected = false;
   this->errorMessage = "Connecting...";
   
@@ -78,61 +77,47 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
     // see if the database needs to be created
     bool dbExists = false;
     q.str("");
-    q << "/query?u=" << this->user << "&p=" << this->pass << "&q=" << this->urlEncode("SHOW DATABASES");
+    q << "/query?db=" << this->db << "&u=" << this->user << "&p=" << this->pass << "&q=" << this->urlEncode("SHOW MEASUREMENTS LIMIT 1");
     doc = this->jsonFromPath(q.str());
     
     if (doc->IsNull() || !doc->HasMember("results")) {
-      this->errorMessage = "SHOW DATABASES failed: Could not get Databases";
-      return;
+      if (doc->HasMember("error")) {
+        const Value& errVal = (*doc)["error"];
+        this->errorMessage = errVal.GetString();
+        return;
+      }
+      else {
+        this->errorMessage = "Connect failed: No Database?";
+        return;
+      }
     }
     
-    // get list of databases, see if i'm there.
-    const SizeType zero = 0;
+    // get the results, see if there are errors.
     const Value& results = (*doc)["results"];
     if (!results.IsArray() || results.Size() == 0) {
       this->errorMessage = "JSON Format Not Recognized";
       return;
     }
-    const Value& firstResult = results[zero];
-    if (!firstResult.HasMember("series")) {
-      this->errorMessage = "JSON Format Not Recognized";
-      return;
+    
+    const Value& firstResult = results[kZero];
+    if (firstResult.HasMember("error")) {
+      const Value& errorVal = firstResult["error"];
+      this->errorMessage = errorVal.GetString();
+    }
+    else {
+      dbExists = true;
     }
     
-    const Value& series = firstResult["series"];
-    if (!series.IsArray() || series.Size() == 0) {
-      this->errorMessage = "JSON Format Not Recognized";
-      return;
-    }
-    
-    const Value& tsData = series[zero];
-    if (tsData.HasMember("values")) {
-      // there are databases here.
-      const Value& valuesList = tsData["values"];
-      if (valuesList.IsArray()) {
-        for (SizeType i = 0; i < valuesList.Size(); ++i) {
-          string dbName = "";
-          // measurement name?
-          const Value& thisDbNameRow = valuesList[i];
-          if (thisDbNameRow.IsArray() && thisDbNameRow.Size() > 0) {
-            // first and only element is the name.
-            const Value& dbNameJs = thisDbNameRow[zero];
-            dbName = dbNameJs.GetString();
-          }
-          if (RTX_STRINGS_ARE_EQUAL(dbName, this->db)) {
-            dbExists = true;
-          }
-        }
-      }
-      
-    }
     
     if (!dbExists) {
       // create the database?
       q.str("");
       q << "/query?u=" << this->user << "&p=" << this->pass << "&q=" << this->urlEncode("CREATE DATABASE " + this->db);
       JsonDocPtr doc = this->jsonFromPath(q.str());
-      // TODO: handle unable to create db.
+      if (doc->IsNull() || !doc->HasMember("results")) {
+        this->errorMessage = "Can't create database";
+        return;
+      }
     }
     
     
@@ -273,12 +258,11 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
     if (js->IsNull() || !js->HasMember("results")) {
       return _identifiersAndUnitsCache;
     }
-    const SizeType zero = 0;
     const Value& results = (*js)["results"];
     if (!results.IsArray() || results.Size() == 0) {
       return _identifiersAndUnitsCache;
     }
-    const Value& rzero = results[zero];
+    const Value& rzero = results[kZero];
     if(!rzero.IsObject() || !rzero.HasMember("series")) {
       return _identifiersAndUnitsCache;
     }
@@ -683,13 +667,12 @@ vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
     return points;
   }
   
-  const SizeType zero = 0;
   const Value& results = (*doc)["results"];
   if (!results.IsArray() || results.Size() == 0) {
     return points;
   }
   
-  const Value& rzero = results[zero];
+  const Value& rzero = results[kZero];
   if(!rzero.IsObject() || !rzero.HasMember("series")) {
     return points;
   }
@@ -699,7 +682,7 @@ vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
     return points;
   }
   
-  const Value& tsData = series[zero];
+  const Value& tsData = series[kZero];
   string measureName = tsData["name"].GetString();
   
   // create a little map so we know what order the columns are in
