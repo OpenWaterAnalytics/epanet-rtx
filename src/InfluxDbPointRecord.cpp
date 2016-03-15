@@ -45,11 +45,11 @@ const SizeType kZero = 0;
 InfluxDbPointRecord::InfluxDbPointRecord() {
   _connected = false;
   _lastIdRequest = time(NULL);
-  host = "*HOST*";
-  user = "*USER*";
-  pass = "*PASS*";
+  host = "HOST";
+  user = "USER";
+  pass = "PASS";
   port = 8086;
-  db = "*DB*";
+  db = "DB";
   
   useTransactions = true;
   _inBulkOperation = false;
