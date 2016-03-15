@@ -16,7 +16,7 @@ Pump::Pump(const std::string& name, Node::_sp startNode, Node::_sp endNode) : Pi
   setType(PUMP);
   _energyState.reset( new TimeSeries() );
   _energyState->setName("L " + name + " Energy");
-  _energyState->setUnits(RTX_KILOWATT_HOUR);
+  _energyState->setUnits(RTX_KILOWATT);
 }
 Pump::~Pump() {
   
@@ -47,7 +47,7 @@ TimeSeries::_sp Pump::energyMeasure() {
 }
 
 void Pump::setEnergyMeasure(TimeSeries::_sp energy) {
-  if (!energy || energy->units().isSameDimensionAs(RTX_KILOWATT_HOUR) ) {
+  if (!energy || energy->units().isSameDimensionAs(RTX_KILOWATT) ) {
     _energyMeasure = energy;
   }
 }
