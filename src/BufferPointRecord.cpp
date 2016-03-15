@@ -36,7 +36,7 @@ std::ostream& BufferPointRecord::toStream(std::ostream &stream) {
 
 bool BufferPointRecord::registerAndGetIdentifierForSeriesWithUnits(std::string recordName, Units units) {
   // register the recordName internally and generate a buffer and mutex
-  
+  scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
   if (_keyedBuffers.find(recordName) != _keyedBuffers.end()) {
     // got the name - do the units match?
     Buffer b = _keyedBuffers[recordName];
