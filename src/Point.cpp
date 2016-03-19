@@ -39,7 +39,7 @@ Point::~Point() {
 
 
 const bool Point::hasQual(PointQuality qual) const {
-  return (this->quality & qual);
+  return (this->quality & qual) || (this->quality == qual);
 }
 
 void Point::addQualFlag(PointQuality qual) {
