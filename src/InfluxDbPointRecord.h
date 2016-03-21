@@ -11,7 +11,7 @@
 
 
 namespace RTX {
-  typedef boost::shared_ptr<rapidjson::Document> JsonDocPtr;
+  typedef std::shared_ptr<rapidjson::Document> JsonDocPtr;
 
   class InfluxDbPointRecord : public DbPointRecord {
     
@@ -82,7 +82,7 @@ namespace RTX {
     void commitTransactionLines();
     std::vector<std::string> _transactionLines;
     
-    boost::shared_ptr<boost::signals2::mutex> _mutex;
+    std::shared_ptr<boost::signals2::mutex> _mutex;
     
   };
 }

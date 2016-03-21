@@ -346,7 +346,7 @@ void Model::initDMAs() {
   vector<Pipe::_sp> ignorePipes = this->dmaPipesToIgnore();
   
   BOOST_FOREACH(Link::_sp link, _links | boost::adaptors::map_values) {
-    Pipe::_sp pipe = boost::static_pointer_cast<Pipe>(link);
+    Pipe::_sp pipe = std::static_pointer_cast<Pipe>(link);
     // flow measure?
     if (pipe->flowMeasure()) {
       boundaryPipes.insert(pipe);
@@ -390,7 +390,7 @@ void Model::initDMAs() {
   for (int nodeIdx = 0; nodeIdx < _nodes.size(); ++nodeIdx) {
     int dmaIdx = componentMap[nodeIdx];
     Dma::_sp dma = newDmas[dmaIdx];
-    dma->addJunction(boost::static_pointer_cast<Junction>(indexedNodes[nodeIdx]));
+    dma->addJunction(std::static_pointer_cast<Junction>(indexedNodes[nodeIdx]));
   }
   
   // finally, let the dma assemble its aggregators
@@ -1378,7 +1378,7 @@ vector<TimeSeries::_sp> Model::networkStatesWithOptions(elementOption_t options)
       case Element::JUNCTION:
       case Element::TANK:
       {
-        Tank::_sp t = boost::dynamic_pointer_cast<Tank>(element);
+        Tank::_sp t = std::dynamic_pointer_cast<Tank>(element);
         if (t) {
           if ((t->levelMeasure() && (options & ElementOptionMeasuredTanks)) || (options & ElementOptionAllTanks) ) {
             states.push_back(t->level()); // with level we get volume and flow
@@ -1390,7 +1390,7 @@ vector<TimeSeries::_sp> Model::networkStatesWithOptions(elementOption_t options)
       case Element::RESERVOIR:
       {
         Junction::_sp junc;
-        junc = boost::dynamic_pointer_cast<Junction>(element);
+        junc = std::dynamic_pointer_cast<Junction>(element);
         if ((junc->headMeasure() && (options & ElementOptionMeasuredTanks))  ||  (options & ElementOptionAllTanks) ) {
           states.push_back(junc->head());
         }
@@ -1409,7 +1409,7 @@ vector<TimeSeries::_sp> Model::networkStatesWithOptions(elementOption_t options)
       case Element::VALVE:
       case Element::PUMP: {
         Pipe::_sp pipe;
-        pipe = boost::static_pointer_cast<Pipe>(element);
+        pipe = std::static_pointer_cast<Pipe>(element);
         if ((pipe->flowMeasure() && (options & ElementOptionMeasuredFlows)) || (options & ElementOptionAllFlows) ) {
           states.push_back(pipe->flow());
         }
@@ -1435,7 +1435,7 @@ vector<TimeSeries::_sp> Model::networkInputSeries(elementOption_t options) {
     switch (element->type()) {
       case Element::TANK:
       {
-        Tank::_sp t = boost::dynamic_pointer_cast<Tank>(element);
+        Tank::_sp t = std::dynamic_pointer_cast<Tank>(element);
         if (t->levelMeasure() && (options & ElementOptionMeasuredTanks)) {
           measures.push_back(t->levelMeasure());
         }
@@ -1452,7 +1452,7 @@ vector<TimeSeries::_sp> Model::networkInputSeries(elementOption_t options) {
       }
       case Element::RESERVOIR:
       {
-        Reservoir::_sp r = boost::dynamic_pointer_cast<Reservoir>(element);
+        Reservoir::_sp r = std::dynamic_pointer_cast<Reservoir>(element);
         if (r->headMeasure() && (options & ElementOptionMeasuredTanks)) {
           measures.push_back(r->headMeasure());
         }
@@ -1467,7 +1467,7 @@ vector<TimeSeries::_sp> Model::networkInputSeries(elementOption_t options) {
       case Element::JUNCTION:
       {
         Junction::_sp junc;
-        junc = boost::static_pointer_cast<Junction>(element);
+        junc = std::static_pointer_cast<Junction>(element);
         if (junc->qualityMeasure() && (options & ElementOptionMeasuredQuality)) {
           measures.push_back(junc->qualityMeasure());
         }
@@ -1489,7 +1489,7 @@ vector<TimeSeries::_sp> Model::networkInputSeries(elementOption_t options) {
       case Element::VALVE:
       case Element::PUMP: {
         Pipe::_sp pipe;
-        pipe = boost::static_pointer_cast<Pipe>(element);
+        pipe = std::static_pointer_cast<Pipe>(element);
         if (pipe->flowMeasure() && (options & ElementOptionMeasuredFlows)) {
           measures.push_back(pipe->flowMeasure());
         }
@@ -1551,7 +1551,7 @@ void Model::fetchElementInputs(TimeRange range) {
 }
 
 bool _rtxmodel_isDbRecord(PointRecord::_sp record) {
-  return (boost::dynamic_pointer_cast<DbPointRecord>(record)) ? true : false;
+  return (std::dynamic_pointer_cast<DbPointRecord>(record)) ? true : false;
 }
 
 

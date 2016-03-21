@@ -22,16 +22,16 @@ Node::~Node() {
   
 }
 
-void Node::addLink(boost::shared_ptr<Link> link) {
-  boost::weak_ptr<Link> weaklink(link);
+void Node::addLink(std::shared_ptr<Link> link) {
+  std::weak_ptr<Link> weaklink(link);
   _links.push_back(weaklink);
 }
 
-std::vector< boost::shared_ptr<Link> > Node::links() {
-  std::vector<boost::shared_ptr<Link> > linkvector;
+std::vector< std::shared_ptr<Link> > Node::links() {
+  std::vector<std::shared_ptr<Link> > linkvector;
   // get shared pointers for these weakly pointed-to links
-  BOOST_FOREACH(boost::weak_ptr<Link> l, _links) {
-    boost::shared_ptr<Link> sharedLink(l);
+  BOOST_FOREACH(std::weak_ptr<Link> l, _links) {
+    std::shared_ptr<Link> sharedLink(l);
     linkvector.push_back(sharedLink);
   }
   return linkvector;

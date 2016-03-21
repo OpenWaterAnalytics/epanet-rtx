@@ -83,9 +83,9 @@ void MysqlPointRecord::dbConnect() throw(RtxException) {
     
     // test for database exists
     
-    boost::shared_ptr<sql::Statement> st( _mysqlCon->createStatement() );
+    std::shared_ptr<sql::Statement> st( _mysqlCon->createStatement() );
     sql::DatabaseMetaData *meta =  _mysqlCon->getMetaData();
-    boost::shared_ptr<sql::ResultSet> results( meta->getSchemas() );
+    std::shared_ptr<sql::ResultSet> results( meta->getSchemas() );
     while (results->next()) {
       std::string resultString(results->getString("TABLE_SCHEM"));
       if ( RTX_STRINGS_ARE_EQUAL(_connectionInfo.db, resultString) ) {
@@ -149,8 +149,8 @@ bool MysqlPointRecord::isConnected() {
   if (!_mysqlCon || !checkConnection()) {
     return false;
   }
-  boost::shared_ptr<sql::Statement> stmt;
-  boost::shared_ptr<sql::ResultSet> rs;
+  std::shared_ptr<sql::Statement> stmt;
+  std::shared_ptr<sql::ResultSet> rs;
   bool connected = false;
   try {
     stmt.reset(_mysqlCon->createStatement());
@@ -174,7 +174,7 @@ bool MysqlPointRecord::insertIdentifierAndUnits(const std::string &recordName, R
   this->checkConnection();
   if (isConnected()) {
     try {
-      boost::shared_ptr<sql::PreparedStatement> seriesNameStatement( _mysqlCon->prepareStatement("INSERT IGNORE INTO timeseries_meta (name,units) VALUES (?,?)") );
+      std::shared_ptr<sql::PreparedStatement> seriesNameStatement( _mysqlCon->prepareStatement("INSERT IGNORE INTO timeseries_meta (name,units) VALUES (?,?)") );
       seriesNameStatement->setString(1,recordName);
       seriesNameStatement->setString(2, units.unitString());
       seriesNameStatement->executeUpdate();
@@ -199,14 +199,14 @@ PointRecord::time_pair_t MysqlPointRecord::range(const string& id) {
   if (checkConnection()) {
     
     _firstSelect->setString(1, id);
-    boost::shared_ptr<sql::ResultSet> rResults(_firstSelect->executeQuery());
+    std::shared_ptr<sql::ResultSet> rResults(_firstSelect->executeQuery());
     vector<Point> fsPoints = pointsFromResultSet(rResults);
     if (fsPoints.size() > 0) {
       first = fsPoints.front();
     }
     
     _lastSelect->setString(1, id);
-    boost::shared_ptr<sql::ResultSet> lResults(_lastSelect->executeQuery());
+    std::shared_ptr<sql::ResultSet> lResults(_lastSelect->executeQuery());
     vector<Point> lsPoints = pointsFromResultSet(lResults);
     if (lsPoints.size() > 0) {
       last = lsPoints.front();
@@ -260,8 +260,8 @@ const std::map<std::string,Units> MysqlPointRecord::identifiersAndUnits() {
   
   if (isConnected()) {
     
-    boost::shared_ptr<sql::Statement> selectNamesStatement( _mysqlCon->createStatement() );
-    boost::shared_ptr<sql::ResultSet> results( selectNamesStatement->executeQuery("SELECT name,units FROM timeseries_meta WHERE 1") );
+    std::shared_ptr<sql::Statement> selectNamesStatement( _mysqlCon->createStatement() );
+    std::shared_ptr<sql::ResultSet> results( selectNamesStatement->executeQuery("SELECT name,units FROM timeseries_meta WHERE 1") );
     while (results->next()) {
       // add the name to the list.
       std::string theName = results->getString("name");
@@ -283,8 +283,8 @@ std::vector<std::string> MysqlPointRecord::identifiers() {
   if (!isConnected()) {
     return ids;
   }
-  boost::shared_ptr<sql::Statement> selectNamesStatement( _mysqlCon->createStatement() );
-  boost::shared_ptr<sql::ResultSet> results( selectNamesStatement->executeQuery("SELECT name FROM timeseries_meta WHERE 1") );
+  std::shared_ptr<sql::Statement> selectNamesStatement( _mysqlCon->createStatement() );
+  std::shared_ptr<sql::ResultSet> results( selectNamesStatement->executeQuery("SELECT name FROM timeseries_meta WHERE 1") );
   while (results->next()) {
     // add the name to the list.
     std::string thisName = results->getString("name");
@@ -324,7 +324,7 @@ std::vector<Point> MysqlPointRecord::selectRange(const std::string& id, time_t s
     _rangeSelect->setString(1, id);
     _rangeSelect->setInt(2, (int)start);
     _rangeSelect->setInt(3, (int)end);
-    boost::shared_ptr<sql::ResultSet> results(_rangeSelect->executeQuery());
+    std::shared_ptr<sql::ResultSet> results(_rangeSelect->executeQuery());
     points = pointsFromResultSet(results);
   }
   
@@ -409,7 +409,7 @@ void MysqlPointRecord::removeRecord(const string& id) {
   DB_PR_SUPER::reset(id);
   if (checkConnection()) {
     string removePoints = "delete p, m from points p inner join timeseries_meta m on p.series_id=m.series_id where m.name = \"" + id + "\"";
-    boost::shared_ptr<sql::Statement> removePointsStmt;
+    std::shared_ptr<sql::Statement> removePointsStmt;
     try {
       removePointsStmt.reset( _mysqlCon->createStatement() );
       removePointsStmt->executeUpdate(removePoints);
@@ -425,7 +425,7 @@ void MysqlPointRecord::truncate() {
     string truncatePoints = "TRUNCATE TABLE points";
     string truncateKeys = "TRUNCATE TABLE timeseries_meta";
     
-    boost::shared_ptr<sql::Statement> truncatePointsStmt, truncateKeysStmt;
+    std::shared_ptr<sql::Statement> truncatePointsStmt, truncateKeysStmt;
     
     truncatePointsStmt.reset( _mysqlCon->createStatement() );
     truncateKeysStmt.reset( _mysqlCon->createStatement() );
@@ -446,7 +446,7 @@ void MysqlPointRecord::truncate() {
 #pragma mark - Private
 
 // caution -- result will be freed here
-std::vector<Point> MysqlPointRecord::pointsFromResultSet(boost::shared_ptr<sql::ResultSet> result) {
+std::vector<Point> MysqlPointRecord::pointsFromResultSet(std::shared_ptr<sql::ResultSet> result) {
   std::vector<Point> points;
   while (result->next()) {
     time_t time = result->getInt("time");
@@ -461,7 +461,7 @@ std::vector<Point> MysqlPointRecord::pointsFromResultSet(boost::shared_ptr<sql::
 }
 
 
-Point MysqlPointRecord::selectSingle(const string& id, time_t time, boost::shared_ptr<sql::PreparedStatement> statement) {
+Point MysqlPointRecord::selectSingle(const string& id, time_t time, std::shared_ptr<sql::PreparedStatement> statement) {
   //cout << "mysql single: " << id << " -- " << time << endl;
   Point point;
   if (!_connected) {
@@ -471,7 +471,7 @@ Point MysqlPointRecord::selectSingle(const string& id, time_t time, boost::share
   }
   statement->setString(1, id);
   statement->setInt(2, (int)time);
-  boost::shared_ptr<sql::ResultSet> results(statement->executeQuery());
+  std::shared_ptr<sql::ResultSet> results(statement->executeQuery());
   vector<Point> points = pointsFromResultSet(results);
   if (points.size() > 0) {
     point = points.front();

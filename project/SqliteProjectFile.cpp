@@ -368,14 +368,14 @@ void SqliteProjectFile::loadRecordsFromDb() {
       else {
         filterType = DbPointRecord::OpcFilterType::OpcPassThrough;
       }
-      boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->setOpcFilterType(filterType);
+      std::dynamic_pointer_cast<DbPointRecord>(entity.record)->setOpcFilterType(filterType);
       
       if (parts.size() > 1) {
         vector<string> codeStrings;
         boost::split(codeStrings, parts[1], boost::is_any_of(","));
         BOOST_FOREACH(string s, codeStrings) {
           unsigned int code = boost::lexical_cast<int>(s);
-          boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->addOpcFilterCode(code);
+          std::dynamic_pointer_cast<DbPointRecord>(entity.record)->addOpcFilterCode(code);
         }
       }
     }
@@ -384,18 +384,18 @@ void SqliteProjectFile::loadRecordsFromDb() {
       string value = kvMap["readonly"];
       // string one or zero (1,0)
       bool readOnly = boost::lexical_cast<bool>(value);
-      boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->setReadonly(readOnly);
+      std::dynamic_pointer_cast<DbPointRecord>(entity.record)->setReadonly(readOnly);
     }
     
     if (kvMap.count("connectionString")) {
       if (RTX_STRINGS_ARE_EQUAL(entity.type, "sqlite")) {
         boost::filesystem::path dbPath(kvMap["connectionString"]);
         string absDbPath = boost::filesystem::absolute(dbPath,projPath.parent_path()).string();
-        boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->setConnectionString(absDbPath);
+        std::dynamic_pointer_cast<DbPointRecord>(entity.record)->setConnectionString(absDbPath);
       }
       else {
         string conn = kvMap["connectionString"];
-        boost::dynamic_pointer_cast<DbPointRecord>(entity.record)->setConnectionString(conn);
+        std::dynamic_pointer_cast<DbPointRecord>(entity.record)->setConnectionString(conn);
       }
     }
     
@@ -404,19 +404,19 @@ void SqliteProjectFile::loadRecordsFromDb() {
       
       /// driver
       string driver = kvMap["driver"];
-      boost::dynamic_pointer_cast<OdbcPointRecord>(entity.record)->connection.driver = driver;
+      std::dynamic_pointer_cast<OdbcPointRecord>(entity.record)->connection.driver = driver;
       
       /// connector type
       string typestr = kvMap["connectorTypeStr"];
       if (RTX_STRINGS_ARE_EQUAL(typestr, "mssql")) {
-        boost::dynamic_pointer_cast<OdbcPointRecord>(entity.record)->setConnectorType(OdbcPointRecord::mssql);
+        std::dynamic_pointer_cast<OdbcPointRecord>(entity.record)->setConnectorType(OdbcPointRecord::mssql);
       }
       else if (RTX_STRINGS_ARE_EQUAL(typestr, "wonderware")) {
-        boost::dynamic_pointer_cast<OdbcPointRecord>(entity.record)->setConnectorType(OdbcPointRecord::wonderware_mssql);
+        std::dynamic_pointer_cast<OdbcPointRecord>(entity.record)->setConnectorType(OdbcPointRecord::wonderware_mssql);
       }
       
       /// table descriptions
-      OdbcPointRecord::_sp pr = boost::dynamic_pointer_cast<OdbcPointRecord>(entity.record);
+      OdbcPointRecord::_sp pr = std::dynamic_pointer_cast<OdbcPointRecord>(entity.record);
       pr->tableDescription.dataTable = kvMap["dataTable"];
       pr->tableDescription.dataNameCol = kvMap["dataNameColumn"];
       pr->tableDescription.dataDateCol = kvMap["dataDateColumn"];
@@ -572,7 +572,7 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
   
   BOOST_FOREACH(tsListEntry entry, tsList) {
     // if it doesn't take a source, then move on.
-    TimeSeriesFilter::_sp filter = boost::dynamic_pointer_cast<TimeSeriesFilter>(entry.ts);
+    TimeSeriesFilter::_sp filter = std::dynamic_pointer_cast<TimeSeriesFilter>(entry.ts);
     if (!filter) {
       continue;
     }
@@ -593,13 +593,13 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
         filter->setSource(upstreamTs);
       }
       else if (RTX_STRINGS_ARE_EQUAL(key, "failover")) {
-        boost::dynamic_pointer_cast<FailoverTimeSeries>(filter)->setFailoverTimeseries(upstreamTs);
+        std::dynamic_pointer_cast<FailoverTimeSeries>(filter)->setFailoverTimeseries(upstreamTs);
       }
       else if (RTX_STRINGS_ARE_EQUAL(key, "multiplier")) {
-        boost::dynamic_pointer_cast<MultiplierTimeSeries>(filter)->setMultiplier(upstreamTs);
+        std::dynamic_pointer_cast<MultiplierTimeSeries>(filter)->setMultiplier(upstreamTs);
       }
       else if (RTX_STRINGS_ARE_EQUAL(key, "warp")) {
-//        boost::dynamic_pointer_cast<WarpingTimeSeries>(mod)->setWarp(upstreamTs);
+//        std::dynamic_pointer_cast<WarpingTimeSeries>(mod)->setWarp(upstreamTs);
       }
       else {
         cerr << "unknown key: " << key << endl;
@@ -629,7 +629,7 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
         continue;
       }
       if (RTX_STRINGS_ARE_EQUAL(key, "samplingWindow")) {
-        BaseStatsTimeSeries::_sp bs = boost::dynamic_pointer_cast<BaseStatsTimeSeries>(entry.ts);
+        BaseStatsTimeSeries::_sp bs = std::dynamic_pointer_cast<BaseStatsTimeSeries>(entry.ts);
         bs->setWindow(clock);
       }
     }
@@ -644,7 +644,7 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
   sqlite3_prepare_v2(_dbHandle, sqlGetAggregatorSourcesById.c_str(), -1, &stmt, NULL);
   BOOST_FOREACH(tsListEntry entry, tsList) {
     if (RTX_STRINGS_ARE_EQUAL(entry.type, "Aggregator")) {
-      AggregatorTimeSeries::_sp agg = boost::dynamic_pointer_cast<AggregatorTimeSeries>(entry.ts);
+      AggregatorTimeSeries::_sp agg = std::dynamic_pointer_cast<AggregatorTimeSeries>(entry.ts);
       if (!agg) {
         cerr << "not an aggregator" << endl;
         continue;
@@ -667,7 +667,7 @@ void SqliteProjectFile::loadTimeseriesFromDb() {
   BOOST_FOREACH(tsListEntry tsEntry, tsList) {
     if (RTX_STRINGS_ARE_EQUAL(tsEntry.type, "Curve")) {
       
-      CurveFunction::_sp curveTs = boost::dynamic_pointer_cast<CurveFunction>(tsEntry.ts);
+      CurveFunction::_sp curveTs = std::dynamic_pointer_cast<CurveFunction>(tsEntry.ts);
       if (!curveTs) {
         cerr << "not an actual curve function object" << endl;
         continue;
@@ -805,7 +805,7 @@ void SqliteProjectFile::loadModelFromDb() {
     double e_lat = sqlite3_column_double(stmt, 1);
     double e_lon = sqlite3_column_double(stmt, 2);
     
-    Node::_sp theNode = boost::dynamic_pointer_cast<Node>(_elementUidLookup[e_uid]);
+    Node::_sp theNode = std::dynamic_pointer_cast<Node>(_elementUidLookup[e_uid]);
     if (theNode) {
       theNode->setCoordinates(e_lon, e_lat);
     }
@@ -1005,18 +1005,18 @@ void SqliteProjectFile::setBaseProperties(TimeSeries::_sp ts, int uid) {
  #define typeEquals(x) RTX_STRINGS_ARE_EQUAL(type,x)
  
  if (typeEquals(dbOffsetName)) {
- boost::static_pointer_cast<OffsetTimeSeries>(ts)->setOffset(v1);
+ std::static_pointer_cast<OffsetTimeSeries>(ts)->setOffset(v1);
  }
  else if (typeEquals(dbConstantName)) {
- boost::static_pointer_cast<ConstantTimeSeries>(ts)->setValue(v1);
+ std::static_pointer_cast<ConstantTimeSeries>(ts)->setValue(v1);
  }
  else if (typeEquals(dbValidrangeName)) {
- boost::static_pointer_cast<ValidRangeTimeSeries>(ts)->setRange(v1, v2);
+ std::static_pointer_cast<ValidRangeTimeSeries>(ts)->setRange(v1, v2);
  ValidRangeTimeSeries::filterMode_t mode = (v3 > 0) ? ValidRangeTimeSeries::drop : ValidRangeTimeSeries::saturate;
- boost::static_pointer_cast<ValidRangeTimeSeries>(ts)->setMode(mode);
+ std::static_pointer_cast<ValidRangeTimeSeries>(ts)->setMode(mode);
  }
  else if (typeEquals(dbResamplerName)) {
- //    boost::static_pointer_cast<Resampler>(ts)->setMode(mode);
+ //    std::static_pointer_cast<Resampler>(ts)->setMode(mode);
  }
  
  }
@@ -1035,11 +1035,11 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
   else if (typeEquals(dbConstantName)) {
     // keys: value
     if (RTX_STRINGS_ARE_EQUAL(key, "value")) {
-      boost::dynamic_pointer_cast<ConstantTimeSeries>(ts)->setValue(val);
+      std::dynamic_pointer_cast<ConstantTimeSeries>(ts)->setValue(val);
     }
   }
   else if (typeEquals(dbSineName)) {
-    SineTimeSeries::_sp sine = boost::dynamic_pointer_cast<SineTimeSeries>(ts);
+    SineTimeSeries::_sp sine = std::dynamic_pointer_cast<SineTimeSeries>(ts);
     if (RTX_STRINGS_ARE_EQUAL(key, "magnitude")) {
       sine->setMagnitude(val);
     }
@@ -1048,13 +1048,13 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
     }
   }
   else if (typeEquals(dbResamplerName)) {
-    TimeSeriesFilter::_sp rs = boost::dynamic_pointer_cast<TimeSeriesFilter>(ts);
+    TimeSeriesFilter::_sp rs = std::dynamic_pointer_cast<TimeSeriesFilter>(ts);
     if (RTX_STRINGS_ARE_EQUAL(key, "interpolationMode")) {
       rs->setResampleMode((TimeSeries::TimeSeriesResampleMode)val);
     }
   }
   else if (typeEquals(dbMovingaverageName)) {
-    MovingAverage::_sp ma = boost::dynamic_pointer_cast<MovingAverage>(ts);
+    MovingAverage::_sp ma = std::dynamic_pointer_cast<MovingAverage>(ts);
     if (RTX_STRINGS_ARE_EQUAL(key, "window")) {
       ma->setWindowSize((int)val);
     }
@@ -1066,7 +1066,7 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
     // nothing
   }
   else if (typeEquals(dbOffsetName)) {
-    OffsetTimeSeries::_sp os = boost::dynamic_pointer_cast<OffsetTimeSeries>(ts);
+    OffsetTimeSeries::_sp os = std::dynamic_pointer_cast<OffsetTimeSeries>(ts);
     if (RTX_STRINGS_ARE_EQUAL(key, "offset")) {
       os->setOffset(val);
     }
@@ -1074,7 +1074,7 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
   else if (typeEquals(dbCurveName)) {
   }
   else if (typeEquals(dbThresholdName)) {
-    ThresholdTimeSeries::_sp th = boost::dynamic_pointer_cast<ThresholdTimeSeries>(ts);
+    ThresholdTimeSeries::_sp th = std::dynamic_pointer_cast<ThresholdTimeSeries>(ts);
     if (RTX_STRINGS_ARE_EQUAL(key, "threshold")) {
       th->setThreshold(val);
     }
@@ -1083,7 +1083,7 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
     }
   }
   else if (typeEquals(dbValidrangeName)) {
-    ValidRangeTimeSeries::_sp vr = boost::dynamic_pointer_cast<ValidRangeTimeSeries>(ts);
+    ValidRangeTimeSeries::_sp vr = std::dynamic_pointer_cast<ValidRangeTimeSeries>(ts);
     if (RTX_STRINGS_ARE_EQUAL(key, "mode")) {
       vr->setMode((ValidRangeTimeSeries::filterMode_t)val);
     }
@@ -1095,7 +1095,7 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
     }
   }
   else if (typeEquals(dbGainName)) {
-    GainTimeSeries::_sp gn = boost::dynamic_pointer_cast<GainTimeSeries>(ts);
+    GainTimeSeries::_sp gn = std::dynamic_pointer_cast<GainTimeSeries>(ts);
     if (RTX_STRINGS_ARE_EQUAL(key, "gain")) {
       gn->setGain(val);
     }
@@ -1120,13 +1120,13 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
     //
   }
   else if (typeEquals(dbFailoverName)) {
-    FailoverTimeSeries::_sp fo = boost::dynamic_pointer_cast<FailoverTimeSeries>(ts);
+    FailoverTimeSeries::_sp fo = std::dynamic_pointer_cast<FailoverTimeSeries>(ts);
     if (RTX_STRINGS_ARE_EQUAL(key, "maximumStaleness")) {
       fo->setMaximumStaleness((time_t)val);
     }
   }
   else if (typeEquals(dbLagName)) {
-    LagTimeSeries::_sp os = boost::dynamic_pointer_cast<LagTimeSeries>(ts);
+    LagTimeSeries::_sp os = std::dynamic_pointer_cast<LagTimeSeries>(ts);
     if (RTX_STRINGS_ARE_EQUAL(key, "lag")) {
       os->setOffset((time_t)val);
     }
@@ -1135,7 +1135,7 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
     //
   }
   else if (typeEquals(dbStatsName)) {
-    StatsTimeSeries::_sp st = boost::dynamic_pointer_cast<StatsTimeSeries>(ts);
+    StatsTimeSeries::_sp st = std::dynamic_pointer_cast<StatsTimeSeries>(ts);
     if (RTX_STRINGS_ARE_EQUAL(key, "samplingMode")) {
       st->setSamplingMode((StatsTimeSeries::StatsSamplingMode_t)val);
     }
@@ -1147,7 +1147,7 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
     }
   }
   else if (typeEquals(dbOutlierName)) {
-    OutlierExclusionTimeSeries::_sp outl = boost::dynamic_pointer_cast<OutlierExclusionTimeSeries>(ts);
+    OutlierExclusionTimeSeries::_sp outl = std::dynamic_pointer_cast<OutlierExclusionTimeSeries>(ts);
     if (RTX_STRINGS_ARE_EQUAL(key, "samplingMode")) {
       outl->setSamplingMode((StatsTimeSeries::StatsSamplingMode_t)val);
     }
@@ -1159,7 +1159,7 @@ void SqliteProjectFile::setPropertyValuesForTimeSeriesWithType(TimeSeries::_sp t
     }
   }
   else if (typeEquals(dbMathOpsName)) {
-    MathOpsTimeSeries::_sp mo = boost::dynamic_pointer_cast<MathOpsTimeSeries>(ts);
+    MathOpsTimeSeries::_sp mo = std::dynamic_pointer_cast<MathOpsTimeSeries>(ts);
     if (RTX_STRINGS_ARE_EQUAL(key, "opsType")) {
       mo->setMathOpsType((MathOpsTimeSeries::MathOpsTimeSeriesType)val);
     }
@@ -1227,7 +1227,7 @@ void SqliteProjectFile::setModelInputParameters() {
       case ParameterTypeReservoir:
       {
         /// do junctioney things
-        Junction::_sp j = boost::dynamic_pointer_cast<Junction>(this->model()->nodeWithName(elementName));
+        Junction::_sp j = std::dynamic_pointer_cast<Junction>(this->model()->nodeWithName(elementName));
         this->setJunctionParameter(j, entry.param, ts);
         break;
       }
@@ -1236,7 +1236,7 @@ void SqliteProjectFile::setModelInputParameters() {
       case ParameterTypeValve:
       {
         // do pipey things
-        Pipe::_sp p = boost::dynamic_pointer_cast<Pipe>(this->model()->linkWithName(elementName));
+        Pipe::_sp p = std::dynamic_pointer_cast<Pipe>(this->model()->linkWithName(elementName));
         this->setPipeParameter(p, entry.param, ts);
         break;
       }
@@ -1296,7 +1296,7 @@ void SqliteProjectFile::setJunctionParameter(Junction::_sp j, string paramName, 
     j->setHeadMeasure(ts);
   }
   else if (RTX_STRINGS_ARE_EQUAL(paramName, "levelMeasure")) {
-    boost::dynamic_pointer_cast<Tank>(j)->setLevelMeasure(ts);
+    std::dynamic_pointer_cast<Tank>(j)->setLevelMeasure(ts);
   }
   else if (RTX_STRINGS_ARE_EQUAL(paramName, "qualityMeasure")) {
     j->setQualityMeasure(ts);
@@ -1339,19 +1339,19 @@ TimeSeries::_sp SqliteProjectFile::tsPropertyForElementWithKey(Element::_sp elem
     case Element::RESERVOIR:
     {
       if (RTX_STRINGS_ARE_EQUAL(key, "tankFlow")) {
-        return boost::static_pointer_cast<Tank>(element)->flowMeasure();
+        return std::static_pointer_cast<Tank>(element)->flowMeasure();
       }
       else if (RTX_STRINGS_ARE_EQUAL(key, "level")) {
-        return boost::static_pointer_cast<Tank>(element)->level();
+        return std::static_pointer_cast<Tank>(element)->level();
       }
       else if (RTX_STRINGS_ARE_EQUAL(key, "head")) {
-        return boost::static_pointer_cast<Junction>(element)->head();
+        return std::static_pointer_cast<Junction>(element)->head();
       }
       else if (RTX_STRINGS_ARE_EQUAL(key, "pressure")) {
-        return boost::static_pointer_cast<Junction>(element)->pressure();
+        return std::static_pointer_cast<Junction>(element)->pressure();
       }
       else if (RTX_STRINGS_ARE_EQUAL(key, "quality")) {
-        return boost::static_pointer_cast<Junction>(element)->quality();
+        return std::static_pointer_cast<Junction>(element)->quality();
       }
       else {
         cerr << "Warning unknown Node key: " << key << endl;
@@ -1365,7 +1365,7 @@ TimeSeries::_sp SqliteProjectFile::tsPropertyForElementWithKey(Element::_sp elem
     case Element::VALVE:
     {
       if (RTX_STRINGS_ARE_EQUAL(key, "flow")) {
-        return boost::static_pointer_cast<Pipe>(element)->flow();
+        return std::static_pointer_cast<Pipe>(element)->flow();
       }
       else {
         cerr << "Warning unknown Link key: " << key << endl;

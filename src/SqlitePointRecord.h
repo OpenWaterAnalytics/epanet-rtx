@@ -70,7 +70,7 @@ namespace RTX {
     int _maxTransactionStackCount;
     void checkTransactions(bool forceEndTranaction);
     
-    boost::shared_ptr<boost::signals2::mutex> _mutex;
+    std::shared_ptr<boost::signals2::mutex> _mutex;
     
     bool initTables();
     void logDbError();

@@ -88,15 +88,15 @@ namespace RTX {
     void insertSingleNoCommit(const std::string& id, Point point);
     bool checkConnection();
     void insertSingle(const string& id, time_t time, double value);
-    Point selectSingle(const string& id, time_t time, boost::shared_ptr<sql::PreparedStatement> statement);
-    std::vector<Point> pointsFromResultSet(boost::shared_ptr<sql::ResultSet> result);
+    Point selectSingle(const string& id, time_t time, std::shared_ptr<sql::PreparedStatement> statement);
+    std::vector<Point> pointsFromResultSet(std::shared_ptr<sql::ResultSet> result);
     
     void handleException(sql::SQLException &e);
     string _name;
     sql::Driver* _driver;
-    boost::shared_ptr<sql::Connection> _mysqlCon;
+    std::shared_ptr<sql::Connection> _mysqlCon;
     // prepared statements for selecting, inserting
-    boost::shared_ptr<sql::PreparedStatement>  _rangeSelect,
+    std::shared_ptr<sql::PreparedStatement>  _rangeSelect,
                                                _singleSelect,
                                                _nextSelect,
                                                _previousSelect,

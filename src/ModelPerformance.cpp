@@ -416,7 +416,7 @@ pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithMet
     {
       // could be link or tank.
       if (e->type() == Element::TANK) {
-        Tank::_sp t = boost::dynamic_pointer_cast<Tank>(e);
+        Tank::_sp t = std::dynamic_pointer_cast<Tank>(e);
         if (!t) {
           break;
         }
@@ -424,7 +424,7 @@ pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithMet
         modeled = t->flow();
       }
       else {
-        Pipe::_sp p = boost::dynamic_pointer_cast<Pipe>(e);
+        Pipe::_sp p = std::dynamic_pointer_cast<Pipe>(e);
         if (!p) {
           break;
         }
@@ -435,7 +435,7 @@ pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithMet
       break;
     case ModelPerformanceMetricHead:
     {
-      Junction::_sp j = boost::dynamic_pointer_cast<Junction>(e);
+      Junction::_sp j = std::dynamic_pointer_cast<Junction>(e);
       if (!j) {
         break;
       }
@@ -445,7 +445,7 @@ pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithMet
       break;
     case ModelPerformanceMetricPressure:
     {
-      Junction::_sp j = boost::dynamic_pointer_cast<Junction>(e);
+      Junction::_sp j = std::dynamic_pointer_cast<Junction>(e);
       if (!j) {
         break;
       }
@@ -455,7 +455,7 @@ pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithMet
       break;
     case ModelPerformanceMetricLevel:
     {
-      Tank::_sp t = boost::dynamic_pointer_cast<Tank>(e);
+      Tank::_sp t = std::dynamic_pointer_cast<Tank>(e);
       if (!t) {
         break;
       }
@@ -465,7 +465,7 @@ pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithMet
       break;
     case ModelPerformanceMetricVolume:
     {
-      Tank::_sp t = boost::dynamic_pointer_cast<Tank>(e);
+      Tank::_sp t = std::dynamic_pointer_cast<Tank>(e);
       if (!t) {
         break;
       }
@@ -475,13 +475,13 @@ pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithMet
       break;
     case ModelPerformanceMetricConcentration:
     {
-      Junction::_sp j = boost::dynamic_pointer_cast<Junction>(e);
+      Junction::_sp j = std::dynamic_pointer_cast<Junction>(e);
       if (j) {
         measured = j->qualityMeasure();
         modeled = j->quality();
         break;
       }
-      Pipe::_sp p = boost::dynamic_pointer_cast<Pipe>(e);
+      Pipe::_sp p = std::dynamic_pointer_cast<Pipe>(e);
       if (p) {
         /// TO-DO
       }
@@ -489,7 +489,7 @@ pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithMet
       break;
     case ModelPerformanceMetricEnergy:
     {
-      Pump::_sp p = boost::dynamic_pointer_cast<Pump>(e);
+      Pump::_sp p = std::dynamic_pointer_cast<Pump>(e);
       if (p) {
         measured = p->energyMeasure();
         modeled = p->energy();
@@ -498,7 +498,7 @@ pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithMet
       break;
     case ModelPerformanceMetricSetting:
     {
-      Pipe::_sp p = boost::dynamic_pointer_cast<Pipe>(e);
+      Pipe::_sp p = std::dynamic_pointer_cast<Pipe>(e);
       if (p) {
         measured = p->settingBoundary();
         modeled = p->settingBoundary();
@@ -507,7 +507,7 @@ pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithMet
       break;
     case ModelPerformanceMetricStatus:
     {
-      Pipe::_sp p = boost::dynamic_pointer_cast<Pipe>(e);
+      Pipe::_sp p = std::dynamic_pointer_cast<Pipe>(e);
       if (p) {
         measured = p->statusBoundary();
         modeled = p->statusBoundary();
@@ -516,7 +516,7 @@ pair<TimeSeries::_sp, TimeSeries::_sp> ModelPerformance::tsPairForElementWithMet
       break;
     case ModelPerformanceMetricDemand:
     {
-      Junction::_sp j = boost::dynamic_pointer_cast<Junction>(e);
+      Junction::_sp j = std::dynamic_pointer_cast<Junction>(e);
       if (j) {
         measured = j->boundaryFlow();
         modeled = j->demand();

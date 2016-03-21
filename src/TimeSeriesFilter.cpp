@@ -58,7 +58,7 @@ void TimeSeriesFilter::setSource(TimeSeries::_sp ts) {
     return;
   }
   _source = ts;
-  TimeSeriesFilter::_sp filterSource = boost::dynamic_pointer_cast<TimeSeriesFilter>(ts);
+  TimeSeriesFilter::_sp filterSource = std::dynamic_pointer_cast<TimeSeriesFilter>(ts);
   if (filterSource && !this->clock()) {
     this->setClock(filterSource->clock());
   }
@@ -210,7 +210,7 @@ bool TimeSeriesFilter::willResample() {
     return false;
   }
   
-  TimeSeriesFilter::_sp sourceFilter = boost::dynamic_pointer_cast<TimeSeriesFilter>(this->source());
+  TimeSeriesFilter::_sp sourceFilter = std::dynamic_pointer_cast<TimeSeriesFilter>(this->source());
   
   if (sourceFilter) {
     // my source is a filter, so it may have a clock
@@ -345,7 +345,7 @@ void TimeSeriesFilter::didSetSource(TimeSeries::_sp ts) {
   }
   
   // if the source is a filter, and has a clock, and I don't have a clock, then use the source's clock.
-  TimeSeriesFilter::_sp sourceFilter = boost::dynamic_pointer_cast<TimeSeriesFilter>(ts);
+  TimeSeriesFilter::_sp sourceFilter = std::dynamic_pointer_cast<TimeSeriesFilter>(ts);
   if (sourceFilter && sourceFilter->clock() && !this->clock()) {
     this->setClock(sourceFilter->clock());
   }

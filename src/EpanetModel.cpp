@@ -260,7 +260,7 @@ void EpanetModel::createRtxWrappers() {
         newTank->volumeMeasure()->setUnits(volumeUnits());
         newTank->flow()->setUnits(flowUnits());
         newTank->volume()->setUnits(volumeUnits());
-        //volumeCurveTs = boost::static_pointer_cast<CurveFunction>(newTank->volumeMeasure());
+        //volumeCurveTs = std::static_pointer_cast<CurveFunction>(newTank->volumeMeasure());
         //volumeCurveTs->setInputUnits(headUnits());
         //volumeCurveTs->setUnits(volumeUnits);
         
@@ -863,14 +863,14 @@ void EpanetModel::updateEngineWithElementProperties(Element::_sp e) {
   switch (e->type()) {
     case Element::TANK:
     {
-      Tank::_sp t = boost::dynamic_pointer_cast<Tank>(e);
+      Tank::_sp t = std::dynamic_pointer_cast<Tank>(e);
       this->setNodeValue(EN_MINLEVEL, t->name(), t->minLevel());
       this->setNodeValue(EN_MAXLEVEL, t->name(), t->maxLevel());
     }
     case Element::JUNCTION:
     case Element::RESERVOIR:
     {
-      Junction::_sp j = boost::dynamic_pointer_cast<Junction>(e);
+      Junction::_sp j = std::dynamic_pointer_cast<Junction>(e);
       this->setNodeValue(EN_ELEVATION, j->name(), j->elevation());
       this->setNodeValue(EN_BASEDEMAND, j->name(), j->baseDemand());
       this->setComment(j, j->userDescription());
@@ -881,12 +881,12 @@ void EpanetModel::updateEngineWithElementProperties(Element::_sp e) {
     case Element::PUMP:
     case Element::PIPE:
     {
-      Pipe::_sp p = boost::dynamic_pointer_cast<Pipe>(e);
+      Pipe::_sp p = std::dynamic_pointer_cast<Pipe>(e);
       this->setLinkValue(EN_DIAMETER, p->name(), p->diameter());
       this->setLinkValue(EN_ROUGHNESS, p->name(), p->roughness());
       this->setLinkValue(EN_LENGTH, p->name(), p->length());
       // is it check valve? can't set status
-      Valve::_sp v = boost::dynamic_pointer_cast<Valve>(p);
+      Valve::_sp v = std::dynamic_pointer_cast<Valve>(p);
       if (v && v->valveType != EN_CVPIPE) {
         this->setLinkValue(EN_STATUS, p->name(), p->fixedStatus());
       }

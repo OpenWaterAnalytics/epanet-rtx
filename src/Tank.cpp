@@ -98,10 +98,10 @@ void Tank::setElevation(double elevation) {
   
   if (levelMeasure() || headMeasure()) {
     direction = -1;
-    offsetTs = boost::dynamic_pointer_cast<OffsetTimeSeries>(levelMeasure());
+    offsetTs = std::dynamic_pointer_cast<OffsetTimeSeries>(levelMeasure());
     if (!offsetTs) {
       direction = 1;
-      offsetTs = boost::dynamic_pointer_cast<OffsetTimeSeries>(headMeasure());
+      offsetTs = std::dynamic_pointer_cast<OffsetTimeSeries>(headMeasure());
     }
     if (offsetTs) {
       offsetTs->setOffset(elevation * direction);

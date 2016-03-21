@@ -53,7 +53,7 @@ Point ThresholdTimeSeries::filteredWithSourcePoint(RTX::Point sourcePoint) {
 void ThresholdTimeSeries::didSetSource(TimeSeries::_sp ts) {
   // don't mess with units.
   // if the source is a filter, and has a clock, and I don't have a clock, then use the source's clock.
-  TimeSeriesFilter::_sp sourceFilter = boost::dynamic_pointer_cast<TimeSeriesFilter>(ts);
+  TimeSeriesFilter::_sp sourceFilter = std::dynamic_pointer_cast<TimeSeriesFilter>(ts);
   if (sourceFilter && sourceFilter->clock() && !this->clock()) {
     this->setClock(sourceFilter->clock());
   }

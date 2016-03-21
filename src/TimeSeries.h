@@ -55,7 +55,7 @@ namespace RTX {
   
   
   
-  class TimeSeries : public boost::enable_shared_from_this<TimeSeries> {
+  class TimeSeries : public std::enable_shared_from_this<TimeSeries> {
   public:
     
     typedef enum {

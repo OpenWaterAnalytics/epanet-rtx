@@ -75,7 +75,7 @@ void Dma::addJunction(Junction::_sp junction) {
   else {
     _junctions.insert(junction);
     if (isTank(junction)) {
-      _tanks.insert(boost::static_pointer_cast<Tank>(junction));
+      _tanks.insert(std::static_pointer_cast<Tank>(junction));
     }
     if (isBoundaryFlowJunction(junction)) {
       //this->removeJunction(j);
@@ -135,7 +135,7 @@ void Dma::removeJunction(Junction::_sp junction) {
 //    vector<Link::_sp> connectedLinks = thisJ->links();
 //    BOOST_FOREACH(Link::_sp l, connectedLinks) {
 //      // follow this link?
-//      Pipe::_sp p = boost::static_pointer_cast<Pipe>(l);
+//      Pipe::_sp p = std::static_pointer_cast<Pipe>(l);
 //      if (p->doesHaveFlowMeasure()) {
 //        // look here - it's a potential dma perimeter pipe.
 //        
@@ -161,8 +161,8 @@ void Dma::removeJunction(Junction::_sp junction) {
 //      
 //      pair<Node::_sp, Node::_sp> nodes = l->nodes();
 //      vector<Junction::_sp> juncs;
-//      juncs.push_back(boost::static_pointer_cast<Junction>(nodes.first));
-//      juncs.push_back(boost::static_pointer_cast<Junction>(nodes.second));
+//      juncs.push_back(std::static_pointer_cast<Junction>(nodes.first));
+//      juncs.push_back(std::static_pointer_cast<Junction>(nodes.second));
 //      BOOST_FOREACH(Junction::_sp candidateJ, juncs) {
 //        if (candidateJ != thisJ && !this->doesHaveJunction(candidateJ)) {
 //          // add to follow list
@@ -178,7 +178,7 @@ void Dma::removeJunction(Junction::_sp junction) {
 //  
 //  map<Pipe::_sp, Pipe::direction_t> measuredBoundaryPipesDirectional = measuredBoundaryPipes();
 //  BOOST_FOREACH(Pipe::_sp p, measuredBoundaryPipesDirectional | boost::adaptors::map_keys) {
-//    if (this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->to()))) {
+//    if (this->doesHaveJunction(std::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(std::static_pointer_cast<Junction>(p->to()))) {
 //      //cout << "removing orphaned pipe: " << p->name() << endl;
 //      _measuredBoundaryPipesDirectional.erase(p);
 //      _measuredInteriorPipes.push_back(p);
@@ -186,7 +186,7 @@ void Dma::removeJunction(Junction::_sp junction) {
 //  }
 //  map<Pipe::_sp, Pipe::direction_t> closedBoundaryPipesDirectional = closedBoundaryPipes();
 //  BOOST_FOREACH(Pipe::_sp p, closedBoundaryPipesDirectional | boost::adaptors::map_keys) {
-//    if (this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(boost::static_pointer_cast<Junction>(p->to()))) {
+//    if (this->doesHaveJunction(std::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(std::static_pointer_cast<Junction>(p->to()))) {
 //      //cout << "removing orphaned pipe: " << p->name() << endl;
 //      _closedBoundaryPipesDirectional.erase(p);
 //      _closedInteriorPipes.push_back(p);
@@ -207,7 +207,7 @@ void Dma::removeJunction(Junction::_sp junction) {
 //    // check if it's a tank or metered junction
 //    if (isTank(j)) {
 //      //this->removeJunction(j);
-//      _tanks.push_back(boost::static_pointer_cast<Tank>(j));
+//      _tanks.push_back(std::static_pointer_cast<Tank>(j));
 //      //cout << "found tank: " << j->name() << endl;
 //    }
 //    else if (isBoundaryFlowJunction(j)) {
@@ -264,8 +264,8 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
   // we've supplied a list of candidate boundary pipes. prune the list of pipes that don't connect to this dma.
   BOOST_FOREACH(const Pipe::_sp p, boundarySet) {
     Junction::_sp j1, j2;
-    j1 = boost::static_pointer_cast<Junction>(p->from());
-    j2 = boost::static_pointer_cast<Junction>(p->to());
+    j1 = std::static_pointer_cast<Junction>(p->from());
+    j2 = std::static_pointer_cast<Junction>(p->to());
     
     bool j1member = this->doesHaveJunction(j1);
     bool j2member = this->doesHaveJunction(j2);
@@ -392,11 +392,11 @@ void Dma::followJunction(Junction::_sp junction) {
   
   // see if the junction is a tank -- if so, add in the tank's flowrate.
   if (junction->type() == Element::TANK) {
-    Tank::_sp thisTank = boost::static_pointer_cast<Tank>(junction);
+    Tank::_sp thisTank = std::static_pointer_cast<Tank>(junction);
     TimeSeries::_sp flow = thisTank->flowMeasure();
     
     // flow is positive into the tank (out of the dma), so its sign for demand aggregation purposes should be negative.
-    AggregatorTimeSeries::_sp dmaDemand = boost::static_pointer_cast<AggregatorTimeSeries>(this->demand());
+    AggregatorTimeSeries::_sp dmaDemand = std::static_pointer_cast<AggregatorTimeSeries>(this->demand());
     cout << "dma " << this->name() << " : adding tank source : " << flow->name() << endl;
     dmaDemand->addSource(flow, -1.);
   }
@@ -405,7 +405,7 @@ void Dma::followJunction(Junction::_sp junction) {
   // for each link connected to the junction, follow it and add its junctions
   BOOST_FOREACH(Link::_sp link, junction->links()) {
     cout << "... examining pipe " << link->name() << endl;
-    Pipe::_sp pipe = boost::static_pointer_cast<Pipe>(link);
+    Pipe::_sp pipe = std::static_pointer_cast<Pipe>(link);
     
     // get the link direction. into the dma is positive.
     bool directionIsOut = (junction == pipe->from());
@@ -421,17 +421,17 @@ void Dma::followJunction(Junction::_sp junction) {
     if ( !(pipe->doesHaveFlowMeasure()) ) {
       // follow each of the link's nodes.
       if (directionIsOut) {
-        followJunction(boost::static_pointer_cast<Junction>( pipe->to() ) );
+        followJunction(std::static_pointer_cast<Junction>( pipe->to() ) );
       }
       else {
-        followJunction(boost::static_pointer_cast<Junction>( pipe->from() ) );
+        followJunction(std::static_pointer_cast<Junction>( pipe->from() ) );
       }
     }
     else {
       // we have found a measurement.
       // add it to the control volume calculation.
       double direction = (directionIsOut? -1. : 1.);
-      AggregatorTimeSeries::_sp dmaDemand = boost::static_pointer_cast<AggregatorTimeSeries>(this->demand());
+      AggregatorTimeSeries::_sp dmaDemand = std::static_pointer_cast<AggregatorTimeSeries>(this->demand());
       if (!dmaDemand) {
         cerr << "dma time series wrong type: " << *(this->demand()) << endl;
       }

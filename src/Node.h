@@ -34,16 +34,16 @@ namespace RTX {
     virtual void setCoordinates(double x, double y);
     double elevation();
     virtual void setElevation(double elevation);
-    std::vector< boost::shared_ptr<Link> > links();
+    std::vector< std::shared_ptr<Link> > links();
     
   protected:
     Node(const std::string& name);
     virtual ~Node();
-    void addLink(boost::shared_ptr<Link> link);
+    void addLink(std::shared_ptr<Link> link);
     
   private:
     double _x, _y, _z;
-    std::vector< boost::weak_ptr<Link> > _links;
+    std::vector< std::weak_ptr<Link> > _links;
     
   };
   

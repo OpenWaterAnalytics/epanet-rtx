@@ -446,7 +446,7 @@ void ConfigProject::createTimeSeriesList(Setting& timeSeriesGroup) {
       continue;
     }
     
-    ModularTimeSeries::_sp ts = boost::static_pointer_cast<ModularTimeSeries>(_timeSeriesList[tsName]);
+    ModularTimeSeries::_sp ts = std::static_pointer_cast<ModularTimeSeries>(_timeSeriesList[tsName]);
     TimeSeries::_sp source = _timeSeriesList[sourceName];
     
     ts->setSource(source);
@@ -465,7 +465,7 @@ void ConfigProject::createTimeSeriesList(Setting& timeSeriesGroup) {
       continue;
     }
     
-    MultiplierTimeSeries::_sp mts = boost::static_pointer_cast<MultiplierTimeSeries>(ts);
+    MultiplierTimeSeries::_sp mts = std::static_pointer_cast<MultiplierTimeSeries>(ts);
     if (mts) {
       mts->setMultiplier(_timeSeriesList[basisName]);
     }
@@ -487,7 +487,7 @@ void ConfigProject::createTimeSeriesList(Setting& timeSeriesGroup) {
       continue;
     }
     
-    AggregatorTimeSeries::_sp ts = boost::static_pointer_cast<AggregatorTimeSeries>(_timeSeriesList[tsName]);
+    AggregatorTimeSeries::_sp ts = std::static_pointer_cast<AggregatorTimeSeries>(_timeSeriesList[tsName]);
     
     // go through the list and connect sources w/ multipliers
     BOOST_FOREACH(const stringDoublePair_t::value_type& entry, aggregationList) {
@@ -916,7 +916,7 @@ void ConfigProject::createDmaObjs(Setting& dmaGroup) {
       BOOST_FOREACH(const string& name, ignoreLinkNameList) {
         Link::_sp link = _model->linkWithName(name);
         if (link) {
-          ignorePipes.push_back(boost::static_pointer_cast<Pipe>(link));
+          ignorePipes.push_back(std::static_pointer_cast<Pipe>(link));
         }
       }
       
@@ -1116,7 +1116,7 @@ void ConfigProject::configureElements(Model::_sp model) {
 #pragma mark Specific element configuration
 
 void ConfigProject::configureQualitySource(Setting &setting, Element::_sp junction) {
-  Junction::_sp thisJunction = boost::dynamic_pointer_cast<Junction>(junction);
+  Junction::_sp thisJunction = std::dynamic_pointer_cast<Junction>(junction);
   if (thisJunction) {
     TimeSeries::_sp quality = _timeSeriesList[setting["timeseries"]];
     thisJunction->setQualitySource(quality);
@@ -1124,7 +1124,7 @@ void ConfigProject::configureQualitySource(Setting &setting, Element::_sp juncti
 }
 
 void ConfigProject::configureBoundaryFlow(Setting &setting, Element::_sp junction) {
-  Junction::_sp thisJunction = boost::dynamic_pointer_cast<Junction>(junction);
+  Junction::_sp thisJunction = std::dynamic_pointer_cast<Junction>(junction);
   if (thisJunction) {
     TimeSeries::_sp flow = _timeSeriesList[setting["timeseries"]];
     thisJunction->setBoundaryFlow(flow);
@@ -1132,7 +1132,7 @@ void ConfigProject::configureBoundaryFlow(Setting &setting, Element::_sp junctio
 }
 
 void ConfigProject::configureHeadMeasure(Setting &setting, Element::_sp junction) {
-  Junction::_sp thisJunction = boost::dynamic_pointer_cast<Junction>(junction);
+  Junction::_sp thisJunction = std::dynamic_pointer_cast<Junction>(junction);
   if (thisJunction) {
     TimeSeries::_sp head = _timeSeriesList[setting["timeseries"]];
     // if it's in units of PSI, then it requires a tweak. (TODO)
@@ -1141,7 +1141,7 @@ void ConfigProject::configureHeadMeasure(Setting &setting, Element::_sp junction
 }
 
 void ConfigProject::configurePressureMeasure(Setting &setting, Element::_sp junction) {
-  Junction::_sp thisJunction = boost::dynamic_pointer_cast<Junction>(junction);
+  Junction::_sp thisJunction = std::dynamic_pointer_cast<Junction>(junction);
   if (thisJunction) {
     TimeSeries::_sp pres = _timeSeriesList[setting["timeseries"]];
     // if it's in units of PSI, then it requires a tweak. (TODO)
@@ -1150,7 +1150,7 @@ void ConfigProject::configurePressureMeasure(Setting &setting, Element::_sp junc
 }
 
 void ConfigProject::configureLevelMeasure(Setting &setting, Element::_sp tank) {
-  Tank::_sp thisTank = boost::dynamic_pointer_cast<Tank>(tank);
+  Tank::_sp thisTank = std::dynamic_pointer_cast<Tank>(tank);
   if (thisTank) {
     TimeSeries::_sp level = _timeSeriesList[setting["timeseries"]];
     thisTank->setLevelMeasure(level);
@@ -1158,7 +1158,7 @@ void ConfigProject::configureLevelMeasure(Setting &setting, Element::_sp tank) {
 }
 
 void ConfigProject::configureQualityMeasure(Setting &setting, Element::_sp junction) {
-  Junction::_sp thisJunction = boost::dynamic_pointer_cast<Junction>(junction);
+  Junction::_sp thisJunction = std::dynamic_pointer_cast<Junction>(junction);
   if (thisJunction) {
     TimeSeries::_sp quality = _timeSeriesList[setting["timeseries"]];
     thisJunction->setQualityMeasure(quality);
@@ -1166,7 +1166,7 @@ void ConfigProject::configureQualityMeasure(Setting &setting, Element::_sp junct
 }
 
 void ConfigProject::configureBoundaryHead(Setting &setting, Element::_sp reservoir) {
-  Reservoir::_sp thisReservoir = boost::dynamic_pointer_cast<Reservoir>(reservoir);
+  Reservoir::_sp thisReservoir = std::dynamic_pointer_cast<Reservoir>(reservoir);
   if (thisReservoir) {
     TimeSeries::_sp head = _timeSeriesList[setting["timeseries"]];
     thisReservoir->setBoundaryHead(head);
@@ -1174,7 +1174,7 @@ void ConfigProject::configureBoundaryHead(Setting &setting, Element::_sp reservo
 }
 
 void ConfigProject::configurePipeStatus(Setting &setting, Element::_sp pipe) {
-  Pipe::_sp thisPipe = boost::dynamic_pointer_cast<Pipe>(pipe);
+  Pipe::_sp thisPipe = std::dynamic_pointer_cast<Pipe>(pipe);
   if (thisPipe) {
     TimeSeries::_sp status = _timeSeriesList[setting["timeseries"]];
     thisPipe->setStatusBoundary(status);
@@ -1182,7 +1182,7 @@ void ConfigProject::configurePipeStatus(Setting &setting, Element::_sp pipe) {
 }
 
 void ConfigProject::configurePipeSetting(Setting &setting, Element::_sp pipe) {
-  Pipe::_sp thisPipe = boost::dynamic_pointer_cast<Pipe>(pipe);
+  Pipe::_sp thisPipe = std::dynamic_pointer_cast<Pipe>(pipe);
   if (thisPipe) {
     TimeSeries::_sp pipeSetting = _timeSeriesList[setting["timeseries"]];
     thisPipe->setSettingBoundary(pipeSetting);
@@ -1190,7 +1190,7 @@ void ConfigProject::configurePipeSetting(Setting &setting, Element::_sp pipe) {
 }
 
 void ConfigProject::configureFlowMeasure(Setting &setting, Element::_sp pipe) {
-  Pipe::_sp thisPipe = boost::dynamic_pointer_cast<Pipe>(pipe);
+  Pipe::_sp thisPipe = std::dynamic_pointer_cast<Pipe>(pipe);
   if (thisPipe) {
     TimeSeries::_sp flow = _timeSeriesList[setting["timeseries"]];
     thisPipe->setFlowMeasure(flow);
@@ -1198,7 +1198,7 @@ void ConfigProject::configureFlowMeasure(Setting &setting, Element::_sp pipe) {
 }
 
 void ConfigProject::configurePumpCurve(Setting &setting, Element::_sp pump) {
-  Pump::_sp thisPump = boost::dynamic_pointer_cast<Pump>(pump);
+  Pump::_sp thisPump = std::dynamic_pointer_cast<Pump>(pump);
   if (thisPump) {
     TimeSeries::_sp curve = _timeSeriesList[setting["timeseries"]];
     thisPump->setCurveParameter(curve);
@@ -1206,7 +1206,7 @@ void ConfigProject::configurePumpCurve(Setting &setting, Element::_sp pump) {
 }
 
 void ConfigProject::configurePumpEnergyMeasure(Setting &setting, Element::_sp pump) {
-  Pump::_sp thisPump = boost::dynamic_pointer_cast<Pump>(pump);
+  Pump::_sp thisPump = std::dynamic_pointer_cast<Pump>(pump);
   if (thisPump) {
     TimeSeries::_sp energy = _timeSeriesList[setting["timeseries"]];
     thisPump->setEnergyMeasure(energy);

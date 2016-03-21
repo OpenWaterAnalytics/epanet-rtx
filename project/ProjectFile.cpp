@@ -42,7 +42,7 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
       case Element::TANK:
       case Element::RESERVOIR: {
         Junction::_sp junc;
-        junc = boost::static_pointer_cast<Junction>(element);
+        junc = std::static_pointer_cast<Junction>(element);
         if (junc->boundaryFlow()) {
           ElementSummary s;
           s.element = element;
@@ -83,7 +83,7 @@ vector<ProjectFile::ElementSummary> ProjectFile::projectSummary(time_t start, ti
       case Element::VALVE:
       case Element::PUMP: {
         Pipe::_sp pipe;
-        pipe = boost::static_pointer_cast<Pipe>(element);
+        pipe = std::static_pointer_cast<Pipe>(element);
         if (pipe->flowMeasure()) {
           ElementSummary s;
           s.element = element;

@@ -70,7 +70,7 @@ bool LagTimeSeries::willResample() {
   
   if (!resample) {
     // make double sure.
-    TimeSeriesFilter::_sp sourceFilter = boost::dynamic_pointer_cast<TimeSeriesFilter>(this->source());
+    TimeSeriesFilter::_sp sourceFilter = std::dynamic_pointer_cast<TimeSeriesFilter>(this->source());
     if (sourceFilter && sourceFilter->clock()
         && _lag != 0
         && (_lag % this->clock()->period() != 0 || this->clock()->period() % _lag != 0)) {
