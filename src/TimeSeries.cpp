@@ -29,7 +29,7 @@ TimeSeries::PointCollection::PointCollection() : points(vector<Point>()), units(
 
 set<time_t> TimeSeries::PointCollection::times() {
   set<time_t> t;
-  BOOST_FOREACH(const Point& p, this->points) {
+  for (const Point& p : this->points) {
     t.insert(p.time);
   }
   return t;
@@ -40,7 +40,7 @@ bool TimeSeries::PointCollection::convertToUnits(RTX::Units u) {
     return false;
   }
   vector<Point> converted;
-  BOOST_FOREACH(const Point& p, this->points) {
+  for (const Point& p : this->points) {
     converted.push_back(Point::convertPoint(p, this->units, u));
   }
   this->points = converted;
@@ -49,7 +49,7 @@ bool TimeSeries::PointCollection::convertToUnits(RTX::Units u) {
 }
 
 void TimeSeries::PointCollection::addQualityFlag(Point::PointQuality q) {
-  BOOST_FOREACH(Point& p, this->points) {
+  for (Point& p : this->points) {
     p.addQualFlag(q);
   }
 }
@@ -70,7 +70,7 @@ double TimeSeries::PointCollection::percentile(double p) {
   
   if (p <= 0.5) {
     accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::left> > > centile( tag::tail<boost::accumulators::left>::cache_size = cacheSize );
-    BOOST_FOREACH(const Point& point, this->points) {
+    for (const Point& point : this->points) {
       centile(point.value);
     }
     double pct = quantile(centile, quantile_probability = p);
@@ -78,7 +78,7 @@ double TimeSeries::PointCollection::percentile(double p) {
   }
   else {
     accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::right> > > centile( tag::tail<boost::accumulators::right>::cache_size = cacheSize );
-    BOOST_FOREACH(const Point& point, this->points) {
+    for (const Point& point : this->points) {
       centile(point.value);
     }
     double pct = quantile(centile, quantile_probability = p);
@@ -99,7 +99,7 @@ double TimeSeries::PointCollection::min() {
   
   accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
   
-  BOOST_FOREACH(const Point& p, points) {
+  for (const Point& p : points) {
     acc(p.value);
   }
   
@@ -113,7 +113,7 @@ double TimeSeries::PointCollection::max() {
   }
   
   accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
-  BOOST_FOREACH(const Point& p, points) {
+  for (const Point& p : points) {
     acc(p.value);
   }
   
@@ -127,7 +127,7 @@ double TimeSeries::PointCollection::mean() {
   }
   accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
   
-  BOOST_FOREACH(const Point& p, points) {
+  for (const Point& p : points) {
     acc(p.value);
   }
   
@@ -141,7 +141,7 @@ double TimeSeries::PointCollection::variance() {
   }
   accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
   
-  BOOST_FOREACH(const Point& p, points) {
+  for (const Point& p : points) {
     acc(p.value);
   }
   
@@ -188,7 +188,7 @@ TimeSeries::PointCollection TimeSeries::PointCollection::resampledAtTimes(std::s
   
   ++right; // get one step ahead.
   
-  BOOST_FOREACH(const time_t now, timeList) {
+  for (const time_t now : timeList) {
     
     // maybe we can't resample at now
     if (now < left->time) {
@@ -259,16 +259,6 @@ TimeSeries::PointCollection TimeSeries::PointCollection::trimmedToRange(TimeRang
   
   PointCollection c(filtered, this->units);
   return c;
-//  
-//  
-//  BOOST_FOREACH(const Point& p, this->points) {
-//    if (range.contains(p.time)) {
-//      filtered.push_back(p);
-//    }
-//  }
-//  
-//  PointCollection pc(filtered, this->units);
-//  return pc;
 }
 
 
@@ -280,7 +270,7 @@ TimeSeries::PointCollection TimeSeries::PointCollection::asDelta() {
     Point lastP = this->points.front();
     deltaPoints.push_back(lastP);
     
-    BOOST_FOREACH(const Point& p, this->points) {
+    for (const Point& p : this->points) {
       if (p.value != lastP.value) {
         lastP = p;
         deltaPoints.push_back(lastP);
@@ -365,7 +355,7 @@ std::vector< Point > TimeSeries::points(TimeRange range) {
 std::set<time_t> TimeSeries::timeValuesInRange(TimeRange range) {
   vector<Point> points = this->points(range);
   set<time_t> times;
-  BOOST_FOREACH(const Point& p, points) {
+  for (const Point& p : points) {
     times.insert(p.time);
   }
   return times;
