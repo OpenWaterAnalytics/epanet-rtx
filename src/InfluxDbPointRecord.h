@@ -4,15 +4,12 @@
 #include <iostream>
 
 #include "DbPointRecord.h"
-#include <rapidjson/document.h>
 
 #include <boost/asio.hpp>
 #include <boost/signals2/mutex.hpp>
 
 
 namespace RTX {
-  typedef std::shared_ptr<rapidjson::Document> JsonDocPtr;
-
   class InfluxDbPointRecord : public DbPointRecord {
     
   public:
@@ -51,19 +48,7 @@ namespace RTX {
     
   private:
     
-    typedef struct {
-      boost::asio::ip::tcp::iostream sockStream;
-      std::string httpVersion, statusMessage;
-      unsigned int statusCode;
-    } InfluxConnectInfo_t;
-    
-    JsonDocPtr jsonFromPath(const std::string& url);
     const std::string insertionLineFromPoints(const std::string& tsName, std::vector<Point> points);
-    
-    std::vector<Point> pointsFromJson(JsonDocPtr doc);
-    const std::string urlForQuery(const std::string& query, bool appendTimePrecision = true); // unencoded query
-    const std::string urlEncode(std::string s);
-    
     void sendPointsWithString(const std::string& content);
     bool _connected;
     

@@ -9,20 +9,16 @@
 #include <boost/algorithm/string/replace.hpp>
 
 
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
-
-//#include <boost/timer/timer.hpp>
+#include <cpprest/uri.h>
+#include <cpprest/json.h>
+#include <cpprest/http_client.h>
+using namespace web;
+using namespace utility;
+using namespace http;
 
 using namespace std;
 using namespace RTX;
 using boost::asio::ip::tcp;
-
-using rapidjson::SizeType;
-using rapidjson::Value;
-using rapidjson::StringBuffer;
-using rapidjson::Document;
-using rapidjson::Writer;
 
 #include <boost/interprocess/sync/scoped_lock.hpp>
 using boost::signals2::mutex;
@@ -30,17 +26,21 @@ using boost::interprocess::scoped_lock;
 
 #define HTTP_OK 200
 
-const SizeType kZero = 0;
+const char *kSERIES = "series";
+const char *kSHOW_SERIES = "show series";
+const char *kERROR = "error";
+const char *kRESULTS = "results";
+
+http::uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const std::string& query, bool withTimePrecision = true);
+web::json::value _InfluxDbPointRecord_jsonFromGet(http::uri uri);
+std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(json::value json);
 
 /*
- 
  influx will handle units a litte differently since it doesn't have a straightforward k/v store.
  in each metric name, the format is measurement,tag=value,tag=value[,...]
  we use this tag=value to also store units, but we don't want to expose that to the user on this end.
  influx will keep track of it, but we will have to manually intercept that portion of the name bidirectionally.
- 
  */
-
 
 InfluxDbPointRecord::InfluxDbPointRecord() {
   _connected = false;
@@ -63,85 +63,73 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
   _connected = false;
   this->errorMessage = "Connecting...";
   
-  stringstream q;
-  q << "/ping?u=" << this->user << "&p=" << this->pass;
+  // see if the database needs to be created
+  bool dbExists = false;
   
-  JsonDocPtr doc = this->jsonFromPath(q.str());
-  
-  if (!doc || doc->IsNull()) {
-    cerr << "could not connect" << endl;
-    this->errorMessage = "Could Not Connect";
-    return;
-  }
-  else {
-    // see if the database needs to be created
-    bool dbExists = false;
-    q.str("");
-    q << "/query?db=" << this->db << "&u=" << this->user << "&p=" << this->pass << "&q=" << this->urlEncode("SHOW MEASUREMENTS LIMIT 1");
-    doc = this->jsonFromPath(q.str());
-    
-    if (doc->IsNull() || !doc->HasMember("results")) {
-      if (doc->HasMember("error")) {
-        const Value& errVal = (*doc)["error"];
-        this->errorMessage = errVal.GetString();
-        return;
-      }
-      else {
-        this->errorMessage = "Connect failed: No Database?";
-        return;
-      }
-    }
-    
-    // get the results, see if there are errors.
-    const Value& results = (*doc)["results"];
-    if (!results.IsArray() || results.Size() == 0) {
-      this->errorMessage = "JSON Format Not Recognized";
+  http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, "SHOW MEASUREMENTS LIMIT 1", false);
+  json::object jsoMeas = _InfluxDbPointRecord_jsonFromGet(uri).as_object();
+  auto jsoNOTFOUND = jsoMeas.end();
+  if (jsoMeas.empty() || jsoMeas.find(kRESULTS) == jsoNOTFOUND) {
+    if (jsoMeas.find("error") != jsoNOTFOUND) {
+      this->errorMessage = jsoMeas["error"].as_string();
       return;
     }
-    
-    const Value& firstResult = results[kZero];
-    if (firstResult.HasMember("error")) {
-      const Value& errorVal = firstResult["error"];
-      this->errorMessage = errorVal.GetString();
-    }
     else {
-      dbExists = true;
+      this->errorMessage = "Connect failed: No Database?";
+      return;
     }
-    
-    
-    if (!dbExists) {
-      // create the database?
-      q.str("");
-      q << "/query?u=" << this->user << "&p=" << this->pass << "&q=" << this->urlEncode("CREATE DATABASE " + this->db);
-      JsonDocPtr doc = this->jsonFromPath(q.str());
-      if (doc->IsNull() || !doc->HasMember("results")) {
-        this->errorMessage = "Can't create database";
-        return;
-      }
-    }
-    
-    
-    // made it this far? at least we are connected.
-    _connected = true;
-    this->errorMessage = "OK";
-    
-    
+  }
+  
+  json::value resVal = jsoMeas[kRESULTS];
+  if (!resVal.is_array() || resVal.as_array().size() == 0) {
+    this->errorMessage = "JSON Format Not Recognized";
     return;
   }
+  
+  auto resFirst = resVal.as_array().begin();
+  json::object res = resFirst->as_object();
+  if (res.find(kERROR) != res.end()) {
+    this->errorMessage = res[kERROR].as_string();
+  }
+  else {
+    dbExists = true;
+  }
+  
+  
+  if (!dbExists) {
+    // create the database?
+    http::uri_builder b;
+    b.set_scheme("http")
+    .set_host(this->host)
+    .set_port(this->port)
+    .set_path("query")
+    .append_query("u", this->user, false)
+    .append_query("p", this->pass, false)
+    .append_query("q", "CREATE DATABASE " + this->db, true);
+    
+    json::object respObj = _InfluxDbPointRecord_jsonFromGet(b.to_uri()).as_object();
+    if (respObj.empty() || respObj.find(kRESULTS) == respObj.end()) {
+      this->errorMessage = "Can't create database";
+      return;
+    }
+  }
+  
+  // made it this far? at least we are connected.
+  _connected = true;
+  this->errorMessage = "OK";
+  
+  return;
 }
 
 
 string InfluxDbPointRecord::connectionString() {
-  
   stringstream ss;
   ss << "host=" << this->host << "&port=" << this->port << "&db=" << this->db << "&u=" << this->user << "&p=" << this->pass;
-  
   return ss.str();
 }
 
 void InfluxDbPointRecord::setConnectionString(const std::string &str) {
   scoped_lock<boost::signals2::mutex> lock(*_mutex);
-  
   // split the tokenized string. we're expecting something like "host=127.0.0.1&port=4242"
   std::map<std::string, std::string> kvPairs;
   {
@@ -152,22 +140,20 @@ void InfluxDbPointRecord::setConnectionString(const std::string &str) {
     }
   }
   
-  std::map<std::string, std::string>::iterator notfound = kvPairs.end();
-  
-  if (kvPairs.find("host") != notfound) {
+  if (kvPairs.count("host")) {
     this->host = kvPairs["host"];
   }
-  if (kvPairs.find("port") != notfound) {
+  if (kvPairs.count("port")) {
     int intPort = boost::lexical_cast<int>(kvPairs["port"]);
     this->port = intPort;
   }
-  if (kvPairs.find("db") != notfound) {
+  if (kvPairs.count("db")) {
     this->db = kvPairs["db"];
   }
-  if (kvPairs.find("u") != notfound) {
+  if (kvPairs.count("u")) {
     this->user = kvPairs["u"];
   }
-  if (kvPairs.find("p") != notfound) {
+  if (kvPairs.count("p")) {
     this->pass = kvPairs["p"];
   }
   
@@ -180,7 +166,6 @@ void InfluxDbPointRecord::setConnectionString(const std::string &str) {
 
 
 bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::Units units) {
-  
   
   MetricInfo m = InfluxDbPointRecord::metricInfoFromName(id);
   m.tags.erase("units"); // get rid of units if they are included.
@@ -249,77 +234,73 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
     return _identifiersAndUnitsCache;
   }
   
-  string q = "show series";
-  string url = this->urlForQuery(q,false);
-  JsonDocPtr js = this->jsonFromPath(url);
+  web::uri uri = _InfluxDbPointRecord_uriForQuery(*this, kSHOW_SERIES, false);
+  web::json::value jsv = _InfluxDbPointRecord_jsonFromGet(uri);
   
-  if (js) {
-    scoped_lock<boost::signals2::mutex> lock(*_mutex);
-    if (js->IsNull() || !js->HasMember("results")) {
-      return _identifiersAndUnitsCache;
-    }
-    const Value& results = (*js)["results"];
-    if (!results.IsArray() || results.Size() == 0) {
-      return _identifiersAndUnitsCache;
-    }
-    const Value& rzero = results[kZero];
-    if(!rzero.IsObject() || !rzero.HasMember("series")) {
-      return _identifiersAndUnitsCache;
-    }
-    const Value& series = rzero["series"];
-    if (!series.IsArray() || series.Size() == 0) {
-      return _identifiersAndUnitsCache;
-    }
-    for (SizeType i = 0; i < series.Size(); ++i) {
-      // measurement name?
-      const Value& thisSeries = series[i];
-      const string thisMeasureName = thisSeries["name"].GetString();
-      const Value& columns = thisSeries["columns"];
-      const Value& valuesArr = thisSeries["values"];
-      // valuesArr is an array of arrays.
-      for (SizeType iVal = 0; iVal < valuesArr.Size(); ++iVal) {
-        MetricInfo m;
-        m.measurement = thisMeasureName;
-        // this is where a time series is defined!
-        // parse the timeseries tag key-value pairs, store into metric info
-        const Value& thisTsValues = valuesArr[iVal];
-        for (SizeType j = 0; j < thisTsValues.Size(); ++j) {
-          const string tsKeyStr = columns[j].GetString();
-          const string tsValStr = thisTsValues[j].GetString();
-          // exclude internal influx _key:
-          if (RTX_STRINGS_ARE_EQUAL(tsKeyStr, "_key")) {
-            continue;
-          }
-          // exclude empty valued keys
-          if (RTX_STRINGS_ARE_EQUAL(tsValStr, "")) {
-            continue;
-          }
-          m.tags[tsKeyStr] = tsValStr;
+  web::json::object jso = jsv.as_object();
+  auto iResult = jso.find("results");
+  if (iResult == jso.end()) {
+    return _identifiersAndUnitsCache;
+  }
+  json::value resVal = iResult->second;
+  json::array resArr = resVal.as_array();
+  auto resIt = resArr.begin();
+  json::object resZeroObj = resIt->as_object();
+  
+  auto seriesArrIt = resZeroObj.find(kSERIES);
+  if (seriesArrIt == resZeroObj.end()) {
+    return _identifiersAndUnitsCache;
+  }
+  
+  json::array seriesArray = seriesArrIt->second.as_array();
+  for (auto seriesIt = seriesArray.begin(); seriesIt != seriesArray.end(); ++seriesIt) {
+    
+    json::object thisSeries = seriesIt->as_object();
+    
+    string thisMeasureName = thisSeries["name"].as_string();
+    json::array columns = thisSeries["columns"].as_array();
+    json::array values = thisSeries["values"].as_array();
+    
+    for (auto valuesIt = values.begin(); valuesIt != values.end(); ++valuesIt) {
+      MetricInfo m;
+      m.measurement = thisMeasureName;
+      // this is where a time series is defined!
+      // parse the timeseries tag key-value pairs, store into metric info
+      json::array thisTsVals = valuesIt->as_array();
+      int j = 0;
+      for (auto thisTsValsIt = thisTsVals.begin(); thisTsValsIt != thisTsVals.end(); ++thisTsValsIt, j++) {
+        const string tsKeyStr = columns[j].as_string();
+        const string tsValStr = thisTsValsIt->as_string();
+        // exclude internal influx _key:
+        if (RTX_STRINGS_ARE_EQUAL(tsKeyStr, "_key")) {
+          continue;
         }
-        
-        // now we have all kv pairs that define a time series.
-        // do we have units info? strip it off before showing the user.
-        Units units = RTX_NO_UNITS;
-        if (m.tags.find("units") != m.tags.end()) {
-          units = Units::unitOfType(m.tags["units"]);
-          // remove units from string name.
-          m.tags.erase("units");
+        // exclude empty valued keys
+        if (RTX_STRINGS_ARE_EQUAL(tsValStr, "")) {
+          continue;
         }
-        
-        // now assemble the complete name:
-        string properId = InfluxDbPointRecord::nameFromMetricInfo(m);
-        
-        // the name has been assembled!
-        _identifiersAndUnitsCache[properId] = units;
-        
-      } // for each values array (ts definition)
-    } // for each measurement
-  } // if js body exists
+        m.tags[tsKeyStr] = tsValStr;
+      }
+      
+      // now we have all kv pairs that define a time series.
+      // do we have units info? strip it off before showing the user.
+      Units units = RTX_NO_UNITS;
+      if (m.tags.find("units") != m.tags.end()) {
+        units = Units::unitOfType(m.tags["units"]);
+        // remove units from string name.
+        m.tags.erase("units");
+      }
+      
+      // now assemble the complete name and cache it:
+      string properId = InfluxDbPointRecord::nameFromMetricInfo(m);
+      _identifiersAndUnitsCache[properId] = units;
+      
+    } // for each values array (ts definition)
+    
+  }
   
   return _identifiersAndUnitsCache;
 }
-
-
 
 
 InfluxDbPointRecord::MetricInfo InfluxDbPointRecord::metricInfoFromName(const std::string &name) {
@@ -376,12 +357,7 @@ string InfluxDbPointRecord::_influxIdForTsId(const string& id) {
   return dbId;
 }
 
-
-
-
-
 #pragma mark SELECT
-
 
 std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
   std::vector<Point> points;
@@ -390,12 +366,10 @@ std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_
   q.where.push_back("time >= " + to_string(startTime) + "s");
   q.where.push_back("time <= " + to_string(endTime) + "s");
   
-  string url = this->urlForQuery(q.selectStr());
-  
-  JsonDocPtr doc = this->jsonFromPath(url);
-  return this->pointsFromJson(doc);
+  http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
+  json::value jsv = _InfluxDbPointRecord_jsonFromGet(uri);
+  return _InfluxDbPointRecord_pointsFromJson(jsv);
 }
-
 
 Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
   std::vector<Point> points;
@@ -404,9 +378,9 @@ Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
   q.where.push_back("time > " + to_string(time) + "s");
   q.order = "time asc limit 1";
   
-  string url = this->urlForQuery(q.selectStr());
-  JsonDocPtr doc = this->jsonFromPath(url);
-  points = this->pointsFromJson(doc);
+  http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
+  json::value jsv = _InfluxDbPointRecord_jsonFromGet(uri);
+  points = _InfluxDbPointRecord_pointsFromJson(jsv);
   
   if (points.size() == 0) {
     return Point();
@@ -414,7 +388,6 @@ Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
   
   return points.front();
 }
-
 
 Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
   std::vector<Point> points;
@@ -424,9 +397,9 @@ Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
   q.where.push_back("time < " + to_string(time) + "s");
   q.order = "time desc limit 1";
   
-  string url = this->urlForQuery(q.selectStr());
-  JsonDocPtr doc = this->jsonFromPath(url);
-  points = this->pointsFromJson(doc);
+  http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
+  json::value jsv = _InfluxDbPointRecord_jsonFromGet(uri);
+  points = _InfluxDbPointRecord_pointsFromJson(jsv);
   
   if (points.size() == 0) {
     return Point();
@@ -434,7 +407,6 @@ Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
   
   return points.front();
 }
-
 
 #pragma mark INSERT
 
@@ -457,8 +429,8 @@ void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> 
   
   // is there anything here?
   string q = "select count(value) from " + dbId;
-  string url = this->urlForQuery(q,false);
-  JsonDocPtr js = this->jsonFromPath(url);
+  http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, q, false);
+  json::value jsv = _InfluxDbPointRecord_jsonFromGet(uri);
   
   
   vector<Point> existing;
@@ -525,22 +497,27 @@ void InfluxDbPointRecord::removeRecord(const std::string& id) {
   
   stringstream sqlss;
   sqlss << "DROP SERIES FROM " << q.nameAndWhereClause();
-  string url = this->urlForQuery(sqlss.str(),false);
   
-  JsonDocPtr doc = this->jsonFromPath(url);
+  http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, sqlss.str());
+  json::value v = _InfluxDbPointRecord_jsonFromGet(uri);
 }
 
 void InfluxDbPointRecord::truncate() {
   
-  stringstream truncateSS;
-  truncateSS << "/query?u=" << this->user << "&p=" << this->pass << "&q=" << this->urlEncode("DROP DATABASE " + this->db);
-  JsonDocPtr d = this->jsonFromPath(truncateSS.str());
+  http::uri_builder b;
+  b.set_scheme("http")
+  .set_host(this->host)
+  .set_port(this->port)
+  .set_path("query")
+  .append_query("u", this->user, false)
+  .append_query("p", this->pass, false)
+  .append_query("q", "DROP DATABASE " + this->db, true);
+  
+  json::value v = _InfluxDbPointRecord_jsonFromGet(b.to_uri());
   
   // reconnecting will re-create the database.
   this->dbConnect();
 }
-
-
 
 
 #pragma mark Query Building
@@ -564,133 +541,83 @@ DbPointRecord::Query InfluxDbPointRecord::queryPartsFromMetricId(const std::stri
 }
 
 
-
-const std::string InfluxDbPointRecord::urlEncode(std::string s) {
+http::uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const std::string& query, bool withTimePrecision) {
   
-  std::string encStr("");
+  http::uri_builder b;
+  b.set_scheme("http").set_host(record.host).set_port(record.port).set_path("query")
+   .append_query("db", record.db, false)
+   .append_query("u", record.user, false)
+   .append_query("p", record.pass, false)
+   .append_query("q", query, true);
   
-  CURL *curl;
-  curl = curl_easy_init();
-  if (curl) {
-    char *enc;
-    enc = curl_easy_escape(curl, s.c_str(), 0);
-    encStr = string(enc);
-    curl_easy_cleanup(curl);
+  if (withTimePrecision) {
+    b.append_query("epoch","s");
   }
   
-  //  cout << s << endl;
-  return encStr;
+  return b.to_uri();
 }
 
 
-const string InfluxDbPointRecord::urlForQuery(const std::string& query, bool appendTimePrecision) {
-  stringstream queryss;
-  queryss << "/query?db=" << this->db;
-  queryss << "&u=" << this->user;
-  queryss << "&p=" << this->pass;
-  queryss << "&q=" << this->urlEncode(query);
-  if (appendTimePrecision) {
-    queryss << "&epoch=s";
-  }
+web::json::value _InfluxDbPointRecord_jsonFromGet(http::uri uri) {
+  web::json::value js = web::json::value::object();
   
-  return queryss.str();
+  try {
+    web::http::client::http_client client(uri);
+    http_response r = client.request(methods::GET).get(); // waits for response
+    if (r.status_code() == 200) {
+      js = r.extract_json().get();
+    }
+  }
+  catch(...) {
+    
+  }
+  return js;
 }
 
 
 #pragma mark Parsing
 
-JsonDocPtr InfluxDbPointRecord::jsonFromPath(const std::string &url) {
-  JsonDocPtr documentOut;
-  InfluxConnectInfo_t connectionInfo;
-  
-  scoped_lock<boost::signals2::mutex> lock(*_mutex);
-  
-  // set a timeout for socket connection operations.
-  connectionInfo.sockStream.expires_from_now(boost::posix_time::seconds(20));
-  
-  connectionInfo.sockStream.connect(this->host, to_string(this->port));
-  if (!connectionInfo.sockStream) {
-    cerr << "influx cannot connect" << endl;
-    return documentOut;
-  }
-  
-  string body;
-  {
-    // TX
-    connectionInfo.sockStream << "GET " << url << " HTTP/1.0\r\n";
-    connectionInfo.sockStream << "Host: " << this->host << "\r\n";
-    connectionInfo.sockStream << "Accept: */*\r\n";
-    connectionInfo.sockStream << "Connection: close\r\n\r\n";
-    connectionInfo.sockStream.flush();
-    
-    // RX
-    connectionInfo.sockStream >> connectionInfo.httpVersion;
-    connectionInfo.sockStream >> connectionInfo.statusCode;
-    getline(connectionInfo.sockStream, connectionInfo.statusMessage);
-    
-    string headerStr;
-    connectionInfo.sockStream >> headerStr;
-    while (std::getline(connectionInfo.sockStream, headerStr) && headerStr != "\r") {/* nothing */}
-    
-    std::getline(connectionInfo.sockStream, body);
-    cout << connectionInfo.sockStream.rdbuf() << endl;
-    
-    if (connectionInfo.statusCode != 204 && !connectionInfo.sockStream) {
-      std::cerr << "Influx Connection Error " << connectionInfo.statusCode << ": " << connectionInfo.statusMessage << "\n";
-    }
-    connectionInfo.sockStream.close();
-  }
-  
-  documentOut.reset(new Document);
-  if (connectionInfo.statusCode == 204 /* no content but request OK*/) {
-    documentOut.get()->Parse<0>("{}");
-    return documentOut;
-  }
-  
-  documentOut.get()->Parse<0>(body.c_str());
-  StringBuffer buffer;
-  Writer<StringBuffer> writer(buffer);
-  documentOut->Accept(writer);
-  return documentOut;
-}
-
-vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
-  vector<Point> points;
+std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(json::value json) {
   
   // multiple time series might be returned eventually, but for now it's just a single-value array.
+  vector<Point> points;
   
-  if (doc == NULL || !doc->IsObject()) {
+  json::object jso = json.as_object();
+  if (!json.is_object() || jso.empty()) {
     return points;
   }
-
-  if (!doc->HasMember("results")) {
+  if (jso.find(kRESULTS) == jso.end()) {
     return points;
   }
-  
-  const Value& results = (*doc)["results"];
-  if (!results.IsArray() || results.Size() == 0) {
+  json::value resultsVal = jso[kRESULTS];
+  if (!resultsVal.is_array() || resultsVal.as_array().size() == 0) {
     return points;
   }
-  
-  const Value& rzero = results[kZero];
-  if(!rzero.IsObject() || !rzero.HasMember("series")) {
+  json::value firstRes = resultsVal.as_array()[0];
+  if (!firstRes.is_object() || firstRes.as_object().find(kSERIES) == firstRes.as_object().end()) {
     return points;
   }
-  
-  const Value& series = rzero["series"];
-  if (!series.IsArray() || series.Size() == 0) {
+  json::array seriesArr = firstRes.as_object()[kSERIES].as_array();
+  if (seriesArr.size() == 0) {
     return points;
   }
-  
-  const Value& tsData = series[kZero];
-  string measureName = tsData["name"].GetString();
+  json::object series = seriesArr[0].as_object();
+  string measureName = series["name"].as_string();
   
   // create a little map so we know what order the columns are in
   map<string,int> columnMap;
-  const Value& columns = tsData["columns"];
-  for (SizeType i = 0; i < columns.Size(); ++i) {
-    string colName = columns[i].GetString();
+  json::array cols = series["columns"].as_array();
+  for (int i = 0; i < cols.size(); ++i) {
+    string colName = cols[i].as_string();
     columnMap[colName] = (int)i;
+  }
+  
+  // check columns are all there
+  for (const string &key : {"time","value","quality","confidence"}) {
+    if (columnMap.count(key) == 0) {
+      cerr << "column map does not contain key: " << key << endl;
+      return points;
+    }
   }
   
   int timeIndex = columnMap["time"];
@@ -700,28 +627,24 @@ vector<Point> InfluxDbPointRecord::pointsFromJson(JsonDocPtr doc) {
   
   // now go through each returned row and create a point.
   // use the column name map to set point properties.
-  const Value& pointRows = tsData["values"];
-  if (!pointRows.IsArray() || pointRows.Size() == 0) {
+  json::array rows = series["values"].as_array();
+  if (rows.size() == 0) {
     return points;
   }
   
-  points.reserve((size_t)pointRows.Size());
-  for (SizeType i = 0; i < pointRows.Size(); ++i) {
-    const Value& row = pointRows[i];
-    time_t pointTime = (time_t)row[timeIndex].GetInt();
-    double pointValue = row[valueIndex].GetDouble();
-    Point::PointQuality pointQuality = (row[qualityIndex].IsNull()) ? Point::opc_rtx_override : (Point::PointQuality)row[qualityIndex].GetInt();
-    double pointConf = row[confidenceIndex].GetDouble();
-    Point p(pointTime, pointValue, pointQuality, pointConf);
+  points.reserve((size_t)rows.size());
+  for (json::value rowV : rows) {
+    json::array row = rowV.as_array();
+    time_t t = row[timeIndex].as_integer();
+    double v = row[valueIndex].as_double();
+    Point::PointQuality q = (Point::PointQuality)(row[qualityIndex].as_integer());
+    double c = row[confidenceIndex].as_double();
+    Point p(t,v,q,c);
     points.push_back(p);
   }
   
-  
-  
   return points;
 }
-
-
 
 
 
@@ -757,59 +680,17 @@ const string InfluxDbPointRecord::insertionLineFromPoints(const string& tsName, 
 
 void InfluxDbPointRecord::sendPointsWithString(const string& content) {
   
-
-  // host:port/write?db=my-db&precision=s
+  http::uri_builder b;
+  b.set_scheme("http").set_host(this->host).set_port(this->port).set_path("write")
+  .append_query("db", this->db, false)
+  .append_query("u", this->user, false)
+  .append_query("p", this->pass, false)
+  .append_query("precision", "s", false);
   
-  stringstream queryss;
-  queryss << "/write?db=" << this->db;
-  queryss << "&u=" << this->user;
-  queryss << "&p=" << this->pass;
-  queryss << "&precision=s";
-  
-  string url = "http://" + this->host + ":" + to_string(this->port);
-  
-  url.append(queryss.str());
-  
-  scoped_lock<boost::signals2::mutex> lock(*_mutex);
-  
-  InfluxConnectInfo_t connectionInfo;
-  connectionInfo.sockStream.connect(this->host, to_string(this->port));
-  if (!connectionInfo.sockStream) {
-    cerr << "influx cannot connect using URL" << url << endl;
-    return;
+  web::http::client::http_client client(b.to_uri());
+  http_response r = client.request(methods::POST, "", content).get(); // waits for response
+  if (r.status_code() == 204) {
+    // no content. this is fine.
   }
-  
-  stringstream httpContent;
-  
-  httpContent << "POST " << url << " HTTP/1.0\r\n";
-  httpContent << "Host: " << this->host << "\r\n";
-  httpContent << "Accept: */*\r\n";
-  httpContent << "Content-Type: text/plain\r\n";
-  httpContent << "Content-Length: " << content.length() << "\r\n";
-  httpContent << "Connection: close\r\n\r\n";
-  httpContent << content;
-  httpContent.flush();
-  
-  // send the data
-  connectionInfo.sockStream << httpContent.str();
-  
-  // get response, process headers
-  connectionInfo.sockStream >> connectionInfo.httpVersion;
-  connectionInfo.sockStream >> connectionInfo.statusCode;
-  getline(connectionInfo.sockStream, connectionInfo.statusMessage);
-  
-  string body;
-  string headerStr;
-  while (std::getline(connectionInfo.sockStream, headerStr) && headerStr != "\r") {
-    //cout << headerStr << endl;
-    // nothing
-  }
-  
-  
-  std::getline(connectionInfo.sockStream, body);
-  cout << connectionInfo.sockStream.rdbuf() << endl;
-  connectionInfo.sockStream.flush();
-  connectionInfo.sockStream.close();
 }
-
 
