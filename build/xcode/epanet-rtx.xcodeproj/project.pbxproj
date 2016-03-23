@@ -289,6 +289,10 @@
 		2280409B158F82EF004222DA /* Pump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409A158F82EE004222DA /* Pump.cpp */; };
 		2280409D158F8326004222DA /* Valve.h in Headers */ = {isa = PBXBuildFile; fileRef = 2280409C158F8326004222DA /* Valve.h */; };
 		2280409F158F8352004222DA /* Valve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409E158F8351004222DA /* Valve.cpp */; };
+		228137D91CA2F23B00AD81F3 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228137D81CA2F23B00AD81F3 /* main.cpp */; };
+		228137DE1CA2F2C600AD81F3 /* FluxService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228137DC1CA2F2C600AD81F3 /* FluxService.cpp */; };
+		228137DF1CA2F95D00AD81F3 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
+		228137E01CA2F95F00AD81F3 /* libcpprest.2.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 223372EA1CA19D4500C87ACD /* libcpprest.2.8.dylib */; };
 		2288C1241BE3C71900F9B8FB /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		2288C1251BE3C74600F9B8FB /* TimeSeriesDuplicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2288C10A1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.cpp */; };
 		228C2D921A9E15BF003C826D /* TimeRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228C2D901A9E15BF003C826D /* TimeRange.cpp */; };
@@ -534,6 +538,13 @@
 			remoteGlobalIDString = 228A76F918450CBD00905D8E;
 			remoteInfo = "epanet-rtx-project";
 		};
+		228137DA1CA2F25D00AD81F3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 221BFD311A8E8AD000143FCC;
+			remoteInfo = "epanet-rtx static deps";
+		};
 		2288C1221BE3C70F00F9B8FB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
@@ -624,6 +635,15 @@
 			runOnlyForDeploymentPostprocessing = 1;
 		};
 		223947E51AF3B27000C8AE4F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		228137C71CA2F1FE00AD81F3 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -777,6 +797,10 @@
 		2280409A158F82EE004222DA /* Pump.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Pump.cpp; path = ../../src/Pump.cpp; sourceTree = "<group>"; };
 		2280409C158F8326004222DA /* Valve.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Valve.h; path = ../../src/Valve.h; sourceTree = "<group>"; };
 		2280409E158F8351004222DA /* Valve.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Valve.cpp; path = ../../src/Valve.cpp; sourceTree = "<group>"; };
+		228137C91CA2F1FE00AD81F3 /* FLUX-service */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "FLUX-service"; sourceTree = BUILT_PRODUCTS_DIR; };
+		228137D81CA2F23B00AD81F3 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = "../../examples/FLUX-service/main.cpp"; sourceTree = "<group>"; };
+		228137DC1CA2F2C600AD81F3 /* FluxService.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FluxService.cpp; path = "../../examples/FLUX-service/FluxService.cpp"; sourceTree = "<group>"; };
+		228137DD1CA2F2C600AD81F3 /* FluxService.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = FluxService.hpp; path = "../../examples/FLUX-service/FluxService.hpp"; sourceTree = "<group>"; };
 		2281A75915A743410018EC0F /* PointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = PointRecord.h; path = ../../src/PointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2281A75D15A744E60018EC0F /* DbPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DbPointRecord.h; path = ../../src/DbPointRecord.h; sourceTree = "<group>"; };
 		2281A75E15A7451F0018EC0F /* MysqlPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = MysqlPointRecord.h; path = ../../src/MysqlPointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -947,6 +971,15 @@
 			files = (
 				223947F71AF3B45300C8AE4F /* libepanet-rtx-project.dylib in Frameworks */,
 				223947F81AF3B45300C8AE4F /* libepanet-rtx.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		228137C61CA2F1FE00AD81F3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				228137DF1CA2F95D00AD81F3 /* libepanet-rtx.dylib in Frameworks */,
+				228137E01CA2F95F00AD81F3 /* libcpprest.2.8.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1212,6 +1245,16 @@
 			name = "Model Classes";
 			sourceTree = "<group>";
 		};
+		228137D71CA2F22C00AD81F3 /* FLUX Service */ = {
+			isa = PBXGroup;
+			children = (
+				228137D81CA2F23B00AD81F3 /* main.cpp */,
+				228137DD1CA2F2C600AD81F3 /* FluxService.hpp */,
+				228137DC1CA2F2C600AD81F3 /* FluxService.cpp */,
+			);
+			name = "FLUX Service";
+			sourceTree = "<group>";
+		};
 		2288C1041BE3C09F00F9B8FB /* TS Duplicator */ = {
 			isa = PBXGroup;
 			children = (
@@ -1311,6 +1354,7 @@
 				2274871E19AE234200A48475 /* Python Interpreter */,
 				22C62AC91439ED9300841E60 /* time series classes */,
 				228CA8CE1AA0CBC400D0353E /* time series extensions */,
+				228137D71CA2F22C00AD81F3 /* FLUX Service */,
 				2288C1041BE3C09F00F9B8FB /* TS Duplicator */,
 				22C62AC11439ED6300841E60 /* Products */,
 				220DFA9C15502E4100AF41D0 /* Libraries */,
@@ -1334,6 +1378,7 @@
 				223947E71AF3B27000C8AE4F /* model exporter */,
 				2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */,
 				220D42DD1BEFFF9000C9AB36 /* RTX_DuperDaemon */,
+				228137C91CA2F1FE00AD81F3 /* FLUX-service */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1768,6 +1813,24 @@
 			productReference = 223947E71AF3B27000C8AE4F /* model exporter */;
 			productType = "com.apple.product-type.tool";
 		};
+		228137C81CA2F1FE00AD81F3 /* FLUX-service */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 228137D51CA2F1FE00AD81F3 /* Build configuration list for PBXNativeTarget "FLUX-service" */;
+			buildPhases = (
+				228137C51CA2F1FE00AD81F3 /* Sources */,
+				228137C61CA2F1FE00AD81F3 /* Frameworks */,
+				228137C71CA2F1FE00AD81F3 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				228137DB1CA2F25D00AD81F3 /* PBXTargetDependency */,
+			);
+			name = "FLUX-service";
+			productName = "FLUX-service";
+			productReference = 228137C91CA2F1FE00AD81F3 /* FLUX-service */;
+			productType = "com.apple.product-type.tool";
+		};
 		2288C10F1BE3C5DC00F9B8FB /* TimeSeriesDuplicator */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2288C1181BE3C5DC00F9B8FB /* Build configuration list for PBXNativeTarget "TimeSeriesDuplicator" */;
@@ -1964,6 +2027,9 @@
 					223947E61AF3B27000C8AE4F = {
 						CreatedOnToolsVersion = 6.2;
 					};
+					228137C81CA2F1FE00AD81F3 = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
 					2288C10F1BE3C5DC00F9B8FB = {
 						CreatedOnToolsVersion = 7.1;
 					};
@@ -2008,6 +2074,7 @@
 				22CF1C381A6842DC00161188 /* testTsFilter */,
 				223947E61AF3B27000C8AE4F /* model exporter */,
 				220D42DC1BEFFF9000C9AB36 /* RTX_DuperDaemon */,
+				228137C81CA2F1FE00AD81F3 /* FLUX-service */,
 			);
 		};
 /* End PBXProject section */
@@ -2205,6 +2272,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				223947EA1AF3B27000C8AE4F /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		228137C51CA2F1FE00AD81F3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				228137DE1CA2F2C600AD81F3 /* FluxService.cpp in Sources */,
+				228137D91CA2F23B00AD81F3 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2442,6 +2518,11 @@
 			isa = PBXTargetDependency;
 			target = 228A76F918450CBD00905D8E /* epanet-rtx-project */;
 			targetProxy = 225954451AE92FF000ADF8C6 /* PBXContainerItemProxy */;
+		};
+		228137DB1CA2F25D00AD81F3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 221BFD311A8E8AD000143FCC /* epanet-rtx static deps */;
+			targetProxy = 228137DA1CA2F25D00AD81F3 /* PBXContainerItemProxy */;
 		};
 		2288C1231BE3C70F00F9B8FB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2737,6 +2818,75 @@
 			};
 			name = Release;
 		};
+		228137CD1CA2F1FE00AD81F3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					/usr/local/com.citilogics.dev/include,
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/com.citilogics.dev/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		228137CE1CA2F1FE00AD81F3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					/usr/local/com.citilogics.dev/include,
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/com.citilogics.dev/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		2288C1191BE3C5DC00F9B8FB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -3005,6 +3155,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -3032,6 +3183,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -3419,6 +3571,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		228137D51CA2F1FE00AD81F3 /* Build configuration list for PBXNativeTarget "FLUX-service" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				228137CD1CA2F1FE00AD81F3 /* Debug */,
+				228137CE1CA2F1FE00AD81F3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 		2288C1181BE3C5DC00F9B8FB /* Build configuration list for PBXNativeTarget "TimeSeriesDuplicator" */ = {
 			isa = XCConfigurationList;
