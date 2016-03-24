@@ -67,17 +67,17 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
   bool dbExists = false;
   
   http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, "SHOW MEASUREMENTS LIMIT 1", false);
-  json::value jsoMeasV = _InfluxDbPointRecord_jsonFromGet(*this, uri);
-  
-  string jsoStr = jsoMeasV.serialize();
-  
-  json::object jsoMeas = jsoMeasV.as_object();
-  
+  json::object jsoMeas = _InfluxDbPointRecord_jsonFromGet(*this,uri).as_object();
   auto jsoNOTFOUND = jsoMeas.end();
-  
-  if (jsoMeas.find("error") != jsoNOTFOUND) {
-    this->errorMessage = jsoMeas["error"].as_string();
-    return;
+  if (jsoMeas.empty() || jsoMeas.find(kRESULTS) == jsoNOTFOUND) {
+    if (jsoMeas.find("error") != jsoNOTFOUND) {
+      this->errorMessage = jsoMeas["error"].as_string();
+      return;
+    }
+    else {
+      this->errorMessage = "Connect failed: No Database?";
+      return;
+    }
   }
   
   json::value resVal = jsoMeas[kRESULTS];
