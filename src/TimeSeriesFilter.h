@@ -61,6 +61,8 @@ namespace RTX {
   
   class TimeSeriesFilter : public TimeSeries {
   public:
+    VISITABLE();
+    
     RTX_SHARED_POINTER(TimeSeriesFilter);
     TimeSeriesFilter();
         

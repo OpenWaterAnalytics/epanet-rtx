@@ -18,6 +18,8 @@
 #include <cpprest/asyncrt_utils.h>
 
 #include "TimeSeries.h"
+#include "InfluxdbPointRecord.h"
+#include "OdbcPointRecord.h"
 
 using web::http::http_request;
 using web::http::experimental::listener::http_listener;
@@ -36,9 +38,19 @@ namespace RTX {
     void _post(http_request message);
     void _delete(http_request message);
     
+    
+    void _get_timeseries(http_request message);
+    void _get_runState(http_request message);
+    void _get_source(http_request message);
+    
     http_listener _listener;
     
     std::vector<RTX::TimeSeries::_sp> _tsList;
+    
+    typedef std::function<void(http_request)> responderFunction;
+    std::map<std::string, responderFunction> _FluxService_responders();
+    
+    
     
     
   };

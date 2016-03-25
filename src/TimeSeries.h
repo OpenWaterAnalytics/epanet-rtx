@@ -23,6 +23,8 @@
 #include "Units.h"
 #include "TimeRange.h"
 
+#include "Visitor.h"
+
 namespace RTX {
 
   
@@ -55,9 +57,9 @@ namespace RTX {
   
   
   
-  class TimeSeries : public std::enable_shared_from_this<TimeSeries> {
+  class TimeSeries : public std::enable_shared_from_this<TimeSeries>, public BaseVisitable<int> {
   public:
-    
+    VISITABLE();
     typedef enum {
       TimeSeriesResampleModeLinear,
       TimeSeriesResampleModeStep
@@ -90,10 +92,6 @@ namespace RTX {
       size_t count();
       double percentile(double p);
     };
-    
-    
-    
-    
     
     RTX_SHARED_POINTER(TimeSeries);
     
