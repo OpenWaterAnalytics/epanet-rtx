@@ -25,7 +25,7 @@ namespace RTX {
   class EpanetMsxModel : public EpanetModel {
     
   public:
-    RTX_SHARED_POINTER(EpanetMsxModel);
+    RTX_BASE_PROPS(EpanetMsxModel);
     EpanetMsxModel();
     virtual ~EpanetMsxModel();
     

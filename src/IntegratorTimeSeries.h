@@ -17,7 +17,7 @@
 namespace RTX {
   class IntegratorTimeSeries : public TimeSeriesFilter {
   public:
-    RTX_SHARED_POINTER(IntegratorTimeSeries);
+    RTX_BASE_PROPS(IntegratorTimeSeries);
     
     void setResetClock(Clock::_sp resetClock);
     Clock::_sp resetClock();

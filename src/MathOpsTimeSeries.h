@@ -28,8 +28,8 @@ namespace RTX {
       MathOpsTimeSeriesFloor   = 9,  /*!< Round down value. */
       MathOpsTimeSeriesRound   = 10  /*!< Round to nearest. */
     } MathOpsTimeSeriesType;
-
-    RTX_SHARED_POINTER(MathOpsTimeSeries);
+    
+    RTX_BASE_PROPS(MathOpsTimeSeries);
     MathOpsTimeSeries();
     
     MathOpsTimeSeriesType mathOpsType();

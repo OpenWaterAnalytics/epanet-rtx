@@ -48,9 +48,9 @@ namespace RTX {
   using std::string;
   using std::set;
   
-  class Model {
+  class Model : public RTX_object {
   public:
-    RTX_SHARED_POINTER(Model);
+    RTX_BASE_PROPS(Model);
     
     typedef void (^RTX_Logging_Callback_Block)(const char *msg);
     

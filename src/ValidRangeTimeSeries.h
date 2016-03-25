@@ -15,7 +15,7 @@
 namespace RTX {
   class ValidRangeTimeSeries : public TimeSeriesFilter {
   public:
-    RTX_SHARED_POINTER(ValidRangeTimeSeries);
+    RTX_BASE_PROPS(ValidRangeTimeSeries);
     ValidRangeTimeSeries();
     
     void setRange(double min, double max);

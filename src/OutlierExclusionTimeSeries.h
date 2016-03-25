@@ -27,7 +27,7 @@ namespace RTX {
       OutlierExclusionModeStdDeviation
     } exclusion_mode_t;
     
-    RTX_SHARED_POINTER(OutlierExclusionTimeSeries);
+    RTX_BASE_PROPS(OutlierExclusionTimeSeries);
     OutlierExclusionTimeSeries();
     
     void setOutlierMultiplier(double multiplier);

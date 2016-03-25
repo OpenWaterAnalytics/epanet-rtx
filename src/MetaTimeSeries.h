@@ -21,7 +21,7 @@ namespace RTX {
   class MetaTimeSeries : public TimeSeriesFilter {
     
   public:
-    RTX_SHARED_POINTER(MetaTimeSeries);
+    RTX_BASE_PROPS(MetaTimeSeries);
     MetaTimeSeries();
     
     enum MetaMode : unsigned int {

@@ -30,7 +30,7 @@ namespace RTX {
   class EpanetModel : public Model {
     
   public:
-    RTX_SHARED_POINTER(EpanetModel);
+    RTX_BASE_PROPS(EpanetModel);
     EpanetModel();
     EpanetModel(const std::string& filename);
     ~EpanetModel();

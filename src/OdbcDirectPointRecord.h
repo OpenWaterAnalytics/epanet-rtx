@@ -17,7 +17,8 @@ namespace RTX {
   class OdbcDirectPointRecord : public OdbcPointRecord {
     
   public:
-    RTX_SHARED_POINTER(OdbcDirectPointRecord);
+    
+    RTX_BASE_PROPS(OdbcDirectPointRecord);
     OdbcDirectPointRecord();
     virtual ~OdbcDirectPointRecord();
     const std::map<std::string,Units> identifiersAndUnits();

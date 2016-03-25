@@ -14,7 +14,7 @@
 namespace RTX {
   class Pump : public Pipe {
   public:
-    RTX_SHARED_POINTER(Pump);
+    RTX_BASE_PROPS(Pump);
     Pump(const std::string& name, Node::_sp startNode, Node::_sp endNode);
     virtual ~Pump();
     

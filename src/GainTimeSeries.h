@@ -15,7 +15,7 @@ namespace RTX {
   class GainTimeSeries : public TimeSeriesFilterSinglePoint {
     
   public:
-    RTX_SHARED_POINTER(GainTimeSeries);
+    RTX_BASE_PROPS(GainTimeSeries);
     GainTimeSeries();
     
     double gain();

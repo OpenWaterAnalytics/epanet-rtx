@@ -19,7 +19,7 @@ namespace RTX {
    */
   class Junction : public Node {
   public:
-    RTX_SHARED_POINTER(Junction);
+    RTX_BASE_PROPS(Junction);
     Junction(const std::string& name);
     virtual ~Junction();
     

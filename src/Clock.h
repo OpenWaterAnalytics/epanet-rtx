@@ -80,10 +80,10 @@ namespace RTX {
   
   
   
-  class Clock {
+  class Clock : public RTX_object {
     
   public:
-    RTX_SHARED_POINTER(Clock);
+    RTX_BASE_PROPS(Clock);
     Clock(int period, time_t start = 0);
     virtual ~Clock();
     

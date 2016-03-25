@@ -21,7 +21,7 @@ using std::vector;
 namespace RTX {
   class MovingAverage : public TimeSeriesFilter {
   public:
-    RTX_SHARED_POINTER(MovingAverage);
+    RTX_BASE_PROPS(MovingAverage);
     MovingAverage();
     
     // class-specific properties

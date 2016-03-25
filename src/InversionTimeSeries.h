@@ -16,7 +16,7 @@ namespace RTX {
   class InversionTimeSeries : public TimeSeriesFilterSinglePoint {
     
   public:
-    RTX_SHARED_POINTER(InversionTimeSeries);
+    RTX_BASE_PROPS(InversionTimeSeries);
     
   protected:
     Point filteredWithSourcePoint(Point sourcePoint);

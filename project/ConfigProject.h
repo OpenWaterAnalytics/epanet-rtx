@@ -60,7 +60,7 @@ namespace RTX {
   
   class ConfigProject : public ProjectFile {
   public:
-    RTX_SHARED_POINTER(ConfigProject);
+    RTX_BASE_PROPS(ConfigProject);
     ConfigProject();
     ~ConfigProject();
     

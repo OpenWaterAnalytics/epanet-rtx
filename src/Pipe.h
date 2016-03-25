@@ -19,7 +19,7 @@ namespace RTX {
 class Pipe : public Link {
 public:
   typedef enum { OPEN = true, CLOSED = false } status_t;
-  RTX_SHARED_POINTER(Pipe);
+  RTX_BASE_PROPS(Pipe);
   Pipe(const std::string &name, Node::_sp startNode, Node::_sp endNode);
   virtual ~Pipe();
 

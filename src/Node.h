@@ -28,7 +28,7 @@ namespace RTX {
   class Node : public Element {
   public:
     friend class Model;
-    RTX_SHARED_POINTER(Node);
+    RTX_BASE_PROPS(Node);
     // properties - get/set
     std::pair<double,double> coordinates();
     virtual void setCoordinates(double x, double y);

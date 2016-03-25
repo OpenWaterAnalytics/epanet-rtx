@@ -78,7 +78,7 @@ namespace RTX {
     static Sql_Connector_t typeForName(const std::string& connector);
     
     // shared pointer and ctor/dtor
-    RTX_SHARED_POINTER(OdbcPointRecord);
+    RTX_BASE_PROPS(OdbcPointRecord);
     OdbcPointRecord();
     virtual ~OdbcPointRecord();
     

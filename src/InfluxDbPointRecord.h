@@ -13,7 +13,8 @@ namespace RTX {
   class InfluxDbPointRecord : public DbPointRecord {
     
   public:
-    RTX_SHARED_POINTER(InfluxDbPointRecord);
+    
+    RTX_BASE_PROPS(InfluxDbPointRecord);
     
     InfluxDbPointRecord();
     

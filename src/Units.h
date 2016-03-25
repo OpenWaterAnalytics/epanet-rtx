@@ -9,6 +9,7 @@
 #ifndef epanet_rtx_units_h
 #define epanet_rtx_units_h
 
+#include "rtxMacros.h"
 #include <string>
 #include <map>
 
@@ -108,8 +109,10 @@ namespace RTX {
    
    */
   
-  class Units {
+  class Units : public RTX_object {
   public:
+    RTX_BASE_PROPS(Units);
+    
     Units(double conversion = 1., int mass = 0, int length = 0, int time = 0, int current = 0, int temperature = 0, int amount = 0, int intensity = 0, double offset = 0);
     
     Units operator*(const Units& unit) const;

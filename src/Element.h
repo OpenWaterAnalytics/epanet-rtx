@@ -24,7 +24,7 @@ namespace RTX {
   /*!
         Properties common to all elements.
   */
-  class Element {
+  class Element : public RTX_object {
   public:
     
     enum element_t : int {
@@ -38,7 +38,7 @@ namespace RTX {
     };
     
       // please don't misuse this type enumeration!!!
-    RTX_SHARED_POINTER(Element);
+    RTX_BASE_PROPS(Element);
     virtual std::ostream& toStream(std::ostream &stream);
     element_t type();
     void setName(const std::string& newName);

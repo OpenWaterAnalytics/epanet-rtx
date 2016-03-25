@@ -16,7 +16,7 @@ namespace RTX {
   class SineTimeSeries : public TimeSeriesSynthetic {
     
   public:
-    RTX_SHARED_POINTER(SineTimeSeries);
+    RTX_BASE_PROPS(SineTimeSeries);
     SineTimeSeries(double magnitude = 1., time_t period = 86400);
     
     time_t period();

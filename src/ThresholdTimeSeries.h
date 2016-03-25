@@ -28,7 +28,7 @@ namespace RTX {
       thresholdModeAbsolute = 1
     } thresholdMode_t;
     
-    RTX_SHARED_POINTER(ThresholdTimeSeries);
+    RTX_BASE_PROPS(ThresholdTimeSeries);
     ThresholdTimeSeries();
     
     double threshold();

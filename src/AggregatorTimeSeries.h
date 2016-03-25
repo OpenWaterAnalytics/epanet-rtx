@@ -30,7 +30,7 @@ namespace RTX {
   class AggregatorTimeSeries : public TimeSeriesFilter {
   
   public:
-    RTX_SHARED_POINTER(AggregatorTimeSeries);
+    RTX_BASE_PROPS(AggregatorTimeSeries);
     
     typedef struct {
       TimeSeries::_sp timeseries;

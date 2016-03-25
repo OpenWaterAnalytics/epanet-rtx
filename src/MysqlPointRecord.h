@@ -43,7 +43,8 @@ namespace RTX {
       string host,uid,pwd,db;
     };
     
-    RTX_SHARED_POINTER(MysqlPointRecord);
+    
+    RTX_BASE_PROPS(MysqlPointRecord);
     MysqlPointRecord();
     virtual ~MysqlPointRecord();
     

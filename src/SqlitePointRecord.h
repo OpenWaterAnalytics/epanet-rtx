@@ -20,7 +20,7 @@ namespace RTX {
   
   class SqlitePointRecord : public DbPointRecord {
   public:
-    RTX_SHARED_POINTER(SqlitePointRecord);
+    RTX_BASE_PROPS(SqlitePointRecord);
     SqlitePointRecord();
     virtual ~SqlitePointRecord();
     

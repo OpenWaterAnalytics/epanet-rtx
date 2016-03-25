@@ -61,11 +61,9 @@ namespace RTX {
   
   class TimeSeriesFilter : public TimeSeries {
   public:
-    VISITABLE();
-    
-    RTX_SHARED_POINTER(TimeSeriesFilter);
+    RTX_BASE_PROPS(TimeSeriesFilter);
     TimeSeriesFilter();
-        
+    
     virtual TimeSeries::_sp source();
     virtual void setSource(TimeSeries::_sp ts);
     

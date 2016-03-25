@@ -50,8 +50,7 @@ namespace RTX {
     
     
     typedef std::map< time_t, PointCollection > pointSummaryMap_t;
-    
-    RTX_SHARED_POINTER(BaseStatsTimeSeries);
+    RTX_BASE_PROPS(BaseStatsTimeSeries);
     BaseStatsTimeSeries();
     
     void setWindow(Clock::_sp window);

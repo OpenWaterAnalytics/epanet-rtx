@@ -9,8 +9,18 @@
 #ifndef epanet_rtx_rtxMacros_h
 #define epanet_rtx_rtxMacros_h
 
+#include <iostream>
 
-#define RTX_SHARED_POINTER(type) typedef std::shared_ptr<type> _sp
+#include "RTX_Visitable.h"
+
+#define RTX_BASE_PROPS(type) typedef std::shared_ptr<type> _sp; RTX_VISITABLE()
+
+namespace RTX {
+  class RTX_object : public RTX_VISITABLE_TYPE {
+  public:
+    RTX_BASE_PROPS(RTX_object);
+  };
+}
 
 #define RTX_MAX_CHAR_STRING 256
 #define RTX_MAX(x,y) x>y?x:y

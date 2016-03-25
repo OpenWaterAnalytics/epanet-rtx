@@ -21,24 +21,63 @@ map<string, FluxService::responderFunction> FluxService::_FluxService_responders
 
 
 #include "TimeSeriesFilter.h"
+#include "ThresholdTimeSeries.h"
+#include "SqlitePointRecord.h"
 
 
-#include "Visitor.h"
 
-class SerializerJson : public BaseVisitor, public Visitor<TimeSeries, int>,
-                                           public Visitor<TimeSeriesFilter, int>
+
+class SerializerJson : public BaseVisitor,
+public Visitor<TimeSeries>,
+public Visitor<TimeSeriesFilter>,
+public Visitor<ThresholdTimeSeries>,
+public Visitor<SqlitePointRecord>
 {
 public:
-  int visit(TimeSeries &ts) {
-    cout << ts.name() << endl;
-    return 0;
+  static json::value to_json(RTX_object::_sp obj) {
+    SerializerJson js;
+    obj.get()->accept(js);
+    return js.json();
   };
-  int visit(TimeSeriesFilter &ts) {
-    cout << "derived" << endl;
-    cout << ts.name() << endl;
-    cout << ts.clock() << endl;
-    return 0;
+  
+  static json::value to_json(std::vector<RTX_object::_sp> objVector) {
+    json::value v = json::value::array(objVector.size());
+    int i = 0;
+    for (auto ts : objVector) {
+      v.as_array()[i] = to_json(ts);
+      ++i;
+    }
+    return v;
   };
+  
+  SerializerJson() : _jsonValue(json::value::object()) {};
+  
+  void visit(TimeSeries &ts) {
+    _jsonValue["name"] = json::value(ts.name());
+    _jsonValue["type"] = json::value("Timeseries");
+  };
+  void visit(TimeSeriesFilter &ts) {
+    TimeSeries &tsBase = ts;
+    this->visit(tsBase);
+    _jsonValue["type"] = json::value("Filter");
+  };
+  void visit(ThresholdTimeSeries &ts) {
+    TimeSeriesFilter &tsBase = ts;
+    this->visit(tsBase);
+    _jsonValue["type"] = json::value("Threshold");
+  }
+  
+  void visit(SqlitePointRecord &pr) {
+    _jsonValue["name"] = json::value(pr.name());
+    _jsonValue["type"] = json::value("sqlite");
+    _jsonValue["connectionString"] = json::value(pr.connectionString());
+    _jsonValue["readonly"] = json::value::boolean(pr.readonly());
+  }
+  
+  json::value json() {return _jsonValue;};
+  
+private:
+  json::value _jsonValue;
 };
 
 
@@ -127,34 +166,20 @@ void FluxService::_delete(http_request message) {
 
 void FluxService::_get_timeseries(http_request message) {
   
-  TimeSeriesFilter::_sp tsF( new TimeSeriesFilter() );
+  TimeSeries::_sp tsF( new ThresholdTimeSeries() );
   tsF->setName("blah ts filter");
+  
+  TimeSeries::_sp tsF2( new TimeSeriesFilter() );
+  tsF2->setName("ts filter 2");
+  
+  vector<RTX_object::_sp> tsVec = {tsF, tsF2};
   
   // return the list of time series:
   // [ {series:"ts1",units:"MGD"} , {series:"ts2",units:"FT"} ]
   
-  SerializerJson jsVis;
+  json::value v = SerializerJson::to_json(tsVec);
+  message.reply(status_codes::OK, v);
   
-  tsF.get()->accept(jsVis);
-  
-  
-  int i=0;
-  for (auto tsIt = _tsList.begin(); tsIt != _tsList.end(); ++tsIt, ++i) {
-    TimeSeries::_sp ts = *tsIt;
-    ts.get()->accept(jsVis);
-  }
-  message.reply(status_codes::OK, "ok");
-  return;
-  
-  
-  json::value tsListV = json::value::array();
-//  int i=0;
-  for (auto tsIt = _tsList.begin(); tsIt != _tsList.end(); ++tsIt, ++i) {
-    json::value obj = json::value::object( { {"series",json::value((*tsIt)->name())}, {"units",json::value((*tsIt)->units().unitString())} } );
-    tsListV.as_array()[i] = obj;
-  }
-  
-  message.reply(status_codes::OK, tsListV).wait();
   return;
 }
 
@@ -165,12 +190,13 @@ void FluxService::_get_runState(web::http::http_request message) {
 }
 
 void FluxService::_get_source(web::http::http_request message) {
-  InfluxDbPointRecord::_sp inf(new InfluxDbPointRecord);
-  PointRecord::_sp pr = inf;
-  pr->setName("new influx record");
+  SqlitePointRecord::_sp pr(new SqlitePointRecord());
+  pr->setConnectionString("/Users/sam/Desktop/pr.sqlite");
+  pr->setName("my test pr");
   
+  json::value v = SerializerJson::to_json(pr);
   
-  
+  message.reply(status_codes::OK, v);
 }
 
 

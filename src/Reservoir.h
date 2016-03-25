@@ -15,7 +15,7 @@ namespace RTX {
   
   class Reservoir : public Junction {
   public:
-    RTX_SHARED_POINTER(Reservoir);
+    RTX_BASE_PROPS(Reservoir);
     Reservoir(const std::string& name);
     virtual ~Reservoir();
     

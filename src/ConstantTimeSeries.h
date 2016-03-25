@@ -15,7 +15,7 @@ namespace RTX {
   
   class ConstantTimeSeries : public TimeSeriesSynthetic {
   public:
-    RTX_SHARED_POINTER(ConstantTimeSeries);
+    RTX_BASE_PROPS(ConstantTimeSeries);
     ConstantTimeSeries();
     
     void setValue(double value);

@@ -16,6 +16,7 @@
 #include <fstream>
 #include <map>
 
+
 #include "Point.h"
 #include "Units.h"
 #include "rtxMacros.h"
@@ -51,13 +52,11 @@ namespace RTX {
    */
   
     
-  class PointRecord {
+  class PointRecord : public RTX_object {
     
   public:
-    
     typedef std::pair<std::string,Units> nameUnitsPair;
-    
-    RTX_SHARED_POINTER(PointRecord);
+    RTX_BASE_PROPS(PointRecord);
     typedef std::pair<time_t, time_t> time_pair_t;
     
     PointRecord();

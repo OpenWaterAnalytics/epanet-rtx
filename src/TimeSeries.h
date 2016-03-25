@@ -9,8 +9,6 @@
 #ifndef epanet_rtx_timeseries_h
 #define epanet_rtx_timeseries_h
 
-#include <boost/enable_shared_from_this.hpp>
-
 #include <vector>
 #include <set>
 #include <map>
@@ -22,8 +20,6 @@
 #include "Clock.h"
 #include "Units.h"
 #include "TimeRange.h"
-
-#include "Visitor.h"
 
 namespace RTX {
 
@@ -57,9 +53,8 @@ namespace RTX {
   
   
   
-  class TimeSeries : public std::enable_shared_from_this<TimeSeries>, public BaseVisitable<int> {
+  class TimeSeries : public std::enable_shared_from_this<TimeSeries>, public RTX_object {
   public:
-    VISITABLE();
     typedef enum {
       TimeSeriesResampleModeLinear,
       TimeSeriesResampleModeStep
@@ -93,7 +88,7 @@ namespace RTX {
       double percentile(double p);
     };
     
-    RTX_SHARED_POINTER(TimeSeries);
+    RTX_BASE_PROPS(TimeSeries);
     
     TimeSeries();
     ~TimeSeries();

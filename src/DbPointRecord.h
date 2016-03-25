@@ -38,7 +38,7 @@ namespace RTX {
     };
     
     
-    RTX_SHARED_POINTER(DbPointRecord);
+    RTX_BASE_PROPS(DbPointRecord);
     DbPointRecord();
     virtual ~DbPointRecord() {};
     

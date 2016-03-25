@@ -23,7 +23,7 @@ namespace RTX {
   class CorrelatorTimeSeries : public TimeSeriesFilterSecondary
   {
   public:
-    RTX_SHARED_POINTER(CorrelatorTimeSeries);
+    RTX_BASE_PROPS(CorrelatorTimeSeries);
     CorrelatorTimeSeries();
     
     Clock::_sp correlationWindow();

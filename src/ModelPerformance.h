@@ -16,7 +16,7 @@
 
 namespace RTX {
   
-  class ModelPerformance {
+  class ModelPerformance : public RTX_object {
     
   public:
     
@@ -60,7 +60,7 @@ namespace RTX {
     // static class method for constructing error series from an element
     static std::map<StatsType,TimeSeries::_sp> errorsForElementAndMetricType(Element::_sp element, MetricType type, Clock::_sp samplingWindow, double quantile, int correlationDiscretization, int correlationMaxLag);
     
-    RTX_SHARED_POINTER(ModelPerformance);
+    RTX_BASE_PROPS(ModelPerformance);
     
     ModelPerformance(Model::_sp model,
                      StatsType statsType = ModelPerformanceStatsRMSE,

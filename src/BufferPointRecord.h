@@ -31,7 +31,6 @@ namespace RTX {
   class BufferPointRecord : public PointRecord {
     
   public:
-    
 //     types and small container for the actual buffers
     typedef boost::circular_buffer<Point> PointBuffer_t;
     class Buffer {
@@ -42,7 +41,7 @@ namespace RTX {
     typedef std::map<std::string, Buffer> KeyedBufferMap_t;
     typedef std::pair<std::string, Buffer> StringBufferPair;
     
-    RTX_SHARED_POINTER(BufferPointRecord);
+    RTX_BASE_PROPS(BufferPointRecord);
     BufferPointRecord(int defaultCapacity = RTX_BUFFER_DEFAULT_CACHESIZE);
     virtual ~BufferPointRecord() {};
     

@@ -16,13 +16,12 @@ namespace RTX {
   class MultiplierTimeSeries : public TimeSeriesFilterSecondary {
     
   public:
-    
     enum MultiplierMode : unsigned int {
       MultiplierModeMultiply =  0,
       MultiplierModeDivide =  1
     };
     
-    RTX_SHARED_POINTER(MultiplierTimeSeries);
+    RTX_BASE_PROPS(MultiplierTimeSeries);
     MultiplierTimeSeries();
     
     MultiplierMode multiplierMode();

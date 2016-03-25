@@ -18,7 +18,7 @@ namespace RTX {
   
   class SqliteProjectFile : public ProjectFile {
   public:
-    RTX_SHARED_POINTER(SqliteProjectFile);
+    RTX_BASE_PROPS(SqliteProjectFile);
     bool loadProjectFile(const string& path);
     bool saveProjectFile(const string& path);
     void clear();

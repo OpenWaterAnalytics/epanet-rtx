@@ -14,7 +14,7 @@
 namespace RTX {
   class Valve : public Pipe {
   public:
-    RTX_SHARED_POINTER(Valve);
+    RTX_BASE_PROPS(Valve);
     Valve(const std::string& name, Node::_sp startNode, Node::_sp endNode);
     virtual ~Valve();
     int valveType;

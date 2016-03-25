@@ -24,7 +24,7 @@ namespace RTX {
   class CurveFunction : public TimeSeriesFilterSinglePoint {
     
   public:
-    RTX_SHARED_POINTER(CurveFunction);
+    RTX_BASE_PROPS(CurveFunction);
     CurveFunction();
     
     // added functionality.

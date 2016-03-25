@@ -19,7 +19,7 @@ namespace RTX {
   
   class Tank : public Junction {
   public:
-    RTX_SHARED_POINTER(Tank);
+    RTX_BASE_PROPS(Tank);
     Tank(const std::string& name);
     virtual ~Tank();
     

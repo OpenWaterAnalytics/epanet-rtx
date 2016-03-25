@@ -60,7 +60,7 @@ namespace RTX {
       StatsTimeSeriesPercentile = 11 /*!< Arbitrary percentile */
     } StatsTimeSeriesType;
     
-    RTX_SHARED_POINTER(StatsTimeSeries);
+    RTX_BASE_PROPS(StatsTimeSeries);
     StatsTimeSeries();
     
     StatsTimeSeriesType statsType();

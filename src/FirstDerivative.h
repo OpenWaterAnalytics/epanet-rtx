@@ -15,7 +15,7 @@ namespace RTX {
   
   class FirstDerivative : public TimeSeriesFilter {
   public:
-    RTX_SHARED_POINTER(FirstDerivative);
+    RTX_BASE_PROPS(FirstDerivative);
     FirstDerivative();
     virtual ~FirstDerivative();
     virtual std::ostream& toStream(std::ostream &stream);

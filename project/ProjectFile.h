@@ -70,7 +70,7 @@ namespace RTX {
       double minGap,maxGap,medianGap;
     };
     
-    RTX_SHARED_POINTER(ProjectFile);
+    RTX_BASE_PROPS(ProjectFile);
     
     virtual bool loadProjectFile(const string& path) = 0;
     virtual bool saveProjectFile(const string& path) = 0;

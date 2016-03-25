@@ -31,7 +31,7 @@ namespace RTX {
       LogicTimeSeriesFlipFlop = 4
     } LogicType;
     
-    RTX_SHARED_POINTER(LogicTimeSeries);
+    RTX_BASE_PROPS(LogicTimeSeries);
     LogicTimeSeries();
     
   protected:

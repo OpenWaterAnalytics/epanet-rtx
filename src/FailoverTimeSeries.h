@@ -18,7 +18,7 @@ namespace RTX {
   class FailoverTimeSeries : public TimeSeriesFilterSecondary
   {
   public:
-    RTX_SHARED_POINTER(FailoverTimeSeries);
+    RTX_BASE_PROPS(FailoverTimeSeries);
     
     time_t maximumStaleness();
     void setMaximumStaleness(time_t stale);

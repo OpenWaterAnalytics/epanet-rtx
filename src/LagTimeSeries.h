@@ -16,7 +16,7 @@
 namespace RTX {
   class LagTimeSeries : public TimeSeriesFilter {
   public:
-    RTX_SHARED_POINTER(LagTimeSeries);
+    RTX_BASE_PROPS(LagTimeSeries);
     LagTimeSeries();
     
     void setOffset(time_t offset);

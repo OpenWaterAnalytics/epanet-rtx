@@ -214,9 +214,9 @@
 		22284F801BF115D1000256B8 /* libepanet-rtx-project.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */; };
 		22284F811BF115D1000256B8 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		22284F821BF115D1000256B8 /* libTimeSeriesDuplicator.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */; };
-		222978311CA477DA0051D881 /* Visitor.h in Headers */ = {isa = PBXBuildFile; fileRef = 2229782D1CA477DA0051D881 /* Visitor.h */; };
-		222978321CA477DA0051D881 /* Visitor.h in Headers */ = {isa = PBXBuildFile; fileRef = 2229782D1CA477DA0051D881 /* Visitor.h */; };
-		222978331CA477DA0051D881 /* Visitor.h in Headers */ = {isa = PBXBuildFile; fileRef = 2229782D1CA477DA0051D881 /* Visitor.h */; };
+		222978311CA477DA0051D881 /* RTX_Visitable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2229782D1CA477DA0051D881 /* RTX_Visitable.h */; };
+		222978321CA477DA0051D881 /* RTX_Visitable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2229782D1CA477DA0051D881 /* RTX_Visitable.h */; };
+		222978331CA477DA0051D881 /* RTX_Visitable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2229782D1CA477DA0051D881 /* RTX_Visitable.h */; };
 		222FDDD615C1BC2F0065DAF6 /* FirstDerivative.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */; };
 		223372EB1CA19D4500C87ACD /* libcpprest.2.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 223372EA1CA19D4500C87ACD /* libcpprest.2.8.dylib */; };
 		223372F41CA19DFA00C87ACD /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 223372F21CA19DFA00C87ACD /* libcrypto.a */; };
@@ -756,7 +756,7 @@
 		2223206A1A6EF32E00B32D6A /* LagTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LagTimeSeries.cpp; path = ../../src/LagTimeSeries.cpp; sourceTree = "<group>"; };
 		2223206B1A6EF32E00B32D6A /* LagTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LagTimeSeries.h; path = ../../src/LagTimeSeries.h; sourceTree = "<group>"; };
 		22253D8D16022FB6002F7256 /* CurveFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CurveFunction.cpp; path = ../../src/CurveFunction.cpp; sourceTree = "<group>"; };
-		2229782D1CA477DA0051D881 /* Visitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Visitor.h; path = ../../src/Visitor.h; sourceTree = "<group>"; };
+		2229782D1CA477DA0051D881 /* RTX_Visitable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RTX_Visitable.h; path = ../../src/RTX_Visitable.h; sourceTree = "<group>"; };
 		222FDDD315C1BBE90065DAF6 /* FirstDerivative.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FirstDerivative.h; path = ../../src/FirstDerivative.h; sourceTree = "<group>"; };
 		222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FirstDerivative.cpp; path = ../../src/FirstDerivative.cpp; sourceTree = "<group>"; };
 		223372EA1CA19D4500C87ACD /* libcpprest.2.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcpprest.2.8.dylib; path = ../../../../../../../usr/local/com.citilogics.dev/lib/libcpprest.2.8.dylib; sourceTree = "<group>"; };
@@ -1339,7 +1339,6 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
-				2229782D1CA477DA0051D881 /* Visitor.h */,
 				223372F21CA19DFA00C87ACD /* libcrypto.a */,
 				223372F31CA19DFA00C87ACD /* libssl.a */,
 				223372EA1CA19D4500C87ACD /* libcpprest.2.8.dylib */,
@@ -1469,6 +1468,7 @@
 		22C62B05143A196400841E60 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2229782D1CA477DA0051D881 /* RTX_Visitable.h */,
 				22EFA1BC1471CEC4001102E0 /* rtxMacros.h */,
 			);
 			name = include;
@@ -1586,7 +1586,7 @@
 				220F9E3418F9E68B00BB842C /* Pump.h in Headers */,
 				2223206F1A6EF32E00B32D6A /* LagTimeSeries.h in Headers */,
 				220F9E3618F9E68B00BB842C /* Valve.h in Headers */,
-				222978331CA477DA0051D881 /* Visitor.h in Headers */,
+				222978331CA477DA0051D881 /* RTX_Visitable.h in Headers */,
 				228C2D961A9E15BF003C826D /* TimeRange.h in Headers */,
 				220F9E3718F9E68B00BB842C /* Units.h in Headers */,
 				220F9E3818F9E68B00BB842C /* OffsetTimeSeries.h in Headers */,
@@ -1647,7 +1647,7 @@
 				221BFDA21A8E8AD000143FCC /* Units.h in Headers */,
 				221BFDA31A8E8AD000143FCC /* OffsetTimeSeries.h in Headers */,
 				221BFDA51A8E8AD000143FCC /* SineTimeSeries.h in Headers */,
-				222978311CA477DA0051D881 /* Visitor.h in Headers */,
+				222978311CA477DA0051D881 /* RTX_Visitable.h in Headers */,
 				221BFDA61A8E8AD000143FCC /* TimeSeriesSynthetic.h in Headers */,
 				221BFDA71A8E8AD000143FCC /* BufferPointRecord.h in Headers */,
 				228C2D971A9E15BF003C826D /* TimeRange.h in Headers */,
@@ -1725,7 +1725,7 @@
 				22E2962C16010A65003D378A /* Units.h in Headers */,
 				22707A9716309D4100FEB4DD /* OffsetTimeSeries.h in Headers */,
 				227BCEF51B2B6CDB00B0AC52 /* LogicTimeSeries.h in Headers */,
-				222978321CA477DA0051D881 /* Visitor.h in Headers */,
+				222978321CA477DA0051D881 /* RTX_Visitable.h in Headers */,
 				22F63D3816C5735100A15368 /* SineTimeSeries.h in Headers */,
 				2211D2071A6D69EA00E34B9B /* TimeSeriesSynthetic.h in Headers */,
 				227510E916D4231800B2BA62 /* BufferPointRecord.h in Headers */,

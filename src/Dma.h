@@ -62,7 +62,7 @@ namespace RTX {
   
   class Dma : public Element {
   public:
-    RTX_SHARED_POINTER(Dma);
+    RTX_BASE_PROPS(Dma);
     typedef std::pair<Pipe::_sp, Pipe::direction_t> pipeDirPair_t;
     
     virtual std::ostream& toStream(std::ostream &stream);

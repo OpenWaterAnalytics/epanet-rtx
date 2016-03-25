@@ -16,7 +16,7 @@ namespace RTX {
   class OffsetTimeSeries : public TimeSeriesFilterSinglePoint {
   
   public:
-    RTX_SHARED_POINTER(OffsetTimeSeries);
+    RTX_BASE_PROPS(OffsetTimeSeries);
     OffsetTimeSeries();
     void setOffset(double offset);
     double offset();
