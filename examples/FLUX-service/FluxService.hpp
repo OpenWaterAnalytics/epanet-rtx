@@ -28,6 +28,8 @@ namespace RTX {
   class FluxService {
     
   public:
+    typedef std::map< std::string, std::function<void(http_request)> > Responders;
+    
     FluxService(web::uri address);
     pplx::task<void> open();
     pplx::task<void> close();
@@ -43,12 +45,17 @@ namespace RTX {
     void _get_runState(http_request message);
     void _get_source(http_request message);
     
+    void _post_timeseries(http_request message);
+    void _post_runState(http_request message);
+    void _post_source(http_request message);
+    
     http_listener _listener;
     
     std::vector<RTX::TimeSeries::_sp> _tsList;
     
-    typedef std::function<void(http_request)> responderFunction;
-    std::map<std::string, responderFunction> _FluxService_responders();
+    
+    Responders _FluxService_GET_responders();
+    Responders _FluxService_POST_responders();
     
     
     

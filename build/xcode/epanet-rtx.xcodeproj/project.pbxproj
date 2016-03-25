@@ -218,7 +218,6 @@
 		222978321CA477DA0051D881 /* RTX_Visitable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2229782D1CA477DA0051D881 /* RTX_Visitable.h */; };
 		222978331CA477DA0051D881 /* RTX_Visitable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2229782D1CA477DA0051D881 /* RTX_Visitable.h */; };
 		222FDDD615C1BC2F0065DAF6 /* FirstDerivative.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */; };
-		223372EB1CA19D4500C87ACD /* libcpprest.2.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 223372EA1CA19D4500C87ACD /* libcpprest.2.8.dylib */; };
 		223372F41CA19DFA00C87ACD /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 223372F21CA19DFA00C87ACD /* libcrypto.a */; };
 		223372F51CA19DFA00C87ACD /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 223372F31CA19DFA00C87ACD /* libssl.a */; };
 		223372F61CA19E3D00C87ACD /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C81C1A048300298C0C /* libboost_system.a */; };
@@ -295,7 +294,6 @@
 		228137D91CA2F23B00AD81F3 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228137D81CA2F23B00AD81F3 /* main.cpp */; };
 		228137DE1CA2F2C600AD81F3 /* FluxService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228137DC1CA2F2C600AD81F3 /* FluxService.cpp */; };
 		228137DF1CA2F95D00AD81F3 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
-		228137E01CA2F95F00AD81F3 /* libcpprest.2.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 223372EA1CA19D4500C87ACD /* libcpprest.2.8.dylib */; };
 		2288C1241BE3C71900F9B8FB /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		2288C1251BE3C74600F9B8FB /* TimeSeriesDuplicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2288C10A1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.cpp */; };
 		228C2D921A9E15BF003C826D /* TimeRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228C2D901A9E15BF003C826D /* TimeRange.cpp */; };
@@ -409,6 +407,11 @@
 		22E2962C16010A65003D378A /* Units.h in Headers */ = {isa = PBXBuildFile; fileRef = 22E2962B16010A65003D378A /* Units.h */; };
 		22E4ED101725C1C60076E93D /* ConstantTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22E4ED0E1725C1C60076E93D /* ConstantTimeSeries.cpp */; };
 		22E4ED111725C1C60076E93D /* ConstantTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22E4ED0F1725C1C60076E93D /* ConstantTimeSeries.h */; };
+		22E996FF1CA591CB00D6F34F /* libcpprest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E996FE1CA591CB00D6F34F /* libcpprest.a */; };
+		22E997001CA5920A00D6F34F /* libcpprest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E996FE1CA591CB00D6F34F /* libcpprest.a */; };
+		22E997021CA5924A00D6F34F /* libcommon_utilities.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E997011CA5924A00D6F34F /* libcommon_utilities.a */; };
+		22E997081CA5935F00D6F34F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E997071CA5935F00D6F34F /* Security.framework */; };
+		22E997091CA5937B00D6F34F /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E997031CA5932300D6F34F /* CoreFoundation.framework */; };
 		22ED77CD158787B7002D67F1 /* Reservoir.h in Headers */ = {isa = PBXBuildFile; fileRef = 22ED77CC158787B7002D67F1 /* Reservoir.h */; };
 		22ED77D015878804002D67F1 /* Tank.h in Headers */ = {isa = PBXBuildFile; fileRef = 22ED77CF15878804002D67F1 /* Tank.h */; };
 		22ED77D21587884F002D67F1 /* Junction.h in Headers */ = {isa = PBXBuildFile; fileRef = 22ED77D11587884F002D67F1 /* Junction.h */; settings = {ATTRIBUTES = (); }; };
@@ -759,9 +762,8 @@
 		2229782D1CA477DA0051D881 /* RTX_Visitable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RTX_Visitable.h; path = ../../src/RTX_Visitable.h; sourceTree = "<group>"; };
 		222FDDD315C1BBE90065DAF6 /* FirstDerivative.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FirstDerivative.h; path = ../../src/FirstDerivative.h; sourceTree = "<group>"; };
 		222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FirstDerivative.cpp; path = ../../src/FirstDerivative.cpp; sourceTree = "<group>"; };
-		223372EA1CA19D4500C87ACD /* libcpprest.2.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcpprest.2.8.dylib; path = ../../../../../../../usr/local/com.citilogics.dev/lib/libcpprest.2.8.dylib; sourceTree = "<group>"; };
-		223372F21CA19DFA00C87ACD /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = ../../../../../../../usr/local/com.citilogics.dev/lib/libcrypto.a; sourceTree = "<group>"; };
-		223372F31CA19DFA00C87ACD /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = ../../../../../../../usr/local/com.citilogics.dev/lib/libssl.a; sourceTree = "<group>"; };
+		223372F21CA19DFA00C87ACD /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = /usr/local/com.citilogics.dev/lib/libcrypto.a; sourceTree = "<absolute>"; };
+		223372F31CA19DFA00C87ACD /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = /usr/local/com.citilogics.dev/lib/libssl.a; sourceTree = "<absolute>"; };
 		223663B11A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesFilterSinglePoint.cpp; path = ../../src/TimeSeriesFilterSinglePoint.cpp; sourceTree = "<group>"; };
 		223663B21A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeSeriesFilterSinglePoint.h; path = ../../src/TimeSeriesFilterSinglePoint.h; sourceTree = "<group>"; };
 		223947E71AF3B27000C8AE4F /* model exporter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "model exporter"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -891,6 +893,11 @@
 		22E2962B16010A65003D378A /* Units.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Units.h; path = ../../src/Units.h; sourceTree = "<group>"; };
 		22E4ED0E1725C1C60076E93D /* ConstantTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConstantTimeSeries.cpp; path = ../../src/ConstantTimeSeries.cpp; sourceTree = "<group>"; };
 		22E4ED0F1725C1C60076E93D /* ConstantTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConstantTimeSeries.h; path = ../../src/ConstantTimeSeries.h; sourceTree = "<group>"; };
+		22E996FE1CA591CB00D6F34F /* libcpprest.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcpprest.a; path = /usr/local/com.citilogics.dev/lib/libcpprest.a; sourceTree = "<absolute>"; };
+		22E997011CA5924A00D6F34F /* libcommon_utilities.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcommon_utilities.a; path = /usr/local/com.citilogics.dev/lib/libcommon_utilities.a; sourceTree = "<absolute>"; };
+		22E997031CA5932300D6F34F /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		22E997051CA5935000D6F34F /* SecurityFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityFoundation.framework; path = System/Library/Frameworks/SecurityFoundation.framework; sourceTree = SDKROOT; };
+		22E997071CA5935F00D6F34F /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		22ED77CC158787B7002D67F1 /* Reservoir.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reservoir.h; path = ../../src/Reservoir.h; sourceTree = "<group>"; };
 		22ED77CF15878804002D67F1 /* Tank.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tank.h; path = ../../src/Tank.h; sourceTree = "<group>"; };
 		22ED77D11587884F002D67F1 /* Junction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Junction.h; path = ../../src/Junction.h; sourceTree = "<group>"; };
@@ -945,7 +952,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				223372EB1CA19D4500C87ACD /* libcpprest.2.8.dylib in Frameworks */,
+				22E997091CA5937B00D6F34F /* CoreFoundation.framework in Frameworks */,
+				22E997081CA5935F00D6F34F /* Security.framework in Frameworks */,
+				22E997021CA5924A00D6F34F /* libcommon_utilities.a in Frameworks */,
+				22E997001CA5920A00D6F34F /* libcpprest.a in Frameworks */,
 				223372F41CA19DFA00C87ACD /* libcrypto.a in Frameworks */,
 				223372F51CA19DFA00C87ACD /* libssl.a in Frameworks */,
 				2200ED191C7797F3009A6C5F /* libepanet-static.a in Frameworks */,
@@ -983,7 +993,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				228137DF1CA2F95D00AD81F3 /* libepanet-rtx.dylib in Frameworks */,
-				228137E01CA2F95F00AD81F3 /* libcpprest.2.8.dylib in Frameworks */,
+				22E996FF1CA591CB00D6F34F /* libcpprest.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1090,6 +1100,13 @@
 		220DFA9C15502E4100AF41D0 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				22E997071CA5935F00D6F34F /* Security.framework */,
+				22E997051CA5935000D6F34F /* SecurityFoundation.framework */,
+				22E997031CA5932300D6F34F /* CoreFoundation.framework */,
+				22E997011CA5924A00D6F34F /* libcommon_utilities.a */,
+				22E996FE1CA591CB00D6F34F /* libcpprest.a */,
+				223372F21CA19DFA00C87ACD /* libcrypto.a */,
+				223372F31CA19DFA00C87ACD /* libssl.a */,
 				22D8C2251C1A0DFE00298C0C /* libcurl.4.dylib */,
 				22D8C1BF1C1A048300298C0C /* libboost_chrono-mt.a */,
 				22D8C1C01C1A048300298C0C /* libboost_date_time-mt.a */,
@@ -1339,9 +1356,6 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
-				223372F21CA19DFA00C87ACD /* libcrypto.a */,
-				223372F31CA19DFA00C87ACD /* libssl.a */,
-				223372EA1CA19D4500C87ACD /* libcpprest.2.8.dylib */,
 				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
 				22C34357187D9441000100A4 /* epanetmsx.xcodeproj */,
 				223947E81AF3B27000C8AE4F /* model exporter */,
