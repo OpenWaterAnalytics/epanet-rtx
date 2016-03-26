@@ -128,7 +128,7 @@ public Visitor<PointRecord>
 {
 public:
   JsonDeserializer(JSV withJson) : _v(withJson) { };
-  template<typename T> static TimeSeries::_sp newTimeSeries() { TimeSeries::_sp ts( new T ); return ts; };
+  template<typename T> static TimeSeries::_sp createTS() { TimeSeries::_sp ts( new T ); return ts; };
   
   typedef std::function<RTX_object::_sp(JSV)> objFromJsvFn;
   
@@ -154,9 +154,9 @@ public:
     TimeSeries::_sp ts;
     
     map< string, std::function<TimeSeries::_sp()> > tsCreator;
-    tsCreator["timeseries"] = bind(&JsonDeserializer::newTimeSeries<TimeSeries>);
-    tsCreator["filter"] = bind(&JsonDeserializer::newTimeSeries<TimeSeriesFilter>);
-    tsCreator["threshold"] = bind(&JsonDeserializer::newTimeSeries<ThresholdTimeSeries>);
+    tsCreator["timeseries"] = &JsonDeserializer::createTS<TimeSeries>;
+    tsCreator["filter"]     = &JsonDeserializer::createTS<TimeSeriesFilter>;
+    tsCreator["threshold"]  = &JsonDeserializer::createTS<ThresholdTimeSeries>;
     
     // create the concrete object
     string type = json.as_object()["_type"].as_string();
