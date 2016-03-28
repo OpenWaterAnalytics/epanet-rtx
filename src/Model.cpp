@@ -328,14 +328,13 @@ void Model::initDMAs() {
   vector<LinkDescriptor> linkDescriptors;
   {
     int iNode = 0;
-    BOOST_FOREACH(Node::_sp node, _nodes | boost::adaptors::map_values) {
-      nodeIndexMap[node] = iNode;
-      ++iNode;
+    for (auto nodePair : _nodes) {
+      nodeIndexMap[nodePair.second] = iNode++;
     }
-    BOOST_FOREACH(Link::_sp link, _links | boost::adaptors::map_values) {
-      int from = nodeIndexMap[link->from()];
-      int to = nodeIndexMap[link->to()];
-      linkDescriptors.push_back((LinkDescriptor){link, from, to});
+    for (auto linkPair : _links) {
+      int from = nodeIndexMap[linkPair.second->from()];
+      int to = nodeIndexMap[linkPair.second->to()];
+      linkDescriptors.push_back((LinkDescriptor){linkPair.second, from, to});
     }
   }
   
@@ -345,7 +344,8 @@ void Model::initDMAs() {
   //
   vector<Pipe::_sp> ignorePipes = this->dmaPipesToIgnore();
   
-  BOOST_FOREACH(Link::_sp link, _links | boost::adaptors::map_values) {
+  for (auto linkPair : _links) {
+    Link::_sp link = linkPair.second;
     Pipe::_sp pipe = std::static_pointer_cast<Pipe>(link);
     // flow measure?
     if (pipe->flowMeasure()) {
@@ -383,8 +383,8 @@ void Model::initDMAs() {
   // now that we have the dma list, go through the node membership and add each node object to the appropriate dma.
   vector<Node::_sp> indexedNodes;
   indexedNodes.reserve(_nodes.size());
-  BOOST_FOREACH(Node::_sp j, _nodes | boost::adaptors::map_values) {
-    indexedNodes.push_back(j);
+  for (auto nodePair : _nodes) {
+    indexedNodes.push_back(nodePair.second);
   }
   
   for (int nodeIdx = 0; nodeIdx < _nodes.size(); ++nodeIdx) {
@@ -525,16 +525,16 @@ std::vector<Element::_sp> Model::elements() {
 
 std::vector<Node::_sp> Model::nodes() {
   std::vector<Node::_sp> nodes;
-  BOOST_FOREACH(Node::_sp node, _nodes | boost::adaptors::map_values) {
-    nodes.push_back(node);
+  for (auto nodePair : _nodes) {
+    nodes.push_back(nodePair.second);
   }
   return nodes;
 }
 
 std::vector<Link::_sp> Model::links() {
   std::vector<Link::_sp> links;
-  BOOST_FOREACH(Link::_sp link, _links | boost::adaptors::map_values) {
-    links.push_back(link);
+  for (auto linkPair : _links) {
+    links.push_back(linkPair.second);
   }
   return links;
 }
@@ -954,9 +954,9 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
 std::vector<Node::_sp> Model::nearestNodes(Node::_sp node, double maxDistance) {
   // simple enumeration -- max distance in meters
   vector<Node::_sp> nodeList;
-  BOOST_FOREACH(Node::_sp n, _nodes | boost::adaptors::map_values) {
-    if (nodeDirectDistance(n, node) <= maxDistance) {
-      nodeList.push_back(n);
+  for(auto nodePair : _nodes) {
+    if (nodeDirectDistance(nodePair.second, node) <= maxDistance) {
+      nodeList.push_back(nodePair.second);
     }
   }
 

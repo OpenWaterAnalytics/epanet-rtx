@@ -157,7 +157,6 @@ namespace RTX {
     
     
   private:
-    std::string _connectionString;
     time_t _searchDistance;
     bool _readOnly;
     std::set<unsigned int> _opcFilterCodes;

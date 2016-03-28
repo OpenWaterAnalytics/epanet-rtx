@@ -91,7 +91,7 @@ set<time_t> LagTimeSeries::timeValuesInRange(TimeRange range) {
   lagRange.end -= _lag;
   set<time_t> sourceTimes = TimeSeriesFilter::timeValuesInRange(lagRange);
   set<time_t> outTimes;
-  BOOST_FOREACH(time_t t, sourceTimes) {
+  for(time_t t: sourceTimes) {
     outTimes.insert(t + _lag);
   }
   return outTimes;
@@ -111,7 +111,7 @@ TimeSeries::PointCollection LagTimeSeries::filterPointsInRange(TimeRange range) 
   PointCollection data = this->source()->pointCollection(queryRange);
   
   // move the points in time
-  BOOST_FOREACH(Point& p, data.points) {
+  for(Point& p: data.points) {
     p.time += _lag;
   }
   

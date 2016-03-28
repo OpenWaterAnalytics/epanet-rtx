@@ -307,7 +307,7 @@ const string InfluxDbPointRecord::nameFromMetricInfo(RTX::InfluxDbPointRecord::M
   stringstream ss;
   ss << info.measurement;
   typedef pair<string,string> stringPair;
-  BOOST_FOREACH( stringPair p, info.tags) {
+  for (auto p : info.tags) {
     ss << "," << p.first << "=" << p.second;
   }
   const string name = ss.str();
@@ -418,11 +418,11 @@ void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> 
   vector<Point> existing;
   existing = this->selectRange(dbId, points.front().time - 1, points.back().time + 1);
   map<time_t,bool> existingMap;
-  BOOST_FOREACH(const Point& p, existing) {
+  for (const auto &p : existing) {
     existingMap[p.time] = true;
   }
   
-  BOOST_FOREACH(const Point& p, points) {
+  for(const auto& p : points) {
     if (existingMap.count(p.time) == 0) {
       insertionPoints.push_back(p);
     }
@@ -458,7 +458,7 @@ void InfluxDbPointRecord::endBulkOperation(){
 void InfluxDbPointRecord::commitTransactionLines() {
   string lines;
   int i = 0;
-  BOOST_FOREACH(const string& line, _transactionLines) {
+  for(const string& line : _transactionLines) {
     if (i != 0) {
       lines.append("\n");
     }
@@ -512,7 +512,7 @@ DbPointRecord::Query InfluxDbPointRecord::queryPartsFromMetricId(const std::stri
   
   typedef pair<string,string> stringPair;
   if (m.tags.size() > 0) {
-    BOOST_FOREACH( stringPair p, m.tags) {
+    for( stringPair p : m.tags) {
       stringstream ss;
       ss << p.first << "='" << p.second << "'";
       q.where.push_back(ss.str());
@@ -649,7 +649,7 @@ const string InfluxDbPointRecord::insertionLineFromPoints(const string& tsName, 
   
   stringstream ss;
   int i = 0;
-  BOOST_FOREACH(const Point& p, points) {
+  for(const Point& p: points) {
     if (i > 0) {
       ss << '\n';
     }

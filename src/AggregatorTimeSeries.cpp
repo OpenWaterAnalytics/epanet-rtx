@@ -22,7 +22,7 @@ ostream& AggregatorTimeSeries::toStream(ostream &stream) {
   stream << "Connected to: " << _tsList.size() << " time series:" << "\n";
   
   typedef std::pair<TimeSeries::_sp,double> tsMultPair_t;
-  BOOST_FOREACH(const AggregatorSource& aggSource, _tsList) {
+  for(const AggregatorSource& aggSource: _tsList) {
     string dir = (aggSource.multiplier > 0)? "(+)" : "(-)";
     stream << "    " << dir << " " << aggSource.timeseries->name() << endl;
   }
@@ -85,7 +85,7 @@ void AggregatorTimeSeries::removeSource(TimeSeries::_sp timeSeries) {
   std::vector< AggregatorSource > newSourceList;
   
   // find the index of the requested time series
-  BOOST_FOREACH(AggregatorSource aggSource, _tsList) {
+  for(AggregatorSource aggSource: _tsList) {
     if (timeSeries == aggSource.timeseries) {
       // don't copy
     }
@@ -107,7 +107,7 @@ void AggregatorTimeSeries::setMultiplierForSource(TimeSeries::_sp timeSeries, do
   // _tsList[x].first == TimeSeries, _tsList[x].second == multipier
   // (private) std::vector< std::pair<TimeSeries::_sp,double> > _tsList;
   typedef std::pair<TimeSeries::_sp, double> tsDoublePair_t;
-  BOOST_FOREACH(AggregatorSource& item, _tsList) {
+  for(AggregatorSource& item: _tsList) {
     if (item.timeseries == timeSeries) {
       item.multiplier = multiplier;
       // todo -- reset pointrecord backing store?
@@ -124,7 +124,7 @@ time_t AggregatorTimeSeries::timeBefore(time_t time) {
     timeSet.insert(this->clock()->timeBefore(time));
   }
   else {
-    BOOST_FOREACH(AggregatorSource& item, _tsList) {
+    for(AggregatorSource& item: _tsList) {
       timeSet.insert(item.timeseries->timeBefore(time));
     }
   }
@@ -145,7 +145,7 @@ time_t AggregatorTimeSeries::timeAfter(time_t time) {
     timeSet.insert(this->clock()->timeAfter(time));
   }
   else {
-    BOOST_FOREACH(AggregatorSource& item, _tsList) {
+    for(AggregatorSource& item: _tsList) {
       timeSet.insert(item.timeseries->timeAfter(time));
     }
   }
@@ -170,7 +170,7 @@ std::set<time_t> AggregatorTimeSeries::timeValuesInRange(TimeRange range) {
   }
   else {
     // get the set of times from the aggregator sources
-    BOOST_FOREACH(AggregatorSource aggSource, this->sources()) {
+    for(AggregatorSource aggSource: this->sources()) {
       set<time_t> sourceTimes = aggSource.timeseries->timeValuesInRange(range);
       timeList.insert(sourceTimes.begin(), sourceTimes.end());
     }
@@ -186,7 +186,7 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
   set<time_t> desiredTimes = this->timeValuesInRange(range);
   
   // pre-load a vector of points.
-  BOOST_FOREACH(time_t now, desiredTimes) {
+  for(time_t now: desiredTimes) {
     Point p(now);
     
     switch (_mode) {
@@ -206,7 +206,7 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
   
   set<time_t> unionSet;
   
-  BOOST_FOREACH(AggregatorSource aggSource, this->sources()) {
+  for(AggregatorSource aggSource: this->sources()) {
     TimeSeries::_sp sourceTs = aggSource.timeseries;
     double multiplier = aggSource.multiplier;
     TimeRange componentRange = range;
@@ -222,12 +222,12 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
     
     // make it easy to find any times that were dropped (bad points from a source series)
     map<time_t, Point> sourcePointMap;
-    BOOST_FOREACH(const Point& p, componentCollection.points) {
+    for(const Point& p: componentCollection.points) {
       sourcePointMap[p.time] = p;
     }
     
     // do the aggregation.
-    BOOST_FOREACH(Point& p, aggregated) {
+    for(Point& p: aggregated) {
       if (sourcePointMap.count(p.time) > 0) {
         Point pointToAggregate = sourcePointMap[p.time] * multiplier;
         
@@ -279,7 +279,7 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
   
   // prune dropped points from aggregation result.
   vector<Point> goodPoints;
-  BOOST_FOREACH(const Point& p, aggregated) {
+  for(const Point& p: aggregated) {
     if (droppedTimes.count(p.time) == 0) {
       goodPoints.push_back(p);
     }

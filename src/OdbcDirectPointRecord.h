@@ -17,7 +17,6 @@ namespace RTX {
   class OdbcDirectPointRecord : public OdbcPointRecord {
     
   public:
-    
     RTX_BASE_PROPS(OdbcDirectPointRecord);
     OdbcDirectPointRecord();
     virtual ~OdbcDirectPointRecord();

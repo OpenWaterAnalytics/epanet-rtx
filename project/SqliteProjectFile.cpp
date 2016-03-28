@@ -224,24 +224,24 @@ Model::_sp SqliteProjectFile::model() {
 
 RTX_LIST<TimeSeries::_sp> SqliteProjectFile::timeSeries() {
   RTX_LIST<TimeSeries::_sp> list;
-  BOOST_FOREACH(TimeSeries::_sp ts, _timeseries | boost::adaptors::map_values) {
-    list.push_back(ts);
+  for (auto tsP : _timeseries) {
+    list.push_back(tsP.second);
   }
   return list;
 }
 
 RTX_LIST<Clock::_sp> SqliteProjectFile::clocks() {
   RTX_LIST<Clock::_sp> list;
-  BOOST_FOREACH(Clock::_sp c, _clocks | boost::adaptors::map_values) {
-    list.push_back(c);
+  for (auto cp : _clocks) {
+    list.push_back(cp.second);
   }
   return list;
 }
 
 RTX_LIST<PointRecord::_sp> SqliteProjectFile::records() {
   RTX_LIST<PointRecord::_sp> list;
-  BOOST_FOREACH(PointRecord::_sp pr, _records | boost::adaptors::map_values) {
-    list.push_back(pr);
+  for (auto prp : _records) {
+    list.push_back(prp.second);
   }
   return list;
 }

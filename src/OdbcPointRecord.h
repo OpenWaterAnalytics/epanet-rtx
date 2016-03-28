@@ -44,23 +44,9 @@ namespace RTX {
   public:
     // types
     
-    enum Sql_Connector_t : int {
-      NO_CONNECTOR = 0,
-      wonderware_mssql = 1,
-      oracle = 2,
-      mssql = 3
-    };
-    
     class OdbcQuery {
     public:
-      Sql_Connector_t connectorType;
-      std::string singleSelect, rangeSelect, upperBound, lowerBound, timeQuery;
-    };
-    
-    class OdbcTableDescription {
-    public:
-      string dataTable, dataDateCol, dataNameCol, dataValueCol, dataQualityCol;
-      string tagTable, tagNameCol, tagUnitsCol;
+      std::string metaSelect, rangeSelect;
     };
     
     class OdbcConnection {
@@ -75,37 +61,24 @@ namespace RTX {
       SQLHDBC SCADAdbc;
     };
     
-    static std::map<Sql_Connector_t, OdbcQuery> queryTypes();
-    
     // shared pointer and ctor/dtor
     RTX_BASE_PROPS(OdbcPointRecord);
     OdbcPointRecord();
     virtual ~OdbcPointRecord();
     
     // public methods
-    
-//    vector<string>dsnList();
     static std::list<std::string>driverList();
     
     
     
     // public class ivars for connection and syntax info. call dbConnect() after changing any of these properites.
     OdbcConnection connection;
-    OdbcTableDescription tableDescription;
+    OdbcQuery querySyntax;
     
     std::string connectionString() {return connection.conInformation;};
     void setConnectionString(const std::string& con) {connection.conInformation = con;};
 
-    
-    Sql_Connector_t connectorType();
-    void setConnectorType(Sql_Connector_t connectorType);
-    
-    const std::string connectorTypeStr();
-    void setConnectorTypeStr(const std::string& type);
-    
-    
     virtual bool readonly() {return true;};
-    
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
     
@@ -152,7 +125,7 @@ namespace RTX {
       SQL_TIMESTAMP_STRUCT end;
       char tagName[MAX_SCADA_TAG];
       SQLLEN startInd, endInd, tagNameInd;
-    } ScadaQuery;
+    } ScadaQueryParameters;
     
     class ScadaRecord {
     public:
@@ -164,10 +137,10 @@ namespace RTX {
       bool compareRecords(const ScadaRecord& left, const ScadaRecord& right);
     };
     
-    OdbcQuery     _querySyntax;
-    ScadaQuery    _query;
-    OdbcSqlHandle _handles;
-    ScadaRecord   _tempRecord;
+    
+    ScadaQueryParameters    _query;
+    OdbcSqlHandle           _handles;
+    ScadaRecord             _tempRecord;
     
     void bindOutputColumns(SQLHSTMT statement, ScadaRecord* record);
     
@@ -185,13 +158,6 @@ namespace RTX {
   private:
     vector<string> _dsnList;
     bool _connectionOk;
-    
-    
-    
-    Sql_Connector_t _connectorType;
-    
-    
-    
     SQLRETURN SQL_CHECK(SQLRETURN retVal, std::string function, SQLHANDLE handle, SQLSMALLINT type) throw(std::string);
     
     

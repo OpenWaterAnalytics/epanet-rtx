@@ -97,17 +97,17 @@ TimeSeries::PointCollection MultiplierTimeSeries::filterPointsInRange(RTX::TimeR
   typedef pair<Point,Point> PointPoint;
   map<time_t, PointPoint> multiplyPoints;
   
-  BOOST_FOREACH(const time_t t, combinedTimes) {
+  for (auto t : combinedTimes) {
     multiplyPoints[t] = make_pair(Point(), Point());
   }
-  BOOST_FOREACH(const Point& p, primary.points) {
+  for (auto p : primary.points) {
     multiplyPoints[p.time].first = p;
   }
-  BOOST_FOREACH(const Point& p, secondary.points) {
+  for (auto p : secondary.points) {
     multiplyPoints[p.time].second = p;
   }
-  
-  BOOST_FOREACH(const PointPoint& pp, multiplyPoints | boost::adaptors::map_values ) {
+  for (auto ppP : multiplyPoints) {
+    PointPoint pp = ppP.second;
     if (pp.first.isValid && pp.second.isValid) {
       Point mp;
       switch (_mode) {
