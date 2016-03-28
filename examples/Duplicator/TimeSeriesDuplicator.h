@@ -1,7 +1,7 @@
 #ifndef TimeSeriesDuplicator_h
 #define TimeSeriesDuplicator_h
 
-
+#include "rtxMacros.h"
 #include "PointRecord.h"
 #include "TimeSeries.h"
 #include <boost/signals2/mutex.hpp>
@@ -16,7 +16,7 @@
 
 
 namespace RTX {
-  class TimeSeriesDuplicator {
+  class TimeSeriesDuplicator : RTX_object {
     
   public:
     RTX_BASE_PROPS(TimeSeriesDuplicator);

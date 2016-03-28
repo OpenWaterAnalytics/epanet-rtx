@@ -250,6 +250,7 @@
 		224A92681A8BABD300D8FBE2 /* libepanet-rtx-project.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */; };
 		224A92691A8BABD300D8FBE2 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22C62AC01439ED6300841E60 /* libepanet-rtx.dylib */; };
 		224A92801A8BD4F100D8FBE2 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 220F9E4C18F9E68B00BB842C /* libepanet-rtx.dylib */; };
+		224B09D41CA9B2A900AEB41A /* LinkJsonSerialization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224B09D21CA9B2A900AEB41A /* LinkJsonSerialization.cpp */; };
 		224C41991A434FCB008852C4 /* ModelPerformance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224C41971A434FCB008852C4 /* ModelPerformance.cpp */; };
 		224C419A1A434FCB008852C4 /* ModelPerformance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224C41971A434FCB008852C4 /* ModelPerformance.cpp */; };
 		224C419B1A434FCB008852C4 /* ModelPerformance.h in Headers */ = {isa = PBXBuildFile; fileRef = 224C41981A434FCB008852C4 /* ModelPerformance.h */; };
@@ -292,7 +293,7 @@
 		2280409D158F8326004222DA /* Valve.h in Headers */ = {isa = PBXBuildFile; fileRef = 2280409C158F8326004222DA /* Valve.h */; };
 		2280409F158F8352004222DA /* Valve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409E158F8351004222DA /* Valve.cpp */; };
 		228137D91CA2F23B00AD81F3 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228137D81CA2F23B00AD81F3 /* main.cpp */; };
-		228137DE1CA2F2C600AD81F3 /* FluxService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228137DC1CA2F2C600AD81F3 /* FluxService.cpp */; };
+		228137DE1CA2F2C600AD81F3 /* LinkService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228137DC1CA2F2C600AD81F3 /* LinkService.cpp */; };
 		228137DF1CA2F95D00AD81F3 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		2288C1241BE3C71900F9B8FB /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		2288C1251BE3C74600F9B8FB /* TimeSeriesDuplicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2288C10A1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.cpp */; };
@@ -776,6 +777,8 @@
 		22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CorrelatorTimeSeries.h; path = ../../src/CorrelatorTimeSeries.h; sourceTree = "<group>"; };
 		2246439D150BD6E0005EA3BA /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../../src/Node.h; sourceTree = "<group>"; };
 		224643A0150BD72E005EA3BA /* Link.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Link.h; path = ../../src/Link.h; sourceTree = "<group>"; };
+		224B09D21CA9B2A900AEB41A /* LinkJsonSerialization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LinkJsonSerialization.cpp; path = "../../examples/LINK-service/LinkJsonSerialization.cpp"; sourceTree = "<group>"; };
+		224B09D31CA9B2A900AEB41A /* LinkJsonSerialization.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = LinkJsonSerialization.hpp; path = "../../examples/LINK-service/LinkJsonSerialization.hpp"; sourceTree = "<group>"; };
 		224C41971A434FCB008852C4 /* ModelPerformance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = ModelPerformance.cpp; path = ../../src/ModelPerformance.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		224C41981A434FCB008852C4 /* ModelPerformance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ModelPerformance.h; path = ../../src/ModelPerformance.h; sourceTree = "<group>"; };
 		224D40D519786C3000160BD5 /* BaseStatsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BaseStatsTimeSeries.cpp; path = ../../src/BaseStatsTimeSeries.cpp; sourceTree = "<group>"; };
@@ -803,10 +806,10 @@
 		2280409A158F82EE004222DA /* Pump.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Pump.cpp; path = ../../src/Pump.cpp; sourceTree = "<group>"; };
 		2280409C158F8326004222DA /* Valve.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Valve.h; path = ../../src/Valve.h; sourceTree = "<group>"; };
 		2280409E158F8351004222DA /* Valve.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Valve.cpp; path = ../../src/Valve.cpp; sourceTree = "<group>"; };
-		228137C91CA2F1FE00AD81F3 /* FLUX-service */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "FLUX-service"; sourceTree = BUILT_PRODUCTS_DIR; };
-		228137D81CA2F23B00AD81F3 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = "../../examples/FLUX-service/main.cpp"; sourceTree = "<group>"; };
-		228137DC1CA2F2C600AD81F3 /* FluxService.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FluxService.cpp; path = "../../examples/FLUX-service/FluxService.cpp"; sourceTree = "<group>"; };
-		228137DD1CA2F2C600AD81F3 /* FluxService.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = FluxService.hpp; path = "../../examples/FLUX-service/FluxService.hpp"; sourceTree = "<group>"; };
+		228137C91CA2F1FE00AD81F3 /* LINK-service */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "LINK-service"; sourceTree = BUILT_PRODUCTS_DIR; };
+		228137D81CA2F23B00AD81F3 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = "../../examples/LINK-service/main.cpp"; sourceTree = "<group>"; };
+		228137DC1CA2F2C600AD81F3 /* LinkService.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LinkService.cpp; path = "../../examples/LINK-service/LinkService.cpp"; sourceTree = "<group>"; };
+		228137DD1CA2F2C600AD81F3 /* LinkService.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = LinkService.hpp; path = "../../examples/LINK-service/LinkService.hpp"; sourceTree = "<group>"; };
 		2281A75915A743410018EC0F /* PointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = PointRecord.h; path = ../../src/PointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2281A75D15A744E60018EC0F /* DbPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DbPointRecord.h; path = ../../src/DbPointRecord.h; sourceTree = "<group>"; };
 		2281A75E15A7451F0018EC0F /* MysqlPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = MysqlPointRecord.h; path = ../../src/MysqlPointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -1266,14 +1269,16 @@
 			name = "Model Classes";
 			sourceTree = "<group>";
 		};
-		228137D71CA2F22C00AD81F3 /* FLUX Service */ = {
+		228137D71CA2F22C00AD81F3 /* LINK Service */ = {
 			isa = PBXGroup;
 			children = (
 				228137D81CA2F23B00AD81F3 /* main.cpp */,
-				228137DD1CA2F2C600AD81F3 /* FluxService.hpp */,
-				228137DC1CA2F2C600AD81F3 /* FluxService.cpp */,
+				228137DD1CA2F2C600AD81F3 /* LinkService.hpp */,
+				228137DC1CA2F2C600AD81F3 /* LinkService.cpp */,
+				224B09D31CA9B2A900AEB41A /* LinkJsonSerialization.hpp */,
+				224B09D21CA9B2A900AEB41A /* LinkJsonSerialization.cpp */,
 			);
-			name = "FLUX Service";
+			name = "LINK Service";
 			sourceTree = "<group>";
 		};
 		2288C1041BE3C09F00F9B8FB /* TS Duplicator */ = {
@@ -1375,7 +1380,7 @@
 				22C62B08143A205B00841E60 /* points */,
 				22C62AC91439ED9300841E60 /* time series classes */,
 				228CA8CE1AA0CBC400D0353E /* time series extensions */,
-				228137D71CA2F22C00AD81F3 /* FLUX Service */,
+				228137D71CA2F22C00AD81F3 /* LINK Service */,
 				2288C1041BE3C09F00F9B8FB /* TS Duplicator */,
 				22C62AC11439ED6300841E60 /* Products */,
 				220DFA9C15502E4100AF41D0 /* Libraries */,
@@ -1399,7 +1404,7 @@
 				223947E71AF3B27000C8AE4F /* model exporter */,
 				2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */,
 				220D42DD1BEFFF9000C9AB36 /* RTX_DuperDaemon */,
-				228137C91CA2F1FE00AD81F3 /* FLUX-service */,
+				228137C91CA2F1FE00AD81F3 /* LINK-service */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1835,9 +1840,9 @@
 			productReference = 223947E71AF3B27000C8AE4F /* model exporter */;
 			productType = "com.apple.product-type.tool";
 		};
-		228137C81CA2F1FE00AD81F3 /* FLUX-service */ = {
+		228137C81CA2F1FE00AD81F3 /* LINK-service */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 228137D51CA2F1FE00AD81F3 /* Build configuration list for PBXNativeTarget "FLUX-service" */;
+			buildConfigurationList = 228137D51CA2F1FE00AD81F3 /* Build configuration list for PBXNativeTarget "LINK-service" */;
 			buildPhases = (
 				228137C51CA2F1FE00AD81F3 /* Sources */,
 				228137C61CA2F1FE00AD81F3 /* Frameworks */,
@@ -1848,9 +1853,9 @@
 			dependencies = (
 				228137DB1CA2F25D00AD81F3 /* PBXTargetDependency */,
 			);
-			name = "FLUX-service";
-			productName = "FLUX-service";
-			productReference = 228137C91CA2F1FE00AD81F3 /* FLUX-service */;
+			name = "LINK-service";
+			productName = "LINK-service";
+			productReference = 228137C91CA2F1FE00AD81F3 /* LINK-service */;
 			productType = "com.apple.product-type.tool";
 		};
 		2288C10F1BE3C5DC00F9B8FB /* TimeSeriesDuplicator */ = {
@@ -2096,7 +2101,7 @@
 				22CF1C381A6842DC00161188 /* testTsFilter */,
 				223947E61AF3B27000C8AE4F /* model exporter */,
 				220D42DC1BEFFF9000C9AB36 /* RTX_DuperDaemon */,
-				228137C81CA2F1FE00AD81F3 /* FLUX-service */,
+				228137C81CA2F1FE00AD81F3 /* LINK-service */,
 			);
 		};
 /* End PBXProject section */
@@ -2301,7 +2306,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				228137DE1CA2F2C600AD81F3 /* FluxService.cpp in Sources */,
+				224B09D41CA9B2A900AEB41A /* LinkJsonSerialization.cpp in Sources */,
+				228137DE1CA2F2C600AD81F3 /* LinkService.cpp in Sources */,
 				228137D91CA2F23B00AD81F3 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3594,7 +3600,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		228137D51CA2F1FE00AD81F3 /* Build configuration list for PBXNativeTarget "FLUX-service" */ = {
+		228137D51CA2F1FE00AD81F3 /* Build configuration list for PBXNativeTarget "LINK-service" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				228137CD1CA2F1FE00AD81F3 /* Debug */,
