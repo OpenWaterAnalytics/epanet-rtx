@@ -1370,6 +1370,9 @@
 				224C418E1A434F9F008852C4 /* Model Performance */,
 				22C62B02143A107D00841E60 /* exceptions */,
 				2274871E19AE234200A48475 /* Python Interpreter */,
+				22C62ACA1439ED9F00841E60 /* point record classes */,
+				226861C414715E53000DDDEF /* units */,
+				22C62B08143A205B00841E60 /* points */,
 				22C62AC91439ED9300841E60 /* time series classes */,
 				228CA8CE1AA0CBC400D0353E /* time series extensions */,
 				228137D71CA2F22C00AD81F3 /* FLUX Service */,
@@ -1404,9 +1407,6 @@
 		22C62AC91439ED9300841E60 /* time series classes */ = {
 			isa = PBXGroup;
 			children = (
-				226861C414715E53000DDDEF /* units */,
-				22C62B08143A205B00841E60 /* points */,
-				22C62ACA1439ED9F00841E60 /* point record classes */,
 				22C62ADA1439EE0B00841E60 /* TimeSeries.h */,
 				22C62AD91439EE0B00841E60 /* TimeSeries.cpp */,
 				22CF1C281A68094300161188 /* TimeSeriesFilter.h */,

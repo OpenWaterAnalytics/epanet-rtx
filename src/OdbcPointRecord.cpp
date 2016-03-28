@@ -21,6 +21,8 @@ using namespace std;
 using boost::local_time::posix_time_zone;
 using boost::local_time::time_zone_ptr;
 
+// fwd
+const map<string,OdbcPointRecord::Sql_Connector_t> _ODBC_Type_map();
 
 OdbcPointRecord::OdbcPointRecord() {
   
@@ -98,12 +100,15 @@ list<string> OdbcPointRecord::driverList() {
   SQLCHAR driverAttr[1256];
   SQLSMALLINT driver_ret, attr_ret;
   SQLUSMALLINT direction = SQL_FETCH_FIRST;
-  while(SQL_SUCCEEDED(sqlRet = SQLDrivers(_handles.SCADAenv, direction, driverChar, 256, &driver_ret, driverAttr, 1256, &attr_ret))) {
+  SQLHENV env;
+  sqlRet = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &env);
+  while(SQL_SUCCEEDED(sqlRet = SQLDrivers(env, direction, driverChar, 256, &driver_ret, driverAttr, 1256, &attr_ret))) {
     direction = SQL_FETCH_NEXT;
     string thisDriver = string((char*)driverChar);
     string thisAttr = string((char*)driverAttr);
     drivers.push_back(thisDriver);
   }
+  SQLFreeHandle(SQL_HANDLE_ENV, env);
   return drivers;
 }
 
@@ -112,10 +117,10 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::OdbcQuery> OdbcPointRecor
   map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::OdbcQuery> list;
   
   OdbcQuery wwQueries;
-  wwQueries.connectorName = "wonderware_mssql";
+  wwQueries.connectorType = wonderware_mssql;
   wwQueries.singleSelect = "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE #TAGCOL# = ? AND (#DATECOL# = ?) AND wwTimeZone = 'UTC'";
   //wwQueries.rangeSelect =  "SELECT #DATECOL#, #TAGCOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE (#DATECOL# >= ?) AND (#DATECOL# <= ?) AND #TAGCOL# = ? AND wwTimeZone = 'UTC' ORDER BY #DATECOL# asc"; // experimentally, ORDER BY is much slower. wonderware always returns rows ordered by DateTime ascending, so this is not really necessary.
-  wwQueries.rangeSelect =  "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE #TAGCOL# = ? AND (#DATECOL# > ?) AND (#DATECOL# <= ?) AND wwTimeZone = 'UTC'";
+  wwQueries.rangeSelect =  "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE #TAGCOL# = ? AND (#DATECOL# >= ?) AND (#DATECOL# <= ?) AND wwTimeZone = 'UTC'";
   wwQueries.lowerBound = "";
   wwQueries.upperBound = "";
   wwQueries.timeQuery = "SELECT CONVERT(datetime, GETDATE()) AS DT";
@@ -124,22 +129,22 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::OdbcQuery> OdbcPointRecor
   /***************************************************/
   
   OdbcQuery oraQueries;
-  oraQueries.connectorName = "oracle";
+  oraQueries.connectorType = oracle;
   oraQueries.singleSelect = "";
   oraQueries.rangeSelect = "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE #TAGCOL# = ? AND (#DATECOL# >= ?) AND (#DATECOL# <= ?) ORDER BY #DATECOL# asc";
   oraQueries.lowerBound = "";
   oraQueries.upperBound = "";
   oraQueries.timeQuery = "select sysdate from dual";
   
-  
+  /***************************************************/
+
   // "regular" mssql db...
   OdbcQuery mssqlQueries = wwQueries;
-  mssqlQueries.connectorName = "mssql";
+  mssqlQueries.connectorType = mssql;
   mssqlQueries.rangeSelect =  "SELECT #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE #TAGCOL# = ? AND (#DATECOL# >= ?) AND (#DATECOL# <= ?)"; // ORDER BY #DATECOL# asc";
   
 //  mssqlQueries.lowerBound = "SELECT TOP(1) #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE #TAGCOL# = ? AND (#DATECOL# < ?) ORDER BY #DATECOL# ASC";
 //  mssqlQueries.upperBound = "SELECT TOP(1) #DATECOL#, #VALUECOL#, #QUALITYCOL# FROM #TABLENAME# WHERE #TAGCOL# = ? AND (#DATECOL# > ?) ORDER BY #DATECOL# DESC";
-  
   
   list[mssql] = mssqlQueries;
   list[wonderware_mssql] = wwQueries;
@@ -149,28 +154,33 @@ map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::OdbcQuery> OdbcPointRecor
 }
 
 
-OdbcPointRecord::Sql_Connector_t OdbcPointRecord::typeForName(const string& connector) {
-  map<OdbcPointRecord::Sql_Connector_t, OdbcPointRecord::OdbcQuery> list = queryTypes();
-  
-  BOOST_FOREACH(Sql_Connector_t connType, list | boost::adaptors::map_keys) {
-    if (RTX_STRINGS_ARE_EQUAL(connector, list[connType].connectorName)) {
-      return connType;
-    }
-  }
-
-  cerr << "could not resolve connector type: " << connector << endl;
-  return NO_CONNECTOR;
-}
-//
-//
-//vector<string> OdbcPointRecord::dsnList() {
-//  return _dsnList;
-//}
-
-
-
 OdbcPointRecord::Sql_Connector_t OdbcPointRecord::connectorType() {
   return _connectorType;
+}
+
+
+const map<string,OdbcPointRecord::Sql_Connector_t> _ODBC_Type_map() {
+  map<string,OdbcPointRecord::Sql_Connector_t> m;
+  m["none"] = OdbcPointRecord::NO_CONNECTOR;
+  m["mssql"] = OdbcPointRecord::mssql;
+  m["oracle"] = OdbcPointRecord::oracle;
+  m["wonderware"] = OdbcPointRecord::wonderware_mssql;
+  return m;
+}
+
+const std::string OdbcPointRecord::connectorTypeStr() {
+  for (auto pr : _ODBC_Type_map()) {
+    if (pr.second == this->connectorType()) {
+      return pr.first;
+    }
+  }
+  return "none";
+}
+void OdbcPointRecord::setConnectorTypeStr(const std::string &type) {
+  map<string,OdbcPointRecord::Sql_Connector_t> m = _ODBC_Type_map();
+  if (m.count(type)) {
+    this->setConnectorType(m[type]);
+  }
 }
 
 

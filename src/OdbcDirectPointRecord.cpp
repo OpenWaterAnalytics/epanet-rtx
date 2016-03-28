@@ -113,12 +113,10 @@ std::vector<Point> OdbcDirectPointRecord::selectRange(const std::string& id, tim
     ++iFetchAttempt;
   } while (!fetchSuccess && iFetchAttempt < RTX_ODBCDIRECT_MAX_RETRY);
   
-  
-  
-  
-  
   return points;
 }
+
+/* selectNext and selectPrevious will not be called if the singly-bounded queries do not exist */
 
 Point OdbcDirectPointRecord::selectNext(const std::string& id, time_t time) {
   Point p;

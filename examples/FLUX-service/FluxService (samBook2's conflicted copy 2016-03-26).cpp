@@ -96,7 +96,6 @@ public:
   }
   
   
-  /******* POINTRECORD *******/
   void visit(PointRecord &pr) {
     _v["_class"] = JSV("record");
     _v["name"] = JSV(pr.name());
@@ -109,18 +108,6 @@ public:
   void visit(SqlitePointRecord &pr) {
     this->visit((DbPointRecord&)pr);
     _v["_class"] = JSV("sqlite");
-  }
-  void visit(InfluxDbPointRecord &pr) {
-    this->visit((DbPointRecord&)pr);
-    _v["class"] = JSV("influx");
-  }
-  void visit(OdbcDirectPointRecord &pr) {
-    this->visit((DbPointRecord&)pr);
-    _v["class"] = JSV("odbc");
-    
-    // connection info
-    
-    
   }
   
   json::value json() {return _v;};
@@ -144,10 +131,7 @@ public Visitor<OdbcDirectPointRecord>
 public:
   JsonDeserializer(JSV withJson) : _v(withJson) { };
   
-  template<typename T> static RTX_object::_sp createShared() {
-    RTX_object::_sp o( new T );
-    return o;
-  };
+  template<typename T> static RTX_object::_sp createRtxObjShared() { RTX_object::_sp o( new T ); return o; };
   
   // static function from_json:
   // takes json value and routes the request to a function that will handle
@@ -155,14 +139,18 @@ public:
   // and then cause the object to accept an instantiated deserializer as a visitor.
   static RTX_object::_sp from_json(JSV json) {
     map< string, std::function<RTX_object::_sp()> > c; // c is for "CREATOR"
-    c["sqlite"]     = &createShared<SqlitePointRecord>;
-    c["influx"]     = &createShared<InfluxDbPointRecord>;
-    c["odbc"]       = &createShared<OdbcDirectPointRecord>;
-    c["timeseries"] = &createShared<TimeSeries>;
-    c["filter"]     = &createShared<TimeSeriesFilter>;
-    c["threshold"]  = &createShared<ThresholdTimeSeries>;
-    c["units"]      = &createShared<Units>;
-    c["clock"]      = &createShared<Clock>;
+    
+    c["sqlite"]     = &JsonDeserializer::createRtxObjShared<SqlitePointRecord>;
+    c["influx"]     = &JsonDeserializer::createRtxObjShared<InfluxDbPointRecord>;
+    c["odbc"]       = &JsonDeserializer::createRtxObjShared<OdbcDirectPointRecord>;
+    
+    c["timeseries"] = &JsonDeserializer::createRtxObjShared<TimeSeries>;
+    c["filter"]     = &JsonDeserializer::createRtxObjShared<TimeSeriesFilter>;
+    c["threshold"]  = &JsonDeserializer::createRtxObjShared<ThresholdTimeSeries>;
+    
+    c["units"]      = &JsonDeserializer::createRtxObjShared<Units>;
+    c["clock"]      = &JsonDeserializer::createRtxObjShared<Clock>;
+    
     // create the concrete object
     string type = json.as_object()["_class"].as_string();
     if (c.count(type)) {
@@ -174,53 +162,53 @@ public:
     return RTX_object::_sp();
   };
   
-  /******* TIMESERIES *******/
+  
   void visit(TimeSeries& ts) {
-    JSV jsU = _v.as_object()["units"];
-    Units::_sp u = static_pointer_cast<Units>(from_json(jsU));
-    ts.setUnits(*u.get());
+    
   };
   void visit(TimeSeriesFilter& ts) {
     this->visit((TimeSeries&)ts);
-    JSV jsC = _v.as_object()["clock"];
-    Clock::_sp c = static_pointer_cast<Clock>(from_json(jsC));
-    ts.setClock(c);
+    
   };
-  /******* UNITS *******/
+  
   void visit(Units &u) {
     string uStr = _v.as_object()["unitString"].as_string();
     u = Units::unitOfType(uStr);
   };
-  /******* CLOCK *******/
+  
   void visit(Clock &c) {
-    int p = _v.as_object()["period"].as_integer();
-    int o = _v.as_object()["offset"].as_integer();
-    c.setPeriod(p);
-    c.setStart(o);
+    
   };
   
-  /******* POINTRECORD *******/
+  
   void visit(PointRecord& pr) {
-    pr.setName(_v.as_object()["name"].as_string());
+    
   };
   void visit(DbPointRecord &pr) {
     this->visit((PointRecord&)pr);
-    json::object o = _v.as_object();
-    pr.setReadonly(o["readonly"].as_bool());
-    pr.setConnectionString(o["connectionString"].as_string());
+    
   };
   void visit(SqlitePointRecord &pr) {
     this->visit((DbPointRecord&)pr);
+    
   };
   void visit(InfluxDbPointRecord &pr) {
     this->visit((DbPointRecord&)pr);
+    
   };
   void visit(OdbcDirectPointRecord &pr) {
     this->visit((DbPointRecord&)pr);
+    
   };
+  
+  
+  
+  
+  JSV value() { return _v; };
   
 private:
   JSV _v;
+  
 };
 
 

@@ -359,14 +359,7 @@ PointRecord::_sp PointRecordFactory::createOdbcPointRecord(libconfig::Setting &s
   if (setting.exists("connectorType")) {
     // a pre-formatted connector type. yay!
     string type = setting["connectorType"];
-    OdbcPointRecord::Sql_Connector_t connT = OdbcPointRecord::typeForName(type);
-    if (connT != OdbcPointRecord::NO_CONNECTOR) {
-      //cout << "connector type " << type << " recognized" << endl;
-      r->setConnectorType(connT);
-    }
-    else {
-      cerr << "connector type " << type << " not set" << endl;
-    }
+    r->setConnectorTypeStr(type);
   }
   else {
     cerr << "connector type not specified" << endl;

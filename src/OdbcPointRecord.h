@@ -44,16 +44,17 @@ namespace RTX {
   public:
     // types
     
-    typedef enum {
-      NO_CONNECTOR,
-      wonderware_mssql,
-      oracle,
-      mssql
-    } Sql_Connector_t;
+    enum Sql_Connector_t : int {
+      NO_CONNECTOR = 0,
+      wonderware_mssql = 1,
+      oracle = 2,
+      mssql = 3
+    };
     
     class OdbcQuery {
     public:
-      std::string connectorName, singleSelect, rangeSelect, upperBound, lowerBound, timeQuery;
+      Sql_Connector_t connectorType;
+      std::string singleSelect, rangeSelect, upperBound, lowerBound, timeQuery;
     };
     
     class OdbcTableDescription {
@@ -75,7 +76,6 @@ namespace RTX {
     };
     
     static std::map<Sql_Connector_t, OdbcQuery> queryTypes();
-    static Sql_Connector_t typeForName(const std::string& connector);
     
     // shared pointer and ctor/dtor
     RTX_BASE_PROPS(OdbcPointRecord);
@@ -85,7 +85,7 @@ namespace RTX {
     // public methods
     
 //    vector<string>dsnList();
-    std::list<std::string>driverList();
+    static std::list<std::string>driverList();
     
     
     
@@ -99,6 +99,10 @@ namespace RTX {
     
     Sql_Connector_t connectorType();
     void setConnectorType(Sql_Connector_t connectorType);
+    
+    const std::string connectorTypeStr();
+    void setConnectorTypeStr(const std::string& type);
+    
     
     virtual bool readonly() {return true;};
     

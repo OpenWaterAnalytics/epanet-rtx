@@ -84,7 +84,7 @@ namespace RTX {
     
   public:
     RTX_BASE_PROPS(Clock);
-    Clock(int period, time_t start = 0);
+    Clock(int period = 3600, time_t start = 0);
     virtual ~Clock();
     
     std::string name();
