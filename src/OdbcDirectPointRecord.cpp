@@ -217,7 +217,7 @@ std::string OdbcDirectPointRecord::stringQueryForRange(const std::string& id, ti
     endStr = PointRecordTime::localDateStringFromUnix(end+1, _specifiedTimeZone);
   }
   
-  string startDateStr = "'" + startStr + "'"; // minus one because of wonderware's bullshit "initial value" in delta retrieval.
+  string startDateStr = "'" + startStr + "'"; // minus one because of wonderware's silly "initial value" in delta retrieval.
   string endDateStr = "'" + endStr + "'"; // because wonderware does fractional seconds
   string idStr = "'" + id + "'";
   
