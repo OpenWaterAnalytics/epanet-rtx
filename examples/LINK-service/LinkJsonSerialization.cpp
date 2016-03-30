@@ -117,24 +117,37 @@ DeserializerJson::DeserializerJson(JSV withJson) : _v(withJson) {
 // the actual creation of the correct RTX object type and subclass (ts, clock, record, ...)
 // and then cause the object to accept an instantiated deserializer as a visitor.
 RTX_object::_sp DeserializerJson::from_json(JSV json) {
-  map< string, std::function<RTX_object::_sp()> > c = { // c is for "CREATOR"
-    { "sqlite",     &__createShared<SqlitePointRecord>},
-    { "influx",     &__createShared<InfluxDbPointRecord>},
-    { "odbc",       &__createShared<OdbcDirectPointRecord>},
-    { "timeseries", &__createShared<TimeSeries>},
-    { "filter",     &__createShared<TimeSeriesFilter>},
-    { "units",      &__createShared<Units>},
-    { "clock",      &__createShared<Clock>} };
-  // create the concrete object
-  string type = json.as_object()[_c].as_string();
-  if (c.count(type)) {
-    RTX_object::_sp obj = c[type]();
-    DeserializerJson d(json);
-    obj->accept(d);
-    return obj;
+  if (json.is_object()) {
+    map< string, std::function<RTX_object::_sp()> > c = { // c is for "CREATOR"
+      { "sqlite",     &__createShared<SqlitePointRecord>},
+      { "influx",     &__createShared<InfluxDbPointRecord>},
+      { "odbc",       &__createShared<OdbcDirectPointRecord>},
+      { "timeseries", &__createShared<TimeSeries>},
+      { "filter",     &__createShared<TimeSeriesFilter>},
+      { "units",      &__createShared<Units>},
+      { "clock",      &__createShared<Clock>} };
+    // create the concrete object
+    string type = json.as_object()[_c].as_string();
+    if (c.count(type)) {
+      RTX_object::_sp obj = c[type]();
+      DeserializerJson d(json);
+      obj->accept(d);
+      return obj;
+    }
   }
   return RTX_object::_sp();
 };
+
+vector<RTX_object::_sp> DeserializerJson::from_json_array(JSV json) {
+  vector<RTX_object::_sp> objs;
+  for (auto jsts : json.as_array()) {
+    RTX_object::_sp o = DeserializerJson::from_json(jsts);
+    if (o) {
+      objs.push_back(o);
+    }
+  }
+  return objs;
+}
 
 /******* TIMESERIES *******/
 void DeserializerJson::visit(TimeSeries& ts) {

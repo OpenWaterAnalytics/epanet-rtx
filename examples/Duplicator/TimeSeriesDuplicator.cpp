@@ -53,13 +53,26 @@ void TimeSeriesDuplicator::_refreshDestinations() {
 }
 
 void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
+  
+  boost::thread t(&TimeSeriesDuplicator::_dupeLoop, this, fetchWindow, frequency);
+  _dupeBackground.swap(t);
+  
+}
+
+void TimeSeriesDuplicator::wait() {
+  if (_dupeBackground.joinable()) {
+    _dupeBackground.join();
+  }
+}
+
+void TimeSeriesDuplicator::_dupeLoop(time_t win, time_t freq) {
   _shouldRun = true;
   
   time_t nextFetch = time(NULL);
   
   
   stringstream s;
-  s << "Starting fetch: freq-" << frequency << " win-" << fetchWindow;
+  s << "Starting fetch: freq-" << freq << " win-" << win;
   this->_logLine(s.str(),RTX_DUPLICATOR_LOGLEVEL_INFO);
   
   
@@ -80,7 +93,7 @@ void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
   while (_shouldRun) {
     _isRunning = true;
     
-    pair<time_t,int> fetchRes = this->_fetchAll(nextFetch - fetchWindow, nextFetch);
+    pair<time_t,int> fetchRes = this->_fetchAll(nextFetch - win, nextFetch);
     time_t fetchDuration = fetchRes.first;
     int nPoints = fetchRes.second;
     time_t now = time(NULL);
@@ -90,13 +103,13 @@ void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
     }
     
     
-    nextFetch += frequency;
+    nextFetch += freq;
     
     // edge case: sometimes system clock hasn't been set (maybe no ntp response yet)
     if (nextFetch < now) {
       // check how far off we are?
       // arbitrarily, let us be off by 5 windows...
-      if (nextFetch + (5 * frequency) < now) {
+      if (nextFetch + (5 * freq) < now) {
         nextFetch = now; // just skip a bunch and get us current.
         this->_logLine("Skipping an interval due to too much lag", RTX_DUPLICATOR_LOGLEVEL_WARN);
       }
@@ -125,6 +138,13 @@ void TimeSeriesDuplicator::stop() {
 }
 
 void TimeSeriesDuplicator::runRetrospective(time_t start, time_t chunkSize, time_t rateLimit) {
+  
+  boost::thread t(&TimeSeriesDuplicator::_backfillLoop, this, start, chunkSize, rateLimit);
+  _dupeBackground.swap(t);
+  
+}
+
+void TimeSeriesDuplicator::_backfillLoop(time_t start, time_t chunk, time_t rateLimit) {
   bool saveMetrics = true;
   TimeSeries::_sp metricsPointCount( new TimeSeries );
   metricsPointCount->setUnits(RTX_DIMENSIONLESS);
@@ -137,11 +157,11 @@ void TimeSeriesDuplicator::runRetrospective(time_t start, time_t chunkSize, time
     metricsTimeElapased->setRecord(_destinationRecord);
   }
   
-  time_t nextFetch = start + chunkSize;
+  time_t nextFetch = start + chunk;
   _shouldRun = true;
   
   stringstream s;
-  s << "Starting catchup from " << start << " in " << chunkSize << "second chunks";
+  s << "Starting catchup from " << start << " in " << chunk << "second chunks";
   this->_logLine(s.str(),RTX_DUPLICATOR_LOGLEVEL_INFO);
   
   bool inThePast = start < time(NULL);
@@ -155,11 +175,11 @@ void TimeSeriesDuplicator::runRetrospective(time_t start, time_t chunkSize, time
       inThePast = false;
     }
     
-    pair<time_t,int> fetchRes = this->_fetchAll(nextFetch - chunkSize, fetchEndTime);
+    pair<time_t,int> fetchRes = this->_fetchAll(nextFetch - chunk, fetchEndTime);
     time_t fetchDuration = fetchRes.first;
     int nPoints = fetchRes.second;
     
-    nextFetch += chunkSize;
+    nextFetch += chunk;
     
     char *tstr = asctime(localtime(&fetchEndTime));
     tstr[24] = '\0';
@@ -220,19 +240,19 @@ double TimeSeriesDuplicator::pctCompleteFetch() {
 
 
 
-void TimeSeriesDuplicator::setLoggingFunction(RTX_Duplicator_Logging_Callback_Block fn) {
-  _loggingFn = fn;
+void TimeSeriesDuplicator::setLoggingFunction(RTX_Duplicator_log_callback fn) {
+  _logFn = fn;
 }
 
-TimeSeriesDuplicator::RTX_Duplicator_Logging_Callback_Block TimeSeriesDuplicator::loggingFunction() {
-  return _loggingFn;
+TimeSeriesDuplicator::RTX_Duplicator_log_callback TimeSeriesDuplicator::loggingFunction() {
+  return _logFn;
 }
 
 void TimeSeriesDuplicator::_logLine(const std::string& line, int level) {
   if (this->logLevel < level) {
     return;
   }
-  if (_loggingFn == NULL) {
+  if (_logFn == NULL) {
     return;
   }
   string myLine;
@@ -253,13 +273,13 @@ void TimeSeriesDuplicator::_logLine(const std::string& line, int level) {
   }
   
   myLine += line;
-  if (_loggingFn != NULL) {
+  if (_logFn != NULL) {
     size_t loc = myLine.find("\n");
     if (loc+1 != myLine.length()) {
       myLine += "\n";
     }
     const char *msg = myLine.c_str();
-    _loggingFn(msg);
+    _logFn(msg);
   }
 }
 

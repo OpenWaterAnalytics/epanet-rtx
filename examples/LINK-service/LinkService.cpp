@@ -6,8 +6,7 @@ using namespace web;
 using namespace http;
 using namespace utility;
 using namespace http::experimental::listener;
-using std::placeholders::_1;
-using std::placeholders::_2;
+
 
 using JSV = json::value;
 
@@ -15,20 +14,22 @@ using JSV = json::value;
 
 LinkService::Responders LinkService::_LinkService_GET_responders() {
   Responders r;
-  r["series"] = bind(&LinkService::_get_timeseries, this, _1);
-  r["run"]    = bind(&LinkService::_get_runState,   this, _1);
-  r["source"] = bind(&LinkService::_get_source,     this, _1);
-  r["odbc"] = bind(&LinkService::_get_odbc_drivers,       this, _1);
+  r["series"] = std::bind(&LinkService::_get_timeseries, this, std::placeholders::_1);
+  r["run"]    = std::bind(&LinkService::_get_runState,   this, std::placeholders::_1);
+  r["source"] = std::bind(&LinkService::_get_source,     this, std::placeholders::_1);
+  r["odbc"]   = std::bind(&LinkService::_get_odbc_drivers, this, std::placeholders::_1);
   return r;
 }
 
 LinkService::Responders LinkService::_LinkService_POST_responders() {
   Responders r;
-  r["series"] = bind(&LinkService::_post_timeseries, this, _1);
-  r["run"]    = bind(&LinkService::_post_runState,   this, _1);
-  r["source"] = bind(&LinkService::_post_source,     this, _1);
+  r["series"] = std::bind(&LinkService::_post_timeseries, this, std::placeholders::_1);
+  r["run"]    = std::bind(&LinkService::_post_runState,   this, std::placeholders::_1);
+  r["source"] = std::bind(&LinkService::_post_source,     this, std::placeholders::_1);
   return r;
 }
+
+
 
 LinkService::LinkService(uri uri) : _listener(uri) {
   _listener.support(methods::GET, std::bind(&LinkService::_get, this, std::placeholders::_1));
@@ -46,6 +47,8 @@ LinkService::LinkService(uri uri) : _listener(uri) {
   ts2->setUnits(RTX_FOOT);
   
   _tsList = {ts1,ts2};
+  
+  _duplicator.setLoggingFunction([&](const char* msg){ _statusMessage = string(msg); });
   
 }
 
@@ -121,13 +124,11 @@ void LinkService::_delete(http_request message) {
 
 void LinkService::_get_timeseries(http_request message) {
   
-  TimeSeries::_sp tsF2( new TimeSeriesFilter() );
-  tsF2->setName("ts filter 2");
-  
-  vector<RTX_object::_sp> tsVec = {tsF2};
-  
-  // return the list of time series:
-  // [ {series:"ts1",units:"MGD"} , {series:"ts2",units:"FT"} ]
+  auto tsList = _duplicator.series();
+  vector<RTX_object::_sp> tsVec;
+  for (auto ts : tsList) {
+    tsVec.push_back(ts);
+  }
   
   json::value v = SerializerJson::to_json(tsVec);
   message.reply(status_codes::OK, v);
@@ -137,8 +138,18 @@ void LinkService::_get_timeseries(http_request message) {
 
 void LinkService::_get_runState(web::http::http_request message) {
   
+  JSV state = JSV::object();
   
+  string stateStr;
+  if (_duplicator.isRunning()) {
+    state.as_object()["run"] = JSV(true);
+    state.as_object()["progress"] = JSV(_duplicator.pctCompleteFetch());
+  }
+  else {
+    state.as_object()["run"] = JSV(false);
+  }
   
+  message.reply(status_codes::OK, state);
 }
 
 void LinkService::_get_source(http_request message) {
@@ -165,21 +176,77 @@ void LinkService::_get_odbc_drivers(http_request message) {
 
 void LinkService::_post_timeseries(http_request message) {
   JSV js = message.extract_json().get();
-  RTX_object::_sp ts = DeserializerJson::from_json(js);
-  message.reply(status_codes::OK);
+  if (js.is_array()) {
+    vector<RTX_object::_sp> oList = DeserializerJson::from_json_array(js);
+    list<TimeSeries::_sp> tsList;
+    for (auto o : oList) {
+      TimeSeries::_sp ts = static_pointer_cast<TimeSeries>(o);
+      tsList.push_back(ts);
+    }
+    _duplicator.setSeries(tsList);
+    message.reply(status_codes::OK);
+    return;
+  }
+  else {
+    message.reply(status_codes::MethodNotAllowed);
+  }
+  
 }
 
 void LinkService::_post_runState(web::http::http_request message) {
   
-}
-
-void LinkService::_post_source(web::http::http_request message) {
+  // expect obj with keys: run(bool), window(int), frequency(int)
+  
+  JSV v = message.extract_json().get();
+  json::object o = v.as_object();
+  
+  if (o["run"].as_bool()) {
+    // run
+    time_t win = o.find("window") == o.end() ? 3600 : o["window"].as_integer();
+    time_t freq = o.find("frequency") == o.end() ? 300 : o["frequency"].as_integer();
+    this->runDuplication(win,freq);
+  }
+  else {
+    // stop
+    this->stopDuplication();
+  }
+  
+  message.reply(status_codes::OK);
   
 }
 
+void LinkService::_post_source(web::http::http_request message) {
+  JSV v = message.extract_json().get();
+  RTX_object::_sp o = DeserializerJson::from_json(v);
+  _sourceRecord = static_pointer_cast<PointRecord>(o);
+  
+  if (o && _sourceRecord == o) {
+    message.reply(status_codes::OK);
+  }
+  else {
+    message.reply(status_codes::BadRequest);
+  }
+}
 
 
 
 
+void LinkService::runDuplication(time_t win, time_t freq) {
+  if (_duplicator.isRunning()) {
+    return;
+  }
+  _duplicator.run(win, freq);
+}
 
+void LinkService::stopDuplication() {
+  if (_duplicator.isRunning()) {
+    _duplicator.stop();
+    
+    boost::thread waitOnStop([&]() {
+      _duplicator.wait();
+      _statusMessage = "Idle";
+    });
+  }
+  
+}
 

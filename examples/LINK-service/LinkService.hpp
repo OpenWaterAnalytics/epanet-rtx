@@ -12,16 +12,22 @@
 
 #include <stdio.h>
 
+#include <boost/thread/thread_only.hpp>
+
 #include <cpprest/json.h>
 #include <cpprest/http_listener.h>
 #include <cpprest/uri.h>
 #include <cpprest/asyncrt_utils.h>
+
+
 
 #include "TimeSeries.h"
 #include "InfluxdbPointRecord.h"
 #include "OdbcPointRecord.h"
 
 #include "LinkJsonSerialization.hpp"
+
+#include "TimeSeriesDuplicator.h"
 
 using web::http::http_request;
 using web::http::experimental::listener::http_listener;
@@ -57,8 +63,18 @@ namespace RTX {
     
     Responders _LinkService_GET_responders();
     Responders _LinkService_POST_responders();
+    
+    TimeSeriesDuplicator _duplicator;
+    PointRecord::_sp _sourceRecord;
+    
+    void runDuplication(time_t win, time_t freq);
+    void stopDuplication();
+        
+    std::string _statusMessage;
+    
   };
 }
+
 
 
 #endif /* LinkService_hpp */

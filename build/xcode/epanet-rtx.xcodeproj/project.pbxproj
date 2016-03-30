@@ -234,6 +234,7 @@
 		223663B81A699E8000420EE4 /* TimeSeriesFilterSinglePoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223663B11A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.cpp */; };
 		223663B91A69A59C00420EE4 /* CurveFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22253D8D16022FB6002F7256 /* CurveFunction.cpp */; };
 		223663BA1A69A59E00420EE4 /* GainTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22A842D3173BF445009CE769 /* GainTimeSeries.cpp */; };
+		2239413D1CAA1612008BD7FD /* libTimeSeriesDuplicator.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */; };
 		223947EA1AF3B27000C8AE4F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223947E91AF3B27000C8AE4F /* main.cpp */; };
 		223947F71AF3B45300C8AE4F /* libepanet-rtx-project.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */; };
 		223947F81AF3B45300C8AE4F /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 220F9E4C18F9E68B00BB842C /* libepanet-rtx.dylib */; };
@@ -995,6 +996,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2239413D1CAA1612008BD7FD /* libTimeSeriesDuplicator.dylib in Frameworks */,
 				228137DF1CA2F95D00AD81F3 /* libepanet-rtx.dylib in Frameworks */,
 				22E996FF1CA591CB00D6F34F /* libcpprest.a in Frameworks */,
 			);
