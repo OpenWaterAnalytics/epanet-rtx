@@ -53,23 +53,23 @@ namespace RTX {
     void _get_source(http_request message);
     void _get_odbc_drivers(http_request message);
     
-    void _post_timeseries(http_request message);
-    void _post_runState(http_request message);
-    void _post_source(http_request message);
+    web::http::status_code _post_config(web::json::value json);
+    web::http::status_code _post_timeseries(web::json::value json);
+    web::http::status_code _post_runState(web::json::value json);
+    web::http::status_code _post_source(web::json::value json);
     
     http_listener _listener;
     
     std::vector<RTX::TimeSeries::_sp> _tsList;
     
     Responders _LinkService_GET_responders();
-    Responders _LinkService_POST_responders();
     
     TimeSeriesDuplicator _duplicator;
     PointRecord::_sp _sourceRecord;
     
     void runDuplication(time_t win, time_t freq);
     void stopDuplication();
-        
+    time_t _window, _frequency;
     std::string _statusMessage;
     
   };

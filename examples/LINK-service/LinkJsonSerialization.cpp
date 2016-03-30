@@ -125,7 +125,9 @@ RTX_object::_sp DeserializerJson::from_json(JSV json) {
       { "timeseries", &__createShared<TimeSeries>},
       { "filter",     &__createShared<TimeSeriesFilter>},
       { "units",      &__createShared<Units>},
-      { "clock",      &__createShared<Clock>} };
+      { "clock",      &__createShared<Clock>},
+      { "units",      &__createShared<Units>}
+    };
     // create the concrete object
     string type = json.as_object()[_c].as_string();
     if (c.count(type)) {
@@ -133,6 +135,9 @@ RTX_object::_sp DeserializerJson::from_json(JSV json) {
       DeserializerJson d(json);
       obj->accept(d);
       return obj;
+    }
+    else {
+      throw bad_cast();
     }
   }
   return RTX_object::_sp();
@@ -154,6 +159,7 @@ void DeserializerJson::visit(TimeSeries& ts) {
   JSV jsU = _v.as_object()["units"];
   Units::_sp u = static_pointer_cast<Units>(from_json(jsU));
   ts.setUnits(*u.get());
+  ts.setName(_v.as_object()["name"].as_string());
 };
 void DeserializerJson::visit(TimeSeriesFilter& ts) {
   this->visit((TimeSeries&)ts);

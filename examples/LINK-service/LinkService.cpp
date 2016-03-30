@@ -14,28 +14,19 @@ using JSV = json::value;
 
 LinkService::Responders LinkService::_LinkService_GET_responders() {
   Responders r;
-  r["series"] = std::bind(&LinkService::_get_timeseries, this, std::placeholders::_1);
-  r["run"]    = std::bind(&LinkService::_get_runState,   this, std::placeholders::_1);
-  r["source"] = std::bind(&LinkService::_get_source,     this, std::placeholders::_1);
+  r["series"] = std::bind(&LinkService::_get_timeseries,   this, std::placeholders::_1);
+  r["run"]    = std::bind(&LinkService::_get_runState,     this, std::placeholders::_1);
+  r["source"] = std::bind(&LinkService::_get_source,       this, std::placeholders::_1);
   r["odbc"]   = std::bind(&LinkService::_get_odbc_drivers, this, std::placeholders::_1);
   return r;
 }
 
-LinkService::Responders LinkService::_LinkService_POST_responders() {
-  Responders r;
-  r["series"] = std::bind(&LinkService::_post_timeseries, this, std::placeholders::_1);
-  r["run"]    = std::bind(&LinkService::_post_runState,   this, std::placeholders::_1);
-  r["source"] = std::bind(&LinkService::_post_source,     this, std::placeholders::_1);
-  return r;
-}
-
-
 
 LinkService::LinkService(uri uri) : _listener(uri) {
-  _listener.support(methods::GET, std::bind(&LinkService::_get, this, std::placeholders::_1));
-  _listener.support(methods::PUT, std::bind(&LinkService::_put, this, std::placeholders::_1));
-  _listener.support(methods::POST, std::bind(&LinkService::_post, this, std::placeholders::_1));
-  _listener.support(methods::DEL, std::bind(&LinkService::_delete, this, std::placeholders::_1));
+  _listener.support(methods::GET,  std::bind(&LinkService::_get,    this, std::placeholders::_1));
+  _listener.support(methods::PUT,  std::bind(&LinkService::_put,    this, std::placeholders::_1));
+  _listener.support(methods::POST, std::bind(&LinkService::_post,   this, std::placeholders::_1));
+  _listener.support(methods::DEL,  std::bind(&LinkService::_delete, this, std::placeholders::_1));
   
   
   TimeSeries::_sp ts1(new TimeSeries);
@@ -48,7 +39,7 @@ LinkService::LinkService(uri uri) : _listener(uri) {
   
   _tsList = {ts1,ts2};
   
-  _duplicator.setLoggingFunction([&](const char* msg){ _statusMessage = string(msg); });
+  _duplicator.setLoggingFunction([&](const char* msg){ this->_statusMessage = string(msg); });
   
 }
 
@@ -80,19 +71,7 @@ void LinkService::_get(http_request message) {
     return;
   }
   
-  
-  
-  
-  json::value pathsArrayV = json::value::array(paths.size());
-  int i = 0;
-  for (string p : paths) {
-    pathsArrayV.as_array()[i] = json::value(p);
-    ++i;
-  }
-  
-  
-  message.reply(status_codes::OK, pathsArrayV);
-  
+  message.reply(status_codes::OK);
 }
 
 void LinkService::_put(http_request message) {
@@ -100,18 +79,26 @@ void LinkService::_put(http_request message) {
 }
 
 void LinkService::_post(http_request message) {
-  auto paths = http::uri::split_path(http::uri::decode(message.relative_uri().path()));
-  if (paths.size() == 0) {
-    message.reply(status_codes::Forbidden);
+  
+  const map< string, std::function<status_code(JSV)> > responders = {
+    {"series", bind(&LinkService::_post_timeseries, this, placeholders::_1)},
+    {"run",    bind(&LinkService::_post_runState,   this, placeholders::_1)},
+    {"source", bind(&LinkService::_post_source,     this, placeholders::_1)},
+    {"config", bind(&LinkService::_post_config,     this, placeholders::_1)}
+  };
+  
+  auto paths = uri::split_path(uri::decode(message.relative_uri().path()));
+  
+  JSV js = message.extract_json().get();
+  if(paths.size() == 0) {
+    message.reply(status_codes::BadRequest);
     return;
   }
   string entry = paths[0];
-  Responders res = this->_LinkService_POST_responders();
-  if (res.count(entry)) {
-    res[entry](message);
+  if (responders.count(entry)) {
+    message.reply(responders.at(entry)(js));
     return;
   }
-  message.reply(status_codes::OK);
 }
 
 void LinkService::_delete(http_request message) {
@@ -131,8 +118,11 @@ void LinkService::_get_timeseries(http_request message) {
   }
   
   json::value v = SerializerJson::to_json(tsVec);
-  message.reply(status_codes::OK, v);
   
+  http_response response (status_codes::OK);
+  response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
+  response.set_body(v);
+  message.reply(response);         // reply is done here
   return;
 }
 
@@ -173,9 +163,24 @@ void LinkService::_get_odbc_drivers(http_request message) {
 }
 
 
+status_code LinkService::_post_config(JSV json) {
+  json::object o = json.as_object();
+  
+  JSV series = o["series"];
+  JSV source = o["source"];
+  JSV destination = o["destination"];
+  JSV fetch = o["fetch"];
+  for( auto fn : { bind(&LinkService::_post_source, this, source), bind(&LinkService::_post_timeseries, this, series) }) {
+    status_code s = fn();
+    if (s != status_codes::OK) {
+      return s;
+    }
+  }
+  
+  return status_codes::OK;
+}
 
-void LinkService::_post_timeseries(http_request message) {
-  JSV js = message.extract_json().get();
+status_code LinkService::_post_timeseries(JSV js) {
   if (js.is_array()) {
     vector<RTX_object::_sp> oList = DeserializerJson::from_json_array(js);
     list<TimeSeries::_sp> tsList;
@@ -184,21 +189,18 @@ void LinkService::_post_timeseries(http_request message) {
       tsList.push_back(ts);
     }
     _duplicator.setSeries(tsList);
-    message.reply(status_codes::OK);
-    return;
+    return status_codes::OK;
   }
   else {
-    message.reply(status_codes::MethodNotAllowed);
+    return status_codes::MethodNotAllowed;
   }
   
 }
 
-void LinkService::_post_runState(web::http::http_request message) {
+status_code LinkService::_post_runState(JSV js) {
   
   // expect obj with keys: run(bool), window(int), frequency(int)
-  
-  JSV v = message.extract_json().get();
-  json::object o = v.as_object();
+  json::object o = js.as_object();
   
   if (o["run"].as_bool()) {
     // run
@@ -210,21 +212,18 @@ void LinkService::_post_runState(web::http::http_request message) {
     // stop
     this->stopDuplication();
   }
-  
-  message.reply(status_codes::OK);
-  
+  return status_codes::OK;
 }
 
-void LinkService::_post_source(web::http::http_request message) {
-  JSV v = message.extract_json().get();
-  RTX_object::_sp o = DeserializerJson::from_json(v);
+status_code LinkService::_post_source(JSV js) {
+  RTX_object::_sp o = DeserializerJson::from_json(js);
   _sourceRecord = static_pointer_cast<PointRecord>(o);
   
   if (o && _sourceRecord == o) {
-    message.reply(status_codes::OK);
+    return status_codes::OK;
   }
   else {
-    message.reply(status_codes::BadRequest);
+    return status_codes::BadRequest;
   }
 }
 
