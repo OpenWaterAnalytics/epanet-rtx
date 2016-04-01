@@ -218,6 +218,7 @@
 		222978321CA477DA0051D881 /* RTX_Visitable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2229782D1CA477DA0051D881 /* RTX_Visitable.h */; };
 		222978331CA477DA0051D881 /* RTX_Visitable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2229782D1CA477DA0051D881 /* RTX_Visitable.h */; };
 		222FDDD615C1BC2F0065DAF6 /* FirstDerivative.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */; };
+		22324B631CAEF15000CFC745 /* libcpprest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E996FE1CA591CB00D6F34F /* libcpprest.a */; };
 		223372F41CA19DFA00C87ACD /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 223372F21CA19DFA00C87ACD /* libcrypto.a */; };
 		223372F51CA19DFA00C87ACD /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 223372F31CA19DFA00C87ACD /* libssl.a */; };
 		223372F61CA19E3D00C87ACD /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C81C1A048300298C0C /* libboost_system.a */; };
@@ -410,8 +411,6 @@
 		22E4ED101725C1C60076E93D /* ConstantTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22E4ED0E1725C1C60076E93D /* ConstantTimeSeries.cpp */; };
 		22E4ED111725C1C60076E93D /* ConstantTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22E4ED0F1725C1C60076E93D /* ConstantTimeSeries.h */; };
 		22E996FF1CA591CB00D6F34F /* libcpprest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E996FE1CA591CB00D6F34F /* libcpprest.a */; };
-		22E997001CA5920A00D6F34F /* libcpprest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E996FE1CA591CB00D6F34F /* libcpprest.a */; };
-		22E997021CA5924A00D6F34F /* libcommon_utilities.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E997011CA5924A00D6F34F /* libcommon_utilities.a */; };
 		22E997081CA5935F00D6F34F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E997071CA5935F00D6F34F /* Security.framework */; };
 		22E997091CA5937B00D6F34F /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E997031CA5932300D6F34F /* CoreFoundation.framework */; };
 		22ED77CD158787B7002D67F1 /* Reservoir.h in Headers */ = {isa = PBXBuildFile; fileRef = 22ED77CC158787B7002D67F1 /* Reservoir.h */; };
@@ -958,8 +957,7 @@
 			files = (
 				22E997091CA5937B00D6F34F /* CoreFoundation.framework in Frameworks */,
 				22E997081CA5935F00D6F34F /* Security.framework in Frameworks */,
-				22E997021CA5924A00D6F34F /* libcommon_utilities.a in Frameworks */,
-				22E997001CA5920A00D6F34F /* libcpprest.a in Frameworks */,
+				22324B631CAEF15000CFC745 /* libcpprest.a in Frameworks */,
 				223372F41CA19DFA00C87ACD /* libcrypto.a in Frameworks */,
 				223372F51CA19DFA00C87ACD /* libssl.a in Frameworks */,
 				2200ED191C7797F3009A6C5F /* libepanet-static.a in Frameworks */,
