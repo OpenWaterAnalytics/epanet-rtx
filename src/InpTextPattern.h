@@ -18,7 +18,7 @@ namespace RTX {
   class InpTextPattern {
   public:
     typedef enum {
-      InpControlTypeSetting, // real
+      InpControlTypeSetting, // real number
       InpControlTypeStatus   // OPEN / CLOSED
     } controlType;
     

@@ -243,6 +243,8 @@
 		223AF33118F6E4C0002E846F /* InversionTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 223AF32F18F6E4C0002E846F /* InversionTimeSeries.h */; };
 		223AF35418F7121F002E846F /* SqliteProjectFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223AF35218F7121F002E846F /* SqliteProjectFile.cpp */; };
 		223AF35518F7121F002E846F /* SqliteProjectFile.h in Headers */ = {isa = PBXBuildFile; fileRef = 223AF35318F7121F002E846F /* SqliteProjectFile.h */; };
+		223D152F1CAF4D7600FB5FD6 /* ModelExportTask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223D152D1CAF4D7600FB5FD6 /* ModelExportTask.cpp */; };
+		223D15301CAF4D7600FB5FD6 /* ModelExportTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 223D152E1CAF4D7600FB5FD6 /* ModelExportTask.h */; };
 		22459FA71A44C41800AFD0BD /* CorrelatorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */; };
 		22459FA81A44C41800AFD0BD /* CorrelatorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */; };
 		22459FA91A44C41800AFD0BD /* CorrelatorTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */; };
@@ -773,6 +775,8 @@
 		223AF32F18F6E4C0002E846F /* InversionTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InversionTimeSeries.h; path = ../../src/InversionTimeSeries.h; sourceTree = "<group>"; };
 		223AF35218F7121F002E846F /* SqliteProjectFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = SqliteProjectFile.cpp; path = ../../project/SqliteProjectFile.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		223AF35318F7121F002E846F /* SqliteProjectFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SqliteProjectFile.h; path = ../../project/SqliteProjectFile.h; sourceTree = "<group>"; };
+		223D152D1CAF4D7600FB5FD6 /* ModelExportTask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ModelExportTask.cpp; path = ../../src/ModelExportTask.cpp; sourceTree = "<group>"; };
+		223D152E1CAF4D7600FB5FD6 /* ModelExportTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ModelExportTask.h; path = ../../src/ModelExportTask.h; sourceTree = "<group>"; };
 		22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CorrelatorTimeSeries.cpp; path = ../../src/CorrelatorTimeSeries.cpp; sourceTree = "<group>"; };
 		22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CorrelatorTimeSeries.h; path = ../../src/CorrelatorTimeSeries.h; sourceTree = "<group>"; };
 		2246439D150BD6E0005EA3BA /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../../src/Node.h; sourceTree = "<group>"; };
@@ -1306,13 +1310,15 @@
 			name = "RTX Project";
 			sourceTree = "<group>";
 		};
-		228CA8CE1AA0CBC400D0353E /* time series extensions */ = {
+		228CA8CE1AA0CBC400D0353E /* model exporting extensions */ = {
 			isa = PBXGroup;
 			children = (
 				228CA8D51AA0CBFF00D0353E /* InpTextPattern.h */,
 				228CA8D41AA0CBFF00D0353E /* InpTextPattern.cpp */,
+				223D152E1CAF4D7600FB5FD6 /* ModelExportTask.h */,
+				223D152D1CAF4D7600FB5FD6 /* ModelExportTask.cpp */,
 			);
-			name = "time series extensions";
+			name = "model exporting extensions";
 			sourceTree = "<group>";
 		};
 		228CD5531C0F5E4E00C67802 /* Products */ = {
@@ -1379,7 +1385,7 @@
 				226861C414715E53000DDDEF /* units */,
 				22C62B08143A205B00841E60 /* points */,
 				22C62AC91439ED9300841E60 /* time series classes */,
-				228CA8CE1AA0CBC400D0353E /* time series extensions */,
+				228CA8CE1AA0CBC400D0353E /* model exporting extensions */,
 				228137D71CA2F22C00AD81F3 /* LINK Service */,
 				2288C1041BE3C09F00F9B8FB /* TS Duplicator */,
 				22C62AC11439ED6300841E60 /* Products */,
@@ -1635,6 +1641,7 @@
 				221BFD811A8E8AD000143FCC /* ModelPerformance.h in Headers */,
 				221BFD821A8E8AD000143FCC /* TimeSeries.h in Headers */,
 				221BFD831A8E8AD000143FCC /* InversionTimeSeries.h in Headers */,
+				223D15301CAF4D7600FB5FD6 /* ModelExportTask.h in Headers */,
 				221BFD851A8E8AD000143FCC /* MathOpsTimeSeries.h in Headers */,
 				221BFD861A8E8AD000143FCC /* TimeSeriesFilterSinglePoint.h in Headers */,
 				221BFD871A8E8AD000143FCC /* rtxExceptions.h in Headers */,
@@ -2254,6 +2261,7 @@
 				221BFD441A8E8AD000143FCC /* Node.cpp in Sources */,
 				221BFD451A8E8AD000143FCC /* Link.cpp in Sources */,
 				221BFD461A8E8AD000143FCC /* Dma.cpp in Sources */,
+				223D152F1CAF4D7600FB5FD6 /* ModelExportTask.cpp in Sources */,
 				221BFD471A8E8AD000143FCC /* InversionTimeSeries.cpp in Sources */,
 				221BFD4A1A8E8AD000143FCC /* Units.cpp in Sources */,
 				221BFD4B1A8E8AD000143FCC /* EpanetModel.cpp in Sources */,
