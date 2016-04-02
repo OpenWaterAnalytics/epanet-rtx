@@ -186,3 +186,6 @@ $RECYCLE.BIN/
 
 build/cmake/*
 !build/cmake/CMakeLists.txt
+
+# node deps
+node_modules

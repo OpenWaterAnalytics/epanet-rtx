@@ -1,0 +1,31 @@
+<!-- SOURCE SELECT -->
+<div id="source-select">
+    <div class="form-group">
+        <ul class="nav nav-pills">
+            <li role="presentation"  ng-repeat="(type,plist) in sourceTypes" ng-class="{ active: isType(type) }" ng-click="setSourceType(type)">
+                <a>{{type}}</a>
+            </li>
+        </ul>
+    </div>
+    <form role="form" class='form-horizontal'>
+        <div ng-repeat="dict in sourceTypes[selectedSourceType]" ng-switch on="dict.inputType" class="form-group">
+            <div class="input-group" ng-switch-when="text-line" text-line></div>
+            <div class="input-group" ng-switch-when="select-line" select-line></div>
+        </div>
+        <div class="input-group">
+            <button type="submit" class="btn btn-default" ng-click="save()">Save</button>
+        </div>
+    </form>
+</div>
+
+
+<!-- STATUS -->
+<div id="duplicator-status">
+    <div class="col-lg-6">
+        <h4>Server Status</h4>
+        <div>
+            {{ status }}
+        </div>
+    </div>
+</div>
+<!-- /STATUS -->
