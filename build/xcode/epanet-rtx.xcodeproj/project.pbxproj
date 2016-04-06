@@ -319,6 +319,8 @@
 		22909B3A147DDCEB00945449 /* EpanetModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 22909B39147DDCEB00945449 /* EpanetModel.h */; };
 		22909B3C147DDE2A00945449 /* EpanetModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22909B3B147DDE2A00945449 /* EpanetModel.cpp */; };
 		22956CE01A792FAE0014D7EF /* TimeSeriesSynthetic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2211D2041A6D69EA00E34B9B /* TimeSeriesSynthetic.cpp */; };
+		229E95C01CB2FAE000216682 /* EpanetModelExporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 229E95BE1CB2FAE000216682 /* EpanetModelExporter.cpp */; };
+		229E95C11CB2FAE000216682 /* EpanetModelExporter.h in Headers */ = {isa = PBXBuildFile; fileRef = 229E95BF1CB2FAE000216682 /* EpanetModelExporter.h */; };
 		229FBEA4190807B3004FE5A4 /* InfluxDbPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */; };
 		229FBEA5190807B3004FE5A4 /* InfluxDbPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */; };
 		22A4B41914E1B93D006D01C3 /* Clock.h in Headers */ = {isa = PBXBuildFile; fileRef = 22A4B41814E1B93D006D01C3 /* Clock.h */; };
@@ -610,6 +612,13 @@
 			remoteGlobalIDString = 222CBF6019F6FE530049A22D;
 			remoteInfo = buildNetwork;
 		};
+		229E95C71CB2FAE100216682 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 223D15351CAF547D00FB5FD6;
+			remoteInfo = ModelFile;
+		};
 		22BEDCF3187E09A100855B68 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 22C34357187D9441000100A4 /* epanetmsx.xcodeproj */;
@@ -830,6 +839,8 @@
 		228CA8D51AA0CBFF00D0353E /* InpTextPattern.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InpTextPattern.h; path = ../../src/InpTextPattern.h; sourceTree = "<group>"; };
 		22909B39147DDCEB00945449 /* EpanetModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EpanetModel.h; path = ../../src/EpanetModel.h; sourceTree = "<group>"; };
 		22909B3B147DDE2A00945449 /* EpanetModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetModel.cpp; path = ../../src/EpanetModel.cpp; sourceTree = "<group>"; };
+		229E95BE1CB2FAE000216682 /* EpanetModelExporter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetModelExporter.cpp; path = ../../src/EpanetModelExporter.cpp; sourceTree = "<group>"; };
+		229E95BF1CB2FAE000216682 /* EpanetModelExporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EpanetModelExporter.h; path = ../../src/EpanetModelExporter.h; sourceTree = "<group>"; };
 		229FBEA0190807B3004FE5A4 /* InfluxDbPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InfluxDbPointRecord.cpp; path = ../../src/InfluxDbPointRecord.cpp; sourceTree = "<group>"; };
 		229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = InfluxDbPointRecord.h; path = ../../src/InfluxDbPointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		22A4B41814E1B93D006D01C3 /* Clock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Clock.h; path = ../../src/Clock.h; sourceTree = "<group>"; };
@@ -1329,6 +1340,7 @@
 				228CD55F1C0F5E4E00C67802 /* libepanet-static.a */,
 				228CD5611C0F5E4E00C67802 /* libwdsInpFile.dylib */,
 				228CD5631C0F5E4E00C67802 /* buildNetwork */,
+				229E95C81CB2FAE100216682 /* libModelFile.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1538,6 +1550,8 @@
 			children = (
 				22DDAD7F1443682E00C1F188 /* physical elements */,
 				228040A2158F83C5004222DA /* Model Classes */,
+				229E95BF1CB2FAE000216682 /* EpanetModelExporter.h */,
+				229E95BE1CB2FAE000216682 /* EpanetModelExporter.cpp */,
 			);
 			name = model;
 			sourceTree = "<group>";
@@ -1641,6 +1655,7 @@
 				221BFD811A8E8AD000143FCC /* ModelPerformance.h in Headers */,
 				221BFD821A8E8AD000143FCC /* TimeSeries.h in Headers */,
 				221BFD831A8E8AD000143FCC /* InversionTimeSeries.h in Headers */,
+				229E95C11CB2FAE000216682 /* EpanetModelExporter.h in Headers */,
 				223D15301CAF4D7600FB5FD6 /* ModelExportTask.h in Headers */,
 				221BFD851A8E8AD000143FCC /* MathOpsTimeSeries.h in Headers */,
 				221BFD861A8E8AD000143FCC /* TimeSeriesFilterSinglePoint.h in Headers */,
@@ -2149,6 +2164,13 @@
 			remoteRef = 228CD5621C0F5E4E00C67802 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		229E95C81CB2FAE100216682 /* libModelFile.dylib */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.dylib";
+			path = libModelFile.dylib;
+			remoteRef = 229E95C71CB2FAE100216682 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		22BEDCF4187E09A100855B68 /* libepanetmsx-static.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -2263,6 +2285,7 @@
 				221BFD461A8E8AD000143FCC /* Dma.cpp in Sources */,
 				223D152F1CAF4D7600FB5FD6 /* ModelExportTask.cpp in Sources */,
 				221BFD471A8E8AD000143FCC /* InversionTimeSeries.cpp in Sources */,
+				229E95C01CB2FAE000216682 /* EpanetModelExporter.cpp in Sources */,
 				221BFD4A1A8E8AD000143FCC /* Units.cpp in Sources */,
 				221BFD4B1A8E8AD000143FCC /* EpanetModel.cpp in Sources */,
 				221BFD4C1A8E8AD000143FCC /* MysqlPointRecord.cpp in Sources */,

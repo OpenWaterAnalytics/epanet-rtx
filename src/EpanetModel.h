@@ -42,6 +42,10 @@ namespace RTX {
     virtual std::ostream& toStream(std::ostream &stream);
     OW_Project *epanetModelPointer();
     
+    int enIndexForJunction(Junction::_sp j);
+    int enIndexForPipe(Pipe::_sp p);
+    
+    
   protected:
     // overridden accessors
     // node elements

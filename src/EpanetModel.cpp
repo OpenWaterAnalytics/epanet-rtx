@@ -959,3 +959,21 @@ void EpanetModel::OW_API_CHECK(int errorCode, string externalFunction) throw(str
 }
 
 
+int EpanetModel::enIndexForJunction(Junction::_sp j) {
+  if (_nodeIndex.count(j->name()) > 0) {
+    return _nodeIndex.at(j->name());
+  }
+  else {
+    return -1;
+  }
+}
+
+int EpanetModel::enIndexForPipe(Pipe::_sp p) {
+  if (_linkIndex.count(p->name()) > 0) {
+    return _linkIndex.at(p->name());
+  }
+  else {
+    return -1;
+  }
+}
+
