@@ -30,8 +30,9 @@ _epanet_section_t _epanet_sectionFromLine(const string& line) {
     smatch match;
     if (regex_search(line, match, bracketRegEx) && match.size() == 2) {
       string sectionTitle = match[1].str();
-      if (_epanet_specialSections.count(sectionTitle) > 0) {
-        return _epanet_specialSections.at(sectionTitle);
+      auto loc = _epanet_specialSections.find(sectionTitle);
+      if (loc != _epanet_specialSections.end()) {
+        return loc->second;
       }
       else {
         return none;
@@ -43,7 +44,6 @@ _epanet_section_t _epanet_sectionFromLine(const string& line) {
 
 int _epanet_make_pattern(OW_Project *m, TimeSeries::_sp ts, Clock::_sp clock, TimeRange range, const string& patternName, Units patternUnits);
 int _epanet_make_pattern(OW_Project *m, TimeSeries::_sp ts, Clock::_sp clock, TimeRange range, const string& patternName, Units patternUnits) {
-  
   TimeSeriesFilter::_sp rsDemand(new TimeSeriesFilter);
   rsDemand->setClock(clock);
   rsDemand->setResampleMode(TimeSeries::TimeSeriesResampleModeStep);
@@ -207,8 +207,10 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
       // entered [CONTROLS] section.
       // copy the line over, then stream our own statements.
       stream << line << BR << BR << BR;
-      
-      for (auto p: join(_model->pumps(), join(_model->pipes(), _model->valves()))) {
+      vector<Pipe::_sp> pipes = _model->pipes();
+      join(pipes, _model->pumps());
+      join(pipes, _model->valves());
+      for (auto p: pipes) {
         
         if (p->settingBoundary()) {
           TimeSeries::_sp ts = p->settingBoundary();

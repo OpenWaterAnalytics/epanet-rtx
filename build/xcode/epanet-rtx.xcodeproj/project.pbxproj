@@ -236,15 +236,12 @@
 		223663B91A69A59C00420EE4 /* CurveFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22253D8D16022FB6002F7256 /* CurveFunction.cpp */; };
 		223663BA1A69A59E00420EE4 /* GainTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22A842D3173BF445009CE769 /* GainTimeSeries.cpp */; };
 		2239413D1CAA1612008BD7FD /* libTimeSeriesDuplicator.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */; };
-		223947EA1AF3B27000C8AE4F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223947E91AF3B27000C8AE4F /* main.cpp */; };
 		223947F71AF3B45300C8AE4F /* libepanet-rtx-project.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */; };
 		223947F81AF3B45300C8AE4F /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 220F9E4C18F9E68B00BB842C /* libepanet-rtx.dylib */; };
 		223AF33018F6E4C0002E846F /* InversionTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223AF32E18F6E4C0002E846F /* InversionTimeSeries.cpp */; };
 		223AF33118F6E4C0002E846F /* InversionTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 223AF32F18F6E4C0002E846F /* InversionTimeSeries.h */; };
 		223AF35418F7121F002E846F /* SqliteProjectFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223AF35218F7121F002E846F /* SqliteProjectFile.cpp */; };
 		223AF35518F7121F002E846F /* SqliteProjectFile.h in Headers */ = {isa = PBXBuildFile; fileRef = 223AF35318F7121F002E846F /* SqliteProjectFile.h */; };
-		223D152F1CAF4D7600FB5FD6 /* ModelExportTask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223D152D1CAF4D7600FB5FD6 /* ModelExportTask.cpp */; };
-		223D15301CAF4D7600FB5FD6 /* ModelExportTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 223D152E1CAF4D7600FB5FD6 /* ModelExportTask.h */; };
 		22459FA71A44C41800AFD0BD /* CorrelatorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */; };
 		22459FA81A44C41800AFD0BD /* CorrelatorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */; };
 		22459FA91A44C41800AFD0BD /* CorrelatorTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */; };
@@ -779,13 +776,10 @@
 		223663B11A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesFilterSinglePoint.cpp; path = ../../src/TimeSeriesFilterSinglePoint.cpp; sourceTree = "<group>"; };
 		223663B21A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeSeriesFilterSinglePoint.h; path = ../../src/TimeSeriesFilterSinglePoint.h; sourceTree = "<group>"; };
 		223947E71AF3B27000C8AE4F /* model exporter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "model exporter"; sourceTree = BUILT_PRODUCTS_DIR; };
-		223947E91AF3B27000C8AE4F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		223AF32E18F6E4C0002E846F /* InversionTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InversionTimeSeries.cpp; path = ../../src/InversionTimeSeries.cpp; sourceTree = "<group>"; };
 		223AF32F18F6E4C0002E846F /* InversionTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InversionTimeSeries.h; path = ../../src/InversionTimeSeries.h; sourceTree = "<group>"; };
 		223AF35218F7121F002E846F /* SqliteProjectFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = SqliteProjectFile.cpp; path = ../../project/SqliteProjectFile.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		223AF35318F7121F002E846F /* SqliteProjectFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SqliteProjectFile.h; path = ../../project/SqliteProjectFile.h; sourceTree = "<group>"; };
-		223D152D1CAF4D7600FB5FD6 /* ModelExportTask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ModelExportTask.cpp; path = ../../src/ModelExportTask.cpp; sourceTree = "<group>"; };
-		223D152E1CAF4D7600FB5FD6 /* ModelExportTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ModelExportTask.h; path = ../../src/ModelExportTask.h; sourceTree = "<group>"; };
 		22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CorrelatorTimeSeries.cpp; path = ../../src/CorrelatorTimeSeries.cpp; sourceTree = "<group>"; };
 		22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CorrelatorTimeSeries.h; path = ../../src/CorrelatorTimeSeries.h; sourceTree = "<group>"; };
 		2246439D150BD6E0005EA3BA /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../../src/Node.h; sourceTree = "<group>"; };
@@ -1184,14 +1178,6 @@
 			name = "Single Point Filter";
 			sourceTree = "<group>";
 		};
-		223947E81AF3B27000C8AE4F /* model exporter */ = {
-			isa = PBXGroup;
-			children = (
-				223947E91AF3B27000C8AE4F /* main.cpp */,
-			);
-			path = "model exporter";
-			sourceTree = "<group>";
-		};
 		224C418E1A434F9F008852C4 /* Model Performance */ = {
 			isa = PBXGroup;
 			children = (
@@ -1326,8 +1312,8 @@
 			children = (
 				228CA8D51AA0CBFF00D0353E /* InpTextPattern.h */,
 				228CA8D41AA0CBFF00D0353E /* InpTextPattern.cpp */,
-				223D152E1CAF4D7600FB5FD6 /* ModelExportTask.h */,
-				223D152D1CAF4D7600FB5FD6 /* ModelExportTask.cpp */,
+				229E95BF1CB2FAE000216682 /* EpanetModelExporter.h */,
+				229E95BE1CB2FAE000216682 /* EpanetModelExporter.cpp */,
 			);
 			name = "model exporting extensions";
 			sourceTree = "<group>";
@@ -1381,7 +1367,6 @@
 			children = (
 				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
 				22C34357187D9441000100A4 /* epanetmsx.xcodeproj */,
-				223947E81AF3B27000C8AE4F /* model exporter */,
 				228A76FE18450CC700905D8E /* RTX Project */,
 				22D9830C17F4AF9F00DD7EB4 /* simulator client */,
 				22CF1C3A1A6842DC00161188 /* testTsFilter */,
@@ -1550,8 +1535,6 @@
 			children = (
 				22DDAD7F1443682E00C1F188 /* physical elements */,
 				228040A2158F83C5004222DA /* Model Classes */,
-				229E95BF1CB2FAE000216682 /* EpanetModelExporter.h */,
-				229E95BE1CB2FAE000216682 /* EpanetModelExporter.cpp */,
 			);
 			name = model;
 			sourceTree = "<group>";
@@ -1656,7 +1639,6 @@
 				221BFD821A8E8AD000143FCC /* TimeSeries.h in Headers */,
 				221BFD831A8E8AD000143FCC /* InversionTimeSeries.h in Headers */,
 				229E95C11CB2FAE000216682 /* EpanetModelExporter.h in Headers */,
-				223D15301CAF4D7600FB5FD6 /* ModelExportTask.h in Headers */,
 				221BFD851A8E8AD000143FCC /* MathOpsTimeSeries.h in Headers */,
 				221BFD861A8E8AD000143FCC /* TimeSeriesFilterSinglePoint.h in Headers */,
 				221BFD871A8E8AD000143FCC /* rtxExceptions.h in Headers */,
@@ -2283,7 +2265,6 @@
 				221BFD441A8E8AD000143FCC /* Node.cpp in Sources */,
 				221BFD451A8E8AD000143FCC /* Link.cpp in Sources */,
 				221BFD461A8E8AD000143FCC /* Dma.cpp in Sources */,
-				223D152F1CAF4D7600FB5FD6 /* ModelExportTask.cpp in Sources */,
 				221BFD471A8E8AD000143FCC /* InversionTimeSeries.cpp in Sources */,
 				229E95C01CB2FAE000216682 /* EpanetModelExporter.cpp in Sources */,
 				221BFD4A1A8E8AD000143FCC /* Units.cpp in Sources */,
@@ -2329,7 +2310,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				223947EA1AF3B27000C8AE4F /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
