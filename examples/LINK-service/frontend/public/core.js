@@ -15,24 +15,33 @@ rtxLink.config(['$routeProvider', function ($routeProvider) {
             templateUrl: 'templates/about.part.html',
             controller: 'AboutController'
         })
+        .when('/series', {
+            templateUrl: 'templates/series.part.html',
+            controller: 'SeriesController'
+        })
         .otherwise({
             redirectTo: '/main'
         });
 }]);
+
+
+rtxLink.controller('OdbcDriverSelectController', function OdbcDriverSelectController($scope, $http) {
+    $scope.drivers = ["getting driver list..."];
+
+    $http.get('http://localhost:3131/odbc')
+        .then(function (response) {
+            $scope.drivers = response.data;
+        }, function (response) {
+            $scope.drivers = ["failed to get driver list"];
+        });
+
+});
 
 rtxLink.controller('MainController', function MainController($scope, $http, $interval) {
     $scope.formData = {};
     $scope.series = [];
     $scope.status = 'Checking';
 
-    // when landing on the page, get all series and show them
-    $http.get('http://localhost:3131/series')
-        .then(function(response) {
-            $scope.series = response.data;
-            console.log(response);
-        }, function(response) {
-            console.log('Error: ' + response);
-        });
 
     $scope.refreshStatus = function() {
         $scope.status = "Checking...";
@@ -45,7 +54,7 @@ rtxLink.controller('MainController', function MainController($scope, $http, $int
             });
     };
 
-    //$scope.refreshStatus();
+    $scope.refreshStatus();
     var refreshInterval = $interval($scope.refreshStatus, 5000);
     $scope.$on('$destroy', function () { $interval.cancel(refreshInterval); });
 });
@@ -71,6 +80,16 @@ rtxLink.controller('SourceController', function SourceController($scope, $http, 
                 text:'Connection',
                 placeholder:'SVR=192.168.0.1;blah=blah',
                 inputType:'text-line'
+            },{
+                key:'meta',
+                text: 'Name lookup query',
+                placeholder: 'SELECT tagname, units FROM tag_list ORDER BY tagname ASC',
+                inputType: 'text-line'
+            },{
+                key: 'range',
+                text: 'Data lookup query',
+                placeholder: 'SELECT date, value, quality FROM tbl WHERE tagname = ? AND date >= ? AND date <= ? ORDER BY date ASC',
+                inputType: 'text-line'
             }
         ],
         'SQLite': [
@@ -115,10 +134,17 @@ rtxLink.controller('SourceController', function SourceController($scope, $http, 
     $scope.save = function () {
         console.log($scope.formData);
     };
-}).directive('textLine', function () {
-    return { templateUrl: 'templates/source-text-line.part.html' };
-}).directive('selectLine', function () {
-    return { templateUrl: 'templates/source-text-select.part.html' };
+});
+
+rtxLink.controller('SeriesController', function SeriesController($scope, $http) {
+    $scope.series = [];
+    $http.get('http://localhost:3131/series')
+        .then(function(response) {
+            $scope.series = response.data;
+            console.log(response);
+        }, function(response) {
+            console.log('Error: ' + response);
+        });
 });
 
 rtxLink.controller('AboutController', function AboutController($scope, $http) {
@@ -127,9 +153,10 @@ rtxLink.controller('AboutController', function AboutController($scope, $http) {
 
 rtxLink.controller('HeaderController', function HeaderController($scope, $location) {
     $scope.links = [
-        {'url':'main', 'text':'Main'},
-        {'url':'source', 'text':'Source'},
-        {'url':'about', 'text':'About'}
+        {url:'main', text:'Main'},
+        {url:'source', text:'Source'},
+        {url:'series', text:'Tags'},
+        {url:'about', text:'About'}
     ];
 
     $scope.isActive = function (viewLocation) {

@@ -12,6 +12,17 @@ using JSV = json::value;
 
 #include <map>
 
+
+void _link_respond(http_request message, json::value js);
+void _link_respond(http_request message, json::value js) {
+  http_response response (status_codes::OK);
+  response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
+  response.set_body(js);
+  message.reply(response);         // reply is done here
+}
+
+
+
 LinkService::Responders LinkService::_LinkService_GET_responders() {
   Responders r;
   r["series"] = std::bind(&LinkService::_get_timeseries,   this, std::placeholders::_1);
@@ -56,6 +67,8 @@ pplx::task<void> LinkService::close() {
 
 void LinkService::_get(http_request message) {
   
+  cout << "GET: " << message.relative_uri().to_string() << endl;
+  
   auto paths = http::uri::split_path(http::uri::decode(message.relative_uri().path()));
   
   if (paths.size() == 0) {
@@ -79,6 +92,8 @@ void LinkService::_put(http_request message) {
 }
 
 void LinkService::_post(http_request message) {
+  
+  cout << "POST: " << message.relative_uri().to_string() << endl;
   
   const map< string, std::function<status_code(JSV)> > responders = {
     {"series", bind(&LinkService::_post_timeseries, this, placeholders::_1)},
@@ -118,11 +133,7 @@ void LinkService::_get_timeseries(http_request message) {
   }
   
   json::value v = SerializerJson::to_json(tsVec);
-  
-  http_response response (status_codes::OK);
-  response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
-  response.set_body(v);
-  message.reply(response);         // reply is done here
+  _link_respond(message, v);
   return;
 }
 
@@ -138,8 +149,8 @@ void LinkService::_get_runState(web::http::http_request message) {
   else {
     state.as_object()["run"] = JSV(false);
   }
+  _link_respond(message, state);
   
-  message.reply(status_codes::OK, state);
 }
 
 void LinkService::_get_source(http_request message) {
@@ -148,8 +159,7 @@ void LinkService::_get_source(http_request message) {
   pr->setName("my test pr");
   
   json::value v = SerializerJson::to_json(pr);
-  
-  message.reply(status_codes::OK, v);
+  _link_respond(message, v);
 }
 
 void LinkService::_get_odbc_drivers(http_request message) {
@@ -159,7 +169,7 @@ void LinkService::_get_odbc_drivers(http_request message) {
   for(auto driver : drivers) {
     d.as_array()[i++] = JSV(driver);
   }
-  message.reply(status_codes::OK, d);
+  _link_respond(message, d);
 }
 
 
