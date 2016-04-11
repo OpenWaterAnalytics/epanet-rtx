@@ -1,6 +1,12 @@
 // public/core.js
 var rtxLink = angular.module('rtxLink', ['ngRoute']);
 
+rtxLink.config(['$httpProvider', function($httpProvider) {
+    $httpProvider.defaults.useXDomain = true;
+    delete $httpProvider.defaults.headers.common['X-Requested-With'];
+}
+]);
+
 rtxLink.config(['$routeProvider', function ($routeProvider) {
     $routeProvider
         .when('/main', {
@@ -40,28 +46,42 @@ rtxLink.controller('OdbcDriverSelectController', function OdbcDriverSelectContro
 rtxLink.controller('MainController', function MainController($scope, $http, $interval) {
     $scope.formData = {};
     $scope.series = [];
-    $scope.status = 'Checking';
+    $scope.status = 'Checking...';
 
 
-    $scope.refreshStatus = function() {
+    var refreshStatus = function() {
         $scope.status = "Checking...";
         $http.get('http://localhost:3131/run')
             .then(function(response) {
                 $scope.status = response.data.run ? 'Running' : 'Stopped';
             }, function(response) {
                 console.log('Error: ' + response);
-                $scope.status = "Error";
+                $scope.status = "Error communicating with RTX Service.";
             });
     };
 
-    $scope.refreshStatus();
-    var refreshInterval = $interval($scope.refreshStatus, 5000);
+    refreshStatus();
+    var refreshInterval = $interval(refreshStatus, 5000);
     $scope.$on('$destroy', function () { $interval.cancel(refreshInterval); });
 });
 
 rtxLink.controller('SourceController', function SourceController($scope, $http, $interval) {
-
+    $scope.availableUnits = [];
     $scope.formData = {};
+    $scope.sourceSeries = [];
+
+
+    // get units list
+    var getUnits = function () {
+        $http.get('http://localhost:3131/units')
+            .then(function (response) {
+                $scope.availableUnits = response.data;
+            }, function (response) {
+                // failed
+            });
+    };
+
+
 
     $scope.sourceTypes = {
         'ODBC': [
@@ -123,17 +143,67 @@ rtxLink.controller('SourceController', function SourceController($scope, $http, 
     };
     $scope.selectedSourceType = 'ODBC';
 
+    $scope.rtxTypes = {
+        'ODBC': 'odbc',
+        'SQLite': 'sqlite',
+        'Influx': 'influx'
+    };
+
     $scope.isType = function (typeName) {
         return typeName === $scope.selectedSourceType;
     };
     $scope.setSourceType = function (typeName) {
         $scope.formData = {};
         $scope.selectedSourceType = typeName;
+        $scope.sourceSeries = [];
     };
 
-    $scope.save = function () {
-        console.log($scope.formData);
+
+
+    $scope.connect = function () {
+        $scope.formData._class = $scope.rtxTypes[$scope.selectedSourceType];
+
+        $http({
+            method: 'POST',
+            url: 'http://localhost:3131/source',
+            headers: { 'Content-Type': undefined }, // undefined content-type to overcome CORS
+            data: $scope.formData
+        })
+            .then(function (response) {
+                console.log(response);
+                $scope.refreshSeriesList()
+            }, function (response) {
+                console.log("error:: " + response);
+            });
+
     };
+
+    $scope.refreshSeriesList = function () {
+        getUnits();
+        $http.get('http://localhost:3131/source/series')
+            .then(function (response) {
+                $scope.sourceSeries = response.data;
+                angular.forEach($scope.sourceSeries, function (series) {
+                    series['_link_selected'] = false;
+                });
+                console.log($scope.sourceSeries);
+            }, function (response) {
+                // error
+            });
+    };
+
+
+    $scope.save = function () {
+        console.log("form data: " + $scope.formData);
+    };
+
+
+    $scope.removeSeries = function (selected) {
+        $scope.sourceSeries = $scope.sourceSeries.filter(function (v) {
+            return v._link_selected != selected;
+        });
+    };
+    
 });
 
 rtxLink.controller('SeriesController', function SeriesController($scope, $http) {

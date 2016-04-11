@@ -35,9 +35,7 @@ using web::http::experimental::listener::http_listener;
 namespace RTX {
   class LinkService {
     
-  public:
-    typedef std::map< std::string, std::function<void(http_request)> > Responders;
-    
+  public:    
     LinkService(web::uri address);
     pplx::task<void> open();
     pplx::task<void> close();
@@ -52,6 +50,7 @@ namespace RTX {
     void _get_runState(http_request message);
     void _get_source(http_request message);
     void _get_odbc_drivers(http_request message);
+    void _get_units(http_request message);
     
     web::http::status_code _post_config(web::json::value json);
     web::http::status_code _post_timeseries(web::json::value json);
@@ -61,9 +60,7 @@ namespace RTX {
     http_listener _listener;
     
     std::vector<RTX::TimeSeries::_sp> _tsList;
-    
-    Responders _LinkService_GET_responders();
-    
+        
     TimeSeriesDuplicator _duplicator;
     PointRecord::_sp _sourceRecord;
     

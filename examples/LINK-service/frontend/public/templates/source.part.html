@@ -31,8 +31,39 @@
         </table>
 
         <div class="input-group">
-            <button type="submit" class="btn btn-default" ng-click="save()">Save</button>
+            <button type="submit" class="btn btn-default" ng-click="connect()">Connect</button>
         </div>
     </form>
+
+
+    <hr>
+
+    <form class="form-inline">
+        <input ng-model="query" type="text" placeholder="Filter by" autofocus>
+        <button class="btn btn-default" type="submit" ng-click="removeSeries(true)">Remove Selected</button>
+        <button class="btn btn-default" type="submit" ng-click="removeSeries(false)">Remove Unselected</button>
+    </form>
+
+    <table class="table table-hover">
+        <colgroup>
+            <col class="col-md-8">
+            <col class="col-md-3">
+        </colgroup>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Units</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="ts in sourceSeries | filter:query | orderBy: 'name'" ng-click="ts._link_selected = !ts._link_selected" ng-class="{'success':ts._link_selected == true}">
+            <td>{{ts.name}}</td>
+            <td>
+                <select ng-options="unit as unit.unitString for unit in availableUnits track by unit.rawUnits" ng-model="ts.units"></select>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
 </div>
 

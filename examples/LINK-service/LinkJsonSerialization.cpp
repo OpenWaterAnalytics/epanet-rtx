@@ -187,7 +187,12 @@ void DeserializerJson::visit(PointRecord& pr) {
 void DeserializerJson::visit(DbPointRecord &pr) {
   this->visit((PointRecord&)pr);
   web::json::object o = _v.as_object();
-  pr.setReadonly(o["readonly"].as_bool());
+  if (o.find("readonly") != o.end()) {
+    pr.setReadonly(o["readonly"].as_bool());
+  }
+  else {
+    pr.setReadonly(true);
+  }
   pr.setConnectionString(o["connectionString"].as_string());
 };
 void DeserializerJson::visit(SqlitePointRecord &pr) {

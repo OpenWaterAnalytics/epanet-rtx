@@ -13,23 +13,12 @@ using JSV = json::value;
 #include <map>
 
 
-void _link_respond(http_request message, json::value js);
-void _link_respond(http_request message, json::value js) {
-  http_response response (status_codes::OK);
+pplx::task<void> _link_respond(http_request message, json::value js, status_code code = status_codes::OK);
+pplx::task<void> _link_respond(http_request message, json::value js, status_code code) {
+  http_response response (code);
   response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
   response.set_body(js);
-  message.reply(response);         // reply is done here
-}
-
-
-
-LinkService::Responders LinkService::_LinkService_GET_responders() {
-  Responders r;
-  r["series"] = std::bind(&LinkService::_get_timeseries,   this, std::placeholders::_1);
-  r["run"]    = std::bind(&LinkService::_get_runState,     this, std::placeholders::_1);
-  r["source"] = std::bind(&LinkService::_get_source,       this, std::placeholders::_1);
-  r["odbc"]   = std::bind(&LinkService::_get_odbc_drivers, this, std::placeholders::_1);
-  return r;
+  return message.reply(response);         // reply is done here
 }
 
 
@@ -72,19 +61,26 @@ void LinkService::_get(http_request message) {
   auto paths = http::uri::split_path(http::uri::decode(message.relative_uri().path()));
   
   if (paths.size() == 0) {
-    message.reply(status_codes::NoContent);
+    _link_respond(message, JSV::object(), status_codes::NoContent);
     return;
   }
   
   string entryPoint = paths[0];
   
-  Responders res = this->_LinkService_GET_responders();
+  const map< string, function<void(http_request)> > res = {
+    {"series", std::bind(&LinkService::_get_timeseries,   this, std::placeholders::_1)},
+    {"run",    std::bind(&LinkService::_get_runState,     this, std::placeholders::_1)},
+    {"source", std::bind(&LinkService::_get_source,       this, std::placeholders::_1)},
+    {"odbc",   std::bind(&LinkService::_get_odbc_drivers, this, std::placeholders::_1)},
+    {"units",  std::bind(&LinkService::_get_units,        this, std::placeholders::_1)}
+  };
+  
   if (res.count(entryPoint)) {
-    res[entryPoint](message);
+    res.at(entryPoint)(message);
     return;
   }
   
-  message.reply(status_codes::OK);
+  _link_respond(message, JSV::object(), status_codes::NotFound);
 }
 
 void LinkService::_put(http_request message) {
@@ -93,7 +89,11 @@ void LinkService::_put(http_request message) {
 
 void LinkService::_post(http_request message) {
   
-  cout << "POST: " << message.relative_uri().to_string() << endl;
+  // posted content will be of content-type: undefined because of CORS,
+  // so we have to get the string content, and parse into json
+  string content = message.extract_string().get();
+  JSV js = JSV::parse(content);
+  cout << "POST: content: " << js.serialize() << endl;
   
   const map< string, std::function<status_code(JSV)> > responders = {
     {"series", bind(&LinkService::_post_timeseries, this, placeholders::_1)},
@@ -103,15 +103,14 @@ void LinkService::_post(http_request message) {
   };
   
   auto paths = uri::split_path(uri::decode(message.relative_uri().path()));
-  
-  JSV js = message.extract_json().get();
   if(paths.size() == 0) {
-    message.reply(status_codes::BadRequest);
+    _link_respond(message, JSV::object(), status_codes::BadRequest);
     return;
   }
   string entry = paths[0];
   if (responders.count(entry)) {
-    message.reply(responders.at(entry)(js));
+    status_code code = responders.at(entry)(js);
+    _link_respond(message, JSV::object(), code).wait(); // block since this may change things
     return;
   }
 }
@@ -154,12 +153,40 @@ void LinkService::_get_runState(web::http::http_request message) {
 }
 
 void LinkService::_get_source(http_request message) {
-  SqlitePointRecord::_sp pr(new SqlitePointRecord());
-  pr->setConnectionString("/Users/sam/Desktop/pr.sqlite");
-  pr->setName("my test pr");
   
-  json::value v = SerializerJson::to_json(pr);
-  _link_respond(message, v);
+  auto paths = http::uri::split_path(http::uri::decode(message.relative_uri().path()));
+  if (paths.size() > 1) {
+    string sourcePath = paths[1];
+    
+    if (sourcePath.compare("series") == 0) {
+      // respond with list of source series.
+      vector<RTX_object::_sp> series;
+      if (_sourceRecord) {
+        auto ids = _sourceRecord->identifiersAndUnits();
+        for (auto id : ids) {
+          string name = id.first;
+          Units units = id.second;
+          TimeSeries::_sp ts(new TimeSeries);
+          ts->setName(name);
+          ts->setUnits(units);
+          series.push_back(ts);
+        }
+      }
+      JSV js = SerializerJson::to_json(series);
+      _link_respond(message, js);
+      return;
+    } // GET series list
+    
+  }
+  
+  if (_sourceRecord) {
+    json::value v = SerializerJson::to_json(_sourceRecord);
+    _link_respond(message, v);
+  }
+  else {
+    _link_respond(message, JSV::object());
+  }
+  
 }
 
 void LinkService::_get_odbc_drivers(http_request message) {
@@ -172,6 +199,17 @@ void LinkService::_get_odbc_drivers(http_request message) {
   _link_respond(message, d);
 }
 
+void LinkService::_get_units(http_request message) {
+  auto unitsMap = Units::unitStringMap;
+  vector<RTX_object::_sp> units;
+  for (auto unitTypes : unitsMap) {
+    Units::_sp usp = make_shared<Units>(unitTypes.second);
+    units.push_back(usp);
+  }
+  JSV u = SerializerJson::to_json(units);
+  _link_respond(message, u);
+}
+
 
 status_code LinkService::_post_config(JSV json) {
   json::object o = json.as_object();
@@ -180,7 +218,10 @@ status_code LinkService::_post_config(JSV json) {
   JSV source = o["source"];
   JSV destination = o["destination"];
   JSV fetch = o["fetch"];
-  for( auto fn : { bind(&LinkService::_post_source, this, source), bind(&LinkService::_post_timeseries, this, series) }) {
+  for( auto fn : {
+    bind(&LinkService::_post_source,     this, source),
+    bind(&LinkService::_post_timeseries, this, series)
+  }) {
     status_code s = fn();
     if (s != status_codes::OK) {
       return s;
