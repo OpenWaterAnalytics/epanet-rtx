@@ -1,6 +1,7 @@
 
 <div class="alert alert-info" role="alert">
     Set the type of source record, and configure it.
+    <a class="pull-right" ng-click="saveAndNext()">Save <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
 </div>
 
 <!-- SOURCE SELECT -->
@@ -37,6 +38,11 @@
 
 
     <hr>
+
+    <div class="alert alert-info" role="alert" ng-if="sourceSeries.length > 0">
+        Select the time series you would like replicated. Be sure to configure the Units.
+    </div>
+
 
     <form class="form-inline">
         <input ng-model="query" type="text" placeholder="Filter by" autofocus>

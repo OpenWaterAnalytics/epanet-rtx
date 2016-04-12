@@ -4,13 +4,22 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
 
-    <title>RTX-Link Application</title>
+    <title>RTX-LINK</title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
     <style>
-        html                    { overflow-y:scroll; }
-        body                    { padding-top:50px; }
-        #todo-list              { margin-bottom:30px; }
+        html {
+			overflow-y:scroll;
+		}
+        body {
+			padding-top:30px;
+		}
+		[ng-click] {
+			cursor: pointer
+		}
+		.container {
+			padding: 0px 55px;
+		}
     </style>
 
 
@@ -20,7 +29,7 @@
   		<!-- HEADER -->
   		<div class="header clearfix" ng-controller="HeaderController">
         	<nav>
-          		<ul class="nav nav-pills pull-right">
+          		<ul class="nav nav-tabs pull-right">
             		<li ng-repeat="link in links" role="presentation" ng-class="{ active: isActive('/{{link.url}}')}"><a href="#{{link.url}}">{{link.text}}</a></li>
           		</ul>
         	</nav>
@@ -28,9 +37,16 @@
       	</div>
         <!-- /HEADER -->
 
-		<div ng-view></div>
+		<!-- alerts, info -->
+		<div class="alert alert-warning" role="alert" ng-if="infoMessage.length > 0">{{infoMessage}}</div>
+		<div class="alert alert-danger" role="alert" ng-if="errorMessage.length > 0">{{errorMessage}}</div>
+
+		<div ng-view>
+			<!-- Route provider controller content -->
+		</div>
 
 	</div>
+
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-route.js"></script>

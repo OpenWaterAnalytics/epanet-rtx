@@ -13,10 +13,25 @@ using JSV = json::value;
 #include <map>
 
 
+http_response _link_empty_response(status_code code);
+http_response _link_empty_response(status_code code) {
+  http_response r(code);
+  r.headers().add(U("Access-Control-Allow-Origin"), U("*"));
+  return r;
+}
+
+http_response _link_error_response(status_code code, string errMsg);
+http_response _link_error_response(status_code code, string errMsg) {
+  http_response r = _link_empty_response(code);
+  JSV err = JSV::object();
+  err.as_object()["error"] = JSV(errMsg);
+  r.set_body(err);
+  return r;
+}
+
 pplx::task<void> _link_respond(http_request message, json::value js, status_code code = status_codes::OK);
 pplx::task<void> _link_respond(http_request message, json::value js, status_code code) {
-  http_response response (code);
-  response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
+  http_response response = _link_empty_response(code);
   response.set_body(js);
   return message.reply(response);         // reply is done here
 }
@@ -95,11 +110,12 @@ void LinkService::_post(http_request message) {
   JSV js = JSV::parse(content);
   cout << "POST: content: " << js.serialize() << endl;
   
-  const map< string, std::function<status_code(JSV)> > responders = {
-    {"series", bind(&LinkService::_post_timeseries, this, placeholders::_1)},
-    {"run",    bind(&LinkService::_post_runState,   this, placeholders::_1)},
-    {"source", bind(&LinkService::_post_source,     this, placeholders::_1)},
-    {"config", bind(&LinkService::_post_config,     this, placeholders::_1)}
+  const map< string, std::function<http_response(JSV)> > responders = {
+    {"series",      bind(&LinkService::_post_timeseries, this, placeholders::_1)},
+    {"run",         bind(&LinkService::_post_runState,   this, placeholders::_1)},
+    {"source",      bind(&LinkService::_post_source,     this, placeholders::_1)},
+    {"destination", bind(&LinkService::_post_destination,this, placeholders::_1)},
+    {"config",      bind(&LinkService::_post_config,     this, placeholders::_1)}
   };
   
   auto paths = uri::split_path(uri::decode(message.relative_uri().path()));
@@ -109,9 +125,13 @@ void LinkService::_post(http_request message) {
   }
   string entry = paths[0];
   if (responders.count(entry)) {
-    status_code code = responders.at(entry)(js);
-    _link_respond(message, JSV::object(), code).wait(); // block since this may change things
+    http_response response = responders.at(entry)(js);
+    message.reply(response).wait(); // block since this may change things
     return;
+  }
+  else {
+    message.reply(_link_error_response(status_codes::BadRequest,
+                                       "Invalid Endpoint(" + entry + ")"));
   }
 }
 
@@ -211,7 +231,7 @@ void LinkService::_get_units(http_request message) {
 }
 
 
-status_code LinkService::_post_config(JSV json) {
+http_response LinkService::_post_config(JSV json) {
   json::object o = json.as_object();
   
   JSV series = o["series"];
@@ -222,16 +242,16 @@ status_code LinkService::_post_config(JSV json) {
     bind(&LinkService::_post_source,     this, source),
     bind(&LinkService::_post_timeseries, this, series)
   }) {
-    status_code s = fn();
-    if (s != status_codes::OK) {
-      return s;
+    http_response res = fn();
+    if (res.status_code() != status_codes::OK) {
+      return res;
     }
   }
   
-  return status_codes::OK;
+  return _link_empty_response(status_codes::OK);
 }
 
-status_code LinkService::_post_timeseries(JSV js) {
+http_response LinkService::_post_timeseries(JSV js) {
   if (js.is_array()) {
     vector<RTX_object::_sp> oList = DeserializerJson::from_json_array(js);
     list<TimeSeries::_sp> tsList;
@@ -240,15 +260,15 @@ status_code LinkService::_post_timeseries(JSV js) {
       tsList.push_back(ts);
     }
     _duplicator.setSeries(tsList);
-    return status_codes::OK;
+    return _link_empty_response(status_codes::OK);
   }
   else {
-    return status_codes::MethodNotAllowed;
+    return _link_error_response(status_codes::MethodNotAllowed, "Series must be specified as an Array");
   }
   
 }
 
-status_code LinkService::_post_runState(JSV js) {
+http_response LinkService::_post_runState(JSV js) {
   
   // expect obj with keys: run(bool), window(int), frequency(int)
   json::object o = js.as_object();
@@ -263,21 +283,41 @@ status_code LinkService::_post_runState(JSV js) {
     // stop
     this->stopDuplication();
   }
-  return status_codes::OK;
+  return _link_empty_response(status_codes::OK);
 }
 
-status_code LinkService::_post_source(JSV js) {
+http_response LinkService::_post_source(JSV js) {
   RTX_object::_sp o = DeserializerJson::from_json(js);
-  _sourceRecord = static_pointer_cast<PointRecord>(o);
   
-  if (o && _sourceRecord == o) {
-    return status_codes::OK;
+  if (!o) {
+    return _link_error_response(status_codes::BadRequest, "JSON not recognized");
   }
-  else {
-    return status_codes::BadRequest;
-  }
+  
+  _sourceRecord = static_pointer_cast<PointRecord>(o);
+  return _link_empty_response(status_codes::OK);
 }
 
+http_response LinkService::_post_destination(JSV js) {
+  RTX_object::_sp d = DeserializerJson::from_json(js);
+  if (!d) {
+    return _link_error_response(status_codes::BadRequest, "JSON not recognized");
+  }
+  _destinationRecord = static_pointer_cast<PointRecord>(d);
+  
+  DbPointRecord::_sp dbRecord = dynamic_pointer_cast<DbPointRecord>(_destinationRecord);
+  if (dbRecord) {
+    dbRecord->dbConnect();
+    if (dbRecord->isConnected()) {
+      
+    }
+    else {
+      string err = dbRecord->errorMessage;
+      return _link_error_response(status_codes::NotAcceptable, err);
+    }
+  }
+  
+  return _link_empty_response(status_codes::OK);
+}
 
 
 

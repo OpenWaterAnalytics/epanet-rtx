@@ -1,94 +1,24 @@
 // public/core.js
-var rtxLink = angular.module('rtxLink', ['ngRoute']);
+var rtxLink = angular.module('rtxLink', ['ngRoute'])
 
-rtxLink.config(['$httpProvider', function($httpProvider) {
+.config(['$httpProvider', function($httpProvider) {
     $httpProvider.defaults.useXDomain = true;
     delete $httpProvider.defaults.headers.common['X-Requested-With'];
 }
-]);
-
-rtxLink.config(['$routeProvider', function ($routeProvider) {
-    $routeProvider
-        .when('/main', {
-            templateUrl: 'templates/main.part.html',
-            controller: 'MainController'
-        })
-        .when('/source', {
-            templateUrl: 'templates/source.part.html',
-            controller: 'SourceController'
-        })
-        .when('/about', {
-            templateUrl: 'templates/about.part.html',
-            controller: 'AboutController'
-        })
-        .when('/series', {
-            templateUrl: 'templates/series.part.html',
-            controller: 'SeriesController'
-        })
-        .otherwise({
-            redirectTo: '/main'
-        });
-}]);
+]).config(['$locationProvider', function ($locationProvider) {
+        $locationProvider
+            .html5Mode(false)
+            .hashPrefix('');
+    }])
 
 
-rtxLink.controller('OdbcDriverSelectController', function OdbcDriverSelectController($scope, $http) {
-    $scope.drivers = ["getting driver list..."];
-
-    $http.get('http://localhost:3131/odbc')
-        .then(function (response) {
-            $scope.drivers = response.data;
-        }, function (response) {
-            $scope.drivers = ["failed to get driver list"];
-        });
-
-});
-
-rtxLink.controller('MainController', function MainController($scope, $http, $interval) {
-    $scope.formData = {};
-    $scope.series = [];
-    $scope.status = 'Checking...';
-
-
-    var refreshStatus = function() {
-        $scope.status = "Checking...";
-        $http.get('http://localhost:3131/run')
-            .then(function(response) {
-                $scope.status = response.data.run ? 'Running' : 'Stopped';
-            }, function(response) {
-                console.log('Error: ' + response);
-                $scope.status = "Error communicating with RTX Service.";
-            });
-    };
-
-    refreshStatus();
-    var refreshInterval = $interval(refreshStatus, 5000);
-    $scope.$on('$destroy', function () { $interval.cancel(refreshInterval); });
-});
-
-rtxLink.controller('SourceController', function SourceController($scope, $http, $interval) {
-    $scope.availableUnits = [];
-    $scope.formData = {};
-    $scope.sourceSeries = [];
-
-
-    // get units list
-    var getUnits = function () {
-        $http.get('http://localhost:3131/units')
-            .then(function (response) {
-                $scope.availableUnits = response.data;
-            }, function (response) {
-                // failed
-            });
-    };
-
-
-
-    $scope.sourceTypes = {
+.run(function ($rootScope, $timeout, $http) {
+    $rootScope.sourceTypes = {
         'ODBC': [
             {
                 key:'name',
                 text:'Name',
-                placeholder:'SCADA Colloquial Name',
+                placeholder:'SCADA User-Defined Name',
                 inputType:'text-line'
             },{
                 key:'driver',
@@ -141,13 +71,142 @@ rtxLink.controller('SourceController', function SourceController($scope, $http, 
             }
         ]
     };
-    $scope.selectedSourceType = 'ODBC';
 
-    $scope.rtxTypes = {
+    $rootScope.rtxTypes = {
         'ODBC': 'odbc',
         'SQLite': 'sqlite',
         'Influx': 'influx'
     };
+
+
+    $rootScope.errorMessagePromise = $timeout();
+    $rootScope.infoMessagePromise = $timeout();
+
+    $rootScope.showError = function (msg) {
+        $timeout.cancel($rootScope.errorMessagePromise);
+        $rootScope.errorMessage = msg;
+        $rootScope.errorMessagePromise = $timeout(function () {
+            $rootScope.errorMessage = '';
+        }, 5000);
+    };
+
+    $rootScope.showInfo = function (msg) {
+        $timeout.cancel($rootScope.infoMessagePromise);
+        $rootScope.infoMessage = msg;
+        $rootScope.infoMessagePromise = $timeout(function () {
+            $rootScope.infoMessage = '';
+        }, 5000);
+    };
+
+    $rootScope.connectRecord = function (formData, endpoint, callback) {
+        $http({
+            method: 'POST',
+            url: 'http://localhost:3131/' + endpoint,
+            headers: { 'Content-Type': undefined }, // undefined content-type to overcome CORS
+            data: formData
+        }).then(function (response) {
+            $rootScope.showInfo('Connection OK');
+            typeof callback == "function" && callback();
+        }, function (response) {
+            var errStr = "";
+            if (response.data) {
+                errStr = response.data['error'];
+            } else {
+                errStr = 'LINK Service Not Responding';
+            }
+            $rootScope.showError('Error Connecting: ' + errStr);
+        });
+    };
+
+})
+
+.controller('HeaderController', function HeaderController($scope, $location) {
+    $scope.links = [
+        //{url:'main', text:'Main'},
+        {url:'source', text:'Source'},
+        {url:'destination', text:'Destination'},
+        {url:'options', text:'Options'},
+        {url:'run', text:'Run'},
+        {url:'about', text:'About'}
+    ];
+
+    $scope.isActive = function (viewLocation) {
+        return viewLocation === $location.path();
+    };
+})
+
+.config(['$routeProvider', function ($routeProvider) {
+    $routeProvider
+        .when('/main', {
+            templateUrl: 'templates/main.part.html',
+            controller: 'MainController'
+        })
+        .when('/source', {
+            templateUrl: 'templates/source.part.html',
+            controller: 'SourceController'
+        })
+        .when('/about', {
+            templateUrl: 'templates/about.part.html',
+            controller: 'AboutController'
+        })
+        .when('/destination', {
+            templateUrl: 'templates/destination.part.html',
+            controller: 'DestinationController'
+        })
+        .when('/options', {
+            templateUrl: 'templates/options.part.html',
+            controller: 'OptionsController'
+        })
+        .when('/run', {
+            templateUrl: 'templates/run.part.html',
+            controller: 'RunController'
+        })
+        .otherwise({
+            redirectTo: '/main'
+        });
+}])
+
+.controller('OdbcDriverSelectController', function OdbcDriverSelectController($scope, $http) {
+    $scope.drivers = ["getting driver list..."];
+
+    $http.get('http://localhost:3131/odbc')
+        .then(function (response) {
+            $scope.drivers = response.data;
+        }, function (response) {
+            $scope.drivers = ["failed to get driver list"];
+        });
+
+})
+
+.controller('MainController', function MainController($scope, $http, $interval) {
+    $scope.formData = {};
+    $scope.series = [];
+
+})
+
+.controller('SourceController', function SourceController($rootScope, $scope, $http, $interval, $location) {
+    $scope.availableUnits = [];
+    $scope.formData = {};
+    $scope.sourceSeries = [];
+    $scope.statusMsg = '';
+
+    $scope.saveAndNext = function () {
+        $location.path('/destination');
+    };
+
+    // get units list
+    var getUnits = function () {
+        $http.get('http://localhost:3131/units')
+            .then(function (response) {
+                $scope.availableUnits = response.data;
+            }, function (response) {
+                // failed
+            });
+    };
+
+    $scope.selectedSourceType = 'ODBC';
+
+
 
     $scope.isType = function (typeName) {
         return typeName === $scope.selectedSourceType;
@@ -158,27 +217,15 @@ rtxLink.controller('SourceController', function SourceController($scope, $http, 
         $scope.sourceSeries = [];
     };
 
-
-
     $scope.connect = function () {
-        $scope.formData._class = $scope.rtxTypes[$scope.selectedSourceType];
-
-        $http({
-            method: 'POST',
-            url: 'http://localhost:3131/source',
-            headers: { 'Content-Type': undefined }, // undefined content-type to overcome CORS
-            data: $scope.formData
-        })
-            .then(function (response) {
-                console.log(response);
-                $scope.refreshSeriesList()
-            }, function (response) {
-                console.log("error:: " + response);
-            });
-
+        $scope.formData._class = $rootScope.rtxTypes[$scope.selectedSourceType];
+        $rootScope.connectRecord($scope.formData, 'source', function () {
+            $scope.refreshSeriesList();
+        });
     };
 
     $scope.refreshSeriesList = function () {
+        $rootScope.showInfo('Connected. Fetching List of Series...')
         getUnits();
         $http.get('http://localhost:3131/source/series')
             .then(function (response) {
@@ -186,7 +233,7 @@ rtxLink.controller('SourceController', function SourceController($scope, $http, 
                 angular.forEach($scope.sourceSeries, function (series) {
                     series['_link_selected'] = false;
                 });
-                console.log($scope.sourceSeries);
+                $rootScope.showInfo('Found ' + $scope.sourceSeries.length + ' Series');
             }, function (response) {
                 // error
             });
@@ -204,32 +251,46 @@ rtxLink.controller('SourceController', function SourceController($scope, $http, 
         });
     };
     
-});
+})
 
-rtxLink.controller('SeriesController', function SeriesController($scope, $http) {
-    $scope.series = [];
-    $http.get('http://localhost:3131/series')
-        .then(function(response) {
-            $scope.series = response.data;
-            console.log(response);
-        }, function(response) {
-            console.log('Error: ' + response);
-        });
-});
+.controller('DestinationController', function DestinationController($rootScope, $scope, $http, $location) {
 
-rtxLink.controller('AboutController', function AboutController($scope, $http) {
-    $scope.author = 'OWA';
-});
+    $scope.formData = {};
 
-rtxLink.controller('HeaderController', function HeaderController($scope, $location) {
-    $scope.links = [
-        {url:'main', text:'Main'},
-        {url:'source', text:'Source'},
-        {url:'series', text:'Tags'},
-        {url:'about', text:'About'}
-    ];
-
-    $scope.isActive = function (viewLocation) {
-        return viewLocation === $location.path();
+    $scope.saveAndNext = function () {
+        $location.path('/run');
     };
+
+    $scope.connect = function () {
+        $scope.formData._class = $rootScope.rtxTypes['Influx'];
+        $rootScope.connectRecord($scope.formData, 'destination', function () {
+            console.log('success');
+        });
+    };
+})
+
+.controller('OptionsController', function OptionsController($rootScope, $scope, $http, $location) {
+
+})
+
+.controller('RunController', function RunController($rootScope, $scope, $http, $location, $interval) {
+    $scope.status = 'Checking...';
+
+    $scope.refreshStatus = function() {
+        $scope.status = "Checking...";
+        $http.get('http://localhost:3131/run')
+            .then(function(response) {
+                $scope.status = response.data.run ? 'Running' : 'Idle';
+            }, function(response) {
+                console.log('Error: ' + response);
+                $scope.status = "Error communicating with RTX Service.";
+            });
+    };
+
+    $scope.refreshStatus();
+    var refreshInterval = $interval($scope.refreshStatus, 5000);
+    $scope.$on('$destroy', function () { $interval.cancel(refreshInterval); });
+})
+.controller('AboutController', function AboutController($scope, $http) {
+    $scope.author = 'OWA';
 });
