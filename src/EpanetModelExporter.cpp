@@ -6,6 +6,7 @@
 #include <boost/filesystem.hpp>
 #include <fstream>
 #include <regex>
+#include <algorithm>
 
 using namespace std;
 using namespace RTX;
@@ -52,8 +53,9 @@ int _epanet_make_pattern(OW_Project *m, TimeSeries::_sp ts, Clock::_sp clock, Ti
   pc.convertToUnits(patternUnits);
   
   string pName(patternName);
+  pName = pName.substr(0,30);
   boost::replace_all(pName, " ", "_");
-  char *patName = (char*)patternName.c_str();
+  char *patName = (char*)pName.c_str();
   OW_addpattern(m, patName);
   int patIdx;
   size_t len = pc.count();
@@ -91,6 +93,9 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   // the start of simulation.
   Clock::_sp patternClock(new Clock(_model->hydraulicTimeStep(), _range.start));
   
+  // simulation time parameters
+  OW_settimeparam(m, EN_PATTERNSTEP, (long)_model->hydraulicTimeStep());
+  OW_settimeparam(m, EN_DURATION, (long)(_range.duration()));
   
   /*******************************************************/
   // get relative base demands for junctions, and set them
@@ -107,7 +112,10 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
     }
     // distribute the demand
     for (auto junction: dma->junctions()) {
-      double thisBase = (junction->boundaryFlow()) ? 1 : (junction->baseDemand() / totalBase);
+      double thisBase = 0;
+      if (totalBase != 0) {
+        thisBase = (junction->boundaryFlow()) ? 1 : (junction->baseDemand() / totalBase);
+      }
       OW_setnodevalue(m,
                       _model->enIndexForJunction(junction),
                       EN_BASEDEMAND,
@@ -125,7 +133,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   /*******************************************************/
   for (auto dma: _model->dmas()) {
     TimeSeries::_sp demand = dma->demand();
-    string pName = demand->name() + "_rtx_dma_demand";
+    string pName = "rtxdma_" + demand->name();
     boost::replace_all(pName, " ", "_");
     int pIndex = _epanet_make_pattern(m, demand, patternClock, _range, pName, _model->flowUnits());
     
@@ -141,14 +149,16 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   /*******************************************************/
   // get boundary head series, and put them into epanet patterns
   // and the tell reservoirs which head pattern to use
+  // reset the boundary heads to unity
   /*******************************************************/
   for (auto r: _model->reservoirs()) {
     if (r->headMeasure()) {
       TimeSeries::_sp h = r->headMeasure();
-      string pName = h->name() + "_rtx_head";
+      string pName = "rtxhead_" + h->name();
       boost::replace_all(pName, " ", "_");
       int pIndex = _epanet_make_pattern(m, h, patternClock, _range, pName, _model->headUnits());
       OW_setnodevalue(m, _model->enIndexForJunction(r), EN_PATTERN, pIndex);
+      OW_setnodevalue(m, _model->enIndexForJunction(r), EN_TANKLEVEL, 1.0);
     }
   }
   
@@ -162,7 +172,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   for (auto j: _model->junctions()) {
     if (j->boundaryFlow()) {
       TimeSeries::_sp demand = j->boundaryFlow();
-      string pName = demand->name() + "_rtx_demand_boundary";
+      string pName = "rtxdem_" + demand->name();
       boost::replace_all(pName, " ", "_");
       int pIndex = _epanet_make_pattern(m, demand, patternClock, _range, pName, _model->flowUnits());
       OW_setnodevalue(m, _model->enIndexForJunction(j), EN_PATTERN, pIndex);
@@ -208,23 +218,70 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
       // copy the line over, then stream our own statements.
       stream << line << BR << BR << BR;
       vector<Pipe::_sp> pipes = _model->pipes();
-      join(pipes, _model->pumps());
-      join(pipes, _model->valves());
+      for (auto p : _model->pumps()) {
+        pipes.push_back(p);
+      }
+      for (auto v : _model->valves()) {
+        pipes.push_back(v);
+      }
+      
       for (auto p: pipes) {
-        
+        // make it easy to find any status or setting at a certain time
+        map<time_t, Point> settingPointMap;
+        map<time_t, Point> statusPointMap;
+        // collection of all times where we have either setting or status
+        set<time_t> controlTimes;
+
         if (p->settingBoundary()) {
           TimeSeries::_sp ts = p->settingBoundary();
-          string stmt = InpTextPattern::textControlWithTimeSeries(ts, p->name(), _range.start, _range.end, InpTextPattern::InpControlTypeSetting);
-          stream << stmt << BR << BR;
+          TimeSeries::PointCollection settings = ts->pointCollection(_range).asDelta();
+          set<time_t> times = settings.times();
+          controlTimes.insert(times.begin(),times.end());
+          for(const Point& p: settings.points) {
+            settingPointMap[p.time] = p;
+          }
         }
         if (p->statusBoundary()) {
           TimeSeries::_sp ts = p->statusBoundary();
-          string stmt = InpTextPattern::textControlWithTimeSeries(ts, p->name(), _range.start, _range.end, InpTextPattern::InpControlTypeStatus);
-          stream << stmt << BR << BR;
+          TimeSeries::PointCollection statuses = ts->pointCollection(_range).asDelta();
+          set<time_t> times = statuses.times();
+          controlTimes.insert(times.begin(),times.end());
+          for(const Point& p: statuses.points) {
+            statusPointMap[p.time] = p;
+          }
         }
         
+        // generate control statements
+        if (controlTimes.size() > 0) {
+          bool isOpen = true;
+          stream << endl << "; RTX Time-Based Control for " << p->name() << endl;
+
+          for (time_t t: controlTimes) {
+            double hrs = (double)(t - _range.start) / (60.*60.);
+            bool statusUpdate = false;
+            if (statusPointMap.count(t) > 0) {
+              // status update
+              statusUpdate = true;
+              isOpen = statusPointMap[t].value;
+              stream << "LINK " << p->name() << " " << (isOpen ? "OPEN" : "CLOSED") << " AT TIME " << hrs << endl;
+            }
+            if (isOpen) {
+              if (settingPointMap.count(t) > 0) {
+                // Open and new setting control
+                stream << "LINK " << p->name() << " " << std::max(0.0, settingPointMap[t].value) << " AT TIME " << hrs << endl;
+              }
+              else if (statusUpdate) {
+                // Newly opened - reestablish previous link setting, if possible
+                std::map<time_t,Point>::iterator it = settingPointMap.lower_bound(t);
+                if (it != settingPointMap.begin()) {
+                  --it;
+                  stream << "LINK " << p->name() << " " << std::max(0.0, it->second.value) << " AT TIME " << hrs << endl;
+                }
+              }
+            }
+          }
+        }
       }
-      
     }
     else {
       stream << line << BR;
