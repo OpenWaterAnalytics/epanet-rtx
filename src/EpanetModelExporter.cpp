@@ -3,7 +3,10 @@
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/range/join.hpp>
+#include <boost/range/adaptors.hpp>
+#include <boost/range/algorithm/copy.hpp>
 #include <boost/filesystem.hpp>
+#include <iterator>
 #include <fstream>
 #include <regex>
 #include <algorithm>
@@ -227,29 +230,26 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
       
       for (auto p: pipes) {
         // make it easy to find any status or setting at a certain time
-        map<time_t, Point> settingPointMap;
-        map<time_t, Point> statusPointMap;
-        // collection of all times where we have either setting or status
+        map<time_t, Point> settingPointMap, statusPointMap;
         set<time_t> controlTimes;
 
         if (p->settingBoundary()) {
-          TimeSeries::_sp ts = p->settingBoundary();
-          TimeSeries::PointCollection settings = ts->pointCollection(_range).asDelta();
-          set<time_t> times = settings.times();
-          controlTimes.insert(times.begin(),times.end());
+          TimeSeries::PointCollection settings = p->settingBoundary()->pointCollection(_range).asDelta();
           for(const Point& p: settings.points) {
             settingPointMap[p.time] = p;
           }
         }
         if (p->statusBoundary()) {
-          TimeSeries::_sp ts = p->statusBoundary();
-          TimeSeries::PointCollection statuses = ts->pointCollection(_range).asDelta();
-          set<time_t> times = statuses.times();
-          controlTimes.insert(times.begin(),times.end());
+          TimeSeries::PointCollection statuses = p->statusBoundary()->pointCollection(_range).asDelta();
           for(const Point& p: statuses.points) {
             statusPointMap[p.time] = p;
           }
         }
+        
+        // gather the collection of all times where we have either setting or status
+        boost::copy(settingPointMap | boost::adaptors::map_keys, std::inserter(controlTimes, controlTimes.end()));
+        boost::copy(statusPointMap  | boost::adaptors::map_keys, std::inserter(controlTimes, controlTimes.end()));
+        
         
         // generate control statements
         if (controlTimes.size() > 0) {
