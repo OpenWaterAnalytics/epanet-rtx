@@ -21,7 +21,9 @@ namespace RTX {
   public Visitor<TimeSeriesFilter>,
   public Visitor<PointRecord>,
   public Visitor<DbPointRecord>,
-  public Visitor<SqlitePointRecord>
+  public Visitor<SqlitePointRecord>,
+  public Visitor<InfluxDbPointRecord>,
+  public Visitor<OdbcDirectPointRecord>
   {
   public:
     static web::json::value to_json(RTX_object::_sp obj);

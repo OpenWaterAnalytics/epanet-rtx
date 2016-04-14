@@ -49,12 +49,14 @@ namespace RTX {
     void _get_timeseries(http_request message);
     void _get_runState(http_request message);
     void _get_source(http_request message);
+    void _get_destination(http_request message);
     void _get_odbc_drivers(http_request message);
     void _get_units(http_request message);
     
     web::http::http_response _post_config(web::json::value json);
     web::http::http_response _post_timeseries(web::json::value json);
     web::http::http_response _post_runState(web::json::value json);
+    web::http::http_response _post_options(web::json::value json);
     web::http::http_response _post_source(web::json::value json);
     web::http::http_response _post_destination(web::json::value json);
     
@@ -67,7 +69,7 @@ namespace RTX {
     
     void runDuplication(time_t win, time_t freq);
     void stopDuplication();
-    time_t _window, _frequency;
+    time_t _window, _frequency, _backfill;
     std::string _statusMessage;
     
   };

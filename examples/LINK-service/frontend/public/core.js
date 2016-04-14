@@ -5,16 +5,17 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
     $httpProvider.defaults.useXDomain = true;
     delete $httpProvider.defaults.headers.common['X-Requested-With'];
 }
-]).config(['$locationProvider', function ($locationProvider) {
-        $locationProvider
-            .html5Mode(false)
-            .hashPrefix('');
-    }])
+])
 
+.config(['$locationProvider', function ($locationProvider) {
+    $locationProvider
+        .html5Mode(false)
+        .hashPrefix('');
+}])
 
 .run(function ($rootScope, $timeout, $http) {
     $rootScope.sourceTypes = {
-        'ODBC': [
+        'odbc': [
             {
                 key:'name',
                 text:'Name',
@@ -42,7 +43,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                 inputType: 'text-line'
             }
         ],
-        'SQLite': [
+        'sqlite': [
             {
                 key:'name',
                 text:'Name',
@@ -56,7 +57,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                 inputType:'text-line'
             }
         ],
-        'Influx': [
+        'influx': [
             {
                 key:'name',
                 text:'Name',
@@ -73,9 +74,9 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
     };
 
     $rootScope.rtxTypes = {
-        'ODBC': 'odbc',
-        'SQLite': 'sqlite',
-        'Influx': 'influx'
+        'odbc': 'ODBC',
+        'sqlite': 'SQLite',
+        'influx': 'Influx'
     };
 
 
@@ -117,6 +118,16 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
             $rootScope.showError('Error Connecting: ' + errStr);
         });
     };
+
+    $rootScope.notifyHttpError = function (response) {
+        if (response.data) {
+            errStr = response.data['error'];
+        } else {
+            errStr = 'LINK Service Not Responding';
+        }
+        $rootScope.showError('Error Connecting: ' + errStr);
+    }
+
 
 })
 
@@ -184,14 +195,45 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
 
 })
 
+
+/**************************/
+/******** SOURCE **********/
+/**************************/
+
 .controller('SourceController', function SourceController($rootScope, $scope, $http, $interval, $location) {
     $scope.availableUnits = [];
-    $scope.formData = {};
+    $scope.formData = {_class: 'none'};
     $scope.sourceSeries = [];
     $scope.statusMsg = '';
+    $scope.showTsList = false;
+
+    $scope.getFormData = function () {
+        $http.get('http://localhost:3131/source')
+            .then(function (response) {
+                $scope.formData = response.data;
+                if (!$scope.formData._class) {
+                    $scope.formData._class = 'none';
+                }
+            }, function (response) {
+                $rootScope.notifyHttpError(response);
+            });
+    };
 
     $scope.saveAndNext = function () {
-        $location.path('/destination');
+        var tsList = $scope.sourceSeries.filter(function (v) { return v._link_selected; });
+        $http({
+            method: 'POST',
+            url: 'http://localhost:3131/series',
+            headers: { 'Content-Type': undefined }, // undefined content-type to overcome CORS
+            data: tsList
+        }).then(function (response) {
+            $location.path('/destination');
+        }, function (response) {
+            var errStr = response.data
+                ? response.data['error']
+                : 'LINK Service Not Responding';
+            $rootScope.showError('Error Saving Options: ' + errStr);
+        });
     };
 
     // get units list
@@ -204,21 +246,16 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
             });
     };
 
-    $scope.selectedSourceType = 'ODBC';
-
-
-
     $scope.isType = function (typeName) {
-        return typeName === $scope.selectedSourceType;
+        return typeName === $scope.formData._class;
     };
     $scope.setSourceType = function (typeName) {
-        $scope.formData = {};
-        $scope.selectedSourceType = typeName;
+        $scope.formData = {_class: typeName};
         $scope.sourceSeries = [];
+        $scope.showTsList = false;
     };
 
     $scope.connect = function () {
-        $scope.formData._class = $rootScope.rtxTypes[$scope.selectedSourceType];
         $rootScope.connectRecord($scope.formData, 'source', function () {
             $scope.refreshSeriesList();
         });
@@ -234,42 +271,98 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                     series['_link_selected'] = false;
                 });
                 $rootScope.showInfo('Found ' + $scope.sourceSeries.length + ' Series');
+                $scope.showTsList = true;
             }, function (response) {
-                // error
+                $rootScope.notifyHttpError(response);
             });
     };
-
 
     $scope.save = function () {
         console.log("form data: " + $scope.formData);
     };
-
 
     $scope.removeSeries = function (selected) {
         $scope.sourceSeries = $scope.sourceSeries.filter(function (v) {
             return v._link_selected != selected;
         });
     };
-    
+
+    // ON LOAD
+
+    $scope.getFormData();
+
+
+
 })
+
+
+/**************************/
+/******** DESTINATION *****/
+/**************************/
 
 .controller('DestinationController', function DestinationController($rootScope, $scope, $http, $location) {
 
     $scope.formData = {};
 
+    $scope.getFormData = function () {
+        $http.get('http://localhost:3131/destination')
+            .then(function (response) {
+                console.log(response);
+                $scope.formData = response.data;
+            }, function (response) {
+                $rootScope.notifyHttpError(response);
+            });
+    };
+
     $scope.saveAndNext = function () {
-        $location.path('/run');
+        $scope.formData._class = 'influx';
+        $rootScope.connectRecord($scope.formData, 'destination', function () {
+            console.log('success');
+            $location.path('/options');
+        });
     };
 
     $scope.connect = function () {
-        $scope.formData._class = $rootScope.rtxTypes['Influx'];
+        $scope.formData._class = 'influx';
         $rootScope.connectRecord($scope.formData, 'destination', function () {
             console.log('success');
         });
     };
+
+
+    // ON LOAD
+
+    $scope.getFormData();
 })
 
+/**************************/
+/******** OPTIONS *********/
+/**************************/
 .controller('OptionsController', function OptionsController($rootScope, $scope, $http, $location) {
+
+    $scope.formData = {
+        interval: 15,
+        window: 12,
+        backfill: 30
+    };
+
+    $scope.saveAndNext = function () {
+        // send POST to LINK service
+        $http({
+            method: 'POST',
+            url: 'http://localhost:3131/options',
+            headers: { 'Content-Type': undefined }, // undefined content-type to overcome CORS
+            data: $scope.formData
+        }).then(function (response) {
+            $location.path('/run');
+        }, function (response) {
+            console.log(response);
+            var errStr = response.data
+                ? response.data['error']
+                : 'LINK Service Not Responding';
+            $rootScope.showError('Error Saving Options: ' + errStr);
+        });
+    }; // saveAndNext
 
 })
 
@@ -291,6 +384,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
     var refreshInterval = $interval($scope.refreshStatus, 5000);
     $scope.$on('$destroy', function () { $interval.cancel(refreshInterval); });
 })
+
 .controller('AboutController', function AboutController($scope, $http) {
     $scope.author = 'OWA';
 });

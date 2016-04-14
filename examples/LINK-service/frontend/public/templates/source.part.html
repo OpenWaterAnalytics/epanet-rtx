@@ -9,7 +9,7 @@
     <div class="form-group">
         <ul class="nav nav-pills">
             <li role="presentation"  ng-repeat="(type,plist) in sourceTypes" ng-class="{ active: isType(type) }" ng-click="setSourceType(type)">
-                <a>{{type}}</a>
+                <a>{{rtxTypes[type]}}</a>
             </li>
         </ul>
     </div>
@@ -17,7 +17,7 @@
 
         <table class="table">
             <tbody>
-                <tr ng-repeat="dict in sourceTypes[selectedSourceType]" ng-switch on="dict.inputType">
+                <tr ng-repeat="dict in sourceTypes[formData._class]" ng-switch on="dict.inputType">
                     <th scope="row">{{dict.text}}</th>
                     <td ng-switch-when="text-line" text-line>
                         <input type="text" class="form-control" placeholder="{{dict.placeholder}}" ng-model="formData[dict.key]">
@@ -31,45 +31,47 @@
             </tbody>
         </table>
 
-        <div class="input-group">
+        <div class="input-group" ng-if="formData._class != 'none'">
             <button type="submit" class="btn btn-default" ng-click="connect()">Connect</button>
         </div>
     </form>
 
 
     <hr>
+    <div id="ts-list" ng-if="showTsList">
+        <div class="alert alert-info" role="alert" ng-if="sourceSeries.length > 0">
+            Select the time series you would like replicated. Be sure to configure the Units.
+        </div>
 
-    <div class="alert alert-info" role="alert" ng-if="sourceSeries.length > 0">
-        Select the time series you would like replicated. Be sure to configure the Units.
+
+        <form class="form-inline">
+            <input ng-model="query" type="text" placeholder="Filter by" autofocus>
+            <button class="btn btn-default" type="submit" ng-click="removeSeries(true)">Remove Selected</button>
+            <button class="btn btn-default" type="submit" ng-click="removeSeries(false)">Remove Unselected</button>
+        </form>
+
+        <table class="table table-hover">
+            <colgroup>
+                <col class="col-md-8">
+                <col class="col-md-3">
+            </colgroup>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Units</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="ts in sourceSeries | filter:query | orderBy: 'name'" ng-click="ts._link_selected = !ts._link_selected" ng-class="{'success':ts._link_selected == true}">
+                <td>{{ts.name}}</td>
+                <td>
+                    <select ng-options="unit as unit.unitString for unit in availableUnits track by unit.rawUnits" ng-model="ts.units"></select>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 
-
-    <form class="form-inline">
-        <input ng-model="query" type="text" placeholder="Filter by" autofocus>
-        <button class="btn btn-default" type="submit" ng-click="removeSeries(true)">Remove Selected</button>
-        <button class="btn btn-default" type="submit" ng-click="removeSeries(false)">Remove Unselected</button>
-    </form>
-
-    <table class="table table-hover">
-        <colgroup>
-            <col class="col-md-8">
-            <col class="col-md-3">
-        </colgroup>
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Units</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr ng-repeat="ts in sourceSeries | filter:query | orderBy: 'name'" ng-click="ts._link_selected = !ts._link_selected" ng-class="{'success':ts._link_selected == true}">
-            <td>{{ts.name}}</td>
-            <td>
-                <select ng-options="unit as unit.unitString for unit in availableUnits track by unit.rawUnits" ng-model="ts.units"></select>
-            </td>
-        </tr>
-        </tbody>
-    </table>
 
 </div>
 
