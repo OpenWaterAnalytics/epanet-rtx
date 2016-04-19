@@ -6,7 +6,7 @@
 int main(int argc, const char * argv[]) {
   
   
-  RTX::LinkService svc(web::uri("http://localhost:3131"));
+  RTX::LinkService svc(web::uri("http://127.0.0.1:3131"));
   
   svc.open().wait();
   

@@ -20,8 +20,13 @@ template<typename T> RTX_object::_sp __createShared() {
 #pragma mark Serializer
 
 JSV SerializerJson::to_json(RTX_object::_sp obj) {
-  RTX_object *o = obj.get();
-  return SerializerJson::to_json(*o);
+  if (obj) {
+    RTX_object *o = obj.get();
+    return SerializerJson::to_json(*o);
+  }
+  else {
+    return JSV::object();
+  }
 };
 JSV SerializerJson::to_json(RTX_object& obj) {
   SerializerJson js;
@@ -129,15 +134,17 @@ RTX_object::_sp DeserializerJson::from_json(JSV json) {
       { "units",      &__createShared<Units>}
     };
     // create the concrete object
-    string type = json.as_object()[_c].as_string();
-    if (c.count(type)) {
-      RTX_object::_sp obj = c[type]();
-      DeserializerJson d(json);
-      obj->accept(d);
-      return obj;
-    }
-    else {
-      throw bad_cast();
+    if (json.as_object().find(_c) != json.as_object().end()) {
+      string type = json.as_object()[_c].as_string();
+      if (c.count(type)) {
+        RTX_object::_sp obj = c[type]();
+        DeserializerJson d(json);
+        obj->accept(d);
+        return obj;
+      }
+      else {
+        throw bad_cast();
+      }
     }
   }
   return RTX_object::_sp();

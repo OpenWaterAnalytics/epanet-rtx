@@ -33,7 +33,7 @@ pplx::task<void> _link_respond(http_request message, json::value js, status_code
 pplx::task<void> _link_respond(http_request message, json::value js, status_code code) {
   http_response response = _link_empty_response(code);
   response.set_body(js);
-  return message.reply(response);         // reply is done here
+  return message.reply(response);
 }
 
 
@@ -45,7 +45,6 @@ LinkService::LinkService(uri uri) : _listener(uri) {
   
   _duplicator.setLoggingFunction([&](const char* msg){ this->_statusMessage = string(msg); });
 }
-
 
 
 pplx::task<void> LinkService::open() {
@@ -76,7 +75,9 @@ void LinkService::_get(http_request message) {
     {"source", std::bind(&LinkService::_get_source,       this, std::placeholders::_1)},
     {"destination", std::bind(&LinkService::_get_destination, this, std::placeholders::_1)},
     {"odbc",   std::bind(&LinkService::_get_odbc_drivers, this, std::placeholders::_1)},
-    {"units",  std::bind(&LinkService::_get_units,        this, std::placeholders::_1)}
+    {"units",  std::bind(&LinkService::_get_units,        this, std::placeholders::_1)},
+    {"options",std::bind(&LinkService::_get_options,      this, std::placeholders::_1)},
+    {"config", std::bind(&LinkService::_get_config,       this, std::placeholders::_1)}
   };
   
   if (res.count(entryPoint)) {
@@ -92,6 +93,8 @@ void LinkService::_put(http_request message) {
 }
 
 void LinkService::_post(http_request message) {
+  
+  cout << message.to_string() << endl;
   
   // posted content will be of content-type: undefined because of CORS,
   // so it won't be recognized as json. we have to get the string content
@@ -233,6 +236,39 @@ void LinkService::_get_units(http_request message) {
   _link_respond(message, u);
 }
 
+void LinkService::_get_options(http_request message) {
+  JSV o = JSV::object();
+  
+  o.as_object()["interval"] = JSV((int)_frequency);
+  o.as_object()["window"] = JSV((int)_window);
+  o.as_object()["backfill"] = JSV((int)_backfill);
+  
+  _link_respond(message, o);
+  
+}
+
+void LinkService::_get_config(http_request message) {
+  JSV config = JSV::object();
+  
+  auto tsList = _duplicator.series();
+  vector<RTX_object::_sp> tsVec;
+  for (auto ts : tsList) {
+    tsVec.push_back(ts);
+  }
+  
+  config.as_object()["series"] = SerializerJson::to_json(tsVec);
+  config.as_object()["source"] = SerializerJson::to_json(_sourceRecord);
+  config.as_object()["destination"] = SerializerJson::to_json(_destinationRecord);
+  
+  JSV opts = JSV::object();
+  opts.as_object()["interval"] = JSV((int)_frequency);
+  opts.as_object()["window"] =   JSV((int)_window);
+  opts.as_object()["backfill"] = JSV((int)_backfill);
+  config.as_object()["fetch"] = opts;
+  
+  _link_respond(message, config);
+}
+
 
 http_response LinkService::_post_config(JSV json) {
   json::object o = json.as_object();
@@ -243,10 +279,13 @@ http_response LinkService::_post_config(JSV json) {
   JSV fetch = o["fetch"];
   for( auto fn : {
     bind(&LinkService::_post_source,     this, source),
-    bind(&LinkService::_post_timeseries, this, series)
+    bind(&LinkService::_post_destination,this, destination),
+    bind(&LinkService::_post_timeseries, this, series),
+    bind(&LinkService::_post_options,    this, fetch)
   }) {
     http_response res = fn();
     if (res.status_code() != status_codes::OK) {
+      cout << "POST FAILED:" << endl;
       return res;
     }
   }
@@ -255,20 +294,29 @@ http_response LinkService::_post_config(JSV json) {
 }
 
 http_response LinkService::_post_timeseries(JSV js) {
+  http_response r;
+  cout << "=====================================\n";
+  cout << "== SETTING TIMESERIES\n";
+  
   if (js.is_array()) {
     vector<RTX_object::_sp> oList = DeserializerJson::from_json_array(js);
     list<TimeSeries::_sp> tsList;
     for (auto o : oList) {
       TimeSeries::_sp ts = static_pointer_cast<TimeSeries>(o);
+      ts->setRecord(_sourceRecord); // no record set by client. set it here.
       tsList.push_back(ts);
+      cout << "== " << ts->name() << '\n';
     }
     _duplicator.setSeries(tsList);
-    return _link_empty_response();
+    r = _link_empty_response();
   }
   else {
-    return _link_error_response(status_codes::MethodNotAllowed, "Series must be specified as an Array");
+    r = _link_error_response(status_codes::MethodNotAllowed, "Series must be specified as an Array");
+    cout << "== Series must be specified as an array\n";
   }
   
+  cout << "=====================================" << endl;
+  return r;
 }
 
 http_response LinkService::_post_runState(JSV js) {
@@ -291,86 +339,117 @@ http_response LinkService::_post_runState(JSV js) {
 
 http_response LinkService::_post_source(JSV js) {
   
-  cout << "== SETTING DUPLICATION SOURCE ==" << endl;
+  http_response r;
+  cout << "================================\n";
+  cout << "== SETTING DUPLICATION SOURCE\n";
   
   RTX_object::_sp o = DeserializerJson::from_json(js);
   
   if (!o) {
-    return _link_error_response(status_codes::BadRequest, "JSON not recognized");
+    cout << "== JSON not recognized\n";
+    r = _link_error_response(status_codes::BadRequest, "JSON not recognized");
+  }
+  else {
+    _sourceRecord = static_pointer_cast<PointRecord>(o);
+    cout << "== " << _sourceRecord->name() << '\n';
+    r = _link_empty_response();
   }
   
-  _sourceRecord = static_pointer_cast<PointRecord>(o);
-  return _link_empty_response();
+  cout << "================================" << endl;
+  return r;
 }
 
 http_response LinkService::_post_destination(JSV js) {
   
-  cout << "== SETTING DUPLICATION DESTINATION ==" << endl;
+  http_response r;
+  cout << "=====================================\n";
+  cout << "== SETTING DUPLICATION DESTINATION\n";
   
   RTX_object::_sp d = DeserializerJson::from_json(js);
   if (!d) {
-    return _link_error_response(status_codes::BadRequest, "JSON not recognized");
+    cout << "== ERROR: JSON not recognized\n==\n";
+    r = _link_error_response(status_codes::BadRequest, "JSON not recognized");
   }
-  _destinationRecord = static_pointer_cast<PointRecord>(d);
-  
-  DbPointRecord::_sp dbRecord = dynamic_pointer_cast<DbPointRecord>(_destinationRecord);
-  if (dbRecord) {
-    dbRecord->dbConnect();
-    if (dbRecord->isConnected()) {
-      
+  else {
+    _destinationRecord = static_pointer_cast<PointRecord>(d);
+    
+    DbPointRecord::_sp dbRecord = dynamic_pointer_cast<DbPointRecord>(_destinationRecord);
+    if (dbRecord) {
+      cout << "== " << dbRecord->name() << '\n';
+      dbRecord->dbConnect();
+      if (dbRecord->isConnected()) {
+        cout << "== connection successful\n";
+        r = _link_empty_response();
+      }
+      else {
+        string err = dbRecord->errorMessage;
+        cout << "== err: " << err << '\n';
+        r = _link_error_response(status_codes::NotAcceptable, err);
+      }
     }
     else {
-      string err = dbRecord->errorMessage;
-      return _link_error_response(status_codes::NotAcceptable, err);
+      // failed cast to dbpointrecord
+      cout << "== not a database\n";
+      r = _link_empty_response();
     }
   }
-  
-  return _link_empty_response();
+  cout << "=====================================" << endl;
+  return r;
 }
 
 
 http_response LinkService::_post_options(JSV js) {
   
+  http_response r;
+  cout << "=====================================\n";
+  cout << "== SETTING OPTIONS\n";
+  
+  
   // expecting :
   // {'interval': ###, 'window': ###, 'backfill': ###}
   
   if (!js.is_object()) {
-    return _link_error_response(status_codes::ExpectationFailed, "data is not a json object");
+    r = _link_error_response(status_codes::ExpectationFailed, "data is not a json object");
+    cout << "== err: JSON not recognized.\n";
+  }
+  else {
+    json::object o = js.as_object();
+    
+    // quick anonymous function to handle setting key values by reference
+    function<bool (string,time_t*)> setParam = [&](string key, time_t* v) {
+      if (o.find(key) != o.end()) {
+        *v = o[key].as_integer();
+        return true;
+      } else {
+        return false;
+      }
+    };
+    
+    // map the required keys to the time_t ivars
+    map<string,time_t*> defs = {
+      {"interval",&_frequency},
+      {"window",&_window},
+      {"backfill",&_backfill}
+    };
+    
+    // execute the setter function for each pair of key/value-ref definitions
+    // and test for key-not-found error
+    for (auto def : defs) {
+      if (!setParam(def.first, def.second)) {
+        r = _link_error_response(status_codes::MethodNotAllowed, "key not found: " + def.first);
+        cout << "== key not found: " << def.first << '\n';
+        break;
+      }
+      else {
+        cout << "== " << def.first << " :: " << *def.second << '\n';
+      }
+    }
+    
+    r = _link_empty_response();
   }
   
-  json::object o = js.as_object();
-  
-  
-  // quick anonymous function to handle setting key values by reference
-  function<bool (string,time_t*)> setParam = [&](string key, time_t* v) {
-    if (o.find(key) != o.end()) {
-      *v = o[key].as_integer();
-      return true;
-    } else {
-      return false;
-    }
-  };
-  
-  // map the required keys to the time_t ivars
-  map<string,time_t*> defs = {
-    {"interval",&_frequency},
-    {"window",&_window},
-    {"backfill",&_backfill}
-  };
-  
-  // execute the setter function for each pair of key/value-ref definitions
-  // and test for key-not-found error
-  for (auto def : defs) {
-    if (!setParam(def.first, def.second)) {
-      return _link_error_response(status_codes::MethodNotAllowed, "key not found: " + def.first);
-    }
-  }
-  
-  
-  
-  
-  
-  return _link_empty_response();
+  cout << "=====================================" << endl;
+  return r;
 }
 
 

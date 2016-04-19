@@ -30,6 +30,7 @@
 #include "TimeSeriesDuplicator.h"
 
 using web::http::http_request;
+using web::http::http_response;
 using web::http::experimental::listener::http_listener;
 
 namespace RTX {
@@ -52,13 +53,15 @@ namespace RTX {
     void _get_destination(http_request message);
     void _get_odbc_drivers(http_request message);
     void _get_units(http_request message);
+    void _get_options(http_request message);
+    void _get_config(http_request message);
     
-    web::http::http_response _post_config(web::json::value json);
-    web::http::http_response _post_timeseries(web::json::value json);
-    web::http::http_response _post_runState(web::json::value json);
-    web::http::http_response _post_options(web::json::value json);
-    web::http::http_response _post_source(web::json::value json);
-    web::http::http_response _post_destination(web::json::value json);
+    http_response _post_config(web::json::value json);
+    http_response _post_timeseries(web::json::value json);
+    http_response _post_runState(web::json::value json);
+    http_response _post_options(web::json::value json);
+    http_response _post_source(web::json::value json);
+    http_response _post_destination(web::json::value json);
     
     http_listener _listener;
     
