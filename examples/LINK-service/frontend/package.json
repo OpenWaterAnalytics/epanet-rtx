@@ -1,15 +1,18 @@
 {
-  "name"         : "rtx-link",
-  "version"      : "0.0.0",
-  "description"  : "RTX Link",
-  "main"         : "server.js",
-  "author"       : "OWA",
-  "license"		 : "MIT",
-  "repository"   : "http://github.com/OpenWaterAnalytics/epanet-rtx/",
-  "dependencies" : {
-    "express"    : "~4.13.4",
-    "morgan"     : "~1.7.0",
+  "name": "rtx-link",
+  "version": "0.0.0",
+  "description": "RTX Link",
+  "main": "server.js",
+  "author": "OWA",
+  "license": "MIT",
+  "repository": "http://github.com/OpenWaterAnalytics/epanet-rtx/",
+  "dependencies": {
     "body-parser": "~1.15.0",
-    "method-override": "~2.3.5"
-    }
+    "express": "~4.13.4",
+    "jsonfile": "^2.3.0",
+    "method-override": "~2.3.5",
+    "os": "^0.1.1",
+    "path": "^0.12.7",
+    "request": "^2.72.0"
+  }
 }

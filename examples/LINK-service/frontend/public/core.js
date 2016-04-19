@@ -14,6 +14,15 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
 }])
 
 .run(function ($rootScope, $timeout, $http) {
+
+    $rootScope.config = {
+        source:      {},
+        destination: {},
+        fetch:       {},
+        series:      [],
+        dash:        { proto:'http' }
+    };
+
     $rootScope.sourceTypes = {
         'odbc': [
             {
@@ -99,12 +108,12 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         }, 5000);
     };
 
-    $rootScope.connectRecord = function (formData, endpoint, callback) {
+    $rootScope.connectRecord = function (data, endpoint, callback) {
         $http({
             method: 'POST',
             url: 'http://localhost:3131/' + endpoint,
             headers: { 'Content-Type': undefined }, // undefined content-type to overcome CORS
-            data: formData
+            data: data
         }).then(function (response) {
             $rootScope.showInfo('Connection OK');
             typeof callback == "function" && callback();
@@ -121,14 +130,100 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
 
     $rootScope.notifyHttpError = function (response) {
         if (response.data) {
-            errStr = response.data['error'];
+            if (response.data.error) {
+                errStr = response.data.error;
+            }
+            else if (response.data.message) {
+                errStr = response.data.message;
+            }
+            else {
+                errStr = "Unknown Error";
+            }
         } else {
             errStr = 'LINK Service Not Responding';
         }
         $rootScope.showError('Error Connecting: ' + errStr);
     }
 
+    $rootScope.saveConfig = function () {
+        // get config from LINK Server, send to Node Server.
+        // Node will save the config locally.
+        $http.get('http://localhost:3131/config')
+            .then(function (response) {
+                if (response.data) {
+                    var configData = response.data;
+                    configData.dash = $rootScope.config.dash;
+                    $http({
+                        method: 'POST',
+                        url: 'http://localhost:8585/config',
+                        headers: {'Content-type': 'application/json'},
+                        data: configData
+                    }).then(function (postResponse) {
+                        console.log('configuration saved via node: ');
+                        console.log(response.data);
+                        $rootScope.showInfo('Saved Complete Configuration');
+                    }, function (errResponse) {
+                        console.log('configuration not saved');
+                        $rootScope.notifyHttpError('Configuration Not Saved');
+                    });
+                }
+            }, function (response) {
+                $rootScope.notifyHttpError(response);
+            });
+    };
+    
+    
+    $rootScope.initializeConfig = function () {
+        // get the stored configuration from Node, and
+        // send that to LINK to initialize.
+        $http.get('http://localhost:8585/config')
+            .then(function (res) {
+                // success
+                var data = res.data;
+                console.log('retrieved configuration data:');
+                console.log(data);
+                console.log('sending to RTX-LINK');
 
+                $rootScope.config = data;
+
+                $http({
+                    method: 'POST',
+                    url: 'http://localhost:3131/config',
+                    headers: { 'Content-Type': undefined }, // undefined content-type to overcome CORS
+                    data: data
+                }).then(function (res) {
+                    // success
+                    console.log('Successfully sent configuration to RTX-LINK.');
+                    console.log(res);
+                }, function (res) {
+                    // error
+                    $rootScope.notifyHttpError(res);
+                });
+
+            }, function (res) {
+                // error
+                $rootScope.notifyHttpError(res);
+            });
+    };
+
+
+    $rootScope.getFormData = function ($scope,urlPath,callback) {
+        $http.get('http://localhost:3131/' + urlPath)
+            .then(function (response) {
+                typeof callback == "function" && callback(response.data);
+            }, function (response) {
+                $rootScope.notifyHttpError(response);
+            });
+    };
+
+
+
+
+
+
+    // ON LOAD
+    $rootScope.initializeConfig();
+    
 })
 
 .controller('HeaderController', function HeaderController($scope, $location) {
@@ -138,6 +233,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         {url:'destination', text:'Destination'},
         {url:'options', text:'Options'},
         {url:'run', text:'Run'},
+        {url:'dashboard', text:'Dashboard'},
         {url:'about', text:'About'}
     ];
 
@@ -190,8 +286,6 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
 })
 
 .controller('MainController', function MainController($scope, $http, $interval) {
-    $scope.formData = {};
-    $scope.series = [];
 
 })
 
@@ -202,25 +296,16 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
 
 .controller('SourceController', function SourceController($rootScope, $scope, $http, $interval, $location) {
     $scope.availableUnits = [];
-    $scope.formData = {_class: 'none'};
+    $rootScope.config.source = {_class: 'none'};
     $scope.sourceSeries = [];
     $scope.statusMsg = '';
     $scope.showTsList = false;
 
-    $scope.getFormData = function () {
-        $http.get('http://localhost:3131/source')
-            .then(function (response) {
-                $scope.formData = response.data;
-                if (!$scope.formData._class) {
-                    $scope.formData._class = 'none';
-                }
-            }, function (response) {
-                $rootScope.notifyHttpError(response);
-            });
-    };
+
 
     $scope.saveAndNext = function () {
         var tsList = $scope.sourceSeries.filter(function (v) { return v._link_selected; });
+        $rootScope.config.series = tsList;
         $http({
             method: 'POST',
             url: 'http://localhost:3131/series',
@@ -247,16 +332,16 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
     };
 
     $scope.isType = function (typeName) {
-        return typeName === $scope.formData._class;
+        return typeName === $rootScope.config.source._class;
     };
     $scope.setSourceType = function (typeName) {
-        $scope.formData = {_class: typeName};
+        $rootScope.config.source = {_class: typeName};
         $scope.sourceSeries = [];
         $scope.showTsList = false;
     };
 
     $scope.connect = function () {
-        $rootScope.connectRecord($scope.formData, 'source', function () {
+        $rootScope.connectRecord($rootScope.config.source, 'source', function () {
             $scope.refreshSeriesList();
         });
     };
@@ -272,13 +357,14 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                 });
                 $rootScope.showInfo('Found ' + $scope.sourceSeries.length + ' Series');
                 $scope.showTsList = true;
+                $scope.reconcileSeries();
             }, function (response) {
                 $rootScope.notifyHttpError(response);
             });
     };
 
     $scope.save = function () {
-        console.log("form data: " + $scope.formData);
+        console.log("form data: " + $rootScope.config.source);
     };
 
     $scope.removeSeries = function (selected) {
@@ -287,9 +373,42 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         });
     };
 
+    $scope.reconcileSeries = function () {
+        // get the list of dupe series from LINK
+        // and match them to the list of series (if any)
+        // in the searchable list, and make sure they are selected.
+        $http.get('http://localhost:3131/series')
+            .then(function (response) {
+                var dupeSeries = response.data;
+                var dupeNames = [];
+                angular.forEach(dupeSeries, function (series) {
+                    dupeNames.push(series['name']);
+                });
+                angular.forEach($scope.sourceSeries, function (series) {
+                    var thisName = series['name'];
+                    if (-1 !== dupeNames.indexOf(thisName)) {
+                        series['_link_selected'] = true;
+                    }
+                    else {
+                        series['_link_selected'] = false;
+                    }
+                });
+
+            }, function (errResponse) {
+
+            });
+    };
+
+
     // ON LOAD
 
-    $scope.getFormData();
+
+    $rootScope.getFormData($scope, 'source', function (data) {
+        if (!data._class) {
+            data._class = 'none';
+        }
+        $rootScope.config.source = data;
+    });
 
 
 
@@ -302,37 +421,26 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
 
 .controller('DestinationController', function DestinationController($rootScope, $scope, $http, $location) {
 
-    $scope.formData = {};
-
-    $scope.getFormData = function () {
-        $http.get('http://localhost:3131/destination')
-            .then(function (response) {
-                console.log(response);
-                $scope.formData = response.data;
-            }, function (response) {
-                $rootScope.notifyHttpError(response);
-            });
-    };
-
     $scope.saveAndNext = function () {
-        $scope.formData._class = 'influx';
-        $rootScope.connectRecord($scope.formData, 'destination', function () {
-            console.log('success');
+        $scope.connect(function () {
             $location.path('/options');
         });
     };
 
-    $scope.connect = function () {
-        $scope.formData._class = 'influx';
-        $rootScope.connectRecord($scope.formData, 'destination', function () {
+    $scope.connect = function (callback) {
+        $rootScope.config.destination._class = 'influx';
+        $rootScope.connectRecord($rootScope.config.destination, 'destination', function () {
             console.log('success');
+            typeof callback == "function" && callback();
         });
     };
 
 
     // ON LOAD
 
-    $scope.getFormData();
+    $rootScope.getFormData($scope,'destination',function (data) {
+        $rootScope.config.destination = data;
+    });
 })
 
 /**************************/
@@ -340,34 +448,104 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
 /**************************/
 .controller('OptionsController', function OptionsController($rootScope, $scope, $http, $location) {
 
-    $scope.formData = {
-        interval: 15,
-        window: 12,
-        backfill: 30
-    };
+    var wrapper = {};
+    var rowTemplate = {};
+
 
     $scope.saveAndNext = function () {
-        // send POST to LINK service
+        // send options, then tell root scope to get/save the whole config.
         $http({
             method: 'POST',
             url: 'http://localhost:3131/options',
             headers: { 'Content-Type': undefined }, // undefined content-type to overcome CORS
-            data: $scope.formData
+            data: $scope.config.fetch
         }).then(function (response) {
+            $rootScope.saveConfig();
             $location.path('/run');
         }, function (response) {
             console.log(response);
-            var errStr = response.data
-                ? response.data['error']
-                : 'LINK Service Not Responding';
-            $rootScope.showError('Error Saving Options: ' + errStr);
+            $rootScope.notifyHttpError(response);
         });
     }; // saveAndNext
 
+
+    $scope.sendGrafana = function () {
+
+        $rootScope.showInfo("Sending Dashboards");
+
+        var dash = JSON.parse(JSON.stringify(wrapper)); // json stringify-parse to deep copy
+        dash.dashboard.title = 'LINK Historian';
+        angular.forEach($rootScope.config.series, function (series) {
+            var newRow = JSON.parse(JSON.stringify(rowTemplate));
+
+            newRow.panels[0].leftYAxisLabel = series.units.unitString;
+            newRow.panels[0].targets[0].query = 'select mean(value) from ' + series.name;
+            newRow.panels[0].targets[0].alias = '$m';
+            newRow.panels[0].title = series.name;
+            newRow.title = series.name;
+
+            dash.dashboard.rows.push(newRow);
+        });
+
+        // send dashboards
+
+        // relay data to Node, since we can't make real POST requests otherwise.
+        $http({
+            method: 'POST',
+            url: 'http://localhost:8585/send_dashboards',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: {login: $rootScope.config.dash, data: dash}
+        }).then(function (response) {
+            console.log('SENT DASHBOARDS');
+            $rootScope.showInfo(response.data.message);
+        }, function (response) {
+            $rootScope.showInfo('');
+            $rootScope.showError(response.data.message);
+            console.log(response);
+        });
+
+    };
+
+    $scope.setProto = function (p) {
+        $rootScope.config.dash.proto = p;
+    }
+
+
+    // ON LOAD
+
+    $rootScope.getFormData($scope,'options', function (data) {
+        $rootScope.config.fetch = data;
+    });
+
+
+    //-- get grafana wrapper templates for later --//
+    $http.get('/grafana/grafana_wrapper.json')
+        .then(function (response) {
+            wrapper = response.data;
+        }, function (err) {
+            console.log('err getting wrapper');
+        });
+    $http.get('/grafana/grafana_contents.json')
+        .then(function (response) {
+            rowTemplate = response.data;
+        }, function (err) {
+            console.log('err getting row template');
+        });
 })
 
+
+/**************************/
+/******** RUN     *********/
+/**************************/
 .controller('RunController', function RunController($rootScope, $scope, $http, $location, $interval) {
     $scope.status = 'Checking...';
+    $scope.run = false;
+
+    $scope.setRun = function (shouldRun) {
+        $scope.run = shouldRun;
+    };
 
     $scope.refreshStatus = function() {
         $scope.status = "Checking...";

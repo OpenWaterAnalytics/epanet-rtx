@@ -5,24 +5,71 @@
 
 <!-- SERIES SELECT -->
 <div id="run-options">
-    <table class="table">
-        <tbody>
-        <tr>
-            <th scope="row">Fetch Interval (m)</th>
-            <td><input type="number" ng-model="formData.interval"/></td>
-        </tr>
-        <tr>
-            <th scope="row">Fetch Window (hr)</th>
-            <td><input type="number" ng-model="formData.window"/></td>
-        </tr>
-        <tr>
-            <th scope="row">Backfill (days)</th>
-            <td><input type="number" ng-model="formData.backfill"/></td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="row">
+        <div class="col-md-3">
+            <table class="table table-condensed">
+                <caption>Duplication Parameters</caption>
+                <colgroup>
+                    <col class="col-md-2">
+                    <col class="col-md-1">
+                </colgroup>
+                <tbody>
+                <tr>
+                    <th scope="row">Fetch Interval (m)</th>
+                    <td><input type="number" class="form-control" ng-model="config.fetch.interval"/></td>
+                </tr>
+                <tr>
+                    <th scope="row">Fetch Window (hr)</th>
+                    <td><input type="number" class="form-control" ng-model="config.fetch.window"/></td>
+                </tr>
+                <tr>
+                    <th scope="row">Backfill (days)</th>
+                    <td><input type="number" class="form-control" ng-model="config.fetch.backfill"/></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
-    <div class="input-group">
+        <div class="col-md-8">
+            <table class="table table-condensed">
+                <caption>Dashboard Login</caption>
+                <colgroup>
+                    <col class="col-md-2">
+                    <col class="col-md-6">
+                </colgroup>
+                <tbody>
+                <tr>
+                    <th scope="row">URL</th>
+                    <td>
+                        <div class="input-group">
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{config.dash.proto}}://
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li ng-click="setProto('http')"><a>http://</a></li>
+                                    <li ng-click="setProto('https')"><a>https://</a></li>
+                                </ul>
+                            </div>
+                            <input type="text" class="form-control" aria-label="Dashboard URL" ng-model="config.dash.url">
+                        </div>
+                     </td>
+                </tr>
+                <tr>
+                    <th scope="row">User</th>
+                    <td><input type="text" class="form-control" ng-model="config.dash.user" placeholder="dashboard_user"></td>
+                </tr>
+                <tr>
+                    <th scope="row">Password</th>
+                    <td><input type="text" class="form-control" ng-model="config.dash.pass" placeholder="dashboard_pass_12345"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <hr>
+    <div>
+        <button type="submit" class="btn btn-default" ng-click="sendGrafana()">Create Dashboards</button>
         <button type="submit" class="btn btn-default" ng-click="saveAndNext()">Save Options</button>
     </div>
 </div>

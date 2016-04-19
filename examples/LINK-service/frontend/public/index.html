@@ -6,8 +6,12 @@
 
     <title>RTX-LINK</title>
 
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+	<script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-    <style>
+
+
+	<style>
         html {
 			overflow-y:scroll;
 		}
@@ -25,6 +29,9 @@
 
 </head>
 <body ng-app="rtxLink">
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-route.js"></script>
+
 	<div class="container">
   		<!-- HEADER -->
   		<div class="header clearfix" ng-controller="HeaderController">
@@ -33,7 +40,7 @@
             		<li ng-repeat="link in links" role="presentation" ng-class="{ active: isActive('/{{link.url}}')}"><a href="#{{link.url}}">{{link.text}}</a></li>
           		</ul>
         	</nav>
-        	<h3 class="text-muted">RTX-Link Application</h3>
+        	<h3 class="text-muted">RTX-LINK</h3>
       	</div>
         <!-- /HEADER -->
 
@@ -47,9 +54,7 @@
 
 	</div>
 
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-route.js"></script>
+
 	<script src="core.js"></script>
 </body>
 </html>
