@@ -16,7 +16,7 @@ TimeSeriesDuplicator::TimeSeriesDuplicator() {
   _isRunning = false;
   _shouldRun = true;
   _pctCompleteFetch = 0;
-  logLevel = RTX_DUPLICATOR_LOGLEVEL_ERROR;
+  logLevel = RTX_DUPLICATOR_LOGLEVEL_INFO;
 }
 
 PointRecord::_sp TimeSeriesDuplicator::destinationRecord() {
@@ -49,6 +49,24 @@ void TimeSeriesDuplicator::_refreshDestinations() {
     mod->setRecord(_destinationRecord);
     _destinationSeries.push_back(mod);
   }
+  
+}
+
+
+
+void TimeSeriesDuplicator::catchUpAndRun(time_t fetchWindow, time_t frequency, time_t backfill, time_t chunkSize, time_t rateLimit) {
+  boost::thread t(&TimeSeriesDuplicator::_catchupLoop, this, fetchWindow, frequency, backfill, chunkSize, rateLimit);
+  _dupeBackground.swap(t);
+}
+
+void TimeSeriesDuplicator::_catchupLoop(time_t fetchWindow, time_t frequency, time_t backfill, time_t chunkSize, time_t rateLimit) {
+  _shouldRun = true;
+  time_t backfillStart = time(NULL) - backfill;
+  this->_backfillLoop(backfillStart, chunkSize);
+  if (!_shouldRun) {
+    return;
+  }
+  this->_dupeLoop(fetchWindow, frequency);
   
 }
 
@@ -131,6 +149,11 @@ void TimeSeriesDuplicator::_dupeLoop(time_t win, time_t freq) {
   
   // outside the loop means it was cancelled by user.
   _isRunning = false;
+  
+  if (!_shouldRun) {
+    _logLine("Stopped Duplication by User Request", RTX_DUPLICATOR_LOGLEVEL_INFO);
+  }
+  
 }
 
 void TimeSeriesDuplicator::stop() {
@@ -166,6 +189,8 @@ void TimeSeriesDuplicator::_backfillLoop(time_t start, time_t chunk, time_t rate
   
   bool inThePast = start < time(NULL);
   
+  _pctCompleteFetch = 0.;
+  
   while (_shouldRun && inThePast) {
     time_t thisLoop = time(NULL);
     _isRunning = true;
@@ -175,11 +200,13 @@ void TimeSeriesDuplicator::_backfillLoop(time_t start, time_t chunk, time_t rate
       inThePast = false;
     }
     
-    pair<time_t,int> fetchRes = this->_fetchAll(nextFetch - chunk, fetchEndTime);
+    pair<time_t,int> fetchRes = this->_fetchAll(nextFetch - chunk, fetchEndTime, false);
     time_t fetchDuration = fetchRes.first;
     int nPoints = fetchRes.second;
     
     nextFetch += chunk;
+    
+    _pctCompleteFetch = (double)(nextFetch - start) / (double)(thisLoop - start) ;
     
     char *tstr = asctime(localtime(&fetchEndTime));
     tstr[24] = '\0';
@@ -206,13 +233,19 @@ void TimeSeriesDuplicator::_backfillLoop(time_t start, time_t chunk, time_t rate
   // outside the loop means it was cancelled by user.
   _isRunning = false;
   
+  if (!_shouldRun) {
+    _logLine("Stopped Duplication by User Request", RTX_DUPLICATOR_LOGLEVEL_INFO);
+  }
+  
 }
 
 
-std::pair<time_t,int> TimeSeriesDuplicator::_fetchAll(time_t start, time_t end) {
+std::pair<time_t,int> TimeSeriesDuplicator::_fetchAll(time_t start, time_t end, bool updatePctComplete) {
   time_t fStart = time(NULL);
   int nPoints = 0;
-  _pctCompleteFetch = 0.;
+  if (updatePctComplete) {
+    _pctCompleteFetch = 0.;
+  }
   size_t nSeries = _destinationSeries.size();
   BOOST_FOREACH(TimeSeries::_sp ts, _destinationSeries) {
     if (_shouldRun) {
@@ -221,12 +254,16 @@ std::pair<time_t,int> TimeSeriesDuplicator::_fetchAll(time_t start, time_t end) 
       stringstream tsSS;
       tsSS << ts->name() << " : " << pc.count() << " points (max:" << pc.max() << " min:" << pc.min() << " avg:" << pc.mean() << ")";
       this->_logLine(tsSS.str(),RTX_DUPLICATOR_LOGLEVEL_VERBOSE);
-      _pctCompleteFetch += 1./(double)nSeries;
+      if (updatePctComplete) {
+        _pctCompleteFetch += 1./(double)nSeries;
+      }
       nPoints += pc.count();
     }
     
   }
-  _pctCompleteFetch = 1.;
+  if (updatePctComplete) {
+    _pctCompleteFetch = 1.;
+  }
   return make_pair(time(NULL) - fStart, nPoints);
 }
 

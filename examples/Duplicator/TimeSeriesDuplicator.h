@@ -32,6 +32,7 @@ namespace RTX {
     void setSeries(std::list<TimeSeries::_sp> series); /// source series !
     
     // view / change state
+    void catchUpAndRun(time_t fetchWindow, time_t frequency, time_t backfill, time_t chunkSize = 24*60*60, time_t rateLimit = 0);
     void run(time_t fetchWindow, time_t frequency); /// run starting now
     void runRetrospective(time_t start, time_t retroChunkSize, time_t rateLimit = 0); // catch up to current and stop
     void stop();
@@ -51,7 +52,7 @@ namespace RTX {
     RTX_Duplicator_log_callback _logFn;
     PointRecord::_sp _destinationRecord;
     std::list<TimeSeries::_sp> _sourceSeries, _destinationSeries;
-    std::pair<time_t,int> _fetchAll(time_t start, time_t end);
+    std::pair<time_t,int> _fetchAll(time_t start, time_t end, bool updatePctComplete = true);
     double _pctCompleteFetch;
     bool _isRunning;
     void _refreshDestinations();
@@ -59,6 +60,7 @@ namespace RTX {
     
     void _dupeLoop(time_t win, time_t freq);
     void _backfillLoop(time_t start, time_t chunk, time_t rateLimit = 0);
+    void _catchupLoop(time_t fetchWindow, time_t frequency, time_t backfill, time_t chunkSize = 24*60*60, time_t rateLimit = 0);
     boost::thread _dupeBackground;
   };
 }

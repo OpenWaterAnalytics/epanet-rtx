@@ -794,6 +794,7 @@
 		224E047F1979431C0039E3F9 /* StatsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StatsTimeSeries.h; path = ../../src/StatsTimeSeries.h; sourceTree = "<group>"; };
 		224EDECC1B4D8E040029FC37 /* influx_api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = influx_api.h; path = ../../src/influx_api.h; sourceTree = "<group>"; };
 		224EDECD1B4D8E040029FC37 /* influx_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = influx_client.c; path = ../../src/influx_client.c; sourceTree = "<group>"; };
+		225A037F1CC70135002DC864 /* frontend */ = {isa = PBXFileReference; lastKnownFileType = folder; name = frontend; path = "../../examples/LINK-service/frontend"; sourceTree = "<group>"; };
 		225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MysqlPointRecord.cpp; path = ../../src/MysqlPointRecord.cpp; sourceTree = "<group>"; };
 		226861C814716D2A000DDDEF /* Units.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Units.cpp; path = ../../src/Units.cpp; sourceTree = "<group>"; };
 		226AC1461733F996009B7C90 /* ValidRangeTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ValidRangeTimeSeries.cpp; path = ../../src/ValidRangeTimeSeries.cpp; sourceTree = "<group>"; };
@@ -1278,6 +1279,7 @@
 				228137DC1CA2F2C600AD81F3 /* LinkService.cpp */,
 				224B09D31CA9B2A900AEB41A /* LinkJsonSerialization.hpp */,
 				224B09D21CA9B2A900AEB41A /* LinkJsonSerialization.cpp */,
+				225A037F1CC70135002DC864 /* frontend */,
 			);
 			name = "LINK Service";
 			sourceTree = "<group>";
