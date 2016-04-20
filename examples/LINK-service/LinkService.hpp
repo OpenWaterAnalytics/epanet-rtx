@@ -40,6 +40,7 @@ namespace RTX {
     LinkService(web::uri address);
     pplx::task<void> open();
     pplx::task<void> close();
+    std::string _statusMessage;
     
   private:
     void _get(http_request message);
@@ -47,6 +48,7 @@ namespace RTX {
     void _post(http_request message);
     void _delete(http_request message);
     
+    void _get_ping(http_request message);
     void _get_timeseries(http_request message);
     void _get_runState(http_request message);
     void _get_source(http_request message);
@@ -70,10 +72,10 @@ namespace RTX {
     TimeSeriesDuplicator _duplicator;
     PointRecord::_sp _sourceRecord, _destinationRecord;
     
-    void runDuplication(time_t win, time_t freq);
+    void runDuplication(time_t win, time_t freq, time_t backfill);
     void stopDuplication();
     time_t _window, _frequency, _backfill;
-    std::string _statusMessage;
+    
     
   };
 }

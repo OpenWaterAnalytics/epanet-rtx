@@ -12,6 +12,19 @@ using JSV = json::value;
 
 #include <map>
 
+void _link_callback(LinkService* svc, const char* msg);
+void _link_callback(LinkService* svc, const char* msg) {
+  string myLine(msg);
+  size_t loc = myLine.find("\n");
+  if (loc == string::npos) {
+    myLine += "\n";
+  }
+  const char *logmsg = myLine.c_str();
+  fprintf(stdout, "%s", logmsg);
+  
+  svc->_statusMessage = myLine;
+};
+
 
 http_response _link_empty_response(status_code code = status_codes::OK);
 http_response _link_empty_response(status_code code) {
@@ -43,7 +56,9 @@ LinkService::LinkService(uri uri) : _listener(uri) {
   _listener.support(methods::POST, std::bind(&LinkService::_post,   this, std::placeholders::_1));
   _listener.support(methods::DEL,  std::bind(&LinkService::_delete, this, std::placeholders::_1));
   
-  _duplicator.setLoggingFunction([&](const char* msg){ this->_statusMessage = string(msg); });
+  TimeSeriesDuplicator::RTX_Duplicator_log_callback cb = std::bind(&_link_callback, this, std::placeholders::_1);
+  
+  _duplicator.setLoggingFunction(cb);
 }
 
 
@@ -70,6 +85,7 @@ void LinkService::_get(http_request message) {
   string entryPoint = paths[0];
   
   const map< string, function<void(http_request)> > res = {
+    {"ping",   std::bind(&LinkService::_get_ping,         this, std::placeholders::_1)},
     {"series", std::bind(&LinkService::_get_timeseries,   this, std::placeholders::_1)},
     {"run",    std::bind(&LinkService::_get_runState,     this, std::placeholders::_1)},
     {"source", std::bind(&LinkService::_get_source,       this, std::placeholders::_1)},
@@ -135,6 +151,11 @@ void LinkService::_delete(http_request message) {
 }
 
 
+#pragma mark - ping
+
+void LinkService::_get_ping(web::http::http_request message) {
+  message.reply(_link_empty_response(status_codes::NoContent));
+}
 
 #pragma mark - TS
 
@@ -159,6 +180,7 @@ void LinkService::_get_runState(web::http::http_request message) {
   if (_duplicator.isRunning()) {
     state.as_object()["run"] = JSV(true);
     state.as_object()["progress"] = JSV(_duplicator.pctCompleteFetch());
+    state.as_object()["message"] = JSV(_statusMessage);
   }
   else {
     state.as_object()["run"] = JSV(false);
@@ -239,9 +261,9 @@ void LinkService::_get_units(http_request message) {
 void LinkService::_get_options(http_request message) {
   JSV o = JSV::object();
   
-  o.as_object()["interval"] = JSV((int)_frequency);
-  o.as_object()["window"] = JSV((int)_window);
-  o.as_object()["backfill"] = JSV((int)_backfill);
+  o.as_object()["interval"] = JSV((int)(_frequency / 60)); // minutes
+  o.as_object()["window"] =   JSV((int)(_window / (60 * 60))); // hours
+  o.as_object()["backfill"] = JSV((int)(_backfill / (60 * 60 * 24))); // days
   
   _link_respond(message, o);
   
@@ -261,9 +283,9 @@ void LinkService::_get_config(http_request message) {
   config.as_object()["destination"] = SerializerJson::to_json(_destinationRecord);
   
   JSV opts = JSV::object();
-  opts.as_object()["interval"] = JSV((int)_frequency);
-  opts.as_object()["window"] =   JSV((int)_window);
-  opts.as_object()["backfill"] = JSV((int)_backfill);
+  opts.as_object()["interval"] = JSV((int)(_frequency / 60)); // minutes
+  opts.as_object()["window"] =   JSV((int)(_window / (60 * 60))); // hours
+  opts.as_object()["backfill"] = JSV((int)(_backfill / (60 * 60 * 24))); // days
   config.as_object()["fetch"] = opts;
   
   _link_respond(message, config);
@@ -326,9 +348,7 @@ http_response LinkService::_post_runState(JSV js) {
   
   if (o["run"].as_bool()) {
     // run
-    time_t win = o.find("window") == o.end() ? 3600 : o["window"].as_integer();
-    time_t freq = o.find("frequency") == o.end() ? 300 : o["frequency"].as_integer();
-    this->runDuplication(win,freq);
+    this->runDuplication(_window,_frequency,_backfill);
   }
   else {
     // stop
@@ -375,11 +395,15 @@ http_response LinkService::_post_destination(JSV js) {
     
     DbPointRecord::_sp dbRecord = dynamic_pointer_cast<DbPointRecord>(_destinationRecord);
     if (dbRecord) {
+      dbRecord->setReadonly(false);
       cout << "== " << dbRecord->name() << '\n';
       dbRecord->dbConnect();
       if (dbRecord->isConnected()) {
         cout << "== connection successful\n";
         r = _link_empty_response();
+        
+        _duplicator.setDestinationRecord(dbRecord);
+        
       }
       else {
         string err = dbRecord->errorMessage;
@@ -416,7 +440,7 @@ http_response LinkService::_post_options(JSV js) {
     json::object o = js.as_object();
     
     // quick anonymous function to handle setting key values by reference
-    function<bool (string,time_t*)> setParam = [&](string key, time_t* v) {
+    function<bool (string,int*)> setParam = [&](string key, int* v) {
       if (o.find(key) != o.end()) {
         *v = o[key].as_integer();
         return true;
@@ -425,11 +449,13 @@ http_response LinkService::_post_options(JSV js) {
       }
     };
     
+    int freqMinutes, windowHours, backfillDays;
+    
     // map the required keys to the time_t ivars
-    map<string,time_t*> defs = {
-      {"interval",&_frequency},
-      {"window",&_window},
-      {"backfill",&_backfill}
+    map<string,int*> defs = {
+      {"interval",&freqMinutes},
+      {"window",&windowHours},
+      {"backfill",&backfillDays}
     };
     
     // execute the setter function for each pair of key/value-ref definitions
@@ -445,6 +471,11 @@ http_response LinkService::_post_options(JSV js) {
       }
     }
     
+    _frequency = freqMinutes * 60;
+    _window = windowHours * 60 * 60;
+    _backfill = backfillDays * 60 * 60 * 24;
+    
+    
     r = _link_empty_response();
   }
   
@@ -454,11 +485,17 @@ http_response LinkService::_post_options(JSV js) {
 
 
 
-void LinkService::runDuplication(time_t win, time_t freq) {
+void LinkService::runDuplication(time_t win, time_t freq, time_t backfill) {
   if (_duplicator.isRunning()) {
     return;
   }
-  _duplicator.run(win, freq);
+  
+  if (backfill > 0) {
+    _duplicator.catchUpAndRun(win, freq, backfill);
+  }
+  else {
+    _duplicator.run(win, freq);
+  }
 }
 
 void LinkService::stopDuplication() {
