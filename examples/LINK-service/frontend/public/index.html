@@ -14,15 +14,21 @@
 	<style>
         html {
 			overflow-y:scroll;
+			height: 100%;
 		}
         body {
 			padding-top:30px;
+			height: 100%
 		}
 		[ng-click] {
 			cursor: pointer
 		}
 		.container {
-			padding: 0px 55px;
+			padding: 0 55px;
+		}
+		.fillPage {
+			min-height: 95%;
+			height: 95%;
 		}
     </style>
 
@@ -32,7 +38,7 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-route.js"></script>
 
-	<div class="container">
+	<div class="container fillPage">
   		<!-- HEADER -->
   		<div class="header clearfix" ng-controller="HeaderController">
         	<nav>
@@ -45,10 +51,13 @@
         <!-- /HEADER -->
 
 		<!-- alerts, info -->
-		<div class="alert alert-warning" role="alert" ng-if="infoMessage.length > 0">{{infoMessage}}</div>
-		<div class="alert alert-danger" role="alert" ng-if="errorMessage.length > 0">{{errorMessage}}</div>
+		<div id="alerts" style="position: fixed; top:12px; left:12px;">
+			<div class="alert alert-warning" role="alert" ng-if="infoMessage.length > 0">{{infoMessage}}</div>
+			<div class="alert alert-danger" role="alert" ng-if="errorMessage.length > 0">{{errorMessage}}</div>
+		</div>
 
-		<div ng-view>
+
+		<div ng-view class="fillPage">
 			<!-- Route provider controller content -->
 		</div>
 

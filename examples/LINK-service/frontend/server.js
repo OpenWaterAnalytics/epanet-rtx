@@ -66,9 +66,9 @@ app.post('/send_dashboards', function (clientReq, clientRes) {
         json: clientReq.body.data
     }, function (error, response, body) {
         if(response.statusCode == 200){
-            clientRes.status(200).json({message:"Dashboards Created."})
+            clientRes.status(200).json({message:"Dashboard Created."})
         } else {
-            clientRes.status(500).json({message:"Failed to Create Dashboards. " + body.message})
+            clientRes.status(500).json({message:"Failed to Create Dashboard. " + body.message})
         }
     });
 });
@@ -77,4 +77,38 @@ app.post('/send_dashboards', function (clientReq, clientRes) {
 // listen (start app with node server.js) ======================================
 app.listen(8585);
 console.log("App listening on port 8585");
+
+
+var linkServer;
+var launchLink = function () {
+    // start up LINK service
+    var linkExeName = 'link-server';
+    var opts = [];
+    var linkExePath = path.join('bin',process.platform,linkExeName);
+    const child_process = require('child_process');
+
+    linkServer = child_process.spawn(linkExePath, opts);
+
+    linkServer.stdout.on('data', function (data) {
+        console.log('stdout: ' + data);
+    });
+
+    linkServer.stderr.on('data', function (data) {
+        console.log('stderr: ' + data);
+    });
+
+    linkServer.on('close', function (code) {
+        console.log('child process exited with code ' + code);
+    });
+
+    linkServer.on('error', function (err) {
+        console.log('could not launch LINK: ' + err);
+    });
+
+};
+
+
+
+launchLink();
+
 

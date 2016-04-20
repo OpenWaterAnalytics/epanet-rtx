@@ -12,16 +12,16 @@
             {{ status }}
         </div>
     </div>
-    <div class="progress" ng-if="run">
-        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 45%">
+    <div class="progress" ng-if="runInfo.run">
+        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="{{runInfo.progress * 100}}" aria-valuemin="0" aria-valuemax="100" style="width: {{runInfo.progress * 100}}%">
             <span class="sr-only"></span>
         </div>
     </div>
     <hr>
         <div>
             <button type="submit" class="btn btn-primary" ng-click="refreshStatus()">Refresh</button>
-            <button type="submit" class="btn btn-success" ng-click="setRun(true)" ng-if="!run">Run</button>
-            <button type="submit" class="btn btn-danger" ng-click="setRun(false)" ng-if="run">Pause</button>
+            <button type="submit" class="btn btn-success" ng-click="setRun(true)" ng-if="!runInfo.run">Run</button>
+            <button type="submit" class="btn btn-danger" ng-click="setRun(false)" ng-if="runInfo.run">Pause</button>
         </div>
     </div>
 

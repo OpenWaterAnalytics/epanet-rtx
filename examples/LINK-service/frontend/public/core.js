@@ -13,12 +13,12 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         .hashPrefix('');
 }])
 
-.run(function ($rootScope, $timeout, $http) {
+.run(function ($rootScope, $timeout, $http, $interval) {
 
     $rootScope.config = {
         source:      {},
         destination: {},
-        fetch:       {},
+        fetch:       { window:12, interval:5, backfill:30},
         series:      [],
         dash:        { proto:'http' }
     };
@@ -49,7 +49,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                 key: 'range',
                 text: 'Data lookup query',
                 placeholder: 'SELECT date, value, quality FROM tbl WHERE tagname = ? AND date >= ? AND date <= ? ORDER BY date ASC',
-                inputType: 'text-line'
+                inputType: 'text-area'
             }
         ],
         'sqlite': [
@@ -118,13 +118,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
             $rootScope.showInfo('Connection OK');
             typeof callback == "function" && callback();
         }, function (response) {
-            var errStr = "";
-            if (response.data) {
-                errStr = response.data['error'];
-            } else {
-                errStr = 'LINK Service Not Responding';
-            }
-            $rootScope.showError('Error Connecting: ' + errStr);
+            $rootScope.notifyHttpError(response);
         });
     };
 
@@ -140,7 +134,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                 errStr = "Unknown Error";
             }
         } else {
-            errStr = 'LINK Service Not Responding';
+            errStr = 'LINK Service Offline or Unavailable.';
         }
         $rootScope.showError('Error Connecting: ' + errStr);
     }
@@ -217,11 +211,20 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
     };
 
 
-
-
+    $rootScope.ping = function() {
+        $http.get('http://localhost:3131/ping')
+            .then(function (response) {
+                // this is fine
+            }, function (response) {
+                $rootScope.notifyHttpError(response);
+            });
+    };
 
 
     // ON LOAD
+
+    var pingInterval = $interval($rootScope.ping, 1000);
+    $rootScope.$on('$destroy', function () { $interval.cancel(pingInterval); });
     $rootScope.initializeConfig();
     
 })
@@ -267,6 +270,10 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         .when('/run', {
             templateUrl: 'templates/run.part.html',
             controller: 'RunController'
+        })
+        .when('/dashboard', {
+            templateUrl: 'templates/dash.part.html',
+            controller: 'DashController'
         })
         .otherwise({
             redirectTo: '/main'
@@ -314,10 +321,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         }).then(function (response) {
             $location.path('/destination');
         }, function (response) {
-            var errStr = response.data
-                ? response.data['error']
-                : 'LINK Service Not Responding';
-            $rootScope.showError('Error Saving Options: ' + errStr);
+            $rootScope.notifyHttpError(response);
         });
     };
 
@@ -327,7 +331,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
             .then(function (response) {
                 $scope.availableUnits = response.data;
             }, function (response) {
-                // failed
+                $scope.availableUnits = ["error: server offline","check connection"];
             });
     };
 
@@ -479,7 +483,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
             var newRow = JSON.parse(JSON.stringify(rowTemplate));
 
             newRow.panels[0].leftYAxisLabel = series.units.unitString;
-            newRow.panels[0].targets[0].query = 'select mean(value) from ' + series.name;
+            newRow.panels[0].targets[0].query = 'select mean(value) from "' + series.name + '" WHERE $timeFilter GROUP BY time($interval) fill(null)';
             newRow.panels[0].targets[0].alias = '$m';
             newRow.panels[0].title = series.name;
             newRow.title = series.name;
@@ -541,27 +545,57 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
 /**************************/
 .controller('RunController', function RunController($rootScope, $scope, $http, $location, $interval) {
     $scope.status = 'Checking...';
-    $scope.run = false;
+    
+    $scope.runInfo = { 
+          run:false,
+          progress:0,
+          message:''
+        };
+    
+    
+    $scope.runCmdText = 'Run';
 
     $scope.setRun = function (shouldRun) {
         $scope.run = shouldRun;
+        
+		// send run command to LINK
+		$http({
+            method: 'POST',
+            url: 'http://localhost:3131/run',
+            headers: { 'Content-Type': undefined },
+            data: {run:shouldRun}
+        }).then(function (response) {
+            //$rootScope.showInfo('Sent Run Command');
+        }, function (response) {
+            $rootScope.showInfo('');
+            $rootScope.notifyHttpError(response);
+        });
+        
     };
 
     $scope.refreshStatus = function() {
         $scope.status = "Checking...";
-        $http.get('http://localhost:3131/run')
-            .then(function(response) {
-                $scope.status = response.data.run ? 'Running' : 'Idle';
-            }, function(response) {
-                console.log('Error: ' + response);
-                $scope.status = "Error communicating with RTX Service.";
-            });
+        $rootScope.getFormData($scope,'run',function(data) {
+            $scope.runInfo = data;
+            $scope.status = data.run ? 'Running: ' + data.message : 'Idle';
+        });
     };
 
     $scope.refreshStatus();
-    var refreshInterval = $interval($scope.refreshStatus, 5000);
+    var refreshInterval = $interval($scope.refreshStatus, 1000);
     $scope.$on('$destroy', function () { $interval.cancel(refreshInterval); });
 })
+
+.controller('DashController', function DashController($rootScope, $scope, $http, $location, $interval, $sce) {
+
+    $scope.frameSrc = $rootScope.config.dash.proto + '://' + $rootScope.config.dash.url;
+
+    $scope.trustSrc = function(src) {
+        return $sce.trustAsResourceUrl(src);
+    };
+
+})
+
 
 .controller('AboutController', function AboutController($scope, $http) {
     $scope.author = 'OWA';

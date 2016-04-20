@@ -69,7 +69,7 @@
           ]
         }
       ],
-      "showTitle": true,
+      "showTitle": false,
       "title": "#@#@#@ROWTITLE#@#@#@"
     }
 	
