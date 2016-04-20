@@ -27,6 +27,9 @@
                             <option ng-repeat="driver in drivers" value={{driver}}>{{driver}}</option>
                         </select>
                     </td>
+                    <td ng-switch-when="text-area">
+                        <textarea class="form-control" rows="3" placeholder="{{dict.placeholder}}" ng-model="config.source[dict.key]"></textarea>
+                    </td>
                 </tr>
             </tbody>
         </table>
