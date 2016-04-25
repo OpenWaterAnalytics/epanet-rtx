@@ -73,7 +73,7 @@ pplx::task<void> LinkService::close() {
 
 void LinkService::_get(http_request message) {
   
-  cout << "GET: " << message.relative_uri().to_string() << endl;
+  //cout << "GET: " << message.relative_uri().to_string() << endl;
   
   auto paths = http::uri::split_path(http::uri::decode(message.relative_uri().path()));
   

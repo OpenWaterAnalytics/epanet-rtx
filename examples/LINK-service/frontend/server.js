@@ -12,8 +12,8 @@ var os = require('os');
 // configuration =================
 
 app.use(express.static(__dirname + '/public'));                 // set the static files location /public/img will be /img for users
-app.use(bodyParser.urlencoded({'extended':'true'}));            // parse application/x-www-form-urlencoded
 app.use(bodyParser.json());                                     // parse application/json
+app.use(bodyParser.urlencoded({'extended':'true'}));            // parse application/x-www-form-urlencoded
 app.use(methodOverride());
 
 
@@ -72,6 +72,53 @@ app.post('/send_dashboards', function (clientReq, clientRes) {
         }
     });
 });
+
+
+var link_server_host = 'http://localhost:3131';
+
+app.route('/link-relay/:linkPath/:subPath?')
+    .all(function (req, res, next) {
+        console.log("LINK ENDPOINT: " + req.method + " " + req.params.linkPath);
+        console.log(' >> BODY:: ' + JSON.stringify(req.body));
+        next();
+    })
+    .get(function (req, res, next) {
+        var url = link_server_host + '/' + req.params.linkPath;
+        if (req.params.subPath) { // re-assemble the subpath, if it exists.
+            url = url.concat('/' + req.params.subPath);
+        }
+        request({
+            method: 'GET',
+            url: url
+        }, function (error, response, body) {
+            if (error) {
+                console.log("ERROR:: ");
+                console.log(error);
+                res.status(500);
+            }
+            else {
+                console.log(" << got response code " + response.statusCode);
+                res.status(response.statusCode).send(body);
+            }
+        });
+    })
+    .post(function (req, res, next) {
+        request({
+            method: 'POST',
+            url: link_server_host + '/' + req.params.linkPath,
+            json: req.body
+        }, function (error, response, body) {
+            if (error) {
+                console.log("ERROR:: ");
+                console.log(error);
+                res.status(500);
+            }
+            else {
+                console.log(" << got response code " + response.statusCode);
+                res.status(response.statusCode).send(body);
+            }
+        });
+    });
 
 
 // listen (start app with node server.js) ======================================
