@@ -285,7 +285,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         });
 }])
 
-.controller('OdbcDriverSelectController', function OdbcDriverSelectController($scope, $http) {
+.controller('OdbcDriverSelectController', function OdbcDriverSelectController($rootScope, $scope, $http) {
     $scope.drivers = ["getting driver list..."];
     $rootScope.relayGet('odbc', function (data) {
         $scope.drivers = response.data;

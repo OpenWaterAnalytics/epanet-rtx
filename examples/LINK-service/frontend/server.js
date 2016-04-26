@@ -78,40 +78,25 @@ var link_server_host = 'http://localhost:3131';
 
 app.route('/link-relay/:linkPath/:subPath?')
     .all(function (req, res, next) {
-        console.log("LINK ENDPOINT: " + req.method + " " + req.params.linkPath);
-        console.log(' >> BODY:: ' + JSON.stringify(req.body));
-        next();
-    })
-    .get(function (req, res, next) {
+        var method = req.method;
         var url = link_server_host + '/' + req.params.linkPath;
         if (req.params.subPath) { // re-assemble the subpath, if it exists.
             url = url.concat('/' + req.params.subPath);
         }
-        request({
-            method: 'GET',
+        console.log(' >> ' + method + ' : ' + url);
+        var opts = {
+            method: method,
             url: url
-        }, function (error, response, body) {
+        };
+        if (method == "POST") {
+            opts.json = req.body;
+        }
+        
+        request(opts, function(error, response, body) {
             if (error) {
                 console.log("ERROR:: ");
                 console.log(error);
-                res.status(500);
-            }
-            else {
-                console.log(" << got response code " + response.statusCode);
-                res.status(response.statusCode).send(body);
-            }
-        });
-    })
-    .post(function (req, res, next) {
-        request({
-            method: 'POST',
-            url: link_server_host + '/' + req.params.linkPath,
-            json: req.body
-        }, function (error, response, body) {
-            if (error) {
-                console.log("ERROR:: ");
-                console.log(error);
-                res.status(500);
+                res.status(500).json({error: error.code});
             }
             else {
                 console.log(" << got response code " + response.statusCode);
@@ -119,6 +104,7 @@ app.route('/link-relay/:linkPath/:subPath?')
             }
         });
     });
+    
 
 
 // listen (start app with node server.js) ======================================
