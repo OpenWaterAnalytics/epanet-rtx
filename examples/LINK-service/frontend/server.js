@@ -79,6 +79,11 @@ var link_server_host = 'http://localhost:3131';
 app.route('/link-relay/:linkPath/:subPath?')
     .all(function (req, res, next) {
         var method = req.method;
+        if (!(method == 'POST' || method == 'GET')) {
+            // only support get and post
+            next();
+            return;
+        }
         var url = link_server_host + '/' + req.params.linkPath;
         if (req.params.subPath) { // re-assemble the subpath, if it exists.
             url = url.concat('/' + req.params.subPath);
@@ -94,9 +99,9 @@ app.route('/link-relay/:linkPath/:subPath?')
         
         request(opts, function(error, response, body) {
             if (error) {
-                console.log("ERROR:: ");
+                console.log("RTX-LINK Error :: ");
                 console.log(error);
-                res.status(500).json({error: error.code});
+                res.status(500).json({error: "RTX-LINK Error :: " + error.message});
             }
             else {
                 console.log(" << got response code " + response.statusCode);

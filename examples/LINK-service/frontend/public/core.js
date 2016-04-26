@@ -117,9 +117,9 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                 errStr = "Unknown Error";
             }
         } else {
-            errStr = 'LINK Service Offline or Unavailable.';
+            errStr = 'Error: NODE service offline or unreachable.';
         }
-        $rootScope.showError('Error Connecting: ' + errStr);
+        $rootScope.showError(errStr);
     };
 
     $rootScope.saveConfig = function () {

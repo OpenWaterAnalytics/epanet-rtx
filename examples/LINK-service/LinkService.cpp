@@ -109,16 +109,8 @@ void LinkService::_put(http_request message) {
 }
 
 void LinkService::_post(http_request message) {
-  
   cout << message.to_string() << endl;
-  
-  // posted content will be of content-type: undefined because of CORS,
-  // so it won't be recognized as json. we have to get the string content
-  // and parse into json manually.
-  // not this -> string content = message.extract_json.get();
-  string content = message.extract_string().get();
-  JSV js = JSV::parse(content);
-  cout << "POST -> content: " << js.serialize() << endl;
+  JSV js = message.extract_json().get();
   
   const map< string, std::function<http_response(JSV)> > responders = {
     {"series",      bind(&LinkService::_post_timeseries, this, placeholders::_1)},
