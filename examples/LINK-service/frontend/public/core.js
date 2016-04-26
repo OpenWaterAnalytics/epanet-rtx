@@ -1,13 +1,6 @@
 // public/core.js
 var rtxLink = angular.module('rtxLink', ['ngRoute'])
 
-.config(['$httpProvider', function($httpProvider) {
-    $httpProvider.defaults.useXDomain = true;
-    delete $httpProvider.defaults.headers.common['X-Requested-With'];
-}
-])
-
-
 .run(function ($rootScope, $timeout, $http, $interval) {
 
     $rootScope.config = {
@@ -360,10 +353,6 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
             });
     };
 
-    $scope.save = function () {
-        console.log("form data: " + $rootScope.config.source);
-    };
-
     $scope.removeSeries = function (selected) {
         $scope.sourceSeries = $scope.sourceSeries.filter(function (v) {
             return v._link_selected != selected;
@@ -382,17 +371,16 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                     dupeNames.push(series['name']);
                 });
                 angular.forEach($scope.sourceSeries, function (series) {
-                    var thisName = series['name'];
-                    if (-1 !== dupeNames.indexOf(thisName)) {
-                        series['_link_selected'] = true;
+                    if (-1 !== dupeNames.indexOf(series.name)) {
+                        series._link_selected = true;
                     }
                     else {
-                        series['_link_selected'] = false;
+                        series._link_selected = false;
                     }
                 });
-                }, function (response) {
+            }, function (response) {
 
-                });
+            });
     };
 
     // ON LOAD
