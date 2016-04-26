@@ -265,6 +265,7 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
       json::array singleStrArr = valuesIt->as_array();
       json::value strVal = singleStrArr[0];
       string dbId = strVal.as_string();
+      boost::replace_all(dbId, "\\ ", " ");
       MetricInfo m = this->metricInfoFromName(dbId);
       // now we have all kv pairs that define a time series.
       // do we have units info? strip it off before showing the user.
