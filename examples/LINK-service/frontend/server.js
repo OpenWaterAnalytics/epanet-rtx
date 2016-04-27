@@ -105,6 +105,7 @@ app.route('/link-relay/:linkPath/:subPath?')
             }
             else {
                 console.log(" << got response code " + response.statusCode);
+                console.log(body);
                 res.status(response.statusCode).send(body);
             }
         });

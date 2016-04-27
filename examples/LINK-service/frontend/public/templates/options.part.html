@@ -1,6 +1,7 @@
 
 <div class="alert alert-info" role="alert">
     Set Timeseries Replication parameters, and any Backfill options.
+    <a class="pull-right" ng-click="saveAndNext()">Save <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
 </div>
 
 <!-- SERIES SELECT -->
@@ -65,12 +66,9 @@
                 </tr>
                 </tbody>
             </table>
+            <button type="submit" class="btn btn-default" ng-click="sendGrafana()">Create Dashboards</button>
         </div>
     </div>
     <hr>
-    <div>
-        <button type="submit" class="btn btn-default" ng-click="sendGrafana()">Create Dashboards</button>
-        <button type="submit" class="btn btn-default" ng-click="saveAndNext()">Save Options</button>
-    </div>
 </div>
 

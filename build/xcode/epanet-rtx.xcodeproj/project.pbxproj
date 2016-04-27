@@ -6,6 +6,21 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		2243905F1CCFF67A0059700F /* LINK_NODE_SERVER */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 224390691CCFF67A0059700F /* Build configuration list for PBXAggregateTarget "LINK_NODE_SERVER" */;
+			buildPhases = (
+				2243906C1CCFF68E0059700F /* ShellScript */,
+			);
+			dependencies = (
+				2243906B1CCFF6820059700F /* PBXTargetDependency */,
+			);
+			name = LINK_NODE_SERVER;
+			productName = LINK_NODE_SERVER;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		2200ED191C7797F3009A6C5F /* libepanet-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 228CD55F1C0F5E4E00C67802 /* libepanet-static.a */; };
 		220324CB18AC05A800BD7790 /* FailoverTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220324C918AC05A800BD7790 /* FailoverTimeSeries.cpp */; };
@@ -503,6 +518,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 228A76F918450CBD00905D8E;
 			remoteInfo = "epanet-rtx-project";
+		};
+		2243906A1CCFF6820059700F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 228137C81CA2F1FE00AD81F3;
+			remoteInfo = "LINK-service";
 		};
 		224A92641A8BABC900D8FBE2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2060,6 +2082,9 @@
 					223947E61AF3B27000C8AE4F = {
 						CreatedOnToolsVersion = 6.2;
 					};
+					2243905F1CCFF67A0059700F = {
+						CreatedOnToolsVersion = 7.3;
+					};
 					228137C81CA2F1FE00AD81F3 = {
 						CreatedOnToolsVersion = 7.2.1;
 					};
@@ -2108,6 +2133,7 @@
 				223947E61AF3B27000C8AE4F /* model exporter */,
 				220D42DC1BEFFF9000C9AB36 /* RTX_DuperDaemon */,
 				228137C81CA2F1FE00AD81F3 /* LINK-service */,
+				2243905F1CCFF67A0059700F /* LINK_NODE_SERVER */,
 			);
 		};
 /* End PBXProject section */
@@ -2177,6 +2203,22 @@
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		2243906C1CCFF68E0059700F /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd \"$PROJECT_DIR\"\ncd ../../examples/LINK-service/frontend\nnode server.js";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		220D42D91BEFFF9000C9AB36 /* Sources */ = {
@@ -2530,6 +2572,11 @@
 			target = 228A76F918450CBD00905D8E /* epanet-rtx-project */;
 			targetProxy = 223947F51AF3B44300C8AE4F /* PBXContainerItemProxy */;
 		};
+		2243906B1CCFF6820059700F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 228137C81CA2F1FE00AD81F3 /* LINK-service */;
+			targetProxy = 2243906A1CCFF6820059700F /* PBXContainerItemProxy */;
+		};
 		224A92651A8BABC900D8FBE2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 22C62ABF1439ED6300841E60 /* epanet-rtx */;
@@ -2855,6 +2902,20 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		224390601CCFF67A0059700F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		224390611CCFF67A0059700F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -3612,6 +3673,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		224390691CCFF67A0059700F /* Build configuration list for PBXAggregateTarget "LINK_NODE_SERVER" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				224390601CCFF67A0059700F /* Debug */,
+				224390611CCFF67A0059700F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 		228137D51CA2F1FE00AD81F3 /* Build configuration list for PBXNativeTarget "LINK-service" */ = {
 			isa = XCConfigurationList;

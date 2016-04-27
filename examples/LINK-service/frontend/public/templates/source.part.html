@@ -6,23 +6,29 @@
 
 <!-- SOURCE SELECT -->
 <div id="series-select">
-    <div class="form-group">
+    <div class="form-group pull-left">
         <ul class="nav nav-pills">
             <li role="presentation"  ng-repeat="(type,plist) in sourceTypes" ng-class="{ active: isType(type) }" ng-click="setSourceType(type)">
                 <a>{{rtxTypes[type]}}</a>
             </li>
         </ul>
     </div>
+
+    <!-- any sub-options for the list of properties? -->
+    <div class="btn-group pull-right" role="group" aria-label="sub-options" ng-if="sourceTypes[config.source._class].subOptions">
+        <button type="button" class="btn btn-default" ng-repeat="this_option in sourceTypes[config.source._class].subOptions" ng-class="{ active: isSubOption(this_option)}" ng-click="setSubOption(this_option)">{{this_option}}</button>
+    </div>
+
     <form role="form" class='form-horizontal'>
 
         <table class="table">
             <tbody>
-                <tr ng-repeat="dict in sourceTypes[config.source._class]" ng-switch on="dict.inputType">
+                <tr ng-repeat="dict in sourceTypes[config.source._class].inputRows" ng-switch on="dict.inputType" ng-if="!dict.visible_when || isSubOption(dict.visible_when)">
                     <th scope="row">{{dict.text}}</th>
-                    <td ng-switch-when="text-line" text-line>
-                        <input type="text" class="form-control" placeholder="{{dict.placeholder}}" ng-model="config.source[dict.key]">
+                    <td ng-switch-when="text-line">
+                        <input type="text" class="form-control" placeholder="{{dict.placeholder}}" ng-model="config.source[dict.key]" ng-change="refreshAdvanced(dict.visible_when)">
                     </td>
-                    <td ng-switch-when="select-line" select-line>
+                    <td ng-switch-when="select-line">
                         <select class="form-control" aria-describedby="basic-addon3" ng-controller="OdbcDriverSelectController" ng-model="config.source[dict.key]">
                             <option ng-repeat="driver in drivers" value={{driver}}>{{driver}}</option>
                         </select>
