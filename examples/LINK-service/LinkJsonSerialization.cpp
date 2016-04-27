@@ -211,11 +211,11 @@ void DeserializerJson::visit(InfluxDbPointRecord &pr) {
 void DeserializerJson::visit(OdbcDirectPointRecord &pr) {
   this->visit((DbPointRecord&)pr);
   web::json::object o = _v.as_object();
-  pr.connection.driver = o["driver"].as_string();
-  pr.querySyntax.metaSelect = o["meta"].as_string();
-  pr.querySyntax.rangeSelect = o["range"].as_string();
+  pr.connection.driver = o.at("driver").as_string();
+  pr.querySyntax.metaSelect = o.at("meta").as_string();
+  pr.querySyntax.rangeSelect = o.at("range").as_string();
   
-  string thisTF = o["zone"].as_string();
+  string thisTF = o.at("zone").as_string();
   map<string, PointRecordTime::time_format_t> tf = _odbc_zone_strings();
   if (tf.count(thisTF)) {
     pr.setTimeFormat(tf[thisTF]);

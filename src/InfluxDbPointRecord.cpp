@@ -654,7 +654,7 @@ const string InfluxDbPointRecord::insertionLineFromPoints(const string& tsName, 
     if (i > 0) {
       ss << '\n';
     }
-    string valueStr = to_string(p.value); // influxdb 0.10 supports integers, but only when followed by trailing "i"
+    string valueStr = to_string(p.value); // influxdb 0.10+ supports integers, but only when followed by trailing "i"
     ss << tsNameEscaped << " value=" << valueStr << "," << "quality=" << (int)p.quality << "i," << "confidence=" << p.confidence << " " << p.time;
     ++i;
   }

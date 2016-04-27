@@ -355,16 +355,21 @@ http_response LinkService::_post_source(JSV js) {
   cout << "================================\n";
   cout << "== SETTING DUPLICATION SOURCE\n";
   
-  RTX_object::_sp o = DeserializerJson::from_json(js);
-  
-  if (!o) {
-    cout << "== JSON not recognized\n";
-    r = _link_error_response(status_codes::BadRequest, "JSON not recognized");
+  try {
+    RTX_object::_sp o = DeserializerJson::from_json(js);
+    if (!o) {
+      cout << "== JSON not recognized\n";
+      r = _link_error_response(status_codes::BadRequest, "JSON not recognized");
+    }
+    else {
+      _sourceRecord = static_pointer_cast<PointRecord>(o);
+      cout << "== " << _sourceRecord->name() << '\n';
+      r = _link_empty_response();
+    }
   }
-  else {
-    _sourceRecord = static_pointer_cast<PointRecord>(o);
-    cout << "== " << _sourceRecord->name() << '\n';
-    r = _link_empty_response();
+  catch (const web::json::json_exception &e) {
+    cerr << e.what() << endl;
+    r = _link_error_response(status_codes::NotAcceptable, "Invalid JSON Definition: " + string(e.what()));
   }
   
   cout << "================================" << endl;
@@ -398,7 +403,7 @@ http_response LinkService::_post_destination(JSV js) {
         
       }
       else {
-        string err = dbRecord->errorMessage;
+        string err = "Destination Record: " + dbRecord->errorMessage;
         cout << "== err: " << err << '\n';
         r = _link_error_response(status_codes::NotAcceptable, err);
       }
