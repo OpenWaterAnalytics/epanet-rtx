@@ -159,16 +159,6 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
             }, 5000);
         };
 
-        $rootScope.connectRecord = function (data, endpoint, callback) {
-            $rootScope.relayPost(endpoint, data,
-                function(response) {
-                    $rootScope.showInfo('Connection OK');
-                    typeof callback == "function" && callback();
-                }, function (response) {
-                    $rootScope.notifyHttpError(response);
-                });
-        };
-
         $rootScope.notifyHttpError = function (response) {
             if (response.data) {
                 console.log("got back form server:");
@@ -404,8 +394,12 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         };
 
         $scope.connect = function () {
-            $rootScope.connectRecord($rootScope.config.source, 'source', function () {
-                $scope.refreshSeriesList();
+            $rootScope.relayPost('source', $scope.config.source,
+                function (response) {
+                    $rootScope.showInfo("Connection OK");
+                    $scope.refreshSeriesList();
+            }, function (errResponse) {
+                    $rootScope.notifyHttpError(errResponse);
             });
         };
 
@@ -508,10 +502,12 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
 
         $scope.connect = function (callback) {
             $rootScope.config.destination._class = 'influx';
-            $rootScope.connectRecord($rootScope.config.destination, 'destination', function () {
-                console.log('success');
-                typeof callback == "function" && callback();
-            });
+            $rootScope.relayPost('destination', $rootScope.config.destination,
+                function (response) {
+                    typeof callback == "function" && callback();
+                }, function (errResponse) {
+                    $rootScope.notifyHttpError(errResponse);
+                });
         };
 
         // ON LOAD
