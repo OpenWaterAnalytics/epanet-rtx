@@ -338,6 +338,10 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         $scope.drivers = ["getting driver list..."];
         $rootScope.relayGet('odbc', function (response) {
             $scope.drivers = response.data;
+            if ($scope.drivers.length == 0) {
+                $scope.drivers = ["No Drivers Installed. Please install an ODBC Driver."];
+                $scope.config.source.driver = $scope.drivers[0];
+            }
         }, function (response) {
             $scope.drivers = ["failed to get driver list"];
         });

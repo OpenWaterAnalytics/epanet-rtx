@@ -313,7 +313,14 @@ http_response LinkService::_post_timeseries(JSV js) {
   cout << "== SETTING TIMESERIES\n";
   
   if (js.is_array()) {
-    vector<RTX_object::_sp> oList = DeserializerJson::from_json_array(js);
+    vector<RTX_object::_sp> oList;
+    try {
+      oList = DeserializerJson::from_json_array(js);
+    }
+    catch (const web::json::json_exception &e) {
+      cerr << e.what() << endl;
+      return _link_error_response(status_codes::NotAcceptable, "Invalid: " + string(e.what()));
+    }
     list<TimeSeries::_sp> tsList;
     for (auto o : oList) {
       TimeSeries::_sp ts = static_pointer_cast<TimeSeries>(o);
@@ -369,7 +376,7 @@ http_response LinkService::_post_source(JSV js) {
   }
   catch (const web::json::json_exception &e) {
     cerr << e.what() << endl;
-    r = _link_error_response(status_codes::NotAcceptable, "Invalid JSON Definition: " + string(e.what()));
+    r = _link_error_response(status_codes::NotAcceptable, "Invalid: " + string(e.what()));
   }
   
   cout << "================================" << endl;
@@ -382,38 +389,47 @@ http_response LinkService::_post_destination(JSV js) {
   cout << "=====================================\n";
   cout << "== SETTING DUPLICATION DESTINATION\n";
   
-  RTX_object::_sp d = DeserializerJson::from_json(js);
+  RTX_object::_sp d;
+  
+  try {
+    d = DeserializerJson::from_json(js);
+  }
+  catch (const web::json::json_exception &e) {
+    cerr << e.what() << endl;
+    r = _link_error_response(status_codes::NotAcceptable, "Invalid: " + string(e.what()));
+    return r;
+  }
+  
   if (!d) {
     cout << "== ERROR: JSON not recognized\n==\n";
     r = _link_error_response(status_codes::BadRequest, "JSON not recognized");
+    return r;
   }
-  else {
-    _destinationRecord = static_pointer_cast<PointRecord>(d);
-    
-    DbPointRecord::_sp dbRecord = dynamic_pointer_cast<DbPointRecord>(_destinationRecord);
-    if (dbRecord) {
-      dbRecord->setReadonly(false);
-      cout << "== " << dbRecord->name() << '\n';
-      dbRecord->dbConnect();
-      if (dbRecord->isConnected()) {
-        cout << "== connection successful\n";
-        r = _link_empty_response();
-        
-        _duplicator.setDestinationRecord(dbRecord);
-        
-      }
-      else {
-        string err = "Destination Record: " + dbRecord->errorMessage;
-        cout << "== err: " << err << '\n';
-        r = _link_error_response(status_codes::NotAcceptable, err);
-      }
+  
+  _destinationRecord = static_pointer_cast<PointRecord>(d);
+  
+  DbPointRecord::_sp dbRecord = dynamic_pointer_cast<DbPointRecord>(_destinationRecord);
+  if (dbRecord) {
+    dbRecord->setReadonly(false);
+    cout << "== " << dbRecord->name() << '\n';
+    dbRecord->dbConnect();
+    if (dbRecord->isConnected()) {
+      cout << "== connection successful\n";
+      r = _link_empty_response();
+      _duplicator.setDestinationRecord(dbRecord);
     }
     else {
-      // failed cast to dbpointrecord
-      cout << "== not a database\n";
-      r = _link_empty_response();
+      string err = "Destination Record: " + dbRecord->errorMessage;
+      cout << "== err: " << err << '\n';
+      r = _link_error_response(status_codes::NotAcceptable, err);
     }
   }
+  else {
+    // failed cast to dbpointrecord
+    cout << "== not a database\n";
+    r = _link_empty_response();
+  }
+  
   cout << "=====================================" << endl;
   return r;
 }

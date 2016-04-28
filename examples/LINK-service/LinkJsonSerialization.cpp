@@ -6,6 +6,22 @@ using namespace std;
 
 static string _c("_class");
 
+void _checkKey(web::json::value v, string key);
+void _checkKeys(web::json::value v, vector<string> keys);
+
+void _checkKeys(web::json::value v, vector<string> keys) {
+  for(auto key : keys) {
+    _checkKey(v, key);  // throws if not found
+  }
+}
+void _checkKey(web::json::value v, string key) {
+  auto found = v.as_object().find(key); // throws if not found
+  if (found == v.as_object().end()) {
+    string err = "Key not found: " + key;
+    throw web::json::json_exception(_XPLATSTR(err.c_str()));
+  }
+}
+
 map<string, PointRecordTime::time_format_t> _odbc_zone_strings();
 map<string, PointRecordTime::time_format_t> _odbc_zone_strings() {
   return {{"local",PointRecordTime::LOCAL},{"utc",PointRecordTime::UTC}};
@@ -143,7 +159,7 @@ RTX_object::_sp DeserializerJson::from_json(JSV json) {
         return obj;
       }
       else {
-        throw bad_cast();
+        throw web::json::json_exception(_XPLATSTR("Object type not recognized"));
       }
     }
   }
@@ -163,6 +179,7 @@ vector<RTX_object::_sp> DeserializerJson::from_json_array(JSV json) {
 
 /******* TIMESERIES *******/
 void DeserializerJson::visit(TimeSeries& ts) {
+  _checkKeys(_v, {"units","name"});  // throws if not found
   JSV jsU = _v.as_object()["units"];
   Units::_sp u = static_pointer_cast<Units>(from_json(jsU));
   ts.setUnits(*u.get());
@@ -170,17 +187,20 @@ void DeserializerJson::visit(TimeSeries& ts) {
 };
 void DeserializerJson::visit(TimeSeriesFilter& ts) {
   this->visit((TimeSeries&)ts);
+  _checkKeys(_v, {"clock"});  // throws if not found
   JSV jsC = _v.as_object()["clock"];
   Clock::_sp c = static_pointer_cast<Clock>(from_json(jsC));
   ts.setClock(c);
 };
 /******* UNITS *******/
 void DeserializerJson::visit(Units &u) {
+  _checkKey(_v, "unitString");   // throws if not found
   string uStr = _v.as_object()["unitString"].as_string();
   u = Units::unitOfType(uStr);
 };
 /******* CLOCK *******/
 void DeserializerJson::visit(Clock &c) {
+  _checkKeys(_v, {"period","offset"});  // throws if not found
   int p = _v.as_object()["period"].as_integer();
   int o = _v.as_object()["offset"].as_integer();
   c.setPeriod(p);
@@ -189,10 +209,12 @@ void DeserializerJson::visit(Clock &c) {
 
 /******* POINTRECORD *******/
 void DeserializerJson::visit(PointRecord& pr) {
-  pr.setName(_v.as_object()["name"].as_string());
+  _checkKey(_v, "name");   // throws if not found
+  pr.setName(_v.as_object().at("name").as_string());
 };
 void DeserializerJson::visit(DbPointRecord &pr) {
   this->visit((PointRecord&)pr);
+  _checkKeys(_v, {"connectionString"});
   web::json::object o = _v.as_object();
   if (o.find("readonly") != o.end()) {
     pr.setReadonly(o["readonly"].as_bool());
@@ -200,7 +222,7 @@ void DeserializerJson::visit(DbPointRecord &pr) {
   else {
     pr.setReadonly(true);
   }
-  pr.setConnectionString(o["connectionString"].as_string());
+  pr.setConnectionString(o.at("connectionString").as_string());
 };
 void DeserializerJson::visit(SqlitePointRecord &pr) {
   this->visit((DbPointRecord&)pr);
@@ -210,6 +232,7 @@ void DeserializerJson::visit(InfluxDbPointRecord &pr) {
 };
 void DeserializerJson::visit(OdbcDirectPointRecord &pr) {
   this->visit((DbPointRecord&)pr);
+  _checkKeys(_v, {"driver","meta","range","zone"});   // throws if not found
   web::json::object o = _v.as_object();
   pr.connection.driver = o.at("driver").as_string();
   pr.querySyntax.metaSelect = o.at("meta").as_string();
@@ -220,7 +243,6 @@ void DeserializerJson::visit(OdbcDirectPointRecord &pr) {
   if (tf.count(thisTF)) {
     pr.setTimeFormat(tf[thisTF]);
   }
-  
 };
 
 
