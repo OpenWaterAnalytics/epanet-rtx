@@ -181,8 +181,10 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
     _identifiersAndUnitsCache[properId] = units;
   }
   
-  this->addPoint(id, Point(1,0));
-  
+  // insert a field key/value for something that we won't ever query again.
+  string tsNameEscaped = _influxIdForTsId(id);
+  boost::replace_all(tsNameEscaped, " ", "\\ ");
+  this->sendPointsWithString(tsNameEscaped + " exist=true");
   // no futher validation.
   return true;
 }
