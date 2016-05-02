@@ -57,9 +57,10 @@ app.get('/config', function (req, res) {
 // relay dashboard configuration to grafana
 //
 app.post('/send_dashboards', function (clientReq, clientRes) {
-    var login = clientReq.body.login;
-    var auth = 'Basic ' + new Buffer(clientReq.body.login.user + ':' + clientReq.body.login.pass).toString('base64');
-    request({
+  console.log('Sending Dashboards');
+  var login = clientReq.body.login;
+  var auth = 'Basic ' + new Buffer(clientReq.body.login.user + ':' + clientReq.body.login.pass).toString('base64');
+  request({
         method: 'POST',
         url: login.proto + '://' + login.url + '/api/dashboards/db',
         headers: {'Authorization': auth},
@@ -78,8 +79,7 @@ var link_server_host = 'http://localhost:3131';
 
 app.route('/link-relay/:linkPath/:subPath?')
     .all(function (req, res, next) {
-        var method = req.method;
-        if (!(method == 'POST' || method == 'GET')) {
+        if (!(req.method == 'POST' || req.method == 'GET')) {
             // only support get and post
             next();
             return;
@@ -88,15 +88,12 @@ app.route('/link-relay/:linkPath/:subPath?')
         if (req.params.subPath) { // re-assemble the subpath, if it exists.
             url = url.concat('/' + req.params.subPath);
         }
-        console.log(' >> ' + method + ' : ' + url);
         var opts = {
-            method: method,
-            url: url
+            method: req.method,
+            url: url,
+            json: (req.method=="POST") ? req.body : false
         };
-        if (method == "POST") {
-            opts.json = req.body;
-        }
-        
+
         request(opts, function(error, response, body) {
             if (error) {
                 console.log("RTX-LINK Error :: ");
@@ -104,13 +101,11 @@ app.route('/link-relay/:linkPath/:subPath?')
                 res.status(500).json({error: "RTX-LINK Error :: " + error.message});
             }
             else {
-                console.log(" << got response code " + response.statusCode);
-                console.log(body);
                 res.status(response.statusCode).send(body);
             }
         });
-    });
-    
+    }); // app.route.all
+
 
 
 // listen (start app with node server.js) ======================================
@@ -149,5 +144,3 @@ var launchLink = function () {
 
 
 launchLink();
-
-

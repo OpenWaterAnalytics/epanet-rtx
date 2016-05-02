@@ -33,9 +33,15 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                         visible_when: 'simple'
                     },{
                         inputType:'text-line',
+                        key:'simple_connection_db_name',
+                        text:'Database Name',
+                        placeholder:'Historian_DB',
+                        visible_when: 'simple'
+                    },{
+                        inputType:'text-line',
                         key:'connectionString',
                         text:'Connection',
-                        placeholder:'SVR=192.168.0.1;blah=blah',
+                        placeholder:'Server=127.0.0.1;Database=Historian_DB',
                         visible_when: 'advanced'
                     },{
                         inputType: 'text-line',
@@ -461,7 +467,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                 if ($scope.config.source._class == "odbc") {
                     var r = $scope.config.source;
                     $scope.config.source.meta = "SELECT " + r.simple_meta_col_tag + ", " + r.simple_meta_col_units + " FROM " + r.simple_meta_table;
-                    $scope.config.source.connectionString = "SRV=" + r.simple_connection_ip;
+                    $scope.config.source.connectionString = "Server=" + r.simple_connection_ip + ";Database=" + r.simple_connection_db_name;
                     $scope.config.source.range =
                         "SELECT " + r.simple_range_col_date +
                         ", " + r.simple_range_col_value +
@@ -508,6 +514,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
             $rootScope.config.destination._class = 'influx';
             $rootScope.relayPost('destination', $rootScope.config.destination,
                 function (response) {
+                  $rootScope.showInfo('Connection Successful');
                     typeof callback == "function" && callback();
                 }, function (errResponse) {
                     $rootScope.notifyHttpError(errResponse);
