@@ -29,7 +29,7 @@ namespace RTX {
   protected:
     virtual bool willResample(); // we are special !
     PointCollection filterPointsInRange(TimeRange range);
-    bool canDropPoints() { return true;};
+    bool canDropPoints();
     
   private:
     std::pair<double, double> _range;
