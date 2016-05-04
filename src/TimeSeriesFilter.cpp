@@ -58,10 +58,6 @@ void TimeSeriesFilter::setSource(TimeSeries::_sp ts) {
     return;
   }
   _source = ts;
-  TimeSeriesFilter::_sp filterSource = std::dynamic_pointer_cast<TimeSeriesFilter>(ts);
-  if (filterSource && !this->clock()) {
-    this->setClock(filterSource->clock());
-  }
   if (ts) {
     this->invalidate();
     this->didSetSource(ts);
@@ -346,7 +342,7 @@ void TimeSeriesFilter::didSetSource(TimeSeries::_sp ts) {
   
   // if the source is a filter, and has a clock, and I don't have a clock, then use the source's clock.
   TimeSeriesFilter::_sp sourceFilter = std::dynamic_pointer_cast<TimeSeriesFilter>(ts);
-  if (sourceFilter && sourceFilter->clock() && !this->clock()) {
+  if (sourceFilter && sourceFilter->clock() && !this->clock() && !this->canDropPoints()) {
     this->setClock(sourceFilter->clock());
   }
   

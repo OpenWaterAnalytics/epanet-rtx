@@ -30,7 +30,9 @@ bool ValidRangeTimeSeries::willResample() {
   return TimeSeriesFilter::willResample() || (this->clock() && _mode == filterMode_t::drop);
 }
 
-
+bool ValidRangeTimeSeries::canDropPoints() {
+  return this->mode() == ValidRangeTimeSeries::drop;
+}
 
 TimeSeries::PointCollection ValidRangeTimeSeries::filterPointsInRange(TimeRange range) {
   
