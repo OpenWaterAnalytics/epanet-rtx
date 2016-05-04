@@ -3681,6 +3681,7 @@
 				224390611CCFF67A0059700F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		228137D51CA2F1FE00AD81F3 /* Build configuration list for PBXNativeTarget "LINK-service" */ = {
 			isa = XCConfigurationList;
