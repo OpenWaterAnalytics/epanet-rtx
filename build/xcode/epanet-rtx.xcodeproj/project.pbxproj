@@ -282,6 +282,7 @@
 		224EDECE1B4D8E040029FC37 /* influx_api.h in Headers */ = {isa = PBXBuildFile; fileRef = 224EDECC1B4D8E040029FC37 /* influx_api.h */; };
 		224EDECF1B4D8E040029FC37 /* influx_api.h in Headers */ = {isa = PBXBuildFile; fileRef = 224EDECC1B4D8E040029FC37 /* influx_api.h */; };
 		224EDED01B4D8E040029FC37 /* influx_client.c in Sources */ = {isa = PBXBuildFile; fileRef = 224EDECD1B4D8E040029FC37 /* influx_client.c */; };
+		2251940A1CD8F2EA00B1BC31 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 225194091CD8F2EA00B1BC31 /* libxml2.2.dylib */; };
 		2251FFEF1A0A7CEC00C4D483 /* libepanet-rtx-project.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */; };
 		2251FFF01A0A7E2900C4D483 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22C62AC01439ED6300841E60 /* libepanet-rtx.dylib */; };
 		225954411AE92FE400ADF8C6 /* libepanet-rtx-project.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */; };
@@ -353,10 +354,6 @@
 		22B960681CD7D23700BF2BA5 /* OpcPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B960651CD7D23700BF2BA5 /* OpcPointRecord.cpp */; };
 		22B960691CD7D23700BF2BA5 /* OpcPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B960661CD7D23700BF2BA5 /* OpcPointRecord.h */; };
 		22B9606A1CD7D23700BF2BA5 /* OpcPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B960661CD7D23700BF2BA5 /* OpcPointRecord.h */; };
-		22B960761CD7DA1C00BF2BA5 /* libopcuaclient.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22B960721CD7DA1C00BF2BA5 /* libopcuaclient.dylib */; };
-		22B960771CD7DA1C00BF2BA5 /* libopcuacore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22B960731CD7DA1C00BF2BA5 /* libopcuacore.dylib */; };
-		22B960781CD7DA1C00BF2BA5 /* libopcuaprotocol.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22B960741CD7DA1C00BF2BA5 /* libopcuaprotocol.dylib */; };
-		22B960791CD7DA1C00BF2BA5 /* libopcuaserver.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22B960751CD7DA1C00BF2BA5 /* libopcuaserver.dylib */; };
 		22BEDD1F187E0BE300855B68 /* libepanetmsx-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BEDCF4187E09A100855B68 /* libepanetmsx-static.a */; };
 		22BF02D315EBCABC00F66465 /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BF02D215EBCABC00F66465 /* Point.cpp */; };
 		22BFAB01196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */; };
@@ -824,6 +821,7 @@
 		224E047F1979431C0039E3F9 /* StatsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StatsTimeSeries.h; path = ../../src/StatsTimeSeries.h; sourceTree = "<group>"; };
 		224EDECC1B4D8E040029FC37 /* influx_api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = influx_api.h; path = ../../src/influx_api.h; sourceTree = "<group>"; };
 		224EDECD1B4D8E040029FC37 /* influx_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = influx_client.c; path = ../../src/influx_client.c; sourceTree = "<group>"; };
+		225194091CD8F2EA00B1BC31 /* libxml2.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.2.dylib; path = ../../../../../../../usr/lib/libxml2.2.dylib; sourceTree = "<group>"; };
 		225A037F1CC70135002DC864 /* frontend */ = {isa = PBXFileReference; lastKnownFileType = folder; name = frontend; path = "../../examples/LINK-service/frontend"; sourceTree = "<group>"; };
 		225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MysqlPointRecord.cpp; path = ../../src/MysqlPointRecord.cpp; sourceTree = "<group>"; };
 		226861C814716D2A000DDDEF /* Units.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Units.cpp; path = ../../src/Units.cpp; sourceTree = "<group>"; };
@@ -884,10 +882,6 @@
 		22B928591A76EF1B006DBC57 /* MathOpsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MathOpsTimeSeries.h; path = ../../src/MathOpsTimeSeries.h; sourceTree = "<group>"; };
 		22B960651CD7D23700BF2BA5 /* OpcPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpcPointRecord.cpp; path = ../../src/OpcPointRecord.cpp; sourceTree = "<group>"; };
 		22B960661CD7D23700BF2BA5 /* OpcPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpcPointRecord.h; path = ../../src/OpcPointRecord.h; sourceTree = "<group>"; };
-		22B960721CD7DA1C00BF2BA5 /* libopcuaclient.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopcuaclient.dylib; path = ../../../../../../../usr/local/com.citilogics.dev/lib/libopcuaclient.dylib; sourceTree = "<group>"; };
-		22B960731CD7DA1C00BF2BA5 /* libopcuacore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopcuacore.dylib; path = ../../../../../../../usr/local/com.citilogics.dev/lib/libopcuacore.dylib; sourceTree = "<group>"; };
-		22B960741CD7DA1C00BF2BA5 /* libopcuaprotocol.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopcuaprotocol.dylib; path = ../../../../../../../usr/local/com.citilogics.dev/lib/libopcuaprotocol.dylib; sourceTree = "<group>"; };
-		22B960751CD7DA1C00BF2BA5 /* libopcuaserver.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopcuaserver.dylib; path = ../../../../../../../usr/local/com.citilogics.dev/lib/libopcuaserver.dylib; sourceTree = "<group>"; };
 		22BF02D215EBCABC00F66465 /* Point.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Point.cpp; path = ../../src/Point.cpp; sourceTree = "<group>"; };
 		22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OutlierExclusionTimeSeries.cpp; path = ../../src/OutlierExclusionTimeSeries.cpp; sourceTree = "<group>"; };
 		22BFAB00196AFBD800B5B77C /* OutlierExclusionTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OutlierExclusionTimeSeries.h; path = ../../src/OutlierExclusionTimeSeries.h; sourceTree = "<group>"; };
@@ -1001,10 +995,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22B960761CD7DA1C00BF2BA5 /* libopcuaclient.dylib in Frameworks */,
-				22B960771CD7DA1C00BF2BA5 /* libopcuacore.dylib in Frameworks */,
-				22B960781CD7DA1C00BF2BA5 /* libopcuaprotocol.dylib in Frameworks */,
-				22B960791CD7DA1C00BF2BA5 /* libopcuaserver.dylib in Frameworks */,
+				2251940A1CD8F2EA00B1BC31 /* libxml2.2.dylib in Frameworks */,
 				22E997091CA5937B00D6F34F /* CoreFoundation.framework in Frameworks */,
 				22E997081CA5935F00D6F34F /* Security.framework in Frameworks */,
 				22324B631CAEF15000CFC745 /* libcpprest.a in Frameworks */,
@@ -1409,10 +1400,7 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
-				22B960721CD7DA1C00BF2BA5 /* libopcuaclient.dylib */,
-				22B960731CD7DA1C00BF2BA5 /* libopcuacore.dylib */,
-				22B960741CD7DA1C00BF2BA5 /* libopcuaprotocol.dylib */,
-				22B960751CD7DA1C00BF2BA5 /* libopcuaserver.dylib */,
+				225194091CD8F2EA00B1BC31 /* libxml2.2.dylib */,
 				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
 				22C34357187D9441000100A4 /* epanetmsx.xcodeproj */,
 				228A76FE18450CC700905D8E /* RTX Project */,
@@ -2828,6 +2816,7 @@
 					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,
 					"${SRCROOT}/../../../epanet-msx/include",
+					/usr/local/Cellar/libxml2/2.9.3/include/libxml2/,
 				);
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path";
 				LIBRARY_SEARCH_PATHS = (
@@ -2862,6 +2851,7 @@
 					"${SRCROOT}/../../../EPANET/include",
 					/usr/include,
 					"${SRCROOT}/../../../epanet-msx/include",
+					/usr/local/Cellar/libxml2/2.9.3/include/libxml2/,
 				);
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path";
 				LIBRARY_SEARCH_PATHS = (

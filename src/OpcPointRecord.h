@@ -17,6 +17,7 @@ namespace RTX {
     void setConnectionString(const std::string& string);
     
     void dbConnect() throw(RtxException);
+    bool isConnected();
     bool supportsUnitsColumn() {return false;};
     const std::map<std::string, Units> identifiersAndUnits();
     
@@ -24,7 +25,7 @@ namespace RTX {
     void truncate() {};
     bool supportsSinglyBoundedQueries() {return false;};
     bool shouldSearchIteratively() {return false;};
-    std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime) {};
+    std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);
     Point selectNext(const std::string& id, time_t time) {};
     Point selectPrevious(const std::string& id, time_t time) {};
     
@@ -37,7 +38,8 @@ namespace RTX {
   private:
     std::string _endpoint;
     OpcUa::UaClient _client;
-    
+    bool _connected;
+    std::map<string,OpcUa::Node> _nodes;
   };
 }
 
