@@ -158,15 +158,11 @@ Units MultiplierTimeSeries::nativeUnits() {
 }
 
 void MultiplierTimeSeries::didSetSource(TimeSeries::_sp ts) {
-  if (!this->source() || !this->secondary()) {
-    this->setUnits(RTX_DIMENSIONLESS);
-    return;
-  }
-  
-  Units nativeDerivedUnits = this->nativeUnits();
-  
-  if (!this->units().isSameDimensionAs(nativeDerivedUnits) || this->units() == RTX_NO_UNITS) {
-    this->setUnits(nativeDerivedUnits);
+  if (this->source() && this->secondary()) {
+    Units nativeDerivedUnits = this->nativeUnits();
+    if (!this->units().isSameDimensionAs(nativeDerivedUnits) || this->units() == RTX_NO_UNITS) {
+      this->setUnits(nativeDerivedUnits); // will fail if canChangeToUnits is false...
+    }
   }
   
 }

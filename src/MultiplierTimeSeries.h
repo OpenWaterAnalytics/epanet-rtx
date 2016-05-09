@@ -40,7 +40,6 @@ namespace RTX {
     
   private:
     Point filteredSingle(Point p, Units sourceU);
-    TimeSeries::_sp _multiplierBasis;
     MultiplierMode _mode;
     Units nativeUnits();
   };
