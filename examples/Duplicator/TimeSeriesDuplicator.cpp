@@ -24,7 +24,10 @@ PointRecord::_sp TimeSeriesDuplicator::destinationRecord() {
 }
 
 void TimeSeriesDuplicator::setDestinationRecord(PointRecord::_sp record) {
-  _destinationRecord = record;
+  {
+    scoped_lock<boost::signals2::mutex> mx(_mutex);
+    _destinationRecord = record;
+  }
   this->_refreshDestinations();
 }
 
@@ -33,23 +36,28 @@ std::list<TimeSeries::_sp> TimeSeriesDuplicator::series() {
 }
 void TimeSeriesDuplicator::setSeries(std::list<TimeSeries::_sp> series) {
   this->stop();
-  _sourceSeries = series;
+  {
+    scoped_lock<boost::signals2::mutex> mx(_mutex);
+    _sourceSeries = series;
+  }
   this->_refreshDestinations();
   this->_shouldRun = true;
 }
 
 void TimeSeriesDuplicator::_refreshDestinations() {
-  _destinationSeries.clear();
-  
-  BOOST_FOREACH(TimeSeries::_sp source, _sourceSeries) {
-    // make a simple modular ts
-    TimeSeriesFilter::_sp mod( new TimeSeriesFilter() );
-    mod->setSource(source);
-    mod->setName(source->name());
-    mod->setRecord(_destinationRecord);
-    _destinationSeries.push_back(mod);
+  {
+    scoped_lock<boost::signals2::mutex> mx(_mutex);
+    _destinationSeries.clear();
+    
+    BOOST_FOREACH(TimeSeries::_sp source, _sourceSeries) {
+      // make a simple modular ts
+      TimeSeriesFilter::_sp mod( new TimeSeriesFilter() );
+      mod->setSource(source);
+      mod->setName(source->name());
+      mod->setRecord(_destinationRecord);
+      _destinationSeries.push_back(mod);
+    }
   }
-  
 }
 
 
@@ -133,16 +141,14 @@ void TimeSeriesDuplicator::_dupeLoop(time_t win, time_t freq) {
       }
     }
     
-    time_t waitLength = nextFetch - now;
-    if (waitLength < 0) {
-      waitLength = 0;
-    }
     stringstream ss;
     char *tstr = asctime(localtime(&nextFetch));
     tstr[24] = '\0';
-    ss << "Fetch: (" << tstr << ") took " << fetchDuration << " seconds." << "\n" << "Waiting for " << waitLength << " seconds";
-    this->_logLine(ss.str(),RTX_DUPLICATOR_LOGLEVEL_INFO);
     while (_shouldRun && nextFetch > time(NULL)) {
+      time_t waitLength = nextFetch - time(NULL);
+      ss.str("");
+      ss << "Fetch: (" << tstr << ") took " << fetchDuration << " seconds." << "\n" << "Will fire again in " << waitLength << " seconds";
+      this->_logLine(ss.str(),RTX_DUPLICATOR_LOGLEVEL_INFO);
       boost::this_thread::sleep_for(boost::chrono::seconds(1));
     }
   }
@@ -241,6 +247,7 @@ void TimeSeriesDuplicator::_backfillLoop(time_t start, time_t chunk, time_t rate
 
 
 std::pair<time_t,int> TimeSeriesDuplicator::_fetchAll(time_t start, time_t end, bool updatePctComplete) {
+  scoped_lock<boost::signals2::mutex> mx(_mutex);
   time_t fStart = time(NULL);
   int nPoints = 0;
   if (updatePctComplete) {
