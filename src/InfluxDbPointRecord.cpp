@@ -332,6 +332,9 @@ string InfluxDbPointRecord::_influxIdForTsId(const string& id) {
   
   if (_identifiersAndUnitsCache.count(tsId) == 0) {
     cerr << "no registered ts with that id: " << tsId << endl;
+    // yet i'm being asked for it??
+    
+    
     return "";
   }
   
@@ -395,12 +398,7 @@ Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
 #pragma mark INSERT
 
 void InfluxDbPointRecord::insertSingle(const std::string& id, Point point) {
-  
-  vector<Point> points;
-  points.push_back(point);
-  
-  this->insertRange(id, points);
-  
+  this->insertRange(id, {point});
 }
 
 void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> points) {
@@ -475,8 +473,7 @@ void InfluxDbPointRecord::commitTransactionLines() {
 #pragma mark DELETE
 
 void InfluxDbPointRecord::removeRecord(const std::string& id) {
-  // to-do fix this. influx bug related to dropping a series:
-  //return;
+  
   const string dbId = this->_influxIdForTsId(id);
   DbPointRecord::Query q = this->queryPartsFromMetricId(id);
   
@@ -488,20 +485,15 @@ void InfluxDbPointRecord::removeRecord(const std::string& id) {
 }
 
 void InfluxDbPointRecord::truncate() {
+  this->errorMessage = "Truncating";
+  auto ids = _identifiersAndUnitsCache; // copy
+  for (auto ts_units : ids) {
+    this->removeRecord(ts_units.first);
+    this->insertIdentifierAndUnits(ts_units.first, ts_units.second);
+  }
   
-  http::uri_builder b;
-  b.set_scheme("http")
-  .set_host(this->host)
-  .set_port(this->port)
-  .set_path("query")
-  .append_query("u", this->user, false)
-  .append_query("p", this->pass, false)
-  .append_query("q", "DROP DATABASE " + this->db, true);
-  
-  json::value v = _InfluxDbPointRecord_jsonFromGet(*this, b.to_uri());
-  
-  // reconnecting will re-create the database.
-  this->dbConnect();
+  this->errorMessage = "OK";
+  return;
 }
 
 
