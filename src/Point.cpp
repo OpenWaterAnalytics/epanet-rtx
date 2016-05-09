@@ -122,7 +122,7 @@ Point Point::operator*(const Point p) const {
 
 Point Point::operator/(const double factor) const {
   double value = (this->value / factor);
-  double confidence = (this->confidence / factor);  // TODO -- figure out confidence intervals.
+  double confidence = factor == 0 ? 0 : (this->confidence / factor);  // TODO -- figure out confidence intervals.
   time_t time = this->time;
   
   return Point(time, value, opc_rtx_override, confidence);
@@ -134,7 +134,7 @@ Point Point::operator/(const Point p) const {
   }
   
   double value = (this->value / p.value);
-  double confidence = (this->confidence / p.confidence);  // TODO -- figure out confidence intervals.
+  double confidence = p.confidence == 0 ? 0 : (this->confidence / p.confidence);  // TODO -- figure out confidence intervals.
   time_t time = this->time;
   PointQuality q = (PointQuality)(this->quality | p.quality);
   
