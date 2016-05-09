@@ -122,6 +122,22 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                     }
                 ]
             },
+            'opc': {
+                inputRows: [
+                    {
+                        key: 'name',
+                        text: 'Name',
+                        placeholder: 'User-defined Name',
+                        inputType: 'text-line'
+                    },
+                    {
+                        key: 'connectionString',
+                        text: 'Endpoint',
+                        placeholder: 'opc.tcp://192.168.0.100/Devices/',
+                        inputType: 'text-line'
+                    }
+                ]
+            },
             'influx': {
                 inputRows: [
                     {
@@ -143,7 +159,8 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         $rootScope.rtxTypes = {
             'odbc': 'ODBC',
             'sqlite': 'SQLite',
-            'influx': 'Influx'
+            'influx': 'Influx',
+            'opc': 'OPC'
         };
 
         $rootScope.errorMessagePromise = $timeout();
@@ -227,7 +244,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                     $rootScope.relayPost('config', data,
                         function (response) {
                             // success
-                            console.log('Successfully sent configuration to RTX-LINK.');
+                            console.log('Successfully initialized configuration for RTX-LINK.');
                             console.log(response);
                         }, function (response) {
                             // error
@@ -430,10 +447,10 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                 });
         };
 
-        $scope.removeSeries = function (selected) {
-            $scope.sourceSeries = $scope.sourceSeries.filter(function (v) {
-                return v._link_selected != selected;
-            });
+        $scope.deselectAll = function () {
+          angular.forEach($scope.sourceSeries, function(item) {
+            item._link_selected = false
+          });
         };
 
         $scope.reconcileSeries = function () {
@@ -484,12 +501,14 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         // ON LOAD
         $scope.subOption = "";
         $scope.availableUnits = [];
-        $rootScope.config.source = {_class: 'none'};
+        //$rootScope.config.source = {_class: 'none'};
         $scope.sourceSeries = [];
         $scope.statusMsg = '';
         $scope.showTsList = false;
 
         $rootScope.getFormData('source', function (data) {
+            console.log('got form data for source');
+            console.log(data);
             if (!data._class) {
                 data._class = 'none';
             }
@@ -506,18 +525,31 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
 
         $scope.saveAndNext = function () {
             $scope.connect(function () {
-                $location.path('/options');
+              $rootScope.showInfo('Connection Successful');
+              $location.path('/options');
+            }, function(err) {
+              $rootScope.notifyHttpError(err);
             });
         };
 
-        $scope.connect = function (callback) {
+        $scope.connect = function (callback, errCallback) {
             $rootScope.config.destination._class = 'influx';
             $rootScope.relayPost('destination', $rootScope.config.destination,
                 function (response) {
-                  $rootScope.showInfo('Connection Successful');
-                    typeof callback == "function" && callback();
+                  $scope.connectionMessage = "Connection Successful";
+                  $scope.connectionStatus = "ok";
+                  typeof callback == "function" && callback();
                 }, function (errResponse) {
-                    $rootScope.notifyHttpError(errResponse);
+                  errStr = "Unknown Error";
+                  if (errResponse.data.error) {
+                      errStr = errResponse.data.error;
+                  }
+                  else if (errResponse.data.message) {
+                      errStr = errResponse.data.message;
+                  }
+                  $scope.connectionMessage = "ERROR: " + errStr;
+                  $scope.connectionStatus = "err";
+                  typeof errCallback == "function" && errCallback();
                 });
         };
 
@@ -525,6 +557,8 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         $rootScope.getFormData('destination',function (data) {
             $rootScope.config.destination = data;
         });
+        $scope.connectionMessage = "";
+        $scope.connectionStatus = "none";
     })
 
     /**************************/
@@ -569,11 +603,19 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                 data: {login: $rootScope.config.dash, data: dash}
             }).then(function (response) {
                 console.log('SENT DASHBOARDS');
-                $rootScope.showInfo(response.data.message);
-            }, function (response) {
-                $rootScope.showInfo('');
-                $rootScope.showError(response.data.message);
-                console.log(response);
+                $scope.dashStatus = "ok";
+                $scope.dashCreateMessage = response.data.message;
+            }, function (errResponse) {
+              errStr = "Unknown Error";
+              if (errResponse.data.error) {
+                  errStr = errResponse.data.error;
+              }
+              else if (errResponse.data.message) {
+                  errStr = errResponse.data.message;
+              }
+              $scope.dashCreateMessage = "INFO: " + errStr;
+              $scope.dashStatus = "err";
+              console.log(response);
             });
 
         };
@@ -586,6 +628,8 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         // ON LOAD
         var wrapper = {};
         var rowTemplate = {};
+        $scope.dashStatus = "none";
+        $scope.dashCreateMessage = "";
 
         $rootScope.getFormData('options', function (data) {
             $rootScope.config.fetch = data;

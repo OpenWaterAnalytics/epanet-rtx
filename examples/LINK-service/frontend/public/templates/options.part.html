@@ -67,8 +67,12 @@
                 </tbody>
             </table>
             <button type="submit" class="btn btn-default" ng-click="sendGrafana()">Create Dashboards</button>
+            <hr>
+                <div class="alert" role="alert" ng-class="{'alert-success' : dashStatus == 'ok' , 'alert-warning' : dashStatus == 'err'}">
+                  {{dashCreateMessage}}
+                  <span class="glyphicon pull-right" ng-class="{'glyphicon-ok' : dashStatus == 'ok' ,  'glyphicon-info-sign' : dashStatus == 'err' }" aria-hidden="true"></span>
+                </div>
         </div>
     </div>
     <hr>
 </div>
-

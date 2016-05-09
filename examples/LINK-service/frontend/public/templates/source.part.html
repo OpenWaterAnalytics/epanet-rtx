@@ -52,13 +52,41 @@
             Select the time series you would like replicated. Be sure to configure the Units.
         </div>
 
-
-        <form class="form-inline">
-            <input ng-model="query" type="text" placeholder="Filter by" autofocus>
-            <button class="btn btn-default" type="submit" ng-click="removeSeries(true)">Remove Selected</button>
-            <button class="btn btn-default" type="submit" ng-click="removeSeries(false)">Remove Unselected</button>
-        </form>
-
+        <table class="table table-hover">
+            <colgroup>
+                <col class="col-md-1">
+                <col class="col-md-7">
+                <col class="col-md-3">
+            </colgroup>
+            <thead>
+            <tr>
+                <th><span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="deselectAll()""></span></th>
+                <th>Name</th>
+                <th>Units</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="ts in selected = ( sourceSeries | filter:{_link_selected:true } | orderBy: 'name' )" ng-class="{'success':ts._link_selected == true}">
+                <td><span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="ts._link_selected = !ts._link_selected" ></span></td>
+                <td>{{ts.name}}</td>
+                <td>
+                    <select ng-options="unit as unit.unitString for unit in availableUnits track by unit.rawUnits" ng-model="ts.units"></select>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="col-md-5">
+          <div class="input-group">
+            <span class="input-group-addon">
+              <i class="glyphicon glyphicon-filter"></i>
+            </span>
+            <input type="text" class="form-control" ng-model="query" type="text" placeholder="Filter by" autofocus />
+            <span class="input-group-addon">
+              <i class="glyphicon glyphicon-remove"  ng-click="query=''"></i>
+            </span>
+          </div>
+        </div>
+        
         <table class="table table-hover">
             <colgroup>
                 <col class="col-md-8">
@@ -71,8 +99,8 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="ts in sourceSeries | filter:query | orderBy: 'name'" ng-click="ts._link_selected = !ts._link_selected" ng-class="{'success':ts._link_selected == true}">
-                <td>{{ts.name}}</td>
+            <tr ng-repeat="ts in sourceSeries | filter:{name:query, _link_selected:false } | orderBy: 'name'" ng-class="{'success':ts._link_selected == true}">
+                <td ng-click="ts._link_selected = !ts._link_selected">{{ts.name}}</td>
                 <td>
                     <select ng-options="unit as unit.unitString for unit in availableUnits track by unit.rawUnits" ng-model="ts.units"></select>
                 </td>
@@ -83,4 +111,3 @@
 
 
 </div>
-

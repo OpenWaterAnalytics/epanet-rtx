@@ -7,7 +7,6 @@
 <!-- Destination -->
 <div id="destination-select">
     <form role="form" class='form-horizontal'>
-
         <table class="table">
             <tbody>
             <tr ng-repeat="dict in sourceTypes['influx'].inputRows" ng-switch on="dict.inputType">
@@ -23,5 +22,13 @@
             <button type="submit" class="btn btn-default" ng-click="connect()">Connect</button>
         </div>
     </form>
+    <hr>
+      <div class="row">
+        <div class="col-md-8">
+        <div class="alert" role="alert" ng-class="{'alert-success' : connectionStatus == 'ok' , 'alert-danger' : connectionStatus == 'err'}">
+          {{connectionMessage}}
+          <span class="glyphicon pull-right" ng-class="{'glyphicon-ok' : connectionStatus == 'ok' ,  'glyphicon-remove' : connectionStatus == 'err' }" aria-hidden="true"></span>
+        </div>
+      </div>
+      </div>
 </div>
-

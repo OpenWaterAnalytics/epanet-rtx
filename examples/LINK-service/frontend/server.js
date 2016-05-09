@@ -8,6 +8,7 @@ var http = require('http');
 var request = require('request');
 var path = require('path');
 var os = require('os');
+var fs = require('fs-extra');
 
 // configuration =================
 
@@ -23,8 +24,10 @@ app.get('/', function(req, res) {
 });
 
 //---  save/load configuration json file  ---//
+var linkDir = path.join(os.homedir(),'rtx_link');
+var configFile = path.join(linkDir,'config.json');
 
-var configFile = path.join(os.homedir(),'rtx_link','config.json');
+
 
 jsf.spaces = 2;
 
@@ -45,9 +48,10 @@ app.get('/config', function (req, res) {
     jsf.readFile(configFile, function (err, obj) {
         if (err) {
             console.log(err);
-            res.status(404).json({message:'Could not find configuaration file'});
+            res.status(404).json({message:'Could not find configuration file'});
         }
         else {
+          console.log(obj);
             res.status(200).send(obj);
         }
     });
@@ -109,8 +113,13 @@ app.route('/link-relay/:linkPath/:subPath?')
 
 
 // listen (start app with node server.js) ======================================
+fs.ensureFile(configFile, function() {
+  // ok
+});
 app.listen(8585);
 console.log("App listening on port 8585");
+
+
 
 
 var linkServer;

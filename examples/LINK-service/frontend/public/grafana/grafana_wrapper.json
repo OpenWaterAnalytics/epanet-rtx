@@ -10,9 +10,10 @@
     "hideControls": false,
     "sharedCrosshair": false,
     "time": {
-      "from": "now-1y",
+      "from": "now-30d",
       "to": "now"
     },
+    "refresh": "5s",
     "timepicker": {
       "collapse": false,
       "enable": true,

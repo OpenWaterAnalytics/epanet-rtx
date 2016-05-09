@@ -75,7 +75,7 @@ namespace RTX {
     void runDuplication(time_t win, time_t freq, time_t backfill);
     void stopDuplication();
     time_t _window, _frequency, _backfill;
-    
+    boost::signals2::mutex _dupeMutex;
     
   };
 }
