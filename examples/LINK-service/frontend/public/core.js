@@ -202,59 +202,31 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         };
 
         $rootScope.saveConfig = function () {
-            // get config from LINK Server, send to Node Server.
-            // Node will save the config locally.
-            $rootScope.relayGet('config',
-                function (response) {
-                    if (response.data) {
-                        var configData = response.data;
-                        configData.dash = $rootScope.config.dash;
-                        $http({
-                            method: 'POST',
-                            url: 'http://localhost:8585/config',
-                            headers: {'Content-type': 'application/json'},
-                            data: configData
-                        }).then(function (postResponse) {
-                            console.log('configuration saved via node: ');
-                            console.log(response.data);
-                            $rootScope.showInfo('Saved Complete Configuration');
-                        }, function (errResponse) {
-                            console.log('configuration not saved');
-                            $rootScope.notifyHttpError('Configuration Not Saved');
-                        });
-                    }
-                }, function (response) {
-                    $rootScope.notifyHttpError(response);
-                });
-        };
-
-        $rootScope.initializeConfig = function () {
-            // get the stored configuration from Node, and
-            // send that to LINK to initialize.
-            $http.get('http://localhost:8585/config')
-                .then(function (res) {
-                    // success
-                    var data = res.data;
-                    console.log('retrieved configuration data:');
-                    console.log(data);
-                    console.log('sending to RTX-LINK');
-
-                    $rootScope.config = data;
-
-                    $rootScope.relayPost('config', data,
-                        function (response) {
-                            // success
-                            console.log('Successfully initialized configuration for RTX-LINK.');
-                            console.log(response);
-                        }, function (response) {
-                            // error
-                            $rootScope.notifyHttpError(response);
-                        });
-
-                }, function (errResponse) {
-                    // error
-                    $rootScope.notifyHttpError(errResponse);
-                });
+            // tell node to save the LINK configuration.
+            console.log('attempting to save dash meta:');
+            console.log($rootScope.config.dash);
+            $http({
+                method: 'POST',
+                url: 'http://localhost:8585/dash',
+                headers: {'Content-type': 'application/json'},
+                data: $rootScope.config.dash
+            }).then(function (response) {
+              console.log('success saving dash meta. now requesting to save entire config');
+              $http.get('http://localhost:8585/saveConfig')
+                  .then(function (response) {
+                      console.log('sent request to save config');
+                      console.log(response.data);
+                  }, function (response) {
+                    console.log('error:');
+                    console.log(response);
+                      $rootScope.notifyHttpError(errResponse);
+                  });
+            }, function (response) {
+                console.log('error:');
+                console.log(response);
+                $rootScope.notifyHttpError(response);
+            });
+            console.log('exiting saveConfig');
         };
 
         $rootScope.getFormData = function (urlPath,callback) {
@@ -303,8 +275,19 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         // ON LOAD
         var pingInterval = $interval($rootScope.ping, 1000);
         $rootScope.$on('$destroy', function () { $interval.cancel(pingInterval); });
-        $rootScope.initializeConfig();
-    })
+
+        $http.get('http://localhost:8585/dash')
+            .then(function (response) {
+                $rootScope.config.dash = response.data;
+                if (!$rootScope.config.dash) {
+                  $rootScope.config.dash = {proto: 'http'};
+                }
+            }, function (errResponse) {
+                $rootScope.notifyHttpError(errResponse);
+            });
+
+
+      })
 
     .controller('HeaderController', function HeaderController($scope, $location) {
         $scope.links = [
@@ -615,7 +598,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
               }
               $scope.dashCreateMessage = "INFO: " + errStr;
               $scope.dashStatus = "err";
-              console.log(response);
+              console.log(errResponse);
             });
 
         };
@@ -634,6 +617,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         $rootScope.getFormData('options', function (data) {
             $rootScope.config.fetch = data;
         });
+
 
         //-- get grafana wrapper templates for later --//
         $http.get('/grafana/grafana_wrapper.json')
@@ -686,6 +670,11 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         var refreshInterval = $interval($scope.refreshStatus, 1000);
         $scope.$on('$destroy', function () { $interval.cancel(refreshInterval); });
     })
+
+
+/*******************/
+/**** DASHBOARD ****/
+/*******************/
 
     .controller('DashController', function DashController($rootScope, $scope, $http, $location, $interval, $sce) {
         $scope.frameSrc = $rootScope.config.dash.proto + '://' + $rootScope.config.dash.url + '/dashboard/db/link-historian';

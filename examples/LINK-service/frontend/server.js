@@ -10,6 +10,8 @@ var path = require('path');
 var os = require('os');
 var fs = require('fs-extra');
 
+var link_server_host = 'http://localhost:3131';
+
 // configuration =================
 
 app.use(express.static(__dirname + '/public'));                 // set the static files location /public/img will be /img for users
@@ -26,36 +28,12 @@ app.get('/', function(req, res) {
 //---  save/load configuration json file  ---//
 var linkDir = path.join(os.homedir(),'rtx_link');
 var configFile = path.join(linkDir,'config.json');
-
+var config = {};
 
 
 jsf.spaces = 2;
 
-app.post('/config', function (req, res) {
-    jsf.writeFile(configFile, req.body, function (err) {
-        if (err) {
-            res.send('ERROR: could not save configuration.');
-            console.log('could not save: ');
-            console.log(err);
-        } else {
-            res.send('SAVED');
-            console.log('SAVED configuration');
-        }
-    });
-});
 
-app.get('/config', function (req, res) {
-    jsf.readFile(configFile, function (err, obj) {
-        if (err) {
-            console.log(err);
-            res.status(404).json({message:'Could not find configuration file'});
-        }
-        else {
-          console.log(obj);
-            res.status(200).send(obj);
-        }
-    });
-});
 
 //
 // relay dashboard configuration to grafana
@@ -79,8 +57,18 @@ app.post('/send_dashboards', function (clientReq, clientRes) {
 });
 
 
-var link_server_host = 'http://localhost:3131';
+app.route('/dash')
+.all(function (req,res,next) {
+  if (req.method == 'POST') {
+    config.dash = req.body;
+    res.status(200).json({msg: 'OK'});
+  }
+  else if (req.method == 'GET') {
+    res.json(config.dash);
+  }
+});
 
+// proxy all GET/POST requests from here to LINK_service
 app.route('/link-relay/:linkPath/:subPath?')
     .all(function (req, res, next) {
         if (!(req.method == 'POST' || req.method == 'GET')) {
@@ -112,14 +100,72 @@ app.route('/link-relay/:linkPath/:subPath?')
 
 
 
-// listen (start app with node server.js) ======================================
-fs.ensureFile(configFile, function() {
-  // ok
+
+
+
+sendConfig = function() {
+  jsf.readFile(configFile, function (err, obj) {
+      if (err) {
+          console.log(err);
+      }
+      else {
+        console.log(obj);
+        config = obj;
+
+        var opts = {
+            method: "POST",
+            url: link_server_host + "/config",
+            json: obj
+        }; // opts
+
+        request(opts, function(error, response, body) {
+            if (error) {
+                console.log("RTX-LINK Error :: ");
+                console.log(error);
+            }
+            else {
+                console.log('sent config to LINK service');
+            }
+        }); // request
+
+      }
+  });
+};
+
+app.get('/saveConfig', function (req, res) {
+  // get the config from LINK service, and save locally
+  console.log('got command to save config');
+  request({
+        method: 'GET',
+        url: link_server_host + '/config',
+    }, function (error, response, body) {
+      if (error) {
+          console.log("RTX-LINK Error :: ");
+          console.log(error);
+          res.status(500).json({error: "RTX-LINK Error :: " + error.message});
+      }
+      else {
+        // write the file
+        // first, remember to save the dashboard data
+        var dash = config.dash;
+        config = JSON.parse(body);
+        config.dash = dash;
+
+        console.log(config);
+
+        jsf.writeFile(configFile, config, function (err) {
+            if (err) {
+                res.status(500).json({error: 'ERROR: could not save configuration.'});
+                console.log('could not save: ');
+                console.log(err);
+            } else {
+                res.status(200).json({msg: "OK"});
+                console.log('SAVED configuration');
+            }
+        });
+      }
+    });
 });
-app.listen(8585);
-console.log("App listening on port 8585");
-
-
 
 
 var linkServer;
@@ -153,3 +199,11 @@ var launchLink = function () {
 
 
 launchLink();
+
+// listen (start app with node server.js) ======================================
+fs.ensureFile(configFile, function() {
+  // ok
+  sendConfig();
+});
+app.listen(8585);
+console.log("App listening on port 8585");
