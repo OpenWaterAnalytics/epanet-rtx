@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include <opc/ua/client/client.h>
+#include <ua_client.h>
 
 #include "DbPointRecord.h"
 
@@ -37,9 +37,9 @@ namespace RTX {
     
   private:
     std::string _endpoint;
-    OpcUa::UaClient _client;
+    UA_Client *_client;
     bool _connected;
-    std::map<string,OpcUa::Node> _nodes;
+//    std::map<string,OpcUa::Node> _nodes;
   };
 }
 

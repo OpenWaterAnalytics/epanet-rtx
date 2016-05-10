@@ -1,12 +1,20 @@
 #include "OpcPointRecord.h"
 #include <time.h>
 
+#include <ua_client.h>
+#include <ua_types.h>
+#include <ua_server.h>
+#include <logger_stdout.h>
+#include <networklayer_tcp.h>
+#include <ua_config_standard.h>
+
 using namespace std;
 using namespace RTX;
 
 
-OpcPointRecord::OpcPointRecord() : _client(false /* debug */) {
+OpcPointRecord::OpcPointRecord() {
   // init
+  _client = UA_Client_new(UA_ClientConfig_standard);
   _connected = false;
 }
 
