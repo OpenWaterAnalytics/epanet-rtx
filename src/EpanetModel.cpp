@@ -240,7 +240,10 @@ void EpanetModel::createRtxWrappers() {
     nodeName = string(enName);
     
     //CurveFunction::_sp volumeCurveTs;
-    vector< pair<double,double> > curveGeometry;
+    Curve::_sp volumeCurve( new Curve );
+    volumeCurve->inputUnits = this->headUnits();
+    volumeCurve->outputUnits = this->volumeUnits();
+    
     double minLevel = 0, maxLevel = 0;
     
     switch (nodeType) {
@@ -275,9 +278,7 @@ void EpanetModel::createRtxWrappers() {
           int nVals;
           OW_API_CHECK(OW_getcurve(_enModel, volumeCurveIndex, curveId, &nVals, &xVals, &yVals), "OW_getcurve");
           for (int iPoint = 0; iPoint < nVals; iPoint++) {
-            curveGeometry.push_back(make_pair(xVals[iPoint], yVals[iPoint]));
-            //volumeCurveTs->addCurveCoordinate(xVals[iPoint], yVals[iPoint]);
-            //cout << "(" << xVals[iPoint] << "," << yVals[iPoint] << ")-";
+            volumeCurve->curveData[xVals[iPoint]] = yVals[iPoint];
           }
           // client must free x/y values
           free(xVals);
@@ -297,8 +298,8 @@ void EpanetModel::createRtxWrappers() {
           OW_API_CHECK(OW_getnodevalue(_enModel, iNode, EN_MINVOLUME, &minVolume), "EN_MINVOLUME");
           OW_API_CHECK(OW_getnodevalue(_enModel, iNode, EN_MAXVOLUME, &maxVolume), "EN_MAXVOLUME");
           
-          curveGeometry.push_back(make_pair(minLevel, minVolume));
-          curveGeometry.push_back(make_pair(maxLevel, maxVolume));
+          volumeCurve->curveData[minLevel] = minVolume;
+          volumeCurve->curveData[maxLevel] = maxVolume;
           
           stringstream ss;
           ss << "Tank " << newTank->name() << " Cylindrical Curve";
@@ -309,7 +310,7 @@ void EpanetModel::createRtxWrappers() {
         }
         
         // set tank geometry
-        newTank->setGeometry(curveGeometry, headUnits(), this->volumeUnits(), newTank->geometryName);
+        newTank->setGeometry(volumeCurve, newTank->geometryName);
         
         newJunction = newTank;
         break;

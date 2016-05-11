@@ -68,7 +68,7 @@ namespace RTX {
       
       std::vector<Point> points;
       Units units;
-      std::set<time_t> times();
+      const std::set<time_t> times();
       
       bool resample(std::set<time_t> timeList, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
       bool convertToUnits(Units u);

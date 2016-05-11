@@ -27,7 +27,7 @@ using namespace boost::accumulators;
 TimeSeries::PointCollection::PointCollection(vector<Point> points, Units units) : points(points), units(units) { }
 TimeSeries::PointCollection::PointCollection() : points(vector<Point>()), units(1) { }
 
-set<time_t> TimeSeries::PointCollection::times() {
+const set<time_t> TimeSeries::PointCollection::times() {
   set<time_t> t;
   for (const Point& p : this->points) {
     t.insert(p.time);

@@ -13,6 +13,7 @@
 #include "OffsetTimeSeries.h"
 #include "CurveFunction.h"
 #include "FirstDerivative.h"
+#include "Curve.h"
 
 namespace RTX {
   
@@ -30,9 +31,8 @@ namespace RTX {
     // public ivars for temporary (that is, steady-state) solutions
     double state_level;
     
-    void setGeometry(std::vector< std::pair<double,double> > levelVolumePoints, Units levelUnits, Units volumeUnits, const std::string& curveName);
-    std::vector< std::pair<double,double> > geometry();
-    std::pair<Units,Units> geometryUnits();
+    void setGeometry(Curve::_sp curve, const std::string& curveName);
+    Curve::_sp geometry();
     std::string geometryName;
     
     void setElevation(double elevation);
@@ -62,9 +62,7 @@ namespace RTX {
     FirstDerivative::_sp _flowMeasure;
     TimeSeries::_sp _volume,_flow;
     double _minLevel, _maxLevel;
-    std::vector< std::pair<double,double> > _geometry;
-    Units _geometryLevelUnits;
-    Units _geometryVolumeUnits;
+    Curve::_sp _geometry;
     bool _willResetLevel;
     
   }; // Tank

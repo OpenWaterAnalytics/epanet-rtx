@@ -10,8 +10,10 @@
 #define epanet_rtx_CurveFunctionTimeSeries_h
 
 #include <vector>
-#include "TimeSeriesFilterSinglePoint.h"
 #include <boost/foreach.hpp>
+
+#include "TimeSeriesFilter.h"
+#include "Curve.h"
 
 namespace RTX {
   
@@ -21,31 +23,28 @@ namespace RTX {
    transforming a tank level time series into a volume time series. Generally, can be used for dimensional conversions.
    */
   
-  class CurveFunction : public TimeSeriesFilterSinglePoint {
+  class CurveFunction : public TimeSeriesFilter {
     
   public:
     RTX_BASE_PROPS(CurveFunction);
     CurveFunction();
     
-    // added functionality.
-    void setInputUnits(Units inputUnits);
-    Units inputUnits();
-    
-    void addCurveCoordinate(double inputValue, double outputValue);
-    void setCurve( std::vector<std::pair<double,double> > curve);
+    Curve::_sp curve();
+    void setCurve(Curve::_sp curve);
     void clearCurve();
-    std::vector<std::pair<double,double> > curve();
         
   protected:
-    Point filteredWithSourcePoint(Point sourcePoint);
     bool canSetSource(TimeSeries::_sp ts);
     void didSetSource(TimeSeries::_sp ts);
     bool canChangeToUnits(Units units);
+    bool willResample();
+    PointCollection filterPointsInRange(TimeRange range);
+    bool canDropPoints();
     
   private:
     Point convertWithCurve(Point p, Units sourceU);
-    std::vector< std::pair<double,double> > _curve;  // list of points for interpolation (x,y)
-    Units _inputUnits;
+    Curve::_sp _curve;
+    
   };
 }
 

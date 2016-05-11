@@ -423,6 +423,12 @@
 		22DC12D91ADD844D0033DD5E /* MetaTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DC12D51ADD844D0033DD5E /* MetaTimeSeries.h */; };
 		22DC12DA1ADD844D0033DD5E /* MetaTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DC12D51ADD844D0033DD5E /* MetaTimeSeries.h */; };
 		22DC12DB1ADD844D0033DD5E /* MetaTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DC12D51ADD844D0033DD5E /* MetaTimeSeries.h */; };
+		22DD0FC61CE387A400145959 /* Curve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22DD0FC41CE387A400145959 /* Curve.cpp */; };
+		22DD0FC71CE387A400145959 /* Curve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22DD0FC41CE387A400145959 /* Curve.cpp */; };
+		22DD0FC81CE387A400145959 /* Curve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22DD0FC41CE387A400145959 /* Curve.cpp */; };
+		22DD0FC91CE387A400145959 /* Curve.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DD0FC51CE387A400145959 /* Curve.h */; };
+		22DD0FCA1CE387A400145959 /* Curve.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DD0FC51CE387A400145959 /* Curve.h */; };
+		22DD0FCB1CE387A400145959 /* Curve.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DD0FC51CE387A400145959 /* Curve.h */; };
 		22DDAD811443684B00C1F188 /* Element.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DDAD801443684B00C1F188 /* Element.h */; };
 		22DDAD941443750600C1F188 /* Model.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DDAD931443750600C1F188 /* Model.h */; };
 		22DEE91C153F5C44008F75AE /* PointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22DEE91B153F5C44008F75AE /* PointRecord.cpp */; };
@@ -928,6 +934,8 @@
 		22D9831917F62B4A00DD7EB4 /* testLemonTiger */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = testLemonTiger; sourceTree = BUILT_PRODUCTS_DIR; };
 		22DC12D41ADD844D0033DD5E /* MetaTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MetaTimeSeries.cpp; path = ../../src/MetaTimeSeries.cpp; sourceTree = "<group>"; };
 		22DC12D51ADD844D0033DD5E /* MetaTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MetaTimeSeries.h; path = ../../src/MetaTimeSeries.h; sourceTree = "<group>"; };
+		22DD0FC41CE387A400145959 /* Curve.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Curve.cpp; path = ../../src/Curve.cpp; sourceTree = "<group>"; };
+		22DD0FC51CE387A400145959 /* Curve.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Curve.h; path = ../../src/Curve.h; sourceTree = "<group>"; };
 		22DDAD801443684B00C1F188 /* Element.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Element.h; path = ../../src/Element.h; sourceTree = "<group>"; };
 		22DDAD931443750600C1F188 /* Model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Model.h; path = ../../src/Model.h; sourceTree = "<group>"; };
 		22DEE91B153F5C44008F75AE /* PointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PointRecord.cpp; path = ../../src/PointRecord.cpp; sourceTree = "<group>"; };
@@ -1199,8 +1207,6 @@
 				223AF32E18F6E4C0002E846F /* InversionTimeSeries.cpp */,
 				22A842D4173BF445009CE769 /* GainTimeSeries.h */,
 				22A842D3173BF445009CE769 /* GainTimeSeries.cpp */,
-				220AE463145AFB3C002F07B4 /* CurveFunction.h */,
-				22253D8D16022FB6002F7256 /* CurveFunction.cpp */,
 				22B928591A76EF1B006DBC57 /* MathOpsTimeSeries.h */,
 				22B928581A76EF1B006DBC57 /* MathOpsTimeSeries.cpp */,
 			);
@@ -1412,6 +1418,7 @@
 				22C62ACA1439ED9F00841E60 /* point record classes */,
 				226861C414715E53000DDDEF /* units */,
 				22C62B08143A205B00841E60 /* points */,
+				22DD0FBC1CE3878300145959 /* Curve */,
 				22C62AC91439ED9300841E60 /* time series classes */,
 				228CA8CE1AA0CBC400D0353E /* model exporting extensions */,
 				228137D71CA2F22C00AD81F3 /* LINK Service */,
@@ -1480,6 +1487,8 @@
 				22C62ACB1439EE0B00841E60 /* AggregatorTimeSeries.cpp */,
 				221BFC6E1A8E584500143FCC /* IntegratorTimeSeries.h */,
 				221BFC6D1A8E584500143FCC /* IntegratorTimeSeries.cpp */,
+				220AE463145AFB3C002F07B4 /* CurveFunction.h */,
+				22253D8D16022FB6002F7256 /* CurveFunction.cpp */,
 				223663B71A699DC100420EE4 /* Single Point Filter */,
 				226AC14A1733FE56009B7C90 /* Synthetic */,
 			);
@@ -1561,6 +1570,15 @@
 			name = "simulator client";
 			sourceTree = "<group>";
 		};
+		22DD0FBC1CE3878300145959 /* Curve */ = {
+			isa = PBXGroup;
+			children = (
+				22DD0FC51CE387A400145959 /* Curve.h */,
+				22DD0FC41CE387A400145959 /* Curve.cpp */,
+			);
+			name = Curve;
+			sourceTree = "<group>";
+		};
 		22DDAD7D1443682300C1F188 /* model */ = {
 			isa = PBXGroup;
 			children = (
@@ -1613,6 +1631,7 @@
 				220F9E1718F9E68B00BB842C /* AggregatorTimeSeries.h in Headers */,
 				22B9285D1A76EF1B006DBC57 /* MathOpsTimeSeries.h in Headers */,
 				220F9E1818F9E68B00BB842C /* MovingAverage.h in Headers */,
+				22DD0FCB1CE387A400145959 /* Curve.h in Headers */,
 				220F9E1918F9E68B00BB842C /* Point.h in Headers */,
 				228CA8DA1AA0CBFF00D0353E /* InpTextPattern.h in Headers */,
 				227BCEF61B2B6CDB00B0AC52 /* LogicTimeSeries.h in Headers */,
@@ -1699,6 +1718,7 @@
 				221BFD951A8E8AD000143FCC /* Link.h in Headers */,
 				221BFD961A8E8AD000143FCC /* EpanetSyntheticModel.h in Headers */,
 				221BFD971A8E8AD000143FCC /* Junction.h in Headers */,
+				22DD0FC91CE387A400145959 /* Curve.h in Headers */,
 				221BFD981A8E8AD000143FCC /* Reservoir.h in Headers */,
 				221BFD9A1A8E8AD000143FCC /* InfluxDbPointRecord.h in Headers */,
 				221BFD9B1A8E8AD000143FCC /* LagTimeSeries.h in Headers */,
@@ -1786,6 +1806,7 @@
 				224E04821979431D0039E3F9 /* StatsTimeSeries.h in Headers */,
 				22804097158F827F004222DA /* Pipe.h in Headers */,
 				22804099158F82CB004222DA /* Pump.h in Headers */,
+				22DD0FCA1CE387A400145959 /* Curve.h in Headers */,
 				2280409D158F8326004222DA /* Valve.h in Headers */,
 				22E2962C16010A65003D378A /* Units.h in Headers */,
 				22707A9716309D4100FEB4DD /* OffsetTimeSeries.h in Headers */,
@@ -2294,6 +2315,7 @@
 				220F9E0318F9E68B00BB842C /* BufferPointRecord.cpp in Sources */,
 				220F9E0618F9E68B00BB842C /* ThresholdTimeSeries.cpp in Sources */,
 				224D40D819786C3000160BD5 /* BaseStatsTimeSeries.cpp in Sources */,
+				22DD0FC81CE387A400145959 /* Curve.cpp in Sources */,
 				22459FA81A44C41800AFD0BD /* CorrelatorTimeSeries.cpp in Sources */,
 				220F9E0718F9E68B00BB842C /* SqlitePointRecord.cpp in Sources */,
 				220F9E0818F9E68B00BB842C /* ConstantTimeSeries.cpp in Sources */,
@@ -2346,6 +2368,7 @@
 				221BFD591A8E8AD000143FCC /* FirstDerivative.cpp in Sources */,
 				221BFD5A1A8E8AD000143FCC /* MathOpsTimeSeries.cpp in Sources */,
 				221BFD5B1A8E8AD000143FCC /* TimeSeriesFilterSinglePoint.cpp in Sources */,
+				22DD0FC61CE387A400145959 /* Curve.cpp in Sources */,
 				221BFD5C1A8E8AD000143FCC /* CurveFunction.cpp in Sources */,
 				221BFD5D1A8E8AD000143FCC /* IntegratorTimeSeries.cpp in Sources */,
 				221BFD5E1A8E8AD000143FCC /* OutlierExclusionTimeSeries.cpp in Sources */,
@@ -2443,6 +2466,7 @@
 				220AE475145B2A28002F07B4 /* Dma.cpp in Sources */,
 				223AF33018F6E4C0002E846F /* InversionTimeSeries.cpp in Sources */,
 				226861C914716D2A000DDDEF /* Units.cpp in Sources */,
+				22DD0FC71CE387A400145959 /* Curve.cpp in Sources */,
 				22909B3C147DDE2A00945449 /* EpanetModel.cpp in Sources */,
 				225D719F1497F96C00B90F6D /* MysqlPointRecord.cpp in Sources */,
 				22B7154E14DC2C2C00041167 /* Clock.cpp in Sources */,
