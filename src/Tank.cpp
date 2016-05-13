@@ -66,9 +66,7 @@ double Tank::maxLevel() {
 }
 
 
-void Tank::setGeometry(Curve::_sp curve, const std::string& curveName) {
-  
-  geometryName = curveName;
+void Tank::setGeometry(Curve::_sp curve) {
   
   _geometry = curve;
   

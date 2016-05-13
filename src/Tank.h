@@ -31,9 +31,8 @@ namespace RTX {
     // public ivars for temporary (that is, steady-state) solutions
     double state_level;
     
-    void setGeometry(Curve::_sp curve, const std::string& curveName);
+    void setGeometry(Curve::_sp curve);
     Curve::_sp geometry();
-    std::string geometryName;
     
     void setElevation(double elevation);
     

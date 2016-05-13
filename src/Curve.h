@@ -13,7 +13,7 @@ namespace RTX {
   class Curve : public RTX_object {
   public:
     RTX_BASE_PROPS(Curve);
-    
+    std::string name;
     Units inputUnits;
     Units outputUnits;
     std::map<double,double> curveData;

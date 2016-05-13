@@ -283,10 +283,7 @@ void EpanetModel::createRtxWrappers() {
           // client must free x/y values
           free(xVals);
           free(yVals);
-          
-          newTank->geometryName = string(curveId);
-          
-          //cout << endl;
+          volumeCurve->name = string(curveId);
         }
         else {
           // it's a cylindrical tank - invent a curve
@@ -303,14 +300,11 @@ void EpanetModel::createRtxWrappers() {
           
           stringstream ss;
           ss << "Tank " << newTank->name() << " Cylindrical Curve";
-          newTank->geometryName = ss.str();
-          
-          //volumeCurveTs->addCurveCoordinate(minLevel, minVolume);
-          //volumeCurveTs->addCurveCoordinate(maxLevel, maxVolume);
+          volumeCurve->name = ss.str();
         }
         
         // set tank geometry
-        newTank->setGeometry(volumeCurve, newTank->geometryName);
+        newTank->setGeometry(volumeCurve);
         
         newJunction = newTank;
         break;
