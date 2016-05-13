@@ -14,10 +14,6 @@
 #include "rtxMacros.h"
 #include "Units.h"
 
-
-#define OPC_GOOD 192
-#define OPC_BAD  0
-
 namespace RTX {
     
 //!   A Point Class to store data tuples (date, value, quality, confidence)
