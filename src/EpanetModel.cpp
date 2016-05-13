@@ -209,15 +209,40 @@ void EpanetModel::closeEngine() {
 
 void EpanetModel::createRtxWrappers() {
   
-  int nodeCount, tankCount, linkCount;
+  int curveCount, nodeCount, tankCount, linkCount;
   
   try {
+    OW_API_CHECK( OW_getcount(_enModel, EN_CURVECOUNT, &curveCount), "OW_getcount EN_CURVECOUNT");
     OW_API_CHECK( OW_getcount(_enModel, EN_NODECOUNT, &nodeCount), "OW_getcount EN_NODECOUNT" );
     OW_API_CHECK( OW_getcount(_enModel, EN_TANKCOUNT, &tankCount), "OW_getcount EN_TANKCOUNT" );
     OW_API_CHECK( OW_getcount(_enModel, EN_LINKCOUNT, &linkCount), "OW_getcount EN_LINKCOUNT" );
   } catch (...) {
     throw "Could not create wrappers";
   }
+  
+  map<int,Curve::_sp> namedCurves;
+  
+  for (int iCurve = 1; iCurve <= curveCount; ++iCurve) {
+    double *xVals, *yVals;
+    int nPoints;
+    char buf[1024];
+    int ok = OW_getcurve (_enModel, iCurve, buf, &nPoints, &xVals, &yVals);
+    
+    map<double,double> curveData;
+    for (int iPoint = 0; iPoint < nPoints; ++iPoint) {
+      curveData[xVals[iPoint]] = yVals[iPoint];
+    }
+    
+    Curve::_sp newCurve( new Curve );
+    newCurve->curveData = curveData;
+    newCurve->inputUnits = this->headUnits();
+    newCurve->outputUnits = this->volumeUnits();
+    newCurve->name = string(buf);
+    
+    this->addCurve(newCurve);
+    namedCurves[iCurve] = newCurve;
+  }
+  
   
   
   // create nodes
@@ -235,19 +260,13 @@ void EpanetModel::createRtxWrappers() {
     OW_API_CHECK( OW_getnodevalue(_enModel, iNode, EN_ELEVATION, &z), "OW_getnodevalue EN_ELEVATION");
     OW_API_CHECK( OW_getnodetype(_enModel, iNode, &nodeType), "OW_getnodetype");
     OW_API_CHECK( OW_getcoord(_enModel, iNode, &x, &y), "OW_getcoord");
-    //xstd::cout << "coord: " << iNode << " " << x << " " << y << std::endl;
     
     nodeName = string(enName);
-    
-    //CurveFunction::_sp volumeCurveTs;
-    Curve::_sp volumeCurve( new Curve );
-    volumeCurve->inputUnits = this->headUnits();
-    volumeCurve->outputUnits = this->volumeUnits();
-    
     double minLevel = 0, maxLevel = 0;
     
     switch (nodeType) {
       case EN_TANK:
+      {
         newTank.reset( new Tank(nodeName) );
         // get tank geometry from epanet and pass it along
         // todo -- geometry
@@ -263,27 +282,14 @@ void EpanetModel::createRtxWrappers() {
         newTank->volumeMeasure()->setUnits(volumeUnits());
         newTank->flow()->setUnits(flowUnits());
         newTank->volume()->setUnits(volumeUnits());
-        //volumeCurveTs = std::static_pointer_cast<CurveFunction>(newTank->volumeMeasure());
-        //volumeCurveTs->setInputUnits(headUnits());
-        //volumeCurveTs->setUnits(volumeUnits);
         
+        Curve::_sp volumeCurve;
         double volumeCurveIndex;
         OW_API_CHECK(OW_getnodevalue(_enModel, iNode, EN_VOLCURVE, &volumeCurveIndex), "OW_getnodevalue EN_VOLCURVE");
         
-        
         if (volumeCurveIndex > 0) {
           // curved tank
-          double *xVals, *yVals;
-          char curveId[256];
-          int nVals;
-          OW_API_CHECK(OW_getcurve(_enModel, volumeCurveIndex, curveId, &nVals, &xVals, &yVals), "OW_getcurve");
-          for (int iPoint = 0; iPoint < nVals; iPoint++) {
-            volumeCurve->curveData[xVals[iPoint]] = yVals[iPoint];
-          }
-          // client must free x/y values
-          free(xVals);
-          free(yVals);
-          volumeCurve->name = string(curveId);
+          volumeCurve = namedCurves[volumeCurveIndex];
         }
         else {
           // it's a cylindrical tank - invent a curve
@@ -295,19 +301,25 @@ void EpanetModel::createRtxWrappers() {
           OW_API_CHECK(OW_getnodevalue(_enModel, iNode, EN_MINVOLUME, &minVolume), "EN_MINVOLUME");
           OW_API_CHECK(OW_getnodevalue(_enModel, iNode, EN_MAXVOLUME, &maxVolume), "EN_MAXVOLUME");
           
+          volumeCurve.reset( new Curve );
           volumeCurve->curveData[minLevel] = minVolume;
           volumeCurve->curveData[maxLevel] = maxVolume;
           
           stringstream ss;
           ss << "Tank " << newTank->name() << " Cylindrical Curve";
           volumeCurve->name = ss.str();
+          this->addCurve(volumeCurve); // unnamed curve: add cylindrical curve to list
         }
+        
+        volumeCurve->inputUnits = this->headUnits();
+        volumeCurve->outputUnits = this->volumeUnits();
         
         // set tank geometry
         newTank->setGeometry(volumeCurve);
         
         newJunction = newTank;
         break;
+      }
       case EN_RESERVOIR:
         newReservoir.reset( new Reservoir(nodeName) );
         addReservoir(newReservoir);
@@ -361,7 +373,7 @@ void EpanetModel::createRtxWrappers() {
     char enLinkName[RTX_MAX_CHAR_STRING], enFromName[RTX_MAX_CHAR_STRING], enToName[RTX_MAX_CHAR_STRING];
     int enFrom, enTo;
     EN_LinkType linkType;
-    double length, diameter, status, rough, mloss, setting;
+    double length, diameter, status, rough, mloss, setting, curveIdx;
     string linkName;
     Node::_sp startNode, endNode;
     Pipe::_sp newPipe;
@@ -404,6 +416,28 @@ void EpanetModel::createRtxWrappers() {
         newPump.reset( new Pump(linkName, startNode, endNode) );
         newPipe = newPump;
         addPump(newPump);
+        
+      {
+        // has curve?
+        int err = OW_getlinkvalue(_enModel, iLink, EN_HEADCURVE, &curveIdx);
+        if (err == EN_OK) {
+          Curve::_sp pumpCurve = namedCurves[(int)curveIdx];
+          if (pumpCurve) {
+            pumpCurve->inputUnits = this->flowUnits();
+            pumpCurve->outputUnits = this->headUnits();
+          }
+        }
+        err = OW_getlinkvalue(_enModel, iLink, EN_EFFICIENCYCURVE, &curveIdx);
+        if (err == EN_OK) {
+          Curve::_sp effCurve = namedCurves[(int)curveIdx];
+          if (effCurve) {
+            effCurve->inputUnits = this->flowUnits();
+            effCurve->outputUnits = RTX_DIMENSIONLESS;
+          }
+        }
+      }
+        
+        
         break;
       case EN_CVPIPE:
       case EN_PSV:

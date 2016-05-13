@@ -29,6 +29,7 @@
 #include "Dma.h"
 #include "PointRecord.h"
 #include "Units.h"
+#include "Curve.h"
 #include "rtxMacros.h"
 
 
@@ -114,6 +115,7 @@ namespace RTX {
     void addPipe(Pipe::_sp newPipe);
     void addPump(Pump::_sp newPump);
     void addValve(Valve::_sp newValve);
+    void addCurve(Curve::_sp newCurve);
     void addDma(Dma::_sp dma);
     Link::_sp linkWithName(const string& name);
     Node::_sp nodeWithName(const string& name);
@@ -127,6 +129,8 @@ namespace RTX {
     vector<Pipe::_sp> pipes();
     vector<Pump::_sp> pumps();
     vector<Valve::_sp> valves();
+    vector<Curve::_sp> curves();
+    
     
     virtual void updateEngineWithElementProperties(Element::_sp e);
     
@@ -281,6 +285,7 @@ namespace RTX {
     vector<Pipe::_sp> _pipes;
     vector<Pump::_sp> _pumps;
     vector<Valve::_sp> _valves;
+    vector<Curve::_sp> _curves;
     vector<Dma::_sp> _dmas;
     vector<Pipe::_sp> _dmaPipesToIgnore;
     bool _dmaShouldDetectClosedLinks;
@@ -293,19 +298,12 @@ namespace RTX {
     int _qualityTimeStep;
     bool _doesOverrideDemands;
     bool _shouldCancelSimulation;
-    
     time_t _currentSimulationTime;
-    
     Units _flowUnits, _headUnits, _pressureUnits, _qualityUnits, _volumeUnits;
     boost::signals2::mutex _simulationInProcessMutex;
-    
     double _initialQuality;
-    
     RTX_Logging_Callback_Block _simLogCallback;
-    
     boost::thread _saveStateThread;
-    
-//    std::function<void(std::string)> _simLogCallback;
     
   };
   

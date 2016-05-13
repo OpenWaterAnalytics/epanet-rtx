@@ -478,6 +478,14 @@ void Model::addValve(Valve::_sp newValve) {
   add(newValve);
 }
 
+void Model::addCurve(Curve::_sp newCurve) {
+  if (!newCurve) {
+    cerr << "curve not specified" << endl;
+    return;
+  }
+  _curves.push_back(newCurve);
+}
+
 void Model::addDma(Dma::_sp dma) {
   _dmas.push_back(dma);
   dma->setJunctionFlowUnits(this->flowUnits());
@@ -559,6 +567,9 @@ std::vector<Pump::_sp> Model::pumps() {
 }
 std::vector<Valve::_sp> Model::valves() {
   return _valves;
+}
+vector<Curve::_sp> Model::curves() {
+  return _curves;
 }
 
 
