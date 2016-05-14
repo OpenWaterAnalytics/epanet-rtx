@@ -234,13 +234,19 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
         set<time_t> controlTimes;
 
         if (p->settingBoundary()) {
-          TimeSeries::PointCollection settings = p->settingBoundary()->pointCollection(_range).asDelta();
+          // make sure that the first point is at or before "time zero"
+          TimeRange settingRange = _range;
+          settingRange.start = p->settingBoundary()->pointAtOrBefore(_range.start).time;
+          TimeSeries::PointCollection settings = p->settingBoundary()->pointCollection(settingRange).asDelta();
           for(const Point& p: settings.points) {
             settingPointMap[p.time] = p;
           }
         }
         if (p->statusBoundary()) {
-          TimeSeries::PointCollection statuses = p->statusBoundary()->pointCollection(_range).asDelta();
+          // also back up by one point
+          TimeRange statusRange = _range;
+          statusRange.start = p->statusBoundary()->pointAtOrBefore(_range.start).time;
+          TimeSeries::PointCollection statuses = p->statusBoundary()->pointCollection(statusRange).asDelta();
           for(const Point& p: statuses.points) {
             statusPointMap[p.time] = p;
           }
@@ -255,9 +261,10 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
         if (controlTimes.size() > 0) {
           bool isOpen = true;
           stream << endl << "; RTX Time-Based Control for " << p->name() << endl;
-
+          
           for (time_t t: controlTimes) {
             double hrs = (double)(t - _range.start) / (60.*60.);
+            hrs = (hrs < 0) ? 0 : hrs;
             bool statusUpdate = false;
             if (statusPointMap.count(t) > 0) {
               // status update
