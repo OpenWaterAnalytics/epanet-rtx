@@ -18,6 +18,16 @@ using boost::join;
 
 #define BR '\n'
 
+
+namespace RTX {
+  class ControlSet {
+  public:
+    Point status;
+    Point setting;
+  };
+}
+
+
 enum _epanet_section_t : int {
   none = 0,
   controls
@@ -230,8 +240,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
       
       for (auto p: pipes) {
         // make it easy to find any status or setting at a certain time
-        map<time_t, Point> settingPointMap, statusPointMap;
-        set<time_t> controlTimes;
+        map<time_t, ControlSet> controls;
 
         if (p->settingBoundary()) {
           // make sure that the first point is at or before "time zero"
@@ -239,7 +248,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
           settingRange.start = p->settingBoundary()->pointAtOrBefore(_range.start).time;
           TimeSeries::PointCollection settings = p->settingBoundary()->pointCollection(settingRange).asDelta();
           for(const Point& p: settings.points) {
-            settingPointMap[p.time] = p;
+            controls[p.time].setting = p;
           }
         }
         if (p->statusBoundary()) {
@@ -248,45 +257,45 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
           statusRange.start = p->statusBoundary()->pointAtOrBefore(_range.start).time;
           TimeSeries::PointCollection statuses = p->statusBoundary()->pointCollection(statusRange).asDelta();
           for(const Point& p: statuses.points) {
-            statusPointMap[p.time] = p;
+            controls[p.time].status = p;
           }
         }
         
-        // gather the collection of all times where we have either setting or status
-        boost::copy(settingPointMap | boost::adaptors::map_keys, std::inserter(controlTimes, controlTimes.end()));
-        boost::copy(statusPointMap  | boost::adaptors::map_keys, std::inserter(controlTimes, controlTimes.end()));
-        
-        
         // generate control statements
-        if (controlTimes.size() > 0) {
+        if (controls.size() > 0) {
           bool isOpen = true;
           stream << endl << "; RTX Time-Based Control for " << p->name() << endl;
           
-          for (time_t t: controlTimes) {
+          Point previousSetting;
+          
+          for (auto c: controls) {
+            time_t t = c.first;
+            ControlSet control = c.second;
             double hrs = (double)(t - _range.start) / (60.*60.);
             hrs = (hrs < 0) ? 0 : hrs;
-            bool statusUpdate = false;
-            if (statusPointMap.count(t) > 0) {
+            if (control.status.isValid) {
               // status update
-              statusUpdate = true;
-              isOpen = statusPointMap[t].value;
+              isOpen = (control.status.value > 0.);
+              // fixme: OPEN for a valve means ignore the setting, so don't print an OPEN command if the valve has a setting boundary
+              if (p->type() == Element::VALVE && isOpen && p->settingBoundary()) {
+                stream << "; ";
+              }
               stream << "LINK " << p->name() << " " << (isOpen ? "OPEN" : "CLOSED") << " AT TIME " << hrs << endl;
             }
             if (isOpen) {
-              if (settingPointMap.count(t) > 0) {
+              if (control.setting.isValid) {
                 // Open and new setting control
-                stream << "LINK " << p->name() << " " << std::max(0.0, settingPointMap[t].value) << " AT TIME " << hrs << endl;
+                stream << "LINK " << p->name() << " " << std::max(0.0, control.setting.value) << " AT TIME " << hrs << endl;// cache the previous setting
+                previousSetting = control.setting;
               }
-              else if (statusUpdate) {
+              else if (control.status.isValid) { // if link is open, and a status is being set...
                 // Newly opened - reestablish previous link setting, if possible
-                std::map<time_t,Point>::iterator it = settingPointMap.lower_bound(t);
-                if (it != settingPointMap.begin()) {
-                  --it;
-                  stream << "LINK " << p->name() << " " << std::max(0.0, it->second.value) << " AT TIME " << hrs << endl;
+                if (previousSetting.isValid) {
+                  stream << "LINK " << p->name() << " " << std::max(0.0, previousSetting.value) << " AT TIME " << hrs << endl;
                 }
               }
-            }
-          }
+            } // isOpen
+          } // for c: controls
         }
       }
     }
