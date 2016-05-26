@@ -60,6 +60,16 @@ time_t MultiplierTimeSeries::timeAfter(time_t t) {
   return RTX_MIN(t1, t2);
 }
 
+bool MultiplierTimeSeries::willResample() {
+  if (this->source() && this->secondary()) {
+    if (this->source()->clock() && this->secondary()->clock()) {
+      if (this->source()->clock()->isEqual(this->secondary()->clock())) {
+        return false; // very selective, aren't we?
+      }
+    }
+  }
+  return true; // all other cases.
+}
 
 TimeSeries::PointCollection MultiplierTimeSeries::filterPointsInRange(RTX::TimeRange range) {
   

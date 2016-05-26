@@ -37,6 +37,7 @@ namespace RTX {
     bool canSetSource(TimeSeries::_sp ts);
     void didSetSource(TimeSeries::_sp ts);
     bool canChangeToUnits(Units units);
+    bool willResample();
     
   private:
     Point filteredSingle(Point p, Units sourceU);
