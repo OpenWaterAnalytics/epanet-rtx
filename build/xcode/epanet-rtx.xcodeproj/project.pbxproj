@@ -232,6 +232,7 @@
 		222978311CA477DA0051D881 /* RTX_Visitable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2229782D1CA477DA0051D881 /* RTX_Visitable.h */; };
 		222978321CA477DA0051D881 /* RTX_Visitable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2229782D1CA477DA0051D881 /* RTX_Visitable.h */; };
 		222978331CA477DA0051D881 /* RTX_Visitable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2229782D1CA477DA0051D881 /* RTX_Visitable.h */; };
+		2229C7E71CF6140C001D0DFA /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		222FDDD615C1BC2F0065DAF6 /* FirstDerivative.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */; };
 		22324B631CAEF15000CFC745 /* libcpprest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E996FE1CA591CB00D6F34F /* libcpprest.a */; };
 		223372F41CA19DFA00C87ACD /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 223372F21CA19DFA00C87ACD /* libcrypto.a */; };
@@ -311,7 +312,6 @@
 		2280409F158F8352004222DA /* Valve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2280409E158F8351004222DA /* Valve.cpp */; };
 		228137D91CA2F23B00AD81F3 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228137D81CA2F23B00AD81F3 /* main.cpp */; };
 		228137DE1CA2F2C600AD81F3 /* LinkService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228137DC1CA2F2C600AD81F3 /* LinkService.cpp */; };
-		228137DF1CA2F95D00AD81F3 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		2288C1241BE3C71900F9B8FB /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		2288C1251BE3C74600F9B8FB /* TimeSeriesDuplicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2288C10A1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.cpp */; };
 		228C2D921A9E15BF003C826D /* TimeRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228C2D901A9E15BF003C826D /* TimeRange.cpp */; };
@@ -691,12 +691,12 @@
 		};
 		228137C71CA2F1FE00AD81F3 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 16;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		228A836C16DBE5E7008E9C35 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -1040,8 +1040,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2229C7E71CF6140C001D0DFA /* libepanet-rtx.dylib in Frameworks */,
 				2239413D1CAA1612008BD7FD /* libTimeSeriesDuplicator.dylib in Frameworks */,
-				228137DF1CA2F95D00AD81F3 /* libepanet-rtx.dylib in Frameworks */,
 				22E996FF1CA591CB00D6F34F /* libcpprest.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2854,7 +2854,7 @@
 				OTHER_LDFLAGS = "-liodbc";
 				PRODUCT_NAME = "epanet-rtx";
 				RUN_CLANG_STATIC_ANALYZER = NO;
-				SKIP_INSTALL = YES;
+				SKIP_INSTALL = NO;
 			};
 			name = Debug;
 		};
@@ -2890,7 +2890,7 @@
 				OTHER_LDFLAGS = "-liodbc";
 				PRODUCT_NAME = "epanet-rtx";
 				RUN_CLANG_STATIC_ANALYZER = NO;
-				SKIP_INSTALL = YES;
+				SKIP_INSTALL = NO;
 			};
 			name = Release;
 		};
@@ -2993,6 +2993,7 @@
 					/usr/local/com.citilogics.dev/include,
 					/usr/local/com.citilogics.dev/include/iODBC,
 				);
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/lib";
 				LIBRARY_SEARCH_PATHS = /usr/local/com.citilogics.dev/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -3028,6 +3029,7 @@
 					/usr/local/com.citilogics.dev/include,
 					/usr/local/com.citilogics.dev/include/iODBC,
 				);
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/lib";
 				LIBRARY_SEARCH_PATHS = /usr/local/com.citilogics.dev/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -3070,7 +3072,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
+				SKIP_INSTALL = NO;
 			};
 			name = Debug;
 		};
@@ -3109,7 +3111,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
+				SKIP_INSTALL = NO;
 			};
 			name = Release;
 		};

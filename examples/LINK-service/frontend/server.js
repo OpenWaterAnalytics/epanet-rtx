@@ -104,32 +104,35 @@ app.route('/link-relay/:linkPath/:subPath?')
 
 
 sendConfig = function() {
-  jsf.readFile(configFile, function (err, obj) {
-      if (err) {
-          console.log(err);
-      }
-      else {
-        console.log(obj);
-        config = obj;
+  var obj;
+  try {
+    obj = jsf.readFileSync(configFile);
+    console.log(obj);
+    config = obj;
 
-        var opts = {
-            method: "POST",
-            url: link_server_host + "/config",
-            json: obj
-        }; // opts
+    var opts = {
+        method: "POST",
+        url: link_server_host + "/config",
+        json: obj
+    }; // opts
 
-        request(opts, function(error, response, body) {
-            if (error) {
-                console.log("RTX-LINK Error :: ");
-                console.log(error);
-            }
-            else {
-                console.log('sent config to LINK service');
-            }
-        }); // request
+    request(opts, function(error, response, body) {
+        if (error) {
+            console.log("RTX-LINK Error :: ");
+            console.log(error);
+            throw error;
+        }
+        else {
+            console.log('sent config to LINK service');
+            return;
+        }
+    }); // request
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
 
-      }
-  });
+  return true;
 };
 
 app.get('/saveConfig', function (req, res) {
@@ -173,7 +176,7 @@ var launchLink = function () {
     // start up LINK service
     var linkExeName = 'link-server';
     var opts = [];
-    var linkExePath = path.join('bin',process.platform,linkExeName);
+    var linkExePath = path.join(__dirname,'bin',process.platform,linkExeName);
     const child_process = require('child_process');
 
     linkServer = child_process.spawn(linkExePath, opts);
@@ -203,7 +206,11 @@ launchLink();
 // listen (start app with node server.js) ======================================
 fs.ensureFile(configFile, function() {
   // ok
-  sendConfig();
+  sent = sendConfig();
+
 });
 app.listen(8585);
 console.log("App listening on port 8585");
+
+
+exports.link_app = app;

@@ -2,7 +2,7 @@
   "name": "rtx-link",
   "version": "0.0.0",
   "description": "RTX Link",
-  "main": "server.js",
+  "main": "electron_main.js",
   "author": "OWA",
   "license": "MIT",
   "repository": "http://github.com/OpenWaterAnalytics/epanet-rtx/",
