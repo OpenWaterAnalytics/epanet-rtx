@@ -28,6 +28,10 @@ Clock::~Clock() {
   // empty
 }
 
+bool Clock::isEqual(Clock::_sp other) {
+  return (other && _period == other->period() && _start == other->start());
+}
+
 std::ostream& RTX::operator<< (std::ostream &out, Clock &clock) {
   return clock.toStream(out);
 }

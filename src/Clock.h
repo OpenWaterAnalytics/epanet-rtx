@@ -87,6 +87,8 @@ namespace RTX {
     Clock(int period = 3600, time_t start = 0);
     virtual ~Clock();
     
+    bool isEqual(Clock::_sp other);
+    
     std::string name();
     void setName(std::string name);
     
