@@ -239,9 +239,15 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
       }
       
       for (auto p: pipes) {
+        const string name = p->name();
+        
+        if (!p->settingBoundary() && !p->statusBoundary()) {
+          continue;
+        }
+        
         // make it easy to find any status or setting at a certain time
         map<time_t, ControlSet> controls;
-
+        
         if (p->settingBoundary()) {
           // make sure that the first point is at or before "time zero"
           TimeRange settingRange = _range;
@@ -264,7 +270,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
         // generate control statements
         if (controls.size() > 0) {
           bool isOpen = true;
-          stream << endl << "; RTX Time-Based Control for " << p->name() << endl;
+          stream << BR << "; RTX Time-Based Control for " << name << BR;
           
           Point previousSetting;
           
@@ -280,18 +286,18 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
               if (p->type() == Element::VALVE && isOpen && p->settingBoundary()) {
                 stream << "; ";
               }
-              stream << "LINK " << p->name() << " " << (isOpen ? "OPEN" : "CLOSED") << " AT TIME " << hrs << endl;
+              stream << "LINK " << name << " " << (isOpen ? "OPEN" : "CLOSED") << " AT TIME " << hrs << BR;
             }
             if (isOpen) {
               if (control.setting.isValid) {
-                // Open and new setting control
-                stream << "LINK " << p->name() << " " << std::max(0.0, control.setting.value) << " AT TIME " << hrs << endl;// cache the previous setting
+                // new setting control
+                stream << "LINK " << name << " " << std::max(0.0, control.setting.value) << " AT TIME " << hrs << BR;// cache the previous setting
                 previousSetting = control.setting;
               }
               else if (control.status.isValid) { // if link is open, and a status is being set...
                 // Newly opened - reestablish previous link setting, if possible
                 if (previousSetting.isValid) {
-                  stream << "LINK " << p->name() << " " << std::max(0.0, previousSetting.value) << " AT TIME " << hrs << endl;
+                  stream << "LINK " << name << " " << std::max(0.0, previousSetting.value) << " AT TIME " << hrs << BR;
                 }
               }
             } // isOpen
