@@ -33,15 +33,6 @@ TimeSeries::_sp Pump::energy() {
 }
 
 
-TimeSeries::_sp Pump::curveParameter() {
-  return _curve;
-}
-
-void Pump::setCurveParameter(TimeSeries::_sp curve) {
-  _curve = curve;
-}
-
-
 TimeSeries::_sp Pump::energyMeasure() {
   return _energyMeasure;
 }
@@ -51,3 +42,19 @@ void Pump::setEnergyMeasure(TimeSeries::_sp energy) {
     _energyMeasure = energy;
   }
 }
+
+
+Curve::_sp Pump::headCurve() {
+  return _headCurve;
+}
+void Pump::setHeadCurve(Curve::_sp curve) {
+  _headCurve = curve;
+}
+
+Curve::_sp Pump::efficiencyCurve() {
+  return _efficiencyCurve;
+}
+void Pump::setEfficiencyCurve(Curve::_sp curve) {
+  _efficiencyCurve = curve;
+}
+

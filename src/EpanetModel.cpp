@@ -425,6 +425,7 @@ void EpanetModel::createRtxWrappers() {
           if (pumpCurve) {
             pumpCurve->inputUnits = this->flowUnits();
             pumpCurve->outputUnits = this->headUnits();
+            newPump->setHeadCurve(pumpCurve);
           }
         }
         err = OW_getlinkvalue(_enModel, iLink, EN_EFFICIENCYCURVE, &curveIdx);
@@ -433,6 +434,7 @@ void EpanetModel::createRtxWrappers() {
           if (effCurve) {
             effCurve->inputUnits = this->flowUnits();
             effCurve->outputUnits = RTX_DIMENSIONLESS;
+            newPump->setEfficiencyCurve(effCurve);
           }
         }
       }

@@ -10,6 +10,7 @@
 #define epanet_rtx_Pump_h
 
 #include "Pipe.h"
+#include "Curve.h"
 
 namespace RTX {
   class Pump : public Pipe {
@@ -31,12 +32,17 @@ namespace RTX {
     TimeSeries::_sp energyMeasure();
     void setEnergyMeasure(TimeSeries::_sp energy);
     
+    Curve::_sp headCurve();
+    void setHeadCurve(Curve::_sp curve);
+    
+    Curve::_sp efficiencyCurve();
+    void setEfficiencyCurve(Curve::_sp curve);
+    
     
   private:
     TimeSeries::_sp _energyState;        // state
     TimeSeries::_sp _energyMeasure; // parameter
-    TimeSeries::_sp _curve;
-
+    Curve::_sp _headCurve, _efficiencyCurve;
   };
 
 }

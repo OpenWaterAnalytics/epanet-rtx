@@ -2854,7 +2854,7 @@
 				OTHER_LDFLAGS = "-liodbc";
 				PRODUCT_NAME = "epanet-rtx";
 				RUN_CLANG_STATIC_ANALYZER = NO;
-				SKIP_INSTALL = NO;
+				SKIP_INSTALL = YES;
 			};
 			name = Debug;
 		};
@@ -2890,7 +2890,7 @@
 				OTHER_LDFLAGS = "-liodbc";
 				PRODUCT_NAME = "epanet-rtx";
 				RUN_CLANG_STATIC_ANALYZER = NO;
-				SKIP_INSTALL = NO;
+				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
@@ -3072,7 +3072,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = NO;
+				SKIP_INSTALL = YES;
 			};
 			name = Debug;
 		};
@@ -3111,7 +3111,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = NO;
+				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
