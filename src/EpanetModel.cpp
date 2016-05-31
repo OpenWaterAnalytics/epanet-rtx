@@ -235,8 +235,8 @@ void EpanetModel::createRtxWrappers() {
     
     Curve::_sp newCurve( new Curve );
     newCurve->curveData = curveData;
-    newCurve->inputUnits = this->headUnits();
-    newCurve->outputUnits = this->volumeUnits();
+    newCurve->inputUnits = RTX_DIMENSIONLESS;
+    newCurve->outputUnits = RTX_DIMENSIONLESS;
     newCurve->name = string(buf);
     
     this->addCurve(newCurve);
