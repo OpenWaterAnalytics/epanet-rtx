@@ -438,8 +438,6 @@ void EpanetModel::createRtxWrappers() {
           }
         }
       }
-        
-        
         break;
       case EN_CVPIPE:
       case EN_PSV:
