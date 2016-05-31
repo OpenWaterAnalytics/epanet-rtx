@@ -206,7 +206,6 @@ const string Units::rawUnitString(bool ignoreZeroDimensions) const {
 }
 
 
-
 // class methods
 double Units::convertValue(double value, const Units& fromUnits, const Units& toUnits) {
   if (fromUnits.isSameDimensionAs(toUnits)) {
@@ -217,7 +216,6 @@ double Units::convertValue(double value, const Units& fromUnits, const Units& to
     return 0.;
   }
 }
-
 
 std::map<std::string, Units> Units::unitStringMap = []()
 {

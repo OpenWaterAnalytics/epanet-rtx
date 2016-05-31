@@ -23,19 +23,8 @@ Curve::_sp CurveFunction::curve() {
 }
 
 void CurveFunction::setCurve(Curve::_sp curve) {
-  
-  if (!curve) {
-    _curve = curve;
-  }
-  else if (!this->source()) {
-    _curve = curve;
-  }
-  else if (this->source()->units().isSameDimensionAs(curve->inputUnits)) {
-    _curve = curve;
-  }
-  
+  _curve = curve;
   this->invalidate();
-  
 }
 
 void CurveFunction::clearCurve() {
@@ -75,7 +64,6 @@ TimeSeries::PointCollection CurveFunction::filterPointsInRange(RTX::TimeRange ra
 }
 
 
-
 bool CurveFunction::canSetSource(TimeSeries::_sp ts) {
   if (!_curve) {
     return true;
@@ -109,5 +97,4 @@ bool CurveFunction::willResample() {
 bool CurveFunction::canDropPoints() {
   return true;
 }
-
 
