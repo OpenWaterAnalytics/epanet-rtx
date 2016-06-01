@@ -1034,7 +1034,7 @@ void Model::setSimulationParameters(time_t time) {
     }
   }
   
-  // for reservoirs, set the boundary head and quality conditions
+  // for reservoirs, set the boundary head
   BOOST_FOREACH(Reservoir::_sp reservoir, this->reservoirs()) {
     if (reservoir->boundaryHead()) {
       // get the head measurement parameter, and pass it through as a state.
@@ -1046,19 +1046,6 @@ void Model::setSimulationParameters(time_t time) {
       else {
         stringstream ss;
         ss << "ERROR: Invalid head value for reservoir: " << reservoir->name() << " :: " << asctime(timeinfo);
-        this->logLine(ss.str());
-      }
-    }
-    if (reservoir->boundaryQuality()) {
-      // get the quality measurement parameter, and pass it through as a state.
-      Point p = reservoir->boundaryQuality()->pointAtOrBefore(time);
-      if (p.isValid) {
-        double qualityValue = Units::convertValue(p.value, reservoir->boundaryQuality()->units(), qualityUnits());
-        setReservoirQuality( reservoir->name(), qualityValue );
-      }
-      else {
-        stringstream ss;
-        ss << "ERROR: Invalid quality value for reservoir: " << reservoir->name() << " :: " << asctime(timeinfo);
         this->logLine(ss.str());
       }
     }
@@ -1173,6 +1160,21 @@ void Model::setSimulationParameters(time_t time) {
         else {
           stringstream ss;
           ss << "ERROR: Invalid quality value for junction" << j->name() << " :: " << asctime(timeinfo);
+          this->logLine(ss.str());
+        }
+      }
+    }
+    BOOST_FOREACH(Reservoir::_sp reservoir, this->reservoirs()) {
+      if (reservoir->boundaryQuality()) {
+        // get the quality measurement parameter, and pass it through as a state.
+        Point p = reservoir->boundaryQuality()->pointAtOrBefore(time);
+        if (p.isValid) {
+          double qualityValue = Units::convertValue(p.value, reservoir->boundaryQuality()->units(), qualityUnits());
+          setReservoirQuality( reservoir->name(), qualityValue );
+        }
+        else {
+          stringstream ss;
+          ss << "ERROR: Invalid quality value for reservoir: " << reservoir->name() << " :: " << asctime(timeinfo);
           this->logLine(ss.str());
         }
       }
