@@ -575,10 +575,7 @@ void SqlitePointRecord::insertRange(const std::string& id, std::vector<Point> po
         return;
       }
     }
-    
-    
   }
-  
 }
 
 void SqlitePointRecord::removeRecord(const std::string& id) {

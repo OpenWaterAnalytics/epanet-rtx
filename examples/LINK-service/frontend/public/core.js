@@ -323,6 +323,10 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                 templateUrl: 'templates/destination.part.html',
                 controller: 'DestinationController'
             })
+            .when('/analytics', {
+              templateUrl: 'templates/analytics.part.html',
+              controller: 'AnalyticsController'
+            })
             .when('/options', {
                 templateUrl: 'templates/options.part.html',
                 controller: 'OptionsController'
@@ -543,6 +547,22 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         $scope.connectionMessage = "";
         $scope.connectionStatus = "none";
     })
+
+
+
+
+    /**************************/
+    /******* ANALYTICS ********/
+    /**************************/
+    .controller('AnalyticsController', function AnalyticsController($rootScope, $scope, $http, $location) {
+
+
+      // on load
+      
+
+    })
+
+
 
     /**************************/
     /******** OPTIONS *********/
