@@ -273,6 +273,8 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
           stream << BR << "; RTX Time-Based Control for " << name << BR;
           
           Point previousSetting;
+          auto c1 = controls.begin();
+          previousSetting = c1->second.setting; // initial setting for initially "off" controls
           
           for (auto c: controls) {
             time_t t = c.first;
