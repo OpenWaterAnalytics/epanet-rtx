@@ -668,6 +668,13 @@
 			remoteGlobalIDString = 22E3FA4D1432A24D0001579B;
 			remoteInfo = runepanetmsx;
 		};
+		22F05B721D05E0560047A36F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2288C10F1BE3C5DC00F9B8FB;
+			remoteInfo = TimeSeriesDuplicator;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -1918,6 +1925,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				22F05B731D05E0560047A36F /* PBXTargetDependency */,
 				228137DB1CA2F25D00AD81F3 /* PBXTargetDependency */,
 			);
 			name = "LINK-service";
@@ -2668,6 +2676,11 @@
 			isa = PBXTargetDependency;
 			target = 221BFD311A8E8AD000143FCC /* epanet-rtx static deps */;
 			targetProxy = 228CA8E31AA0D9CE00D0353E /* PBXContainerItemProxy */;
+		};
+		22F05B731D05E0560047A36F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2288C10F1BE3C5DC00F9B8FB /* TimeSeriesDuplicator */;
+			targetProxy = 22F05B721D05E0560047A36F /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

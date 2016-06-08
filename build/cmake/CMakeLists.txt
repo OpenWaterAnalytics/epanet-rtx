@@ -14,7 +14,6 @@ SET (CMAKE_CXX_FLAGS "-Wall -std=c++11 -stdlib=libstdc++ -fblocks")
 add_definitions(-DRTX_NO_MYSQL)
 
 file(GLOB EPANET_SOURCES ../../../EPANET/src/*.c)
-file(GLOB RTX_SOURCES ../../src/*.cpp)
 
 # epanet
 include_directories(../../../EPANET/include ../../../EPANET/src)
@@ -23,21 +22,16 @@ SET_TARGET_PROPERTIES(epanet PROPERTIES LINKER_LANGUAGE C)
 
 # the rtx library
 include_directories(../../src ../../project ../../../EPANET/include ../../../EPANET/src ../../../epanet-msx/include /usr/local/include /usr/local/include/iODBC /usr/include/python2.7 /usr/include)
-add_library(epanet-rtx STATIC  ${RTX_SOURCES})
+add_library(epanet-rtx STATIC  ../../src/AggregatorTimeSeries.cpp ../../src/BaseStatsTimeSeries.cpp ../../src/BufferPointRecord.cpp ../../src/Clock.cpp ../../src/ConstantTimeSeries.cpp ../../src/CorrelatorTimeSeries.cpp ../../src/Curve.cpp ../../src/CurveFunction.cpp ../../src/DbPointRecord.cpp ../../src/Dma.cpp ../../src/Element.cpp ../../src/EpanetModel.cpp ../../src/EpanetModelExporter.cpp ../../src/EpanetMsxModel.cpp ../../src/EpanetSyntheticModel.cpp ../../src/FailoverTimeSeries.cpp ../../src/FirstDerivative.cpp ../../src/GainTimeSeries.cpp ../../src/InfluxDbPointRecord.cpp ../../src/InpTextPattern.cpp ../../src/IntegratorTimeSeries.cpp ../../src/InversionTimeSeries.cpp ../../src/Junction.cpp ../../src/LagTimeSeries.cpp ../../src/Link.cpp ../../src/LogicTimeSeries.cpp ../../src/MathOpsTimeSeries.cpp ../../src/MetaTimeSeries.cpp ../../src/Model.cpp ../../src/ModelPerformance.cpp ../../src/MovingAverage.cpp ../../src/MultiplierTimeSeries.cpp ../../src/Node.cpp ../../src/OdbcDirectPointRecord.cpp ../../src/OdbcPointRecord.cpp ../../src/OffsetTimeSeries.cpp ../../src/OutlierExclusionTimeSeries.cpp ../../src/Pipe.cpp ../../src/Point.cpp ../../src/PointRecord.cpp ../../src/PointRecordTime.cpp ../../src/Pump.cpp ../../src/Reservoir.cpp ../../src/SineTimeSeries.cpp ../../src/SqlitePointRecord.cpp ../../src/StatsTimeSeries.cpp ../../src/Tank.cpp ../../src/ThresholdTimeSeries.cpp ../../src/TimeRange.cpp ../../src/TimeSeries.cpp ../../src/TimeSeriesFilter.cpp ../../src/TimeSeriesFilterSecondary.cpp ../../src/TimeSeriesFilterSinglePoint.cpp ../../src/TimeSeriesSynthetic.cpp ../../src/Units.cpp ../../src/ValidRangeTimeSeries.cpp ../../src/Valve.cpp ../../src/)
 target_compile_definitions(epanet-rtx PRIVATE MAXFLOAT=3.40282347e+38F)
 target_link_libraries(epanet-rtx epanet curl boost_system boost_filesystem boost_date_time boost_regex iodbc sqlite3 m)
 
-# the project library
-include_directories(../../project)
-add_library(epanet-rtx-project STATIC ../../project/ProjectFile.cpp ../../project/SqliteProjectFile.cpp)
-target_link_libraries(epanet-rtx-project epanet-rtx sqlite3)
-
 # the duper library
-include_directories(../../examples/Duplicator ../../project)
+include_directories(../../examples/Duplicator)
 add_library(timeseries_duplicator STATIC ../../examples/Duplicator/TimeSeriesDuplicator.cpp)
 
-# the standalone duper executable
-include_directories(../../examples/Duplicator)
+# the link service executable
+include_directories(../../examples/LINK-service)
 link_directories(/usr/local/lib)
-add_executable(rtxduplicator ../../examples/Duplicator/DuperDaemon.cpp)
-target_link_libraries(rtxduplicator LINK_PUBLIC timeseries_duplicator epanet-rtx epanet-rtx-project boost_thread boost_program_options pthread BlocksRuntime)
+add_executable(link-server ../../examples/LINK-service/LinkService.cpp ../../examples/LINK-service/LinkJsonSerialization.cpp ../../examples/LINK-service/main.cpp)
+target_link_libraries(link-server LINK_PUBLIC timeseries_duplicator epanet-rtx boost_thread boost_program_options pthread BlocksRuntime)

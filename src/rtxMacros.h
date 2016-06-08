@@ -10,6 +10,7 @@
 #define epanet_rtx_rtxMacros_h
 
 #include <iostream>
+#include <memory>
 
 #include "RTX_Visitable.h"
 

@@ -588,8 +588,6 @@ int Dma::allocateDemandToJunctions(time_t time) {
   // apply this to each base demand
   // add each scaled base demand to the appropriate node's demand pattern.
   int err = 0;
-
-  typedef std::map< std::string, Junction::_sp > JunctionMapType;
   double totalBaseDemand = 0;
   double dmaDemand = 0;
   double allocableDemand = 0;

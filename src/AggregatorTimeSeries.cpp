@@ -21,7 +21,6 @@ ostream& AggregatorTimeSeries::toStream(ostream &stream) {
   TimeSeries::toStream(stream);
   stream << "Connected to: " << _tsList.size() << " time series:" << "\n";
   
-  typedef std::pair<TimeSeries::_sp,double> tsMultPair_t;
   for(const AggregatorSource& aggSource: _tsList) {
     string dir = (aggSource.multiplier > 0)? "(+)" : "(-)";
     stream << "    " << dir << " " << aggSource.timeseries->name() << endl;
@@ -104,9 +103,6 @@ std::vector< AggregatorTimeSeries::AggregatorSource > AggregatorTimeSeries::sour
 }
 
 void AggregatorTimeSeries::setMultiplierForSource(TimeSeries::_sp timeSeries, double multiplier) {
-  // _tsList[x].first == TimeSeries, _tsList[x].second == multipier
-  // (private) std::vector< std::pair<TimeSeries::_sp,double> > _tsList;
-  typedef std::pair<TimeSeries::_sp, double> tsDoublePair_t;
   for(AggregatorSource& item: _tsList) {
     if (item.timeseries == timeSeries) {
       item.multiplier = multiplier;
