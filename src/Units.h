@@ -83,6 +83,9 @@
 #define RTX_WATT                   RTX::Units(1,             1,2,-3)
 #define RTX_KILOWATT               RTX::Units(1000,          1,2,-3)
 
+// energy density
+#define RTX_ENERGY_DENSITY        RTX::Units(3600000,        1,-1,-2)
+
 namespace RTX {
   /*!
    \class Units
@@ -113,7 +116,7 @@ namespace RTX {
   public:
     RTX_BASE_PROPS(Units);
     
-    Units(double conversion = 1., int mass = 0, int length = 0, int time = 0, int current = 0, int temperature = 0, int amount = 0, int intensity = 0, double offset = 0);
+    Units(double conversion = 1., int kilogram = 0, int meter = 0, int second = 0, int ampere = 0, int kelvin = 0, int mole = 0, int candela = 0, double offset = 0);
     
     Units operator*(const Units& unit) const;
     Units operator*(const double factor) const;
@@ -136,13 +139,13 @@ namespace RTX {
     virtual std::ostream& toStream(std::ostream &stream) const;
     
   private:
-    int _length;
-    int _mass;
-    int _time;
-    int _current;
-    int _temperature;
-    int _amount;
-    int _intensity;
+    int _m;
+    int _kg;
+    int _s;
+    int _A;
+    int _K;
+    int _mol;
+    int _cd;
     double _conversion;
     double _offset;
   };

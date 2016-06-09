@@ -23,15 +23,15 @@ using namespace std;
 
 
 Units::Units(double conversion, int mass, int length, int time, int current, int temperature, int amount, int intensity, double offset) {
-  _mass         = mass;
-  _length       = length;
-  _time         = time;
-  _current      = current;
-  _temperature  = temperature;
-  _amount       = amount;
-  _intensity    = intensity;
-  _conversion   = conversion;
-  _offset       = offset;
+  _kg         = mass;
+  _m          = length;
+  _s          = time;
+  _A          = current;
+  _K          = temperature;
+  _mol        = amount;
+  _cd         = intensity;
+  _conversion = conversion;
+  _offset     = offset;
 }
 
 const double Units::conversion() const {
@@ -49,18 +49,18 @@ Units Units::operator*(const Units& unit) const {
   }
   
   return Units(_conversion * unit._conversion,
-               _mass + unit._mass,
-               _length + unit._length,
-               _time + unit._time,
-               _current + unit._current,
-               _temperature + unit._temperature,
-               _amount + unit._amount,
-               _intensity + unit._intensity);
+               _kg + unit._kg,
+               _m + unit._m,
+               _s + unit._s,
+               _A + unit._A,
+               _K + unit._K,
+               _mol + unit._mol,
+               _cd + unit._cd);
 }
 
 Units Units::operator*(const double factor) const {
   return Units(_conversion * factor,
-               _mass, _length, _time, _current, _temperature, _amount, _intensity, _offset);
+               _kg, _m, _s, _A, _K, _mol, _cd, _offset);
 }
 
 
@@ -69,38 +69,38 @@ Units Units::operator/(const Units& unit) const {
     return RTX_NO_UNITS;
   }
   return Units(_conversion / unit._conversion,
-               _mass - unit._mass,
-               _length - unit._length,
-               _time - unit._time,
-               _current - unit._current,
-               _temperature - unit._temperature,
-               _amount - unit._amount,
-               _intensity - unit._intensity);
+               _kg - unit._kg,
+               _m - unit._m,
+               _s - unit._s,
+               _A - unit._A,
+               _K - unit._K,
+               _mol - unit._mol,
+               _cd - unit._cd);
 }
 
 
 Units Units::operator^(const double power) const {
-  int mass = round(_mass*power);
-  int length = round(_length*power);
-  int time = round(_time*power);
-  int current = round(_current*power);
-  int temperature = round(_temperature*power);
-  int amount = round(_amount*power);
-  int intensity = round(_intensity*power);
+  int mass = round(_kg*power);
+  int length = round(_m*power);
+  int time = round(_s*power);
+  int current = round(_A*power);
+  int temperature = round(_K*power);
+  int amount = round(_mol*power);
+  int intensity = round(_cd*power);
   
   return Units(pow(_conversion,power), mass, length, time, current, temperature, amount, intensity);
 }
 
 bool Units::operator==(const RTX::Units &unit) const {
   if (_conversion == unit._conversion &&
-      _mass         == unit._mass         &&
-      _length       == unit._length       &&
-      _time         == unit._time         &&
-      _current      == unit._current      &&
-      _temperature  == unit._temperature  &&
-      _amount       == unit._amount       &&
-      _intensity    == unit._intensity    &&
-      _offset       == unit._offset       ){
+      _kg         == unit._kg       &&
+      _m          == unit._m        &&
+      _s          == unit._s        &&
+      _A          == unit._A        &&
+      _K          == unit._K        &&
+      _mol        == unit._mol      &&
+      _cd         == unit._cd       &&
+      _offset     == unit._offset   ){
     return true;
   }
   return false;
@@ -120,13 +120,13 @@ const bool Units::isSameDimensionAs(const Units& unit) const {
     // if no units assigned, can't be same dimension, right?
     return false;
   }
-  if (_mass         == unit._mass         &&
-      _length       == unit._length       &&
-      _time         == unit._time         &&
-      _current      == unit._current      &&
-      _temperature  == unit._temperature  &&
-      _amount       == unit._amount       &&
-      _intensity    == unit._intensity ) {
+  if (_kg         == unit._kg         &&
+      _m       == unit._m       &&
+      _s         == unit._s         &&
+      _A      == unit._A      &&
+      _K  == unit._K  &&
+      _mol       == unit._mol       &&
+      _cd    == unit._cd ) {
     return true;
   }
   else {
@@ -135,13 +135,13 @@ const bool Units::isSameDimensionAs(const Units& unit) const {
 }
 
 const bool Units::isDimensionless() const {
-  if (_mass         == 0  &&
-      _length       == 0  &&
-      _time         == 0  &&
-      _current      == 0  &&
-      _temperature  == 0  &&
-      _amount       == 0  &&
-      _intensity    == 0  ) {
+  if (_kg         == 0  &&
+      _m       == 0  &&
+      _s         == 0  &&
+      _A      == 0  &&
+      _K  == 0  &&
+      _mol       == 0  &&
+      _cd    == 0  ) {
     return true;
   }
   else {
@@ -194,13 +194,13 @@ const string Units::unitString() const {
 const string Units::rawUnitString(bool ignoreZeroDimensions) const {
   stringstream stream;
   stream << _conversion;
-  if (_mass != 0        || !ignoreZeroDimensions) { stream << "*[kg^"      << _mass         << "]"; }
-  if (_length != 0      || !ignoreZeroDimensions) { stream << "*[m^"       << _length       << "]"; }
-  if (_time != 0        || !ignoreZeroDimensions) { stream << "*[s^"       << _time         << "]"; }
-  if (_current != 0     || !ignoreZeroDimensions) { stream << "*[A^"       << _current      << "]"; }
-  if (_temperature != 0 || !ignoreZeroDimensions) { stream << "*[K^"       << _temperature  << "]"; }
-  if (_amount != 0      || !ignoreZeroDimensions) { stream << "*[mol^"     << _amount       << "]"; }
-  if (_intensity != 0   || !ignoreZeroDimensions) { stream << "*[cd^"      << _intensity    << "]"; }
+  if (_kg != 0        || !ignoreZeroDimensions) { stream << "*[kg^"      << _kg         << "]"; }
+  if (_m != 0      || !ignoreZeroDimensions) { stream << "*[m^"       << _m       << "]"; }
+  if (_s != 0        || !ignoreZeroDimensions) { stream << "*[s^"       << _s         << "]"; }
+  if (_A != 0     || !ignoreZeroDimensions) { stream << "*[A^"       << _A      << "]"; }
+  if (_K != 0 || !ignoreZeroDimensions) { stream << "*[K^"       << _K  << "]"; }
+  if (_mol != 0      || !ignoreZeroDimensions) { stream << "*[mol^"     << _mol       << "]"; }
+  if (_cd != 0   || !ignoreZeroDimensions) { stream << "*[cd^"      << _cd    << "]"; }
   if (_offset != 0      || !ignoreZeroDimensions) { stream << "+[offset="  << _offset       << "]"; }
   return stream.str();
 }
@@ -286,6 +286,9 @@ std::map<std::string, Units> Units::unitStringMap = []()
   m["kwh"] = RTX_KILOWATT_HOUR;
   m["mj"] = RTX_MEGAJOULE;
   m["j"] = RTX_JOULE;
+  
+  // energy density
+  m["kW-H/m³"] = RTX_ENERGY_DENSITY;
   
   m["xx-no-units"] = RTX_NO_UNITS;
   m["%"] = RTX_PERCENT;
@@ -399,7 +402,7 @@ Units Units::unitOfType(const string& unitString) {
     }
   }
   
-  return Units::Units(conversionFactor, mass, length, time, current, temperature, amount, intensity, offset);
+  return Units(conversionFactor, mass, length, time, current, temperature, amount, intensity, offset);
   
 }
 
