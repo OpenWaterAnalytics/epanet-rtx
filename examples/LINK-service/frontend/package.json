@@ -14,6 +14,8 @@
     "method-override": "~2.3.5",
     "os": "^0.1.1",
     "path": "^0.12.7",
-    "request": "^2.72.0"
+    "request": "^2.72.0",
+    "respawn": "^2.4.1",
+    "minimist": "^1.2.0"
   }
 }

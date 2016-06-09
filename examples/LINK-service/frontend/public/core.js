@@ -1,7 +1,7 @@
 // public/core.js
 var rtxLink = angular.module('rtxLink', ['ngRoute'])
 
-    .run(function ($rootScope, $timeout, $http, $interval) {
+    .run(function ($rootScope, $timeout, $http, $interval, $location) {
 
         $rootScope.config = {
             source:      {},
@@ -197,6 +197,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                 }
             } else {
                 errStr = 'Error: NODE service offline or unreachable.';
+                console.log(response);
             }
             $rootScope.showError(errStr);
         };
@@ -207,12 +208,12 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
             console.log($rootScope.config.dash);
             $http({
                 method: 'POST',
-                url: 'http://localhost:8585/dash',
+                url: 'http://' + $location.host() + ':8585/dash',
                 headers: {'Content-type': 'application/json'},
                 data: $rootScope.config.dash
             }).then(function (response) {
               console.log('success saving dash meta. now requesting to save entire config');
-              $http.get('http://localhost:8585/saveConfig')
+              $http.get('http://' + $location.host() + ':8585/saveConfig')
                   .then(function (response) {
                       console.log('sent request to save config');
                       console.log(response.data);
@@ -233,6 +234,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
             $rootScope.relayGet(urlPath,function (successResponse) {
                 typeof callback == "function" && callback(successResponse.data);
             }, function (errResponse) {
+                console.log('error getting form data: ' + urlPath);
                 $rootScope.notifyHttpError(errResponse);
             });
         };
@@ -243,12 +245,13 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                 function (response) {
                     // this is fine
                 }, function (response) {
+                    console.log('error in ping');
                     $rootScope.notifyHttpError(response);
                 });
         };
 
         $rootScope.relayGet = function (path, successCallback, failureCallback) {
-            $http.get('http://localhost:8585/link-relay/' + path)
+            $http.get('http://' + $location.host() + ':8585/link-relay/' + path)
                 .then(function (response) {
                     typeof successCallback == "function" && successCallback(response);
                 }, function (errResponse) {
@@ -261,7 +264,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
             console.log(data);
             $http({
                 method: 'POST',
-                url: 'http://localhost:8585/link-relay/' + path,
+                url: 'http://' + $location.host() + ':8585/link-relay/' + path,
                 headers: {'Content-type': 'application/json'},
                 data: data
             }).then(function (response) {
@@ -276,7 +279,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
         var pingInterval = $interval($rootScope.ping, 1000);
         $rootScope.$on('$destroy', function () { $interval.cancel(pingInterval); });
 
-        $http.get('http://localhost:8585/dash')
+        $http.get('http://' + $location.host() + ':8585/dash')
             .then(function (response) {
                 $rootScope.config.dash = response.data;
                 if (!$rootScope.config.dash) {
@@ -521,6 +524,8 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
 
         $scope.connect = function (callback, errCallback) {
             $rootScope.config.destination._class = 'influx';
+            $scope.connectionMessage = "Trying Connection...";
+            $scope.connectionStatus = "wait";
             $rootScope.relayPost('destination', $rootScope.config.destination,
                 function (response) {
                   $scope.connectionMessage = "Connection Successful";
@@ -558,7 +563,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
 
 
       // on load
-      
+
 
     })
 
@@ -599,7 +604,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
             // relay data to Node, since we can't make real POST requests otherwise.
             $http({
                 method: 'POST',
-                url: 'http://localhost:8585/send_dashboards',
+                url: 'http://' + $location.host() + ':8585/send_dashboards',
                 headers: {
                     'Content-Type': 'application/json'
                 },

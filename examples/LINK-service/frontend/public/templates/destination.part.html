@@ -25,9 +25,9 @@
     <hr>
       <div class="row">
         <div class="col-md-8">
-        <div class="alert" role="alert" ng-class="{'alert-success' : connectionStatus == 'ok' , 'alert-danger' : connectionStatus == 'err'}">
+        <div class="alert" role="alert" ng-class="{'alert-success' : connectionStatus == 'ok' , 'alert-danger' : connectionStatus == 'err', 'alert-warning' : connectionStatus == 'wait'}">
           {{connectionMessage}}
-          <span class="glyphicon pull-right" ng-class="{'glyphicon-ok' : connectionStatus == 'ok' ,  'glyphicon-remove' : connectionStatus == 'err' }" aria-hidden="true"></span>
+          <span class="glyphicon pull-right" ng-class="{'glyphicon-ok' : connectionStatus == 'ok' ,  'glyphicon-remove' : connectionStatus == 'err', 'glyphicon-hourglass' : connectionStatus == 'wait' }" aria-hidden="true"></span>
         </div>
       </div>
       </div>

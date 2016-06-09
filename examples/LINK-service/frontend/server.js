@@ -9,11 +9,103 @@ var request = require('request');
 var path = require('path');
 var os = require('os');
 var fs = require('fs-extra');
+var respawn = require('respawn');
+var parseArgs = require('minimist');
 
-var link_server_host = 'http://localhost:3131';
+// config options ===============================
+const link_server_host = 'http://localhost:3131';
+const linkExeName = 'link-server';
+const linkExePath = path.join(__dirname,'bin',process.platform,linkExeName);
+const linkDir = path.join(os.homedir(),'rtx_link');
+const configFile = path.join(linkDir,'config.json');
+var config = {};
+jsf.spaces = 2;
 
-// configuration =================
+// ensure that the config file is there. create it if it does not exist
+fs.ensureFile(configFile, function() {
+  // ok, file is there
+});
 
+
+sendConfig = function() {
+  var obj;
+  try {
+    config = jsf.readFileSync(configFile);
+    var opts = {
+        method: "POST",
+        url: link_server_host + "/config",
+        json: config
+    }; // opts
+    request(opts, function(error, response, body) {
+        if (error) {
+            console.log("ERROR sending config :: ");
+            console.log(error);
+            return false;
+        }
+        else {
+            console.log('sent config to LINK service');
+        }
+    }); // request
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+  return true;
+};
+
+
+// check runtime options using minimist
+var debug = false; // using external LINK service = do not spawn
+var argv = parseArgs(process.argv);
+if (argv.debug) {
+  debug = true;
+  console.log("==================================================");
+  console.log("====  DEBUG MODE: USING EXTERNAL LINK SERVICE ====");
+  console.log("==================================================");
+  sendConfig(); // normally handled in spawn
+}
+
+
+// start the LINK server cmd-line app ======================================
+var link_monitor = respawn([linkExePath], {maxRestarts:10, sleep:2000});
+link_monitor.on('stdout', function(data) {
+  console.log('stdout: ' + data);
+});
+link_monitor.on('stderr', function(data) {
+  console.log('stderr: ' + data);
+});
+link_monitor.on('spawn', function(child) {
+  console.log('LINK MONITOR is spawning');
+  console.log('SENDING CONFIG to new instance');
+  setTimeout(function() {
+    ok = sendConfig();
+    if (!ok) {
+      // respawn?
+      console.log('error sending config. respawning');
+      link_monitor.stop(function() {
+          link_monitor.start();
+      });
+    }
+  }, 2000);
+});
+link_monitor.on('warn', function(error) {
+  console.log('LINK warning: ' + error);
+});
+link_monitor.on('exit', function(code,signal) {
+  console.log('LINK exited with code: ' + code);
+});
+if (!debug) {
+  link_monitor.start() // spawn and watch
+}
+
+
+
+
+
+
+
+
+// express configuration =================
 app.use(express.static(__dirname + '/public'));                 // set the static files location /public/img will be /img for users
 app.use(bodyParser.json());                                     // parse application/json
 app.use(bodyParser.urlencoded({'extended':'true'}));            // parse application/x-www-form-urlencoded
@@ -24,15 +116,6 @@ app.use(methodOverride());
 app.get('/', function(req, res) {
     res.sendfile('./public/index.html'); // load the single view file (angular will handle the page changes on the front-end)
 });
-
-//---  save/load configuration json file  ---//
-var linkDir = path.join(os.homedir(),'rtx_link');
-var configFile = path.join(linkDir,'config.json');
-var config = {};
-
-
-jsf.spaces = 2;
-
 
 
 //
@@ -90,7 +173,11 @@ app.route('/link-relay/:linkPath/:subPath?')
             if (error) {
                 console.log("RTX-LINK Error :: ");
                 console.log(error);
-                res.status(500).json({error: "RTX-LINK Error :: " + error.message});
+                msg = error.message;
+                if (error.code == 'ECONNREFUSED') {
+                  msg = 'LINK service offline or unreachable';
+                }
+                res.status(500).json({error: "RTX-LINK Error :: " + msg + " - Server status is " + link_monitor.status});
             }
             else {
                 res.status(response.statusCode).send(body);
@@ -103,37 +190,6 @@ app.route('/link-relay/:linkPath/:subPath?')
 
 
 
-sendConfig = function() {
-  var obj;
-  try {
-    obj = jsf.readFileSync(configFile);
-    console.log(obj);
-    config = obj;
-
-    var opts = {
-        method: "POST",
-        url: link_server_host + "/config",
-        json: obj
-    }; // opts
-
-    request(opts, function(error, response, body) {
-        if (error) {
-            console.log("RTX-LINK Error :: ");
-            console.log(error);
-            throw error;
-        }
-        else {
-            console.log('sent config to LINK service');
-            return;
-        }
-    }); // request
-  } catch (e) {
-    console.log(e);
-    return false;
-  }
-
-  return true;
-};
 
 app.get('/saveConfig', function (req, res) {
   // get the config from LINK service, and save locally
@@ -171,44 +227,7 @@ app.get('/saveConfig', function (req, res) {
 });
 
 
-var linkServer;
-var launchLink = function () {
-    // start up LINK service
-    var linkExeName = 'link-server';
-    var opts = [];
-    var linkExePath = path.join(__dirname,'bin',process.platform,linkExeName);
-    const child_process = require('child_process');
-
-    linkServer = child_process.spawn(linkExePath, opts);
-
-    linkServer.stdout.on('data', function (data) {
-        console.log('stdout: ' + data);
-    });
-
-    linkServer.stderr.on('data', function (data) {
-        console.log('stderr: ' + data);
-    });
-
-    linkServer.on('close', function (code) {
-        console.log('child process exited with code ' + code);
-    });
-
-    linkServer.on('error', function (err) {
-        console.log('could not launch LINK: ' + err);
-    });
-
-};
-
-
-
-launchLink();
-
 // listen (start app with node server.js) ======================================
-fs.ensureFile(configFile, function() {
-  // ok
-  sent = sendConfig();
-
-});
 app.listen(8585);
 console.log("App listening on port 8585");
 

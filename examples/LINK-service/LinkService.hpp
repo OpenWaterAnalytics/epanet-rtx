@@ -22,7 +22,7 @@
 
 
 #include "TimeSeries.h"
-#include "InfluxdbPointRecord.h"
+#include "InfluxDbPointRecord.h"
 #include "OdbcPointRecord.h"
 
 #include "LinkJsonSerialization.hpp"
