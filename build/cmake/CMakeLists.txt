@@ -10,7 +10,7 @@ SET (LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
 project (EPANET-RTX)
 SET (CMAKE_C_FLAGS "-std=c99")
-SET (CMAKE_CXX_FLAGS "-v -Wall -std=c++11")
+SET (CMAKE_CXX_FLAGS "-Wall -std=c++11")
 add_definitions(-DRTX_NO_MYSQL)
 
 

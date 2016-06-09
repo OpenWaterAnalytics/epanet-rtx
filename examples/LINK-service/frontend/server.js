@@ -94,6 +94,9 @@ link_monitor.on('warn', function(error) {
 link_monitor.on('exit', function(code,signal) {
   console.log('LINK exited with code: ' + code);
 });
+link_monitor.on('crash', function() {
+  throw new Error('LINK SERVICE CRASHED');
+})
 if (!debug) {
   link_monitor.start() // spawn and watch
 }
