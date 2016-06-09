@@ -706,8 +706,6 @@ time_t EpanetModel::nextHydraulicStep(time_t time) {
     cerr << "time not synchronized!" << endl;
   }
   // get the time of the next hydraulic event (according to the simulation)
-  long tankTimeStep = 0;
-  long controlTimeStep = 0;
   time_t nextTime = time;
   // re-set the epanet engine's hydstep parameter to the original value,
   // so that the step length figurer-outerer works.

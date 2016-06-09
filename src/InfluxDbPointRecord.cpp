@@ -309,7 +309,6 @@ InfluxDbPointRecord::MetricInfo InfluxDbPointRecord::metricInfoFromName(const st
 const string InfluxDbPointRecord::nameFromMetricInfo(RTX::InfluxDbPointRecord::MetricInfo info) {
   stringstream ss;
   ss << info.measurement;
-  typedef pair<string,string> stringPair;
   for (auto p : info.tags) {
     ss << "," << p.first << "=" << p.second;
   }
@@ -505,9 +504,8 @@ DbPointRecord::Query InfluxDbPointRecord::queryPartsFromMetricId(const std::stri
   q.select = {"time", "value", "quality", "confidence"};
   q.from = "\"" + m.measurement + "\"";
   
-  typedef pair<string,string> stringPair;
   if (m.tags.size() > 0) {
-    for( stringPair p : m.tags) {
+    for( auto p : m.tags) {
       stringstream ss;
       ss << p.first << "='" << p.second << "'";
       q.where.push_back(ss.str());
