@@ -44,7 +44,7 @@ std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(json::value json);
 
 InfluxDbPointRecord::InfluxDbPointRecord() {
   _connected = false;
-  _lastIdRequest = time(NULL);
+  _lastIdRequest = 0;
   host = "HOST";
   user = "USER";
   pass = "PASS";
@@ -174,11 +174,12 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
   {
     scoped_lock<boost::signals2::mutex> lock(*_mutex);
     if (this->readonly()) {
-      // already here. ok if units match. otherwise no-no
-      return (_identifiersAndUnitsCache.count(properId) && _identifiersAndUnitsCache[properId] == units);
+      // if it's here then it's here. if not, too bad.
+      return (this->exists(properId, units));
     }
-    // otherwise, fine. add the series.
+    // otherwise, great. add the series.
     _identifiersAndUnitsCache[properId] = units;
+    _lastIdRequest = 0;
   }
   
   // insert a field key/value for something that we won't ever query again.
@@ -487,7 +488,16 @@ void InfluxDbPointRecord::truncate() {
   this->errorMessage = "Truncating";
   auto ids = _identifiersAndUnitsCache; // copy
   for (auto ts_units : ids) {
-    this->removeRecord(ts_units.first);
+    string id = ts_units.first;
+    MetricInfo m = InfluxDbPointRecord::metricInfoFromName(id);
+    string measureName = m.measurement;
+    stringstream sqlss;
+    sqlss << "DROP MEASUREMENT " << measureName;
+    http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, sqlss.str());
+    json::value v = _InfluxDbPointRecord_jsonFromGet(*this, uri);
+  }
+  
+  for (auto ts_units : ids) {
     this->insertIdentifierAndUnits(ts_units.first, ts_units.second);
   }
   
