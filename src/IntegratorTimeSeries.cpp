@@ -36,7 +36,7 @@ TimeSeries::PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange 
   time_t lastReset = this->resetClock()->timeBefore(range.start + 1);
   
   // lagging area, so get this time or the one before it.
-  time_t leftMostTime = this->source()->timeBefore(lastReset);
+  time_t leftMostTime = this->source()->timeBefore(lastReset + 1);
   // to-do :: should we resample the source here, for special cases?
   
   // get next point in case it's out of the specified range
@@ -57,11 +57,16 @@ TimeSeries::PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange 
   prev = sourceData.points.begin();
   vEnd = sourceData.points.end();
   
-  time_t nextReset = this->resetClock()->timeAfter(range.start);
+  time_t nextReset = lastReset; //this->resetClock()->timeAfter(range.start);
   double integratedValue = 0;
   
   ++cursor;
   while (cursor != vEnd) {
+    
+    time_t dt = cursor->time - prev->time;
+    double meanValue = (cursor->value + prev->value) / 2.;
+    double area = meanValue * double(dt);
+    integratedValue += area;
     
     // should we reset?
     if (cursor->time >= nextReset) {
@@ -69,10 +74,6 @@ TimeSeries::PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange 
       nextReset = this->resetClock()->timeAfter(cursor->time);
     }
     
-    time_t dt = cursor->time - prev->time;
-    double meanValue = (cursor->value + prev->value) / 2.;
-    double area = meanValue * double(dt);
-    integratedValue += area;
     if (range.contains(cursor->time)) {
       Point p(cursor->time, integratedValue);
       p.addQualFlag(Point::rtx_integrated);
