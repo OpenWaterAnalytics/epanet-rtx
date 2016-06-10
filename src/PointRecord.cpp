@@ -49,6 +49,10 @@ const map<string, Units> PointRecord::identifiersAndUnits() {
   return map<string, Units>();
 }
 
+bool PointRecord::exists(const std::string &name, const RTX::Units &units) {
+  map<string,Units> available = this->identifiersAndUnits();
+  return available.count(name) && available[name] == units;
+}
 
 
 Point PointRecord::point(const string& identifier, time_t time) {

@@ -68,6 +68,8 @@ namespace RTX {
     virtual bool registerAndGetIdentifierForSeriesWithUnits(std::string recordName, Units units);    // registering record names.
     const virtual std::map<std::string, Units> identifiersAndUnits();
     
+    bool exists(const std::string& name, const Units& units);
+    
     //virtual bool isPointAvailable(const string& identifier, time_t time);
     virtual Point point(const string& identifier, time_t time);
     virtual Point pointBefore(const string& identifier, time_t time);
