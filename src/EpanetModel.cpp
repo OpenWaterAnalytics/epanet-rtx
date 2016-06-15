@@ -126,8 +126,8 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   this->setVolumeUnits(volumeUnits);
   
   // what units are quality in? who knows!
-  this->setQualityUnits(RTX_MICROSIEMENS_PER_CM);
-  OW_API_CHECK(OW_setqualtype(_enModel, CHEM, (char*)"rtxConductivity", (char*)"us/cm", (char*)""), "OW_setqualtype");
+  //this->setQualityUnits(RTX_MICROSIEMENS_PER_CM);
+  //OW_API_CHECK(OW_setqualtype(_enModel, CHEM, (char*)"rtxConductivity", (char*)"us/cm", (char*)""), "OW_setqualtype");
   
   // get simulation parameters
   OW_API_CHECK(OW_gettimeparam(_enModel, EN_HYDSTEP, &enTimeStep), "OW_gettimeparam EN_HYDSTEP");
