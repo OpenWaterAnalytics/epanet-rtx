@@ -854,6 +854,9 @@ void Model::setInitialJunctionUniformQuality(double qual) {
   BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
     tank->setInitialQuality(qual);
   }
+  for(auto r : this->reservoirs()) {
+    r->setInitialQuality(qual);
+  }
   this->applyInitialQuality();
 }
 

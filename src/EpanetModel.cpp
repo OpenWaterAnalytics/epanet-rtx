@@ -878,6 +878,14 @@ void EpanetModel::applyInitialQuality() {
     OW_API_CHECK(OW_setnodevalue(_enModel, iNode, EN_INITQUAL, qual), "OW_setnodevalue - EN_INITQUAL");
   }
   
+  // reservoirs
+  for(auto r: this->reservoirs()) {
+    double q = r->initialQuality();
+    int iNode = _nodeIndex[r->name()];
+    OW_API_CHECK(OW_setnodevalue(_enModel, iNode, EN_INITQUAL, q), "OW_setnodevalue - EN_INITIALQUAL");
+  }
+  
+  
   OW_API_CHECK(OW_initQ(_enModel, EN_NOSAVE), "ENinitQ");
 }
 

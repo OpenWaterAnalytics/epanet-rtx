@@ -193,15 +193,15 @@ const string Units::unitString() const {
 
 const string Units::rawUnitString(bool ignoreZeroDimensions) const {
   stringstream stream;
-  stream << _conversion;
-  if (_kg != 0        || !ignoreZeroDimensions) { stream << "*[kg^"      << _kg         << "]"; }
-  if (_m != 0      || !ignoreZeroDimensions) { stream << "*[m^"       << _m       << "]"; }
-  if (_s != 0        || !ignoreZeroDimensions) { stream << "*[s^"       << _s         << "]"; }
+  stream << boost::lexical_cast<string>(_conversion);
+  if (_kg != 0    || !ignoreZeroDimensions) { stream << "*[kg^"      << _kg         << "]"; }
+  if (_m != 0     || !ignoreZeroDimensions) { stream << "*[m^"       << _m       << "]"; }
+  if (_s != 0     || !ignoreZeroDimensions) { stream << "*[s^"       << _s         << "]"; }
   if (_A != 0     || !ignoreZeroDimensions) { stream << "*[A^"       << _A      << "]"; }
-  if (_K != 0 || !ignoreZeroDimensions) { stream << "*[K^"       << _K  << "]"; }
-  if (_mol != 0      || !ignoreZeroDimensions) { stream << "*[mol^"     << _mol       << "]"; }
-  if (_cd != 0   || !ignoreZeroDimensions) { stream << "*[cd^"      << _cd    << "]"; }
-  if (_offset != 0      || !ignoreZeroDimensions) { stream << "+[offset="  << _offset       << "]"; }
+  if (_K != 0     || !ignoreZeroDimensions) { stream << "*[K^"       << _K  << "]"; }
+  if (_mol != 0   || !ignoreZeroDimensions) { stream << "*[mol^"     << _mol       << "]"; }
+  if (_cd != 0    || !ignoreZeroDimensions) { stream << "*[cd^"      << _cd    << "]"; }
+  if (_offset != 0|| !ignoreZeroDimensions) { stream << "+[offset="  << _offset       << "]"; }
   return stream.str();
 }
 
@@ -289,6 +289,7 @@ std::map<std::string, Units> Units::unitStringMap = []()
   
   // energy density
   m["kW-H/m³"] = RTX_ENERGY_DENSITY;
+  m["kW-H/MG"] = RTX_ENERGY_DENSITY_MG;
   
   m["xx-no-units"] = RTX_NO_UNITS;
   m["%"] = RTX_PERCENT;
@@ -352,7 +353,7 @@ Units Units::unitOfType(const string& unitString) {
   
   // attempt to deserialize the streamed format of the unit conversion and dimension.
   deque<string> components;
-  boost::split(components, unitString, boost::is_any_of("*+[]"), boost::algorithm::token_compress_on); // split on separators
+  boost::split(components, unitString, boost::is_any_of("*[]"), boost::algorithm::token_compress_on); // split on separators
   
   if (components.size() < 1) {
     cerr << "WARNING: Units not recognized: " << unitString << " - defaulting to NO UNITS." << endl;

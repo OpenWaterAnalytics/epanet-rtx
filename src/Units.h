@@ -85,6 +85,7 @@
 
 // energy density
 #define RTX_ENERGY_DENSITY        RTX::Units(3600000,        1,-1,-2)
+#define RTX_ENERGY_DENSITY_MG     RTX::Units(951.01983668876,1,-1,-2)
 
 namespace RTX {
   /*!
