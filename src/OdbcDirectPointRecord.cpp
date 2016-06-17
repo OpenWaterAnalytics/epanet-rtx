@@ -26,11 +26,15 @@ void OdbcDirectPointRecord::dbConnect() throw(RtxException) {
 }
 
 const std::map<std::string,Units> OdbcDirectPointRecord::identifiersAndUnits() {
+  if (!this->isConnected()) {
+    this->dbConnect();
+  }
+  
   scoped_lock<boost::signals2::mutex> lock(_odbcMutex);
   SQLHSTMT getIdsStmt = 0;
 
   std::map<std::string,Units> ids;
-  if (!isConnected()) {
+  if (!this->isConnected()) {
     return ids;
   }
   
@@ -69,7 +73,7 @@ const std::map<std::string,Units> OdbcDirectPointRecord::identifiersAndUnits() {
   SQLFreeHandle(SQL_HANDLE_STMT, getIdsStmt);
   
   _identifiersAndUnitsCache = ids;
-  return ids;
+  return _identifiersAndUnitsCache;
 }
 
 
