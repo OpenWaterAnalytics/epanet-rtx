@@ -26,6 +26,12 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                         text:'ODBC Driver',
                         placeholder:'MS-SQL ODBC Provider'
                     },{
+                        inputType:'select-line-options',
+                        key:'zone',
+                        text:'Database Timezone',
+                        placeholder:'local',
+                        options:['local','utc']
+                    },{
                         inputType:'text-line',
                         key:'simple_connection_ip',
                         text:'Historian IP Address',
@@ -39,9 +45,27 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
                         visible_when: 'simple'
                     },{
                         inputType:'text-line',
+                        key:'simple_connection_user',
+                        text:'User Name',
+                        placeholder:'rtx_readonly_user',
+                        visible_when: 'simple'
+                    },{
+                        inputType:'text-line',
+                        key:'simple_connection_password',
+                        text:'Password',
+                        placeholder:'rtx_readonly_password',
+                        visible_when: 'simple'
+                    },{
+                        inputType:'text-line',
+                        key:'simple_connection_extra',
+                        text:'Extra Parameters',
+                        placeholder:'TDS_Version=7.1;Port=1433',
+                        visible_when: 'simple'
+                    },{
+                        inputType:'text-line',
                         key:'connectionString',
                         text:'Connection',
-                        placeholder:'Server=127.0.0.1;Database=Historian_DB',
+                        placeholder:'Server=192.168.0.1;Port=1433;TDS_Version=7.1;Database=Historian_DB;UID=rtx;PWD=rtx',
                         visible_when: 'advanced'
                     },{
                         inputType: 'text-line',
@@ -473,8 +497,14 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
             if (visible_when && visible_when.indexOf('simple') > -1) {
                 if ($scope.config.source._class == "odbc") {
                     var r = $scope.config.source;
+                    // Server=10.0.1.20;Port=1433;TDS_Version=7.1;Database=SCADA;UID=rtx;PWD=sqladmin
                     $scope.config.source.meta = "SELECT " + r.simple_meta_col_tag + ", " + r.simple_meta_col_units + " FROM " + r.simple_meta_table;
-                    $scope.config.source.connectionString = "Server=" + r.simple_connection_ip + ";Database=" + r.simple_connection_db_name;
+                    $scope.config.source.connectionString =
+                        "Server=" + r.simple_connection_ip +
+                        ";Database=" + r.simple_connection_db_name +
+                        ";UID=" + r.simple_connection_user +
+                        ";PWD=" + r.simple_connection_password +
+                        ";" + r.simple_connection_extra;
                     $scope.config.source.range =
                         "SELECT " + r.simple_range_col_date +
                         ", " + r.simple_range_col_value +

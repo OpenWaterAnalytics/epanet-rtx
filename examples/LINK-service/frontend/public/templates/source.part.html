@@ -33,6 +33,11 @@
                             <option ng-repeat="driver in drivers" value={{driver}}>{{driver}}</option>
                         </select>
                     </td>
+                    <td ng-switch-when="select-line-options">
+                       <select class="form-control" aria-describedby="basic-addon3" ng-model="config.source[dict.key]">
+                           <option ng-repeat="optionValue in dict.options" value={{optionValue}}>{{optionValue}}</option>
+                       </select>
+                    </td>
                     <td ng-switch-when="text-area">
                         <textarea class="form-control" rows="3" placeholder="{{dict.placeholder}}" ng-model="config.source[dict.key]"></textarea>
                     </td>
@@ -86,7 +91,7 @@
             </span>
           </div>
         </div>
-        
+
         <table class="table table-hover">
             <colgroup>
                 <col class="col-md-8">
