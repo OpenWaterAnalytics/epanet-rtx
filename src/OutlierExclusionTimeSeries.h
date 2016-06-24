@@ -42,7 +42,7 @@ namespace RTX {
   protected:
     virtual bool willResample();
     PointCollection filterPointsInRange(TimeRange range);
-    bool canDropPoints() { return true;};
+    bool canDropPoints();
 //    bool canSetSource(TimeSeries::_sp ts);
 //    void didSetSource(TimeSeries::_sp ts);
 //    bool canChangeToUnits(Units units);

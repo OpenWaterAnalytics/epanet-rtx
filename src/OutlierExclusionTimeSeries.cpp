@@ -43,6 +43,10 @@ bool OutlierExclusionTimeSeries::willResample() {
   return TimeSeriesFilter::willResample() || ( this->clock() );
 }
 
+bool OutlierExclusionTimeSeries::canDropPoints() {
+  return true;
+}
+
 TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(TimeRange range) {
   
   // if we are to resample, then there's a possibility that we need to expand the range

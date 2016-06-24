@@ -9,7 +9,7 @@
 using namespace RTX;
 using namespace std;
 
-const int _tsfilter_maxStrides = 12; // FIXME 💩
+const int _tsfilter_maxStrides = 1000; // FIXME 💩
 
 TimeSeriesFilter::TimeSeriesFilter() {
   _resampleMode = TimeSeriesResampleModeLinear;
@@ -120,9 +120,9 @@ Point TimeSeriesFilter::pointBefore(time_t time) {
   }
   
   if (this->canDropPoints()) {
-    // search iteratively?
+    // search iteratively
     
-    time_t stride = 60*60*12; // 12 hour
+    time_t stride = 60*60*24; // 1-day
     PointCollection c;
     
     TimeRange q(time - stride, time - 1);
@@ -161,9 +161,9 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
   
   
   if (this->canDropPoints()) {
-    // search iteratively?
+    // search iteratively - this is basic functionality. Override ::pointAfter for special cases or optimized uses.
     
-    time_t stride = 60*60*12; // 12 hour
+    time_t stride = 60*60*24; // 1-day
     
     PointCollection c;
     TimeRange q(time + 1, time + stride);
@@ -180,6 +180,9 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
     // if we found something:
     if (c.count() > 0) {
       p = c.points.front();
+    }
+    else {
+      cerr << "TimeSeriesFilter::pointAfter iterative search exceeded max strides." << endl;
     }
   }
   else {
