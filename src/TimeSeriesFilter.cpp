@@ -128,6 +128,9 @@ Point TimeSeriesFilter::pointBefore(time_t time) {
     TimeRange q(time - stride, time - 1);
     
     while ( q.start > time - (stride * _tsfilter_maxStrides) ) {
+      if (this->source()->timeBefore(q.end + 1) == 0) {
+        break; // actually no points. futile to search.
+      }
       c = TimeSeries::pointCollection(q);
       if (c.count() > 0) {
         break; // found something
@@ -169,6 +172,9 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
     TimeRange q(time + 1, time + stride);
     
     while ( q.end < time + (stride * _tsfilter_maxStrides) ) {
+      if (this->source()->timeAfter(q.start - 1) == 0) {
+        break; // actually no points. futile to search.
+      }
       c = this->pointCollection(q);
       if (c.count() > 0) {
         break; // found something
