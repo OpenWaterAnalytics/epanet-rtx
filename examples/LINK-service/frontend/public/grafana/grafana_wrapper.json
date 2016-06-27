@@ -1,27 +1,22 @@
 {
   "dashboard": {
-    "id": null,
-    "title": "",
-    "overwrite": true,
+    "title": "LINK Historian",
     "tags": [],
     "style": "light",
     "timezone": "browser",
     "editable": true,
     "hideControls": false,
-    "sharedCrosshair": false,
+    "sharedCrosshair": true,
+    "rows": [],
     "time": {
       "from": "now-30d",
       "to": "now"
     },
-    "refresh": "5s",
     "timepicker": {
-      "collapse": false,
-      "enable": true,
-      "notice": false,
-      "now": false,
       "refresh_intervals": [
         "5s",
         "10s",
+        "30s",
         "1m",
         "5m"
       ],
@@ -33,18 +28,17 @@
         "2d",
         "7d",
         "30d"
-      ],
-      "type": "timepicker"
+      ]
     },
-    "rows": [  ],
     "templating": {
       "list": []
     },
     "annotations": {
       "list": []
     },
-    "schemaVersion": 6,
-    "version": 17,
+    "refresh": false,
+    "schemaVersion": 12,
+    "version": 4,
     "links": []
   }
 }
