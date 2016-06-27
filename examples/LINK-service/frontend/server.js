@@ -18,23 +18,26 @@ const linkExeName = 'link-server';
 const linkExePath = path.join(__dirname,'bin',process.platform,linkExeName);
 const linkDir = path.join(os.homedir(),'rtx_link');
 const configFile = path.join(linkDir,'config.json');
-var config = {};
+var _rtx_config = {};
 jsf.spaces = 2;
 
-// ensure that the config file is there. create it if it does not exist
-fs.ensureFile(configFile, function() {
-  // ok, file is there
-});
+// ensure that the config file is there. create it if it does not exist.
+// these calls are blocking on purpose.
+try {
+  fs.ensureFileSync(configFile);
+  _rtx_config = jsf.readFileSync(configFile);
+} catch (e) {
+  console.log(e);
+}
 
 
 sendConfig = function() {
   var obj;
   try {
-    config = jsf.readFileSync(configFile);
     var opts = {
         method: "POST",
         url: link_server_host + "/config",
-        json: config
+        json: _rtx_config
     }; // opts
     request(opts, function(error, response, body) {
         if (error) {
@@ -52,6 +55,18 @@ sendConfig = function() {
   }
   return true;
 };
+
+saveConfig = function(config,successCallback,errorCallback) {
+  try {
+    console.log(config);
+    jsf.writeFileSync(configFile, config);
+  }
+  catch (e) {
+    typeof errorCallback == "function" && errorCallback(e);
+    return;
+  }
+  typeof successCallback == "function" && successCallback();
+}
 
 
 // check runtime options using minimist
@@ -102,12 +117,6 @@ if (!debug) {
 }
 
 
-
-
-
-
-
-
 // express configuration =================
 app.use(express.static(__dirname + '/public'));                 // set the static files location /public/img will be /img for users
 app.use(bodyParser.json());                                     // parse application/json
@@ -142,92 +151,82 @@ app.post('/send_dashboards', function (clientReq, clientRes) {
     });
 });
 
-
-app.route('/dash')
-.all(function (req,res,next) {
-  if (req.method == 'POST') {
-    config.dash = req.body;
-    res.status(200).json({msg: 'OK'});
-  }
-  else if (req.method == 'GET') {
-    res.json(config.dash);
-  }
+// handle getting the configuration data from NODE process
+app.get('/config', function(req,res) {
+  res.json(_rtx_config);
 });
 
-// proxy all GET/POST requests from here to LINK_service
-app.route('/link-relay/:linkPath/:subPath?')
-    .all(function (req, res, next) {
-        if (!(req.method == 'POST' || req.method == 'GET')) {
-            // only support get and post
-            next();
-            return;
-        }
-        var url = link_server_host + '/' + req.params.linkPath;
-        if (req.params.subPath) { // re-assemble the subpath, if it exists.
-            url = url.concat('/' + req.params.subPath);
-        }
-        var opts = {
-            method: req.method,
-            url: url,
-            json: (req.method=="POST") ? req.body : false
-        };
+app.route('/relay/:linkPath/:subPath?') // odbc, units, source/series
+.get(function(req,res) {
+  var url = link_server_host + '/' + req.params.linkPath;
+  if (req.params.subPath) { // re-assemble the subpath, if it exists.
+    url = url.concat('/' + req.params.subPath);
+  }
+  request.get(url, function(error, response, body) {
+    if (error) {
+      console.log("RTX-LINK Error :: ");
+      console.log(error);
+      msg = error.message;
+      if (error.code == 'ECONNREFUSED') {
+        msg = 'LINK service offline or unreachable';
+      }
+      res.status(500).json({error: "RTX-LINK Error :: " + msg + " - Server status is " + link_monitor.status});
+    }
+    else {
+      res.status(response.statusCode).send(body);
+    }
+  });
+}); // get relay
 
-        request(opts, function(error, response, body) {
-            if (error) {
-                console.log("RTX-LINK Error :: ");
-                console.log(error);
-                msg = error.message;
-                if (error.code == 'ECONNREFUSED') {
-                  msg = 'LINK service offline or unreachable';
-                }
-                res.status(500).json({error: "RTX-LINK Error :: " + msg + " - Server status is " + link_monitor.status});
-            }
-            else {
-                res.status(response.statusCode).send(body);
-            }
-        });
-    }); // app.route.all
+// store configuration updates and relay them to LINK server
+app.route('/config/:configPath')
+.post(function(req,res) {
+  console.log('posting config, with path ' + req.params.configPath);
+
+  // save the config to local state
+  const configKey = req.params.configPath;
+  _rtx_config[configKey] = req.body;
+
+  // save config to disk
+  saveConfig(_rtx_config, function() {                // success
+    console.log('SAVED CONFIG TO LOCAL STORE');
+  }, function(e) {                                  // error
+    console.log('RTX-LINK JSON WRITING ERROR :: ');
+    console.log(e);
+    res.status(500).json({error: "RTX-LINK NODE Error :: " + e.message});
+  });
 
 
-
-
-
-
-
-app.get('/saveConfig', function (req, res) {
-  // get the config from LINK service, and save locally
-  console.log('got command to save config');
-  request({
-        method: 'GET',
-        url: link_server_host + '/config',
-    }, function (error, response, body) {
+  // check that the key is supported by LINK server:
+  const supportedPaths = ['source','destination','options','series','run'];
+  if (supportedPaths.indexOf(configKey) !== -1) {
+    // finally relay the config subpath to LINK server
+    var url = link_server_host + '/' + req.params.configPath;
+    var opts = {
+      method: req.method,
+      url: url,
+      json: req.body
+    };
+    request(opts, function(error, response, body) {
       if (error) {
-          console.log("RTX-LINK Error :: ");
-          console.log(error);
-          res.status(500).json({error: "RTX-LINK Error :: " + error.message});
+        console.log('RTX-LINK SERVER Error :: ');
+        console.log(error);
+        msg = error.message;
+        if (error.code == 'ECONNREFUSED') {
+          msg = 'LINK service offline or unreachable';
+        }
+        res.status(500).json({error: "RTX-LINK Error :: " + msg + " - Server status is " + link_monitor.status});
       }
       else {
-        // write the file
-        // first, remember to save the dashboard data
-        var dash = config.dash;
-        config = JSON.parse(body);
-        config.dash = dash;
-
-        console.log(config);
-
-        jsf.writeFile(configFile, config, function (err) {
-            if (err) {
-                res.status(500).json({error: 'ERROR: could not save configuration.'});
-                console.log('could not save: ');
-                console.log(err);
-            } else {
-                res.status(200).json({msg: "OK"});
-                console.log('SAVED configuration');
-            }
-        });
+        res.status(response.statusCode).send(body);
       }
-    });
-});
+    }); // request
+  }
+  else {
+    res.status(200).json({message:'Saved Config.'})
+  }
+
+}); // POST
 
 
 // listen (start app with node server.js) ======================================

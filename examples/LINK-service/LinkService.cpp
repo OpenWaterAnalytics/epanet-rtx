@@ -149,7 +149,7 @@ void LinkService::_get_ping(web::http::http_request message) {
   message.reply(_link_empty_response(status_codes::NoContent));
 }
 
-#pragma mark - TS
+#pragma mark - GET
 
 void LinkService::_get_timeseries(http_request message) {
   
@@ -188,6 +188,16 @@ void LinkService::_get_source(http_request message) {
     string sourcePath = paths[1];
     
     if (sourcePath.compare("series") == 0) {
+      // try connection first
+      DbPointRecord::_sp rec = dynamic_pointer_cast<DbPointRecord>(_destinationRecord);
+      if (rec) {
+        rec->dbConnect();
+        if (!rec->isConnected()) {
+          _link_error_response(status_codes::ExpectationFailed, "Could not connect to record");
+          return;
+        }
+      }
+      
       // respond with list of source series.
       vector<RTX_object::_sp> series;
       if (_sourceRecord) {
@@ -284,24 +294,30 @@ void LinkService::_get_config(http_request message) {
 }
 
 
+#pragma mark - POST
+
 http_response LinkService::_post_config(JSV json) {
   json::object o = json.as_object();
-  
+  http_response res;
   JSV series = o["series"];
   JSV source = o["source"];
   JSV destination = o["destination"];
   JSV fetch = o["fetch"];
   for( auto fn : {
     bind(&LinkService::_post_source,     this, source),
-    bind(&LinkService::_post_destination,this, destination),
     bind(&LinkService::_post_timeseries, this, series),
-    bind(&LinkService::_post_options,    this, fetch)
+    bind(&LinkService::_post_options,    this, fetch),
+    bind(&LinkService::_post_destination,this, destination)
   }) {
-    http_response res = fn();
-    if (res.status_code() != status_codes::OK) {
+    http_response thisres = fn();
+    if (thisres.status_code() != status_codes::OK) {
       cout << "POST FAILED:" << endl;
-      return res;
+      res = thisres;
     }
+  }
+  
+  if (res.status_code() != status_codes::OK) {
+    return res;
   }
   
   return _link_empty_response();
