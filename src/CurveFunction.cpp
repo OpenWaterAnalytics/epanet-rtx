@@ -39,7 +39,7 @@ TimeSeries::PointCollection CurveFunction::filterPointsInRange(RTX::TimeRange ra
   }
   
   TimeRange sourceQuery = range;
-  if (this->willResample() && range.duration() > 0) {
+  if (this->willResample()) {
     // expand range
     sourceQuery.start = this->source()->timeBefore(range.start + 1);
     sourceQuery.end = this->source()->timeAfter(range.end - 1);

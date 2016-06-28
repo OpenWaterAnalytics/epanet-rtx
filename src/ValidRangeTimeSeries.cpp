@@ -40,7 +40,7 @@ TimeSeries::PointCollection ValidRangeTimeSeries::filterPointsInRange(TimeRange 
   // used to query the source ts. but we have to limit the search to something reasonable, in case
   // too many points are excluded. yikes!
   TimeRange sourceQuery = range;
-  if (this->willResample() && range.duration() > 0) {
+  if (this->willResample()) {
     // expand range so that we can resample at the start and/or end of the range requested
     // this is quick and dirty, and probably will fail for badly behaved data.
     sourceQuery.start -= range.duration();
