@@ -32,7 +32,7 @@ const char *kERROR = "error";
 const char *kRESULTS = "results";
 
 http::uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const std::string& query, bool withTimePrecision = true);
-web::json::value _InfluxDbPointRecord_jsonFromGet(InfluxDbPointRecord& record, http::uri uri);
+web::json::value _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& record, http::uri uri, method withMethod = methods::GET);
 std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(json::value json);
 
 /*
@@ -67,7 +67,7 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
   bool dbExists = false;
   
   http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, "SHOW MEASUREMENTS LIMIT 1", false);
-  json::object jsoMeas = _InfluxDbPointRecord_jsonFromGet(*this,uri).as_object();
+  json::object jsoMeas = _InfluxDbPointRecord_jsonFromRequest(*this,uri).as_object();
   auto jsoNOTFOUND = jsoMeas.end();
   if (jsoMeas.empty() || jsoMeas.find(kRESULTS) == jsoNOTFOUND) {
     if (jsoMeas.find("error") != jsoNOTFOUND) {
@@ -107,7 +107,7 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
     .append_query("p", this->pass, false)
     .append_query("q", "CREATE DATABASE " + this->db, true);
     
-    json::object respObj = _InfluxDbPointRecord_jsonFromGet(*this, b.to_uri()).as_object();
+    json::object respObj = _InfluxDbPointRecord_jsonFromRequest(*this, b.to_uri()).as_object();
     if (respObj.empty() || respObj.find(kRESULTS) == respObj.end()) {
       this->errorMessage = "Can't create database";
       return;
@@ -238,7 +238,7 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
   }
   
   web::uri uri = _InfluxDbPointRecord_uriForQuery(*this, kSHOW_SERIES, false);
-  web::json::value jsv = _InfluxDbPointRecord_jsonFromGet(*this, uri);
+  web::json::value jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   
   web::json::object jso = jsv.as_object();
   auto iResult = jso.find("results");
@@ -354,7 +354,7 @@ std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_
   q.where.push_back("time <= " + to_string(endTime) + "s");
   
   http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
-  json::value jsv = _InfluxDbPointRecord_jsonFromGet(*this, uri);
+  json::value jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   return _InfluxDbPointRecord_pointsFromJson(jsv);
 }
 
@@ -366,7 +366,7 @@ Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
   q.order = "time asc limit 1";
   
   http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
-  json::value jsv = _InfluxDbPointRecord_jsonFromGet(*this, uri);
+  json::value jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   points = _InfluxDbPointRecord_pointsFromJson(jsv);
   
   if (points.size() == 0) {
@@ -385,7 +385,7 @@ Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
   q.order = "time desc limit 1";
   
   http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
-  json::value jsv = _InfluxDbPointRecord_jsonFromGet(*this, uri);
+  json::value jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   points = _InfluxDbPointRecord_pointsFromJson(jsv);
   
   if (points.size() == 0) {
@@ -481,20 +481,24 @@ void InfluxDbPointRecord::removeRecord(const std::string& id) {
   sqlss << "DROP SERIES FROM " << q.nameAndWhereClause();
   
   http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, sqlss.str());
-  json::value v = _InfluxDbPointRecord_jsonFromGet(*this, uri);
+  json::value v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
 }
 
 void InfluxDbPointRecord::truncate() {
   this->errorMessage = "Truncating";
   auto ids = _identifiersAndUnitsCache; // copy
   for (auto ts_units : ids) {
+    this->removeRecord(ts_units.first);
+    
+    /*
     string id = ts_units.first;
     MetricInfo m = InfluxDbPointRecord::metricInfoFromName(id);
     string measureName = m.measurement;
     stringstream sqlss;
     sqlss << "DROP MEASUREMENT " << measureName;
-    http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, sqlss.str());
-    json::value v = _InfluxDbPointRecord_jsonFromGet(*this, uri);
+    http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, sqlss.str(), false);
+    json::value v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
+     */
   }
   
   for (auto ts_units : ids) {
@@ -542,16 +546,13 @@ http::uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const st
   return b.to_uri();
 }
 
-
-web::json::value _InfluxDbPointRecord_jsonFromGet(InfluxDbPointRecord& record, http::uri uri) {
+web::json::value _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& record, http::uri uri, method withMethod) {
   web::json::value js = web::json::value::object();
-  
   try {
     web::http::client::http_client_config config;
     config.set_timeout(std::chrono::seconds(60));
-//    config.set_credentials(http::client::credentials(record.user, record.pass));
     web::http::client::http_client client(uri, config);
-    http_response r = client.request(methods::GET).get(); // waits for response
+    http_response r = client.request(withMethod).get(); // waits for response
     if (r.status_code() != 204) {
       js = r.extract_json().get();
     }
