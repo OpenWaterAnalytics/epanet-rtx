@@ -16,7 +16,7 @@ var ip = require('ip');
 // config options ===============================
 const link_server_host = 'http://localhost:3131';
 const linkExeName = 'link-server';
-const linkExePath = path.join(__dirname,'bin',process.platform,linkExeName);
+const linkExePath = path.join(__dirname,'srv',process.platform,linkExeName);
 const linkDir = path.join(os.homedir(),'rtx_link');
 const configFile = path.join(linkDir,'config.json');
 var _rtx_config = {};
