@@ -1,5 +1,5 @@
 // public/core.js
-var rtxLink = angular.module('rtxLink', ['ngRoute'])
+var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
 
 .run(function ($rootScope, $timeout, $http, $interval, $location) {
 
@@ -20,18 +20,21 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
           inputType:'text-line',
           key:'name',
           text:'Name',
-          placeholder:'SCADA User-Defined Name'
+          placeholder:'SCADA User-Defined Name',
+          helptext:'User-Defined Name. Type anything here.'
         },{
           inputType:'select-line',
           key:'driver',
           text:'ODBC Driver',
-          placeholder:'MS-SQL ODBC Provider'
+          placeholder:'Select ODBC Driver',
+          helptext:'If you do not see your ODBC Driver, check that it is installed'
         },{
           inputType:'select-line-options',
           key:'zone',
           text:'Database Timezone',
           placeholder:'local',
-          options:['local','utc']
+          options:['local','utc'],
+          helptext:'The Timezone of the date/time stamps in the database'
         },{
           inputType:'text-line',
           key:'simple_connection_ip',
@@ -67,7 +70,8 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
           key:'connectionString',
           text:'Connection',
           placeholder:'Server=192.168.0.1;Port=1433;TDS_Version=7.1;Database=Historian_DB;UID=rtx;PWD=rtx',
-          visible_when: 'advanced'
+          visible_when: 'advanced',
+          helptext: 'ODBC Connection String. Enter the host, port, database, uid, pwd, and any driver-specific options'
         },{
           inputType: 'text-line',
           key: 'simple_meta_table',
@@ -121,13 +125,15 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
           key:'meta',
           text: 'Name lookup query',
           placeholder: 'SELECT tagname, units FROM tag_list ORDER BY tagname ASC',
-          visible_when: 'advanced'
+          visible_when: 'advanced',
+          helptext: 'A query that will return the list of tag names, and optionally a column of unit strings.'
         },{
           inputType: 'text-area',
           key: 'range',
           text: 'Data lookup query',
           placeholder: 'SELECT date, value, quality FROM tbl WHERE tagname = ? AND date >= ? AND date <= ? ORDER BY date ASC',
-          visible_when: 'advanced'
+          visible_when: 'advanced',
+          helptext: 'A query that will return (date,value,quality) columns with three ? placeholders specifying the tagname, start date, and end date.'
         }
       ]
     },
@@ -279,6 +285,27 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
   }, function (errResponse) {
     $rootScope.notifyHttpError(errResponse);
   });
+
+
+  $rootScope.wrapper = {};
+  $rootScope.rowTemplate = {};
+
+  // prepare with grafana wrappers
+  //-- get grafana wrapper templates for later --//
+  $http.get('/grafana/grafana_wrapper.json')
+  .then(function (response) {
+    $rootScope.wrapper = response.data;
+  }, function (err) {
+    console.log('err getting wrapper');
+  });
+  $http.get('/grafana/grafana_contents.json')
+  .then(function (response) {
+    $rootScope.rowTemplate = response.data;
+  }, function (err) {
+    console.log('err getting row template');
+  });
+
+
 })
 
 .controller('HeaderController', function HeaderController($scope, $location) {
@@ -555,23 +582,31 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
 .controller('OptionsController', function OptionsController($rootScope, $scope, $http, $location) {
 
   $scope.saveAndNext = function () {
+    // send dash credentials
+    $rootScope.postConfig('dash',
+  function(response) {
     // send options, then tell root scope to get/save the whole config.
     $rootScope.postConfig('options',
     function (response) {
       $location.path('/run');
-    }, function (response) {
-      console.log(response);
-      $rootScope.notifyHttpError(response);
+    }, function (errorResponse) {
+      console.log(errorResponse);
+      $rootScope.notifyHttpError(errorResponse);
     });
+  }, function(errorResponse) {
+      console.log(errorResponse);
+      $rootScope.notifyHttpError(errorResponse);
+  });
+
   }; // saveAndNext
 
   $scope.sendGrafana = function () {
     $rootScope.showInfo("Sending Dashboards");
-    var dash = JSON.parse(JSON.stringify(wrapper)); // json stringify-parse to deep copy
+    var dash = JSON.parse(JSON.stringify($rootScope.wrapper)); // json stringify-parse to deep copy
     dash.dashboard.title = 'LINK Historian';
     var panelId = 1;
     angular.forEach($rootScope.config.series, function (series) {
-      var newRow = JSON.parse(JSON.stringify(rowTemplate));
+      var newRow = JSON.parse(JSON.stringify($rootScope.rowTemplate));
       newRow.panels[0].id = panelId;
       newRow.panels[0].yaxes[0].label = series.units.unitString;
       newRow.panels[0].targets[0].query = 'select mean("value") from "' + series.name + '" WHERE $timeFilter GROUP BY time($interval) fill(null)';
@@ -617,25 +652,9 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
 
 
   // ON LOAD
-  var wrapper = {};
-  var rowTemplate = {};
   $scope.dashStatus = "none";
   $scope.dashCreateMessage = "";
 
-
-  //-- get grafana wrapper templates for later --//
-  $http.get('/grafana/grafana_wrapper.json')
-  .then(function (response) {
-    wrapper = response.data;
-  }, function (err) {
-    console.log('err getting wrapper');
-  });
-  $http.get('/grafana/grafana_contents.json')
-  .then(function (response) {
-    rowTemplate = response.data;
-  }, function (err) {
-    console.log('err getting row template');
-  });
 })
 
 
@@ -684,7 +703,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute'])
 /**** DASHBOARD ****/
 /*******************/
 
-.controller('DashController', function DashController($rootScope, $scope, $http, $location, $interval, $sce) {
+.controller('DashController', function DashController($rootScope, $scope, $http, $location, $interval, $sce, $timeout) {
   $scope.frameSrc = $rootScope.config.dash.proto + '://' + $rootScope.config.dash.url + '/dashboard/db/link-historian';
   $scope.trustSrc = function(src) {
     return $sce.trustAsResourceUrl(src);
