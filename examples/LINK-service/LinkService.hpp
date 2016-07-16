@@ -42,6 +42,12 @@ namespace RTX {
     pplx::task<void> close();
     std::string _statusMessage;
     
+    void post_log(std::string metric, std::string field, std::string value);
+    
+    struct {
+      std::string host,port,user,pass,db;
+    } _metricDatabase;
+    
   private:
     void _get(http_request message);
     void _put(http_request message);
@@ -64,7 +70,8 @@ namespace RTX {
     http_response _post_options(web::json::value json);
     http_response _post_source(web::json::value json);
     http_response _post_destination(web::json::value json);
-    
+    http_response _post_logmessage(web::json::value json);
+
     http_listener _listener;
     
     std::vector<RTX::TimeSeries::_sp> _tsList;

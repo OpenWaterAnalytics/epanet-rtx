@@ -5,6 +5,13 @@
 #include <boost/interprocess/sync/scoped_lock.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
+#include <cpprest/uri.h>
+#include <cpprest/json.h>
+#include <cpprest/http_client.h>
+using namespace web;
+using namespace utility;
+using namespace http;
 
 using boost::signals2::mutex;
 using boost::interprocess::scoped_lock;
@@ -144,11 +151,16 @@ void TimeSeriesDuplicator::_dupeLoop(time_t win, time_t freq) {
     stringstream ss;
     char *tstr = asctime(localtime(&nextFetch));
     tstr[24] = '\0';
+    {
+      ss.str("");
+      ss << "Fetch: (" << tstr << ") took " << fetchDuration << " seconds.";
+      this->_logLine(ss.str(),RTX_DUPLICATOR_LOGLEVEL_INFO);
+    }
     while (_shouldRun && nextFetch > time(NULL)) {
       time_t waitLength = nextFetch - time(NULL);
       ss.str("");
       ss << "Fetch: (" << tstr << ") took " << fetchDuration << " seconds." << "\n" << "Will fire again in " << waitLength << " seconds";
-      this->_logLine(ss.str(),RTX_DUPLICATOR_LOGLEVEL_INFO);
+      this->_logLine(ss.str(),RTX_DUPLICATOR_LOGLEVEL_VERBOSE);
       boost::this_thread::sleep_for(boost::chrono::seconds(1));
     }
   }
@@ -326,4 +338,7 @@ void TimeSeriesDuplicator::_logLine(const std::string& line, int level) {
     _logFn(msg);
   }
 }
+
+
+
 

@@ -11,6 +11,7 @@ var os = require('os');
 var fs = require('fs-extra');
 var respawn = require('respawn');
 var parseArgs = require('minimist');
+var ip = require('ip');
 
 // config options ===============================
 const link_server_host = 'http://localhost:3131';
@@ -31,28 +32,44 @@ try {
 }
 
 
+
+sendLog = function(metric,field,value) {
+  var opts = {
+    method: "POST",
+    url: link_server_host + "/log",
+    json: {"metric":metric, "field":field, "value":value}
+  };
+  request(opts, function(error, response, body) {
+    if (!error && response.statusCode == 200) {
+      console.log('sent log entry');
+      console.log(body);
+    }
+    else {
+      console.log("ERROR sending log entry");
+      console.log(error);
+      console.log(body);
+    }
+  });
+}
+
+
 sendConfig = function() {
-  var obj;
-  try {
-    var opts = {
-        method: "POST",
-        url: link_server_host + "/config",
-        json: _rtx_config
-    }; // opts
-    request(opts, function(error, response, body) {
-        if (error) {
-            console.log("ERROR sending config :: ");
-            console.log(error);
-            return false;
-        }
-        else {
-            console.log('sent config to LINK service');
-        }
-    }); // request
-  } catch (e) {
-    console.log(e);
-    return false;
-  }
+  var opts = {
+    method: "POST",
+    url: link_server_host + "/config",
+    json: _rtx_config
+  }; // opts
+  request(opts, function(error, response, body) {
+    if (error) {
+      console.log("ERROR sending config :: ");
+      console.log(error);
+      return false;
+    }
+    else {
+      console.log('sent config to LINK service');
+      sendLog('startinfo','ip',ip.address());
+    }
+  }); // request
   return true;
 };
 

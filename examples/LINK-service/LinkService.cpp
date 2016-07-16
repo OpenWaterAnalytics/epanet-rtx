@@ -1,5 +1,8 @@
 #include "LinkService.hpp"
 
+#include <cpprest/uri.h>
+#include <cpprest/json.h>
+#include <cpprest/http_client.h>
 using namespace std;
 using namespace RTX;
 using namespace web;
@@ -23,6 +26,10 @@ void _link_callback(LinkService* svc, const char* msg) {
   fprintf(stdout, "%s", logmsg);
   
   svc->_statusMessage = myLine;
+  
+  
+  svc->post_log("log", "message", myLine);
+  
 };
 
 
@@ -59,6 +66,7 @@ LinkService::LinkService(uri uri) : _listener(uri) {
   TimeSeriesDuplicator::RTX_Duplicator_log_callback cb = std::bind(&_link_callback, this, std::placeholders::_1);
   
   _duplicator.setLoggingFunction(cb);
+  _duplicator.logLevel = RTX_DUPLICATOR_LOGLEVEL_INFO;
 }
 
 
@@ -118,7 +126,8 @@ void LinkService::_post(http_request message) {
     {"options",     bind(&LinkService::_post_options,    this, placeholders::_1)},
     {"source",      bind(&LinkService::_post_source,     this, placeholders::_1)},
     {"destination", bind(&LinkService::_post_destination,this, placeholders::_1)},
-    {"config",      bind(&LinkService::_post_config,     this, placeholders::_1)}
+    {"config",      bind(&LinkService::_post_config,     this, placeholders::_1)},
+    {"log",         bind(&LinkService::_post_logmessage, this, placeholders::_1)}
   };
   
   auto paths = uri::split_path(uri::decode(message.relative_uri().path()));
@@ -136,6 +145,16 @@ void LinkService::_post(http_request message) {
     message.reply(_link_error_response(status_codes::BadRequest,
                                        "Invalid Endpoint(" + entry + ")"));
   }
+}
+
+void LinkService::post_log(std::string metric, std::string field, std::string value) {
+  
+  JSV js = JSV::object();
+  
+  js.as_object()["metric"] = JSV(metric);
+  js.as_object()["field"] = JSV(field);
+  js.as_object()["value"] = JSV(value);
+  this->_post_logmessage(js);
 }
 
 void LinkService::_delete(http_request message) {
@@ -189,7 +208,7 @@ void LinkService::_get_source(http_request message) {
     
     if (sourcePath.compare("series") == 0) {
       // try connection first
-      DbPointRecord::_sp rec = dynamic_pointer_cast<DbPointRecord>(_destinationRecord);
+      DbPointRecord::_sp rec = dynamic_pointer_cast<DbPointRecord>(_sourceRecord);
       if (rec) {
         rec->dbConnect();
         if (!rec->isConnected()) {
@@ -511,6 +530,59 @@ http_response LinkService::_post_options(JSV js) {
   cout << "=====================================" << endl;
   return r;
 }
+
+
+
+http_response LinkService::_post_logmessage(web::json::value js) {
+  http_response r;
+  cout << "=====================================\n";
+  cout << "== LOGGING MESSAGE \n";
+
+  if (!js.is_object()) {
+    r = _link_error_response(status_codes::ExpectationFailed, "data is not a json object");
+    cout << "== err: JSON not recognized.\n";
+  }
+  else {
+    json::object o = js.as_object();
+    
+    string metric = js["metric"].as_string();
+    string field = js["field"].as_string();
+    string logValue = js["value"].as_string();
+    
+    http::uri_builder b;
+    b.set_scheme("http").set_host(_metricDatabase.host).set_port(_metricDatabase.port).set_path("write")
+    .append_query("db", _metricDatabase.db, false)
+    .append_query("u", _metricDatabase.user, false)
+    .append_query("p", _metricDatabase.pass, false)
+    .append_query("precision", "s", false);
+    
+    stringstream ss;
+    ss << metric << " " << field << "=\"" << logValue << "\" " << time(NULL);
+    string content = ss.str();
+    
+    try {
+      web::http::client::http_client_config config;
+      config.set_timeout(std::chrono::seconds(60));
+      web::http::client::http_client client(b.to_uri(), config);
+      http_response res = client.request(methods::POST, "", content).get(); // waits for response
+      if (res.status_code() == 204) {
+        r = _link_empty_response();
+        cout << "== sending log message " << '\n';
+      }
+      else {
+        r = _link_error_response(res.status_code(), res.reason_phrase());
+        cout << "== ERROR: " << res.reason_phrase() << '\n';
+      }
+    } catch (std::exception &e) {
+      cerr << "exception POST: " << e.what() << endl;
+      r = _link_error_response(status_codes::ExpectationFailed, e.what());
+    }
+  }
+  
+  cout << "=====================================" << endl;
+  return r;
+}
+
 
 
 

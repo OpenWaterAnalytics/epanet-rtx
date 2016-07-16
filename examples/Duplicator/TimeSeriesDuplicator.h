@@ -6,6 +6,7 @@
 #include "TimeSeries.h"
 #include <boost/signals2/mutex.hpp>
 #include <boost/thread/thread_only.hpp>
+#include <boost/any.hpp>
 
 #include <stdio.h>
 #include <list>
@@ -62,6 +63,9 @@ namespace RTX {
     void _backfillLoop(time_t start, time_t chunk, time_t rateLimit = 0);
     void _catchupLoop(time_t fetchWindow, time_t frequency, time_t backfill, time_t chunkSize = 24*60*60, time_t rateLimit = 0);
     boost::thread _dupeBackground;
+    
+    void sendMetric(const std::string &metric, const std::string &field, const boost::any &value);
+    
   };
 }
 
