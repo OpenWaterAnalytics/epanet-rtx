@@ -321,17 +321,26 @@ http_response LinkService::_post_config(JSV json) {
   JSV series = o["series"];
   JSV source = o["source"];
   JSV destination = o["destination"];
-  JSV fetch = o["fetch"];
+  JSV options = o["options"];
   for( auto fn : {
     bind(&LinkService::_post_source,     this, source),
     bind(&LinkService::_post_timeseries, this, series),
-    bind(&LinkService::_post_options,    this, fetch),
+    bind(&LinkService::_post_options,    this, options),
     bind(&LinkService::_post_destination,this, destination)
   }) {
     http_response thisres = fn();
     if (thisres.status_code() != status_codes::OK) {
       cout << "POST FAILED:" << endl;
       res = thisres;
+    }
+  }
+  
+  // optional run parameter passed? if so, get going.
+  if (o.find("run") != o.end()) {
+    JSV runState = o["run"];
+    http_response runRes = this->_post_runState(runState);
+    if (runRes.status_code() != status_codes::OK) {
+      res = runRes;
     }
   }
   
