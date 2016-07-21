@@ -24,12 +24,8 @@ void _link_callback(LinkService* svc, const char* msg) {
   }
   const char *logmsg = myLine.c_str();
   fprintf(stdout, "%s", logmsg);
-  
   svc->_statusMessage = myLine;
-  
-  
   svc->post_log("log", "message", myLine);
-  
 };
 
 
@@ -317,7 +313,7 @@ void LinkService::_get_config(http_request message) {
 
 http_response LinkService::_post_config(JSV json) {
   json::object o = json.as_object();
-  http_response res;
+  http_response res = _link_empty_response();
   JSV series = o["series"];
   JSV source = o["source"];
   JSV destination = o["destination"];
@@ -348,7 +344,7 @@ http_response LinkService::_post_config(JSV json) {
     return res;
   }
   
-  return _link_empty_response();
+  return res;
 }
 
 http_response LinkService::_post_timeseries(JSV js) {
