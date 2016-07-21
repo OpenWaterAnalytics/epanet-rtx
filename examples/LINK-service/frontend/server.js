@@ -1,6 +1,7 @@
 // set up ========================
 var express  = require('express');
-var app      = express();                               // create our app w/ express
+var app      = express();
+var session = require('express-session');         // create our app w/ express, add session
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
 var jsf = require('jsonfile');
@@ -19,8 +20,11 @@ const linkExeName = 'link-server';
 const linkExePath = path.join(__dirname,'srv',process.platform,linkExeName);
 const linkDir = path.join(os.homedir(),'rtx_link');
 const configFile = path.join(linkDir,'config.json');
+const authFile = path.join(linkDir,'auth.json');
 var _rtx_config = {};
+var _link_auth = {};
 jsf.spaces = 2;
+
 
 // ensure that the config file is there. create it if it does not exist.
 // these calls are blocking on purpose.
@@ -31,7 +35,18 @@ try {
   console.log(e);
 }
 
-
+try {
+  fs.accessSync(authFile);
+  _link_auth = jsf.readFileSync(authFile);
+  console.log('found local auth: ');
+  console.log(_link_auth);
+} catch (e) {
+  console.log('could not find local auth file. defaulting to admin // admin');
+  _link_auth = {u:'admin',p:'admin'};
+  fs.outputJsonSync(authFile, _link_auth, {}, function(err) {
+    console.log('error writing auth file');
+  });
+}
 
 sendLog = function(metric,field,value) {
   var opts = {
@@ -134,17 +149,55 @@ if (!debug) {
 }
 
 
+app.get('/login-page', function(req,res) {
+  res.sendFile(__dirname + '/public/login-page.html'); // login page
+});
+
+// auth options ===============================
+app.use(session({
+    secret: 'status-imposing-abel',
+    resave: true,
+    saveUninitialized: true
+}));
+// Authentication and Authorization Middleware
+var auth = function(req, res, next) {
+  if (req.session && req.session.user === _link_auth.u && req.session.admin)
+    return next();
+  else
+    return res.redirect('/login-page');
+};
+app.get('/login', function (req, res) {
+  if(req.query.u === _link_auth.u && req.query.p === _link_auth.p) {
+    req.session.user = _link_auth.u;
+    req.session.admin = true;
+    res.redirect('/');
+  }
+  else {
+    req.session.destroy();
+    res.send("login failed");
+  }
+});
+// Logout endpoint
+app.get('/logout', function (req, res) {
+  req.session.destroy();
+  res.send("logout success!");
+});
+
 // express configuration =================
-app.use(express.static(__dirname + '/public'));                 // set the static files location /public/img will be /img for users
+//app.use(express.static(__dirname + '/public'));                 // set the static files location /public/img will be /img for users
 app.use(bodyParser.json());                                     // parse application/json
 app.use(bodyParser.urlencoded({'extended':'true'}));            // parse application/x-www-form-urlencoded
 app.use(methodOverride());
 
 
 // application -------------------------------------------------------------
-app.get('/', function(req, res) {
-    res.sendfile('./public/index.html'); // load the single view file (angular will handle the page changes on the front-end)
-});
+
+
+app.use('/', [auth, express.static(__dirname + '/public')]);
+
+// app.get('/', auth, function(req, res) {
+//     res.sendfile('./public/index.html'); // load the single view file (angular will handle the page changes on the front-end)
+// });
 
 
 //
