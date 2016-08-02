@@ -1,5 +1,8 @@
 #include "LinkService.hpp"
 
+#include "Curve.h"
+#include "CurveFunction.h"
+
 #include <cpprest/uri.h>
 #include <cpprest/json.h>
 #include <cpprest/http_client.h>
@@ -361,7 +364,7 @@ http_response LinkService::_post_timeseries(JSV js) {
       cerr << e.what() << endl;
       return _link_error_response(status_codes::NotAcceptable, "Invalid: " + string(e.what()));
     }
-    list<TimeSeries::_sp> tsList;
+    vector<TimeSeries::_sp> tsList;
     for (auto o : oList) {
       TimeSeries::_sp ts = static_pointer_cast<TimeSeries>(o);
       ts->setRecord(_sourceRecord); // no record set by client. set it here.
@@ -472,6 +475,64 @@ http_response LinkService::_post_destination(JSV js) {
   
   cout << "=====================================" << endl;
   return r;
+}
+
+
+http_response LinkService::_post_analytics(web::json::value json) {
+  
+  // supported analytics: tank turnover!
+  
+  /*
+   expected data format:
+   "analytics": [
+  	{
+      "type": "tank",
+      "geometry": {
+        "tankId": "tank1_name",
+        "inputUnits": "ft",
+        "outputUnits": "ft3",
+        "inletDiameter": 12,
+        "inletUnits": "in",
+        "data": [
+          [1,1],
+          [2,2],
+          [3,3]
+        ]
+      }
+  	},
+  	...
+  	}
+   ]
+   */
+  
+  
+  _analytics.clear();
+  
+  if (!json.is_array()) {
+    return _link_error_response(status_codes::BadRequest, "JSON not recognized");
+  }
+  
+  json::array analytics = json.as_array();
+  
+  for (auto a : analytics) {
+    if (!a.is_object() ||
+        a.as_object().find("type") == a.as_object().end() ||
+        !a.as_object()["type"].is_string() ) {
+      return _link_error_response(status_codes::BadRequest, "JSON not recognized"); // not an object or type membery not found, or member not a string
+    }
+    
+    try {
+      TimeSeries::_sp ts = DeserializerJson::analyticWithJson(a, _duplicator.series());
+      _analytics.push_back(ts);
+    } catch (const web::json::json_exception &e) {
+      cerr << e.what() << endl;
+      return _link_error_response(status_codes::NotAcceptable, "Invalid: " + string(e.what()));
+    }
+    
+    
+  }
+  
+  return _link_empty_response();
 }
 
 

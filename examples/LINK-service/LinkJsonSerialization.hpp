@@ -42,6 +42,7 @@ namespace RTX {
     void visit(OdbcDirectPointRecord &pr);
     web::json::value json();
     
+    
   private:
     web::json::value _v;
   };
@@ -61,6 +62,9 @@ namespace RTX {
   public:
     static RTX_object::_sp from_json(web::json::value json);
     static std::vector<RTX_object::_sp> from_json_array(web::json::value json);
+    
+    // analytics
+    static TimeSeries::_sp analyticWithJson(web::json::value jsonValue, std::vector<TimeSeries::_sp> cadidateSeries);
 
     DeserializerJson(web::json::value withJson);
     void visit(Units &u);

@@ -13,6 +13,7 @@
 #include <boost/foreach.hpp>
 
 #include "TimeSeriesFilter.h"
+#include "CurveFunction.h"
 #include "Curve.h"
 
 namespace RTX {

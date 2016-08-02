@@ -29,8 +29,8 @@ namespace RTX {
     PointRecord::_sp destinationRecord();
     void setDestinationRecord(PointRecord::_sp record);
     
-    std::list<TimeSeries::_sp> series();
-    void setSeries(std::list<TimeSeries::_sp> series); /// source series !
+    std::vector<TimeSeries::_sp> series();
+    void setSeries(std::vector<TimeSeries::_sp> series); /// source series !
     
     // view / change state
     void catchUpAndRun(time_t fetchWindow, time_t frequency, time_t backfill, time_t chunkSize = 24*60*60, time_t rateLimit = 0);
@@ -52,7 +52,7 @@ namespace RTX {
     boost::signals2::mutex _mutex;
     RTX_Duplicator_log_callback _logFn;
     PointRecord::_sp _destinationRecord;
-    std::list<TimeSeries::_sp> _sourceSeries, _destinationSeries;
+    std::vector<TimeSeries::_sp> _sourceSeries, _destinationSeries;
     std::pair<time_t,int> _fetchAll(time_t start, time_t end, bool updatePctComplete = true);
     double _pctCompleteFetch;
     bool _isRunning;

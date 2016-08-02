@@ -1,6 +1,9 @@
 #include "LinkJsonSerialization.hpp"
 #include <cpprest/json.h>
 
+#include "Curve.h"
+#include "CurveFunction.h"
+
 using JSV = web::json::value;
 using namespace RTX;
 using namespace std;
@@ -245,3 +248,63 @@ void DeserializerJson::visit(OdbcDirectPointRecord &pr) {
     pr.setTimeFormat(tf[thisTF]);
   }
 };
+
+
+
+TimeSeries::_sp DeserializerJson::analyticWithJson(web::json::value jsonValue, vector<TimeSeries::_sp> candidateSeries) {
+  
+  web::json::object d = jsonValue.as_object();
+  string type = d["type"].as_string();
+  if (type == "tank") {
+    
+    Curve::_sp curve( new Curve );
+    
+    // tank analytic. check for geometry
+    if (d.find("geometry") == d.end() ||
+        !d["geometry"].is_object()) {
+      throw web::json::json_exception(_XPLATSTR("Object type not recognized"));
+    }
+    web::json::object geo = d["geometry"].as_object();
+    
+    // check that important keys exist
+    vector<string> keys = {"tankId","inputUnits","outputUnits","data","inlet"};
+    for(auto key : keys) {
+      if (geo.find(key) == geo.end()) {
+        throw web::json::json_exception(_XPLATSTR("Object type not recognized"));
+      }
+    }
+    
+    string tankId = geo["tankId"].as_string();
+    double inletDiam = geo["inlet"].as_object()["diameter"].as_double();
+    Units inletUnits = Units::unitOfType(geo["inlet"].as_object()["diameter"].as_string());
+    
+    auto inUnits = geo["inputUnits"].as_string();
+    auto outUnits = geo["outputUnits"].as_string();
+    
+    curve->inputUnits = Units::unitOfType(inUnits);
+    curve->outputUnits = Units::unitOfType(outUnits);
+    for(auto pt : geo["data"].as_array()) {
+      if (!pt.is_array()) {
+        throw web::json::json_exception(_XPLATSTR("Object type not recognized"));
+      }
+      web::json::array xy = pt.as_array();
+      if (xy.size() != 2) {
+        throw web::json::json_exception(_XPLATSTR("Object type not recognized"));
+      }
+      double x = xy[0].as_double();
+      double y = xy[1].as_double();
+      curve->curveData[x] = y;
+    }
+    
+    // assemble the analytic
+    // cv-ma-ma-dvdt = flow
+    
+    TimeSeriesFilter::_sp turnover( new TimeSeriesFilter );
+    
+    return turnover;
+  }
+  
+  
+  return TimeSeries::_sp();
+}
+

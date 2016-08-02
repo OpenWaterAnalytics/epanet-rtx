@@ -38,10 +38,10 @@ void TimeSeriesDuplicator::setDestinationRecord(PointRecord::_sp record) {
   this->_refreshDestinations();
 }
 
-std::list<TimeSeries::_sp> TimeSeriesDuplicator::series() {
+std::vector<TimeSeries::_sp> TimeSeriesDuplicator::series() {
   return _sourceSeries;
 }
-void TimeSeriesDuplicator::setSeries(std::list<TimeSeries::_sp> series) {
+void TimeSeriesDuplicator::setSeries(std::vector<TimeSeries::_sp> series) {
   this->stop();
   {
     scoped_lock<boost::signals2::mutex> mx(_mutex);

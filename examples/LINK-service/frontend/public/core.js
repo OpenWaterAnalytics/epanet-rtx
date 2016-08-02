@@ -2,14 +2,31 @@
 var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
 
 .run(function ($rootScope, $timeout, $http, $interval, $location) {
-
+// the data model stub
   $rootScope.config = {
     source:      {},
     destination: {},
     options:       { window:12, interval:5, backfill:30},
     series:      [],
     dash:        { proto:'http' },
-    run:         { run: false }
+    run:         { run: false },
+    analytics: [
+      // {
+    	//   type: "tank",
+    	//   "geometry": {
+      //     "tankId": "tank1_name",
+    	//     "inputUnits": "ft",
+    	//     "outputUnits": "ft3",
+      //     "inletDiameter": 12,
+      //     "inletUnits": "in",
+    	//     "data": [
+    	//       [1,1],
+    	//       [2,2],
+    	//       [3,3]
+    	//     ]
+    	//   }
+    	// }
+    ]
   };
 
   $rootScope.sourceTypes = {
@@ -313,6 +330,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
     //{url:'main', text:'Main'},
     {url:'source', text:'Source'},
     {url:'destination', text:'Destination'},
+    {url:'analytics', text:'Analytics'},
     {url:'options', text:'Options'},
     {url:'run', text:'Run'},
     {url:'dashboard', text:'Dashboard'},
@@ -568,10 +586,38 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
 /**************************/
 .controller('AnalyticsController', function AnalyticsController($rootScope, $scope, $http, $location) {
 
+  $scope.analytics = [];
+
+  $scope.saveAndNext = function () {
+    $rootScope.config.analytics = analytics;
+    $rootScope.postConfig('analytics',
+      function (response) {
+        $location.path('/options');
+      }, function (response) {
+        $rootScope.notifyHttpError(response);
+      });
+  };
+
+  $scope.addAnalytic = function() {
+    $scope.analytics.push({"type":"none"});
+    console.log("added analytic");
+  }
+  $scope.addGeometryPoint = function(analytic) {
+    console.log(analytic);
+    if (!analytic.geometry) {
+      analytic.geometry = {};
+    }
+    if (!analytic.geometry.data) {
+      analytic.geometry.data = [];
+    }
+
+    analytic.geometry.data.push([0.0,0.0]);
+
+  }
 
   // on load
-
-
+  $scope.candidateSeries = $rootScope.config.series;
+  $scope.availableAnalytics = ["tank","none"];
 })
 
 

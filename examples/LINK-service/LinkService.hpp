@@ -70,6 +70,7 @@ namespace RTX {
     http_response _post_options(web::json::value json);
     http_response _post_source(web::json::value json);
     http_response _post_destination(web::json::value json);
+    http_response _post_analytics(web::json::value json);
     http_response _post_logmessage(web::json::value json);
 
     http_listener _listener;
@@ -83,6 +84,7 @@ namespace RTX {
     void stopDuplication();
     time_t _window, _frequency, _backfill;
     boost::signals2::mutex _dupeMutex;
+    std::vector<TimeSeries::_sp> _analytics;
     
   };
 }

@@ -4,8 +4,66 @@
     <a class="pull-right" ng-click="saveAndNext()">Save <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
 </div>
 
-<div class="row col-md-8">
-    <p>
-      ...
-    </p>
+<div class="row col-md-12">
+  <a ng-click="addAnalytic()">add</a>
+  <uib-accordion>
+    <div uib-accordion-group ng-repeat="analytic in analytics" class="panel-default" heading="{{analytic.type}}" is-open="true" is-disabled="false">
+      <select ng-model="analytic.type" ng-options="aType for aType in availableAnalytics">
+      </select>
+      <div ng-if="analytic.type === 'tank'">
+      <table class="table table-hover">
+          <colgroup>
+              <col class="col-md-4">
+              <col class="col-md-4">
+              <col class="col-md-4">
+          </colgroup>
+          <tbody>
+            <tr>
+              <td>
+                Tank Level / Head:
+              </td>
+              <td>
+                <select ng-model="analytic.geometry.tankId" ng-options="ts.name for ts in candidateSeries">
+                </select>
+              </td>
+              <td>
+                asdf
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Tank Inlet Diameter (units):
+              </td>
+              <td>
+                <input type="text" ng-model="analytic.geometry.inletDiameter"></input>
+              </td>
+              <td>
+                <select ng-model="analytic.geometry.inletUnits" ng-options="units for units in ['in','ft','cm','mm']">
+              </td>
+            </tr>
+          </tbody>
+      </table>
+      <table class="table table-hover">
+          <colgroup>
+              <col class="col-md-4">
+              <col class="col-md-4">
+              <col class="col-md-4">
+          </colgroup>
+          <thead>
+          <tr>
+              <th>Level  <select ng-model="analytic.geometry.inputUnits" ng-options="unit for unit in ['ft','m']"></select></th>
+              <th>Volume  <select ng-model="analytic.geometry.outputUnits" ng-options="unit for unit in ['ft3','gal','m3','mgal']"></select></th>
+          </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="point in analytic.geometry.data">
+              <td><input type="text" ng-model="point[0]"></input></td>
+              <td><input type="text" ng-model="point[1]"></input></td>
+            </tr>
+          </tbody>
+      </table>
+      <a ng-click="$parent.addGeometryPoint(analytic)">add point</a>
+    </div>
+    </div>
+  </uib-accordion>
 </div>
