@@ -253,6 +253,8 @@ void DeserializerJson::visit(OdbcDirectPointRecord &pr) {
 
 TimeSeries::_sp DeserializerJson::analyticWithJson(web::json::value jsonValue, vector<TimeSeries::_sp> candidateSeries) {
   
+  cout << jsonValue.serialize() << '\n';
+  
   web::json::object d = jsonValue.as_object();
   string type = d["type"].as_string();
   if (type == "tank") {
@@ -267,7 +269,7 @@ TimeSeries::_sp DeserializerJson::analyticWithJson(web::json::value jsonValue, v
     web::json::object geo = d["geometry"].as_object();
     
     // check that important keys exist
-    vector<string> keys = {"tankId","inputUnits","outputUnits","data","inlet"};
+    vector<string> keys = {"tankId","inputUnits","outputUnits","data","inletDiameter"};
     for(auto key : keys) {
       if (geo.find(key) == geo.end()) {
         throw web::json::json_exception(_XPLATSTR("Object type not recognized"));
@@ -275,8 +277,8 @@ TimeSeries::_sp DeserializerJson::analyticWithJson(web::json::value jsonValue, v
     }
     
     string tankId = geo["tankId"].as_string();
-    double inletDiam = geo["inlet"].as_object()["diameter"].as_double();
-    Units inletUnits = Units::unitOfType(geo["inlet"].as_object()["diameter"].as_string());
+    double inletDiam = geo["inletDiameter"].as_double();
+    Units inletUnits = Units::unitOfType(geo["inletUnits"].as_string());
     
     auto inUnits = geo["inputUnits"].as_string();
     auto outUnits = geo["outputUnits"].as_string();

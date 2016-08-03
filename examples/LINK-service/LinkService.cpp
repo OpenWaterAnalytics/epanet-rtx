@@ -125,6 +125,7 @@ void LinkService::_post(http_request message) {
     {"options",     bind(&LinkService::_post_options,    this, placeholders::_1)},
     {"source",      bind(&LinkService::_post_source,     this, placeholders::_1)},
     {"destination", bind(&LinkService::_post_destination,this, placeholders::_1)},
+    {"analytics",   bind(&LinkService::_post_analytics,  this, placeholders::_1)},
     {"config",      bind(&LinkService::_post_config,     this, placeholders::_1)},
     {"log",         bind(&LinkService::_post_logmessage, this, placeholders::_1)}
   };
@@ -320,12 +321,14 @@ http_response LinkService::_post_config(JSV json) {
   JSV series = o["series"];
   JSV source = o["source"];
   JSV destination = o["destination"];
+  JSV analytics = o["analytics"];
   JSV options = o["options"];
   for( auto fn : {
     bind(&LinkService::_post_source,     this, source),
     bind(&LinkService::_post_timeseries, this, series),
     bind(&LinkService::_post_options,    this, options),
-    bind(&LinkService::_post_destination,this, destination)
+    bind(&LinkService::_post_destination,this, destination),
+    bind(&LinkService::_post_analytics,  this, analytics)
   }) {
     http_response thisres = fn();
     if (thisres.status_code() != status_codes::OK) {
