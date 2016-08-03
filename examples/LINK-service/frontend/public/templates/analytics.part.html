@@ -1,13 +1,15 @@
 
 <div class="alert alert-info" role="alert">
-    Set analytic dashboards here.
+    Set analytic options here.
     <a class="pull-right" ng-click="saveAndNext()">Save <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
 </div>
 
 <div class="row col-md-12">
-  <a ng-click="addAnalytic()">add</a>
   <uib-accordion>
-    <div uib-accordion-group ng-repeat="analytic in analytics" class="panel-default" heading="{{analytic.type}}" is-open="true" is-disabled="false">
+    <div uib-accordion-group ng-repeat="analytic in config.analytics track by $index" class="panel-default"is-open="analytic._isOpen" is-disabled="false">
+      <uib-accordion-heading>
+        {{analytic.name}} <a class="pull-right" ng-click="removeAnalytic(analytic)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+      </uib-accordion-heading>
       <select ng-model="analytic.type" ng-options="aType for aType in availableAnalytics">
       </select>
       <div ng-if="analytic.type === 'tank'">
@@ -23,11 +25,11 @@
                 Tank Level / Head:
               </td>
               <td>
-                <select ng-model="analytic.geometry.tankId" ng-options="ts.name for ts in candidateSeries">
+                <select ng-model="analytic._tankTs" ng-options="ts as ts.name for ts in candidateSeries">
                 </select>
               </td>
               <td>
-                asdf
+                {{analytic._tankTs.units.unitString}}
               </td>
             </tr>
             <tr>
@@ -35,7 +37,7 @@
                 Tank Inlet Diameter (units):
               </td>
               <td>
-                <input type="text" ng-model="analytic.geometry.inletDiameter"></input>
+                <input type="number" ng-model="analytic.geometry.inletDiameter"></input>
               </td>
               <td>
                 <select ng-model="analytic.geometry.inletUnits" ng-options="units for units in ['in','ft','cm','mm']">
@@ -57,8 +59,8 @@
           </thead>
           <tbody>
             <tr ng-repeat="point in analytic.geometry.data">
-              <td><input type="text" ng-model="point[0]"></input></td>
-              <td><input type="text" ng-model="point[1]"></input></td>
+              <td><input type="text" ng-model="point[0]" ng-blur="validatePoint(point)"></input></td>
+              <td><input type="text" ng-model="point[1]" ng-blur="validatePoint(point)"></input></td>
             </tr>
           </tbody>
       </table>
@@ -66,4 +68,5 @@
     </div>
     </div>
   </uib-accordion>
+  <a ng-click="addAnalytic()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
 </div>

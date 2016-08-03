@@ -585,11 +585,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
 /******* ANALYTICS ********/
 /**************************/
 .controller('AnalyticsController', function AnalyticsController($rootScope, $scope, $http, $location) {
-
-  $scope.analytics = [];
-
   $scope.saveAndNext = function () {
-    $rootScope.config.analytics = analytics;
     $rootScope.postConfig('analytics',
       function (response) {
         $location.path('/options');
@@ -599,20 +595,53 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
   };
 
   $scope.addAnalytic = function() {
-    $scope.analytics.push({"type":"none"});
+    $rootScope.config.analytics.push({"type":"New Analytic","_isOpen":true});
     console.log("added analytic");
   }
+  $scope.removeAnalytic = function(a) {
+    console.log('removing: ' + a);
+    var index = $rootScope.config.analytics.indexOf(a);
+    if (index > -1) {
+      $rootScope.config.analytics.splice(index, 1);
+    }
+  }
   $scope.addGeometryPoint = function(analytic) {
-    console.log(analytic);
-    if (!analytic.geometry) {
-      analytic.geometry = {};
-    }
-    if (!analytic.geometry.data) {
-      analytic.geometry.data = [];
-    }
-
     analytic.geometry.data.push([0.0,0.0]);
+  }
 
+  // watch the analytics array and do validation or other custom actions
+  $rootScope.$watch('config.analytics',function(val,old){
+      angular.forEach($rootScope.config.analytics, function (a) {
+        a.name = a.type;
+        // if tank type
+        if (a.type === 'tank') {
+          if (!("geometry" in a)) {
+            a.geometry = {};
+            a.geometry.data = [];
+          }
+          if ("geometry" in a && "tankId" in a.geometry) {
+            var geo = a.geometry;
+            a.name += ' ' + geo.tankId;
+          }
+
+          if ("_tankTs" in a) {
+            a.geometry.tankId = a._tankTs.name;
+          }
+        } // tank
+      }); // analytic
+    }, true /* true = watch deep */);
+
+  // validation for point field types -> number
+  $scope.validatePoint = function(pt) {
+    angular.forEach([0,1], function(idx) {
+      if (typeof pt[idx] === 'string') {
+        pt[idx] = parseFloat(pt[idx]);
+      }
+    });// field
+  };
+
+  $scope.logState = function() {
+    console.log($rootScope.config.analytics);
   }
 
   // on load
