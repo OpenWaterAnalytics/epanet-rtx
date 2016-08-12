@@ -14,6 +14,43 @@
 using namespace RTX;
 using namespace std;
 
+PointRecord::IdentifierUnitsList::IdentifierUnitsList() {
+  _d.reset(new map<string,Units>);
+}
+bool PointRecord::IdentifierUnitsList::hasIdentifierAndUnits(const std::string &identifier, const RTX::Units &units) {
+  auto pr = this->doesHaveIdUnits(identifier, units);
+  return pr.first && pr.second;
+}
+pair<bool,bool> PointRecord::IdentifierUnitsList::doesHaveIdUnits(const string& identifier, const Units& units) {
+  bool nameExists = false, unitsMatch = false;
+  map<string,Units>::const_iterator found = _d->find(identifier);
+  if (found != _d->end()) {
+    nameExists = true;
+    const Units existingUnits = found->second;
+    if (existingUnits == units) {
+      unitsMatch = true;
+    }
+  }
+  return make_pair(nameExists,unitsMatch);
+}
+
+
+map<string,Units>* PointRecord::IdentifierUnitsList::get() {
+  return _d.get();
+}
+void PointRecord::IdentifierUnitsList::set(const std::string &identifier, const RTX::Units &units) {
+  (*_d.get())[identifier] = units;
+}
+void PointRecord::IdentifierUnitsList::clear() {
+  _d.reset(new map<string,Units>);
+}
+size_t PointRecord::IdentifierUnitsList::count() {
+  return _d->size();
+}
+bool PointRecord::IdentifierUnitsList::empty() {
+  return _d->empty();
+}
+
 
 PointRecord::PointRecord() : _name("") {
 }
@@ -45,13 +82,13 @@ bool PointRecord::registerAndGetIdentifierForSeriesWithUnits(std::string recordN
   return true;
 }
 
-const map<string, Units> PointRecord::identifiersAndUnits() {
-  return map<string, Units>();
+PointRecord::IdentifierUnitsList PointRecord::identifiersAndUnits() {
+  return IdentifierUnitsList();
 }
 
 bool PointRecord::exists(const std::string &name, const RTX::Units &units) {
-  map<string,Units> available = this->identifiersAndUnits();
-  return available.count(name) && available[name] == units;
+  IdentifierUnitsList avail = this->identifiersAndUnits();
+  return avail.hasIdentifierAndUnits(name, units);
 }
 
 

@@ -63,7 +63,7 @@ namespace RTX {
     virtual void dbConnect() throw(RtxException);
     virtual bool isConnected();
     bool insertIdentifierAndUnits(const std::string& recordName, Units units);
-    const virtual std::map<std::string,Units> identifiersAndUnits();
+    IdentifierUnitsList identifiersAndUnits();
     
     virtual time_pair_t range(const string& id);
     virtual std::ostream& toStream(std::ostream &stream);

@@ -14,7 +14,11 @@
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <string>
+#include <boost/interprocess/sync/scoped_lock.hpp>
+#include <boost/signals2/mutex.hpp>
 
+using boost::signals2::mutex;
+using boost::interprocess::scoped_lock;
 
 #include "DbPointRecord.h"
 
@@ -70,11 +74,10 @@ DbPointRecord::DbPointRecord() : request("",0,0) {
   errorMessage = "Not Connected";
   _readOnly = false;
   _filterType = OpcPassThrough;
-  _identifiersAndUnitsCache = std::map<std::string,Units>();
   
   iterativeSearchMaxIterations = 8;
   iterativeSearchStride = 3*60*60;
-  
+  _db_mutex.reset(new boost::signals2::mutex);
   
   useTransactions = false;
   maxTransactionInserts = 1000;
@@ -94,6 +97,8 @@ void DbPointRecord::setReadonly(bool readOnly) {
 
 bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Units units) {
   
+  scoped_lock<boost::signals2::mutex> lock(*_db_mutex);
+  
   if (name.length() == 0) {
     return false;
   }
@@ -106,15 +111,10 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
     this->dbConnect();
   }
   
-  const std::map<std::string,Units>& existing = this->identifiersAndUnits();
-  std::map<string,Units>::const_iterator found = existing.find(name);
-  if (found != existing.end()) {
-    nameExists = true;
-    existingUnits = found->second;
-    if (existingUnits == units) {
-      unitsMatch = true;
-    }
-  }
+  auto match = this->identifiersAndUnits().doesHaveIdUnits(name,units);
+  nameExists = match.first;
+  unitsMatch = match.second;
+  
   
   if (this->readonly()) {
     // handle a read-only database.
@@ -171,7 +171,7 @@ bool DbPointRecord::assignUnitsToRecord(const std::string& name, const Units& un
   return false;
 }
 
-const std::map<std::string,Units> DbPointRecord::identifiersAndUnits() {
+PointRecord::IdentifierUnitsList DbPointRecord::identifiersAndUnits() {
   return _identifiersAndUnitsCache;
 }
 

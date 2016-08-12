@@ -224,8 +224,8 @@ bool OdbcPointRecord::checkConnected() {
   return _connectionOk;
 }
 
-const std::map<std::string,Units> OdbcPointRecord::identifiersAndUnits() {
-  std::map<std::string,Units> ids;
+PointRecord::IdentifierUnitsList OdbcPointRecord::identifiersAndUnits() {
+  IdentifierUnitsList ids;
   return ids;
 }
 

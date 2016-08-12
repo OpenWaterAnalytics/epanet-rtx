@@ -22,7 +22,7 @@ namespace RTX {
     
     bool isConnected() {return _connected;};
     bool insertIdentifierAndUnits(const std::string& id, Units units);
-    const std::map<std::string,Units> identifiersAndUnits();
+    IdentifierUnitsList identifiersAndUnits();
     void truncate();
 
     std::string connectionString();

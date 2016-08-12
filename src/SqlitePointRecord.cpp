@@ -303,27 +303,30 @@ bool SqlitePointRecord::insertIdentifierAndUnits(const std::string &id, RTX::Uni
     sqlite3_finalize(stmt);
     
     // add to the cache.
-    _identifiersAndUnitsCache[id] = units;
+    _identifiersAndUnitsCache.set(id, units);
   }
-  
+  if (_inBulkOperation) {
+    this->checkTransactions(false);
+  }
   return success;
 }
 
 
-const std::map<std::string,Units> SqlitePointRecord::identifiersAndUnits() {
-  std::map<std::string,Units> ids;
+PointRecord::IdentifierUnitsList SqlitePointRecord::identifiersAndUnits() {
   
   time_t now = time(NULL);
   time_t stale = now - _lastIdRequest;
   _lastIdRequest = now;
   
-  if (stale < 5 && !_identifiersAndUnitsCache.empty()) {
+  if (stale < 5 && !_identifiersAndUnitsCache.get()->empty()) {
     return DbPointRecord::identifiersAndUnits();
   }
   
   if (!this->isConnected()) {
     this->dbConnect();
   }
+  
+  IdentifierUnitsList ids;
   
   if (this->isConnected()) {
     scoped_lock<boost::signals2::mutex> lock(*_mutex);
@@ -342,19 +345,16 @@ const std::map<std::string,Units> SqlitePointRecord::identifiersAndUnits() {
         string unitsStr = string((char*)sqlite3_column_text(selectIdsStmt, 1));
         units = Units::unitOfType(unitsStr);
       }
-      ids[name] = units;
+      ids.set(name,units);
       ret = sqlite3_step(selectIdsStmt);
     }
     sqlite3_reset(selectIdsStmt);
     sqlite3_finalize(selectIdsStmt);
   }
   
-  {
-    scoped_lock<boost::signals2::mutex> lock(*_mutex);
-    _identifiersAndUnitsCache = ids;
-  }
-  
-  return ids;
+  scoped_lock<boost::signals2::mutex> lock(*_mutex);
+  _identifiersAndUnitsCache = ids;
+  return _identifiersAndUnitsCache;
 }
 
 
@@ -579,21 +579,27 @@ void SqlitePointRecord::insertRange(const std::string& id, std::vector<Point> po
 }
 
 void SqlitePointRecord::removeRecord(const std::string& id) {
-  scoped_lock<boost::signals2::mutex> lock(*_mutex);
   
-  if (!_connected) {
-    return;
+  {
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
+    
+    if (!_connected) {
+      return;
+    }
+    _identifiersAndUnitsCache.get()->erase(id);
+    
+    char *errmsg;
+    string sqlStr = "delete from points where series_id = (SELECT series_id FROM meta where name = \'" + id + "\'); delete from meta where name = \'" + id + "\'";
+    const char *sql = sqlStr.c_str();
+    int ret = sqlite3_exec(_dbHandle, sql, NULL, NULL, &errmsg);
+    if (ret != SQLITE_OK) {
+      logDbError();
+      return;
+    }
   }
-  _identifiersAndUnitsCache.clear();
   
-  char *errmsg;
-  string sqlStr = "delete from points where series_id = (SELECT series_id FROM meta where name = \'" + id + "\'); delete from meta where name = \'" + id + "\'";
-  const char *sql = sqlStr.c_str();
-  int ret = sqlite3_exec(_dbHandle, sql, NULL, NULL, &errmsg);
-  if (ret != SQLITE_OK) {
-    logDbError();
-    return;
-  }
+  // maybe need a refresh?
+  this->identifiersAndUnits(); // force refresh if enough time has passed
 }
 
 void SqlitePointRecord::truncate() {

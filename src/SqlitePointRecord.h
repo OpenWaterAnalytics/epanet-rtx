@@ -26,7 +26,7 @@ namespace RTX {
     
     bool supportsUnitsColumn() { return true; };
     bool insertIdentifierAndUnits(const std::string& id, Units units);
-    const virtual std::map<std::string,Units> identifiersAndUnits();
+    virtual IdentifierUnitsList identifiersAndUnits();
     
     void dbConnect() throw(RtxException);
     bool isConnected();

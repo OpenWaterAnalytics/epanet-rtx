@@ -178,21 +178,28 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
       return (this->exists(properId, units));
     }
     // otherwise, great. add the series.
-    _identifiersAndUnitsCache[properId] = units;
-    _lastIdRequest = 0;
+    _identifiersAndUnitsCache.set(properId, units);
+    _lastIdRequest = time(NULL);
   }
   
   // insert a field key/value for something that we won't ever query again.
+  // pay attention to bulk operations here, since we may be inserting new ids en-masse
   string tsNameEscaped = _influxIdForTsId(id);
   boost::replace_all(tsNameEscaped, " ", "\\ ");
-  this->sendPointsWithString(tsNameEscaped + " exist=true");
+  const string content(tsNameEscaped + " exist=true");
+  if (_inBulkOperation) {
+    _transactionLines.push_back(content);
+  }
+  else {
+    this->sendPointsWithString(content);
+  }
   // no futher validation.
   return true;
 }
 
 
 
-const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
+PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
   
   /*
    
@@ -225,9 +232,7 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
       return DbPointRecord::identifiersAndUnits();
     }
     _lastIdRequest = now;
-    
     _identifiersAndUnitsCache.clear();
-    
   }
   
   if (!this->isConnected()) {
@@ -280,7 +285,7 @@ const std::map<std::string,Units> InfluxDbPointRecord::identifiersAndUnits() {
       }
       // now assemble the complete name and cache it:
       string properId = InfluxDbPointRecord::nameFromMetricInfo(m);
-      _identifiersAndUnitsCache[properId] = units;
+      _identifiersAndUnitsCache.set(properId,units);
     } // for each values array (ts definition)
   }
   
@@ -330,7 +335,7 @@ string InfluxDbPointRecord::_influxIdForTsId(const string& id) {
   }
   string tsId = InfluxDbPointRecord::nameFromMetricInfo(m);
   
-  if (_identifiersAndUnitsCache.count(tsId) == 0) {
+  if (_identifiersAndUnitsCache.get()->count(tsId) == 0) {
     cerr << "no registered ts with that id: " << tsId << endl;
     // yet i'm being asked for it??
     
@@ -338,7 +343,7 @@ string InfluxDbPointRecord::_influxIdForTsId(const string& id) {
     return "";
   }
   
-  Units u = _identifiersAndUnitsCache[tsId];
+  Units u = (*_identifiersAndUnitsCache.get())[tsId];
   m.tags["units"] = u.unitString();
   string dbId = InfluxDbPointRecord::nameFromMetricInfo(m);
   return dbId;
@@ -487,7 +492,7 @@ void InfluxDbPointRecord::removeRecord(const std::string& id) {
 void InfluxDbPointRecord::truncate() {
   this->errorMessage = "Truncating";
   auto ids = _identifiersAndUnitsCache; // copy
-  for (auto ts_units : ids) {
+  for (auto ts_units : *ids.get()) {
     this->removeRecord(ts_units.first);
     
     /*
@@ -501,7 +506,7 @@ void InfluxDbPointRecord::truncate() {
      */
   }
   
-  for (auto ts_units : ids) {
+  for (auto ts_units : *ids.get()) {
     this->insertIdentifierAndUnits(ts_units.first, ts_units.second);
   }
   

@@ -60,12 +60,13 @@ bool BufferPointRecord::registerAndGetIdentifierForSeriesWithUnits(std::string r
   return true;
 }
 
-const std::map<std::string,Units> BufferPointRecord::identifiersAndUnits() {
-  std::map<std::string,Units> ids;
+PointRecord::IdentifierUnitsList BufferPointRecord::identifiersAndUnits() {
+  IdentifierUnitsList list;
+  std::map<std::string,Units> *ids = list.get();
   BOOST_FOREACH(StringBufferPair p, _keyedBuffers) {
-    ids[p.first] = p.second.units;
+    (*ids)[p.first] = p.second.units;
   }
-  return ids;
+  return list;
 }
 
 Point BufferPointRecord::point(const string& identifier, time_t time) {

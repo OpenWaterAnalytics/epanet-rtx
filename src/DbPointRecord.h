@@ -51,7 +51,7 @@ namespace RTX {
     virtual bool supportsUnitsColumn() = 0; /// subs must implement!
     
     virtual bool registerAndGetIdentifierForSeriesWithUnits(std::string name, Units units);
-    const virtual std::map<std::string,Units> identifiersAndUnits(); /// simple cache
+    virtual IdentifierUnitsList identifiersAndUnits(); /// simple cache
     
     // end of the road for these guys; no virtuals.
     Point point(const string& id, time_t time);
@@ -143,7 +143,7 @@ namespace RTX {
     virtual void removeRecord(const std::string& id)=0;
     virtual bool insertIdentifierAndUnits(const std::string& id, Units units)=0;
     
-    std::map<std::string,Units> _identifiersAndUnitsCache; /// for subs to use
+    IdentifierUnitsList _identifiersAndUnitsCache; /// for subs to use
     time_t _lastIdRequest;
     
     class request_t {
@@ -161,6 +161,7 @@ namespace RTX {
     bool _readOnly;
     std::set<unsigned int> _opcFilterCodes;
     OpcFilterType _filterType;
+    std::shared_ptr<boost::signals2::mutex> _db_mutex;
     
   };
 

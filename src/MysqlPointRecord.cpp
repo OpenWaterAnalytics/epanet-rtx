@@ -255,8 +255,8 @@ void MysqlPointRecord::setDb(string db) {
 
 #pragma mark - db meta
 
-const std::map<std::string,Units> MysqlPointRecord::identifiersAndUnits() {
-  std::map<std::string,Units> available;
+PointRecord::IdentifierUnitsList MysqlPointRecord::identifiersAndUnits() {
+  IdentifierUnitsList available;
   
   if (isConnected()) {
     
@@ -267,7 +267,7 @@ const std::map<std::string,Units> MysqlPointRecord::identifiersAndUnits() {
       std::string theName = results->getString("name");
       std::string theUnits = results->getString("units");
       //std::cout << "found: " << thisName << std::endl;
-      available[theName] = Units::unitOfType(theUnits);
+      available.set(theName, Units::unitOfType(theUnits));
     }
     
   }

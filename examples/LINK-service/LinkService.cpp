@@ -221,7 +221,7 @@ void LinkService::_get_source(http_request message) {
       vector<RTX_object::_sp> series;
       if (_sourceRecord) {
         auto ids = _sourceRecord->identifiersAndUnits();
-        for (auto id : ids) {
+        for (auto id : *ids.get()) {
           string name = id.first;
           Units units = id.second;
           TimeSeries::_sp ts(new TimeSeries);

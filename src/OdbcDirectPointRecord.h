@@ -20,7 +20,7 @@ namespace RTX {
     RTX_BASE_PROPS(OdbcDirectPointRecord);
     OdbcDirectPointRecord();
     virtual ~OdbcDirectPointRecord();
-    const std::map<std::string,Units> identifiersAndUnits();
+    IdentifierUnitsList identifiersAndUnits();
     
   protected:
     void dbConnect() throw(RtxException);

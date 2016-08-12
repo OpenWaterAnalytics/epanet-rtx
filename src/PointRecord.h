@@ -55,6 +55,21 @@ namespace RTX {
   class PointRecord : public RTX_object {
     
   public:
+    
+    class IdentifierUnitsList {
+    public:
+      IdentifierUnitsList();
+      bool hasIdentifierAndUnits(const std::string& identifier, const Units& units);
+      std::pair<bool,bool> doesHaveIdUnits(const std::string& identifier, const Units& units);
+      void set(const std::string& identifier, const Units& units);
+      std::map< std::string, Units> *get();
+      void clear();
+      size_t count();
+      bool empty();
+    private:
+      std::shared_ptr< std::map< std::string, Units> > _d;
+    };
+    
     typedef std::pair<std::string,Units> nameUnitsPair;
     RTX_BASE_PROPS(PointRecord);
     typedef std::pair<time_t, time_t> time_pair_t;
@@ -66,7 +81,7 @@ namespace RTX {
     void setName(std::string name);
     
     virtual bool registerAndGetIdentifierForSeriesWithUnits(std::string recordName, Units units);    // registering record names.
-    const virtual std::map<std::string, Units> identifiersAndUnits();
+    virtual IdentifierUnitsList identifiersAndUnits();
     
     bool exists(const std::string& name, const Units& units);
     
