@@ -223,6 +223,12 @@ PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
    }
    
    */
+  
+  // if i'm busy, then don't bother. unless this could be the first query.
+  if (_inBulkOperation && !_identifiersAndUnitsCache.empty()) {
+    return DbPointRecord::identifiersAndUnits();
+  }
+  
   {
     scoped_lock<boost::signals2::mutex> lock(*_mutex);
     
@@ -422,7 +428,7 @@ void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> 
   */
   
   vector<Point> existing;
-  existing = this->selectRange(dbId, points.front().time - 1, points.back().time + 1);
+  //existing = this->selectRange(dbId, points.front().time - 1, points.back().time + 1);
   map<time_t,bool> existingMap;
   for (const auto &p : existing) {
     existingMap[p.time] = true;

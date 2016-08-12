@@ -30,10 +30,10 @@ Junction::Junction(const std::string& name) : Node(name) {
   _qualityState->setUnits(RTX_SECOND);
   _demandState->setUnits(RTX_LITER_PER_SECOND);
   
-  _headState->setName("N " + name + " Head");
-  _pressureState->setName("N " + name + " Pressure");
-  _qualityState->setName("N " + name + " Quality");
-  _demandState->setName("N " + name + " Demand");
+  _headState->setName("head,n=" + name);
+  _pressureState->setName("pressure,n=" + name);
+  _qualityState->setName("quality,n=" + name);
+  _demandState->setName("demand,n=" + name);
   
   _baseDemand = 0;
   _initialQuality = 0;

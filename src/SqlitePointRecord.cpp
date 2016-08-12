@@ -72,7 +72,7 @@ void SqlitePointRecord::dbConnect() throw(RtxException) {
       }
     }
     if( returnCode != SQLITE_OK ){
-      this->logDbError();
+      this->logDbError(returnCode);
       sqlite3_close(_dbHandle);
       return;
     }
@@ -122,18 +122,14 @@ void SqlitePointRecord::dbConnect() throw(RtxException) {
     _selectRangeStr = selectPreamble + "time >= ? AND time <= ?" + qualClause + " order by time asc";
     _selectNextStr = selectPreamble + "time > ?" + qualClause + " order by time asc LIMIT 1";
     _selectPreviousStr = selectPreamble + "time < ?" + qualClause + " order by time desc LIMIT 1";
-    _insertSingleStr = "INSERT INTO points (time, series_id, value, quality, confidence) SELECT ?,series_id,?,?,? FROM meta WHERE name = ?";
+    _insertSingleStr = "INSERT INTO points (time, series_id, value, quality, confidence) VALUES (?,?,?,?,?)";
     _selectFirstStr = selectPreamble + "1 order by time asc limit 1";
     _selectLastStr = selectPreamble + "1 order by time desc limit 1";
-    _selectNamesStr = "select name,units from meta order by name asc";
-    
-    
+    _selectNamesStr = "select series_id,name,units from meta order by name asc";
     
     // prepare statements for performance
     sqlite3_finalize(_insertSingleStmt);
     sqlite3_prepare_v2(_dbHandle, _insertSingleStr.c_str(), -1, &_insertSingleStmt, NULL);
-    
-    
     
     errorMessage = "OK";
     _connected = true;
@@ -215,10 +211,11 @@ bool SqlitePointRecord::updateSchema() {
 
 
 
-void SqlitePointRecord::logDbError() {
+void SqlitePointRecord::logDbError(int ret) {
   const char *zErrMsg = sqlite3_errmsg(_dbHandle);
   errorMessage = string(zErrMsg);
-  cerr << "sqlite error: " << errorMessage << endl;
+  string errStr(sqlite3_errstr(ret));
+  cerr << "sqlite error: " << errorMessage << " :: " << errStr << endl;
 }
 
 
@@ -254,7 +251,7 @@ bool SqlitePointRecord::assignUnitsToRecord(const std::string &name, const Units
     sqlite3_bind_text(stmt, 1, unitsStr.c_str(), -1, NULL);
     ret = sqlite3_step(stmt);
     if (ret != SQLITE_DONE) {
-      logDbError();
+      logDbError(ret);
     }
     else {
       success = true;
@@ -294,16 +291,19 @@ bool SqlitePointRecord::insertIdentifierAndUnits(const std::string &id, RTX::Uni
     sqlite3_bind_text(stmt, 2, unitsStr.c_str(), -1, NULL);
     ret = sqlite3_step(stmt);
     if (ret != SQLITE_DONE) {
-      logDbError();
+      logDbError(ret);
     }
     else {
       success = true;
     }
+    int uid = (int)sqlite3_last_insert_rowid(_dbHandle);
+    
     sqlite3_reset(stmt);
     sqlite3_finalize(stmt);
     
     // add to the cache.
     _identifiersAndUnitsCache.set(id, units);
+    _metaCache[id] = uid;
   }
   if (_inBulkOperation) {
     this->checkTransactions(false);
@@ -328,25 +328,29 @@ PointRecord::IdentifierUnitsList SqlitePointRecord::identifiersAndUnits() {
   
   IdentifierUnitsList ids;
   
+  
   if (this->isConnected()) {
     scoped_lock<boost::signals2::mutex> lock(*_mutex);
+    _metaCache.clear();
     sqlite3_stmt *selectIdsStmt;
     int ret;
     ret = sqlite3_prepare_v2(_dbHandle, _selectNamesStr.c_str(), -1, &selectIdsStmt, NULL);
     ret = sqlite3_step(selectIdsStmt);
     while (ret == SQLITE_ROW) {
-      string name = string((char*)sqlite3_column_text(selectIdsStmt, 0));
-      int type = sqlite3_column_type(selectIdsStmt, 1);
+      int uid = sqlite3_column_int(selectIdsStmt, 0);
+      string name = string((char*)sqlite3_column_text(selectIdsStmt, 1));
+      int type = sqlite3_column_type(selectIdsStmt, 2);
       Units units;
       if (type == SQLITE_NULL) {
         units = RTX_NO_UNITS;
       }
       else {
-        string unitsStr = string((char*)sqlite3_column_text(selectIdsStmt, 1));
+        string unitsStr = string((char*)sqlite3_column_text(selectIdsStmt, 2));
         units = Units::unitOfType(unitsStr);
       }
       ids.set(name,units);
       ret = sqlite3_step(selectIdsStmt);
+      _metaCache[name] = uid;
     }
     sqlite3_reset(selectIdsStmt);
     sqlite3_finalize(selectIdsStmt);
@@ -526,16 +530,17 @@ void SqlitePointRecord::insertSingleInTransaction(const std::string& id, Point p
     scoped_lock<boost::signals2::mutex> lock(*_mutex);
     
     int ret;
-    // INSERT INTO points (time, series_id, value, quality, confidence) SELECT ?,series_id,?,?,? FROM meta WHERE name = ?
+    // INSERT INTO points (time, series_id, value, quality, confidence) VALUES ?,?,?,?,?
+    int tsUid = _metaCache[id];
     ret = sqlite3_bind_int(    _insertSingleStmt, 1, (int)point.time      );
-    ret = sqlite3_bind_double( _insertSingleStmt, 2, point.value          );
-    ret = sqlite3_bind_int(    _insertSingleStmt, 3, point.quality        );
-    ret = sqlite3_bind_double( _insertSingleStmt, 4, point.confidence     );
-    ret = sqlite3_bind_text(   _insertSingleStmt, 5, id.c_str(), -1, NULL );
+    ret = sqlite3_bind_int(    _insertSingleStmt, 2, tsUid                );
+    ret = sqlite3_bind_double( _insertSingleStmt, 3, point.value          );
+    ret = sqlite3_bind_int(    _insertSingleStmt, 4, point.quality        );
+    ret = sqlite3_bind_double( _insertSingleStmt, 5, point.confidence     );
     
     ret = sqlite3_step(_insertSingleStmt);
     if (ret != SQLITE_DONE) {
-      logDbError();
+      logDbError(ret);
     }
     sqlite3_reset(_insertSingleStmt);
   }
@@ -558,7 +563,7 @@ void SqlitePointRecord::insertRange(const std::string& id, std::vector<Point> po
       scoped_lock<boost::signals2::mutex> lock(*_mutex);
       ret = sqlite3_exec(_dbHandle, "begin exclusive transaction", NULL, NULL, &errmsg);
       if (ret != SQLITE_OK) {
-        logDbError();
+        logDbError(ret);
         return;
       }
     }
@@ -571,7 +576,7 @@ void SqlitePointRecord::insertRange(const std::string& id, std::vector<Point> po
       scoped_lock<boost::signals2::mutex> lock(*_mutex);
       ret = sqlite3_exec(_dbHandle, "end transaction", NULL, NULL, &errmsg);
       if (ret != SQLITE_OK) {
-        logDbError();
+        logDbError(ret);
         return;
       }
     }
@@ -593,7 +598,7 @@ void SqlitePointRecord::removeRecord(const std::string& id) {
     const char *sql = sqlStr.c_str();
     int ret = sqlite3_exec(_dbHandle, sql, NULL, NULL, &errmsg);
     if (ret != SQLITE_OK) {
-      logDbError();
+      logDbError(ret);
       return;
     }
   }
@@ -611,7 +616,7 @@ void SqlitePointRecord::truncate() {
   char *errmsg;
   int ret = sqlite3_exec(_dbHandle, "delete from points", NULL, NULL, &errmsg);
   if (ret != SQLITE_OK) {
-    logDbError();
+    logDbError(ret);
     return;
   }
 }

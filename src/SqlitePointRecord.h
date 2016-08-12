@@ -73,7 +73,7 @@ namespace RTX {
     std::shared_ptr<boost::signals2::mutex> _mutex;
     
     bool initTables();
-    void logDbError();
+    void logDbError(int ret);
     
     Point pointFromStatment(sqlite3_stmt *stmt);
     std::vector<Point> pointsFromPreparedStatement(sqlite3_stmt *stmt);
@@ -81,6 +81,8 @@ namespace RTX {
     bool updateSchema();
     int dbSchemaVersion();
     void setDbSchemaVersion(int v);
+    
+    std::map<std::string,int> _metaCache;
     
   };
   
