@@ -41,13 +41,17 @@ map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForEle
   
   pair<TimeSeries::_sp,TimeSeries::_sp> pair = tsPairForElementWithMetricType(element, type);
   
+  measured->setSource(pair.first);
+  modeled->setSource(pair.second);
   
-  if (!pair.first || !pair.second) {
+  if (!pair.first && !pair.second) {
     return errorSeries;
   }
   
-  measured->setSource(pair.first);
-  modeled->setSource(pair.second);
+  if (!pair.first && pair.second) {
+    errorSeries[ModelPerformanceStatsModel] = modeled;
+    return errorSeries; // only return one series.
+  }
   
   AggregatorTimeSeries::_sp error(new AggregatorTimeSeries);
   error->addSource(modeled);
