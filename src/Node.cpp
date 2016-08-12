@@ -14,8 +14,7 @@
 using namespace RTX;
 
 Node::Node(const std::string& name) : Element(name) {
-  _x = 0;
-  _y = 0;
+  _lonLat = {0,0};
   _z = 0;
 }
 Node::~Node() {
@@ -38,11 +37,10 @@ std::vector< std::shared_ptr<Link> > Node::links() {
 }
 
 std::pair<double,double> Node::coordinates() {
-  return std::pair<double,double>(_x,_y);
+  return _lonLat;
 }
 void Node::setCoordinates(double x, double y) {
-  _x = x;
-  _y = y;
+  _lonLat = {x,y};
 }
 double Node::elevation() {
   return _z;

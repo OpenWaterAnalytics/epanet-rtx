@@ -31,7 +31,7 @@ namespace RTX {
     RTX_BASE_PROPS(Node);
     // properties - get/set
     std::pair<double,double> coordinates();
-    virtual void setCoordinates(double x, double y);
+    virtual void setCoordinates(double lon, double lat);
     double elevation();
     virtual void setElevation(double elevation);
     std::vector< std::shared_ptr<Link> > links();
@@ -42,7 +42,8 @@ namespace RTX {
     void addLink(std::shared_ptr<Link> link);
     
   private:
-    double _x, _y, _z;
+    std::pair<double,double> _lonLat;
+    double _z;
     std::vector< std::weak_ptr<Link> > _links;
     
   };
