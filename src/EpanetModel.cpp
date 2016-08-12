@@ -67,8 +67,12 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   int qualCode, traceNode;
   char chemName[32],chemUnits[32];
   OW_API_CHECK( OW_getqualinfo(_enModel, &qualCode, chemName, chemUnits, &traceNode), "OW_getqualinfo" );
-  Units qualUnits = Units::unitOfType(string(chemUnits));
-  //this->setQualityUnits(qualUnits);
+  string chemUnitsStr(chemUnits);
+  if (chemUnitsStr == "hrs") {
+    chemUnitsStr = "hr";
+  }
+  Units qualUnits = Units::unitOfType(chemUnitsStr);
+  this->setQualityUnits(qualUnits);
   
   OW_API_CHECK( OW_getflowunits(_enModel, &flowUnitType), "OW_getflowunits");
   switch (flowUnitType)
