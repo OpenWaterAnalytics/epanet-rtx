@@ -7,7 +7,10 @@
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
-
+#include <sstream>
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
 
 #include <cpprest/uri.h>
 #include <cpprest/json.h>
@@ -358,7 +361,10 @@ string InfluxDbPointRecord::_influxIdForTsId(const string& id) {
 #pragma mark SELECT
 
 std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
-  std::vector<Point> points;
+  // bulk operation is inserts, so skip the lookup.
+  if (_inBulkOperation) {
+    return vector<Point>();
+  }
   string dbId = _influxIdForTsId(id);
   DbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time >= " + to_string(startTime) + "s");
@@ -687,12 +693,25 @@ void InfluxDbPointRecord::sendPointsWithString(const string& content) {
   .append_query("p", this->pass, false)
   .append_query("precision", "s", false);
   
+  // zip the body content
+  namespace bio = boost::iostreams;
+  std::stringstream compressed;
+  std::stringstream origin(content);
+  bio::filtering_streambuf<bio::input> out;
+  out.push(bio::gzip_compressor(bio::gzip_params(bio::gzip::best_compression)));
+  out.push(origin);
+  bio::copy(out, compressed);
+  const string zippedContent(compressed.str());
+  
   try {
     web::http::client::http_client_config config;
     config.set_timeout(std::chrono::seconds(60));
 //    config.set_credentials(http::client::credentials(this->user, this->pass));
     web::http::client::http_client client(b.to_uri(), config);
-    http_response r = client.request(methods::POST, "", content).get(); // waits for response
+    web::http::http_request req(methods::POST);
+    req.set_body(zippedContent);
+    req.headers().add("Content-Encoding", "gzip");
+    http_response r = client.request(req).get(); // waits for response
     if (r.status_code() == 204) {
       // no content. this is fine.
     }

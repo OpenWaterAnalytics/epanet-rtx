@@ -350,6 +350,7 @@
 		22CF1C2A1A68094300161188 /* TimeSeriesFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22CF1C271A68094300161188 /* TimeSeriesFilter.cpp */; };
 		22CF1C2B1A68094300161188 /* TimeSeriesFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CF1C281A68094300161188 /* TimeSeriesFilter.h */; };
 		22CF1C2C1A68094300161188 /* TimeSeriesFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CF1C281A68094300161188 /* TimeSeriesFilter.h */; };
+		22D570141D6741B000C25997 /* libboost_iostreams.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D570131D6741B000C25997 /* libboost_iostreams.a */; };
 		22D8C1CE1C1A048300298C0C /* libboost_chrono-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1BF1C1A048300298C0C /* libboost_chrono-mt.a */; };
 		22D8C1CF1C1A048300298C0C /* libboost_date_time-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C01C1A048300298C0C /* libboost_date_time-mt.a */; };
 		22D8C1D01C1A048300298C0C /* libboost_date_time.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C11C1A048300298C0C /* libboost_date_time.a */; };
@@ -828,6 +829,7 @@
 		22CF1C281A68094300161188 /* TimeSeriesFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeSeriesFilter.h; path = ../../src/TimeSeriesFilter.h; sourceTree = "<group>"; };
 		22CF1C3B1A6842DC00161188 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		22D4D32118F8298300DA1648 /* readConfigTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = readConfigTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		22D570131D6741B000C25997 /* libboost_iostreams.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_iostreams.a; path = ../../../../../../../usr/local/com.citilogics.dev/lib/libboost_iostreams.a; sourceTree = "<group>"; };
 		22D8C1BF1C1A048300298C0C /* libboost_chrono-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_chrono-mt.a"; path = "/usr/local/com.citilogics.dev/lib/libboost_chrono-mt.a"; sourceTree = "<absolute>"; };
 		22D8C1C01C1A048300298C0C /* libboost_date_time-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_date_time-mt.a"; path = "/usr/local/com.citilogics.dev/lib/libboost_date_time-mt.a"; sourceTree = "<absolute>"; };
 		22D8C1C11C1A048300298C0C /* libboost_date_time.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_date_time.a; path = /usr/local/com.citilogics.dev/lib/libboost_date_time.a; sourceTree = "<absolute>"; };
@@ -916,6 +918,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22D570141D6741B000C25997 /* libboost_iostreams.a in Frameworks */,
 				2251940A1CD8F2EA00B1BC31 /* libxml2.2.dylib in Frameworks */,
 				22E997091CA5937B00D6F34F /* CoreFoundation.framework in Frameworks */,
 				22E997081CA5935F00D6F34F /* Security.framework in Frameworks */,
@@ -1298,6 +1301,7 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
+				22D570131D6741B000C25997 /* libboost_iostreams.a */,
 				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
 				22C34357187D9441000100A4 /* epanetmsx.xcodeproj */,
 				228A76FE18450CC700905D8E /* RTX Project */,
