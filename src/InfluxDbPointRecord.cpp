@@ -35,9 +35,9 @@ using web::http::methods;
 using web::http::status_codes;
 using web::http::http_response;
 using web::http::uri;
-using JSONV = web::json::value;
-using JSOB = web::json::object;
-using JSAR = web::json::array;
+using jsValue = web::json::value;
+using jsObject = web::json::object;
+using jsArray = web::json::array;
 
 
 // task wrapper impl
@@ -59,8 +59,8 @@ PplxTaskWrapper::PplxTaskWrapper() {
 
 
 uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const std::string& query, bool withTimePrecision = true);
-JSONV _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& record, uri uri, method withMethod = methods::GET);
-std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(JSONV json);
+jsValue _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& record, uri uri, method withMethod = methods::GET);
+std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(jsValue json);
 
 /*
  influx will handle units a litte differently since it doesn't have a straightforward k/v store.
@@ -95,7 +95,7 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
   bool dbExists = false;
   
   uri uri = _InfluxDbPointRecord_uriForQuery(*this, "SHOW MEASUREMENTS LIMIT 1", false);
-  JSOB jsoMeas = _InfluxDbPointRecord_jsonFromRequest(*this,uri).as_object();
+  jsObject jsoMeas = _InfluxDbPointRecord_jsonFromRequest(*this,uri).as_object();
   auto jsoNOTFOUND = jsoMeas.end();
   if (jsoMeas.empty() || jsoMeas.find(kRESULTS) == jsoNOTFOUND) {
     if (jsoMeas.find("error") != jsoNOTFOUND) {
@@ -108,14 +108,14 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
     }
   }
   
-  JSONV resVal = jsoMeas[kRESULTS];
+  jsValue resVal = jsoMeas[kRESULTS];
   if (!resVal.is_array() || resVal.as_array().size() == 0) {
     this->errorMessage = "JSON Format Not Recognized";
     return;
   }
   
   auto resFirst = resVal.as_array().begin();
-  JSOB res = resFirst->as_object();
+  jsObject res = resFirst->as_object();
   if (res.find(kERROR) != res.end()) {
     this->errorMessage = res[kERROR].as_string();
   }
@@ -135,7 +135,7 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
     .append_query("p", this->pass, false)
     .append_query("q", "CREATE DATABASE " + this->db, true);
     
-    JSOB respObj = _InfluxDbPointRecord_jsonFromRequest(*this, b.to_uri()).as_object();
+    jsObject respObj = _InfluxDbPointRecord_jsonFromRequest(*this, b.to_uri()).as_object();
     if (respObj.empty() || respObj.find(kRESULTS) == respObj.end()) {
       this->errorMessage = "Can't create database";
       return;
@@ -277,35 +277,35 @@ PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
   }
   
   uri uri = _InfluxDbPointRecord_uriForQuery(*this, kSHOW_SERIES, false);
-  JSONV jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
+  jsValue jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   
-  JSOB jso = jsv.as_object();
+  jsObject jso = jsv.as_object();
   auto iResult = jso.find("results");
   if (iResult == jso.end()) {
     return _identifiersAndUnitsCache;
   }
-  JSONV resVal = iResult->second;
-  JSAR resArr = resVal.as_array();
+  jsValue resVal = iResult->second;
+  jsArray resArr = resVal.as_array();
   auto resIt = resArr.begin();
-  JSOB resZeroObj = resIt->as_object();
+  jsObject resZeroObj = resIt->as_object();
   
   auto seriesArrIt = resZeroObj.find(kSERIES);
   if (seriesArrIt == resZeroObj.end()) {
     return _identifiersAndUnitsCache;
   }
   
-  JSAR seriesArray = seriesArrIt->second.as_array();
+  jsArray seriesArray = seriesArrIt->second.as_array();
   for (auto seriesIt = seriesArray.begin(); seriesIt != seriesArray.end(); ++seriesIt) {
     
     string str = seriesIt->serialize();
-    JSOB thisSeries = seriesIt->as_object();
+    jsObject thisSeries = seriesIt->as_object();
     
-    JSAR columns = thisSeries["columns"].as_array(); // the only column is "key"
-    JSAR values = thisSeries["values"].as_array(); // array of single-string arrays
+    jsArray columns = thisSeries["columns"].as_array(); // the only column is "key"
+    jsArray values = thisSeries["values"].as_array(); // array of single-string arrays
     
     for (auto valuesIt = values.begin(); valuesIt != values.end(); ++valuesIt) {
-      JSAR singleStrArr = valuesIt->as_array();
-      JSONV strVal = singleStrArr[0];
+      jsArray singleStrArr = valuesIt->as_array();
+      jsValue strVal = singleStrArr[0];
       string dbId = strVal.as_string();
       boost::replace_all(dbId, "\\ ", " ");
       MetricInfo m = this->metricInfoFromName(dbId);
@@ -396,7 +396,7 @@ std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_
   q.where.push_back("time <= " + to_string(endTime) + "s");
   
   uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
-  JSONV jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
+  jsValue jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   return _InfluxDbPointRecord_pointsFromJson(jsv);
 }
 
@@ -408,7 +408,7 @@ Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
   q.order = "time asc limit 1";
   
   uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
-  JSONV jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
+  jsValue jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   points = _InfluxDbPointRecord_pointsFromJson(jsv);
   
   if (points.size() == 0) {
@@ -427,7 +427,7 @@ Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
   q.order = "time desc limit 1";
   
   uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
-  JSONV jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
+  jsValue jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   points = _InfluxDbPointRecord_pointsFromJson(jsv);
   
   if (points.size() == 0) {
@@ -455,7 +455,7 @@ void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> 
   /*
   string q = "select count(value) from " + dbId;
   http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, q, false);
-  JSONV jsv = _InfluxDbPointRecord_jsonFromGet(uri);
+  jsValue jsv = _InfluxDbPointRecord_jsonFromGet(uri);
   */
   
   vector<Point> existing;
@@ -523,7 +523,7 @@ void InfluxDbPointRecord::removeRecord(const std::string& id) {
   sqlss << "DROP SERIES FROM " << q.nameAndWhereClause();
   
   uri uri = _InfluxDbPointRecord_uriForQuery(*this, sqlss.str());
-  JSONV v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
+  jsValue v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
 }
 
 void InfluxDbPointRecord::truncate() {
@@ -539,7 +539,7 @@ void InfluxDbPointRecord::truncate() {
     stringstream sqlss;
     sqlss << "DROP MEASUREMENT " << measureName;
     http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, sqlss.str(), false);
-    JSONV v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
+    jsValue v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
      */
   }
   
@@ -588,8 +588,8 @@ uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const std::str
   return b.to_uri();
 }
 
-JSONV _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& record, uri uri, method withMethod) {
-  JSONV js = JSONV::object();
+jsValue _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& record, uri uri, method withMethod) {
+  jsValue js = jsValue::object();
   try {
     web::http::client::http_client_config config;
     config.set_timeout(std::chrono::seconds(60));
@@ -608,36 +608,36 @@ JSONV _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& record, uri uri,
 
 #pragma mark Parsing
 
-std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(JSONV json) {
+std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(jsValue json) {
   
   // multiple time series might be returned eventually, but for now it's just a single-value array.
   vector<Point> points;
   
-  JSOB jso = json.as_object();
+  jsObject jso = json.as_object();
   if (!json.is_object() || jso.empty()) {
     return points;
   }
   if (jso.find(kRESULTS) == jso.end()) {
     return points;
   }
-  JSONV resultsVal = jso[kRESULTS];
+  jsValue resultsVal = jso[kRESULTS];
   if (!resultsVal.is_array() || resultsVal.as_array().size() == 0) {
     return points;
   }
-  JSONV firstRes = resultsVal.as_array()[0];
+  jsValue firstRes = resultsVal.as_array()[0];
   if (!firstRes.is_object() || firstRes.as_object().find(kSERIES) == firstRes.as_object().end()) {
     return points;
   }
-  JSAR seriesArr = firstRes.as_object()[kSERIES].as_array();
+  jsArray seriesArr = firstRes.as_object()[kSERIES].as_array();
   if (seriesArr.size() == 0) {
     return points;
   }
-  JSOB series = seriesArr[0].as_object();
+  jsObject series = seriesArr[0].as_object();
   string measureName = series["name"].as_string();
   
   // create a little map so we know what order the columns are in
   map<string,int> columnMap;
-  JSAR cols = series["columns"].as_array();
+  jsArray cols = series["columns"].as_array();
   for (int i = 0; i < cols.size(); ++i) {
     string colName = cols[i].as_string();
     columnMap[colName] = (int)i;
@@ -658,14 +658,14 @@ std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(JSONV json) {
   
   // now go through each returned row and create a point.
   // use the column name map to set point properties.
-  JSAR rows = series["values"].as_array();
+  jsArray rows = series["values"].as_array();
   if (rows.size() == 0) {
     return points;
   }
   
   points.reserve((size_t)rows.size());
-  for (JSONV rowV : rows) {
-    JSAR row = rowV.as_array();
+  for (jsValue rowV : rows) {
+    jsArray row = rowV.as_array();
     time_t t = row[timeIndex].as_integer();
     double v = row[valueIndex].as_double();
     Point::PointQuality q = (Point::PointQuality)(row[qualityIndex].as_integer());
