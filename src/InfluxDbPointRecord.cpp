@@ -1,42 +1,66 @@
-#include "InfluxDbPointRecord.h"
+#include <map>
+#include <sstream>
+
+#include <curl/curl.h>
 
 #include <boost/asio.hpp>
-#include <boost/foreach.hpp>
-#include <curl/curl.h>
-#include <map>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include <sstream>
 #include <boost/iostreams/filtering_streambuf.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
+#include <boost/interprocess/sync/scoped_lock.hpp>
 
 #include <cpprest/uri.h>
 #include <cpprest/json.h>
 #include <cpprest/http_client.h>
-using namespace web;
-using namespace utility;
-using namespace http;
+
+#include "InfluxDbPointRecord.h"
 
 using namespace std;
 using namespace RTX;
 using boost::asio::ip::tcp;
 
-#include <boost/interprocess/sync/scoped_lock.hpp>
 using boost::signals2::mutex;
 using boost::interprocess::scoped_lock;
-
-#define HTTP_OK 200
 
 const char *kSERIES = "series";
 const char *kSHOW_SERIES = "show series";
 const char *kERROR = "error";
 const char *kRESULTS = "results";
 
-http::uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const std::string& query, bool withTimePrecision = true);
-web::json::value _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& record, http::uri uri, method withMethod = methods::GET);
-std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(json::value json);
+using web::http::method;
+using web::http::methods;
+using web::http::status_codes;
+using web::http::http_response;
+using web::http::uri;
+using JSONV = web::json::value;
+using JSOB = web::json::object;
+using JSAR = web::json::array;
+
+
+// task wrapper impl
+namespace RTX {
+  class PplxTaskWrapper : public ITaskWrapper {
+  public:
+    PplxTaskWrapper();
+    pplx::task<void> task;
+  };
+}
+// why the fully private implementation? it's really to guard client applications from having
+// to #include the pplx concurrency libs. this way everything is self-contained.
+PplxTaskWrapper::PplxTaskWrapper() {
+  this->task = pplx::task<void>([]() {
+    return; // simple no-op task as filler.
+  });
+}
+#define INFLUX_ASYNC_SEND static_pointer_cast<PplxTaskWrapper>(_sendTask)->task
+
+
+uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const std::string& query, bool withTimePrecision = true);
+JSONV _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& record, uri uri, method withMethod = methods::GET);
+std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(JSONV json);
 
 /*
  influx will handle units a litte differently since it doesn't have a straightforward k/v store.
@@ -57,6 +81,7 @@ InfluxDbPointRecord::InfluxDbPointRecord() {
   useTransactions = true;
   _inBulkOperation = false;
   _mutex.reset(new boost::signals2::mutex);
+  _sendTask.reset(new PplxTaskWrapper());
 }
 
 #pragma mark Connecting
@@ -69,8 +94,8 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
   // see if the database needs to be created
   bool dbExists = false;
   
-  http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, "SHOW MEASUREMENTS LIMIT 1", false);
-  json::object jsoMeas = _InfluxDbPointRecord_jsonFromRequest(*this,uri).as_object();
+  uri uri = _InfluxDbPointRecord_uriForQuery(*this, "SHOW MEASUREMENTS LIMIT 1", false);
+  JSOB jsoMeas = _InfluxDbPointRecord_jsonFromRequest(*this,uri).as_object();
   auto jsoNOTFOUND = jsoMeas.end();
   if (jsoMeas.empty() || jsoMeas.find(kRESULTS) == jsoNOTFOUND) {
     if (jsoMeas.find("error") != jsoNOTFOUND) {
@@ -83,14 +108,14 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
     }
   }
   
-  json::value resVal = jsoMeas[kRESULTS];
+  JSONV resVal = jsoMeas[kRESULTS];
   if (!resVal.is_array() || resVal.as_array().size() == 0) {
     this->errorMessage = "JSON Format Not Recognized";
     return;
   }
   
   auto resFirst = resVal.as_array().begin();
-  json::object res = resFirst->as_object();
+  JSOB res = resFirst->as_object();
   if (res.find(kERROR) != res.end()) {
     this->errorMessage = res[kERROR].as_string();
   }
@@ -101,7 +126,7 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
   
   if (!dbExists) {
     // create the database?
-    http::uri_builder b;
+    web::http::uri_builder b;
     b.set_scheme("http")
     .set_host(this->host)
     .set_port(this->port)
@@ -110,7 +135,7 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
     .append_query("p", this->pass, false)
     .append_query("q", "CREATE DATABASE " + this->db, true);
     
-    json::object respObj = _InfluxDbPointRecord_jsonFromRequest(*this, b.to_uri()).as_object();
+    JSOB respObj = _InfluxDbPointRecord_jsonFromRequest(*this, b.to_uri()).as_object();
     if (respObj.empty() || respObj.find(kRESULTS) == respObj.end()) {
       this->errorMessage = "Can't create database";
       return;
@@ -251,36 +276,36 @@ PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
     return _identifiersAndUnitsCache;
   }
   
-  web::uri uri = _InfluxDbPointRecord_uriForQuery(*this, kSHOW_SERIES, false);
-  web::json::value jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
+  uri uri = _InfluxDbPointRecord_uriForQuery(*this, kSHOW_SERIES, false);
+  JSONV jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   
-  web::json::object jso = jsv.as_object();
+  JSOB jso = jsv.as_object();
   auto iResult = jso.find("results");
   if (iResult == jso.end()) {
     return _identifiersAndUnitsCache;
   }
-  json::value resVal = iResult->second;
-  json::array resArr = resVal.as_array();
+  JSONV resVal = iResult->second;
+  JSAR resArr = resVal.as_array();
   auto resIt = resArr.begin();
-  json::object resZeroObj = resIt->as_object();
+  JSOB resZeroObj = resIt->as_object();
   
   auto seriesArrIt = resZeroObj.find(kSERIES);
   if (seriesArrIt == resZeroObj.end()) {
     return _identifiersAndUnitsCache;
   }
   
-  json::array seriesArray = seriesArrIt->second.as_array();
+  JSAR seriesArray = seriesArrIt->second.as_array();
   for (auto seriesIt = seriesArray.begin(); seriesIt != seriesArray.end(); ++seriesIt) {
     
     string str = seriesIt->serialize();
-    json::object thisSeries = seriesIt->as_object();
+    JSOB thisSeries = seriesIt->as_object();
     
-    json::array columns = thisSeries["columns"].as_array(); // the only column is "key"
-    json::array values = thisSeries["values"].as_array(); // array of single-string arrays
+    JSAR columns = thisSeries["columns"].as_array(); // the only column is "key"
+    JSAR values = thisSeries["values"].as_array(); // array of single-string arrays
     
     for (auto valuesIt = values.begin(); valuesIt != values.end(); ++valuesIt) {
-      json::array singleStrArr = valuesIt->as_array();
-      json::value strVal = singleStrArr[0];
+      JSAR singleStrArr = valuesIt->as_array();
+      JSONV strVal = singleStrArr[0];
       string dbId = strVal.as_string();
       boost::replace_all(dbId, "\\ ", " ");
       MetricInfo m = this->metricInfoFromName(dbId);
@@ -370,8 +395,8 @@ std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_
   q.where.push_back("time >= " + to_string(startTime) + "s");
   q.where.push_back("time <= " + to_string(endTime) + "s");
   
-  http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
-  json::value jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
+  uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
+  JSONV jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   return _InfluxDbPointRecord_pointsFromJson(jsv);
 }
 
@@ -382,8 +407,8 @@ Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
   q.where.push_back("time > " + to_string(time) + "s");
   q.order = "time asc limit 1";
   
-  http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
-  json::value jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
+  uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
+  JSONV jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   points = _InfluxDbPointRecord_pointsFromJson(jsv);
   
   if (points.size() == 0) {
@@ -401,8 +426,8 @@ Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
   q.where.push_back("time < " + to_string(time) + "s");
   q.order = "time desc limit 1";
   
-  http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
-  json::value jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
+  uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
+  JSONV jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   points = _InfluxDbPointRecord_pointsFromJson(jsv);
   
   if (points.size() == 0) {
@@ -430,7 +455,7 @@ void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> 
   /*
   string q = "select count(value) from " + dbId;
   http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, q, false);
-  json::value jsv = _InfluxDbPointRecord_jsonFromGet(uri);
+  JSONV jsv = _InfluxDbPointRecord_jsonFromGet(uri);
   */
   
   vector<Point> existing;
@@ -497,8 +522,8 @@ void InfluxDbPointRecord::removeRecord(const std::string& id) {
   stringstream sqlss;
   sqlss << "DROP SERIES FROM " << q.nameAndWhereClause();
   
-  http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, sqlss.str());
-  json::value v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
+  uri uri = _InfluxDbPointRecord_uriForQuery(*this, sqlss.str());
+  JSONV v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
 }
 
 void InfluxDbPointRecord::truncate() {
@@ -514,7 +539,7 @@ void InfluxDbPointRecord::truncate() {
     stringstream sqlss;
     sqlss << "DROP MEASUREMENT " << measureName;
     http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, sqlss.str(), false);
-    json::value v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
+    JSONV v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
      */
   }
   
@@ -547,9 +572,9 @@ DbPointRecord::Query InfluxDbPointRecord::queryPartsFromMetricId(const std::stri
 }
 
 
-http::uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const std::string& query, bool withTimePrecision) {
+uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const std::string& query, bool withTimePrecision) {
   
-  http::uri_builder b;
+  web::http::uri_builder b;
   b.set_scheme("http").set_host(record.host).set_port(record.port).set_path("query")
    .append_query("db", record.db, false)
    .append_query("u", record.user, false)
@@ -563,8 +588,8 @@ http::uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const st
   return b.to_uri();
 }
 
-web::json::value _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& record, http::uri uri, method withMethod) {
-  web::json::value js = web::json::value::object();
+JSONV _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& record, uri uri, method withMethod) {
+  JSONV js = JSONV::object();
   try {
     web::http::client::http_client_config config;
     config.set_timeout(std::chrono::seconds(60));
@@ -583,36 +608,36 @@ web::json::value _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& recor
 
 #pragma mark Parsing
 
-std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(json::value json) {
+std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(JSONV json) {
   
   // multiple time series might be returned eventually, but for now it's just a single-value array.
   vector<Point> points;
   
-  json::object jso = json.as_object();
+  JSOB jso = json.as_object();
   if (!json.is_object() || jso.empty()) {
     return points;
   }
   if (jso.find(kRESULTS) == jso.end()) {
     return points;
   }
-  json::value resultsVal = jso[kRESULTS];
+  JSONV resultsVal = jso[kRESULTS];
   if (!resultsVal.is_array() || resultsVal.as_array().size() == 0) {
     return points;
   }
-  json::value firstRes = resultsVal.as_array()[0];
+  JSONV firstRes = resultsVal.as_array()[0];
   if (!firstRes.is_object() || firstRes.as_object().find(kSERIES) == firstRes.as_object().end()) {
     return points;
   }
-  json::array seriesArr = firstRes.as_object()[kSERIES].as_array();
+  JSAR seriesArr = firstRes.as_object()[kSERIES].as_array();
   if (seriesArr.size() == 0) {
     return points;
   }
-  json::object series = seriesArr[0].as_object();
+  JSOB series = seriesArr[0].as_object();
   string measureName = series["name"].as_string();
   
   // create a little map so we know what order the columns are in
   map<string,int> columnMap;
-  json::array cols = series["columns"].as_array();
+  JSAR cols = series["columns"].as_array();
   for (int i = 0; i < cols.size(); ++i) {
     string colName = cols[i].as_string();
     columnMap[colName] = (int)i;
@@ -633,14 +658,14 @@ std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(json::value json) {
   
   // now go through each returned row and create a point.
   // use the column name map to set point properties.
-  json::array rows = series["values"].as_array();
+  JSAR rows = series["values"].as_array();
   if (rows.size() == 0) {
     return points;
   }
   
   points.reserve((size_t)rows.size());
-  for (json::value rowV : rows) {
-    json::array row = rowV.as_array();
+  for (JSONV rowV : rows) {
+    JSAR row = rowV.as_array();
     time_t t = row[timeIndex].as_integer();
     double v = row[valueIndex].as_double();
     Point::PointQuality q = (Point::PointQuality)(row[qualityIndex].as_integer());
@@ -686,37 +711,47 @@ const string InfluxDbPointRecord::insertionLineFromPoints(const string& tsName, 
 
 void InfluxDbPointRecord::sendPointsWithString(const string& content) {
   
-  http::uri_builder b;
-  b.set_scheme("http").set_host(this->host).set_port(this->port).set_path("write")
-  .append_query("db", this->db, false)
-  .append_query("u", this->user, false)
-  .append_query("p", this->pass, false)
-  .append_query("precision", "s", false);
+  INFLUX_ASYNC_SEND.wait(); // wait on previous send if needed.
+  scoped_lock<boost::signals2::mutex> lock(*_mutex);
   
-  // zip the body content
-  namespace bio = boost::iostreams;
-  std::stringstream compressed;
-  std::stringstream origin(content);
-  bio::filtering_streambuf<bio::input> out;
-  out.push(bio::gzip_compressor(bio::gzip_params(bio::gzip::best_compression)));
-  out.push(origin);
-  bio::copy(out, compressed);
-  const string zippedContent(compressed.str());
-  
-  try {
-    web::http::client::http_client_config config;
-    config.set_timeout(std::chrono::seconds(60));
-//    config.set_credentials(http::client::credentials(this->user, this->pass));
-    web::http::client::http_client client(b.to_uri(), config);
-    web::http::http_request req(methods::POST);
-    req.set_body(zippedContent);
-    req.headers().add("Content-Encoding", "gzip");
-    http_response r = client.request(req).get(); // waits for response
-    if (r.status_code() == 204) {
-      // no content. this is fine.
+  INFLUX_ASYNC_SEND = pplx::create_task([=]() {
+    web::uri_builder b;
+    b.set_scheme("http").set_host(this->host).set_port(this->port).set_path("write")
+    .append_query("db", this->db, false)
+    .append_query("u", this->user, false)
+    .append_query("p", this->pass, false)
+    .append_query("precision", "s", false);
+    
+    namespace bio = boost::iostreams;
+    std::stringstream compressed;
+    std::stringstream origin(content);
+    bio::filtering_streambuf<bio::input> out;
+    out.push(bio::gzip_compressor(bio::gzip_params(bio::gzip::best_compression)));
+    out.push(origin);
+    bio::copy(out, compressed);
+    const string zippedContent(compressed.str());
+    
+    try {
+      web::http::client::http_client_config config;
+      config.set_timeout(std::chrono::seconds(60));
+      //    config.set_credentials(http::client::credentials(this->user, this->pass));
+      web::http::client::http_client client(b.to_uri(), config);
+      web::http::http_request req(methods::POST);
+      req.set_body(zippedContent);
+      req.headers().add("Content-Encoding", "gzip");
+      http_response r = client.request(req).get();
+      if (r.status_code() == 204) {
+        // no content. this is fine.
+      }
+    } catch (std::exception &e) {
+      cerr << "exception POST: " << e.what() << endl;
     }
-  } catch (std::exception &e) {
-    cerr << "exception POST: " << e.what() << endl;
+  });
+  
+  if (!_inBulkOperation) {
+    INFLUX_ASYNC_SEND.wait();
+    // block returning unless we are still in a bulk operation.
+    // otherwise, carry on. no need to wait - let other processes continue.
   }
   
 }

@@ -1,15 +1,18 @@
 #ifndef __epanet_rtx__InfluxDbPointRecord__
 #define __epanet_rtx__InfluxDbPointRecord__
 
+#include <boost/asio.hpp>
+#include <boost/signals2/mutex.hpp>
+
 #include <iostream>
 
 #include "DbPointRecord.h"
 
-#include <boost/asio.hpp>
-#include <boost/signals2/mutex.hpp>
-
-
 namespace RTX {
+  class ITaskWrapper {
+    // empty implementation for task subs
+  };
+  
   class InfluxDbPointRecord : public DbPointRecord {
     
   public:
@@ -69,6 +72,7 @@ namespace RTX {
     std::vector<std::string> _transactionLines;
     
     std::shared_ptr<boost::signals2::mutex> _mutex;
+    std::shared_ptr<ITaskWrapper> _sendTask;
     
   };
 }
