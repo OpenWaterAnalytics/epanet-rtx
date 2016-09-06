@@ -829,7 +829,7 @@
 		22CF1C281A68094300161188 /* TimeSeriesFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeSeriesFilter.h; path = ../../src/TimeSeriesFilter.h; sourceTree = "<group>"; };
 		22CF1C3B1A6842DC00161188 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		22D4D32118F8298300DA1648 /* readConfigTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = readConfigTest; sourceTree = BUILT_PRODUCTS_DIR; };
-		22D570131D6741B000C25997 /* libboost_iostreams.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_iostreams.a; path = ../../../../../../../usr/local/com.citilogics.dev/lib/libboost_iostreams.a; sourceTree = "<group>"; };
+		22D570131D6741B000C25997 /* libboost_iostreams.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_iostreams.a; path = /usr/local/com.citilogics.dev/lib/libboost_iostreams.a; sourceTree = "<absolute>"; };
 		22D8C1BF1C1A048300298C0C /* libboost_chrono-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_chrono-mt.a"; path = "/usr/local/com.citilogics.dev/lib/libboost_chrono-mt.a"; sourceTree = "<absolute>"; };
 		22D8C1C01C1A048300298C0C /* libboost_date_time-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_date_time-mt.a"; path = "/usr/local/com.citilogics.dev/lib/libboost_date_time-mt.a"; sourceTree = "<absolute>"; };
 		22D8C1C11C1A048300298C0C /* libboost_date_time.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_date_time.a; path = /usr/local/com.citilogics.dev/lib/libboost_date_time.a; sourceTree = "<absolute>"; };
@@ -1045,6 +1045,7 @@
 		220DFA9C15502E4100AF41D0 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				22D570131D6741B000C25997 /* libboost_iostreams.a */,
 				225194091CD8F2EA00B1BC31 /* libxml2.2.dylib */,
 				22602B761D5A738000A668ED /* libgeohash.a */,
 				22E997071CA5935F00D6F34F /* Security.framework */,
@@ -1301,7 +1302,6 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
-				22D570131D6741B000C25997 /* libboost_iostreams.a */,
 				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
 				22C34357187D9441000100A4 /* epanetmsx.xcodeproj */,
 				228A76FE18450CC700905D8E /* RTX Project */,
