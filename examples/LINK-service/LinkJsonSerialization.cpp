@@ -31,7 +31,7 @@ map<string, PointRecordTime::time_format_t> _odbc_zone_strings() {
   return {{"local",PointRecordTime::LOCAL},{"utc",PointRecordTime::UTC}};
 }
 
-template<typename T> RTX_object::_sp __createShared() {
+template<typename T> RTX_object::_sp _newRtxObj() {
   RTX_object::_sp o( new T );
   return o;
 };
@@ -144,14 +144,14 @@ DeserializerJson::DeserializerJson(JSV withJson) : _v(withJson) {
 RTX_object::_sp DeserializerJson::from_json(JSV json) {
   if (json.is_object()) {
     map< string, std::function<RTX_object::_sp()> > c = { // c is for "CREATOR"
-      { "sqlite",     &__createShared<SqlitePointRecord>},
-      { "influx",     &__createShared<InfluxDbPointRecord>},
-      { "odbc",       &__createShared<OdbcDirectPointRecord>},
-      { "timeseries", &__createShared<TimeSeries>},
-      { "filter",     &__createShared<TimeSeriesFilter>},
-      { "units",      &__createShared<Units>},
-      { "clock",      &__createShared<Clock>},
-      { "units",      &__createShared<Units>}
+      { "sqlite",     &_newRtxObj<SqlitePointRecord>},
+      { "influx",     &_newRtxObj<InfluxDbPointRecord>},
+      { "odbc",       &_newRtxObj<OdbcDirectPointRecord>},
+      { "timeseries", &_newRtxObj<TimeSeries>},
+      { "filter",     &_newRtxObj<TimeSeriesFilter>},
+      { "units",      &_newRtxObj<Units>},
+      { "clock",      &_newRtxObj<Clock>},
+      { "units",      &_newRtxObj<Units>}
     };
     // create the concrete object
     if (json.as_object().find(_c) != json.as_object().end()) {
