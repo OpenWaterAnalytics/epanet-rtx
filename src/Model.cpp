@@ -1078,10 +1078,16 @@ void Model::setSimulationParameters(time_t time) {
       }
     }
     if (valve->settingBoundary()) {
+      Units settingUnits = valve->settingBoundary()->units();
       if (status) {
         Point p = valve->settingBoundary()->pointAtOrBefore(time);
         if (p.isValid) {
-          // TODO -- set units based on type of valve (pressure or flow model units)
+          if (settingUnits.isSameDimensionAs(RTX_PSI)) {
+            p = Point::convertPoint(p, settingUnits, this->pressureUnits());
+          }
+          else if (settingUnits.isSameDimensionAs(RTX_GALLON_PER_MINUTE)) {
+            p = Point::convertPoint(p, settingUnits, this->flowUnits());
+          }
           setValveSetting( valve->name(), p.value );
         }
         else {

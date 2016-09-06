@@ -17,7 +17,7 @@ namespace RTX {
     RTX_BASE_PROPS(Valve);
     Valve(const std::string& name, Node::_sp startNode, Node::_sp endNode);
     virtual ~Valve();
-    int valveType;
+    int valveType; // for epanet2, this is EN_LinkType
     double fixedSetting;
   };
 }
