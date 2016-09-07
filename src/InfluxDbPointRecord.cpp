@@ -56,7 +56,7 @@ PplxTaskWrapper::PplxTaskWrapper() {
   });
 }
 #define INFLUX_ASYNC_SEND static_pointer_cast<PplxTaskWrapper>(_sendTask)->task
-const unsigned int __maxTransactionLines(10000);
+const unsigned int __maxTransactionLines(100);
 
 uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const std::string& query, bool withTimePrecision = true);
 jsValue _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& record, uri uri, method withMethod = methods::GET);
@@ -388,6 +388,7 @@ std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_
   if (_inBulkOperation) {
     return vector<Point>();
   }
+  scoped_lock<boost::signals2::mutex> lock(*_mutex);
   string dbId = _influxIdForTsId(id);
   DbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time >= " + to_string(startTime) + "s");
@@ -715,10 +716,10 @@ const string InfluxDbPointRecord::insertionLineFromPoints(const string& tsName, 
 void InfluxDbPointRecord::sendPointsWithString(const string& content) {
   
   INFLUX_ASYNC_SEND.wait(); // wait on previous send if needed.
-  scoped_lock<boost::signals2::mutex> lock(*_mutex);
   
   const string bodyContent(content);
   INFLUX_ASYNC_SEND = pplx::create_task([&,bodyContent]() {
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
     web::uri_builder b;
     b.set_scheme("http").set_host(this->host).set_port(this->port).set_path("write")
     .append_query("db", this->db, false)
@@ -738,6 +739,7 @@ void InfluxDbPointRecord::sendPointsWithString(const string& content) {
     try {
       web::http::client::http_client_config config;
       config.set_timeout(std::chrono::seconds(60));
+      //    credentials not supported in cpprestsdk
       //    config.set_credentials(http::client::credentials(this->user, this->pass));
       web::http::client::http_client client(b.to_uri(), config);
       web::http::http_request req(methods::POST);
