@@ -56,7 +56,7 @@ PplxTaskWrapper::PplxTaskWrapper() {
   });
 }
 #define INFLUX_ASYNC_SEND static_pointer_cast<PplxTaskWrapper>(_sendTask)->task
-
+const unsigned int __maxTransactionLines(10000);
 
 uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const std::string& query, bool withTimePrecision = true);
 jsValue _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& record, uri uri, method withMethod = methods::GET);
@@ -256,18 +256,16 @@ PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
   if (_inBulkOperation && !_identifiersAndUnitsCache.empty()) {
     return DbPointRecord::identifiersAndUnits();
   }
+  scoped_lock<boost::signals2::mutex> lock(*_mutex);
   
-  {
-    scoped_lock<boost::signals2::mutex> lock(*_mutex);
-    
-    // quick cache hit. 5-second validity window.
-    time_t now = time(NULL);
-    if (now - _lastIdRequest < 5 && !_identifiersAndUnitsCache.empty()) {
-      return DbPointRecord::identifiersAndUnits();
-    }
-    _lastIdRequest = now;
-    _identifiersAndUnitsCache.clear();
+  // quick cache hit. 5-second validity window.
+  time_t now = time(NULL);
+  if (now - _lastIdRequest < 5 && !_identifiersAndUnitsCache.empty()) {
+    return DbPointRecord::identifiersAndUnits();
   }
+  _lastIdRequest = now;
+  _identifiersAndUnitsCache.clear();
+  
   
   if (!this->isConnected()) {
     this->dbConnect();
@@ -479,6 +477,9 @@ void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> 
   
   if (_inBulkOperation) {
     _transactionLines.push_back(content);
+    if (_transactionLines.size() > __maxTransactionLines) {
+      this->commitTransactionLines();
+    }
   }
   else {
     this->sendPointsWithString(content);
@@ -509,6 +510,7 @@ void InfluxDbPointRecord::commitTransactionLines() {
     ++i;
   }
   this->sendPointsWithString(lines);
+  _transactionLines.clear();
 }
 
 
@@ -542,10 +544,11 @@ void InfluxDbPointRecord::truncate() {
     jsValue v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
      */
   }
-  
+  this->beginBulkOperation();
   for (auto ts_units : *ids.get()) {
     this->insertIdentifierAndUnits(ts_units.first, ts_units.second);
   }
+  this->endBulkOperation();
   
   this->errorMessage = "OK";
   return;
@@ -714,7 +717,8 @@ void InfluxDbPointRecord::sendPointsWithString(const string& content) {
   INFLUX_ASYNC_SEND.wait(); // wait on previous send if needed.
   scoped_lock<boost::signals2::mutex> lock(*_mutex);
   
-  INFLUX_ASYNC_SEND = pplx::create_task([=]() {
+  const string bodyContent(content);
+  INFLUX_ASYNC_SEND = pplx::create_task([&,bodyContent]() {
     web::uri_builder b;
     b.set_scheme("http").set_host(this->host).set_port(this->port).set_path("write")
     .append_query("db", this->db, false)
@@ -724,7 +728,7 @@ void InfluxDbPointRecord::sendPointsWithString(const string& content) {
     
     namespace bio = boost::iostreams;
     std::stringstream compressed;
-    std::stringstream origin(content);
+    std::stringstream origin(bodyContent);
     bio::filtering_streambuf<bio::input> out;
     out.push(bio::gzip_compressor(bio::gzip_params(bio::gzip::best_compression)));
     out.push(origin);
