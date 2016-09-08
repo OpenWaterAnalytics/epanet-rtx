@@ -25,8 +25,13 @@ int main(int argc, const char * argv[]) {
   
   svc.open().wait();
   
-  std::string line;
-  std::getline(std::cin, line);
+  while (true) {
+    std::string line;
+    std::getline(std::cin, line);
+    if (line == "x") {
+      break;
+    }
+  }
   
   svc.close().wait();
 }

@@ -124,45 +124,52 @@ void TimeSeriesDuplicator::_dupeLoop(time_t win, time_t freq) {
   
   
   while (_shouldRun) {
-    _isRunning = true;
     
-    pair<time_t,int> fetchRes = this->_fetchAll(nextFetch - win, nextFetch);
-    time_t fetchDuration = fetchRes.first;
-    int nPoints = fetchRes.second;
-    time_t now = time(NULL);
-    if (saveMetrics) {
-      metricsPointCount->insert(Point(now, (double)nPoints));
-      metricsTimeElapased->insert(Point(now, (double)fetchDuration));
-    }
-    
-    
-    nextFetch += freq;
-    
-    // edge case: sometimes system clock hasn't been set (maybe no ntp response yet)
-    if (nextFetch < now) {
-      // check how far off we are?
-      // arbitrarily, let us be off by 5 windows...
-      if (nextFetch + (5 * freq) < now) {
-        nextFetch = now; // just skip a bunch and get us current.
-        this->_logLine("Skipping an interval due to too much lag", RTX_DUPLICATOR_LOGLEVEL_WARN);
+    try {
+      
+      _isRunning = true;
+      
+      pair<time_t,int> fetchRes = this->_fetchAll(nextFetch - win, nextFetch);
+      time_t fetchDuration = fetchRes.first;
+      int nPoints = fetchRes.second;
+      time_t now = time(NULL);
+      if (saveMetrics) {
+        metricsPointCount->insert(Point(now, (double)nPoints));
+        metricsTimeElapased->insert(Point(now, (double)fetchDuration));
       }
+      
+      
+      nextFetch += freq;
+      
+      // edge case: sometimes system clock hasn't been set (maybe no ntp response yet)
+      if (nextFetch < now) {
+        // check how far off we are?
+        // arbitrarily, let us be off by 5 windows...
+        if (nextFetch + (5 * freq) < now) {
+          nextFetch = now; // just skip a bunch and get us current.
+          this->_logLine("Skipping an interval due to too much lag", RTX_DUPLICATOR_LOGLEVEL_WARN);
+        }
+      }
+      
+      stringstream ss;
+      char *tstr = asctime(localtime(&nextFetch));
+      tstr[24] = '\0';
+      {
+        ss.str("");
+        ss << "Fetch: (" << tstr << ") took " << fetchDuration << " seconds.";
+        this->_logLine(ss.str(),RTX_DUPLICATOR_LOGLEVEL_INFO);
+      }
+      while (_shouldRun && nextFetch > time(NULL)) {
+        time_t waitLength = nextFetch - time(NULL);
+        ss.str("");
+        ss << "Fetch: (" << tstr << ") took " << fetchDuration << " seconds." << "\n" << "Will fire again in " << waitLength << " seconds";
+        this->_logLine(ss.str(),RTX_DUPLICATOR_LOGLEVEL_VERBOSE);
+        boost::this_thread::sleep_for(boost::chrono::seconds(1));
+      }
+    } catch (const std::exception &e) {
+      cerr << e.what() << '\n';
     }
     
-    stringstream ss;
-    char *tstr = asctime(localtime(&nextFetch));
-    tstr[24] = '\0';
-    {
-      ss.str("");
-      ss << "Fetch: (" << tstr << ") took " << fetchDuration << " seconds.";
-      this->_logLine(ss.str(),RTX_DUPLICATOR_LOGLEVEL_INFO);
-    }
-    while (_shouldRun && nextFetch > time(NULL)) {
-      time_t waitLength = nextFetch - time(NULL);
-      ss.str("");
-      ss << "Fetch: (" << tstr << ") took " << fetchDuration << " seconds." << "\n" << "Will fire again in " << waitLength << " seconds";
-      this->_logLine(ss.str(),RTX_DUPLICATOR_LOGLEVEL_VERBOSE);
-      boost::this_thread::sleep_for(boost::chrono::seconds(1));
-    }
   }
   
   // outside the loop means it was cancelled by user.
