@@ -22,6 +22,8 @@ namespace RTX {
     void setResetClock(Clock::_sp resetClock);
     Clock::_sp resetClock();
     
+    IntegratorTimeSeries::_sp resetClock(Clock::_sp c) {this->setResetClock(c); return share_me(this);};
+    
   protected:
     PointCollection filterPointsInRange(TimeRange range);
     bool canSetSource(TimeSeries::_sp ts);

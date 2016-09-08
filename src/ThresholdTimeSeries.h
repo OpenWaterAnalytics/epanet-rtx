@@ -40,6 +40,11 @@ namespace RTX {
     thresholdMode_t mode();
     void setMode(thresholdMode_t mode);
     
+    // chainable
+    ThresholdTimeSeries::_sp threshold(double v) {this->setThreshold(v); return share_me(this);};
+    ThresholdTimeSeries::_sp value(double v) {this->setValue(v); return share_me(this);};
+    ThresholdTimeSeries::_sp mode(thresholdMode_t m) {this->setMode(m); return share_me(this);};
+    
   protected:
     Point filteredWithSourcePoint(Point sourcePoint);
     virtual void didSetSource(TimeSeries::_sp ts);

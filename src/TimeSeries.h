@@ -22,8 +22,6 @@
 #include "TimeRange.h"
 
 namespace RTX {
-
-  
   /*!
    \class TimeSeries
    \brief An abstraction of Points ordered in time.
@@ -129,6 +127,23 @@ namespace RTX {
     time_t expectedPeriod();
     void setExpectedPeriod(time_t seconds);
     
+    // chainable
+    TimeSeries::_sp sp();
+    TimeSeries::_sp units(Units u) {this->setUnits(u); return this->sp();};
+    TimeSeries::_sp c(Clock::_sp c) {this->setClock(c); return this->sp();};
+    TimeSeries::_sp name(const std::string& n) {this->setName(n); return share_me(this);};
+    
+    template<class T>
+    std::shared_ptr<T> append(T* newFilter){
+      std::shared_ptr<T> sp(newFilter);
+      newFilter->setSource(this->sp());
+      return sp;
+    };
+    
+    template<class T>
+    std::shared_ptr<T> share_me(T* thisPtr) {
+      return std::static_pointer_cast<T>(shared_from_this());
+    };
 
   protected:
     

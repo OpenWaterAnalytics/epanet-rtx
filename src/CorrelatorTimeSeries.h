@@ -33,6 +33,10 @@ namespace RTX {
     int lagSeconds();
     void setLagSeconds(int nSeconds);
     
+    // chainable
+    CorrelatorTimeSeries::_sp window(Clock::_sp w) {this->setCorrelationWindow(w); return share_me(this);};
+    CorrelatorTimeSeries::_sp lag(int seconds) {this->setLagSeconds(seconds); return share_me(this);};
+    
   protected:
     bool canSetSecondary(TimeSeries::_sp secondary);
     void didSetSecondary(TimeSeries::_sp secondary);

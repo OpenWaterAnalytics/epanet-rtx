@@ -30,6 +30,9 @@ namespace RTX {
     time_t timeBefore(time_t t);
     time_t timeAfter(time_t t);
     
+    // chainable
+    MultiplierTimeSeries::_sp mode(MultiplierMode mode) {this->setMultiplierMode(mode); return share_me(this);};
+    
   protected:
     void didSetSecondary(TimeSeries::_sp secondary);
     PointCollection filterPointsInRange(TimeRange range);

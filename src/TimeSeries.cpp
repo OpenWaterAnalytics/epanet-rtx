@@ -17,6 +17,7 @@
 #include <boost/accumulators/statistics/tail_quantile.hpp>
 #include <boost/foreach.hpp>
 
+#include "TimeSeriesFilter.h"
 
 using namespace RTX;
 using namespace std;
@@ -481,5 +482,16 @@ std::ostream& TimeSeries::toStream(std::ostream &stream) {
   stream << *_points;
   return stream;
 }
+
+// chaning
+
+TimeSeries::_sp TimeSeries::sp() {
+  return shared_from_this();
+}
+
+
+
+
+
 
 

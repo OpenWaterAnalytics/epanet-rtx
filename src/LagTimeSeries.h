@@ -25,6 +25,9 @@ namespace RTX {
     time_t timeAfter(time_t t);
     time_t timeBefore(time_t t);
     
+    // chainable
+    LagTimeSeries::_sp lag(time_t seconds) {this->setOffset(seconds); return share_me(this);};
+    
   protected:
     bool willResample();
     PointCollection filterPointsInRange(TimeRange range);

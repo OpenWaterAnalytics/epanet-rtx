@@ -62,7 +62,9 @@ namespace RTX {
     bool summaryOnly();
     void setSummaryOnly(bool summaryOnly);
     
-    
+    // chaining methods
+    BaseStatsTimeSeries::_sp window(Clock::_sp w) {this->setWindow(w); return share_me(this);};
+    BaseStatsTimeSeries::_sp mode(StatsSamplingMode_t mode) {this->setSamplingMode(mode); return share_me(this);};
     
   protected:
     virtual PointCollection filterPointsInRange(TimeRange range) = 0; // pure virtual. don't use this class directly.

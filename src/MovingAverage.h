@@ -28,6 +28,8 @@ namespace RTX {
     void setWindowSize(int numberOfPoints);   /// set number of points to consider in the moving average calculation
     int windowSize();                         /// return the window size (see above)
     
+    MovingAverage::_sp window(int nPoints) {this->setWindowSize(nPoints); return share_me(this);};
+    
   protected:
     PointCollection filterPointsInRange(TimeRange range);
     

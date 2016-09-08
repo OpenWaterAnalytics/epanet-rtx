@@ -40,6 +40,10 @@ namespace RTX {
 
     virtual bool canAlterDimension() { return true; };
     
+    // chainable
+    MathOpsTimeSeries::_sp type(MathOpsTimeSeriesType t) {this->setMathOpsType(t); return share_me(this);};
+    MathOpsTimeSeries::_sp arg(double v) {this->setArgument(v); return share_me(this);};
+    
   protected:
     Point filteredWithSourcePoint(Point sourcePoint);
     bool canSetSource(TimeSeries::_sp ts);

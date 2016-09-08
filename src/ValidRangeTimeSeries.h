@@ -25,6 +25,9 @@ namespace RTX {
     filterMode_t mode();
     void setMode(filterMode_t mode);
     
+    // chainable
+    ValidRangeTimeSeries::_sp range(double min, double max) {this->setRange(min,max); return share_me(this);};
+    ValidRangeTimeSeries::_sp mode(filterMode_t m) {this->setMode(m); return share_me(this);};
     
   protected:
     virtual bool willResample(); // we are special !

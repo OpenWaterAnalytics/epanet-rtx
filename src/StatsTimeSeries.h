@@ -69,6 +69,11 @@ namespace RTX {
     double arbitraryPercentile();
     void setArbitraryPercentile(double p);
     
+    // chainable
+    StatsTimeSeries::_sp type(StatsTimeSeriesType t) {this->setStatsType(t); return share_me(this);};
+    StatsTimeSeries::_sp percentile(double p) {this->setArbitraryPercentile(p); return share_me(this);};
+    
+    
   protected:
     PointCollection filterPointsInRange(TimeRange range);
     bool canSetSource(TimeSeries::_sp ts);

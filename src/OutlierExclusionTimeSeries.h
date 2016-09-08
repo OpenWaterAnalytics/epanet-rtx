@@ -39,6 +39,10 @@ namespace RTX {
 //    virtual Point pointBefore(time_t time);
 //    virtual Point pointAfter(time_t time);
     
+    // chainable
+    OutlierExclusionTimeSeries::_sp multiplier(double m) {this->setOutlierMultiplier(m); return share_me(this);};
+    OutlierExclusionTimeSeries::_sp exclusionMode(exclusion_mode_t mode) {this->setExclusionMode(mode); return share_me(this);};
+    
   protected:
     virtual bool willResample();
     PointCollection filterPointsInRange(TimeRange range);

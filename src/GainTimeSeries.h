@@ -24,6 +24,10 @@ namespace RTX {
     Units gainUnits();
     void setGainUnits(Units u);
     
+    // chainable
+    GainTimeSeries::_sp gain(double v) {this->setGain(v); return share_me(this);};
+    GainTimeSeries::_sp gainUnits(Units u) {this->setGainUnits(u); return share_me(this);};
+    
   protected:
     Point filteredWithSourcePoint(Point sourcePoint);
     virtual bool canSetSource(TimeSeries::_sp ts);

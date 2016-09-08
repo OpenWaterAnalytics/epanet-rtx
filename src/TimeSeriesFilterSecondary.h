@@ -21,6 +21,9 @@ namespace RTX {
     virtual bool canSetSecondary(TimeSeries::_sp secondary);
     virtual void didSetSecondary(TimeSeries::_sp secondary);
     
+//    TimeSeriesFilterSecondary* clock(Clock::_sp clock);
+    TimeSeriesFilterSecondary::_sp secondary(TimeSeries::_sp sec) {this->setSecondary(sec); return share_me(this);};
+    
   protected:
     TimeSeries::_sp _secondary;
     

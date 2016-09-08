@@ -34,6 +34,8 @@ namespace RTX {
     MetaMode metaMode();
     void setMetaMode(MetaMode mode);
     
+    MetaTimeSeries::_sp mode(MetaMode m) {this->setMetaMode(m); return share_me(this);};
+    
   protected:
     PointCollection filterPointsInRange(TimeRange range);
     bool canSetSource(TimeSeries::_sp ts);

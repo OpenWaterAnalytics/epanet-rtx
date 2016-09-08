@@ -33,7 +33,10 @@ namespace RTX {
     Curve::_sp curve();
     void setCurve(Curve::_sp curve);
     void clearCurve();
-        
+    
+    // chainable
+    CurveFunction::_sp curve(Curve::_sp curve) {this->setCurve(curve); return share_me(this);};
+    
   protected:
     bool canSetSource(TimeSeries::_sp ts);
     void didSetSource(TimeSeries::_sp ts);

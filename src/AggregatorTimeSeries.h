@@ -66,6 +66,10 @@ namespace RTX {
     
     bool canChangeToUnits(Units units);
     
+    // chainable
+    AggregatorTimeSeries::_sp add(TimeSeries::_sp ts, double multiplier) {this->addSource(ts,multiplier); return share_me(this);};
+    AggregatorTimeSeries::_sp mode(AggregatorMode m) {this->setAggregatorMode(m); return share_me(this);};
+    
   protected:
     PointCollection filterPointsInRange(TimeRange range);
     std::set<time_t> timeValuesInRange(TimeRange range);

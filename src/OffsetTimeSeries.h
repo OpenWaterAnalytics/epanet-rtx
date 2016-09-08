@@ -20,6 +20,10 @@ namespace RTX {
     OffsetTimeSeries();
     void setOffset(double offset);
     double offset();
+    
+    // chainable
+    OffsetTimeSeries::_sp offset(double v) {this->setOffset(v); return share_me(this);};
+    
   protected:
     Point filteredWithSourcePoint(Point sourcePoint);
   private:

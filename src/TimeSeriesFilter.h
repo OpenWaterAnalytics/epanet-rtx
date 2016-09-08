@@ -63,6 +63,7 @@ namespace RTX {
   public:
     RTX_BASE_PROPS(TimeSeriesFilter);
     TimeSeriesFilter();
+    // explicit constructor
     
     virtual TimeSeries::_sp source();
     virtual void setSource(TimeSeries::_sp ts);
@@ -94,6 +95,10 @@ namespace RTX {
     virtual bool canSetSource(TimeSeries::_sp ts);
     virtual void didSetSource(TimeSeries::_sp ts);
     virtual bool canChangeToUnits(Units units);
+    
+    // chainable
+    TimeSeriesFilter::_sp resample(TimeSeriesResampleMode mode) {this->setResampleMode(mode); return share_me(this);};
+    TimeSeriesFilter::_sp source(TimeSeries::_sp source) {this->setSource(source); return share_me(this);};
     
   private:
     TimeSeries::_sp _source;

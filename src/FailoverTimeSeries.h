@@ -28,6 +28,8 @@ namespace RTX {
     time_t timeBefore(time_t time);
     time_t timeAfter(time_t time);
 
+    FailoverTimeSeries::_sp staleness(time_t seconds) {this->setMaximumStaleness(seconds); return share_me(this);};
+    
   protected:
     bool canSetSecondary(TimeSeries::_sp secondary);
     PointCollection filterPointsInRange(TimeRange range);
