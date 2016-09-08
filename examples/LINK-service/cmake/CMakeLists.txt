@@ -38,4 +38,4 @@ include_directories(/usr/local/com.citilogics.dev/include /usr/local/com.citilog
 link_directories(/usr/local/com.citilogics.dev/lib)
 
 add_executable(link-server ../../../examples/LINK-service/LinkService.cpp ../../../examples/LINK-service/LinkJsonSerialization.cpp ../../../examples/LINK-service/main.cpp)
-target_link_libraries(link-server LINK_PUBLIC timeseries_duplicator epanet-rtx boost_thread boost_program_options boost_chrono pthread ssl cpprest crypto ${EXTRA_LIBS})
+target_link_libraries(link-server LINK_PUBLIC timeseries_duplicator epanet-rtx boost_iostreams boost_thread boost_program_options boost_chrono pthread ssl cpprest crypto ${EXTRA_LIBS})
