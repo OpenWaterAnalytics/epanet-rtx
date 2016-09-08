@@ -535,6 +535,12 @@ http_response LinkService::_post_analytics(web::json::value json) {
     
   }
   
+  vector<TimeSeries::_sp> dupeSeries = _duplicator.series();
+  for (auto a : _analytics) {
+    dupeSeries.push_back(a);
+  }
+  _duplicator.setSeries(dupeSeries);
+  
   return _link_empty_response();
 }
 

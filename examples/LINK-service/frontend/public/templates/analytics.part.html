@@ -6,7 +6,7 @@
 
 <div class="row col-md-12">
   <uib-accordion>
-    <div uib-accordion-group ng-repeat="analytic in config.analytics track by $index" class="panel-default"is-open="analytic._isOpen" is-disabled="false">
+    <div uib-accordion-group ng-repeat="analytic in config.analytics track by $index" class="panel-default" is-open="analytic._isOpen" is-disabled="false">
       <uib-accordion-heading>
         {{analytic.name}} <a class="pull-right" ng-click="removeAnalytic(analytic)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
       </uib-accordion-heading>
@@ -25,7 +25,7 @@
                 Tank Level / Head:
               </td>
               <td>
-                <select ng-model="analytic._tankTs" ng-options="ts as ts.name for ts in candidateSeries">
+                <select ng-model="analytic._tankTs" ng-options="ts as ts.name for ts in candidateSeries track by ts.name">
                 </select>
               </td>
               <td>

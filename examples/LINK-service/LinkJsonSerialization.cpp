@@ -4,6 +4,27 @@
 #include "Curve.h"
 #include "CurveFunction.h"
 
+#include "ConstantTimeSeries.h"
+#include "SineTimeSeries.h"
+#include "TimeSeriesFilter.h"
+#include "MovingAverage.h"
+#include "FirstDerivative.h"
+#include "IntegratorTimeSeries.h"
+#include "ValidRangeTimeSeries.h"
+#include "OffsetTimeSeries.h"
+#include "GainTimeSeries.h"
+#include "ThresholdTimeSeries.h"
+#include "MultiplierTimeSeries.h"
+#include "InversionTimeSeries.h"
+#include "FailoverTimeSeries.h"
+#include "LagTimeSeries.h"
+#include "MathOpsTimeSeries.h"
+#include "MetaTimeSeries.h"
+#include "StatsTimeSeries.h"
+#include "CorrelatorTimeSeries.h"
+#include "OutlierExclusionTimeSeries.h"
+#include "AggregatorTimeSeries.h"
+
 using JSV = web::json::value;
 using namespace RTX;
 using namespace std;
@@ -277,6 +298,20 @@ TimeSeries::_sp DeserializerJson::analyticWithJson(web::json::value jsonValue, v
     }
     
     string tankId = geo["tankId"].as_string();
+    
+    TimeSeries::_sp tankLevel;
+    for (auto ts : candidateSeries) {
+      if (ts->name() == tankId) {
+        tankLevel = ts;
+        break;
+      }
+    }
+    
+    if (!tankLevel) {
+      cerr << "could not find tank series" << '\n';
+      return TimeSeries::_sp(); // not found;
+    }
+    
     double inletDiam = geo["inletDiameter"].as_double();
     Units inletUnits = Units::unitOfType(geo["inletUnits"].as_string());
     
@@ -300,10 +335,64 @@ TimeSeries::_sp DeserializerJson::analyticWithJson(web::json::value jsonValue, v
     
     // assemble the analytic
     // cv-ma-ma-dvdt = flow
+    Clock::_sp m5( new Clock(5*60) );
+    Clock::_sp h1( new Clock(60*60) );
+    Clock::_sp d1( new Clock(24*60*60) );
+    TimeSeries::_sp turnoverTime;
     
-    TimeSeriesFilter::_sp turnover( new TimeSeriesFilter );
+    try {
+      
+      TimeSeries::_sp smoothLevel =
+      tankLevel
+      ->append(new TimeSeriesFilter)
+        ->c(m5)
+      ->append(new StatsTimeSeries)
+        ->type(StatsTimeSeries::StatsTimeSeriesMean)
+        ->window(h1)
+        ->mode(BaseStatsTimeSeries::StatsSamplingModeCentered)
+      ->append(new StatsTimeSeries)
+        ->type(StatsTimeSeries::StatsTimeSeriesMean)
+        ->window(h1)
+        ->mode(BaseStatsTimeSeries::StatsSamplingModeCentered);
+      
+      TimeSeries::_sp tankVolume =
+      smoothLevel
+      ->append(new CurveFunction)
+        ->curve(curve)
+        ->units(curve->outputUnits)
+        ->c(m5);
+      
+      TimeSeries::_sp avgDailyInflow =
+      tankVolume
+      ->append(new FirstDerivative)
+        ->append(new ValidRangeTimeSeries)
+        ->range(0, 100000)
+        ->mode(ValidRangeTimeSeries::saturate)
+      ->append(new StatsTimeSeries)
+        ->type(StatsTimeSeries::StatsTimeSeriesMean)
+        ->window(d1)
+        ->mode(BaseStatsTimeSeries::StatsSamplingModeLagging)
+        ->c(d1);
+      
+      turnoverTime =
+      tankVolume
+      ->append(new StatsTimeSeries)
+        ->type(StatsTimeSeries::StatsTimeSeriesMean)
+        ->window(d1)
+        ->mode(BaseStatsTimeSeries::StatsSamplingModeLagging)
+        ->c(d1)
+      ->append(new MultiplierTimeSeries)
+        ->mode(MultiplierTimeSeries::MultiplierModeDivide)
+        ->secondary(avgDailyInflow)
+        ->units(RTX_DAY)
+        ->c(d1)
+        ->name("Daily Turnover Time");
+    } catch (...) {
+      cerr << "unknown error" << '\n';
+    }
     
-    return turnover;
+    
+    return turnoverTime;
   }
   
   

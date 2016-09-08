@@ -261,7 +261,7 @@ app.route('/config/:configPath')
 
 
   // check that the key is supported by LINK server:
-  const supportedPaths = ['source','destination','options','series','run'];
+  const supportedPaths = ['source','destination','options','series','run','analytics'];
   if (supportedPaths.indexOf(configKey) !== -1) {
     // finally relay the config subpath to LINK server
     var url = link_server_host + '/' + req.params.configPath;
