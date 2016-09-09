@@ -132,6 +132,7 @@ namespace RTX {
     TimeSeries::_sp units(Units u) {this->setUnits(u); return this->sp();};
     TimeSeries::_sp c(Clock::_sp c) {this->setClock(c); return this->sp();};
     TimeSeries::_sp name(const std::string& n) {this->setName(n); return share_me(this);};
+    TimeSeries::_sp record(PointRecord::_sp record) {this->setRecord(record); return share_me(this);};
     
     template<class T>
     std::shared_ptr<T> append(T* newFilter){
