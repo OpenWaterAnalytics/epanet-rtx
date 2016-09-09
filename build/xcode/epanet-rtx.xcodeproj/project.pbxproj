@@ -188,7 +188,6 @@
 		221C06C316077FB300B8969C /* timeseries_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221C06C216077FB300B8969C /* timeseries_demo.cpp */; };
 		2223206D1A6EF32E00B32D6A /* LagTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2223206A1A6EF32E00B32D6A /* LagTimeSeries.cpp */; };
 		2223206F1A6EF32E00B32D6A /* LagTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 2223206B1A6EF32E00B32D6A /* LagTimeSeries.h */; };
-		22284F801BF115D1000256B8 /* libepanet-rtx-project.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */; };
 		22284F811BF115D1000256B8 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		22284F821BF115D1000256B8 /* libTimeSeriesDuplicator.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */; };
 		222978311CA477DA0051D881 /* RTX_Visitable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2229782D1CA477DA0051D881 /* RTX_Visitable.h */; };
@@ -202,14 +201,9 @@
 		223663B41A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223663B11A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.cpp */; };
 		223663B61A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 223663B21A699DBA00420EE4 /* TimeSeriesFilterSinglePoint.h */; };
 		2239413D1CAA1612008BD7FD /* libTimeSeriesDuplicator.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */; };
-		223947F71AF3B45300C8AE4F /* libepanet-rtx-project.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */; };
 		223947F81AF3B45300C8AE4F /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 220F9E4C18F9E68B00BB842C /* libepanet-rtx.dylib */; };
-		223AF35418F7121F002E846F /* SqliteProjectFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 223AF35218F7121F002E846F /* SqliteProjectFile.cpp */; };
-		223AF35518F7121F002E846F /* SqliteProjectFile.h in Headers */ = {isa = PBXBuildFile; fileRef = 223AF35318F7121F002E846F /* SqliteProjectFile.h */; };
 		22459FA81A44C41800AFD0BD /* CorrelatorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */; };
 		22459FAA1A44C41800AFD0BD /* CorrelatorTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */; };
-		224A92681A8BABD300D8FBE2 /* libepanet-rtx-project.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */; };
-		224A92801A8BD4F100D8FBE2 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 220F9E4C18F9E68B00BB842C /* libepanet-rtx.dylib */; };
 		224B09D41CA9B2A900AEB41A /* LinkJsonSerialization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224B09D21CA9B2A900AEB41A /* LinkJsonSerialization.cpp */; };
 		224C419A1A434FCB008852C4 /* ModelPerformance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224C41971A434FCB008852C4 /* ModelPerformance.cpp */; };
 		224C419C1A434FCB008852C4 /* ModelPerformance.h in Headers */ = {isa = PBXBuildFile; fileRef = 224C41981A434FCB008852C4 /* ModelPerformance.h */; };
@@ -219,7 +213,6 @@
 		224E04831979431D0039E3F9 /* StatsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 224E047F1979431C0039E3F9 /* StatsTimeSeries.h */; };
 		224EDECF1B4D8E040029FC37 /* influx_api.h in Headers */ = {isa = PBXBuildFile; fileRef = 224EDECC1B4D8E040029FC37 /* influx_api.h */; };
 		2251940A1CD8F2EA00B1BC31 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 225194091CD8F2EA00B1BC31 /* libxml2.2.dylib */; };
-		2251FFEF1A0A7CEC00C4D483 /* libepanet-rtx-project.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */; };
 		22602B691D5A59D500A668ED /* GeoMetrics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22602B671D5A59D500A668ED /* GeoMetrics.cpp */; };
 		22602B6C1D5A59D500A668ED /* GeoMetrics.h in Headers */ = {isa = PBXBuildFile; fileRef = 22602B681D5A59D500A668ED /* GeoMetrics.h */; };
 		22602B6E1D5A59D500A668ED /* GeoMetrics.h in Headers */ = {isa = PBXBuildFile; fileRef = 22602B681D5A59D500A668ED /* GeoMetrics.h */; };
@@ -244,8 +237,6 @@
 		229E95C01CB2FAE000216682 /* EpanetModelExporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 229E95BE1CB2FAE000216682 /* EpanetModelExporter.cpp */; };
 		229E95C11CB2FAE000216682 /* EpanetModelExporter.h in Headers */ = {isa = PBXBuildFile; fileRef = 229E95BF1CB2FAE000216682 /* EpanetModelExporter.h */; };
 		229FBEA5190807B3004FE5A4 /* InfluxDbPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */; };
-		22B38B961A48BCEE0071DCF3 /* ProjectFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B38B901A48BCEE0071DCF3 /* ProjectFile.cpp */; };
-		22B38B971A48BCEE0071DCF3 /* ProjectFile.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B38B911A48BCEE0071DCF3 /* ProjectFile.h */; };
 		22B9285B1A76EF1B006DBC57 /* MathOpsTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B928581A76EF1B006DBC57 /* MathOpsTimeSeries.cpp */; };
 		22B9285D1A76EF1B006DBC57 /* MathOpsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B928591A76EF1B006DBC57 /* MathOpsTimeSeries.h */; };
 		22B960691CD7D23700BF2BA5 /* OpcPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B960661CD7D23700BF2BA5 /* OpcPointRecord.h */; };
@@ -285,8 +276,6 @@
 		22D8C2221C1A0A8F00298C0C /* libmysqlclient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CC1C1A048300298C0C /* libmysqlclient.a */; };
 		22D8C2231C1A0A8F00298C0C /* libmysqlcppconn-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CD1C1A048300298C0C /* libmysqlcppconn-static.a */; };
 		22D8C2261C1A0DFE00298C0C /* libcurl.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C2251C1A0DFE00298C0C /* libcurl.4.dylib */; };
-		22D8C2A31C1A522F00298C0C /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C31C1A048300298C0C /* libboost_filesystem.a */; };
-		22D8C2A41C1A523700298C0C /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C81C1A048300298C0C /* libboost_system.a */; };
 		22D9830E17F4AFDE00DD7EB4 /* rt_simulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22D9830D17F4AFDE00DD7EB4 /* rt_simulator.cpp */; };
 		22DC12D71ADD844D0033DD5E /* MetaTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22DC12D41ADD844D0033DD5E /* MetaTimeSeries.cpp */; };
 		22DC12D81ADD844D0033DD5E /* MetaTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22DC12D41ADD844D0033DD5E /* MetaTimeSeries.cpp */; };
@@ -341,47 +330,12 @@
 			remoteGlobalIDString = 2288C10F1BE3C5DC00F9B8FB;
 			remoteInfo = TimeSeriesDuplicator;
 		};
-		22284F831BF115DD000256B8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 228A76F918450CBD00905D8E;
-			remoteInfo = "epanet-rtx-project";
-		};
-		22284F851BF115F6000256B8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 221BFD311A8E8AD000143FCC;
-			remoteInfo = "epanet-rtx static deps";
-		};
 		223947F31AF3B43E00C8AE4F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 220F9DDB18F9E68B00BB842C;
 			remoteInfo = "epanet-rtx-sqlite-only";
-		};
-		223947F51AF3B44300C8AE4F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 228A76F918450CBD00905D8E;
-			remoteInfo = "epanet-rtx-project";
-		};
-		224A92661A8BABC900D8FBE2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 228A76F918450CBD00905D8E;
-			remoteInfo = "epanet-rtx-project";
-		};
-		2251FFF31A0A7E3500C4D483 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 228A76F918450CBD00905D8E;
-			remoteInfo = "epanet-rtx-project";
 		};
 		228137DA1CA2F25D00AD81F3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -585,8 +539,6 @@
 		223947E71AF3B27000C8AE4F /* model exporter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "model exporter"; sourceTree = BUILT_PRODUCTS_DIR; };
 		223AF32E18F6E4C0002E846F /* InversionTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InversionTimeSeries.cpp; path = ../../src/InversionTimeSeries.cpp; sourceTree = "<group>"; };
 		223AF32F18F6E4C0002E846F /* InversionTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InversionTimeSeries.h; path = ../../src/InversionTimeSeries.h; sourceTree = "<group>"; };
-		223AF35218F7121F002E846F /* SqliteProjectFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = SqliteProjectFile.cpp; path = ../../project/SqliteProjectFile.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		223AF35318F7121F002E846F /* SqliteProjectFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SqliteProjectFile.h; path = ../../project/SqliteProjectFile.h; sourceTree = "<group>"; };
 		22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CorrelatorTimeSeries.cpp; path = ../../src/CorrelatorTimeSeries.cpp; sourceTree = "<group>"; };
 		22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CorrelatorTimeSeries.h; path = ../../src/CorrelatorTimeSeries.h; sourceTree = "<group>"; };
 		2246439D150BD6E0005EA3BA /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../../src/Node.h; sourceTree = "<group>"; };
@@ -636,7 +588,6 @@
 		2288C10A1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesDuplicator.cpp; path = ../../examples/Duplicator/TimeSeriesDuplicator.cpp; sourceTree = "<group>"; };
 		2288C10B1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TimeSeriesDuplicator.h; path = ../../examples/Duplicator/TimeSeriesDuplicator.h; sourceTree = "<group>"; };
 		2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libTimeSeriesDuplicator.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libepanet-rtx-project.dylib"; sourceTree = BUILT_PRODUCTS_DIR; };
 		228A836E16DBE5E7008E9C35 /* data_access_profiling */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = data_access_profiling; sourceTree = BUILT_PRODUCTS_DIR; };
 		228A837A16DBE644008E9C35 /* data_access.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = data_access.cpp; path = ../../examples/data_access_profiling/data_access.cpp; sourceTree = "<group>"; };
 		228C2D901A9E15BF003C826D /* TimeRange.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeRange.cpp; path = ../../src/TimeRange.cpp; sourceTree = "<group>"; };
@@ -655,10 +606,6 @@
 		22A842D4173BF445009CE769 /* GainTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GainTimeSeries.h; path = ../../src/GainTimeSeries.h; sourceTree = "<group>"; };
 		22AB022D187B1BF000706EEA /* PointRecordTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PointRecordTime.cpp; path = ../../src/PointRecordTime.cpp; sourceTree = "<group>"; };
 		22AB022E187B1BF000706EEA /* PointRecordTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PointRecordTime.h; path = ../../src/PointRecordTime.h; sourceTree = "<group>"; };
-		22B38B8E1A48BCEE0071DCF3 /* ConfigProject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = ConfigProject.cpp; path = ../../project/ConfigProject.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		22B38B8F1A48BCEE0071DCF3 /* ConfigProject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConfigProject.h; path = ../../project/ConfigProject.h; sourceTree = "<group>"; };
-		22B38B901A48BCEE0071DCF3 /* ProjectFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = ProjectFile.cpp; path = ../../project/ProjectFile.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		22B38B911A48BCEE0071DCF3 /* ProjectFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProjectFile.h; path = ../../project/ProjectFile.h; sourceTree = "<group>"; };
 		22B7154D14DC2C2C00041167 /* Clock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Clock.cpp; path = ../../src/Clock.cpp; sourceTree = "<group>"; };
 		22B8A79C1603CA6100EECAA5 /* timeseries_demo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = timeseries_demo; sourceTree = BUILT_PRODUCTS_DIR; };
 		22B928581A76EF1B006DBC57 /* MathOpsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MathOpsTimeSeries.cpp; path = ../../src/MathOpsTimeSeries.cpp; sourceTree = "<group>"; };
@@ -758,7 +705,6 @@
 				22D8C1DA1C1A048300298C0C /* libiodbc.a in Frameworks */,
 				22D8C1DB1C1A048300298C0C /* libmysqlclient.a in Frameworks */,
 				22D8C1DC1C1A048300298C0C /* libmysqlcppconn-static.a in Frameworks */,
-				22284F801BF115D1000256B8 /* libepanet-rtx-project.dylib in Frameworks */,
 				22284F811BF115D1000256B8 /* libepanet-rtx.dylib in Frameworks */,
 				22284F821BF115D1000256B8 /* libTimeSeriesDuplicator.dylib in Frameworks */,
 			);
@@ -809,7 +755,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				223947F71AF3B45300C8AE4F /* libepanet-rtx-project.dylib in Frameworks */,
 				223947F81AF3B45300C8AE4F /* libepanet-rtx.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -834,16 +779,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		228A76F718450CBD00905D8E /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				224A92801A8BD4F100D8FBE2 /* libepanet-rtx.dylib in Frameworks */,
-				22D8C2A31C1A522F00298C0C /* libboost_filesystem.a in Frameworks */,
-				22D8C2A41C1A523700298C0C /* libboost_system.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		228A836B16DBE5E7008E9C35 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -864,7 +799,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				224A92681A8BABD300D8FBE2 /* libepanet-rtx-project.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -872,7 +806,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2251FFEF1A0A7CEC00C4D483 /* libepanet-rtx-project.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1079,19 +1012,6 @@
 			name = "TS Duplicator";
 			sourceTree = "<group>";
 		};
-		228A76FE18450CC700905D8E /* RTX Project */ = {
-			isa = PBXGroup;
-			children = (
-				22B38B8E1A48BCEE0071DCF3 /* ConfigProject.cpp */,
-				22B38B8F1A48BCEE0071DCF3 /* ConfigProject.h */,
-				22B38B901A48BCEE0071DCF3 /* ProjectFile.cpp */,
-				22B38B911A48BCEE0071DCF3 /* ProjectFile.h */,
-				223AF35318F7121F002E846F /* SqliteProjectFile.h */,
-				223AF35218F7121F002E846F /* SqliteProjectFile.cpp */,
-			);
-			name = "RTX Project";
-			sourceTree = "<group>";
-		};
 		228CA8CE1AA0CBC400D0353E /* model exporting extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -1152,7 +1072,6 @@
 			children = (
 				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
 				22C34357187D9441000100A4 /* epanetmsx.xcodeproj */,
-				228A76FE18450CC700905D8E /* RTX Project */,
 				22D9830C17F4AF9F00DD7EB4 /* simulator client */,
 				22CF1C3A1A6842DC00161188 /* testTsFilter */,
 				22B8A7971603CA1300EECAA5 /* demos */,
@@ -1182,7 +1101,6 @@
 				22B8A79C1603CA6100EECAA5 /* timeseries_demo */,
 				228A836E16DBE5E7008E9C35 /* data_access_profiling */,
 				22D982F017F4A3CD00DD7EB4 /* rt_simulator */,
-				228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */,
 				22D4D32118F8298300DA1648 /* readConfigTest */,
 				220F9E4C18F9E68B00BB842C /* libepanet-rtx.dylib */,
 				221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */,
@@ -1502,15 +1420,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		228A76F818450CBD00905D8E /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				223AF35518F7121F002E846F /* SqliteProjectFile.h in Headers */,
-				22B38B971A48BCEE0071DCF3 /* ProjectFile.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -1525,7 +1434,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				22284F841BF115DD000256B8 /* PBXTargetDependency */,
 				22284F7F1BF115C5000256B8 /* PBXTargetDependency */,
 				22284F781BF115BC000256B8 /* PBXTargetDependency */,
 			);
@@ -1581,7 +1489,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				223947F61AF3B44300C8AE4F /* PBXTargetDependency */,
 				223947F41AF3B43E00C8AE4F /* PBXTargetDependency */,
 			);
 			name = "model exporter";
@@ -1624,24 +1531,6 @@
 			name = TimeSeriesDuplicator;
 			productName = TimeSeriesDuplicator;
 			productReference = 2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */;
-			productType = "com.apple.product-type.library.dynamic";
-		};
-		228A76F918450CBD00905D8E /* epanet-rtx-project */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 228A76FB18450CBD00905D8E /* Build configuration list for PBXNativeTarget "epanet-rtx-project" */;
-			buildPhases = (
-				228A76F618450CBD00905D8E /* Sources */,
-				228A76F718450CBD00905D8E /* Frameworks */,
-				228A76F818450CBD00905D8E /* Headers */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				22284F861BF115F6000256B8 /* PBXTargetDependency */,
-			);
-			name = "epanet-rtx-project";
-			productName = "epanet-rtx-project";
-			productReference = 228A76FA18450CBD00905D8E /* libepanet-rtx-project.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		228A836D16DBE5E7008E9C35 /* data_access_profiling */ = {
@@ -1691,7 +1580,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				224A92671A8BABC900D8FBE2 /* PBXTargetDependency */,
 			);
 			name = readConfigTest;
 			productName = readConfigTest;
@@ -1709,7 +1597,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				2251FFF41A0A7E3500C4D483 /* PBXTargetDependency */,
 			);
 			name = rt_simulator;
 			productName = rtxNetSim;
@@ -1762,7 +1649,6 @@
 			targets = (
 				221BFD311A8E8AD000143FCC /* epanet-rtx static deps */,
 				220F9DDB18F9E68B00BB842C /* epanet-rtx-sqlite-only */,
-				228A76F918450CBD00905D8E /* epanet-rtx-project */,
 				2288C10F1BE3C5DC00F9B8FB /* TimeSeriesDuplicator */,
 				22B8A79B1603CA6100EECAA5 /* timeseries_demo */,
 				22D4D32018F8298300DA1648 /* readConfigTest */,
@@ -1999,15 +1885,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		228A76F618450CBD00905D8E /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				22B38B961A48BCEE0071DCF3 /* ProjectFile.cpp in Sources */,
-				223AF35418F7121F002E846F /* SqliteProjectFile.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		228A836A16DBE5E7008E9C35 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2068,35 +1945,10 @@
 			target = 2288C10F1BE3C5DC00F9B8FB /* TimeSeriesDuplicator */;
 			targetProxy = 22284F7E1BF115C5000256B8 /* PBXContainerItemProxy */;
 		};
-		22284F841BF115DD000256B8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 228A76F918450CBD00905D8E /* epanet-rtx-project */;
-			targetProxy = 22284F831BF115DD000256B8 /* PBXContainerItemProxy */;
-		};
-		22284F861BF115F6000256B8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 221BFD311A8E8AD000143FCC /* epanet-rtx static deps */;
-			targetProxy = 22284F851BF115F6000256B8 /* PBXContainerItemProxy */;
-		};
 		223947F41AF3B43E00C8AE4F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 220F9DDB18F9E68B00BB842C /* epanet-rtx-sqlite-only */;
 			targetProxy = 223947F31AF3B43E00C8AE4F /* PBXContainerItemProxy */;
-		};
-		223947F61AF3B44300C8AE4F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 228A76F918450CBD00905D8E /* epanet-rtx-project */;
-			targetProxy = 223947F51AF3B44300C8AE4F /* PBXContainerItemProxy */;
-		};
-		224A92671A8BABC900D8FBE2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 228A76F918450CBD00905D8E /* epanet-rtx-project */;
-			targetProxy = 224A92661A8BABC900D8FBE2 /* PBXContainerItemProxy */;
-		};
-		2251FFF41A0A7E3500C4D483 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 228A76F918450CBD00905D8E /* epanet-rtx-project */;
-			targetProxy = 2251FFF31A0A7E3500C4D483 /* PBXContainerItemProxy */;
 		};
 		228137DB1CA2F25D00AD81F3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2550,86 +2402,6 @@
 			};
 			name = Release;
 		};
-		228A76FC18450CBD00905D8E /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COMBINE_HIDPI_IMAGES = YES;
-				EXECUTABLE_PREFIX = lib;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = "";
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				HEADER_SEARCH_PATHS = (
-					/usr/local/com.citilogics.dev/include,
-					/usr/local/include,
-					"${SRCROOT}/../../../EPANET/src",
-					"${SRCROOT}/../../../EPANET/include",
-					/usr/include,
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/usr/local/com.citilogics.dev/lib,
-					/usr/local/lib,
-					/usr/local/com.citilogics.dev/lib,
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-			};
-			name = Debug;
-		};
-		228A76FD18450CBD00905D8E /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COMBINE_HIDPI_IMAGES = YES;
-				ENABLE_NS_ASSERTIONS = NO;
-				EXECUTABLE_PREFIX = lib;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = "";
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				HEADER_SEARCH_PATHS = (
-					/usr/local/com.citilogics.dev/include,
-					/usr/local/include,
-					"${SRCROOT}/../../../EPANET/src",
-					"${SRCROOT}/../../../EPANET/include",
-					/usr/include,
-				);
-				LIBRARY_SEARCH_PATHS = (
-					/usr/local/com.citilogics.dev/lib,
-					/usr/local/lib,
-					/usr/local/com.citilogics.dev/lib,
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-			};
-			name = Release;
-		};
 		228A837516DBE5E7008E9C35 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2953,15 +2725,6 @@
 			buildConfigurations = (
 				2288C1191BE3C5DC00F9B8FB /* Debug */,
 				2288C11A1BE3C5DC00F9B8FB /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		228A76FB18450CBD00905D8E /* Build configuration list for PBXNativeTarget "epanet-rtx-project" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				228A76FC18450CBD00905D8E /* Debug */,
-				228A76FD18450CBD00905D8E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
