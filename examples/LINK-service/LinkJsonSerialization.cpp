@@ -386,15 +386,13 @@ TimeSeries::_sp DeserializerJson::analyticWithJson(web::json::value jsonValue, v
         ->secondary(avgDailyInflow)
         ->units(RTX_DAY)
         ->c(d1)
-        ->name("Daily Turnover Time");
+        ->name(d["name"].as_string());
     } catch (...) {
       cerr << "unknown error" << '\n';
     }
     
-    
     return turnoverTime;
   }
-  
   
   return TimeSeries::_sp();
 }
