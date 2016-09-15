@@ -67,12 +67,12 @@ double Tank::maxLevel() {
 
 
 void Tank::setGeometry(Curve::_sp curve) {
-  
   _geometry = curve;
-  
   _volumeMeasure->setCurve(_geometry);
+  if (!curve) {
+    return;
+  }
   _volumeMeasure->setUnits(_geometry->outputUnits);
-  
 }
 
 Curve::_sp Tank::geometry() {
