@@ -413,11 +413,13 @@ void EpanetModel::createRtxWrappers() {
     // newPipe becomes the generic (base-class) pointer in all cases.
     switch (linkType) {
       case EN_PIPE:
-        newPipe.reset( new Pipe(linkName, startNode, endNode) );
+        newPipe.reset( new Pipe(linkName) );
+        newPipe->setNodes(startNode, endNode);
         addPipe(newPipe);
         break;
       case EN_PUMP:
-        newPump.reset( new Pump(linkName, startNode, endNode) );
+        newPump.reset( new Pump(linkName) );
+        newPump->setNodes(startNode, endNode);
         newPipe = newPump;
         addPump(newPump);
         
@@ -450,7 +452,8 @@ void EpanetModel::createRtxWrappers() {
       case EN_PBV:
       case EN_TCV:
       case EN_GPV:
-        newValve.reset( new Valve(linkName, startNode, endNode) );
+        newValve.reset( new Valve(linkName) );
+        newValve->setNodes(startNode, endNode);
         newValve->valveType = (int)linkType;
         newValve->fixedSetting = setting;
         newPipe = newValve;

@@ -554,7 +554,6 @@
 		224EDECC1B4D8E040029FC37 /* influx_api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = influx_api.h; path = ../../src/influx_api.h; sourceTree = "<group>"; };
 		224EDECD1B4D8E040029FC37 /* influx_client.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = influx_client.c; path = ../../src/influx_client.c; sourceTree = "<group>"; };
 		225194091CD8F2EA00B1BC31 /* libxml2.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.2.dylib; path = /usr/lib/libxml2.2.dylib; sourceTree = "<absolute>"; };
-		225A037F1CC70135002DC864 /* frontend */ = {isa = PBXFileReference; lastKnownFileType = folder; name = frontend; path = "../../examples/LINK-service/frontend"; sourceTree = "<group>"; };
 		225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MysqlPointRecord.cpp; path = ../../src/MysqlPointRecord.cpp; sourceTree = "<group>"; };
 		22602B671D5A59D500A668ED /* GeoMetrics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeoMetrics.cpp; path = ../../src/GeoMetrics.cpp; sourceTree = "<group>"; };
 		22602B681D5A59D500A668ED /* GeoMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GeoMetrics.h; path = ../../src/GeoMetrics.h; sourceTree = "<group>"; };
@@ -995,7 +994,6 @@
 				228137DC1CA2F2C600AD81F3 /* LinkService.cpp */,
 				224B09D31CA9B2A900AEB41A /* LinkJsonSerialization.hpp */,
 				224B09D21CA9B2A900AEB41A /* LinkJsonSerialization.cpp */,
-				225A037F1CC70135002DC864 /* frontend */,
 			);
 			name = "LINK Service";
 			sourceTree = "<group>";

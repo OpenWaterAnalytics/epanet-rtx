@@ -86,7 +86,9 @@ std::ostream& RTX::operator<< (std::ostream &out, Model &model) {
 }
 
 
-
+void Model::useModelFromPath(const std::string& path) {
+  
+}
 
 string Model::name() {
   return _name;

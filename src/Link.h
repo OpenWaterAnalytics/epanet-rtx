@@ -28,9 +28,10 @@ namespace RTX {
     Node::_sp from();
     Node::_sp to();
     Link::direction_t directionRelativeToNode(Node::_sp node);
+    void setNodes(Node::_sp startNode, Node::_sp endNode);
     
   protected:
-    Link(const std::string& name, Node::_sp startNode, Node::_sp endNode);
+    Link(const std::string& name);
     virtual ~Link();
     
   private:

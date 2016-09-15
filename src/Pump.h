@@ -16,7 +16,7 @@ namespace RTX {
   class Pump : public Pipe {
   public:
     RTX_BASE_PROPS(Pump);
-    Pump(const std::string& name, Node::_sp startNode, Node::_sp endNode);
+    Pump(const std::string& name);
     virtual ~Pump();
     
     virtual void setRecord(PointRecord::_sp record);

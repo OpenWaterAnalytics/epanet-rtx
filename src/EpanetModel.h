@@ -44,7 +44,7 @@ namespace RTX {
     
     int enIndexForJunction(Junction::_sp j);
     int enIndexForPipe(Pipe::_sp p);
-    
+    void useModelFromPath(const std::string& path) {this->useEpanetFile(path);};
     
   protected:
     // overridden accessors

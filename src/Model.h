@@ -74,7 +74,8 @@ namespace RTX {
     std::string name();
     void setName(std::string name);
 //    virtual void loadModelFromFile(const string& filename) throw(std::exception);
-    string modelFile();
+    virtual void useModelFromPath(const std::string& path);
+    virtual string modelFile();
     virtual void overrideControls() throw(RtxException);
     
     
@@ -130,7 +131,6 @@ namespace RTX {
     vector<Pump::_sp> pumps();
     vector<Valve::_sp> valves();
     vector<Curve::_sp> curves();
-    
     
     virtual void updateEngineWithElementProperties(Element::_sp e);
     

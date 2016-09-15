@@ -12,7 +12,8 @@
 
 using namespace RTX;
 
-Pipe::Pipe(const std::string& name, Node::_sp startNode, Node::_sp endNode) : Link(name, startNode, endNode) {
+
+Pipe::Pipe(const std::string& name) : Link(name) {
   setType(PIPE);
   _flowState.reset( new TimeSeries() );
   _flowState->setUnits(RTX_LITER_PER_SECOND);

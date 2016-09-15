@@ -12,7 +12,7 @@
 
 using namespace RTX;
 
-Valve::Valve(const std::string& name, Node::_sp startNode, Node::_sp endNode) : Pipe(name, startNode, endNode){
+Valve::Valve(const std::string& name) : Pipe(name){
 setType(VALVE);
 }
 Valve::~Valve() {

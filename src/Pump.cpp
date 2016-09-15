@@ -12,7 +12,7 @@
 
 using namespace RTX;
 
-Pump::Pump(const std::string& name, Node::_sp startNode, Node::_sp endNode) : Pipe(name, startNode, endNode) {
+Pump::Pump(const std::string& name) : Pipe(name) {
   setType(PUMP);
   _energyState.reset( new TimeSeries() );
   _energyState->setName("energy,l=" + name);

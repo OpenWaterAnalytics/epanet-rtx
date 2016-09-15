@@ -11,7 +11,11 @@
 using namespace RTX;
 using namespace std;
 
-Link::Link(const std::string& name, Node::_sp startNode, Node::_sp endNode) : Element(name) {
+Link::Link(const std::string& name) : Element(name) {
+  
+}
+
+void Link::setNodes(Node::_sp startNode, Node::_sp endNode) {
   _from = startNode;
   _to = endNode;
 }
