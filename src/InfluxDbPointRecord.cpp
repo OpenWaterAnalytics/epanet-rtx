@@ -532,6 +532,8 @@ void InfluxDbPointRecord::removeRecord(const std::string& id) {
 void InfluxDbPointRecord::truncate() {
   this->errorMessage = "Truncating";
   auto ids = _identifiersAndUnitsCache; // copy
+  
+  
   for (auto ts_units : *ids.get()) {
     this->removeRecord(ts_units.first);
     
