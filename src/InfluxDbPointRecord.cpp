@@ -547,6 +547,10 @@ void InfluxDbPointRecord::truncate() {
     jsValue v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
      */
   }
+  
+  DbPointRecord::reset();
+  
+  
   this->beginBulkOperation();
   for (auto ts_units : *ids.get()) {
     this->insertIdentifierAndUnits(ts_units.first, ts_units.second);
