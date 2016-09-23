@@ -9,7 +9,6 @@
 #include <iostream>
 
 #include "PointRecord.h"
-#include <boost/foreach.hpp>
 
 using namespace RTX;
 using namespace std;
@@ -145,11 +144,9 @@ PointRecord::time_pair_t PointRecord::range(const string& id) {
 
 void PointRecord::addPoint(const string& identifier, Point point) {
   // Cache this single point
-  
   if (_singlePointCache.find(identifier) != _singlePointCache.end()) {
     _singlePointCache[identifier] = point;
   }
-  
 }
 
 

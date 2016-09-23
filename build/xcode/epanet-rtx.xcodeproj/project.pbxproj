@@ -116,6 +116,9 @@
 		22284F821BF115D1000256B8 /* libTimeSeriesDuplicator.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */; };
 		222978311CA477DA0051D881 /* RTX_Visitable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2229782D1CA477DA0051D881 /* RTX_Visitable.h */; };
 		2229C7E71CF6140C001D0DFA /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
+		222C114D1D956B67007A747B /* TimeSeriesLowess.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 222C114B1D956B67007A747B /* TimeSeriesLowess.cpp */; };
+		222C114E1D956B67007A747B /* TimeSeriesLowess.h in Headers */ = {isa = PBXBuildFile; fileRef = 222C114C1D956B67007A747B /* TimeSeriesLowess.h */; };
+		222C11591D956BEA007A747B /* Lowess.h in Headers */ = {isa = PBXBuildFile; fileRef = 222C11581D956BEA007A747B /* Lowess.h */; };
 		22324B631CAEF15000CFC745 /* libcpprest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E996FE1CA591CB00D6F34F /* libcpprest.a */; };
 		223372F41CA19DFA00C87ACD /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 223372F21CA19DFA00C87ACD /* libcrypto.a */; };
 		223372F51CA19DFA00C87ACD /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 223372F31CA19DFA00C87ACD /* libssl.a */; };
@@ -412,6 +415,9 @@
 		2223206B1A6EF32E00B32D6A /* LagTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LagTimeSeries.h; path = ../../src/LagTimeSeries.h; sourceTree = "<group>"; };
 		22253D8D16022FB6002F7256 /* CurveFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CurveFunction.cpp; path = ../../src/CurveFunction.cpp; sourceTree = "<group>"; };
 		2229782D1CA477DA0051D881 /* RTX_Visitable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RTX_Visitable.h; path = ../../src/RTX_Visitable.h; sourceTree = "<group>"; };
+		222C114B1D956B67007A747B /* TimeSeriesLowess.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesLowess.cpp; path = ../../src/TimeSeriesLowess.cpp; sourceTree = "<group>"; };
+		222C114C1D956B67007A747B /* TimeSeriesLowess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeSeriesLowess.h; path = ../../src/TimeSeriesLowess.h; sourceTree = "<group>"; };
+		222C11581D956BEA007A747B /* Lowess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Lowess.h; path = ../../src/Lowess.h; sourceTree = "<group>"; };
 		222FDDD315C1BBE90065DAF6 /* FirstDerivative.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FirstDerivative.h; path = ../../src/FirstDerivative.h; sourceTree = "<group>"; };
 		222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FirstDerivative.cpp; path = ../../src/FirstDerivative.cpp; sourceTree = "<group>"; };
 		223372F21CA19DFA00C87ACD /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = /usr/local/com.citilogics.dev/lib/libcrypto.a; sourceTree = "<absolute>"; };
@@ -985,6 +991,9 @@
 				222FDDD515C1BC2F0065DAF6 /* FirstDerivative.cpp */,
 				224D40D619786C3000160BD5 /* BaseStatsTimeSeries.h */,
 				224D40D519786C3000160BD5 /* BaseStatsTimeSeries.cpp */,
+				222C114C1D956B67007A747B /* TimeSeriesLowess.h */,
+				222C114B1D956B67007A747B /* TimeSeriesLowess.cpp */,
+				222C11581D956BEA007A747B /* Lowess.h */,
 				224E047F1979431C0039E3F9 /* StatsTimeSeries.h */,
 				224E047E1979431C0039E3F9 /* StatsTimeSeries.cpp */,
 				22BFAB00196AFBD800B5B77C /* OutlierExclusionTimeSeries.h */,
@@ -1179,6 +1188,7 @@
 				22DD0FC91CE387A400145959 /* Curve.h in Headers */,
 				221BFD981A8E8AD000143FCC /* Reservoir.h in Headers */,
 				221BFD9A1A8E8AD000143FCC /* InfluxDbPointRecord.h in Headers */,
+				222C11591D956BEA007A747B /* Lowess.h in Headers */,
 				221BFD9B1A8E8AD000143FCC /* LagTimeSeries.h in Headers */,
 				221BFD9C1A8E8AD000143FCC /* OutlierExclusionTimeSeries.h in Headers */,
 				221BFD9D1A8E8AD000143FCC /* Tank.h in Headers */,
@@ -1201,6 +1211,7 @@
 				221BFDB01A8E8AD000143FCC /* MultiplierTimeSeries.h in Headers */,
 				221BFDB11A8E8AD000143FCC /* CsvPointRecord.h in Headers */,
 				221BFDB21A8E8AD000143FCC /* GainTimeSeries.h in Headers */,
+				222C114E1D956B67007A747B /* TimeSeriesLowess.h in Headers */,
 				221BFDB31A8E8AD000143FCC /* IntegratorTimeSeries.h in Headers */,
 				221BFDB51A8E8AD000143FCC /* FailoverTimeSeries.h in Headers */,
 				22602B6C1D5A59D500A668ED /* GeoMetrics.h in Headers */,
@@ -1520,6 +1531,7 @@
 				221BFD371A8E8AD000143FCC /* TimeSeriesSynthetic.cpp in Sources */,
 				221BFD391A8E8AD000143FCC /* Point.cpp in Sources */,
 				221BFD3A1A8E8AD000143FCC /* AggregatorTimeSeries.cpp in Sources */,
+				222C114D1D956B67007A747B /* TimeSeriesLowess.cpp in Sources */,
 				221BFD3B1A8E8AD000143FCC /* MovingAverage.cpp in Sources */,
 				228CA8E21AA0D71800D0353E /* InpTextPattern.cpp in Sources */,
 				221BFD3C1A8E8AD000143FCC /* InfluxDbPointRecord.cpp in Sources */,
