@@ -295,7 +295,7 @@ std::map<std::string, Units> Units::unitStringMap = []()
   m["%"] = RTX_PERCENT;
   
   m["ft-per-psi"] = RTX_FOOT * 2.30665873688 / RTX_PSI;
-  
+  m["psi-per-ft"] = RTX_PSI / (RTX_FOOT * 2.30665873688);
   m["W"] = RTX_WATT;
   m["kW"] = RTX_KILOWATT;
   
