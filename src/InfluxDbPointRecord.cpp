@@ -216,6 +216,7 @@ bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::U
   boost::replace_all(tsNameEscaped, " ", "\\ ");
   const string content(tsNameEscaped + " exist=true");
   if (_inBulkOperation) {
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
     _transactionLines.push_back(content);
   }
   else {
@@ -477,8 +478,13 @@ void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> 
   const string content = this->insertionLineFromPoints(dbId, insertionPoints);
   
   if (_inBulkOperation) {
-    _transactionLines.push_back(content);
-    if (_transactionLines.size() > __maxTransactionLines) {
+    size_t nLines = 0;
+    {
+      scoped_lock<boost::signals2::mutex> lock(*_mutex);
+      _transactionLines.push_back(content);
+      nLines = _transactionLines.size();
+    }
+    if (nLines > __maxTransactionLines) {
       this->commitTransactionLines();
     }
   }
@@ -492,7 +498,10 @@ void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> 
 
 void InfluxDbPointRecord::beginBulkOperation() {
   _inBulkOperation = true;
-  _transactionLines.clear();
+  {
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
+    _transactionLines.clear();
+  }
 }
 
 void InfluxDbPointRecord::endBulkOperation(){
@@ -503,15 +512,16 @@ void InfluxDbPointRecord::endBulkOperation(){
 void InfluxDbPointRecord::commitTransactionLines() {
   string lines;
   int i = 0;
-  for(const string& line : _transactionLines) {
-    if (i != 0) {
+  {
+    scoped_lock<boost::signals2::mutex> lock(*_mutex);
+    for(const string line : _transactionLines) {
+      lines.append(line);
       lines.append("\n");
+      ++i;
     }
-    lines.append(line);
-    ++i;
+    _transactionLines.clear();
   }
   this->sendPointsWithString(lines);
-  _transactionLines.clear();
 }
 
 
