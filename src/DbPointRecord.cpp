@@ -56,7 +56,7 @@ std::string DbPointRecord::Query::nameAndWhereClause() {
   return ss.str();
 }
 
-DbPointRecord::request_t::request_t(string id, time_t start, time_t end) : id(id), range(make_pair(start, end)) {
+DbPointRecord::request_t::request_t(string id, time_t start, time_t end) : range(make_pair(start, end)), id(id) {
   
 }
 
@@ -251,10 +251,11 @@ Point DbPointRecord::pointBefore(const string& id, time_t time) {
   // should i search iteratively?
   if (this->shouldSearchIteratively()) {
     p = this->searchPreviousIteratively(id, time);
+    if (p.isValid) {
+      return p;
+    }
   }
-  if (p.isValid) {
-    return p;
-  }
+  
   
   // try a singly-bounded query
   if (this->supportsSinglyBoundedQueries()) {
