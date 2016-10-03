@@ -35,7 +35,7 @@ namespace RTX {
     int port;
     
     bool supportsSinglyBoundedQueries() {return true;};
-    bool shouldSearchIteratively() {return true;};
+    bool shouldSearchIteratively() {return false;};
     bool supportsUnitsColumn() {return false;};
     
     virtual void beginBulkOperation();

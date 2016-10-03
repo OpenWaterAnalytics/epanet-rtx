@@ -9,7 +9,7 @@
 using namespace RTX;
 using namespace std;
 
-const int _tsfilter_maxStrides = 1000; // FIXME 💩
+const int _tsfilter_maxStrides = 7; // FIXME 💩
 
 TimeSeriesFilter::TimeSeriesFilter() {
   _resampleMode = TimeSeriesResampleModeLinear;
@@ -312,7 +312,14 @@ time_t TimeSeriesFilter::timeAfter(time_t t) {
     return this->clock()->timeAfter(t);
   }
   else if (this->canDropPoints()) {
-    return this->pointAfter(t).time;
+    Point pAfter = this->pointAfter(t);
+    if (pAfter.isValid) {
+      return pAfter.time;
+    }
+    else {
+      return 0;
+    }
+
   }
   else {
     return this->source()->timeAfter(t);
@@ -327,7 +334,13 @@ time_t TimeSeriesFilter::timeBefore(time_t t) {
     return this->clock()->timeBefore(t);
   }
   else if (this->canDropPoints()) {
-    return this->pointBefore(t).time;
+    Point pBefore = this->pointBefore(t);
+    if (pBefore.isValid) {
+      return pBefore.time;
+    }
+    else {
+      return 0;
+    }
   }
   else {
     return this->source()->timeBefore(t);
