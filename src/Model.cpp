@@ -135,6 +135,7 @@ void Model::setSimulationLoggingCallback(Model::RTX_Logging_Callback_Block block
 }
 
 void Model::logLine(const std::string& line) {
+  DebugLog << line << EOL << flush;
   string myLine(line);
   if (_simLogCallback != NULL) {
     size_t loc = myLine.find("\n");
@@ -586,6 +587,8 @@ void Model::updateEngineWithElementProperties(Element::_sp e) {
 
 void Model::runSinglePeriod(time_t time) {
   cerr << "whoops, not implemented" << endl;
+  return;
+  /*
   // FIXME
   time_t lastSimulationPeriod, boundaryReset, start;
   // to run a single period, we need boundary conditions.
@@ -597,6 +600,7 @@ void Model::runSinglePeriod(time_t time) {
   
   // run the simulation to the requested time.
   runExtendedPeriod(start, time);
+   */
 }
 
 
@@ -707,7 +711,7 @@ bool Model::updateSimulationToTime(time_t updateToTime) {
       
       // simulation failed -- advance the time and reset tank levels
       this->setCurrentSimulationTime(_regularMasterClock->timeAfter(myTime));
-      cout << "will reset tanks" << endl;
+      cout << "will reset tanks" << endl << flush;
       this->setTanksNeedReset(true);
     }
   }
@@ -796,14 +800,14 @@ void Model::runForecast(time_t start, time_t end) {
       simulationTime = currentSimulationTime();
       
       timeinfo = localtime (&simulationTime);
-      cout << "Simulation time :: " << asctime(timeinfo) << endl;
+      cout << "Simulation time :: " << asctime(timeinfo) << endl << flush;
     }
     else {
       // simulation failed -- advance the time and reset tank levels
       nextClockTime = _regularMasterClock->timeAfter(simulationTime);
       simulationTime = nextClockTime;
       setCurrentSimulationTime(simulationTime);
-      cout << "will reset tanks" << endl;
+      cout << "will reset tanks" << endl << flush;
       this->setTanksNeedReset(true);
     }
     
@@ -1047,6 +1051,7 @@ void Model::setSimulationParameters(time_t time) {
       if (p.isValid) {
         double headValue = Units::convertValue(p.value, reservoir->boundaryHead()->units(), headUnits());
         setReservoirHead( reservoir->name(), headValue );
+        DebugLog << "reservoir " << reservoir->name() << " level set to " << p.value << EOL;
       }
       else {
         stringstream ss;
@@ -1059,6 +1064,7 @@ void Model::setSimulationParameters(time_t time) {
   // check for valid time with tank reset clock
   if (_tankResetClock && _tankResetClock->isValid(time)) {
     this->setTanksNeedReset(true);
+    DebugLog << "TANKS NEED RESET" << EOL;
   }
   
   _checkTanksForReset(time);
@@ -1072,6 +1078,7 @@ void Model::setSimulationParameters(time_t time) {
       if (p.isValid) {
         status = (p.value > 0 ? Pipe::OPEN : Pipe::CLOSED);
         setPipeStatus( valve->name(), status );
+        DebugLog << "valve " << valve->name() << " status set to " << p.value << EOL;
       }
       else {
         stringstream ss;
@@ -1091,6 +1098,7 @@ void Model::setSimulationParameters(time_t time) {
             p = Point::convertPoint(p, settingUnits, this->flowUnits());
           }
           setValveSetting( valve->name(), p.value );
+          DebugLog << "valve " << valve->name() << " setting set to " << p.value << EOL;
         }
         else {
           stringstream ss;
@@ -1115,6 +1123,7 @@ void Model::setSimulationParameters(time_t time) {
       if (p.isValid) {
         status = Pipe::status_t((int)(p.value));
         setPumpStatus( pump->name(), status );
+        DebugLog << "pump " << pump->name() << " status set to " << p.value << EOL;
       }
       else {
         stringstream ss;
@@ -1127,6 +1136,7 @@ void Model::setSimulationParameters(time_t time) {
         Point p = pump->settingBoundary()->pointAtOrBefore(time);
         if (p.isValid) {
           setPumpSetting( pump->name(), p.value );
+          DebugLog << "pump " << pump->name() << " setting set to " << p.value << EOL;
         }
         else {
           stringstream ss;
@@ -1148,6 +1158,7 @@ void Model::setSimulationParameters(time_t time) {
       Point p = pipe->statusBoundary()->pointAtOrBefore(time);
       if (p.isValid) {
         setPipeStatus(pipe->name(), Pipe::status_t((int)(p.value)));
+        DebugLog << "pipe " << pipe->name() << " status set to " << p.value << EOL;
       }
       else {
         stringstream ss;
@@ -1167,6 +1178,7 @@ void Model::setSimulationParameters(time_t time) {
         if (p.isValid) {
           double quality = Units::convertValue(p.value, j->qualitySource()->units(), qualityUnits());
           setJunctionQuality(j->name(), quality);
+          DebugLog << "junction " << j->name() << " quality set to " << p.value << EOL;
         }
         else {
           stringstream ss;
@@ -1182,6 +1194,7 @@ void Model::setSimulationParameters(time_t time) {
         if (p.isValid) {
           double qualityValue = Units::convertValue(p.value, reservoir->boundaryQuality()->units(), qualityUnits());
           setReservoirQuality( reservoir->name(), qualityValue );
+          DebugLog << "reservoir " << reservoir->name() << " quality set to " << p.value << EOL;
         }
         else {
           stringstream ss;
@@ -1192,6 +1205,7 @@ void Model::setSimulationParameters(time_t time) {
     }
   }
 }
+
 
 
 void Model::fetchSimulationStates() {
@@ -1566,7 +1580,7 @@ void Model::fetchElementInputs(TimeRange range) {
   while (t1 < range.end) {
     TimeRange tr(t1,t2);
     BOOST_FOREACH(TimeSeries::_sp ts, inputs) {
-      cout << "Pre-fetching " << ts->name()  << " :: Times " << t1 << "-" << t2 << endl;
+      cout << "Pre-fetching " << ts->name()  << " :: Times " << t1 << "-" << t2 << endl << flush;
       ts->points(tr);
     }
     t1 += chunkSize;

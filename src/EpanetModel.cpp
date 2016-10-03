@@ -118,7 +118,7 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   if (isSI) {
     setHeadUnits(RTX_METER);
     setPressureUnits(RTX_KILOPASCAL);
-    volumeUnits = RTX_LITER;
+    volumeUnits = RTX_CUBIC_METER;
     
   }
   else {
@@ -951,7 +951,10 @@ double EpanetModel::getNodeValue(int epanetCode, const string& node) {
 }
 void EpanetModel::setNodeValue(int epanetCode, const string& node, double value) {
   int nodeIndex = _nodeIndex[node];
-  OW_API_CHECK(OW_setnodevalue(_enModel, nodeIndex, epanetCode, value), "OW_setnodevalue");
+  stringstream s;
+  s << "OW_setnodevalue " << node << " : " << value;
+  const string str = s.str();
+  OW_API_CHECK(OW_setnodevalue(_enModel, nodeIndex, epanetCode, value), str);
 }
 
 double EpanetModel::getLinkValue(int epanetCode, const string& link) {

@@ -625,6 +625,7 @@ int Dma::allocateDemandToJunctions(time_t time) {
   if (dPoint.isValid) {
     dmaDemand = dPoint.value;
     allocableDemand = dmaDemand - meteredDemand; // the total unmetered demand
+    DebugLog << "DMA " << this->name() << " demand: " << dmaDemand << '\n';
   }
   else {
     err = 1;
