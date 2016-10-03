@@ -1,6 +1,27 @@
-##################
-### EPANET-RTX ###
-##################
+#  ________  _______    ______   __    __  ________  ________ 
+# |        \|       \  /      \ |  \  |  \|        \|        \
+# | $$$$$$$$| $$$$$$$\|  $$$$$$\| $$\ | $$| $$$$$$$$ \$$$$$$$$
+# | $$__    | $$__/ $$| $$__| $$| $$$\| $$| $$__       | $$   
+# | $$  \   | $$    $$| $$    $$| $$$$\ $$| $$  \      | $$   
+# | $$$$$   | $$$$$$$ | $$$$$$$$| $$\$$ $$| $$$$$      | $$   
+# | $$_____ | $$      | $$  | $$| $$ \$$$$| $$_____    | $$   
+# | $$     \| $$      | $$  | $$| $$  \$$$| $$     \   | $$   
+#  \$$$$$$$$ \$$       \$$   \$$ \$$   \$$ \$$$$$$$$    \$$   
+#                                                             
+#                                                             
+#                                                             
+#              _______  ________  __    __                    
+#             |       \|        \|  \  |  \                   
+#             | $$$$$$$\\$$$$$$$$| $$  | $$                   
+#             | $$__| $$  | $$    \$$\/  $$                   
+#             | $$    $$  | $$     >$$  $$                    
+#             | $$$$$$$\  | $$    /  $$$$\                    
+#             | $$  | $$  | $$   |  $$ \$$\                   
+#             | $$  | $$  | $$   | $$  | $$                   
+#              \$$   \$$   \$$    \$$   \$$                   
+#
+#                          
+                                                                      
 
 cmake_minimum_required (VERSION 2.6)
 
@@ -58,12 +79,14 @@ add_library(epanetrtx SHARED
 	../../src/InversionTimeSeries.cpp
 	../../src/Junction.cpp
 	../../src/LagTimeSeries.cpp
+	../../src/TimeSeriesLowess.cpp
 	../../src/Link.cpp
 	../../src/LogicTimeSeries.cpp
 	../../src/MathOpsTimeSeries.cpp
 	../../src/MetaTimeSeries.cpp
 	../../src/Model.cpp
 	../../src/ModelPerformance.cpp
+	../../src/ModelPerformanceController.cpp
 	../../src/MovingAverage.cpp
 	../../src/MultiplierTimeSeries.cpp
 	../../src/Node.cpp

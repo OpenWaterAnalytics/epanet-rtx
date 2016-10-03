@@ -58,7 +58,7 @@ namespace RTX {
     
     
     // static class method for constructing error series from an element
-    static std::map<StatsType,TimeSeries::_sp> errorsForElementAndMetricType(Element::_sp element, MetricType type, Clock::_sp samplingWindow, double quantile, int correlationDiscretization, int correlationMaxLag);
+    static std::map<StatsType,TimeSeries::_sp> errorsForElementAndMetricType(Element::_sp element, MetricType type, Clock::_sp samplingWindow, double quantile, time_t correlationDiscretization, time_t correlationMaxLag);
     
     RTX_BASE_PROPS(ModelPerformance);
     
@@ -94,6 +94,9 @@ namespace RTX {
     time_t correlationLag();                          /*!< model time lag (+ or -) relative to measure time */
     void setCorrelationLag(time_t timeLag);
     
+    time_t correlationWindow();
+    void setCorrelationWindow(time_t windowSeconds);
+    
     double quantile();                                /*!< Quantile to use for Abs Error Quantile stat */
     void setQuantile(double q);
     
@@ -107,7 +110,7 @@ namespace RTX {
     Clock::_sp _samplingWindow, _errorClock;
     std::vector<std::pair<Element::_sp, TimeSeries::_sp> > _errorComponents;
     TimeSeries::_sp _performance;
-    time_t _correlationLag;
+    time_t _correlationLag, _correlationWindow;
     double _quantile;
     
     void rebuildPerformanceCalculation();  /*!< rebuild calculation time series workflow */

@@ -37,5 +37,14 @@ namespace RTX {
 #define RTX_BUFFER_DEFAULT_CACHESIZE 100
 #endif
 
+#define DEBUG 1
+#ifdef DEBUG
+#define DebugLog cout
+#else
+#define DebugLog if(false) cout
+#endif
+
+#define EOL '\n'
+
 
 #endif

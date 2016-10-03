@@ -32,7 +32,7 @@ ModelPerformance::ModelPerformance(Model::_sp model, StatsType statsType, Aggreg
   this->rebuildPerformanceCalculation();
 }
 
-map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForElementAndMetricType(Element::_sp element, MetricType type, Clock::_sp samplingWindow, double quantile, int correlationDiscretization, int correlationMaxLag) {
+map<ModelPerformance::StatsType, TimeSeries::_sp> ModelPerformance::errorsForElementAndMetricType(Element::_sp element, MetricType type, Clock::_sp samplingWindow, double quantile, time_t correlationDiscretization, time_t correlationMaxLag) {
   
   map<ModelPerformance::StatsType, TimeSeries::_sp> errorSeries;
   
@@ -206,6 +206,16 @@ time_t ModelPerformance::correlationLag() {
 
 void ModelPerformance::setCorrelationLag(time_t timeLag) {
   _correlationLag = timeLag;
+  this->rebuildPerformanceCalculation();
+}
+
+
+time_t ModelPerformance::correlationWindow() {
+  return _correlationWindow;
+}
+
+void ModelPerformance::setCorrelationWindow(time_t windowSeconds) {
+  _correlationWindow = windowSeconds;
   this->rebuildPerformanceCalculation();
 }
 
