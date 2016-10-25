@@ -3,8 +3,8 @@
 
 #include <curl/curl.h>
 
-#include <boost/asio.hpp>
-#include <boost/regex.hpp>
+//#include <boost/asio.hpp>
+//#include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
@@ -17,13 +17,10 @@
 #include <cpprest/http_client.h>
 
 #include "InfluxDbPointRecord.h"
+#include "MetricInfo.h"
 
 using namespace std;
 using namespace RTX;
-using boost::asio::ip::tcp;
-
-using boost::signals2::mutex;
-using boost::interprocess::scoped_lock;
 
 const char *kSERIES = "series";
 const char *kSHOW_SERIES = "show series";
@@ -39,6 +36,7 @@ using jsValue = web::json::value;
 using jsObject = web::json::object;
 using jsArray = web::json::array;
 
+#define RTX_INFLUX_CLIENT_TIMEOUT 10
 
 // task wrapper impl
 namespace RTX {
@@ -56,7 +54,6 @@ PplxTaskWrapper::PplxTaskWrapper() {
   });
 }
 #define INFLUX_ASYNC_SEND static_pointer_cast<PplxTaskWrapper>(_sendTask)->task
-const unsigned int __maxTransactionLines(100);
 
 uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const std::string& query, bool withTimePrecision = true);
 jsValue _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& record, uri uri, method withMethod = methods::GET);
@@ -70,17 +67,10 @@ std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(jsValue json);
  */
 
 InfluxDbPointRecord::InfluxDbPointRecord() {
-  _connected = false;
   _lastIdRequest = 0;
-  host = "HOST";
-  user = "USER";
-  pass = "PASS";
-  port = 8086;
-  db = "DB";
   
   useTransactions = true;
   _inBulkOperation = false;
-  _mutex.reset(new boost::signals2::mutex);
   _sendTask.reset(new PplxTaskWrapper());
 }
 
@@ -128,12 +118,12 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
     // create the database?
     web::http::uri_builder b;
     b.set_scheme("http")
-    .set_host(this->host)
-    .set_port(this->port)
+    .set_host(this->conn.host)
+    .set_port(this->conn.port)
     .set_path("query")
-    .append_query("u", this->user, false)
-    .append_query("p", this->pass, false)
-    .append_query("q", "CREATE DATABASE " + this->db, true);
+    .append_query("u", this->conn.user, false)
+    .append_query("p", this->conn.pass, false)
+    .append_query("q", "CREATE DATABASE " + this->conn.db, true);
     
     jsObject respObj = _InfluxDbPointRecord_jsonFromRequest(*this, b.to_uri()).as_object();
     if (respObj.empty() || respObj.find(kRESULTS) == respObj.end()) {
@@ -150,81 +140,9 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
 }
 
 
-string InfluxDbPointRecord::connectionString() {
-  stringstream ss;
-  ss << "host=" << this->host << "&port=" << this->port << "&db=" << this->db << "&u=" << this->user << "&p=" << this->pass;
-  return ss.str();
-}
-
-void InfluxDbPointRecord::setConnectionString(const std::string &str) {
-  scoped_lock<boost::signals2::mutex> lock(*_mutex);
-  // split the tokenized string. we're expecting something like "host=127.0.0.1&port=4242"
-  std::map<std::string, std::string> kvPairs;
-  {
-    boost::regex kvReg("([^=]+)=([^&]+)&?"); // key - value pair
-    boost::sregex_iterator it(str.begin(), str.end(), kvReg), end;
-    for ( ; it != end; ++it) {
-      kvPairs[(*it)[1]] = (*it)[2];
-    }
-  }
-  
-  if (kvPairs.count("host")) {
-    this->host = kvPairs["host"];
-  }
-  if (kvPairs.count("port")) {
-    int intPort = boost::lexical_cast<int>(kvPairs["port"]);
-    this->port = intPort;
-  }
-  if (kvPairs.count("db")) {
-    this->db = kvPairs["db"];
-  }
-  if (kvPairs.count("u")) {
-    this->user = kvPairs["u"];
-  }
-  if (kvPairs.count("p")) {
-    this->pass = kvPairs["p"];
-  }
-  
-  
-  return;
-}
-
 
 #pragma mark Listing and creating series
 
-
-bool InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX::Units units) {
-  
-  MetricInfo m = InfluxDbPointRecord::metricInfoFromName(id);
-  m.tags.erase("units"); // get rid of units if they are included.
-  string properId = InfluxDbPointRecord::nameFromMetricInfo(m);
-  
-  {
-    scoped_lock<boost::signals2::mutex> lock(*_mutex);
-    if (this->readonly()) {
-      // if it's here then it's here. if not, too bad.
-      return (this->exists(properId, units));
-    }
-    // otherwise, great. add the series.
-    _identifiersAndUnitsCache.set(properId, units);
-    _lastIdRequest = time(NULL);
-  }
-  
-  // insert a field key/value for something that we won't ever query again.
-  // pay attention to bulk operations here, since we may be inserting new ids en-masse
-  string tsNameEscaped = _influxIdForTsId(id);
-  boost::replace_all(tsNameEscaped, " ", "\\ ");
-  const string content(tsNameEscaped + " exist=true");
-  if (_inBulkOperation) {
-    scoped_lock<boost::signals2::mutex> lock(*_mutex);
-    _transactionLines.push_back(content);
-  }
-  else {
-    this->sendPointsWithString(content);
-  }
-  // no futher validation.
-  return true;
-}
 
 
 
@@ -255,9 +173,9 @@ PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
   
   // if i'm busy, then don't bother. unless this could be the first query.
   if (_inBulkOperation && !_identifiersAndUnitsCache.empty()) {
-    return DbPointRecord::identifiersAndUnits();
+    return I_InfluxDbPointRecord::identifiersAndUnits();
   }
-  scoped_lock<boost::signals2::mutex> lock(*_mutex);
+  std::lock_guard<std::mutex> lock(_influxMutex);
   
   // quick cache hit. 5-second validity window.
   time_t now = time(NULL);
@@ -307,7 +225,7 @@ PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
       jsValue strVal = singleStrArr[0];
       string dbId = strVal.as_string();
       boost::replace_all(dbId, "\\ ", " ");
-      MetricInfo m = this->metricInfoFromName(dbId);
+      MetricInfo m(dbId);
       // now we have all kv pairs that define a time series.
       // do we have units info? strip it off before showing the user.
       Units units = RTX_NO_UNITS;
@@ -317,7 +235,7 @@ PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
         m.tags.erase("units");
       }
       // now assemble the complete name and cache it:
-      string properId = InfluxDbPointRecord::nameFromMetricInfo(m);
+      string properId = m.name();
       _identifiersAndUnitsCache.set(properId,units);
     } // for each values array (ts definition)
   }
@@ -326,71 +244,15 @@ PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
 }
 
 
-InfluxDbPointRecord::MetricInfo InfluxDbPointRecord::metricInfoFromName(const std::string &name) {
-  
-  MetricInfo m;
-  size_t firstComma = name.find(",");
-  // measure name is everything up to the first comma, even if that's everything
-  m.measurement = name.substr(0,firstComma);
-  
-  if (firstComma != string::npos) {
-    // a comma was found. therefore treat the name as tokenized
-    string keysValuesStr = name.substr(firstComma+1);
-    boost::regex kvReg("([^=]+)=([^,]+),?"); // key - value pair
-    boost::sregex_iterator it(keysValuesStr.begin(), keysValuesStr.end(), kvReg), end;
-    for ( ; it != end; ++it) {
-      m.tags[(*it)[1]] = (*it)[2];
-    }
-  }
-  return m;
-}
-
-const string InfluxDbPointRecord::nameFromMetricInfo(RTX::InfluxDbPointRecord::MetricInfo info) {
-  stringstream ss;
-  ss << info.measurement;
-  for (auto p : info.tags) {
-    ss << "," << p.first << "=" << p.second;
-  }
-  const string name = ss.str();
-  return name;
-}
-
-std::string InfluxDbPointRecord::properId(const std::string& id) {
-  return InfluxDbPointRecord::nameFromMetricInfo(InfluxDbPointRecord::metricInfoFromName(id));
-}
-
-
-string InfluxDbPointRecord::_influxIdForTsId(const string& id) {
-  // put named keys in proper order...
-  MetricInfo m = InfluxDbPointRecord::metricInfoFromName(id);
-  if (m.tags.count("units")) {
-    m.tags.erase("units");
-  }
-  string tsId = InfluxDbPointRecord::nameFromMetricInfo(m);
-  
-  if (_identifiersAndUnitsCache.get()->count(tsId) == 0) {
-    cerr << "no registered ts with that id: " << tsId << endl;
-    // yet i'm being asked for it??
-    
-    
-    return "";
-  }
-  
-  Units u = (*_identifiersAndUnitsCache.get())[tsId];
-  m.tags["units"] = u.unitString();
-  string dbId = InfluxDbPointRecord::nameFromMetricInfo(m);
-  return dbId;
-}
-
 #pragma mark SELECT
 
 std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
   // bulk operation is inserts, so skip the lookup.
-  if (_inBulkOperation) {
-    return vector<Point>();
-  }
-  scoped_lock<boost::signals2::mutex> lock(*_mutex);
-  string dbId = _influxIdForTsId(id);
+  //if (_inBulkOperation) {
+    //return vector<Point>();
+  //}
+  std::lock_guard<std::mutex> lock(_influxMutex);
+  string dbId = influxIdForTsId(id);
   DbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time >= " + to_string(startTime) + "s");
   q.where.push_back("time <= " + to_string(endTime) + "s");
@@ -402,7 +264,7 @@ std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_
 
 Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
   std::vector<Point> points;
-  string dbId = _influxIdForTsId(id);
+  string dbId = influxIdForTsId(id);
   DbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time > " + to_string(time) + "s");
   q.order = "time asc limit 1";
@@ -420,7 +282,7 @@ Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
 
 Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
   std::vector<Point> points;
-  string dbId = _influxIdForTsId(id);
+  string dbId = influxIdForTsId(id);
   
   DbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time < " + to_string(time) + "s");
@@ -437,99 +299,13 @@ Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
   return points.front();
 }
 
-#pragma mark INSERT
-
-void InfluxDbPointRecord::insertSingle(const std::string& id, Point point) {
-  this->insertRange(id, {point});
-}
-
-void InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point> points) {
-  vector<Point> insertionPoints;
-  string dbId = _influxIdForTsId(id);
-  
-  if (points.size() == 0) {
-    return;
-  }
-  
-  // is there anything here?
-  /*
-  string q = "select count(value) from " + dbId;
-  http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, q, false);
-  jsValue jsv = _InfluxDbPointRecord_jsonFromGet(uri);
-  */
-  
-  vector<Point> existing;
-  //existing = this->selectRange(dbId, points.front().time - 1, points.back().time + 1);
-  map<time_t,bool> existingMap;
-  for (const auto &p : existing) {
-    existingMap[p.time] = true;
-  }
-  
-  for(const auto& p : points) {
-    if (existingMap.count(p.time) == 0) {
-      insertionPoints.push_back(p);
-    }
-  }
-  
-  if (insertionPoints.size() == 0) {
-    return;
-  }
-  
-  const string content = this->insertionLineFromPoints(dbId, insertionPoints);
-  
-  if (_inBulkOperation) {
-    size_t nLines = 0;
-    {
-      scoped_lock<boost::signals2::mutex> lock(*_mutex);
-      _transactionLines.push_back(content);
-      nLines = _transactionLines.size();
-    }
-    if (nLines > __maxTransactionLines) {
-      this->commitTransactionLines();
-    }
-  }
-  else {
-    this->sendPointsWithString(content);
-  }
-  
-}
-
-#pragma mark TRANSACTION / BULK OPERATIONS
-
-void InfluxDbPointRecord::beginBulkOperation() {
-  _inBulkOperation = true;
-  {
-    scoped_lock<boost::signals2::mutex> lock(*_mutex);
-    _transactionLines.clear();
-  }
-}
-
-void InfluxDbPointRecord::endBulkOperation(){
-  this->commitTransactionLines();
-  _inBulkOperation = false;
-}
-
-void InfluxDbPointRecord::commitTransactionLines() {
-  string lines;
-  int i = 0;
-  {
-    scoped_lock<boost::signals2::mutex> lock(*_mutex);
-    for(const string line : _transactionLines) {
-      lines.append(line);
-      lines.append("\n");
-      ++i;
-    }
-    _transactionLines.clear();
-  }
-  this->sendPointsWithString(lines);
-}
 
 
 #pragma mark DELETE
 
 void InfluxDbPointRecord::removeRecord(const std::string& id) {
   
-  const string dbId = this->_influxIdForTsId(id);
+  const string dbId = this->influxIdForTsId(id);
   DbPointRecord::Query q = this->queryPartsFromMetricId(id);
   
   stringstream sqlss;
@@ -539,42 +315,11 @@ void InfluxDbPointRecord::removeRecord(const std::string& id) {
   jsValue v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
 }
 
-void InfluxDbPointRecord::truncate() {
-  this->errorMessage = "Truncating";
-  auto ids = _identifiersAndUnitsCache; // copy
-  
-  
-  for (auto ts_units : *ids.get()) {
-    this->removeRecord(ts_units.first);
-    
-    /*
-    string id = ts_units.first;
-    MetricInfo m = InfluxDbPointRecord::metricInfoFromName(id);
-    string measureName = m.measurement;
-    stringstream sqlss;
-    sqlss << "DROP MEASUREMENT " << measureName;
-    http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, sqlss.str(), false);
-    jsValue v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
-     */
-  }
-  
-  DbPointRecord::reset();
-  
-  
-  this->beginBulkOperation();
-  for (auto ts_units : *ids.get()) {
-    this->insertIdentifierAndUnits(ts_units.first, ts_units.second);
-  }
-  this->endBulkOperation();
-  
-  this->errorMessage = "OK";
-  return;
-}
 
 
 #pragma mark Query Building
 DbPointRecord::Query InfluxDbPointRecord::queryPartsFromMetricId(const std::string& name) {
-  MetricInfo m = InfluxDbPointRecord::metricInfoFromName(name);
+  MetricInfo m(name);
   
   DbPointRecord::Query q;
   q.select = {"time", "value", "quality", "confidence"};
@@ -595,10 +340,10 @@ DbPointRecord::Query InfluxDbPointRecord::queryPartsFromMetricId(const std::stri
 uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const std::string& query, bool withTimePrecision) {
   
   web::http::uri_builder b;
-  b.set_scheme("http").set_host(record.host).set_port(record.port).set_path("query")
-   .append_query("db", record.db, false)
-   .append_query("u", record.user, false)
-   .append_query("p", record.pass, false)
+  b.set_scheme("http").set_host(record.conn.host).set_port(record.conn.port).set_path("query")
+   .append_query("db", record.conn.db, false)
+   .append_query("u", record.conn.user, false)
+   .append_query("p", record.conn.pass, false)
    .append_query("q", query, true);
   
   if (withTimePrecision) {
@@ -612,7 +357,7 @@ jsValue _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& record, uri ur
   jsValue js = jsValue::object();
   try {
     web::http::client::http_client_config config;
-    config.set_timeout(std::chrono::seconds(60));
+    config.set_timeout(std::chrono::seconds(RTX_INFLUX_CLIENT_TIMEOUT));
     web::http::client::http_client client(uri, config);
     http_response r = client.request(withMethod).get(); // waits for response
     if (r.status_code() != 204) {
@@ -699,35 +444,6 @@ std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(jsValue json) {
 
 
 
-const string InfluxDbPointRecord::insertionLineFromPoints(const string& tsName, vector<Point> points) {
-  /*
-   As you can see in the example below, you can post multiple points to multiple series at the same time by separating each point with a new line. Batching points in this manner will result in much higher performance.
-   
-   curl -i -XPOST 'http://localhost:8086/write?db=mydb' --data-binary '
-   cpu_load_short,host=server01,region=us-west value=0.64
-   cpu_load_short,host=server02,region=us-west value=0.55 1422568543702900257 
-   cpu_load_short,direction=in,host=server01,region=us-west value=23422.0 1422568543702900257'
-   */
-  
-  // escape any spaces in the tsName
-  string tsNameEscaped = tsName;
-  boost::replace_all(tsNameEscaped, " ", "\\ ");
-  
-  stringstream ss;
-  int i = 0;
-  for(const Point& p: points) {
-    if (i > 0) {
-      ss << '\n';
-    }
-    string valueStr = to_string(p.value); // influxdb 0.10+ supports integers, but only when followed by trailing "i"
-    ss << tsNameEscaped << " value=" << valueStr << "," << "quality=" << (int)p.quality << "i," << "confidence=" << p.confidence << " " << p.time;
-    ++i;
-  }
-  
-  string data = ss.str();
-  return data;
-}
-
 
 void InfluxDbPointRecord::sendPointsWithString(const string& content) {
   
@@ -735,12 +451,12 @@ void InfluxDbPointRecord::sendPointsWithString(const string& content) {
   
   const string bodyContent(content);
   INFLUX_ASYNC_SEND = pplx::create_task([&,bodyContent]() {
-    scoped_lock<boost::signals2::mutex> lock(*_mutex);
+    std::lock_guard<std::mutex> lock(_influxMutex);
     web::uri_builder b;
-    b.set_scheme("http").set_host(this->host).set_port(this->port).set_path("write")
-    .append_query("db", this->db, false)
-    .append_query("u", this->user, false)
-    .append_query("p", this->pass, false)
+    b.set_scheme("http").set_host(this->conn.host).set_port(this->conn.port).set_path("write")
+    .append_query("db", this->conn.db, false)
+    .append_query("u", this->conn.user, false)
+    .append_query("p", this->conn.pass, false)
     .append_query("precision", "s", false);
     
     namespace bio = boost::iostreams;
@@ -754,7 +470,7 @@ void InfluxDbPointRecord::sendPointsWithString(const string& content) {
     
     try {
       web::http::client::http_client_config config;
-      config.set_timeout(std::chrono::seconds(60));
+      config.set_timeout(std::chrono::seconds(RTX_INFLUX_CLIENT_TIMEOUT));
       //    credentials not supported in cpprestsdk
       //    config.set_credentials(http::client::credentials(this->user, this->pass));
       web::http::client::http_client client(b.to_uri(), config);
