@@ -17,7 +17,7 @@ int main(int argc, const char * argv[])
   
   Model::_sp model = project->model();
   
-  model->initDMAs();
+  
   model->initEngine();
   
   

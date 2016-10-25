@@ -142,6 +142,12 @@
 		228CA8E11AA0D69800D0353E /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		228CA8E21AA0D71800D0353E /* InpTextPattern.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228CA8D41AA0CBFF00D0353E /* InpTextPattern.cpp */; };
 		228CA8E61AA0F56D00D0353E /* data_access.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228A837A16DBE644008E9C35 /* data_access.cpp */; };
+		228CFBB11DBFD9A900B59206 /* MetricInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228CFBAF1DBFD9A900B59206 /* MetricInfo.cpp */; };
+		228CFBB21DBFD9A900B59206 /* MetricInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 228CFBB01DBFD9A900B59206 /* MetricInfo.h */; };
+		229495361DB90DCF00B85A1A /* InfluxUdpPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 229495341DB90DCF00B85A1A /* InfluxUdpPointRecord.cpp */; };
+		229495371DB90DCF00B85A1A /* InfluxUdpPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 229495351DB90DCF00B85A1A /* InfluxUdpPointRecord.h */; };
+		229495451DB90EF600B85A1A /* I_InfluxDbPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 229495431DB90EF600B85A1A /* I_InfluxDbPointRecord.cpp */; };
+		229495461DB90EF600B85A1A /* I_InfluxDbPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 229495441DB90EF600B85A1A /* I_InfluxDbPointRecord.h */; };
 		229E95C01CB2FAE000216682 /* EpanetModelExporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 229E95BE1CB2FAE000216682 /* EpanetModelExporter.cpp */; };
 		229E95C11CB2FAE000216682 /* EpanetModelExporter.h in Headers */ = {isa = PBXBuildFile; fileRef = 229E95BF1CB2FAE000216682 /* EpanetModelExporter.h */; };
 		22B960691CD7D23700BF2BA5 /* OpcPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B960661CD7D23700BF2BA5 /* OpcPointRecord.h */; };
@@ -483,8 +489,14 @@
 		228C2D911A9E15BF003C826D /* TimeRange.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeRange.h; path = ../../src/TimeRange.h; sourceTree = "<group>"; };
 		228CA8D41AA0CBFF00D0353E /* InpTextPattern.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InpTextPattern.cpp; path = ../../src/InpTextPattern.cpp; sourceTree = "<group>"; };
 		228CA8D51AA0CBFF00D0353E /* InpTextPattern.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InpTextPattern.h; path = ../../src/InpTextPattern.h; sourceTree = "<group>"; };
+		228CFBAF1DBFD9A900B59206 /* MetricInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MetricInfo.cpp; path = ../../src/MetricInfo.cpp; sourceTree = "<group>"; };
+		228CFBB01DBFD9A900B59206 /* MetricInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MetricInfo.h; path = ../../src/MetricInfo.h; sourceTree = "<group>"; };
 		22909B39147DDCEB00945449 /* EpanetModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EpanetModel.h; path = ../../src/EpanetModel.h; sourceTree = "<group>"; };
 		22909B3B147DDE2A00945449 /* EpanetModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetModel.cpp; path = ../../src/EpanetModel.cpp; sourceTree = "<group>"; };
+		229495341DB90DCF00B85A1A /* InfluxUdpPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InfluxUdpPointRecord.cpp; path = ../../src/InfluxUdpPointRecord.cpp; sourceTree = "<group>"; };
+		229495351DB90DCF00B85A1A /* InfluxUdpPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InfluxUdpPointRecord.h; path = ../../src/InfluxUdpPointRecord.h; sourceTree = "<group>"; };
+		229495431DB90EF600B85A1A /* I_InfluxDbPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = I_InfluxDbPointRecord.cpp; path = ../../src/I_InfluxDbPointRecord.cpp; sourceTree = "<group>"; };
+		229495441DB90EF600B85A1A /* I_InfluxDbPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = I_InfluxDbPointRecord.h; path = ../../src/I_InfluxDbPointRecord.h; sourceTree = "<group>"; };
 		229E95BE1CB2FAE000216682 /* EpanetModelExporter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetModelExporter.cpp; path = ../../src/EpanetModelExporter.cpp; sourceTree = "<group>"; };
 		229E95BF1CB2FAE000216682 /* EpanetModelExporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EpanetModelExporter.h; path = ../../src/EpanetModelExporter.h; sourceTree = "<group>"; };
 		229FBEA0190807B3004FE5A4 /* InfluxDbPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InfluxDbPointRecord.cpp; path = ../../src/InfluxDbPointRecord.cpp; sourceTree = "<group>"; };
@@ -745,8 +757,7 @@
 				225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */,
 				22C0AE55184F86190013D51F /* SqlitePointRecord.h */,
 				22C0AE54184F86190013D51F /* SqlitePointRecord.cpp */,
-				229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */,
-				229FBEA0190807B3004FE5A4 /* InfluxDbPointRecord.cpp */,
+				2294954E1DB90EFE00B85A1A /* INFLUX */,
 				22F41FAC1CE217EF00697B03 /* OPC */,
 				22067EB51873429500BAFF61 /* ODBC */,
 			);
@@ -916,6 +927,21 @@
 				221C06C916077FD200B8969C /* sampletown.inp */,
 			);
 			name = "input files";
+			sourceTree = "<group>";
+		};
+		2294954E1DB90EFE00B85A1A /* INFLUX */ = {
+			isa = PBXGroup;
+			children = (
+				228CFBB01DBFD9A900B59206 /* MetricInfo.h */,
+				228CFBAF1DBFD9A900B59206 /* MetricInfo.cpp */,
+				229495441DB90EF600B85A1A /* I_InfluxDbPointRecord.h */,
+				229495431DB90EF600B85A1A /* I_InfluxDbPointRecord.cpp */,
+				229FBEA1190807B3004FE5A4 /* InfluxDbPointRecord.h */,
+				229FBEA0190807B3004FE5A4 /* InfluxDbPointRecord.cpp */,
+				229495351DB90DCF00B85A1A /* InfluxUdpPointRecord.h */,
+				229495341DB90DCF00B85A1A /* InfluxUdpPointRecord.cpp */,
+			);
+			name = INFLUX;
 			sourceTree = "<group>";
 		};
 		22B8A7971603CA1300EECAA5 /* demos */ = {
@@ -1176,6 +1202,7 @@
 				221BFD851A8E8AD000143FCC /* MathOpsTimeSeries.h in Headers */,
 				221BFD861A8E8AD000143FCC /* TimeSeriesFilterSinglePoint.h in Headers */,
 				221BFD871A8E8AD000143FCC /* rtxExceptions.h in Headers */,
+				228CFBB21DBFD9A900B59206 /* MetricInfo.h in Headers */,
 				221BFD881A8E8AD000143FCC /* BaseStatsTimeSeries.h in Headers */,
 				221BFD891A8E8AD000143FCC /* Element.h in Headers */,
 				221BFD8B1A8E8AD000143FCC /* PointRecordTime.h in Headers */,
@@ -1183,8 +1210,10 @@
 				221BFD8C1A8E8AD000143FCC /* Model.h in Headers */,
 				221BFD8D1A8E8AD000143FCC /* CurveFunction.h in Headers */,
 				221BFD8E1A8E8AD000143FCC /* Dma.h in Headers */,
+				229495461DB90EF600B85A1A /* I_InfluxDbPointRecord.h in Headers */,
 				221BFD8F1A8E8AD000143FCC /* EpanetMsxModel.h in Headers */,
 				221BFD901A8E8AD000143FCC /* rtxMacros.h in Headers */,
+				229495371DB90DCF00B85A1A /* InfluxUdpPointRecord.h in Headers */,
 				221BFD911A8E8AD000143FCC /* EpanetModel.h in Headers */,
 				221BFD921A8E8AD000143FCC /* OdbcDirectPointRecord.h in Headers */,
 				221BFD931A8E8AD000143FCC /* Clock.h in Headers */,
@@ -1552,6 +1581,7 @@
 				221BFD431A8E8AD000143FCC /* Element.cpp in Sources */,
 				221BFD441A8E8AD000143FCC /* Node.cpp in Sources */,
 				221BFD451A8E8AD000143FCC /* Link.cpp in Sources */,
+				228CFBB11DBFD9A900B59206 /* MetricInfo.cpp in Sources */,
 				221BFD461A8E8AD000143FCC /* Dma.cpp in Sources */,
 				221BFD471A8E8AD000143FCC /* InversionTimeSeries.cpp in Sources */,
 				229E95C01CB2FAE000216682 /* EpanetModelExporter.cpp in Sources */,
@@ -1562,6 +1592,7 @@
 				221BFD4F1A8E8AD000143FCC /* PointRecord.cpp in Sources */,
 				221BFD501A8E8AD000143FCC /* EpanetSyntheticModel.cpp in Sources */,
 				221BFD511A8E8AD000143FCC /* EpanetMsxModel.cpp in Sources */,
+				229495361DB90DCF00B85A1A /* InfluxUdpPointRecord.cpp in Sources */,
 				221BFD521A8E8AD000143FCC /* Junction.cpp in Sources */,
 				221BFD531A8E8AD000143FCC /* Tank.cpp in Sources */,
 				221BFD541A8E8AD000143FCC /* Reservoir.cpp in Sources */,
@@ -1580,6 +1611,7 @@
 				221BFD5F1A8E8AD000143FCC /* OffsetTimeSeries.cpp in Sources */,
 				221BFD601A8E8AD000143FCC /* ModelPerformance.cpp in Sources */,
 				22602B691D5A59D500A668ED /* GeoMetrics.cpp in Sources */,
+				229495451DB90EF600B85A1A /* I_InfluxDbPointRecord.cpp in Sources */,
 				221BFD611A8E8AD000143FCC /* DbPointRecord.cpp in Sources */,
 				221BFD621A8E8AD000143FCC /* FailoverTimeSeries.cpp in Sources */,
 				221BFD631A8E8AD000143FCC /* SineTimeSeries.cpp in Sources */,

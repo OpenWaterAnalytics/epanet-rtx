@@ -176,7 +176,7 @@ bool MysqlPointRecord::insertIdentifierAndUnits(const std::string &recordName, R
     try {
       std::shared_ptr<sql::PreparedStatement> seriesNameStatement( _mysqlCon->prepareStatement("INSERT IGNORE INTO timeseries_meta (name,units) VALUES (?,?)") );
       seriesNameStatement->setString(1,recordName);
-      seriesNameStatement->setString(2, units.unitString());
+      seriesNameStatement->setString(2, units.to_string());
       seriesNameStatement->executeUpdate();
       _mysqlCon->commit();
       ok = true;

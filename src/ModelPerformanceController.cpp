@@ -10,7 +10,7 @@ const map<ModelPerformance::MetricType, string> __metricTypeStrings({
   {MP::ModelPerformanceMetricHead,          "head"},
   {MP::ModelPerformanceMetricLevel,         "level"},
   {MP::ModelPerformanceMetricVolume,        "volume"},
-  {MP::ModelPerformanceMetricConcentration, "concentration"},
+  {MP::ModelPerformanceMetricConcentration, "quality"},
   {MP::ModelPerformanceMetricEnergy,        "energy"},
   {MP::ModelPerformanceMetricSetting,       "setting"},
   {MP::ModelPerformanceMetricStatus,        "status"},
@@ -81,8 +81,8 @@ vector<TimeSeries::_sp> ModelPerformanceController::errorsForElement(Element::_s
     }
   }
   
-  if (j2ptr && j1ptr && j1ptr == j2ptr) {
-    j2ptr.reset(); // ignore secondary dma if they are the same.
+  if (j2ptr && j1ptr && primaryDma == secondaryDma) {
+    secondaryDma.reset(); // ignore secondary dma if they are the same.
   }
   
   string assetType = __elementTypeStrings.at(element->type());
@@ -94,7 +94,7 @@ vector<TimeSeries::_sp> ModelPerformanceController::errorsForElement(Element::_s
     }
     for (auto statType : this->saveStats) {
       if (errorsMap.count(statType) == 0) {
-        DebugLog << "could not find " << statType << " for errors map of element " << element->name() << EOL;
+        //DebugLog << "INFO: could not find stat type " << statType << " for element " << element->name() << EOL;
         continue;
       }
       auto ts = errorsMap.at(statType);

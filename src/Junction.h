@@ -29,9 +29,6 @@ namespace RTX {
     double baseDemand();
     void setBaseDemand(double demand);
     
-    double initialQuality();
-    void setInitialQuality(double quality);
-    
     TimeSeries::_sp head();
     TimeSeries::_sp pressure();
     TimeSeries::_sp demand();
@@ -70,7 +67,6 @@ namespace RTX {
     TimeSeries::_sp _qualityState;
     // properties
     double _baseDemand;
-    double _initialQuality;
     
   }; // Junction
   

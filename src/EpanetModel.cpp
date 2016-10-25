@@ -195,6 +195,7 @@ void EpanetModel::initEngine() {
     cerr << "warning: epanet opened improperly" << endl;
   }
   _enOpened = true;
+  this->applyInitialQuality();
 }
 
 void EpanetModel::closeEngine() {
@@ -351,7 +352,7 @@ void EpanetModel::createRtxWrappers() {
     // Initial quality specified in input data
     double initQual;
     OW_API_CHECK(OW_getnodevalue(_enModel, iNode, EN_INITQUAL, &initQual), "EN_INITQUAL");
-    newJunction->setInitialQuality(initQual);
+    newJunction->state_quality = initQual;
     
     // Base demand is sum of all demand categories, accounting for patterns
     double demand = 0, categoryDemand = 0, avgPatternValue = 0;
@@ -548,7 +549,7 @@ void EpanetModel::setReservoirHead(const string& reservoir, double level) {
 }
 
 void EpanetModel::setReservoirQuality(const string& reservoir, double quality) {
-  setNodeValue(EN_SOURCEQUAL, reservoir, quality);
+  setJunctionQuality(reservoir, quality);
 }
 
 void EpanetModel::setTankLevel(const string& tank, double level) {
@@ -570,6 +571,7 @@ void EpanetModel::setJunctionDemand(const string& junction, double demand) {
 
 void EpanetModel::setJunctionQuality(const std::string& junction, double quality) {
   // todo - add more source types, depending on time series dimension?
+  setNodeValue(EN_INITQUAL, junction, quality); // set initquality in case setpoint is lower than old value
   setNodeValue(EN_SOURCETYPE, junction, SETPOINT);
   setNodeValue(EN_SOURCEQUAL, junction, quality);
 }
@@ -866,6 +868,7 @@ void EpanetModel::setQualityTimeStep(int seconds) {
 
 void EpanetModel::applyInitialQuality() {
   if (!_enOpened) {
+    DebugLog << "Could not apply initial quality conditions; engine not opened" << EOL;
     return;
   }
   OW_API_CHECK(OW_closeQ(_enModel), "OW_closeQ");
@@ -873,25 +876,24 @@ void EpanetModel::applyInitialQuality() {
 
   // Junctions
   BOOST_FOREACH(Junction::_sp junc, this->junctions()) {
-    double qual = junc->initialQuality();
+    double qual = junc->state_quality;
     int iNode = _nodeIndex[junc->name()];
     OW_API_CHECK(OW_setnodevalue(_enModel, iNode, EN_INITQUAL, qual), "OW_setnodevalue - EN_INITQUAL");
   }
   
   // Tanks
   BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
-    double qual = tank->initialQuality();
+    double qual = tank->state_quality;
     int iNode = _nodeIndex[tank->name()];
     OW_API_CHECK(OW_setnodevalue(_enModel, iNode, EN_INITQUAL, qual), "OW_setnodevalue - EN_INITQUAL");
   }
   
   // reservoirs
   for(auto r: this->reservoirs()) {
-    double q = r->initialQuality();
+    double q = r->state_quality;
     int iNode = _nodeIndex[r->name()];
     OW_API_CHECK(OW_setnodevalue(_enModel, iNode, EN_INITQUAL, q), "OW_setnodevalue - EN_INITIALQUAL");
   }
-  
   
   OW_API_CHECK(OW_initQ(_enModel, EN_NOSAVE), "ENinitQ");
 }

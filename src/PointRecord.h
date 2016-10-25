@@ -15,6 +15,7 @@
 #include <deque>
 #include <fstream>
 #include <map>
+#include <boost/atomic.hpp>
 
 
 #include "Point.h"
@@ -105,9 +106,7 @@ namespace RTX {
     virtual void endBulkOperation() {};
 
   protected:
-//    std::string _cachedPointId;
-//    Point _cachedPoint;
-    bool _inBulkOperation;
+    boost::atomic<bool> _inBulkOperation;
     
     std::map<std::string,Point> _singlePointCache;
 //    std::map<std::string, std::vector<Point> > _pointVectorCache;

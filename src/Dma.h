@@ -104,7 +104,9 @@ namespace RTX {
     
     // business logic
     virtual int allocateDemandToJunctions(time_t time);
-        
+    
+    std::string hashedName;
+    
   private:
     // void followJunction(Junction::_sp junction);
     bool isBoundaryFlowJunction(Junction::_sp junction);

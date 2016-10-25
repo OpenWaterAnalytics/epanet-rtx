@@ -131,7 +131,10 @@ target_link_libraries(
 	sqlite3 
 	m 
 	z
-	BlocksRuntime)
+	BlocksRuntime
+	ssl
+	crypto
+	)
 
 install(DIRECTORY ../../src/ DESTINATION include/rtx FILES_MATCHING PATTERN "*.h")
 install(TARGETS epanetrtx DESTINATION lib)

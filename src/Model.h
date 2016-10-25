@@ -16,6 +16,7 @@
 #include <boost/signals2/mutex.hpp>
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
+#include <future>
 
 #include "rtxExceptions.h"
 #include "Element.h"
@@ -209,6 +210,10 @@ namespace RTX {
     void setSimulationLoggingCallback(RTX_Logging_Callback_Block);
     RTX_Logging_Callback_Block simulationLoggingCallback();
     
+    std::map<std::string,std::string> dmaNameHashes;
+    
+    void waitResults();
+    
   protected:
     
     void setSimulationParameters(time_t time);
@@ -227,7 +232,7 @@ namespace RTX {
     virtual double junctionPressure(const string& junction) { return 0; };
     virtual double junctionDemand(const string& junctionName) { return 0; };
     virtual double junctionQuality(const string& junctionName) { return 0; };
-    virtual double junctionInitialQuality(const string& junctionName) { return 0; };
+    
     // link elements
     virtual double pipeFlow(const string& pipe) { return 0; };
     virtual double pipeSetting(const string& pipe) {return 0;};
@@ -303,7 +308,7 @@ namespace RTX {
     boost::signals2::mutex _simulationInProcessMutex;
     double _initialQuality;
     RTX_Logging_Callback_Block _simLogCallback;
-    boost::thread _saveStateThread;
+    std::future<void> _saveStateFuture;
     
   };
   

@@ -170,7 +170,7 @@ ostream& Units::toStream(ostream &stream) const {
 }
 
 
-const string Units::unitString() const {
+const string Units::to_string() const {
   map<string, Units> unitMap = Units::unitStringMap;
   
   map<string, Units>::const_iterator it = unitMap.begin();

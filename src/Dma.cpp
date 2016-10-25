@@ -14,9 +14,12 @@
 #include "AggregatorTimeSeries.h"
 
 #include <boost/config.hpp>
+#include <boost/algorithm/string/join.hpp>
 #include <algorithm>
 #include <utility>
 #include <boost/graph/adjacency_list.hpp>
+
+#include <openssl/sha.h>
 
 using namespace RTX;
 using namespace std;
@@ -363,6 +366,34 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
   }
   
   
+  set<string> flowMeasuredPipes, closedBoundaryPipes, tanks;
+  for (auto p : this->measuredBoundaryPipes()) {
+    flowMeasuredPipes.insert(p.first->name());
+  }
+  for (auto p : this->closedBoundaryPipes()) {
+    closedBoundaryPipes.insert(p.first->name());
+  }
+  for (auto t : this->tanks()) {
+    tanks.insert(t->name());
+  }
+  
+  stringstream hashableStream;
+  hashableStream
+  << "<" << boost::algorithm::join(flowMeasuredPipes, "><")
+  << ">+<" << boost::algorithm::join(closedBoundaryPipes, "><")
+  << ">+<" << boost::algorithm::join(tanks, "><")
+  << ">";
+  
+  const string hashable = hashableStream.str();
+  const unsigned char *hashChar = reinterpret_cast<const unsigned char*>(hashable.c_str());
+  unsigned char digest[SHA_DIGEST_LENGTH]; // len == 20
+  SHA1(hashChar, hashable.length(), digest);
+  int len = 0;
+  char hashedNameCh[SHA_DIGEST_LENGTH*2+1];
+  for (int i = 0; i < SHA_DIGEST_LENGTH; i++) {
+    len += sprintf(hashedNameCh+len, "%02x",digest[i]);
+  }
+  this->hashedName = string(hashedNameCh);
 }
 
 
@@ -625,7 +656,6 @@ int Dma::allocateDemandToJunctions(time_t time) {
   if (dPoint.isValid) {
     dmaDemand = dPoint.value;
     allocableDemand = dmaDemand - meteredDemand; // the total unmetered demand
-    DebugLog << "DMA " << this->name() << " demand: " << dmaDemand << '\n';
   }
   else {
     err = 1;

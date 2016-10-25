@@ -36,7 +36,6 @@ Junction::Junction(const std::string& name) : Node(name) {
   _demandState->setName("demand,n=" + name);
   
   _baseDemand = 0;
-  _initialQuality = 0;
 }
 Junction::~Junction() {
   
@@ -50,15 +49,7 @@ void Junction::setBaseDemand(double demand) {
   _baseDemand = demand;
 }
 
-double Junction::initialQuality() {
-  return _initialQuality;
-}
-
-void Junction::setInitialQuality(double quality) {
-  _initialQuality = quality;
-}
-
-void Junction::setRecord(PointRecord::_sp record) {
+ void Junction::setRecord(PointRecord::_sp record) {
   _headState->setRecord(record);
   _pressureState->setRecord(record);
   _qualityState->setRecord(record);

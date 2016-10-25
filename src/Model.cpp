@@ -24,8 +24,9 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/connected_components.hpp>
 #include <boost/range/adaptors.hpp>
-
+#include <future>
 #include <boost/interprocess/sync/scoped_lock.hpp>
+
 using boost::signals2::mutex;
 using boost::interprocess::scoped_lock;
 
@@ -52,11 +53,11 @@ void Model::initObj() {
   _iterations.reset( new TimeSeries() );
   _convergence.reset( new TimeSeries() );
   
-  _relativeError->setName("simulation_relative_error");
+  _relativeError->setName("rel_err,generator=simulation");
   _relativeError->setUnits(RTX_DIMENSIONLESS);
-  _iterations->setName("simulation_iterations");
+  _iterations->setName("iterations,generator=simulation");
   _iterations->setUnits(RTX_DIMENSIONLESS);
-  _convergence->setName("simulation_convergence");
+  _convergence->setName("convergence,generator=simulation");
   _convergence->setUnits(RTX_DIMENSIONLESS);
   _doesOverrideDemands = false;
   _shouldRunWaterQuality = false;
@@ -73,6 +74,7 @@ void Model::initObj() {
   _tanksNeedReset = false;
   
   _simLogCallback = NULL;
+  _saveStateFuture = async(launch::async, [&](){return;});
 }
 
 
@@ -400,10 +402,17 @@ void Model::initDMAs() {
   BOOST_FOREACH(const Dma::_sp dma, newDmas) {
     dma->initDemandTimeseries(boundaryPipes);
     dma->demand()->setUnits(this->flowUnits());
-    //cout << "adding dma: " << *dma << endl;
     this->addDma(dma);
   }
   
+  
+  for (auto dma : newDmas) {
+    string hash = dma->hashedName;
+    if (dmaNameHashes.count(hash) > 0) {
+      const string name = dmaNameHashes.at(hash);
+      dma->setName(name);
+    }
+  }
   
 }
 
@@ -644,18 +653,15 @@ bool Model::solveAndSaveOutputAtTime(time_t simulationTime) {
       
       // move short-term states into timeseries, and do so concurrently:
       if (true) {
-        // just make sure the thread is idle...
-        if (_saveStateThread.joinable()) {
-          _saveStateThread.join();
-          // once join() returns, we know the queued operation is complete
+        // c++11 futures
+        if (_saveStateFuture.valid()) {
+          _saveStateFuture.wait();
         }
-        // fetch sim results into object short-term storage
         this->fetchSimulationStates();
-        // spin a new thread
-        boost::thread newSaveStateThread(&Model::saveNetworkStates, this, simulationTime, stateRecordsUsed);
-        _saveStateThread.swap(newSaveStateThread);
+        _saveStateFuture = async(launch::async, &Model::saveNetworkStates, this, simulationTime, stateRecordsUsed);
       }
       else {
+        this->fetchSimulationStates();
         saveNetworkStates(simulationTime, stateRecordsUsed);
       }
     }
@@ -663,6 +669,11 @@ bool Model::solveAndSaveOutputAtTime(time_t simulationTime) {
   return success;
 }
 
+void Model::waitResults() {
+  if (_saveStateFuture.valid()) {
+    _saveStateFuture.wait();
+  }
+}
 
 bool Model::updateSimulationToTime(time_t updateToTime) {
   
@@ -670,7 +681,7 @@ bool Model::updateSimulationToTime(time_t updateToTime) {
     return false;
   }
   
-  while (this->currentSimulationTime() < updateToTime) {
+  while (this->currentSimulationTime() < updateToTime && !_shouldCancelSimulation) {
     
     {
       scoped_lock<boost::signals2::mutex> l(_simulationInProcessMutex);
@@ -694,7 +705,7 @@ bool Model::updateSimulationToTime(time_t updateToTime) {
     stepSimulation(stepToTime);
     
     struct tm * timeinfo;
-    timeinfo = localtime(&myTime);
+    timeinfo = localtime(&stepToTime);
     stringstream ss;
     ss << "INFO: Simulation step to :: " << asctime(timeinfo);
     this->logLine(ss.str());
@@ -711,7 +722,6 @@ bool Model::updateSimulationToTime(time_t updateToTime) {
       
       // simulation failed -- advance the time and reset tank levels
       this->setCurrentSimulationTime(_regularMasterClock->timeAfter(myTime));
-      cout << "will reset tanks" << endl << flush;
       this->setTanksNeedReset(true);
     }
   }
@@ -855,13 +865,13 @@ void Model::setInitialJunctionUniformQuality(double qual) {
   _initialQuality = qual;
   // Constant initial quality of Junctions and Tanks (Reservoirs are boundary conditions)
   BOOST_FOREACH(Junction::_sp junc, this->junctions()) {
-    junc->setInitialQuality(qual);
+    junc->state_quality = qual;
   }
   BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
-    tank->setInitialQuality(qual);
+    tank->state_quality = qual;
   }
   for(auto r : this->reservoirs()) {
-    r->setInitialQuality(qual);
+    r->state_quality = qual;
   }
   this->applyInitialQuality();
 }
@@ -949,7 +959,7 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
       }
     }
     // initialize the junction quality
-    junc->setInitialQuality(initQuality);
+    junc->state_quality = initQuality;
 //    cout << "Junction " << junc->name() << " Quality: " << initQuality << endl;
   }
   // tanks
@@ -965,7 +975,7 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
       }
     }
     // initialize the tank quality
-    tank->setInitialQuality(initQuality);
+    tank->state_quality = initQuality;
 //    cout << "Tank " << tank->name() << " Quality: " << initQuality << endl;
   }
   
@@ -1024,34 +1034,40 @@ std::ostream& Model::toStream(std::ostream &stream) {
 void Model::setSimulationParameters(time_t time) {
   struct tm * timeinfo = localtime (&time);
   
+  DebugLog << "*** SETTING MODEL INPUTS ***" << EOL;
   // set all element parameters
   
   // allocate junction demands based on dmas, and set the junction demand values in the model.
   if (_doesOverrideDemands) {
     // by dma, insert demand point into each junction timeseries at the current simulation time
-    BOOST_FOREACH(Dma::_sp dma, this->dmas()) {
+    for(Dma::_sp dma: this->dmas()) {
       if ( dma->allocateDemandToJunctions(time) ) {
         stringstream ss;
         ss << "ERROR: Invalid demand value for DMA " << dma->name() << " :: " << asctime(timeinfo);
         this->logLine(ss.str());
       }
+      else {
+        Point dPoint = dma->demand()->pointAtOrBefore(time);
+        DebugLog << "*  DMA: " << dma->name() << " demand --> " << dPoint.value << '\n';
+      }
+      
     }
     // hydraulic junctions - set demand values.
-    BOOST_FOREACH(Junction::_sp junction, this->junctions()) {
+    for(Junction::_sp junction: this->junctions()) {
       double demandValue = Units::convertValue(junction->state_demand, junction->demand()->units(), flowUnits());
       setJunctionDemand(junction->name(), demandValue);
     }
   }
   
   // for reservoirs, set the boundary head
-  BOOST_FOREACH(Reservoir::_sp reservoir, this->reservoirs()) {
+  for(Reservoir::_sp reservoir: this->reservoirs()) {
     if (reservoir->boundaryHead()) {
       // get the head measurement parameter, and pass it through as a state.
       Point p = reservoir->boundaryHead()->pointAtOrBefore(time);
       if (p.isValid) {
         double headValue = Units::convertValue(p.value, reservoir->boundaryHead()->units(), headUnits());
         setReservoirHead( reservoir->name(), headValue );
-        DebugLog << "reservoir " << reservoir->name() << " level set to " << p.value << EOL;
+        DebugLog << "*  Reservoir " << reservoir->name() << " level --> " << p.value << EOL;
       }
       else {
         stringstream ss;
@@ -1064,13 +1080,13 @@ void Model::setSimulationParameters(time_t time) {
   // check for valid time with tank reset clock
   if (_tankResetClock && _tankResetClock->isValid(time)) {
     this->setTanksNeedReset(true);
-    DebugLog << "TANKS NEED RESET" << EOL;
+    DebugLog << "*  INFO :: TANKS NEED RESET" << EOL;
   }
   
   _checkTanksForReset(time);
 
   // for valves, set status and setting
-  BOOST_FOREACH(Valve::_sp valve, this->valves()) {
+  for(Valve::_sp valve: this->valves()) {
     // status can affect settings and vice-versa; status rules
     Pipe::status_t status = valve->fixedStatus();
     if (valve->statusBoundary()) {
@@ -1078,7 +1094,7 @@ void Model::setSimulationParameters(time_t time) {
       if (p.isValid) {
         status = (p.value > 0 ? Pipe::OPEN : Pipe::CLOSED);
         setPipeStatus( valve->name(), status );
-        DebugLog << "valve " << valve->name() << " status set to " << p.value << EOL;
+        DebugLog << "*  Valve " << valve->name() << " status --> " << p.value << EOL;
       }
       else {
         stringstream ss;
@@ -1098,7 +1114,7 @@ void Model::setSimulationParameters(time_t time) {
             p = Point::convertPoint(p, settingUnits, this->flowUnits());
           }
           setValveSetting( valve->name(), p.value );
-          DebugLog << "valve " << valve->name() << " setting set to " << p.value << EOL;
+          DebugLog << "*  Valve " << valve->name() << " setting --> " << p.value << EOL;
         }
         else {
           stringstream ss;
@@ -1115,7 +1131,7 @@ void Model::setSimulationParameters(time_t time) {
   }
   
   // for pumps, set status and setting
-  BOOST_FOREACH(Pump::_sp pump, this->pumps()) {
+  for(Pump::_sp pump: this->pumps()) {
     // status can affect settings and vice-versa; status rules
     Pipe::status_t status = pump->fixedStatus();
     if (pump->statusBoundary()) {
@@ -1123,7 +1139,7 @@ void Model::setSimulationParameters(time_t time) {
       if (p.isValid) {
         status = Pipe::status_t((int)(p.value));
         setPumpStatus( pump->name(), status );
-        DebugLog << "pump " << pump->name() << " status set to " << p.value << EOL;
+        DebugLog << "*  Pump " << pump->name() << " status --> " << p.value << EOL;
       }
       else {
         stringstream ss;
@@ -1136,7 +1152,7 @@ void Model::setSimulationParameters(time_t time) {
         Point p = pump->settingBoundary()->pointAtOrBefore(time);
         if (p.isValid) {
           setPumpSetting( pump->name(), p.value );
-          DebugLog << "pump " << pump->name() << " setting set to " << p.value << EOL;
+          DebugLog << "*  Pump " << pump->name() << " setting --> " << p.value << EOL;
         }
         else {
           stringstream ss;
@@ -1153,12 +1169,12 @@ void Model::setSimulationParameters(time_t time) {
   }
   
   // for pipes, set status
-  BOOST_FOREACH(Pipe::_sp pipe, this->pipes()) {
+  for(Pipe::_sp pipe: this->pipes()) {
     if (pipe->statusBoundary()) {
       Point p = pipe->statusBoundary()->pointAtOrBefore(time);
       if (p.isValid) {
         setPipeStatus(pipe->name(), Pipe::status_t((int)(p.value)));
-        DebugLog << "pipe " << pipe->name() << " status set to " << p.value << EOL;
+        DebugLog << "*  Pipe " << pipe->name() << " status --> " << p.value << EOL;
       }
       else {
         stringstream ss;
@@ -1172,13 +1188,13 @@ void Model::setSimulationParameters(time_t time) {
   // water quality parameters //
   //////////////////////////////
   if (this->shouldRunWaterQuality()) {
-    BOOST_FOREACH(Junction::_sp j, this->junctions()) {
+    for(Junction::_sp j: this->junctions()) {
       if (j->qualitySource()) {
         Point p = j->qualitySource()->pointAtOrBefore(time);
         if (p.isValid) {
           double quality = Units::convertValue(p.value, j->qualitySource()->units(), qualityUnits());
           setJunctionQuality(j->name(), quality);
-          DebugLog << "junction " << j->name() << " quality set to " << p.value << EOL;
+          DebugLog << "*  Junction " << j->name() << " quality --> " << p.value << EOL;
         }
         else {
           stringstream ss;
@@ -1187,14 +1203,14 @@ void Model::setSimulationParameters(time_t time) {
         }
       }
     }
-    BOOST_FOREACH(Reservoir::_sp reservoir, this->reservoirs()) {
+    for(Reservoir::_sp reservoir: this->reservoirs()) {
       if (reservoir->boundaryQuality()) {
         // get the quality measurement parameter, and pass it through as a state.
         Point p = reservoir->boundaryQuality()->pointAtOrBefore(time);
         if (p.isValid) {
           double qualityValue = Units::convertValue(p.value, reservoir->boundaryQuality()->units(), qualityUnits());
           setReservoirQuality( reservoir->name(), qualityValue );
-          DebugLog << "reservoir " << reservoir->name() << " quality set to " << p.value << EOL;
+          DebugLog << "*  Reservoir " << reservoir->name() << " quality --> " << p.value << EOL;
         }
         else {
           stringstream ss;
@@ -1204,6 +1220,7 @@ void Model::setSimulationParameters(time_t time) {
       }
     }
   }
+  DebugLog << "****************************" << EOL << flush;
 }
 
 

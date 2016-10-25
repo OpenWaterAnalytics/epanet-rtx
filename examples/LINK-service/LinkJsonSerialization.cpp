@@ -92,8 +92,8 @@ SerializerJson::SerializerJson() : _v(JSV::object()) {
 
 void SerializerJson::visit(Units &u) {
   _v[_c] = JSV("units");
-  _v["unitString"] = JSV(u.unitString());
-  _v["rawUnits"] = JSV(u.rawUnitString());
+  _v["unitString"] = JSV(u.to_string());
+  _v["rawUnits"] = JSV(u.rawto_string());
 }
 
 void SerializerJson::visit(Clock &c) {

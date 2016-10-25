@@ -358,12 +358,8 @@ std::vector< Point > TimeSeries::points(TimeRange range) {
 }
 
 std::set<time_t> TimeSeries::timeValuesInRange(TimeRange range) {
-  vector<Point> points = this->points(range);
-  set<time_t> times;
-  for (const Point& p : points) {
-    times.insert(p.time);
-  }
-  return times;
+  auto points = this->pointCollection(range);
+  return points.times();
 }
 
 time_t TimeSeries::timeAfter(time_t t) {

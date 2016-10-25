@@ -244,7 +244,7 @@ bool SqlitePointRecord::assignUnitsToRecord(const std::string &name, const Units
   if (this->isConnected()) {
     scoped_lock<boost::signals2::mutex> lock(*_mutex);
     
-    string unitsStr = units.unitString();
+    string unitsStr = units.to_string();
     sqlite3_stmt *stmt;
     string q = "update meta set units = ? where name = \'" + name + "\'";
     sqlite3_prepare_v2(_dbHandle, q.c_str(), -1, &stmt, NULL);
@@ -283,7 +283,7 @@ bool SqlitePointRecord::insertIdentifierAndUnits(const std::string &id, RTX::Uni
     
     // insert a name here.
     // INSERT IGNORE INTO meta (name,units) VALUES (?,?)
-    string unitsStr = units.unitString();
+    string unitsStr = units.to_string();
     
     sqlite3_stmt *stmt;
     sqlite3_prepare_v2(_dbHandle, "insert or ignore into meta (name,units) values (?,?)", -1, &stmt, NULL);
