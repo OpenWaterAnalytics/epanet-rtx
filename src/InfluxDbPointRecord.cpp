@@ -144,8 +144,6 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
 #pragma mark Listing and creating series
 
 
-
-
 PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
   
   /*

@@ -8,6 +8,7 @@
 #include "TimeSeriesFilter.h"
 #include "SqlitePointRecord.h"
 #include "InfluxDbPointRecord.h"
+#include "InfluxUdpPointRecord.h"
 #include "OdbcDirectPointRecord.h"
 
 #include <cpprest/json.h>
@@ -23,6 +24,7 @@ namespace RTX {
   public Visitor<DbPointRecord>,
   public Visitor<SqlitePointRecord>,
   public Visitor<InfluxDbPointRecord>,
+  public Visitor<InfluxUdpPointRecord>,
   public Visitor<OdbcDirectPointRecord>
   {
   public:
@@ -39,6 +41,7 @@ namespace RTX {
     void visit(DbPointRecord &pr);
     void visit(SqlitePointRecord &pr);
     void visit(InfluxDbPointRecord &pr);
+    void visit(InfluxUdpPointRecord &pr);
     void visit(OdbcDirectPointRecord &pr);
     web::json::value json();
     
@@ -57,6 +60,7 @@ namespace RTX {
   public Visitor<DbPointRecord>,
   public Visitor<SqlitePointRecord>,
   public Visitor<InfluxDbPointRecord>,
+  public Visitor<InfluxUdpPointRecord>,
   public Visitor<OdbcDirectPointRecord>
   {
   public:
@@ -75,6 +79,7 @@ namespace RTX {
     void visit(DbPointRecord &pr);
     void visit(SqlitePointRecord &pr);
     void visit(InfluxDbPointRecord &pr);
+    void visit(InfluxUdpPointRecord &pr);
     void visit(OdbcDirectPointRecord &pr);
     
   private:

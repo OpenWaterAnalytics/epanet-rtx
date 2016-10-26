@@ -13,6 +13,7 @@ namespace RTX {
     RTX_BASE_PROPS(InfluxUdpPointRecord);
     InfluxUdpPointRecord();
     void dbConnect() throw(RtxException);
+    std::string connectionString();
     
   protected:
     void sendPointsWithString(const std::string& content);

@@ -32,6 +32,12 @@ void InfluxUdpPointRecord::dbConnect() throw(RTX::RtxException) {
   _connected = true;
 }
 
+string InfluxUdpPointRecord::connectionString() {
+  stringstream ss;
+  ss << "host=" << this->conn.host << "&port=" << this->conn.port;
+  return ss.str();
+}
+
 // Line protocol requires unix-nano unles qualified by HTTP-GET fields,
 // which of course we don't have over UDP
 string InfluxUdpPointRecord::formatTimestamp(time_t t) {

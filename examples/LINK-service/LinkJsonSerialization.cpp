@@ -130,6 +130,10 @@ void SerializerJson::visit(InfluxDbPointRecord &pr) {
   this->visit((DbPointRecord&)pr);
   _v[_c] = JSV("influx");
 }
+void SerializerJson::visit(InfluxDbPointRecord &pr) {
+  this->visit((DbPointRecord&)pr);
+  _v[_c] = JSV("influx_udp");
+}
 void SerializerJson::visit(OdbcDirectPointRecord &pr) {
   this->visit((DbPointRecord&)pr);
   _v[_c] = JSV("odbc");
@@ -167,6 +171,7 @@ RTX_object::_sp DeserializerJson::from_json(JSV json) {
     map< string, std::function<RTX_object::_sp()> > c = { // c is for "CREATOR"
       { "sqlite",     &_newRtxObj<SqlitePointRecord>},
       { "influx",     &_newRtxObj<InfluxDbPointRecord>},
+      { "influx_udp", &_newRtxObj<InfluxUdpPointRecord>},
       { "odbc",       &_newRtxObj<OdbcDirectPointRecord>},
       { "timeseries", &_newRtxObj<TimeSeries>},
       { "filter",     &_newRtxObj<TimeSeriesFilter>},
@@ -253,6 +258,9 @@ void DeserializerJson::visit(SqlitePointRecord &pr) {
   this->visit((DbPointRecord&)pr);
 };
 void DeserializerJson::visit(InfluxDbPointRecord &pr) {
+  this->visit((DbPointRecord&)pr);
+};
+void DeserializerJson::visit(InfluxUdpPointRecord &pr) {
   this->visit((DbPointRecord&)pr);
 };
 void DeserializerJson::visit(OdbcDirectPointRecord &pr) {

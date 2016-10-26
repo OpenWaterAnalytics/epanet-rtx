@@ -22,7 +22,7 @@ namespace RTX {
     // public non-override
     I_InfluxDbPointRecord();
     bool isConnected() {return _connected;};
-    std::string connectionString();
+    virtual std::string connectionString();
     void setConnectionString(const std::string& str);
     void beginBulkOperation();
     void endBulkOperation();
