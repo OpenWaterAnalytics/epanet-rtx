@@ -130,7 +130,7 @@ void SerializerJson::visit(InfluxDbPointRecord &pr) {
   this->visit((DbPointRecord&)pr);
   _v[_c] = JSV("influx");
 }
-void SerializerJson::visit(InfluxDbPointRecord &pr) {
+void SerializerJson::visit(InfluxUdpPointRecord &pr) {
   this->visit((DbPointRecord&)pr);
   _v[_c] = JSV("influx_udp");
 }
