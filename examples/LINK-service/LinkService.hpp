@@ -41,12 +41,7 @@ namespace RTX {
     pplx::task<void> open();
     pplx::task<void> close();
     std::string _statusMessage;
-    
     void post_log(std::string metric, std::string field, std::string value);
-    
-    struct {
-      std::string host,port,user,pass,db;
-    } _metricDatabase;
     
   private:
     void _get(http_request message);

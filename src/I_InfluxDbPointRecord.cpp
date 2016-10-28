@@ -168,6 +168,37 @@ void I_InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point
   
 }
 
+void I_InfluxDbPointRecord::sendInfluxString(time_t time, const string& seriesId, const string& values) {
+  
+  string tsNameEscaped = seriesId;
+  boost::replace_all(tsNameEscaped, " ", "\\ ");
+  
+  stringstream ss;
+  string timeStr = this->formatTimestamp(time);
+  
+  ss << tsNameEscaped << " " << values << " " << timeStr;
+  string data = ss.str();
+  
+  
+  if (_inBulkOperation) {
+    size_t nLines = 0;
+    {
+      std::lock_guard<std::mutex> lock(_influxMutex);
+      _transactionLines.push_back(data);
+      nLines = _transactionLines.size();
+    }
+    if (nLines > __maxTransactionLines) {
+      this->commitTransactionLines();
+    }
+  }
+  else {
+    this->sendPointsWithString(data);
+  }
+
+}
+
+
+
 
 void I_InfluxDbPointRecord::truncate() {
   this->errorMessage = "Truncating";

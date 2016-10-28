@@ -1,37 +1,32 @@
 #include <iostream>
-
+#include <atomic>
 #include "LinkService.hpp"
 
+using namespace std;
+
+atomic<bool> _doRun;
+void _signalHandler(int);
+void _signalHandler(int signum) {
+  cout << "Interrupt signal (" << signum << ") received.\n";
+  _doRun = false;
+}
 
 int main(int argc, const char * argv[]) {
   
   RTX::LinkService svc(web::uri("http://127.0.0.1:3131"));
-  
-  if (argc >= 6) {
-    svc._metricDatabase.host = string(argv[1]);
-    svc._metricDatabase.port = string(argv[2]);
-    svc._metricDatabase.db   = string(argv[3]);
-    svc._metricDatabase.user = string(argv[4]);
-    svc._metricDatabase.pass = string(argv[5]);
-  }
-  
-  else {
-    svc._metricDatabase.host = "flux.citilogics.io";
-    svc._metricDatabase.port = "8086";
-    svc._metricDatabase.db   = "metrics_test_link_service";
-    svc._metricDatabase.user = "metrics";
-    svc._metricDatabase.pass = "metrics";
-  }
-  
   svc.open().wait();
   
-  while (true) {
-    std::string line;
-    std::getline(std::cin, line);
-    if (line == "x") {
-      break;
-    }
+  _doRun = true;
+  struct sigaction sigIntHandler;
+  sigIntHandler.sa_handler = _signalHandler;
+  sigemptyset(&sigIntHandler.sa_mask);
+  sigIntHandler.sa_flags = 0;
+  sigaction(SIGINT, &sigIntHandler, NULL);
+  
+  while(_doRun) {
+    this_thread::sleep_for(chrono::seconds(1));
   }
   
+  cout << "SHUTTING DOWN SERVICE" << endl << flush;
   svc.close().wait();
 }

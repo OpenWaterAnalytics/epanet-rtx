@@ -293,7 +293,7 @@ TimeSeries::_sp DeserializerJson::analyticWithJson(web::json::value jsonValue, v
     // tank analytic. check for geometry
     if (d.find("geometry") == d.end() ||
         !d["geometry"].is_object()) {
-      throw web::json::json_exception(_XPLATSTR("Object type not recognized"));
+      throw web::json::json_exception(U("Geometry Invalid or not found"));
     }
     web::json::object geo = d["geometry"].as_object();
     
@@ -301,7 +301,8 @@ TimeSeries::_sp DeserializerJson::analyticWithJson(web::json::value jsonValue, v
     vector<string> keys = {"tankId","inputUnits","outputUnits","data","inletDiameter"};
     for(auto key : keys) {
       if (geo.find(key) == geo.end()) {
-        throw web::json::json_exception(_XPLATSTR("Object type not recognized"));
+        string errStr = "Key not found: " + key;
+        throw web::json::json_exception(errStr.c_str());
       }
     }
     

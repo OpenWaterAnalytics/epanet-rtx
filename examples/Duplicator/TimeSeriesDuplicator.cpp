@@ -145,7 +145,7 @@ void TimeSeriesDuplicator::_dupeLoop(time_t win, time_t freq) {
       if (nextFetch < now) {
         // check how far off we are?
         // arbitrarily, let us be off by 5 windows...
-        if (nextFetch + (5 * freq) < now) {
+        if (nextFetch + (5 * win) < now) {
           nextFetch = now; // just skip a bunch and get us current.
           this->_logLine("Skipping an interval due to too much lag", RTX_DUPLICATOR_LOGLEVEL_WARN);
         }

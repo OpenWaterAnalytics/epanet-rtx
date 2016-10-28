@@ -29,6 +29,8 @@ namespace RTX {
     void commitTransactionLines();
     void truncate();
     
+    void sendInfluxString(time_t time, const std::string& seriesId, const std::string& values);
+    
     void insertSingle(const std::string& id, Point point);
     void insertRange(const std::string& id, std::vector<Point> points);
     

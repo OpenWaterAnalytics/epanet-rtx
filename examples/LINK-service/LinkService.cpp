@@ -283,7 +283,7 @@ void LinkService::_get_options(http_request message) {
   JSV o = JSV::object();
   
   o.as_object()["interval"] = JSV((int)(_frequency / 60)); // minutes
-  o.as_object()["window"] =   JSV((int)(_window / (60 * 60))); // hours
+  o.as_object()["window"] =   JSV((int)(_window / 60)); // minutes
   o.as_object()["backfill"] = JSV((int)(_backfill / (60 * 60 * 24))); // days
   
   _link_respond(message, o);
@@ -305,7 +305,7 @@ void LinkService::_get_config(http_request message) {
   
   JSV opts = JSV::object();
   opts.as_object()["interval"] = JSV((int)(_frequency / 60)); // minutes
-  opts.as_object()["window"] =   JSV((int)(_window / (60 * 60))); // hours
+  opts.as_object()["window"] =   JSV((int)(_window / 60)); // minutes
   opts.as_object()["backfill"] = JSV((int)(_backfill / (60 * 60 * 24))); // days
   config.as_object()["fetch"] = opts;
   
@@ -572,12 +572,12 @@ http_response LinkService::_post_options(JSV js) {
       }
     };
     
-    int freqMinutes, windowHours, backfillDays;
+    int freqMinutes, windowMinutes, backfillDays;
     
     // map the required keys to the time_t ivars
     map<string,int*> defs = {
       {"interval",&freqMinutes},
-      {"window",&windowHours},
+      {"window",&windowMinutes},
       {"backfill",&backfillDays}
     };
     
@@ -595,7 +595,7 @@ http_response LinkService::_post_options(JSV js) {
     }
     
     _frequency = freqMinutes * 60;
-    _window = windowHours * 60 * 60;
+    _window = windowMinutes * 60;
     _backfill = backfillDays * 60 * 60 * 24;
     
     
@@ -617,41 +617,23 @@ http_response LinkService::_post_logmessage(web::json::value js) {
     r = _link_error_response(status_codes::ExpectationFailed, "data is not a json object");
     cout << "== err: JSON not recognized.\n";
   }
-  else {
-    json::object o = js.as_object();
+  else if (_destinationRecord) {
+    auto influxdb = static_pointer_cast<I_InfluxDbPointRecord>(_destinationRecord);
     
+    json::object o = js.as_object();
     string metric = js["metric"].as_string();
     string field = js["field"].as_string();
     string logValue = js["value"].as_string();
-    
-    http::uri_builder b;
-    b.set_scheme("http").set_host(_metricDatabase.host).set_port(_metricDatabase.port).set_path("write")
-    .append_query("db", _metricDatabase.db, false)
-    .append_query("u", _metricDatabase.user, false)
-    .append_query("p", _metricDatabase.pass, false)
-    .append_query("precision", "s", false);
-    
+
     stringstream ss;
-    ss << metric << " " << field << "=\"" << logValue << "\" " << time(NULL);
-    string content = ss.str();
+    ss << field << "=\"" << logValue << "\" ";
+    string valueStr = ss.str();
     
-    try {
-      web::http::client::http_client_config config;
-      config.set_timeout(std::chrono::seconds(60));
-      web::http::client::http_client client(b.to_uri(), config);
-      http_response res = client.request(methods::POST, "", content).get(); // waits for response
-      if (res.status_code() == 204) {
-        r = _link_empty_response();
-        cout << "== sending log message " << '\n';
-      }
-      else {
-        r = _link_error_response(res.status_code(), res.reason_phrase());
-        cout << "== ERROR: " << res.reason_phrase() << '\n';
-      }
-    } catch (std::exception &e) {
-      cerr << "exception POST: " << e.what() << endl;
-      r = _link_error_response(status_codes::ExpectationFailed, e.what());
-    }
+    influxdb->sendInfluxString(time(NULL), metric, valueStr);
+    
+    r = _link_empty_response();
+    
+    cout << "Sent Log Message: " << metric << " --> " << valueStr << endl << flush;
   }
   
   cout << "=====================================" << endl;
