@@ -21,7 +21,8 @@
 #endif
 #include <sql.h>
 #include <sqlext.h>
-
+#include <future>
+#include <boost/atomic.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
 using boost::signals2::mutex;
 using boost::interprocess::scoped_lock;
@@ -159,8 +160,8 @@ namespace RTX {
     vector<string> _dsnList;
     bool _connectionOk;
     SQLRETURN SQL_CHECK(SQLRETURN retVal, std::string function, SQLHANDLE handle, SQLSMALLINT type) throw(std::string);
-    
-    
+    boost::atomic<bool> _isConnecting;
+    std::future<bool> _connectFuture;
    
   };
 

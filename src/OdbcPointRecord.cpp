@@ -14,20 +14,21 @@
 
 #include <iostream>     // std::cout, std::endl
 #include <iomanip>
-
+#include <future>
+#include <chrono>
 
 using namespace RTX;
 using namespace std;
 using boost::local_time::posix_time_zone;
 using boost::local_time::time_zone_ptr;
 
+const time_t _rtx_odbc_connect_timeout(5);
 
 OdbcPointRecord::OdbcPointRecord() {
-  
+  _isConnecting = false;
   std::string nyc("EST-5EDT,M4.1.0,M10.5.0");
   _specifiedTimeZoneString = nyc;
   _specifiedTimeZone.reset(new posix_time_zone(nyc));
-  
   
   _connectionOk = false;
   _timeFormat = PointRecordTime::UTC;
@@ -63,6 +64,9 @@ OdbcPointRecord::OdbcPointRecord() {
 
 
 OdbcPointRecord::~OdbcPointRecord() {
+  if (_connectFuture.valid()) {
+    _connectFuture.wait();
+  }
   // make sure handles are free
   if (_handles.SCADAdbc != NULL) {
     SQLDisconnect(_handles.SCADAdbc);
@@ -192,22 +196,51 @@ void OdbcPointRecord::dbConnect() throw(RtxException) {
   
   this->rebuildQueries();
   
-  SQLRETURN sqlRet;
+  // clean-up potentially inconsistent state
+  if (_connectFuture.valid() && !_isConnecting) {
+    _connectFuture.get(); // release state & mark invalid
+  }
   
-  try {
-    string connStr = "DRIVER=" + this->connection.driver + ";" + this->connection.conInformation;
-    SQLCHAR outConStr[1024];
-    SQLSMALLINT outConStrLen;
-    sqlRet = SQLDriverConnect(_handles.SCADAdbc, NULL, (SQLCHAR*)connStr.c_str(), strlen(connStr.c_str()), outConStr, 1024, &outConStrLen, SQL_DRIVER_COMPLETE);
-//    sqlRet = SQLConnect(_handles.SCADAdbc, (SQLCHAR*)connStr.c_str(), SQL_NTS, (SQLCHAR*)this->connection.uid.c_str(), SQL_NTS, (SQLCHAR*)this->connection.pwd.c_str(), SQL_NTS);
-    SQL_CHECK(sqlRet, "SQLDriverConnect", _handles.SCADAdbc, SQL_HANDLE_DBC);
-    _connectionOk = true;
-    errorMessage = "Connected";
-  } catch (string err) {
-    errorMessage = err;
-    cerr << "Initialize failed: " << err << "\n";
-    _connectionOk = false;
-    //throw DbPointRecord::RtxDbConnectException();
+  if (_connectFuture.valid()) {
+    // future is still working, but here we are. TIMEOUT occurred.
+    errorMessage = "Connection Timeout. Try Later.";
+    return;
+  }
+  else {
+    // first connection attempt. wait for "timeout" seconds
+    // async connection timeout
+    _connectFuture = std::async(launch::async, [&]() -> bool {
+      string connStr = "DRIVER=" + this->connection.driver + ";" + this->connection.conInformation;
+      SQLCHAR outConStr[1024];
+      SQLSMALLINT outConStrLen;
+      
+      _isConnecting = true;
+      bool connection_ok = false;
+      try {
+        SQLRETURN connectRet = SQLDriverConnect(_handles.SCADAdbc, NULL, (SQLCHAR*)connStr.c_str(), strlen(connStr.c_str()), outConStr, 1024, &outConStrLen, SQL_DRIVER_COMPLETE);
+        SQL_CHECK(connectRet, "SQLDriverConnect", _handles.SCADAdbc, SQL_HANDLE_DBC);
+        connection_ok = true;
+        errorMessage = "Connected";
+      } catch (string err) {
+        connection_ok = false;
+        errorMessage = err;
+      }
+      _isConnecting = false;
+      return connection_ok;
+    });
+    
+    chrono::seconds timeout(_rtx_odbc_connect_timeout);
+    
+    future_status stat = _connectFuture.wait_for(timeout);
+    if (stat == future_status::timeout) {
+      // timed out. bad connection.
+      _connectionOk = false;
+      errorMessage = "Timeout";
+    }
+    else if (stat == future_status::ready) {
+      _connectionOk = _connectFuture.get();
+    }
+    
   }
   
   // todo -- check time offset (dst?)

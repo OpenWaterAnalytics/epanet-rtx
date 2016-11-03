@@ -6,17 +6,15 @@
 #include <cpprest/uri.h>
 #include <cpprest/json.h>
 #include <cpprest/http_client.h>
+#include <map>
+
 using namespace std;
 using namespace RTX;
 using namespace web;
 using namespace http;
 using namespace utility;
 using namespace http::experimental::listener;
-
-
 using JSV = json::value;
-
-#include <map>
 
 void _link_callback(LinkService* svc, const char* msg);
 void _link_callback(LinkService* svc, const char* msg) {
@@ -30,7 +28,6 @@ void _link_callback(LinkService* svc, const char* msg) {
   svc->_statusMessage = myLine;
   svc->post_log("log", "message", myLine);
 };
-
 
 http_response _link_empty_response(status_code code = status_codes::OK);
 http_response _link_empty_response(status_code code) {
@@ -55,7 +52,6 @@ pplx::task<void> _link_respond(http_request message, json::value js, status_code
   return message.reply(response);
 }
 
-
 LinkService::LinkService(uri uri) : _listener(uri) {
   _listener.support(methods::GET,  std::bind(&LinkService::_get,    this, std::placeholders::_1));
   _listener.support(methods::PUT,  std::bind(&LinkService::_put,    this, std::placeholders::_1));
@@ -67,7 +63,6 @@ LinkService::LinkService(uri uri) : _listener(uri) {
   _duplicator.setLoggingFunction(cb);
   _duplicator.logLevel = RTX_DUPLICATOR_LOGLEVEL_INFO;
 }
-
 
 pplx::task<void> LinkService::open() {
   return _listener.open();
@@ -116,7 +111,7 @@ void LinkService::_put(http_request message) {
 }
 
 void LinkService::_post(http_request message) {
-  cout << message.to_string() << endl;
+//  cout << message.to_string() << endl;
   JSV js = message.extract_json().get();
   
   const map< string, std::function<http_response(JSV)> > responders = {
@@ -212,7 +207,7 @@ void LinkService::_get_source(http_request message) {
       if (rec) {
         rec->dbConnect();
         if (!rec->isConnected()) {
-          _link_error_response(status_codes::ExpectationFailed, "Could not connect to record");
+          message.reply(_link_error_response(status_codes::ExpectationFailed, "Could not connect to record"));
           return;
         }
       }
@@ -355,8 +350,8 @@ http_response LinkService::_post_config(JSV json) {
 
 http_response LinkService::_post_timeseries(JSV js) {
   http_response r;
-  cout << "=====================================\n";
-  cout << "== SETTING TIMESERIES\n";
+//  cout << "=====================================\n";
+//  cout << "== SETTING TIMESERIES\n";
   
   if (js.is_array()) {
     vector<RTX_object::_sp> oList;
@@ -372,7 +367,7 @@ http_response LinkService::_post_timeseries(JSV js) {
       TimeSeries::_sp ts = static_pointer_cast<TimeSeries>(o);
       ts->setRecord(_sourceRecord); // no record set by client. set it here.
       tsList.push_back(ts);
-      cout << "== " << ts->name() << '\n';
+//      cout << "== " << ts->name() << '\n';
     }
     _duplicator.setSeries(tsList);
     r = _link_empty_response();
@@ -382,7 +377,7 @@ http_response LinkService::_post_timeseries(JSV js) {
     cout << "== Series must be specified as an array\n";
   }
   
-  cout << "=====================================" << endl;
+//  cout << "=====================================" << endl;
   return r;
 }
 
@@ -405,8 +400,8 @@ http_response LinkService::_post_runState(JSV js) {
 http_response LinkService::_post_source(JSV js) {
   
   http_response r;
-  cout << "================================\n";
-  cout << "== SETTING DUPLICATION SOURCE\n";
+//  cout << "================================\n";
+//  cout << "== SETTING DUPLICATION SOURCE\n";
   
   try {
     RTX_object::_sp o = DeserializerJson::from_json(js);
@@ -416,7 +411,7 @@ http_response LinkService::_post_source(JSV js) {
     }
     else {
       _sourceRecord = static_pointer_cast<PointRecord>(o);
-      cout << "== " << _sourceRecord->name() << '\n';
+//      cout << "== " << _sourceRecord->name() << '\n';
       r = _link_empty_response();
     }
   }
@@ -425,7 +420,7 @@ http_response LinkService::_post_source(JSV js) {
     r = _link_error_response(status_codes::NotAcceptable, "Invalid: " + string(e.what()));
   }
   
-  cout << "================================" << endl;
+//  cout << "================================" << endl;
   return r;
 }
 
