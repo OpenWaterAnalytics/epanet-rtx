@@ -73,7 +73,10 @@ add_library(epanetrtx SHARED
 	../../src/FirstDerivative.cpp
 	../../src/GainTimeSeries.cpp
 	../../src/GeoMetrics.cpp
+	../../src/I_InfluxDbPointRecord.cpp
 	../../src/InfluxDbPointRecord.cpp
+	../../src/InfluxUdpPointRecord.cpp
+	../../src/MetricInfo.cpp
 	../../src/InpTextPattern.cpp
 	../../src/IntegratorTimeSeries.cpp
 	../../src/InversionTimeSeries.cpp

@@ -62,7 +62,7 @@ vector< Point > TimeSeriesSynthetic::points(TimeRange range) {
   times = this->clock()->timeValuesInRange(range);
   outPoints.reserve(times.size());
   
-  BOOST_FOREACH(time_t now, times) {
+  for(time_t now : times) {
     outPoints.push_back(this->syntheticPoint(now));
   }
   

@@ -214,14 +214,14 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   // pump, valve, and pipe operation.
   /*******************************************************/
   
-  boost::filesystem::path p = boost::filesystem::temp_directory_path();
+  boost::filesystem::path modelPath = boost::filesystem::temp_directory_path();
   
-  p /= "model.inp";
+  modelPath /= "model.inp";
   
-  OW_saveinpfile(m, p.c_str());
+  OW_saveinpfile(m, modelPath.c_str());
   
   ifstream originalFile;
-  originalFile.open(p.string());
+  originalFile.open(modelPath.string());
   
   string line;
   while (getline(originalFile, line)) {
@@ -303,6 +303,12 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
                 }
               }
             } // isOpen
+            else {
+              // is closed, but if there's a valid setting, then remember it just in case we need it.
+              if (control.setting.isValid) {
+                previousSetting = control.setting;
+              }
+            }
           } // for c: controls
         }
       }
@@ -313,7 +319,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   }
   stream.flush();
   originalFile.close();
-  boost::filesystem::remove_all(p);
+  boost::filesystem::remove_all(modelPath);
   
   return stream;
 }
