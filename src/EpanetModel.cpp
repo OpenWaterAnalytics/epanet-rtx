@@ -58,7 +58,7 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
     cerr << "model not formatted correctly. " << errStr << endl;
     throw "model not formatted correctly. " + errStr;
   }
-  
+  _modelFile = filename;
   
   // get units from epanet
   int flowUnitType = 0;

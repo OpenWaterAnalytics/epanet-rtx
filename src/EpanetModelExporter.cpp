@@ -99,7 +99,11 @@ EpanetModelExporter::EpanetModelExporter(EpanetModel::_sp model, TimeRange range
 
 
 ostream& EpanetModelExporter::to_stream(ostream &stream) {
-  OW_Project *m = _model->epanetModelPointer();
+  
+  // create a copy of the project, so that we don't alter important properties of this one.
+  string fileName = _model->modelFile();
+  EpanetModel::_sp modelTemplate( new EpanetModel(fileName) );
+  OW_Project *ow_project = modelTemplate->epanetModelPointer();
   
   // the pattern clock matches the hydraulic timestep,
   // and has an offset that makes the first tick occur at
@@ -107,8 +111,8 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   Clock::_sp patternClock(new Clock(_model->hydraulicTimeStep(), _range.start));
   
   // simulation time parameters
-  OW_settimeparam(m, EN_PATTERNSTEP, (long)_model->hydraulicTimeStep());
-  OW_settimeparam(m, EN_DURATION, (long)(_range.duration()));
+  OW_settimeparam(ow_project, EN_PATTERNSTEP, (long)_model->hydraulicTimeStep());
+  OW_settimeparam(ow_project, EN_DURATION, (long)(_range.duration()));
   
   /*******************************************************/
   // get relative base demands for junctions, and set them
@@ -129,15 +133,12 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
       if (totalBase != 0) {
         thisBase = (junction->boundaryFlow()) ? 1 : (junction->baseDemand() / totalBase);
       }
-      OW_setnodevalue(m,
+      OW_setnodevalue(ow_project,
                       _model->enIndexForJunction(junction),
                       EN_BASEDEMAND,
                       thisBase );
-      
     }
   }
-  
-  
   
   /*******************************************************/
   // get dma series, put them into epanet patterns
@@ -148,16 +149,13 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
     TimeSeries::_sp demand = dma->demand();
     string pName = "rtxdma_" + demand->name();
     boost::replace_all(pName, " ", "_");
-    int pIndex = _epanet_make_pattern(m, demand, patternClock, _range, pName, _model->flowUnits());
+    int pIndex = _epanet_make_pattern(ow_project, demand, patternClock, _range, pName, _model->flowUnits());
     
     for (auto j: dma->junctions()) {
       int jPatIdx = (j->boundaryFlow()) ? 0 : pIndex;
-      OW_setnodevalue(m, _model->enIndexForJunction(j), EN_PATTERN, jPatIdx);
+      OW_setnodevalue(ow_project, _model->enIndexForJunction(j), EN_PATTERN, jPatIdx);
     }
-    
   }
-  
-  
   
   /*******************************************************/
   // get boundary head series, and put them into epanet patterns
@@ -169,13 +167,11 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
       TimeSeries::_sp h = r->headMeasure();
       string pName = "rtxhead_" + h->name();
       boost::replace_all(pName, " ", "_");
-      int pIndex = _epanet_make_pattern(m, h, patternClock, _range, pName, _model->headUnits());
-      OW_setnodevalue(m, _model->enIndexForJunction(r), EN_PATTERN, pIndex);
-      OW_setnodevalue(m, _model->enIndexForJunction(r), EN_TANKLEVEL, 1.0);
+      int pIndex = _epanet_make_pattern(ow_project, h, patternClock, _range, pName, _model->headUnits());
+      OW_setnodevalue(ow_project, _model->enIndexForJunction(r), EN_PATTERN, pIndex);
+      OW_setnodevalue(ow_project, _model->enIndexForJunction(r), EN_TANKLEVEL, 1.0);
     }
   }
-  
-  
   
   /*******************************************************/
   // get boundary demand series, and put them into epanet patterns
@@ -187,12 +183,10 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
       TimeSeries::_sp demand = j->boundaryFlow();
       string pName = "rtxdem_" + demand->name();
       boost::replace_all(pName, " ", "_");
-      int pIndex = _epanet_make_pattern(m, demand, patternClock, _range, pName, _model->flowUnits());
-      OW_setnodevalue(m, _model->enIndexForJunction(j), EN_PATTERN, pIndex);
+      int pIndex = _epanet_make_pattern(ow_project, demand, patternClock, _range, pName, _model->flowUnits());
+      OW_setnodevalue(ow_project, _model->enIndexForJunction(j), EN_PATTERN, pIndex);
     }
   }
-  
-  
   
   /*******************************************************/
   // set initial tank levels
@@ -201,10 +195,9 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   for (auto t: _model->tanks()) {
     if (t->levelMeasure()) {
       double iLevel = t->levelMeasure()->pointAtOrBefore(_range.start).value;
-      OW_setnodevalue(m, _model->enIndexForJunction(t), EN_TANKLEVEL, iLevel);
+      OW_setnodevalue(ow_project, _model->enIndexForJunction(t), EN_TANKLEVEL, iLevel);
     }
   }
-  
   
   /*******************************************************/
   // save .inp file to temp location
@@ -215,10 +208,8 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   /*******************************************************/
   
   boost::filesystem::path modelPath = boost::filesystem::temp_directory_path();
-  
   modelPath /= "model.inp";
-  
-  OW_saveinpfile(m, modelPath.c_str());
+  OW_saveinpfile(ow_project, modelPath.c_str());
   
   ifstream originalFile;
   originalFile.open(modelPath.string());
@@ -284,7 +275,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
             if (control.status.isValid) {
               // status update
               isOpen = (control.status.value > 0.);
-              // fixme: OPEN for a valve means ignore the setting, so don't print an OPEN command if the valve has a setting boundary
+              // OPEN for a valve means ignore the setting, so don't print an OPEN command if the valve has a setting boundary
               if (p->type() == Element::VALVE && isOpen && p->settingBoundary()) {
                 stream << "; ";
               }

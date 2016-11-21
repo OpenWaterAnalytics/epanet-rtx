@@ -263,10 +263,11 @@ namespace RTX {
     
     void logLine(const std::string& line);
     
+    string _modelFile;
+    
   private:
     void initObj();
     string _name;
-    string _modelFile;
     bool _shouldRunWaterQuality;
     bool _tanksNeedReset;
     void _checkTanksForReset(time_t time);
