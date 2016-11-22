@@ -82,6 +82,7 @@ namespace RTX {
     virtual void setUnits(Units newUnits); // filter ts objects can invalidate their backing store.
     
     virtual bool canDropPoints() { return false; };
+    virtual TimeRange expandedRange(TimeRange r);
     
     virtual TimeSeries::_sp rootTimeSeries();
     

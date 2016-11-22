@@ -240,6 +240,27 @@ bool TimeSeriesFilter::willResample() {
 }
 
 
+TimeRange TimeSeriesFilter::expandedRange(RTX::TimeRange r) {
+  TimeRange q = r;
+  bool canDrop = this->canDropPoints();
+  Clock::_sp myClock = this->clock();
+  // expand range so that we can resample at the start and/or end of the range requested
+  // tricky trick here. un-set my clock to find the actual range accounting for dropped points.
+  // then re-set the clock after.
+  if (canDrop) {
+    this->setClock(Clock::_sp());
+  }
+  q.start = this->pointBefore(q.start).time;
+  q.end = this->pointAfter(q.end).time;
+  q.start = this->source()->timeBefore(q.start);
+  q.end = this->source()->timeAfter(q.end);
+  if (canDrop) {
+    this->setClock(myClock);
+  }
+  return q;
+}
+
+
 TimeSeries::PointCollection TimeSeriesFilter::filterPointsInRange(TimeRange range) {
   
   TimeRange queryRange = range;

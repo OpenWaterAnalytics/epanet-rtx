@@ -54,10 +54,7 @@ TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(Time
   // too many points are excluded. yikes!
   TimeRange sourceQuery = range;
   if (this->willResample()) {
-    // expand range so that we can resample at the start and/or end of the range requested
-    // this is quick and dirty, and probably will fail for badly behaved data.
-    sourceQuery.start -= range.duration();
-    sourceQuery.end += range.duration();
+    sourceQuery = this->expandedRange(range);
   }
 
   // get raw values, exclude outliers, then resample if needed.
