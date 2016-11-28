@@ -250,8 +250,8 @@ TimeRange TimeSeriesFilter::expandedRange(RTX::TimeRange r) {
   if (canDrop) {
     this->setClock(Clock::_sp());
   }
-  q.start = this->pointBefore(r.start).time;
-  q.end = this->pointAfter(r.end).time;
+  q.start = this->timeBefore(r.start);
+  q.end = this->timeAfter(r.end);
   q.correctWithRange(r);
   r = q;
   q.start = this->source()->timeBefore(r.start);
@@ -354,7 +354,7 @@ time_t TimeSeriesFilter::timeBefore(time_t t) {
   if (!this->source()) {
     return 0;
   }
-  if (this->clock()) {
+  else if (this->clock()) {
     return this->clock()->timeBefore(t);
   }
   else if (this->canDropPoints()) {
