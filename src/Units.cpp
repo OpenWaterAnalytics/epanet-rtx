@@ -310,7 +310,8 @@ Units Units::unitOfType(const string& unitString) {
   }
   
   double conversionFactor = 1;
-  int mass=0, length=0, time=0, current=0, temperature=0, amount=0, intensity=0, offset=0;
+  int mass=0, length=0, time=0, current=0, temperature=0, amount=0, intensity=0;
+  double offset=0;
   
 //  const map<string, Units> unitMap = Units::unitStringMap;
   map<string, Units>::const_iterator found = Units::unitStringMap.find(unitString);
@@ -342,7 +343,7 @@ Units Units::unitOfType(const string& unitString) {
   
   // case insensitive search?
   typedef std::pair<std::string, Units> stringUnitsPair;
-  BOOST_FOREACH(const stringUnitsPair& sup, Units::unitStringMap) {
+  for(const stringUnitsPair& sup : Units::unitStringMap) {
     const string u = sup.first;
     if (RTX_STRINGS_ARE_EQUAL(u, unitString)) {
       return sup.second;
@@ -372,14 +373,18 @@ Units Units::unitOfType(const string& unitString) {
   components.pop_front();
   
   // get each dimensional power and set it.
-  BOOST_FOREACH(const string& part, components) {
+  for(const string& part : components) {
     
     vector<string> dimensionPower;
     boost::split(dimensionPower, part, boost::is_any_of("^="));
     if (dimensionPower.size() != 2) {
       continue;
     }
-    int power = boost::lexical_cast<int>(dimensionPower.back());
+    int power;
+    double offsetFromStr;
+    if (!boost::conversion::try_lexical_convert(dimensionPower.back(), power)) {
+      offsetFromStr = boost::lexical_cast<double>(dimensionPower.back());
+    }
     dimensionPower.pop_back();
     string dim = dimensionPower.back();
     
@@ -399,7 +404,7 @@ Units Units::unitOfType(const string& unitString) {
     } else if (RTX_STRINGS_ARE_EQUAL(dim, "candela") || RTX_STRINGS_ARE_EQUAL_CS(dim, "cd")) {
       intensity = power;
     } else if (RTX_STRINGS_ARE_EQUAL(dim, "offset")) {
-      offset = power;
+      offset = offsetFromStr;
     }
   }
   

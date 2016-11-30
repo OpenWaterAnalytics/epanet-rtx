@@ -29,10 +29,13 @@ project (EPANET-RTX)
 SET (CMAKE_C_FLAGS "-std=c99")
 SET (CMAKE_CXX_FLAGS "-Wall -std=c++11 -fblocks")
 add_definitions(-DRTX_NO_MYSQL)
-
+enable_testing()
 
 message("prefix: ${CMAKE_FIND_LIBRARY_PREFIXES}")
 message("suffix: ${CMAKE_FIND_LIBRARY_SUFFIXES}")
+
+find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+include_directories (${Boost_INCLUDE_DIRS})
 
 SET (EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 SET (LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
@@ -43,7 +46,6 @@ IF(APPLE)
    SET(EXTRA_LIBS ${SECURITY_FRAMEWORK} ${CORE_FRAMEWORK})
 ENDIF (APPLE)
 
-
 # the rtx library
 include_directories(
 	../../src
@@ -52,6 +54,11 @@ include_directories(
 	/usr/include
 	/usr/include/iodbc
 	../../../EPANET/src
+	)
+	
+link_directories(
+	/usr/lib
+	/usr/local/lib
 	)
 	
 add_library(epanetrtx SHARED  
@@ -120,8 +127,7 @@ add_library(epanetrtx SHARED
 	)
 
 target_compile_definitions(epanetrtx PRIVATE MAXFLOAT=3.40282347e+38F)
-target_link_libraries(
-	epanetrtx 
+set(rtx_lib_deps 
 	epanet
 	geohash
 	curl 
@@ -137,7 +143,31 @@ target_link_libraries(
 	BlocksRuntime
 	ssl
 	crypto
+	cpprest
 	)
+
+	
+target_link_libraries(
+	epanetrtx
+	${rtx_lib_deps}
+	)
+
+#### TESTING COMPONENTS ######
+
+file(GLOB TEST_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ../../test/*.cpp)
+
+add_executable(rtx_tests ${TEST_SRCS})
+
+target_link_libraries(
+        	rtx_tests 
+        	${Boost_LIBRARIES} 
+        	epanetrtx
+        	${rtx_lib_deps}
+        	)
+
+add_test(NAME rtx_tests COMMAND rtx_tests )
+
+
 
 install(DIRECTORY ../../src/ DESTINATION include/rtx FILES_MATCHING PATTERN "*.h")
 install(TARGETS epanetrtx DESTINATION lib)
