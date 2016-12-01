@@ -53,7 +53,7 @@ namespace RTX {
    */
   
     
-  class PointRecord : public RTX_object {
+  class PointRecord : public std::enable_shared_from_this<PointRecord>, public RTX_object {
     
   public:
     
@@ -73,6 +73,7 @@ namespace RTX {
     
     typedef std::pair<std::string,Units> nameUnitsPair;
     RTX_BASE_PROPS(PointRecord);
+    PointRecord::_sp sp() {return shared_from_this();};
     typedef std::pair<time_t, time_t> time_pair_t;
     
     PointRecord();

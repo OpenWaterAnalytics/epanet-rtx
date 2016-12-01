@@ -13,7 +13,6 @@ namespace RTX {
     virtual void visit(T&) = 0;
   };
   
-
   class BaseVisitable {
   public:
     virtual ~BaseVisitable() {};
