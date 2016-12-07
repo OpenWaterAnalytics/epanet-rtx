@@ -21,6 +21,8 @@ namespace RTX {
   public:
     RTX_BASE_PROPS(RTX_object);
   };
+  
+  typedef RTX_object::_sp RTX_ptr;
 }
 
 #define RTX_MAX_CHAR_STRING 256

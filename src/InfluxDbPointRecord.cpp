@@ -85,10 +85,9 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
   bool dbExists = false;
   
   uri uri = _InfluxDbPointRecord_uriForQuery(*this, "SHOW MEASUREMENTS LIMIT 1", false);
-  jsObject jsoMeas = _InfluxDbPointRecord_jsonFromRequest(*this,uri).as_object();
-  auto jsoNOTFOUND = jsoMeas.end();
-  if (jsoMeas.empty() || jsoMeas.find(kRESULTS) == jsoNOTFOUND) {
-    if (jsoMeas.find("error") != jsoNOTFOUND) {
+  jsValue jsoMeas = _InfluxDbPointRecord_jsonFromRequest(*this,uri);
+  if (!jsoMeas.has_field(kRESULTS)) {
+    if (jsoMeas.has_field("error")) {
       this->errorMessage = jsoMeas["error"].as_string();
       return;
     }
@@ -104,10 +103,9 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
     return;
   }
   
-  auto resFirst = resVal.as_array().begin();
-  jsObject res = resFirst->as_object();
-  if (res.find(kERROR) != res.end()) {
-    this->errorMessage = res[kERROR].as_string();
+  // for sure it's an array.
+  if (resVal.size() > 0 && resVal[0].has_field(kERROR)) {
+    this->errorMessage = resVal[0][kERROR].as_string();
   }
   else {
     dbExists = true;
@@ -125,8 +123,8 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
     .append_query("p", this->conn.pass, false)
     .append_query("q", "CREATE DATABASE " + this->conn.db, true);
     
-    jsObject respObj = _InfluxDbPointRecord_jsonFromRequest(*this, b.to_uri()).as_object();
-    if (respObj.empty() || respObj.find(kRESULTS) == respObj.end()) {
+    jsValue response = _InfluxDbPointRecord_jsonFromRequest(*this, b.to_uri());
+    if (response.size() == 0 || !response.has_field(kRESULTS) ) {
       this->errorMessage = "Can't create database";
       return;
     }
@@ -194,22 +192,21 @@ PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
   uri uri = _InfluxDbPointRecord_uriForQuery(*this, kSHOW_SERIES, false);
   jsValue jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   
-  jsObject jso = jsv.as_object();
-  auto iResult = jso.find("results");
-  if (iResult == jso.end()) {
-    return _identifiersAndUnitsCache;
-  }
-  jsValue resVal = iResult->second;
-  jsArray resArr = resVal.as_array();
-  auto resIt = resArr.begin();
-  jsObject resZeroObj = resIt->as_object();
-  
-  auto seriesArrIt = resZeroObj.find(kSERIES);
-  if (seriesArrIt == resZeroObj.end()) {
+  if (!jsv.has_field("results")) {
     return _identifiersAndUnitsCache;
   }
   
-  jsArray seriesArray = seriesArrIt->second.as_array();
+  jsArray resArr = jsv["results"].as_array();
+  if (resArr.size() == 0) {
+    return _identifiersAndUnitsCache;
+  }
+  
+  jsValue zeroObj = resArr[0];
+  if (!zeroObj.has_field(kSERIES)) {
+    return _identifiersAndUnitsCache;
+  }
+  
+  jsArray seriesArray = zeroObj["series"].as_array();
   for (auto seriesIt = seriesArray.begin(); seriesIt != seriesArray.end(); ++seriesIt) {
     
     string str = seriesIt->serialize();
@@ -227,7 +224,7 @@ PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
       // now we have all kv pairs that define a time series.
       // do we have units info? strip it off before showing the user.
       Units units = RTX_NO_UNITS;
-      if (m.tags.find("units") != m.tags.end()) {
+      if (m.tags.count("units") > 0) {
         units = Units::unitOfType(m.tags["units"]);
         // remove units from string name.
         m.tags.erase("units");
@@ -376,19 +373,18 @@ std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(jsValue json) {
   // multiple time series might be returned eventually, but for now it's just a single-value array.
   vector<Point> points;
   
-  jsObject jso = json.as_object();
-  if (!json.is_object() || jso.empty()) {
+  if (!json.is_object() || json.size() == 0) {
     return points;
   }
-  if (jso.find(kRESULTS) == jso.end()) {
+  if ( !json.has_field(kRESULTS) ) {
     return points;
   }
-  jsValue resultsVal = jso[kRESULTS];
-  if (!resultsVal.is_array() || resultsVal.as_array().size() == 0) {
+  jsValue resultsVal = json[kRESULTS];
+  if (!resultsVal.is_array() || resultsVal.size() == 0) {
     return points;
   }
   jsValue firstRes = resultsVal.as_array()[0];
-  if (!firstRes.is_object() || firstRes.as_object().find(kSERIES) == firstRes.as_object().end()) {
+  if ( !firstRes.is_object() || !firstRes.has_field(kSERIES) ) {
     return points;
   }
   jsArray seriesArr = firstRes.as_object()[kSERIES].as_array();

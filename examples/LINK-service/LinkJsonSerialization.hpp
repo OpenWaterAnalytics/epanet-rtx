@@ -45,7 +45,6 @@ namespace RTX {
     void visit(OdbcDirectPointRecord &pr);
     web::json::value json();
     
-    
   private:
     web::json::value _v;
   };
