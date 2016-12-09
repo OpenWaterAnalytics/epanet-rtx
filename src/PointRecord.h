@@ -22,6 +22,7 @@
 #include "Units.h"
 #include "rtxMacros.h"
 #include "rtxExceptions.h"
+#include "TimeRange.h"
 
 using std::string;
 
@@ -74,7 +75,6 @@ namespace RTX {
     typedef std::pair<std::string,Units> nameUnitsPair;
     RTX_BASE_PROPS(PointRecord);
     PointRecord::_sp sp() {return shared_from_this();};
-    typedef std::pair<time_t, time_t> time_pair_t;
     
     PointRecord();
     virtual ~PointRecord() {};
@@ -91,7 +91,7 @@ namespace RTX {
     virtual Point point(const string& identifier, time_t time);
     virtual Point pointBefore(const string& identifier, time_t time);
     virtual Point pointAfter(const string& identifier, time_t time);
-    virtual std::vector<Point> pointsInRange(const string& identifier, time_t startTime, time_t endTime);
+    virtual std::vector<Point> pointsInRange(const string& identifier, TimeRange range);
     virtual void addPoint(const string& identifier, Point point);
     virtual void addPoints(const string& identifier, std::vector<Point> points);
     virtual void reset(); // clear memcache for all ids
@@ -99,7 +99,7 @@ namespace RTX {
     virtual void invalidate(const string& identifier) {reset(identifier);}; // alias here, override for database implementations
     virtual Point firstPoint(const string& id);
     virtual Point lastPoint(const string& id);
-    virtual time_pair_t range(const string& id);
+    virtual TimeRange range(const string& id);
     
     virtual std::ostream& toStream(std::ostream &stream);
     

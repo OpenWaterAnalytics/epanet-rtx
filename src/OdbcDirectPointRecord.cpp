@@ -78,12 +78,12 @@ PointRecord::IdentifierUnitsList OdbcDirectPointRecord::identifiersAndUnits() {
 
 
 
-std::vector<Point> OdbcDirectPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
+std::vector<Point> OdbcDirectPointRecord::selectRange(const std::string& id, TimeRange range) {
   
   this->checkConnected();
   
   // construct the static query text
-  string q = this->stringQueryForRange(id, startTime, endTime);
+  string q = this->stringQueryForRange(id, range);
   vector<Point> points;
   SQLHSTMT rangeStmt = 0;
   
@@ -135,18 +135,18 @@ Point OdbcDirectPointRecord::selectPrevious(const std::string& id, time_t time) 
 
 
 
-std::string OdbcDirectPointRecord::stringQueryForRange(const std::string& id, time_t start, time_t end) {
+std::string OdbcDirectPointRecord::stringQueryForRange(const std::string& id, TimeRange range) {
   
   string query = querySyntax.rangeSelect;
   string startStr,endStr;
   
   if (this->timeFormat() == PointRecordTime::UTC) {
-    startStr = PointRecordTime::utcDateStringFromUnix(start-1);
-    endStr = PointRecordTime::utcDateStringFromUnix(end+1);
+    startStr = PointRecordTime::utcDateStringFromUnix(range.start-1);
+    endStr = PointRecordTime::utcDateStringFromUnix(range.end+1);
   }
   else {
-    startStr = PointRecordTime::localDateStringFromUnix(start-1, _specifiedTimeZone);
-    endStr = PointRecordTime::localDateStringFromUnix(end+1, _specifiedTimeZone);
+    startStr = PointRecordTime::localDateStringFromUnix(range.start-1, _specifiedTimeZone);
+    endStr = PointRecordTime::localDateStringFromUnix(range.end+1, _specifiedTimeZone);
   }
   
   string startDateStr = "'" + startStr + "'"; // minus one because of wonderware's silly "initial value" in delta retrieval.

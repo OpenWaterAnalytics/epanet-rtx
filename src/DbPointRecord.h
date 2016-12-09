@@ -57,7 +57,7 @@ namespace RTX {
     Point point(const string& id, time_t time);
     Point pointBefore(const string& id, time_t time);
     Point pointAfter(const string& id, time_t time);
-    std::vector<Point> pointsInRange(const string& id, time_t startTime, time_t endTime);
+    std::vector<Point> pointsInRange(const string& id, TimeRange range);
     
     void addPoint(const string& id, Point point);
     void addPoints(const string& id, std::vector<Point> points);
@@ -133,7 +133,7 @@ namespace RTX {
   protected:
     
     // select statements
-    virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime)=0;
+    virtual std::vector<Point> selectRange(const std::string& id, TimeRange range)=0;
     virtual Point selectNext(const std::string& id, time_t time)=0;
     virtual Point selectPrevious(const std::string& id, time_t time)=0;
     
@@ -148,12 +148,12 @@ namespace RTX {
     
     class request_t {
     public:
-      PointRecord::time_pair_t range;
+      TimeRange range;
       std::string id;
-      request_t(std::string id, time_t start, time_t end);
+      request_t(std::string id, TimeRange range);
       bool contains(std::string id, time_t t);
     };
-    request_t request;
+    request_t _last_request;
     
     
   private:

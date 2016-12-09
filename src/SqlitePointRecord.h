@@ -31,7 +31,7 @@ namespace RTX {
     void dbConnect() throw(RtxException);
     bool isConnected();
     
-    time_pair_t range(const string& id);
+    TimeRange range(const string& id);
     
     std::string connectionString();
     void setConnectionString(const std::string& path);
@@ -46,7 +46,7 @@ namespace RTX {
     virtual void endBulkOperation();
     
   protected:
-    std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);
+    std::vector<Point> selectRange(const std::string& id, TimeRange range);
     Point selectNext(const std::string& id, time_t time);
     Point selectPrevious(const std::string& id, time_t time);
     

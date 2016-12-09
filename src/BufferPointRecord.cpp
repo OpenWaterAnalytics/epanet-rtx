@@ -150,12 +150,18 @@ Point BufferPointRecord::pointBefore(const string& identifier, time_t time) {
   return foundPoint;
 }
 
-
+// pre-supposes that the time supplied is within my buffer.
 Point BufferPointRecord::pointAfter(const string& identifier, time_t time) {
   
   scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
   
   Point foundPoint;
+  
+  if (!this->range(identifier).contains(time)) {
+    // don't bother if its' not in range
+    return foundPoint;
+  }
+  
   //TimePointPair_t finder(time, PointPair_t(0,0));
   Point finder(time, 0);
   
@@ -168,10 +174,11 @@ Point BufferPointRecord::pointAfter(const string& identifier, time_t time) {
     if (it != buffer.end()) {
       // OK we're not at the end, so there is a point after time
       if (it != buffer.begin() || (it->time == time + 1)) {
+        // exclude the first point of the buffer, since this means that the requested time is outside my range.
         // either we're not at the beginning, so the point is within the continuous buffer -
         // or edge case where beginning of buffer is adjacent to requested time
         foundPoint = *it;
-        PointRecord::addPoint(identifier, foundPoint);
+        PointRecord::addPoint(identifier, foundPoint); // single point cache layer
         return foundPoint;
       }
     }
@@ -181,14 +188,14 @@ Point BufferPointRecord::pointAfter(const string& identifier, time_t time) {
 }
 
 
-std::vector<Point> BufferPointRecord::pointsInRange(const string& identifier, time_t startTime, time_t endTime) {
+std::vector<Point> BufferPointRecord::pointsInRange(const string& identifier, TimeRange range) {
   
   scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
   
   std::vector<Point> pointVector;
   
   //TimePointPair_t finder(startTime, PointPair_t(0,0));
-  Point finder(startTime, 0);
+  Point finder(range.start, 0);
   
   KeyedBufferMap_t::iterator it = _keyedBuffers.find(identifier);
   if (it != _keyedBuffers.end()) {
@@ -196,7 +203,7 @@ std::vector<Point> BufferPointRecord::pointsInRange(const string& identifier, ti
     PointBuffer_t& buffer = (it->second.circularBuffer);
     
     PointBuffer_t::const_iterator it = lower_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
-    while ( (it != buffer.end()) && (it->time <= endTime) ) {
+    while ( (it != buffer.end()) && (it->time <= range.end) ) {
       Point newPoint = *it;
       pointVector.push_back(newPoint);
       it++;
@@ -241,7 +248,7 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
     time_t firstInsertionTime = points.front().time;
     time_t lastInsertionTime = points.back().time;
     
-    PointRecord::time_pair_t existingRange = BufferPointRecord::range(identifier);
+    TimeRange existingRange = BufferPointRecord::range(identifier);
     
     // make sure they're in order
     std::sort(points.begin(), points.end(), &Point::comparePointTime);
@@ -251,15 +258,15 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
       // more gap detection? right on!
       bool gap = true;
       
-      if (firstInsertionTime <= existingRange.second && existingRange.second < lastInsertionTime) {
+      if (firstInsertionTime <= existingRange.end && existingRange.end < lastInsertionTime) {
         // some of these new points need to be inserted ono the end.
         // fast-fwd along the new points vector, ignoring any points that will not be appended.
         gap = false;
-        Point finder(existingRange.second, 0);
+        Point finder(existingRange.end, 0);
         vector<Point>::const_iterator pIt = upper_bound(points.begin(), points.end(), finder, &Point::comparePointTime);
         // now insert these trailing points.
         while (pIt != points.end()) {
-          if (pIt->time > existingRange.second) {
+          if (pIt->time > existingRange.end) {
             //BufferPointRecord::addPoint(identifier, *pIt);
             // append to circular buffer.
             buffer.push_back(*pIt);
@@ -271,7 +278,7 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
         }
       } // appending
       
-      if (firstInsertionTime < existingRange.first && existingRange.first <= lastInsertionTime) {
+      if (firstInsertionTime < existingRange.start && existingRange.start <= lastInsertionTime) {
         // some of the new points need to be pre-pended to the buffer.
         // insert onto front (reverse iteration)
         gap = false;
@@ -281,7 +288,7 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
           // make this smarter? using upper_bound maybe? todo - figure out upper_bound with a reverse_iterator
           // skip overlapping points.
           
-          if (pIt->time < existingRange.first) {
+          if (pIt->time < existingRange.start) {
             buffer.push_front(*pIt);
           }
           // else { /* skip */ }
@@ -290,7 +297,7 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
         }
       } // prepending
       
-      if (existingRange.first <= firstInsertionTime && lastInsertionTime <= existingRange.second) {
+      if (existingRange.start <= firstInsertionTime && lastInsertionTime <= existingRange.end) {
         // complete overlap -- why did we even try to add these?
         gap = false;
       } // complete overlap
@@ -327,7 +334,6 @@ void BufferPointRecord::reset(const string& identifier) {
 }
 
 
-
 Point BufferPointRecord::firstPoint(const string& id) {
   Point foundPoint;
   KeyedBufferMap_t::iterator it = _keyedBuffers.find(id);
@@ -360,6 +366,6 @@ Point BufferPointRecord::lastPoint(const string& id) {
   return foundPoint;
 }
 
-PointRecord::time_pair_t BufferPointRecord::range(const string& id) {
-  return make_pair(BufferPointRecord::firstPoint(id).time, BufferPointRecord::lastPoint(id).time);
+TimeRange BufferPointRecord::range(const string& id) {
+  return TimeRange(BufferPointRecord::firstPoint(id).time, BufferPointRecord::lastPoint(id).time);
 }

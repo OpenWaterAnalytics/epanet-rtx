@@ -65,7 +65,7 @@ namespace RTX {
     bool insertIdentifierAndUnits(const std::string& recordName, Units units);
     IdentifierUnitsList identifiersAndUnits();
     
-    virtual time_pair_t range(const string& id);
+    virtual TimeRange range(const string& id);
     virtual std::ostream& toStream(std::ostream &stream);
     
     bool supportsSinglyBoundedQueries() { return true; };
@@ -73,7 +73,7 @@ namespace RTX {
     bool supportsUnitsColumn() { return true; };
     
   protected:
-    virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);
+    virtual std::vector<Point> selectRange(const std::string& id, TimeRange range);
     virtual Point selectNext(const std::string& id, time_t time);
     virtual Point selectPrevious(const std::string& id, time_t time);
     

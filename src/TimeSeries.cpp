@@ -353,7 +353,7 @@ std::vector< Point > TimeSeries::points(TimeRange range) {
     this->record()->registerAndGetIdentifierForSeriesWithUnits(this->name(), this->units());
   }
   
-  points = this->record()->pointsInRange(this->name(), range.start, range.end);
+  points = this->record()->pointsInRange(this->name(), range);
   return points;
 }
 

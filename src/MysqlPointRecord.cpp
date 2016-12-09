@@ -190,7 +190,7 @@ bool MysqlPointRecord::insertIdentifierAndUnits(const std::string &recordName, R
 }
 
 
-PointRecord::time_pair_t MysqlPointRecord::range(const string& id) {
+TimeRange MysqlPointRecord::range(const string& id) {
   Point last;
   Point first;
   
@@ -212,7 +212,7 @@ PointRecord::time_pair_t MysqlPointRecord::range(const string& id) {
       last = lsPoints.front();
     }
   }
-  return make_pair(first.time, last.time);
+  return TimeRange(first.time, last.time);
 }
 
 #pragma mark - simple set/get
@@ -311,7 +311,7 @@ void MysqlPointRecord::fetchPrevious(const std::string& id, time_t time) {
  */
 
 // select just returns the results (no caching)
-std::vector<Point> MysqlPointRecord::selectRange(const std::string& id, time_t start, time_t end) {
+std::vector<Point> MysqlPointRecord::selectRange(const std::string& id, TimeRange range) {
   //cout << "mysql range: " << start << " - " << end << endl;
   
   std::vector<Point> points;
@@ -322,8 +322,8 @@ std::vector<Point> MysqlPointRecord::selectRange(const std::string& id, time_t s
   
   if (checkConnection()) {
     _rangeSelect->setString(1, id);
-    _rangeSelect->setInt(2, (int)start);
-    _rangeSelect->setInt(3, (int)end);
+    _rangeSelect->setInt(2, (int)range.start);
+    _rangeSelect->setInt(3, (int)range.end);
     std::shared_ptr<sql::ResultSet> results(_rangeSelect->executeQuery());
     points = pointsFromResultSet(results);
   }
@@ -358,7 +358,7 @@ void MysqlPointRecord::insertRange(const std::string& id, std::vector<Point> poi
   vector<Point> existing;
   if (checkConnection()) {
     if (points.size() > 1) {
-      existing = this->selectRange(id, points.front().time, points.back().time);
+      existing = this->selectRange(id, TimeRange(points.front().time, points.back().time));
     }
   }
   

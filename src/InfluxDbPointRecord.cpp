@@ -241,7 +241,7 @@ PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
 
 #pragma mark SELECT
 
-std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
+std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, TimeRange req_range) {
   // bulk operation is inserts, so skip the lookup.
   //if (_inBulkOperation) {
     //return vector<Point>();
@@ -249,8 +249,8 @@ std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, time_
   std::lock_guard<std::mutex> lock(_influxMutex);
   string dbId = influxIdForTsId(id);
   DbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
-  q.where.push_back("time >= " + to_string(startTime) + "s");
-  q.where.push_back("time <= " + to_string(endTime) + "s");
+  q.where.push_back("time >= " + to_string(req_range.start) + "s");
+  q.where.push_back("time <= " + to_string(req_range.end) + "s");
   
   uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
   jsValue jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);

@@ -362,7 +362,7 @@ PointRecord::IdentifierUnitsList SqlitePointRecord::identifiersAndUnits() {
 }
 
 
-PointRecord::time_pair_t SqlitePointRecord::range(const string& id) {
+TimeRange SqlitePointRecord::range(const string& id) {
   Point last,first;
   vector<Point> points;
   
@@ -398,7 +398,7 @@ PointRecord::time_pair_t SqlitePointRecord::range(const string& id) {
       sqlite3_reset(selectLastStmt);
       sqlite3_finalize(selectLastStmt);
       
-      return make_pair(minTime, maxTime);
+      return TimeRange(minTime, maxTime);
     }
     
     // non-optimized code -- deprecate
@@ -426,11 +426,10 @@ PointRecord::time_pair_t SqlitePointRecord::range(const string& id) {
       sqlite3_finalize(selectLastStmt);
     }
   }
-  //  return make_pair(first.time, last.time);
-  return make_pair(0, 0);
+  return TimeRange();
 }
 
-std::vector<Point> SqlitePointRecord::selectRange(const std::string& id, time_t startTime, time_t endTime) {
+std::vector<Point> SqlitePointRecord::selectRange(const std::string& id, TimeRange range) {
   vector<Point> points;
   
   if (!isConnected()) {
@@ -447,8 +446,8 @@ std::vector<Point> SqlitePointRecord::selectRange(const std::string& id, time_t 
     int ret = sqlite3_prepare_v2(_dbHandle, _selectRangeStr.c_str(), -1, &s, NULL);
     
     sqlite3_bind_text(s, 1, id.c_str(), -1, NULL);
-    sqlite3_bind_int(s, 2, (int)startTime);
-    sqlite3_bind_int(s, 3, (int)endTime);
+    sqlite3_bind_int(s, 2, (int)range.start);
+    sqlite3_bind_int(s, 3, (int)range.end);
     
     points = pointsFromPreparedStatement(s);
     

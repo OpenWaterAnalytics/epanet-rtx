@@ -23,14 +23,14 @@ TimeRange::TimeRange(time_t i_start, time_t i_end) {
 time_t TimeRange::duration() {
   return end - start;
 }
-bool TimeRange::contains(time_t time) {
+bool TimeRange::contains(const time_t& time) const {
   return (start <= time && time <= end);
 }
-bool TimeRange::containsRange(RTX::TimeRange range) {
+bool TimeRange::containsRange(const TimeRange& range) const {
   return ( this->contains(range.start) && this->contains(range.end) );
 }
 
-bool TimeRange::touches(TimeRange otherRange) {
+bool TimeRange::touches(const TimeRange& otherRange) {
   if (!this->isValid() || !otherRange.isValid()) {
     return false;
   }
@@ -44,7 +44,7 @@ bool TimeRange::touches(TimeRange otherRange) {
     return false;
   }
 }
-bool TimeRange::isValid() {
+bool TimeRange::isValid() const {
   if (this->contains(0)) {
     return false;
   }
@@ -54,7 +54,7 @@ bool TimeRange::isValid() {
   return true;
 }
 
-void TimeRange::correctWithRange(RTX::TimeRange otherRange) {
+void TimeRange::correctWithRange(const TimeRange& otherRange) {
   if (this->isValid()) {
     return;
   }
@@ -65,4 +65,44 @@ void TimeRange::correctWithRange(RTX::TimeRange otherRange) {
     this->end = otherRange.end;
   }
 }
+
+TimeRange::intersect_type TimeRange::intersection(const TimeRange& otherRange) {
+  
+  if (!this->touches(otherRange)) {
+    return intersect_none;
+  }
+  
+  if (this->containsRange(otherRange) && otherRange.containsRange(*this)) {
+    return intersect_equal;
+  }
+  
+  if ( otherRange.start < this->start
+      && otherRange.end < this->end
+      && this->start < otherRange.end ) {
+    return intersect_left;
+  }
+  
+  if ( this->end < otherRange.end
+      && this->start < otherRange.start
+      && otherRange.start < this->start ) {
+    return intersect_right;
+  }
+  
+  if (this->containsRange(otherRange)) {
+    return intersect_other_internal;
+  }
+  
+  if (otherRange.containsRange(*this)) {
+    return intersect_other_external;
+  }
+  
+  return intersect_none;
+  
+}
+
+
+
+
+
+
 

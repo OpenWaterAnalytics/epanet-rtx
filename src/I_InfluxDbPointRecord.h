@@ -50,7 +50,7 @@ namespace RTX {
     
   protected:
     // instance method interfaces - optional override
-    virtual std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime) {return std::vector<Point>();};
+    virtual std::vector<Point> selectRange(const std::string& id, TimeRange range) {return std::vector<Point>();};
     virtual Point selectNext(const std::string& id, time_t time) {return Point();};
     virtual Point selectPrevious(const std::string& id, time_t time) {return Point();};
     virtual void removeRecord(const std::string& id) {};

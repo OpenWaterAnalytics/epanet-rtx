@@ -51,14 +51,14 @@ namespace RTX {
     virtual Point point(const string& identifier, time_t time);
     virtual Point pointBefore(const string& identifier, time_t time);
     virtual Point pointAfter(const string& identifier, time_t time);
-    virtual std::vector<Point> pointsInRange(const string& identifier, time_t startTime, time_t endTime);
+    virtual std::vector<Point> pointsInRange(const string& identifier, TimeRange range);
     virtual void addPoint(const string& identifier, Point point);
     virtual void addPoints(const string& identifier, std::vector<Point> points);
     virtual void reset();
     virtual void reset(const string& identifier);
     virtual Point firstPoint(const string& id);
     virtual Point lastPoint(const string& id);
-    virtual time_pair_t range(const string& id);
+    virtual TimeRange range(const string& id);
     
     virtual std::ostream& toStream(std::ostream &stream);
     

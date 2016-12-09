@@ -237,7 +237,7 @@ const map<string, Units> OpcPointRecord::identifiersAndUnits() {
 
 
 
-vector<Point> OpcPointRecord::selectRange(const string& id, time_t startTime, time_t endTime) {
+vector<Point> OpcPointRecord::selectRange(const string& id, TimeRange range) {
   
   vector<Point> points;
   

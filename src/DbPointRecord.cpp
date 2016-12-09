@@ -56,12 +56,12 @@ std::string DbPointRecord::Query::nameAndWhereClause() {
   return ss.str();
 }
 
-DbPointRecord::request_t::request_t(string id, time_t start, time_t end) : range(make_pair(start, end)), id(id) {
+DbPointRecord::request_t::request_t(string id, TimeRange r_range) : range(r_range), id(id) {
   
 }
 
 bool DbPointRecord::request_t::contains(std::string id, time_t t) {
-  if (this->range.first <= t && t <= this->range.second && RTX_STRINGS_ARE_EQUAL(id, this->id)) {
+  if (this->range.start <= t && t <= this->range.end && RTX_STRINGS_ARE_EQUAL(id, this->id)) {
     return true;
   }
   return false;
@@ -69,7 +69,7 @@ bool DbPointRecord::request_t::contains(std::string id, time_t t) {
 
 
 
-DbPointRecord::DbPointRecord() : request("",0,0) {
+DbPointRecord::DbPointRecord() : _last_request("",TimeRange()) {
   _searchDistance = 60*60*24*7; // 1-week
   errorMessage = "Not Connected";
   _readOnly = false;
@@ -195,7 +195,7 @@ Point DbPointRecord::point(const string& id, time_t time) {
     // if so, and Super couldn't find it, then it's just not here.
     // todo -- check staleness
     
-    if (request.contains(id, time)) {
+    if (_last_request.contains(id, time)) {
       return Point();
     }
     
@@ -204,14 +204,14 @@ Point DbPointRecord::point(const string& id, time_t time) {
     
     // do the request, and cache the request parameters.
     
-    vector<Point> pVec = this->selectRange(id, start, end);
+    vector<Point> pVec = this->selectRange(id, TimeRange(start, end));
     pVec = this->pointsWithOpcFilter(pVec);
     
     if (pVec.size() > 0) {
-      request = request_t(id, pVec.front().time, pVec.back().time);
+      _last_request = request_t(id, TimeRange(pVec.front().time, pVec.back().time));
     }
     else {
-      request = request_t(id,0,0);
+      _last_request = request_t(id,TimeRange());
     }
     
     
@@ -244,7 +244,7 @@ Point DbPointRecord::pointBefore(const string& id, time_t time) {
   }
   
   // if it's not buffered, but the last request covered this range, then there is no point here.
-  if (request.contains(id, time-1)) {
+  if (_last_request.contains(id, time-1)) {
     return Point();
   }
   
@@ -278,7 +278,7 @@ Point DbPointRecord::pointAfter(const string& id, time_t time) {
   }
   
   // last request covered this already?
-  if (request.contains(id, time + 1)) {
+  if (_last_request.contains(id, time + 1)) {
     return Point();
   }
   
@@ -310,12 +310,13 @@ Point DbPointRecord::searchPreviousIteratively(const string& id, time_t time) {
   if (isConnected()) {
     vector<Point> points;
     // iterative lookbehind is faster than unbounded lookup
-    time_t searchStartTime = time - iterativeSearchStride;
-    time_t searchEndTime = time - 1;
+    TimeRange r;
+    r.start = time - iterativeSearchStride;
+    r.end = time - 1;
     while (points.size() == 0 && lookBehindLimit > 0) {
-      points = this->pointsInRange(id, searchStartTime, searchEndTime);
-      searchEndTime -= iterativeSearchStride;
-      searchStartTime -= iterativeSearchStride;
+      points = this->pointsInRange(id, r);
+      r.end   -= iterativeSearchStride;
+      r.start -= iterativeSearchStride;
       --lookBehindLimit;
     }
     if (points.size() > 0) {
@@ -334,12 +335,13 @@ Point DbPointRecord::searchNextIteratively(const string& id, time_t time) {
   if (isConnected()) {
     vector<Point> points;
     // iterative lookbehind is faster than unbounded lookup
-    time_t searchStartTime = time + 1;
-    time_t searchEndTime = time + iterativeSearchStride;
+    TimeRange r;
+    r.start = time + 1;
+    r.end = time + iterativeSearchStride;
     while (points.size() == 0 && lookAheadLimit > 0) {
-      points = this->pointsInRange(id, searchStartTime, searchEndTime);
-      searchStartTime += iterativeSearchStride;
-      searchEndTime += iterativeSearchStride;
+      points = this->pointsInRange(id, r);
+      r.start += iterativeSearchStride;
+      r.end += iterativeSearchStride;
       --lookAheadLimit;
     }
     if (points.size() > 0) {
@@ -350,41 +352,60 @@ Point DbPointRecord::searchNextIteratively(const string& id, time_t time) {
 }
 
 
-std::vector<Point> DbPointRecord::pointsInRange(const string& id, time_t startTime, time_t endTime) {
+std::vector<Point> DbPointRecord::pointsInRange(const string& id, TimeRange qrange) {
   
-  PointRecord::time_pair_t range = DB_PR_SUPER::range(id);
+  // limit double-queries
+  if (_last_request.range.containsRange(qrange) && _last_request.id == id) {
+    return DB_PR_SUPER::pointsInRange(id, qrange);
+  }
   
+  TimeRange range = DB_PR_SUPER::range(id);
+  TimeRange::intersect_type intersect = range.intersection(qrange);
+
   // if the requested range is not in memcache, then fetch it.
-  if ( !(range.first <= startTime && endTime <= range.second) ) {
-    vector<Point> left;
-    vector<Point> right;
+  if ( intersect == TimeRange::intersect_other_internal ) {
+    return DB_PR_SUPER::pointsInRange(id, qrange);
+  }
+  else {
+    vector<Point> left, middle, right;
+    TimeRange n_range;
     
-    time_t qstart, qend;
-    if (startTime < range.first && endTime < range.second  && endTime > range.first) {
+    if (intersect == TimeRange::intersect_left) {
       // left-fill query
-      qstart = startTime;
-      qend = range.first;
-      right = DB_PR_SUPER::pointsInRange(id, range.first, endTime);
+      n_range.start = qrange.start;
+      n_range.end = range.start;
+      middle = this->pointsWithOpcFilter(this->selectRange(id, n_range));
+      right = DB_PR_SUPER::pointsInRange(id, TimeRange(range.start, qrange.end));
     }
-    else if (range.first < startTime && range.second < endTime && startTime < range.second ) {
+    else if (intersect == TimeRange::intersect_right) {
       // right-fill query
-      qstart = range.second;
-      qend = endTime;
-      left = DB_PR_SUPER::pointsInRange(id, startTime, range.second);
+      n_range.start = range.end;
+      n_range.end = qrange.end;
+      left = DB_PR_SUPER::pointsInRange(id, TimeRange(qrange.start, range.end));
+      middle = this->pointsWithOpcFilter(this->selectRange(id, n_range));
+    }
+    else if (intersect == TimeRange::intersect_other_external){
+      // query overlaps but extends on both sides
+      TimeRange q_left, q_right;
+      
+      q_left.start = qrange.start;
+      q_left.end = range.start;
+      q_right.start = range.end;
+      q_right.end = qrange.end;
+      
+      left = this->pointsWithOpcFilter(this->selectRange(id, q_left));
+      middle = DB_PR_SUPER::pointsInRange(id, range);
+      right = this->pointsWithOpcFilter(this->selectRange(id, q_right));
     }
     else {
-      // full overlap -- todo - generate two queries...
-      qstart = startTime;
-      qend = endTime;
+      middle = this->pointsWithOpcFilter(this->selectRange(id, qrange));
     }
     // db hit
-    vector<Point> newPoints = this->selectRange(id, qstart, qend);
-    newPoints = this->pointsWithOpcFilter(newPoints);
     
     vector<Point> merged;
-    merged.reserve(newPoints.size() + left.size() + right.size());
+    merged.reserve(middle.size() + left.size() + right.size());
     merged.insert(merged.end(), left.begin(), left.end());
-    merged.insert(merged.end(), newPoints.begin(), newPoints.end());
+    merged.insert(merged.end(), middle.begin(), middle.end());
     merged.insert(merged.end(), right.begin(), right.end());
 
     set<time_t> addedTimes;
@@ -393,21 +414,16 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, time_t startTi
     BOOST_FOREACH(const Point& p, merged) {
       if (addedTimes.count(p.time) == 0) {
         addedTimes.insert(p.time);
-        if (startTime <= p.time && p.time <= endTime) {
+        if (qrange.start <= p.time && p.time <= qrange.end) {
           deDuped.push_back(p);
         }
       }
     }
     
-    request = (deDuped.size() > 0) ? request_t(id, deDuped.front().time, deDuped.back().time) : request_t(id,0,0);
-    
+    _last_request = (deDuped.size() > 0) ? request_t(id, qrange) : request_t(id,TimeRange());
     DB_PR_SUPER::addPoints(id, deDuped);
-    
     return deDuped;
   }
-  
-  return DB_PR_SUPER::pointsInRange(id, startTime, endTime);
-  
 }
 
 

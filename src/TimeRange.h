@@ -15,14 +15,25 @@
 namespace RTX {
   class TimeRange {
   public:
+    enum intersect_type {
+      intersect_left,           /// other range is to the left
+      intersect_right,          /// other range is to the right
+      intersect_equal,          /// ranges are equal
+      intersect_other_internal, /// other range is fully internal / contained within me
+      intersect_other_external, /// other range contains and extends mine
+      intersect_none            /// no intersection
+    };
+    
     TimeRange();
     TimeRange(time_t start, time_t end);
     time_t duration();
-    bool contains(time_t time);
-    bool containsRange(TimeRange range);
-    bool touches(TimeRange otherRange);
-    bool isValid();
-    void correctWithRange(TimeRange otherRange);
+    bool contains(const time_t& time) const;
+    bool containsRange(const TimeRange& range) const;
+    bool touches(const TimeRange& otherRange);
+    intersect_type intersection(const TimeRange& otherRange);
+    bool isValid() const;
+    void correctWithRange(const TimeRange& otherRange);
+    
     time_t start, end;
   };
 }

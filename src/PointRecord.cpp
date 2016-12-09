@@ -116,11 +116,11 @@ Point PointRecord::pointAfter(const string& identifier, time_t time) {
 }
 
 
-std::vector<Point> PointRecord::pointsInRange(const string& identifier, time_t startTime, time_t endTime) {
+std::vector<Point> PointRecord::pointsInRange(const string& identifier, TimeRange range) {
   std::vector<Point> pointVector;
   
-  if (startTime == endTime) {
-    Point p = this->point(identifier, startTime);
+  if (range.duration() == 0) {
+    Point p = this->point(identifier, range.start);
     if (p.isValid) {
       pointVector.push_back(p);
     }
@@ -137,8 +137,8 @@ Point PointRecord::lastPoint(const string &id) {
   return Point();
 }
 
-PointRecord::time_pair_t PointRecord::range(const string& id) {
-  return make_pair(this->firstPoint(id).time, this->lastPoint(id).time); // mostly for subclasses
+TimeRange PointRecord::range(const string& id) {
+  return TimeRange(this->firstPoint(id).time, this->lastPoint(id).time); // mostly for subclasses
 }
 
 

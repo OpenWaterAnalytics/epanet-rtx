@@ -24,14 +24,14 @@ namespace RTX {
     
   protected:
     void dbConnect() throw(RtxException);
-    std::vector<Point> selectRange(const std::string& id, time_t startTime, time_t endTime);
+    std::vector<Point> selectRange(const std::string& id, TimeRange range);
     Point selectNext(const std::string& id, time_t time);
     Point selectPrevious(const std::string& id, time_t time);
     
     
   private:
     typedef enum {OdbcQueryBoundLower,OdbcQueryBoundUpper} OdbcQueryBoundType;
-    std::string stringQueryForRange(const std::string& id, time_t start, time_t end);
+    std::string stringQueryForRange(const std::string& id, TimeRange range);
     std::string stringQueryForSinglyBoundedRange(const std::string& id, time_t bound, OdbcQueryBoundType boundType);
     std::string stringQueryForIds();
 //    SQLHSTMT _directTagQueryStmt, _directRangeQueryStmt;
