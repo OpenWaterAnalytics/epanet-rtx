@@ -29,6 +29,8 @@ public:
   double diameter();
   void setLength(double length);
   void setDiameter(double diameter);
+  
+  std::vector<Node::location_t> vertices; /// lon,lat
 
   double roughness();
   void setRoughness(double roughness);

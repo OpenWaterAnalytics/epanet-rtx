@@ -13,8 +13,7 @@
 
 using namespace RTX;
 
-Node::Node(const std::string& name) : Element(name) {
-  _lonLat = {0,0};
+Node::Node(const std::string& name) : Element(name), _lonLat(0,0) {
   _z = 0;
 }
 Node::~Node() {
@@ -36,11 +35,11 @@ std::vector< std::shared_ptr<Link> > Node::links() {
   return linkvector;
 }
 
-std::pair<double,double> Node::coordinates() {
+Node::location_t Node::coordinates() {
   return _lonLat;
 }
-void Node::setCoordinates(double x, double y) {
-  _lonLat = {x,y};
+void Node::setCoordinates(location_t coords) {
+  _lonLat = coords;
 }
 double Node::elevation() {
   return _z;

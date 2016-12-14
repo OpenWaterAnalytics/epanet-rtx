@@ -9,7 +9,7 @@ using namespace RTX;
 
 
 string GeoMetrics::geoHashWithJunction(Junction::_sp j, unsigned short int len) {
-  const char* hashChar = geohash_encode(j->coordinates().second, j->coordinates().first, (int)len);
+  const char* hashChar = geohash_encode(j->coordinates().latitude, j->coordinates().longitude, (int)len);
   const string hash(hashChar);
   return hash;
 }

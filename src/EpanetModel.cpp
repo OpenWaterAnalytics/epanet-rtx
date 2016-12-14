@@ -347,7 +347,7 @@ void EpanetModel::createRtxWrappers() {
     // newJunction is the generic (base-class) pointer to the specific object,
     // so we can use base-class methods to set some parameters.
     newJunction->setElevation(z);
-    newJunction->setCoordinates(x, y);
+    newJunction->setCoordinates(Node::location_t(x, y));
     
     // Initial quality specified in input data
     double initQual;

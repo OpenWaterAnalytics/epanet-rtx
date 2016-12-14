@@ -1402,12 +1402,12 @@ double Model::toRadians(double degrees) {
 }
 double Model::nodeDirectDistance(Node::_sp n1, Node::_sp n2) {
   // distance in meters
-  std::pair<double, double> x1 = n1->coordinates();
-  std::pair<double, double> x2 = n2->coordinates();
-  double lng1 = x1.first;
-  double lat1 = x1.second;
-  double lng2 = x2.first;
-  double lat2 = x2.second;
+  Node::location_t x1 = n1->coordinates();
+  Node::location_t x2 = n2->coordinates();
+  double lng1 = x1.longitude;
+  double lat1 = x1.latitude;
+  double lng2 = x2.longitude;
+  double lat2 = x2.latitude;
   double earthRadius = 3958.75;
   double dLat = toRadians(lat2-lat1);
   double dLng = toRadians(lng2-lng1);

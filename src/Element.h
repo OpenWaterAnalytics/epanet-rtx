@@ -15,7 +15,6 @@
 #include "TimeSeries.h"
 #include "PointRecord.h"
 
-
 namespace RTX {
 
 #pragma mark -
@@ -24,7 +23,7 @@ namespace RTX {
   /*!
         Properties common to all elements.
   */
-  class Element : public RTX_object {
+  class Element : public std::enable_shared_from_this<Element>, public RTX_object {
   public:
     
     enum element_t : int {
@@ -37,8 +36,10 @@ namespace RTX {
       DMA       = 6
     };
     
-      // please don't misuse this type enumeration!!!
+    // please don't misuse this type enumeration!!!
     RTX_BASE_PROPS(Element);
+    Element::_sp sp() {return shared_from_this();};
+
     virtual std::ostream& toStream(std::ostream &stream);
     element_t type();
     void setName(const std::string& newName);

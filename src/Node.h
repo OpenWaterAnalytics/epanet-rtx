@@ -27,11 +27,16 @@ namespace RTX {
    */
   class Node : public Element {
   public:
+    struct location_t {
+      double longitude;
+      double latitude;
+      location_t(double lon, double lat) {longitude = lon; latitude = lat;};
+    };
     friend class Model;
     RTX_BASE_PROPS(Node);
     // properties - get/set
-    std::pair<double,double> coordinates();
-    virtual void setCoordinates(double lon, double lat);
+    location_t coordinates();
+    virtual void setCoordinates(location_t location);
     double elevation();
     virtual void setElevation(double elevation);
     std::vector< std::shared_ptr<Link> > links();
@@ -42,7 +47,7 @@ namespace RTX {
     void addLink(std::shared_ptr<Link> link);
     
   private:
-    std::pair<double,double> _lonLat;
+    location_t _lonLat;
     double _z;
     std::vector< std::weak_ptr<Link> > _links;
     
