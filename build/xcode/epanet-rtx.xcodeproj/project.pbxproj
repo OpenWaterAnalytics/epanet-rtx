@@ -10,8 +10,6 @@
 		2200ED191C7797F3009A6C5F /* libepanet-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 228CD55F1C0F5E4E00C67802 /* libepanet-static.a */; };
 		220D42ED1BF0000200C9AB36 /* DuperDaemon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220D42EC1BF0000200C9AB36 /* DuperDaemon.cpp */; };
 		220F9DD618F9E1BE00BB842C /* readConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220F9DD518F9E1BE00BB842C /* readConfig.cpp */; };
-		2219D8571D9ABB660060DEE4 /* ModelPerformanceController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2219D8551D9ABB660060DEE4 /* ModelPerformanceController.cpp */; };
-		2219D8581D9ABB660060DEE4 /* ModelPerformanceController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2219D8561D9ABB660060DEE4 /* ModelPerformanceController.h */; };
 		221A4B061B8CC00C006967AE /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		221BFD371A8E8AD000143FCC /* TimeSeriesSynthetic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2211D2041A6D69EA00E34B9B /* TimeSeriesSynthetic.cpp */; };
 		221BFD391A8E8AD000143FCC /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BF02D215EBCABC00F66465 /* Point.cpp */; };
@@ -50,7 +48,6 @@
 		221BFD5D1A8E8AD000143FCC /* IntegratorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221BFC6D1A8E584500143FCC /* IntegratorTimeSeries.cpp */; };
 		221BFD5E1A8E8AD000143FCC /* OutlierExclusionTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BFAAFF196AFBD800B5B77C /* OutlierExclusionTimeSeries.cpp */; };
 		221BFD5F1A8E8AD000143FCC /* OffsetTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22707A9416309D4000FEB4DD /* OffsetTimeSeries.cpp */; };
-		221BFD601A8E8AD000143FCC /* ModelPerformance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224C41971A434FCB008852C4 /* ModelPerformance.cpp */; };
 		221BFD611A8E8AD000143FCC /* DbPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 227CEC9E16BADD6000E8E7C8 /* DbPointRecord.cpp */; };
 		221BFD621A8E8AD000143FCC /* FailoverTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220324C918AC05A800BD7790 /* FailoverTimeSeries.cpp */; };
 		221BFD631A8E8AD000143FCC /* SineTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22F63D3516C5735100A15368 /* SineTimeSeries.cpp */; };
@@ -68,7 +65,6 @@
 		221BFD7E1A8E8AD000143FCC /* AggregatorTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C62ACC1439EE0B00841E60 /* AggregatorTimeSeries.h */; };
 		221BFD7F1A8E8AD000143FCC /* MovingAverage.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C62AD31439EE0B00841E60 /* MovingAverage.h */; };
 		221BFD801A8E8AD000143FCC /* Point.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C62AD51439EE0B00841E60 /* Point.h */; };
-		221BFD811A8E8AD000143FCC /* ModelPerformance.h in Headers */ = {isa = PBXBuildFile; fileRef = 224C41981A434FCB008852C4 /* ModelPerformance.h */; };
 		221BFD821A8E8AD000143FCC /* TimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C62ADA1439EE0B00841E60 /* TimeSeries.h */; };
 		221BFD831A8E8AD000143FCC /* InversionTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 223AF32F18F6E4C0002E846F /* InversionTimeSeries.h */; };
 		221BFD851A8E8AD000143FCC /* MathOpsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B928591A76EF1B006DBC57 /* MathOpsTimeSeries.h */; };
@@ -129,8 +125,6 @@
 		2239413D1CAA1612008BD7FD /* libTimeSeriesDuplicator.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */; };
 		224B09D41CA9B2A900AEB41A /* LinkJsonSerialization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224B09D21CA9B2A900AEB41A /* LinkJsonSerialization.cpp */; };
 		2251940A1CD8F2EA00B1BC31 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 225194091CD8F2EA00B1BC31 /* libxml2.2.dylib */; };
-		22602B691D5A59D500A668ED /* GeoMetrics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22602B671D5A59D500A668ED /* GeoMetrics.cpp */; };
-		22602B6C1D5A59D500A668ED /* GeoMetrics.h in Headers */ = {isa = PBXBuildFile; fileRef = 22602B681D5A59D500A668ED /* GeoMetrics.h */; };
 		22602B771D5A738000A668ED /* libgeohash.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22602B761D5A738000A668ED /* libgeohash.a */; };
 		228137D91CA2F23B00AD81F3 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228137D81CA2F23B00AD81F3 /* main.cpp */; };
 		228137DE1CA2F2C600AD81F3 /* LinkService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228137DC1CA2F2C600AD81F3 /* LinkService.cpp */; };
@@ -422,8 +416,6 @@
 		220F9DD518F9E1BE00BB842C /* readConfig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = readConfig.cpp; path = ../../examples/readConfig.cpp; sourceTree = "<group>"; };
 		2211D2041A6D69EA00E34B9B /* TimeSeriesSynthetic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesSynthetic.cpp; path = ../../src/TimeSeriesSynthetic.cpp; sourceTree = "<group>"; };
 		2211D2051A6D69EA00E34B9B /* TimeSeriesSynthetic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeSeriesSynthetic.h; path = ../../src/TimeSeriesSynthetic.h; sourceTree = "<group>"; };
-		2219D8551D9ABB660060DEE4 /* ModelPerformanceController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ModelPerformanceController.cpp; path = ../../src/ModelPerformanceController.cpp; sourceTree = "<group>"; };
-		2219D8561D9ABB660060DEE4 /* ModelPerformanceController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ModelPerformanceController.h; path = ../../src/ModelPerformanceController.h; sourceTree = "<group>"; };
 		221A19CB1579111900F0699E /* EpanetSyntheticModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EpanetSyntheticModel.h; path = ../../src/EpanetSyntheticModel.h; sourceTree = "<group>"; };
 		221A19CE1579112B00F0699E /* EpanetSyntheticModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetSyntheticModel.cpp; path = ../../src/EpanetSyntheticModel.cpp; sourceTree = "<group>"; };
 		221BFC6D1A8E584500143FCC /* IntegratorTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IntegratorTimeSeries.cpp; path = ../../src/IntegratorTimeSeries.cpp; sourceTree = "<group>"; };
@@ -457,16 +449,12 @@
 		224643A0150BD72E005EA3BA /* Link.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Link.h; path = ../../src/Link.h; sourceTree = "<group>"; };
 		224B09D21CA9B2A900AEB41A /* LinkJsonSerialization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LinkJsonSerialization.cpp; path = "../../examples/LINK-service/LinkJsonSerialization.cpp"; sourceTree = "<group>"; };
 		224B09D31CA9B2A900AEB41A /* LinkJsonSerialization.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = LinkJsonSerialization.hpp; path = "../../examples/LINK-service/LinkJsonSerialization.hpp"; sourceTree = "<group>"; };
-		224C41971A434FCB008852C4 /* ModelPerformance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = ModelPerformance.cpp; path = ../../src/ModelPerformance.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		224C41981A434FCB008852C4 /* ModelPerformance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ModelPerformance.h; path = ../../src/ModelPerformance.h; sourceTree = "<group>"; };
 		224D40D519786C3000160BD5 /* BaseStatsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BaseStatsTimeSeries.cpp; path = ../../src/BaseStatsTimeSeries.cpp; sourceTree = "<group>"; };
 		224D40D619786C3000160BD5 /* BaseStatsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BaseStatsTimeSeries.h; path = ../../src/BaseStatsTimeSeries.h; sourceTree = "<group>"; };
 		224E047E1979431C0039E3F9 /* StatsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StatsTimeSeries.cpp; path = ../../src/StatsTimeSeries.cpp; sourceTree = "<group>"; };
 		224E047F1979431C0039E3F9 /* StatsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StatsTimeSeries.h; path = ../../src/StatsTimeSeries.h; sourceTree = "<group>"; };
 		225194091CD8F2EA00B1BC31 /* libxml2.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.2.dylib; path = /usr/lib/libxml2.2.dylib; sourceTree = "<absolute>"; };
 		225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MysqlPointRecord.cpp; path = ../../src/MysqlPointRecord.cpp; sourceTree = "<group>"; };
-		22602B671D5A59D500A668ED /* GeoMetrics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeoMetrics.cpp; path = ../../src/GeoMetrics.cpp; sourceTree = "<group>"; };
-		22602B681D5A59D500A668ED /* GeoMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GeoMetrics.h; path = ../../src/GeoMetrics.h; sourceTree = "<group>"; };
 		22602B761D5A738000A668ED /* libgeohash.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgeohash.a; path = /usr/local/com.citilogics.dev/lib/libgeohash.a; sourceTree = "<absolute>"; };
 		226861C814716D2A000DDDEF /* Units.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Units.cpp; path = ../../src/Units.cpp; sourceTree = "<group>"; };
 		226AC1461733F996009B7C90 /* ValidRangeTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ValidRangeTimeSeries.cpp; path = ../../src/ValidRangeTimeSeries.cpp; sourceTree = "<group>"; };
@@ -812,19 +800,6 @@
 			name = "Single Point Filter";
 			sourceTree = "<group>";
 		};
-		224C418E1A434F9F008852C4 /* Model Performance */ = {
-			isa = PBXGroup;
-			children = (
-				2219D8561D9ABB660060DEE4 /* ModelPerformanceController.h */,
-				2219D8551D9ABB660060DEE4 /* ModelPerformanceController.cpp */,
-				224C41981A434FCB008852C4 /* ModelPerformance.h */,
-				224C41971A434FCB008852C4 /* ModelPerformance.cpp */,
-				22602B681D5A59D500A668ED /* GeoMetrics.h */,
-				22602B671D5A59D500A668ED /* GeoMetrics.cpp */,
-			);
-			name = "Model Performance";
-			sourceTree = "<group>";
-		};
 		226861C414715E53000DDDEF /* units */ = {
 			isa = PBXGroup;
 			children = (
@@ -1025,7 +1000,6 @@
 				22C62B05143A196400841E60 /* include */,
 				22DDAD8214436AE200C1F188 /* time classes */,
 				22DDAD7D1443682300C1F188 /* model */,
-				224C418E1A434F9F008852C4 /* Model Performance */,
 				22C62B02143A107D00841E60 /* exceptions */,
 				2274871E19AE234200A48475 /* Python Interpreter */,
 				22C62ACA1439ED9F00841E60 /* point record classes */,
@@ -1243,9 +1217,7 @@
 				221BFD7E1A8E8AD000143FCC /* AggregatorTimeSeries.h in Headers */,
 				22DC12DB1ADD844D0033DD5E /* MetaTimeSeries.h in Headers */,
 				221BFD7F1A8E8AD000143FCC /* MovingAverage.h in Headers */,
-				2219D8581D9ABB660060DEE4 /* ModelPerformanceController.h in Headers */,
 				221BFD801A8E8AD000143FCC /* Point.h in Headers */,
-				221BFD811A8E8AD000143FCC /* ModelPerformance.h in Headers */,
 				221BFD821A8E8AD000143FCC /* TimeSeries.h in Headers */,
 				221BFD831A8E8AD000143FCC /* InversionTimeSeries.h in Headers */,
 				229E95C11CB2FAE000216682 /* EpanetModelExporter.h in Headers */,
@@ -1301,7 +1273,6 @@
 				222C114E1D956B67007A747B /* TimeSeriesLowess.h in Headers */,
 				221BFDB31A8E8AD000143FCC /* IntegratorTimeSeries.h in Headers */,
 				221BFDB51A8E8AD000143FCC /* FailoverTimeSeries.h in Headers */,
-				22602B6C1D5A59D500A668ED /* GeoMetrics.h in Headers */,
 				22F175F91C7235BB0042916C /* TimeSeriesFilterSecondary.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1676,14 +1647,11 @@
 				221BFD591A8E8AD000143FCC /* FirstDerivative.cpp in Sources */,
 				221BFD5A1A8E8AD000143FCC /* MathOpsTimeSeries.cpp in Sources */,
 				221BFD5B1A8E8AD000143FCC /* TimeSeriesFilterSinglePoint.cpp in Sources */,
-				2219D8571D9ABB660060DEE4 /* ModelPerformanceController.cpp in Sources */,
 				22DD0FC61CE387A400145959 /* Curve.cpp in Sources */,
 				221BFD5C1A8E8AD000143FCC /* CurveFunction.cpp in Sources */,
 				221BFD5D1A8E8AD000143FCC /* IntegratorTimeSeries.cpp in Sources */,
 				221BFD5E1A8E8AD000143FCC /* OutlierExclusionTimeSeries.cpp in Sources */,
 				221BFD5F1A8E8AD000143FCC /* OffsetTimeSeries.cpp in Sources */,
-				221BFD601A8E8AD000143FCC /* ModelPerformance.cpp in Sources */,
-				22602B691D5A59D500A668ED /* GeoMetrics.cpp in Sources */,
 				229495451DB90EF600B85A1A /* I_InfluxDbPointRecord.cpp in Sources */,
 				221BFD611A8E8AD000143FCC /* DbPointRecord.cpp in Sources */,
 				221BFD621A8E8AD000143FCC /* FailoverTimeSeries.cpp in Sources */,
@@ -2611,6 +2579,7 @@
 				22BECEEF1DEF266F00E7C4EC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		22C62ABA1439ED6300841E60 /* Build configuration list for PBXProject "epanet-rtx" */ = {
 			isa = XCConfigurationList;
