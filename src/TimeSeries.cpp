@@ -291,9 +291,8 @@ TimeSeries::TimeSeries() {
   _points.reset( new PointRecord() );
   setName("Time Series");
   _units = RTX_NO_UNITS;
+  _valid = true;
 }
-
-
 
 TimeSeries::~TimeSeries() {
   // empty Dtor
@@ -303,9 +302,14 @@ std::ostream& RTX::operator<< (std::ostream &out, TimeSeries &ts) {
   return ts.toStream(out);
 }
 
-
 #pragma mark Public Methods
 
+bool TimeSeries::valid(time_t t) {
+  return _valid;
+}
+void TimeSeries::setValid(bool v) {
+  _valid = v;
+}
 
 void TimeSeries::setName(const std::string& name) {
   _name = name;

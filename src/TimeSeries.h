@@ -14,6 +14,8 @@
 #include <map>
 #include <iostream>
 
+#include <boost/atomic.hpp>
+
 #include "rtxMacros.h"
 #include "Point.h"
 #include "PointRecord.h"
@@ -91,6 +93,9 @@ namespace RTX {
     TimeSeries();
     ~TimeSeries();
     
+    bool valid(time_t t);
+    void setValid(bool v);
+    
     virtual Clock::_sp clock() { return Clock::_sp(); };
     virtual void setClock(Clock::_sp clock) { };
     
@@ -147,6 +152,7 @@ namespace RTX {
     };
 
   protected:
+    boost::atomic<bool> _valid;
     
   private:
     PointRecord::_sp _points;

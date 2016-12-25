@@ -255,18 +255,21 @@ void EpanetModel::createRtxWrappers() {
     char enName[RTX_MAX_CHAR_STRING];
     double x,y,z;         // rtx coordinates
     EN_NodeType nodeType;         // epanet node type code
-    string nodeName;
+    string nodeName, comment;
     Junction::_sp newJunction;
     Reservoir::_sp newReservoir;
     Tank::_sp newTank;
+    char enComment[MAXMSG];
     
     // get relevant info from EPANET toolkit
     OW_API_CHECK( OW_getnodeid(_enModel, iNode, enName), "OW_getnodeid" );
     OW_API_CHECK( OW_getnodevalue(_enModel, iNode, EN_ELEVATION, &z), "OW_getnodevalue EN_ELEVATION");
     OW_API_CHECK( OW_getnodetype(_enModel, iNode, &nodeType), "OW_getnodetype");
     OW_API_CHECK( OW_getcoord(_enModel, iNode, &x, &y), "OW_getcoord");
+    OW_API_CHECK( OW_getnodecomment(_enModel, iNode, enComment), "OW_getnodecomment");
     
     nodeName = string(enName);
+    comment = string(enComment);
     double minLevel = 0, maxLevel = 0;
     
     switch (nodeType) {
@@ -368,18 +371,18 @@ void EpanetModel::createRtxWrappers() {
       demand += categoryDemand * avgPatternValue;
     }
     newJunction->setBaseDemand(demand);
-    
+    newJunction->setUserDescription(comment);
     
     
   } // for iNode
   
   // create links
   for (int iLink = 1; iLink <= linkCount; iLink++) {
-    char enLinkName[RTX_MAX_CHAR_STRING], enFromName[RTX_MAX_CHAR_STRING], enToName[RTX_MAX_CHAR_STRING];
+    char enLinkName[RTX_MAX_CHAR_STRING], enFromName[RTX_MAX_CHAR_STRING], enToName[RTX_MAX_CHAR_STRING], enComment[RTX_MAX_CHAR_STRING];
     int enFrom, enTo;
     EN_LinkType linkType;
     double length, diameter, status, rough, mloss, setting, curveIdx;
-    string linkName;
+    string linkName, comment;
     Node::_sp startNode, endNode;
     Pipe::_sp newPipe;
     Pump::_sp newPump;
@@ -397,9 +400,10 @@ void EpanetModel::createRtxWrappers() {
     OW_API_CHECK(OW_getlinkvalue(_enModel, iLink, EN_ROUGHNESS, &rough), "OW_getlinkvalue EN_ROUGHNESS");
     OW_API_CHECK(OW_getlinkvalue(_enModel, iLink, EN_MINORLOSS, &mloss), "OW_getlinkvalue EN_MINORLOSS");
     OW_API_CHECK(OW_getlinkvalue(_enModel, iLink, EN_INITSETTING, &setting), "OW_getlinkvalue EN_INITSETTING");
+    OW_API_CHECK(OW_getlinkcomment(_enModel, iLink, enComment), "OW_getlinkcomment");
     
     linkName = string(enLinkName);
-    
+    comment = string(enComment);
     // get node pointers
     startNode = nodeWithName(string(enFromName));
     endNode = nodeWithName(string(enToName));
@@ -477,7 +481,7 @@ void EpanetModel::createRtxWrappers() {
     }
     
     newPipe->flow()->setUnits(flowUnits());
-    
+    newPipe->setUserDescription(comment);
     
     
   } // for iLink
