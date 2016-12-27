@@ -74,6 +74,9 @@ namespace RTX {
     virtual void closeEngine() { };
     std::string name();
     void setName(std::string name);
+    
+    void writeGraph(std::ostream& stream);
+    
 //    virtual void loadModelFromFile(const string& filename) throw(std::exception);
     virtual void useModelFromPath(const std::string& path);
     virtual string modelFile();
