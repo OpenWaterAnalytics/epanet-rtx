@@ -298,6 +298,31 @@ Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
 
 #pragma mark DELETE
 
+void InfluxDbPointRecord::truncate() {
+  this->errorMessage = "Truncating";
+  
+  stringstream sqlss;
+  sqlss << "DROP DATABASE " << this->conn.db << "; CREATE DATABASE " << this->conn.db;
+  
+  uri uri = _InfluxDbPointRecord_uriForQuery(*this, sqlss.str());
+  jsValue v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
+  
+  auto ids = _identifiersAndUnitsCache; // copy
+  
+  DbPointRecord::reset();
+  
+  this->beginBulkOperation();
+  for (auto ts_units : *ids.get()) {
+    this->insertIdentifierAndUnits(ts_units.first, ts_units.second);
+  }
+  this->endBulkOperation();
+  
+  this->errorMessage = "OK";
+  return;
+
+}
+
+
 void InfluxDbPointRecord::removeRecord(const std::string& id) {
   
   const string dbId = this->influxIdForTsId(id);

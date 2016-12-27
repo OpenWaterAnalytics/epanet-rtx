@@ -27,7 +27,7 @@ namespace RTX {
     void beginBulkOperation();
     void endBulkOperation();
     void commitTransactionLines();
-    void truncate();
+    virtual void truncate() {};
     
     void sendInfluxString(time_t time, const std::string& seriesId, const std::string& values);
     

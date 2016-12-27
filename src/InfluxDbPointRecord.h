@@ -22,6 +22,8 @@ namespace RTX {
     void dbConnect() throw(RtxException);
     IdentifierUnitsList identifiersAndUnits(); // class -specific override
     
+    void truncate();
+    
   protected:
     // overrides -> read methods
     std::vector<Point> selectRange(const std::string& id, TimeRange range);
@@ -29,6 +31,7 @@ namespace RTX {
     Point selectPrevious(const std::string& id, time_t time);
     
     // overrides -> write methods
+    
     void removeRecord(const std::string& id);
     
   private:

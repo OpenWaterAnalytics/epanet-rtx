@@ -5,9 +5,16 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
+#include <cpprest/uri.h>
+#include <cpprest/json.h>
+#include <cpprest/http_client.h>
+
 
 using namespace std;
 using namespace RTX;
+
+using web::http::uri;
+using jsValue = web::json::value;
 
 const unsigned int __maxTransactionLines(1000);
 
@@ -200,37 +207,6 @@ void I_InfluxDbPointRecord::sendInfluxString(time_t time, const string& seriesId
 
 
 
-void I_InfluxDbPointRecord::truncate() {
-  this->errorMessage = "Truncating";
-  auto ids = _identifiersAndUnitsCache; // copy
-  
-  
-  for (auto ts_units : *ids.get()) {
-    this->removeRecord(ts_units.first);
-    
-    /*
-     string id = ts_units.first;
-     MetricInfo m = InfluxDbPointRecord::metricInfoFromName(id);
-     string measureName = m.measurement;
-     stringstream sqlss;
-     sqlss << "DROP MEASUREMENT " << measureName;
-     http::uri uri = _InfluxDbPointRecord_uriForQuery(*this, sqlss.str(), false);
-     jsValue v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
-     */
-  }
-  
-  DbPointRecord::reset();
-  
-  
-  this->beginBulkOperation();
-  for (auto ts_units : *ids.get()) {
-    this->insertIdentifierAndUnits(ts_units.first, ts_units.second);
-  }
-  this->endBulkOperation();
-  
-  this->errorMessage = "OK";
-  return;
-}
 
 
 
