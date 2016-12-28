@@ -31,6 +31,15 @@ EpanetModel::~EpanetModel() {
   //  OW_API_CHECK(OW_freeModel(_enModel), "OW_freeModel");
 }
 
+EpanetModel::EpanetModel(const EpanetModel& o) {
+  
+  cout << "copy ctor : EpanetModel" << endl;
+  
+  this->useEpanetFile(o._modelFile);
+  this->createRtxWrappers();
+  
+}
+
 OW_Project* EpanetModel::epanetModelPointer() {
   return _enModel;
 }

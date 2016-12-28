@@ -45,11 +45,12 @@ namespace RTX {
     Node(const std::string& name);
     virtual ~Node();
     void addLink(std::shared_ptr<Link> link);
+    void removeLink(std::shared_ptr<Link> link);
     
   private:
     location_t _lonLat;
     double _z;
-    std::vector< std::weak_ptr<Link> > _links;
+    std::set<Link*> _links;
     
   };
   

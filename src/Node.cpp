@@ -9,8 +9,9 @@
 #include <boost/foreach.hpp>
 
 #include "Node.h"
-#include "AggregatorTimeSeries.h"
+#include "Link.h"
 
+using namespace std;
 using namespace RTX;
 
 Node::Node(const std::string& name) : Element(name), _lonLat(0,0) {
@@ -21,15 +22,23 @@ Node::~Node() {
 }
 
 void Node::addLink(std::shared_ptr<Link> link) {
-  std::weak_ptr<Link> weaklink(link);
-  _links.push_back(weaklink);
+  Link *rawLink = link.get();
+  
+  if (_links.count(rawLink) == 0) {
+    _links.insert(rawLink);
+  }
+}
+
+void Node::removeLink(std::shared_ptr<Link> link) {
+  Link *rawLink = link.get();
+  _links.erase(rawLink);
 }
 
 std::vector< std::shared_ptr<Link> > Node::links() {
   std::vector<std::shared_ptr<Link> > linkvector;
   // get shared pointers for these weakly pointed-to links
-  BOOST_FOREACH(std::weak_ptr<Link> l, _links) {
-    std::shared_ptr<Link> sharedLink(l);
+  BOOST_FOREACH(Link *l, _links) {
+    Link::_sp sharedLink = dynamic_pointer_cast<Link>(l->sp());
     linkvector.push_back(sharedLink);
   }
   return linkvector;

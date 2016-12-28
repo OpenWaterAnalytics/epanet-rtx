@@ -33,6 +33,7 @@ namespace RTX {
     RTX_BASE_PROPS(EpanetModel);
     EpanetModel();
     EpanetModel(const std::string& filename);
+    EpanetModel(const EpanetModel& o); // copy constructor
     ~EpanetModel();
 //    void loadModelFromFile(const std::string& filename) throw(std::exception);
     virtual void initEngine();

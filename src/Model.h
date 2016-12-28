@@ -74,9 +74,7 @@ namespace RTX {
     virtual void closeEngine() { };
     std::string name();
     void setName(std::string name);
-    
-    void writeGraph(std::ostream& stream);
-    
+        
 //    virtual void loadModelFromFile(const string& filename) throw(std::exception);
     virtual void useModelFromPath(const std::string& path);
     virtual string modelFile();
@@ -100,8 +98,8 @@ namespace RTX {
     void setStorage(PointRecord::_sp record);
     void setParameterSource(PointRecord::_sp record);
     
-    virtual void disableControls() = 0;
-    virtual void enableControls() = 0;
+    virtual void disableControls() {};
+    virtual void enableControls() {};
     
     bool shouldRunWaterQuality();
     void setShouldRunWaterQuality(bool run);
@@ -122,6 +120,10 @@ namespace RTX {
     void addValve(Valve::_sp newValve);
     void addCurve(Curve::_sp newCurve);
     void addDma(Dma::_sp dma);
+    
+    void removeNode(Node::_sp n);
+    void removeLink(Link::_sp l);
+    
     Link::_sp linkWithName(const string& name);
     Node::_sp nodeWithName(const string& name);
     vector<Element::_sp> elements();

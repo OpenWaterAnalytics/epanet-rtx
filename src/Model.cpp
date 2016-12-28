@@ -315,77 +315,6 @@ set<PointRecord::_sp> Model::recordsForModeledStates() {
 
 }
 
-
-
-void Model::writeGraph(std::ostream& stream) {
-  using namespace boost;
-  
-  struct bNodeProp {
-    string name;
-    double elevation;
-    double baseDemand;
-    bool isMeasured;
-  };
-  struct bLinkProp {
-    string name;
-    int diam;
-    int length;
-    bool isMeasured;
-  };
-    
-  std::map<Node::_sp, int> nodeIndexMap;
-  int iNode = 0;
-  for (auto nodePair : _nodes) {
-    nodeIndexMap[nodePair.second] = iNode++;
-  }
-  
-  typedef boost::adjacency_list <boost::vecS, boost::vecS, boost::undirectedS, bNodeProp, bLinkProp> bNetwork;
-  bNetwork G;
-  
-  // build a boost graph of the network
-  
-  
-  class rtx_attr_writer {
-  public:
-    rtx_attr_writer(bNetwork g) : _g(g) {};
-    void operator()(std::ostream& out, bNetwork::edge_descriptor edge) {
-      out << "[label=\"" << _g[edge].name << "\", diameter=\"" << _g[edge].diam << "\", measured=\"" << (_g[edge].isMeasured ? "true" : "false") << "\"]";
-    };
-    void operator()(std::ostream& out, bNetwork::vertex_descriptor vertex) {
-      out << "[label=\"" << _g[vertex].name << "\", elevation=\"" << _g[vertex].elevation << "\", baseDemand=\"" << _g[vertex].baseDemand<< "\", measured=\"" << (_g[vertex].isMeasured ? "true" : "false") << "\"]";
-    };
-  private:
-    bNetwork _g;
-  };
-  
-  for (auto linkPair : _links) {
-    Pipe::_sp pipe = std::static_pointer_cast<Pipe>(linkPair.second);
-    int from = nodeIndexMap[pipe->from()];
-    int to = nodeIndexMap[pipe->to()];
-    pair<bNetwork::edge_descriptor,bool> edgePair = add_edge(from, to, G); // BGL add edge to graph
-    G[edgePair.first].name = pipe->name();
-    G[edgePair.first].diam = pipe->diameter();
-    G[edgePair.first].length = pipe->length();
-    G[edgePair.first].isMeasured = (pipe->flowMeasure() ? true : false);
-  }
-  
-  for (auto nip : nodeIndexMap) {
-    int i = nip.second;
-    Junction::_sp j = dynamic_pointer_cast<Junction>(nip.first);
-    bNetwork::vertex_descriptor v = vertex(i,G);
-    G[v].name = j->name();
-    G[v].elevation = j->elevation();
-    G[v].baseDemand = j->baseDemand();
-    G[v].isMeasured = (j->headMeasure() ? true : false);
-  }
-  
-  
-  write_graphviz(stream, G, rtx_attr_writer(G), rtx_attr_writer(G));
-  
-}
-
-
-
 #pragma mark - Demand dmas
 
 
@@ -398,26 +327,7 @@ void Model::initDMAs() {
   using namespace boost;
   std::map<Node::_sp, int> nodeIndexMap;
   boost::adjacency_list <boost::vecS, boost::vecS, boost::undirectedS> G;
-  
-  typedef struct {
-    Link::_sp link;
-    int fromIdx, toIdx;
-  } LinkDescriptor;
-  
-  // load up the link descriptor lookup table
-  vector<LinkDescriptor> linkDescriptors;
-  {
-    int iNode = 0;
-    for (auto nodePair : _nodes) {
-      nodeIndexMap[nodePair.second] = iNode++;
-    }
-    for (auto linkPair : _links) {
-      int from = nodeIndexMap[linkPair.second->from()];
-      int to = nodeIndexMap[linkPair.second->to()];
-      linkDescriptors.push_back((LinkDescriptor){linkPair.second, from, to});
-    }
-  }
-  
+    
   //
   // build a boost graph of the network, ignoring links that are dma boundaries or explicitly ignored
   // is this faster than adapting the model to be BGL compliant? certainly faster dev time, but this should be tested in code.
@@ -657,6 +567,52 @@ std::vector<Valve::_sp> Model::valves() {
 }
 vector<Curve::_sp> Model::curves() {
   return _curves;
+}
+
+void Model::removeNode(Node::_sp n) {
+  
+  switch (n->type()) {
+    case Element::JUNCTION:
+      _junctions.erase( remove(_junctions.begin(), _junctions.end(), n), _junctions.end() );
+      break;
+    case Element::TANK:
+      _tanks.erase( remove(_tanks.begin(), _tanks.end(), n), _tanks.end() );
+      break;
+    case Element::RESERVOIR:
+      _reservoirs.erase( remove(_reservoirs.begin(), _reservoirs.end(), n), _reservoirs.end() );
+      break;
+    default:
+      break;
+  }
+  
+  _nodes.erase(n->name());
+  
+  for (auto l : n->links()) {
+    this->removeLink(l);
+  }
+  
+}
+void Model::removeLink(Link::_sp l) {
+  
+  switch (l->type()) {
+    case Element::PIPE:
+      _pipes.erase( remove(_pipes.begin(), _pipes.end(), l), _pipes.end() );
+      break;
+    case Element::PUMP:
+      _pumps.erase( remove(_pumps.begin(), _pumps.end(), l), _pumps.end() );
+      break;
+    case Element::VALVE:
+      _valves.erase( remove(_valves.begin(), _valves.end(), l), _valves.end() );
+      break;
+    default:
+      break;
+  }
+  
+  _links.erase(l->name());
+  
+  auto nodes = l->nodes();
+  nodes.first->removeLink(l);
+  nodes.second->removeLink(l);
 }
 
 
