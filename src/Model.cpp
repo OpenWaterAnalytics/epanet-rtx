@@ -326,6 +326,11 @@ void Model::initDMAs() {
   
   using namespace boost;
   std::map<Node::_sp, int> nodeIndexMap;
+  int iNode = 0;
+  for (auto nodePair : _nodes) {
+    nodeIndexMap[nodePair.second] = iNode++;
+  }
+  
   boost::adjacency_list <boost::vecS, boost::vecS, boost::undirectedS> G;
     
   //
