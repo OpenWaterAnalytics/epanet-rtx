@@ -562,7 +562,9 @@ void EpanetModel::setReservoirHead(const string& reservoir, double level) {
 }
 
 void EpanetModel::setReservoirQuality(const string& reservoir, double quality) {
-  setJunctionQuality(reservoir, quality);
+  setNodeValue(EN_INITQUAL, reservoir, quality); // set initquality in case setpoint is lower than old value
+  setNodeValue(EN_SOURCETYPE, reservoir, CONCEN);
+  setNodeValue(EN_SOURCEQUAL, reservoir, quality);
 }
 
 void EpanetModel::setTankLevel(const string& tank, double level) {
@@ -585,7 +587,7 @@ void EpanetModel::setJunctionDemand(const string& junction, double demand) {
 void EpanetModel::setJunctionQuality(const std::string& junction, double quality) {
   // todo - add more source types, depending on time series dimension?
   setNodeValue(EN_INITQUAL, junction, quality); // set initquality in case setpoint is lower than old value
-  setNodeValue(EN_SOURCETYPE, junction, SETPOINT);
+  setNodeValue(EN_SOURCETYPE, junction, FLOWPACED);
   setNodeValue(EN_SOURCEQUAL, junction, quality);
 }
 
