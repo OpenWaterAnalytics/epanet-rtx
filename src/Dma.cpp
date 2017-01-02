@@ -678,7 +678,8 @@ int Dma::allocateDemandToJunctions(time_t time) {
       if (dp.isValid) {
         Point newDemandPoint = Point::convertPoint(dp, junction->boundaryFlow()->units(), junction->demand()->units());
         newDemandPoint.time = time;
-        junction->demand()->insert( newDemandPoint );
+        junction->demand()->insert( newDemandPoint ); // Need this for steady-state sim?
+        junction->state_demand = newDemandPoint.value;
       }
       else {
         err = 1;
