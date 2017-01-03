@@ -51,7 +51,7 @@ namespace RTX {
     TimeSeries::_sp flow();
     
     TimeSeries::_sp volumeMeasure(); // based on tank geometry
-    TimeSeries::_sp flowMeasure();  // flow into the tank (computed)
+    TimeSeries::_sp flowMeasure();  // calculated flow into the tank
     
     
   private:

@@ -36,6 +36,14 @@ Junction::Junction(const std::string& name) : Node(name) {
   _demandState->setName("demand,n=" + name);
   
   _baseDemand = 0;
+  
+  
+  state_head = 0;
+  state_pressure = 0; 
+  state_demand = 0;
+  state_quality = 0;
+  state_volume = 0;
+  state_flow = 0;
 }
 Junction::~Junction() {
   
