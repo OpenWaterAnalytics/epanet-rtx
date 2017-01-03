@@ -25,14 +25,64 @@ using namespace boost::accumulators;
 
 #pragma mark - Point Collection methods
 
-TimeSeries::PointCollection::PointCollection(vector<Point> points, Units units) : points(points), units(units) { }
-TimeSeries::PointCollection::PointCollection() : points(vector<Point>()), units(1) { }
+TimeSeries::PointCollection::PointCollection(vector<Point>::iterator start, vector<Point>::iterator end, Units units) : _start(start), _end(end), units(units) { 
+  _isRef = true;
+}
+
+TimeSeries::PointCollection::PointCollection(const PointCollection &pc) {
+  if (pc._isRef) {
+    _isRef = true;
+    _start = pc._start;
+    _end = pc._end;
+  }
+  else {
+    this->setPoints(pc._points);
+  }
+}
+
+TimeSeries::PointCollection::PointCollection(vector<Point> points, Units units) : units(units) {
+  _isRef = false;
+  this->setPoints(points);
+}
+TimeSeries::PointCollection::PointCollection() : units(1) { 
+  _isRef = false;
+}
+
+pair<vector<Point>::iterator,vector<Point>::iterator> TimeSeries::PointCollection::raw() {
+  return make_pair(_start,_end);
+}
+
+void TimeSeries::PointCollection::apply(std::function<void(Point)> function) {
+  for (auto i = _start; i != _end; ++i) {
+    function(*i);
+  }
+}
+
+vector<Point> TimeSeries::PointCollection::points() {
+  if (_isRef) {
+    vector<Point> pv;
+    this->apply([&](Point p){
+      pv.push_back(p);
+    });
+    return pv;
+  }
+  else {
+    return _points;
+  }
+}
+
+void TimeSeries::PointCollection::setPoints(vector<Point> points) {
+  _points = points;
+  _start = _points.begin();
+  _end = _points.end();
+  _isRef = false;
+}
 
 const set<time_t> TimeSeries::PointCollection::times() {
   set<time_t> t;
-  for (const Point& p : this->points) {
+  this->apply([&](Point p){
     t.insert(p.time);
-  }
+  });
   return t;
 }
 
@@ -41,47 +91,51 @@ bool TimeSeries::PointCollection::convertToUnits(RTX::Units u) {
     return false;
   }
   vector<Point> converted;
-  for (const Point& p : this->points) {
+  this->apply([&](Point p){
     converted.push_back(Point::convertPoint(p, this->units, u));
-  }
-  this->points = converted;
+  });
+  this->setPoints(converted);
   this->units = u;
   return true;
 }
 
 void TimeSeries::PointCollection::addQualityFlag(Point::PointQuality q) {
-  for (Point& p : this->points) {
+  this->apply([&](Point p){
     p.addQualFlag(q);
-  }
+  });
 }
 
 
 double TimeSeries::PointCollection::percentile(double p) {
+  using namespace boost::accumulators;
+  
   if (p < 0. || p > 1.) {
     return 0.;
   }
   
-  int cacheSize = (int)this->points.size();
-  using namespace boost::accumulators;
+  int cacheSize = (int)this->count();
+  if (cacheSize == 0) {
+    return 0;
+  }
   
   if (cacheSize == 1 && p == 0.5) {
     // single point median
-    return this->points.front().value;
+    return _start->value;
   }
   
   if (p <= 0.5) {
     accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::left> > > centile( tag::tail<boost::accumulators::left>::cache_size = cacheSize );
-    for (const Point& point : this->points) {
-      centile(point.value);
-    }
+    this->apply([&](Point p){
+      centile(p.value);
+    });
     double pct = quantile(centile, quantile_probability = p);
     return pct;
   }
   else {
     accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::right> > > centile( tag::tail<boost::accumulators::right>::cache_size = cacheSize );
-    for (const Point& point : this->points) {
-      centile(point.value);
-    }
+    this->apply([&](Point p){
+      centile(p.value);
+    });
     double pct = quantile(centile, quantile_probability = p);
     return pct;
   }
@@ -89,7 +143,16 @@ double TimeSeries::PointCollection::percentile(double p) {
 }
 
 size_t TimeSeries::PointCollection::count() {
-  return this->points.size();
+  if (_isRef) {
+    size_t c = 0;
+    this->apply([&](Point p){
+      ++c;
+    });
+    return c;
+  }
+  else {
+    return _points.size();
+  }
 }
 
 
@@ -100,9 +163,9 @@ double TimeSeries::PointCollection::min() {
   
   accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
   
-  for (const Point& p : points) {
+  this->apply([&](Point p){
     acc(p.value);
-  }
+  });
   
   double min = extract::min(acc);
   return min;
@@ -114,9 +177,9 @@ double TimeSeries::PointCollection::max() {
   }
   
   accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
-  for (const Point& p : points) {
+  this->apply([&](Point p){
     acc(p.value);
-  }
+  });
   
   double max = extract::max(acc);
   return max;
@@ -128,9 +191,9 @@ double TimeSeries::PointCollection::mean() {
   }
   accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
   
-  for (const Point& p : points) {
+  this->apply([&](Point p){
     acc(p.value);
-  }
+  });
   
   double mean = extract::mean(acc);
   return mean;
@@ -142,9 +205,9 @@ double TimeSeries::PointCollection::variance() {
   }
   accumulator_set<double, features<tag::max, tag::min, tag::count, tag::mean, tag::median, tag::variance(lazy)> > acc;
   
-  for (const Point& p : points) {
+  this->apply([&](Point p){
     acc(p.value);
-  }
+  });
   
   double variance = extract::variance(acc);
   return variance;
@@ -155,7 +218,7 @@ double TimeSeries::PointCollection::variance() {
 
 bool TimeSeries::PointCollection::resample(set<time_t> timeList, TimeSeriesResampleMode mode) {
   PointCollection c = this->resampledAtTimes(timeList,mode);
-  this->points = c.points;
+  this->setPoints(c.points());
   
   if (this->count() > 0) {
     return true;
@@ -165,7 +228,7 @@ bool TimeSeries::PointCollection::resample(set<time_t> timeList, TimeSeriesResam
 
 TimeSeries::PointCollection TimeSeries::PointCollection::resampledAtTimes(std::set<time_t> timeList, TimeSeriesResampleMode mode) {
   
-  typedef std::vector<Point>::const_iterator pVec_cIt;
+  typedef std::vector<Point>::iterator pVec_it;
   
   // sanity
   if (timeList.empty()) {
@@ -182,10 +245,10 @@ TimeSeries::PointCollection TimeSeries::PointCollection::resampledAtTimes(std::s
   
   
   // iterators for scrubbing through the source points
-  pVec_cIt sourceBegin = this->points.begin();
-  pVec_cIt sourceEnd = this->points.end();
-  pVec_cIt right = sourceBegin;
-  pVec_cIt left = sourceBegin;
+  pVec_it sourceBegin = _start;
+  pVec_it sourceEnd = _end;
+  pVec_it right = sourceBegin;
+  pVec_it left = sourceBegin;
   
   ++right; // get one step ahead.
   
@@ -229,9 +292,9 @@ TimeSeries::PointCollection TimeSeries::PointCollection::resampledAtTimes(std::s
 
 TimeSeries::PointCollection TimeSeries::PointCollection::trimmedToRange(TimeRange range) {
   
-  vector<Point>::const_iterator it = this->points.begin();
-  vector<Point>::const_iterator r1 = it, r2 = it;
-  vector<Point>::const_iterator end = this->points.end();
+  vector<Point>::iterator it = _start;
+  vector<Point>::iterator r1 = it, r2 = it;
+  vector<Point>::iterator end = _end;
   
   
   while (it != end) {
@@ -264,20 +327,21 @@ TimeSeries::PointCollection TimeSeries::PointCollection::trimmedToRange(TimeRang
 
 
 TimeSeries::PointCollection TimeSeries::PointCollection::asDelta() {
-  
   vector<Point> deltaPoints;
   
-  if (this->count() > 0) {
-    Point lastP = this->points.front();
-    deltaPoints.push_back(lastP);
-    
-    for (const Point& p : this->points) {
-      if (p.value != lastP.value) {
-        lastP = p;
-        deltaPoints.push_back(lastP);
-      }
-    }
+  if (this->count() == 0) {
+    return PointCollection(deltaPoints, this->units);
   }
+  
+  Point lastP = *_start;
+  deltaPoints.push_back(lastP);
+  
+  this->apply([&](Point p){
+    if (p.value != lastP.value) {
+      lastP = p;
+      deltaPoints.push_back(lastP);
+    }
+  });
   
   return PointCollection(deltaPoints, this->units);
 }

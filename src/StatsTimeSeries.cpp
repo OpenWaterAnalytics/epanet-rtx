@@ -10,6 +10,8 @@
 #include <boost/foreach.hpp>
 #include <math.h>
 
+#include <future>
+
 using namespace RTX;
 using namespace std;
 
@@ -67,22 +69,37 @@ TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range
   
   set<time_t> times = this->timeValuesInRange(qRange);
   
-  pointSummaryMap_t summaries = this->filterSummaryCollection(times);
+  auto smr = this->filterSummaryCollection(times);
   vector<Point> outPoints;
-  outPoints.reserve(summaries.size());
+  outPoints.reserve(smr->summaryMap.size());
   
-  BOOST_FOREACH(pointSummaryMap_t::value_type time_collection, summaries) {
-    time_t t = time_collection.first;
-    PointCollection col = time_collection.second;
+  map< time_t,future<double> > statsTasks;
+  
+  for(auto &x : smr->summaryMap) {
+    time_t t = x.first;
+    PointCollection col = x.second;
     if (col.count() == 0 && this->statsType() != StatsTimeSeriesCount) {
       continue;
     }
-    double v = this->valueFromSummary(col);
-    Point outPoint(t, v);
+    statsTasks[t] = async(launch::async, std::bind(&StatsTimeSeries::valueFromSummary, this, std::placeholders::_1), col);
+    
+//    double v = this->valueFromSummary(col);
+//    Point outPoint(t, v);
+//    if (outPoint.isValid) {
+//      outPoints.push_back(outPoint);
+//    }
+  }
+  
+  for (auto& taskPair : statsTasks) {
+    time_t t = taskPair.first;
+    double v = taskPair.second.get();
+    Point outPoint(t,v);
     if (outPoint.isValid) {
       outPoints.push_back(outPoint);
     }
   }
+  
+  
   
   PointCollection ret(outPoints, this->units());
   

@@ -8,7 +8,7 @@ using namespace std;
 TimeSeries::PointCollection Curve::convert(const TimeSeries::PointCollection &pc) {
   TimeSeries::PointCollection out;
   out.units = this->outputUnits;
-  
+  vector<Point> outp;
   TimeSeries::PointCollection input = pc;
   if (!input.convertToUnits(this->inputUnits)) {
     return out;
@@ -18,7 +18,7 @@ TimeSeries::PointCollection Curve::convert(const TimeSeries::PointCollection &pc
   double minY = curveData.cbegin()->second;
   double maxX = curveData.crbegin()->first;
   
-  for (auto p : input.points) {
+  input.apply([&](Point p){
     Point op;
     op.time = p.time;
     double inValue = p.value;
@@ -52,12 +52,9 @@ TimeSeries::PointCollection Curve::convert(const TimeSeries::PointCollection &pc
       op.value = outValue;
       op.quality = p.quality;
       op.addQualFlag(RTX::Point::rtx_interpolated);
-      out.points.push_back(op);
+      outp.push_back(op);
     }
-    
-    
-    
-    
-  }
+  });
+  out.setPoints(outp);
   return out;
 }

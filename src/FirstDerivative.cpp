@@ -43,10 +43,10 @@ TimeSeries::PointCollection FirstDerivative::filterPointsInRange(TimeRange range
     return data;
   }
   
-  vector<Point>::const_iterator cursor, prev, vEnd;
-  cursor = sourceData.points.begin();
-  prev = sourceData.points.begin();
-  vEnd = sourceData.points.end();
+  auto raw = sourceData.raw();
+  auto cursor = raw.first;
+  auto prev = raw.first;
+  auto vEnd = raw.second;
   
   ++cursor;
   while (cursor != vEnd) {
@@ -59,7 +59,7 @@ TimeSeries::PointCollection FirstDerivative::filterPointsInRange(TimeRange range
   }
   
   
-  data.points = outPoints;
+  data.setPoints(outPoints);
   
   if (this->willResample()) {
     set<time_t> timeValues = this->timeValuesInRange(range);

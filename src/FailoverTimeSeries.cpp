@@ -113,9 +113,10 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
   
   vector<Point> paddedPrimary;
   paddedPrimary.reserve(primaryData.count() + 2);
-  
+  auto primaryRaw = primaryData.raw();
   time_t staleStart = range.start - (_stale + 1);
-  if (primaryData.points.cbegin()->time > staleStart) {
+  
+  if (primaryRaw.first->time > staleStart) {
     // pad with fake point. This is important because the while-loop below will ignore the first point
     // and only use the time information to inspect the gap.
     Point fakeP;
@@ -124,9 +125,9 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
   }
   
   // fold in the data
-  paddedPrimary.insert(paddedPrimary.end(), primaryData.points.begin(), primaryData.points.end());
+  paddedPrimary.insert(paddedPrimary.end(), primaryRaw.first, primaryRaw.second);
   
-  if (primaryData.points.crbegin()->time < range.end) {
+  if (primaryRaw.first->time < range.end) {
     // primary data ends before the end of the needed range. put a fake point at the end
     // as a marker for the while-iteration below, so that we can safely go off the
     // end of the valid data.
@@ -146,7 +147,7 @@ TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange ra
   while (gap.duration() > 0) {
     
     if (gap.duration() > _stale) {
-      vector<Point> sec = secondaryData.trimmedToRange(TimeRange(gap.start+1,gap.end-1)).points;
+      vector<Point> sec = secondaryData.trimmedToRange(TimeRange(gap.start+1,gap.end-1)).points();
       merged.insert(merged.end(), sec.begin(), sec.end());
     }
     if (it->isValid) {

@@ -49,9 +49,10 @@ TimeSeries::PointCollection ValidRangeTimeSeries::filterPointsInRange(TimeRange 
   
   
   raw.convertToUnits(this->units());
-  PointCollection outData(vector<Point>(),this->units());
   
-  BOOST_FOREACH(const Point& p, raw.points) {
+  vector<Point> outP;
+  
+  raw.apply([&](Point p){
     Point newP;
     double pointValue = p.value;
     
@@ -73,9 +74,11 @@ TimeSeries::PointCollection ValidRangeTimeSeries::filterPointsInRange(TimeRange 
       newP = p;
     }
     if (newP.isValid) {
-      outData.points.push_back(newP);
+      outP.push_back(newP);
     }
-  }
+  });
+  
+  PointCollection outData(outP,this->units());
   
   if (this->willResample()) {
     set<time_t> resTimes = this->timeValuesInRange(range);

@@ -218,9 +218,9 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
     
     // make it easy to find any times that were dropped (bad points from a source series)
     map<time_t, Point> sourcePointMap;
-    for(const Point& p: componentCollection.points) {
+    componentCollection.apply([&](Point p){
       sourcePointMap[p.time] = p;
-    }
+    });
     
     // do the aggregation.
     for(Point& p: aggregated) {

@@ -130,9 +130,11 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange 
       PointCollection secondaryCollection = m_secondaryCollection;
       // perform a time lag on the secondary points if needed.
       if (timeDistance != 0) {
-        BOOST_FOREACH(Point& p, secondaryCollection.points) {
+        auto pv = secondaryCollection.points();
+        for (Point &p : pv) {
           p.time -= timeDistance;
-        }
+        }          
+        secondaryCollection.setPoints(pv);
       }
       
       // resample secondary points for the correlation analysis.
@@ -155,15 +157,16 @@ TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange 
       accumulator_set<double, stats<tag::mean, tag::variance> > acc1;
       accumulator_set<double, stats<tag::mean, tag::variance> > acc2;
       accumulator_set<double, stats<tag::covariance<double, tag::covariate1> > > acc3;
+      auto sca = sourceCollectionForAnalysis.points();
+      auto sc = secondaryCollection.points();
       for (int i = 0; i < sourceCollectionForAnalysis.count(); i++) {
-        Point p1 = sourceCollectionForAnalysis.points.at(i);
-        Point p2 = secondaryCollection.points.at(i);
+        Point p1 = sca.at(i);
+        Point p2 = sc.at(i);
         acc1(p1.value);
         acc2(p2.value);
         acc3(p1.value, covariate1 = p2.value);
       }
       corrcoef = covariance(acc3)/sqrt(variance(acc1))/sqrt(variance(acc2));
-      
       
       if (corrcoef > maxCorrelationAtLaggedTime.first) {
         maxCorrelationAtLaggedTime.first = corrcoef;

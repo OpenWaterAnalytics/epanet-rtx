@@ -35,10 +35,12 @@ TimeSeries::PointCollection MetaTimeSeries::filterPointsInRange(TimeRange range)
     return PointCollection(vector<Point>(), this->units());
   }
   
-  vector<Point>::const_iterator it = sourceData.points.cbegin();
+  auto raw = sourceData.raw();
+  vector<Point>::const_iterator it = raw.first;
   vector<Point>::const_iterator prev = it;
   ++it;
-  while (it != sourceData.points.cend()) {
+  vector<Point> theGaps;
+  while (it != raw.second) {
     time_t t1,t2;
     t1 = prev->time;
     t2 = it->time;
@@ -59,12 +61,12 @@ TimeSeries::PointCollection MetaTimeSeries::filterPointsInRange(TimeRange range)
     }
     
     metaPoint.addQualFlag(Point::rtx_integrated);
-    gaps.points.push_back(metaPoint);
+    theGaps.push_back(metaPoint);
     
     ++prev;
     ++it;
   }
-  
+  gaps.setPoints(theGaps);
   gaps.convertToUnits(this->units());
   
   if (this->willResample()) {

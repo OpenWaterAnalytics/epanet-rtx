@@ -111,7 +111,7 @@ TimeSeries::PointCollection LagTimeSeries::filterPointsInRange(TimeRange range) 
   PointCollection data = this->source()->pointCollection(queryRange);
   
   // move the points in time
-  for(Point& p: data.points) {
+  for(Point& p: data.points()) {
     p.time += _lag;
   }
   

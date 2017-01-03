@@ -87,11 +87,11 @@ TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) 
   {
     // use our new righ/left bounds to get the source data we need.
     PointCollection sourceRaw = this->source()->pointCollection(queryRange);
-    BOOST_FOREACH(Point p, sourceRaw.points) {
+    sourceRaw.apply([&](Point p){
       if (p.isValid) {
         sourcePoints.push_back(p);
       }
-    }
+    });
   }
   
   // set up some iterators to start scrubbing through the source data.

@@ -49,7 +49,11 @@ namespace RTX {
     } StatsSamplingMode_t;
     
     
-    typedef std::map< time_t, PointCollection > pointSummaryMap_t;
+    struct pointSummaryGroup {
+      PointCollection retainedPoints;
+      std::map< time_t, PointCollection > summaryMap;
+    };
+    
     RTX_BASE_PROPS(BaseStatsTimeSeries);
     BaseStatsTimeSeries();
     
@@ -68,7 +72,7 @@ namespace RTX {
     
   protected:
     virtual PointCollection filterPointsInRange(TimeRange range) = 0; // pure virtual. don't use this class directly.
-    pointSummaryMap_t filterSummaryCollection(std::set<time_t> times);
+    std::unique_ptr<pointSummaryGroup> filterSummaryCollection(std::set<time_t> times);
     
   private:
     Clock::_sp _window;

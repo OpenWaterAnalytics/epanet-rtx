@@ -34,7 +34,7 @@ std::string InpTextPattern::textPatternWithTimeSeries(TimeSeries::_sp ts, const 
   uint i = 0;
   uint lineLength = 12;
   
-  BOOST_FOREACH(const Point& p, patternData.points) {
+  BOOST_FOREACH(const Point& p, patternData.points()) {
     // start of line?
     if (i == 0) {
       patStream << patternName << "    ";
@@ -60,7 +60,7 @@ std::string InpTextPattern::textControlWithTimeSeries(TimeSeries::_sp ts, const 
   controlStmt << "; RTX Time-Based Control for " << linkName << " (" << ((type == InpControlTypeSetting)? "setting" : "status") << ")" << endl;
   
   TimeSeries::PointCollection c = ts->pointCollection(TimeRange(from,to)).asDelta();
-  BOOST_FOREACH(const Point& p, c.points) {
+  BOOST_FOREACH(const Point& p, c.points()) {
     double hrs = (double)(p.time - from) / (60.*60.);
     controlStmt << "LINK " << linkName << " ";
     switch (type) {

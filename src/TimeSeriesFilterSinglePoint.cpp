@@ -30,16 +30,15 @@ TimeSeries::PointCollection TimeSeriesFilterSinglePoint::filterPointsInRange(Tim
   
   vector<Point> outPoints;
   bool didDropPoints = false;
-  
-  BOOST_FOREACH(const Point& sourcePoint, data.points) {
-    Point converted = this->filteredWithSourcePoint(sourcePoint);
+  data.apply([&](Point p){
+    Point converted = this->filteredWithSourcePoint(p);
     if (converted.isValid) {
       outPoints.push_back(converted);
     }
     else {
       didDropPoints = true;
     }
-  }
+  });
   
   
   PointCollection outData(outPoints, this->units());

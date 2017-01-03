@@ -75,10 +75,10 @@ int _epanet_make_pattern(OW_Project *m, TimeSeries::_sp ts, Clock::_sp clock, Ti
   OW_getpatternindex(m, patName, &patIdx);
   double *pattern = (double*)calloc(len, sizeof(double));
   int i = 0;
-  for (auto p: pc.points) {
+  pc.apply([&](Point p){
     pattern[i] = p.value;
     ++i;
-  }
+  });
   OW_setpattern(m, patIdx, pattern, (int)len);
   free(pattern);
   return patIdx;
@@ -244,18 +244,18 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
           TimeRange settingRange = _range;
           settingRange.start = p->settingBoundary()->pointAtOrBefore(_range.start).time;
           TimeSeries::PointCollection settings = p->settingBoundary()->pointCollection(settingRange).asDelta();
-          for(const Point& p: settings.points) {
+          settings.apply([&](Point p){
             controls[p.time].setting = p;
-          }
+          });
         }
         if (p->statusBoundary()) {
           // also back up by one point
           TimeRange statusRange = _range;
           statusRange.start = p->statusBoundary()->pointAtOrBefore(_range.start).time;
           TimeSeries::PointCollection statuses = p->statusBoundary()->pointCollection(statusRange).asDelta();
-          for(const Point& p: statuses.points) {
+          statuses.apply([&](Point p){
             controls[p.time].status = p;
-          }
+          });
         }
         
         // generate control statements

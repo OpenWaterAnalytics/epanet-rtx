@@ -51,10 +51,10 @@ TimeSeries::PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange 
     return PointCollection(vector<Point>(), this->units());
   }
   
-  vector<Point>::const_iterator cursor, prev, vEnd;
-  cursor = sourceData.points.begin();
-  prev = sourceData.points.begin();
-  vEnd = sourceData.points.end();
+  auto raw = sourceData.raw();
+  auto cursor = raw.first;
+  auto prev = raw.first;
+  auto vEnd = raw.second;
   
   time_t nextReset = lastReset;
   double integratedValue = 0;
@@ -79,7 +79,7 @@ TimeSeries::PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange 
     ++prev;
   }
   
-  data.points = outPoints;
+  data.setPoints(outPoints);
   data.convertToUnits(this->units());
   
   if (this->willResample()) {

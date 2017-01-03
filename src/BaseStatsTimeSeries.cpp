@@ -50,10 +50,12 @@ BaseStatsTimeSeries::StatsSamplingMode_t BaseStatsTimeSeries::samplingMode() {
 }
 
 
-BaseStatsTimeSeries::pointSummaryMap_t BaseStatsTimeSeries::filterSummaryCollection(std::set<time_t> times) {
+unique_ptr<BaseStatsTimeSeries::pointSummaryGroup> BaseStatsTimeSeries::filterSummaryCollection(std::set<time_t> times) {
+  
+  unique_ptr<pointSummaryGroup> group(new pointSummaryGroup);
   
   if (times.size() == 0) {
-    return pointSummaryMap_t();
+    return group;
   }
   
   TimeSeries::_sp sourceTs = this->source();
@@ -87,20 +89,44 @@ BaseStatsTimeSeries::pointSummaryMap_t BaseStatsTimeSeries::filterSummaryCollect
   }
   
   
-  pointSummaryMap_t outSummaries;
+  pointSummaryGroup outSummaries;
   
   // force a pre-cache on the source time series
   TimeRange preFetchRange(fromTime - lagDistance, toTime + leadDistance);
-  PointCollection preFetch = sourceTs->pointCollection(preFetchRange);
+  group->retainedPoints = sourceTs->pointCollection(preFetchRange);
   
-  BOOST_FOREACH(const time_t t, times) {
+  for(const time_t& t : times) {
     // get sub-ranges of the larger pre-fetched collection
     TimeRange subrange(t - lagDistance, t + leadDistance);
-    PointCollection subCollection = preFetch.trimmedToRange(subrange);
-    outSummaries[t] = subCollection;
+    
+    // trim range with iterators.
+    auto raw = group->retainedPoints.raw();
+    auto it = raw.first;
+    auto r1 = it, r2 = it;
+    auto end = raw.second;
+    
+    while (it != end) {
+      time_t t = it->time;
+      if (subrange.contains(t)) {
+        r1 = it;
+        break;
+      }
+      ++it;
+    }
+    
+    while (it != end) {
+      time_t t = it->time;
+      if (!subrange.contains(t)) {
+        break;
+      }
+      ++it;
+      r2 = it;
+    }
+    
+    group->summaryMap[t] = PointCollection(r1,r2,this->units()); // never copy this...
   }
   
-  return outSummaries;
+  return group;
 }
 
 

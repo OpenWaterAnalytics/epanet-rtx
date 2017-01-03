@@ -78,7 +78,7 @@ vector<Point> TimeSeriesFilter::points(TimeRange range) {
   if (this->canDropPoints()) {
     // optmized fetching: we know we're going to use these same points...
     PointCollection c = this->filterPointsInRange(range);
-    cached = c.points;
+    cached = c.points();
     pointTimes = c.times();
   }
   else {
@@ -103,10 +103,10 @@ vector<Point> TimeSeriesFilter::points(TimeRange range) {
   }
   
   PointCollection outCollection = this->filterPointsInRange(range);
-  this->insertPoints(outCollection.points);
+  this->insertPoints(outCollection.points());
   outCollection = outCollection.trimmedToRange(range); // safeguard if filter doesn't respected the range
 
-  return outCollection.points;
+  return outCollection.points();
 }
 
 
@@ -141,7 +141,7 @@ Point TimeSeriesFilter::pointBefore(time_t time) {
     
     // if we found something:
     if (c.count() > 0) {
-      p = c.points.back();
+      p = c.points().back();
     }
   }
   else {
@@ -185,7 +185,7 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
     
     // if we found something:
     if (c.count() > 0) {
-      p = c.points.front();
+      p = c.points().front();
     }
     else {
       cerr << "TimeSeriesFilter::pointAfter iterative search exceeded max strides." << endl;

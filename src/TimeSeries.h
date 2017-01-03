@@ -63,10 +63,16 @@ namespace RTX {
     // internal public class for managing meta-information
     class PointCollection {
     public:
+      PointCollection(std::vector<Point>::iterator start, std::vector<Point>::iterator end, Units units);
+      PointCollection(const PointCollection &pc);
       PointCollection(std::vector<Point> points, Units units);
       PointCollection(); // null constructor
       
-      std::vector<Point> points;
+      void apply(std::function<void(Point)> function);
+      std::pair<std::vector<Point>::iterator,std::vector<Point>::iterator> raw();
+      std::vector<Point> points();
+      void setPoints(std::vector<Point> points);
+      
       Units units;
       const std::set<time_t> times();
       
@@ -86,6 +92,10 @@ namespace RTX {
       double variance();
       size_t count();
       double percentile(double p);
+    private:
+      std::vector<Point> _points;
+      std::vector<Point>::iterator _start, _end;
+      bool _isRef;
     };
     
     RTX_BASE_PROPS(TimeSeries);

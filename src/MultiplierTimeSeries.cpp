@@ -73,11 +73,11 @@ bool MultiplierTimeSeries::willResample() {
 
 TimeSeries::PointCollection MultiplierTimeSeries::filterPointsInRange(RTX::TimeRange range) {
   
-  PointCollection data(vector<Point>(), this->units());
   if (!this->secondary() || !this->source()) {
-    return data;
+    return PointCollection(vector<Point>(), this->units());
   }
-  
+
+  vector<Point> dataPoints;
   TimeRange queryRange = range;
   if (this->willResample()) {
     // expand range
@@ -110,12 +110,12 @@ TimeSeries::PointCollection MultiplierTimeSeries::filterPointsInRange(RTX::TimeR
   for (auto t : combinedTimes) {
     multiplyPoints[t] = make_pair(Point(), Point());
   }
-  for (auto p : primary.points) {
+  primary.apply([&](Point p){
     multiplyPoints[p.time].first = p;
-  }
-  for (auto p : secondary.points) {
+  });
+  secondary.apply([&](Point p){
     multiplyPoints[p.time].second = p;
-  }
+  });
   for (auto ppP : multiplyPoints) {
     PointPoint pp = ppP.second;
     if (pp.first.isValid && pp.second.isValid) {
@@ -130,10 +130,11 @@ TimeSeries::PointCollection MultiplierTimeSeries::filterPointsInRange(RTX::TimeR
         default:
           break;
       }
-      data.points.push_back(mp);
+      dataPoints.push_back(mp);
     }
   }
   
+  PointCollection data(dataPoints, this->units());
   if (this->willResample()) {
     data.resample(this->timeValuesInRange(range));
   }

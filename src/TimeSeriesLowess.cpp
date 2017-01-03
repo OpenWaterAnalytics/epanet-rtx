@@ -32,11 +32,11 @@ TimeSeries::PointCollection TimeSeriesLowess::filterPointsInRange(RTX::TimeRange
   }
   
   set<time_t> times = this->timeValuesInRange(qRange);
-  pointSummaryMap_t summaries = this->filterSummaryCollection(times);
+  auto smr = this->filterSummaryCollection(times);
   vector<Point> outPoints;
-  outPoints.reserve(summaries.size());
+  outPoints.reserve(smr->summaryMap.size());
   
-  for (auto sumPair : summaries) {
+  for (auto &sumPair : smr->summaryMap) {
     
     time_t t = sumPair.first;
     PointCollection c = sumPair.second;
@@ -65,7 +65,7 @@ double TimeSeriesLowess::valueFromCollectionAtTime(TimeSeries::PointCollection c
   
   vector<double> x;
   vector<double> y;
-  for (auto p : c.points) {
+  for (auto p : c.points()) {
     x.push_back(static_cast<double>(p.time));
     y.push_back(p.value);
   }
@@ -85,7 +85,7 @@ double TimeSeriesLowess::valueFromCollectionAtTime(TimeSeries::PointCollection c
   
   outC.resample({t});
   
-  Point p = outC.points.front();
+  Point p = outC.points().front();
   
   return p.value;
 }
