@@ -34,9 +34,11 @@ TimeSeries::PointCollection::PointCollection(const PointCollection &pc) {
     _isRef = true;
     _start = pc._start;
     _end = pc._end;
+    units = pc.units;
   }
   else {
     this->setPoints(pc._points);
+    units = pc.units;
   }
 }
 
