@@ -58,6 +58,11 @@ void TimeSeries::PointCollection::apply(std::function<void(Point)> function) {
   }
 }
 
+TimeRange TimeSeries::PointCollection::range() {
+  auto times = this->times();
+  return TimeRange(*times.begin(), *times.rbegin()); // because set is ordered
+}
+
 vector<Point> TimeSeries::PointCollection::points() {
   if (_isRef) {
     vector<Point> pv;

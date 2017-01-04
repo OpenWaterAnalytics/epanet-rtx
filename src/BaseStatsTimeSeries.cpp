@@ -123,7 +123,7 @@ unique_ptr<BaseStatsTimeSeries::pointSummaryGroup> BaseStatsTimeSeries::filterSu
       r2 = it;
     }
     
-    group->summaryMap[t] = PointCollection(r1,r2,this->units()); // never copy this...
+    group->summaryMap[t] = PointCollection(r1,r2,this->units());
   }
   
   return group;

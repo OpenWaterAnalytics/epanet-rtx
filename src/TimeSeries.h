@@ -75,6 +75,7 @@ namespace RTX {
       
       Units units;
       const std::set<time_t> times();
+      TimeRange range();
       
       bool resample(std::set<time_t> timeList, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
       bool convertToUnits(Units u);

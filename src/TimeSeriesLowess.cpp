@@ -37,10 +37,10 @@ TimeSeries::PointCollection TimeSeriesLowess::filterPointsInRange(RTX::TimeRange
   outPoints.reserve(smr->summaryMap.size());
   
   for (auto &sumPair : smr->summaryMap) {
-    
+    // lowess requires in-sample smoothing. in case of gaps, drop the point.
     time_t t = sumPair.first;
     PointCollection c = sumPair.second;
-    if (c.count() == 0) {
+    if (!c.range().contains(t) || c.count() == 0) {
       continue;
     }
     double v = this->valueFromCollectionAtTime(c,t);
@@ -65,10 +65,10 @@ double TimeSeriesLowess::valueFromCollectionAtTime(TimeSeries::PointCollection c
   
   vector<double> x;
   vector<double> y;
-  for (auto p : c.points()) {
+  c.apply([&](Point p){
     x.push_back(static_cast<double>(p.time));
     y.push_back(p.value);
-  }
+  });
   
   vector<double> out(x.size()), tmp1(x.size()), tmp2(x.size());
   
