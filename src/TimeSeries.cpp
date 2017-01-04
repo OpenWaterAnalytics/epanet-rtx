@@ -37,7 +37,7 @@ TimeSeries::PointCollection::PointCollection(const PointCollection &pc) {
     units = pc.units;
   }
   else {
-    this->setPoints(pc._points);
+    _points = pc._points;
     units = pc.units;
   }
 }
@@ -74,14 +74,14 @@ vector<Point> TimeSeries::PointCollection::points() {
     return pv;
   }
   else {
-    return _points;
+    return *_points.get();
   }
 }
 
 void TimeSeries::PointCollection::setPoints(vector<Point> points) {
-  _points = points;
-  _start = _points.begin();
-  _end = _points.end();
+  _points.reset(new vector<Point>(points));
+  _start = _points->begin();
+  _end = _points->end();
   _isRef = false;
 }
 
@@ -158,7 +158,7 @@ size_t TimeSeries::PointCollection::count() {
     return c;
   }
   else {
-    return _points.size();
+    return _points->size();
   }
 }
 

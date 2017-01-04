@@ -94,13 +94,13 @@ unique_ptr<BaseStatsTimeSeries::pointSummaryGroup> BaseStatsTimeSeries::filterSu
   // force a pre-cache on the source time series
   TimeRange preFetchRange(fromTime - lagDistance, toTime + leadDistance);
   group->retainedPoints = sourceTs->pointCollection(preFetchRange);
+  auto raw = group->retainedPoints.raw();
   
   for(const time_t& t : times) {
     // get sub-ranges of the larger pre-fetched collection
     TimeRange subrange(t - lagDistance, t + leadDistance);
     
     // trim range with iterators.
-    auto raw = group->retainedPoints.raw();
     auto it = raw.first;
     auto r1 = it, r2 = it;
     auto end = raw.second;
@@ -123,7 +123,8 @@ unique_ptr<BaseStatsTimeSeries::pointSummaryGroup> BaseStatsTimeSeries::filterSu
       r2 = it;
     }
     
-    group->summaryMap[t] = PointCollection(r1,r2,this->units());
+    PointCollection c(r1,r2,this->units());
+    group->summaryMap[t] = c;
   }
   
   return group;

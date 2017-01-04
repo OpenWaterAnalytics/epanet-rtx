@@ -94,7 +94,7 @@ namespace RTX {
       size_t count();
       double percentile(double p);
     private:
-      std::vector<Point> _points;
+      std::shared_ptr< std::vector<Point> > _points;
       std::vector<Point>::iterator _start, _end;
       bool _isRef;
     };

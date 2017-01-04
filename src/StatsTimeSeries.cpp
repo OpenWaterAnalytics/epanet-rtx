@@ -74,20 +74,13 @@ TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range
   outPoints.reserve(smr->summaryMap.size());
   
   map< time_t,future<double> > statsTasks;
-  
   for(auto &x : smr->summaryMap) {
     time_t t = x.first;
     PointCollection col = x.second;
-    if (col.count() == 0 && this->statsType() != StatsTimeSeriesCount) {
+    if (col.count() == 0 && _statsType != StatsTimeSeriesCount) {
       continue;
     }
     statsTasks[t] = async(launch::async, std::bind(&StatsTimeSeries::valueFromSummary, this, std::placeholders::_1), col);
-    
-//    double v = this->valueFromSummary(col);
-//    Point outPoint(t, v);
-//    if (outPoint.isValid) {
-//      outPoints.push_back(outPoint);
-//    }
   }
   
   for (auto& taskPair : statsTasks) {
@@ -98,8 +91,6 @@ TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range
       outPoints.push_back(outPoint);
     }
   }
-  
-  
   
   PointCollection ret(outPoints, this->units());
   
@@ -116,6 +107,8 @@ TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range
       ret.addQualityFlag(Point::rtx_aggregated);
       break;
   }
+  
+  cout << "stats returning: " << ret.count() << " points -- max: " << ret.max() << " :: min: " << ret.min() << endl << flush; 
   
   return ret;
 }
