@@ -107,9 +107,7 @@ TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range
       ret.addQualityFlag(Point::rtx_aggregated);
       break;
   }
-  
-  cout << "stats returning: " << ret.count() << " points -- max: " << ret.max() << " :: min: " << ret.min() << endl << flush; 
-  
+    
   return ret;
 }
 
