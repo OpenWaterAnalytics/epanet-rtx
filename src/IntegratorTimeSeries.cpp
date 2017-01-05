@@ -22,7 +22,7 @@ Clock::_sp IntegratorTimeSeries::resetClock() {
   return _reset;
 }
 
-TimeSeries::PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange range) {
+PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange range) {
 
   vector<Point> outPoints;
   Units fromUnits = this->source()->units();

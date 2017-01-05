@@ -32,7 +32,7 @@ void CurveFunction::clearCurve() {
   this->setCurve(blank);
 }
 
-TimeSeries::PointCollection CurveFunction::filterPointsInRange(RTX::TimeRange range) {
+PointCollection CurveFunction::filterPointsInRange(RTX::TimeRange range) {
   
   if (!_curve || !this->source()) {
     return PointCollection();

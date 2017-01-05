@@ -7,11 +7,12 @@
 //
 
 #include "BaseStatsTimeSeries.h"
-#include <boost/foreach.hpp>
-
 
 using namespace RTX;
 using namespace std;
+using pvIt = PointCollection::pvIt;
+using pvRange = PointCollection::pvRange;
+
 
 
 BaseStatsTimeSeries::BaseStatsTimeSeries() {
@@ -49,11 +50,9 @@ BaseStatsTimeSeries::StatsSamplingMode_t BaseStatsTimeSeries::samplingMode() {
   return _samplingMode;
 }
 
-
-unique_ptr<BaseStatsTimeSeries::pointSummaryGroup> BaseStatsTimeSeries::filterSummaryCollection(std::set<time_t> times) {
-  
-  unique_ptr<pointSummaryGroup> group(new pointSummaryGroup);
-  
+BaseStatsTimeSeries::rangeGroup BaseStatsTimeSeries::subRanges(set<time_t> times) {
+  rangeGroup group;
+    
   if (times.size() == 0) {
     return group;
   }
@@ -62,73 +61,33 @@ unique_ptr<BaseStatsTimeSeries::pointSummaryGroup> BaseStatsTimeSeries::filterSu
   time_t fromTime = *(times.begin());
   time_t toTime = *(times.rbegin());
   
-  time_t windowLen = this->window()->period();
+  time_t w = this->window()->period();
   
-  time_t lagDistance  = 0,
-  leadDistance = 0;
+  time_t t_lag  = 0, t_lead = 0;
   
-  switch (this->samplingMode()) {
-    case StatsSamplingModeLeading:
-    {
-      leadDistance += windowLen;
-      break;
-    }
-    case StatsSamplingModeLagging:
-    {
-      lagDistance += windowLen;
-      break;
-    }
-    case StatsSamplingModeCentered:
-    {
-      time_t halfLen = windowLen / 2;
-      lagDistance += halfLen;
-      leadDistance += halfLen;
-      break;
-    }
-    default: break;
-  }
+  map<StatsSamplingMode_t, function<void()> > windowSetters({
+    {StatsSamplingModeLeading,  [&](){t_lead += w;} },
+    {StatsSamplingModeLagging,  [&](){t_lag += w;} },
+    {StatsSamplingModeCentered, [&](){time_t h = w / 2; t_lag += h; t_lead += h;} }
+  });
   
-  
-  pointSummaryGroup outSummaries;
-  
+  windowSetters.at(this->samplingMode())();  
+    
   // force a pre-cache on the source time series
-  TimeRange preFetchRange(fromTime - lagDistance, toTime + leadDistance);
-  group->retainedPoints = sourceTs->pointCollection(preFetchRange);
-  auto raw = group->retainedPoints.raw();
-  
+  group.retainedCollection = sourceTs->pointCollection(TimeRange(fromTime - t_lag, toTime + t_lead));
+    
   for(const time_t& t : times) {
     // get sub-ranges of the larger pre-fetched collection
-    TimeRange subrange(t - lagDistance, t + leadDistance);
-    
-    // trim range with iterators.
-    auto it = raw.first;
-    auto r1 = it, r2 = it;
-    auto end = raw.second;
-    
-    while (it != end) {
-      time_t t = it->time;
-      if (subrange.contains(t)) {
-        r1 = it;
-        break;
-      }
-      ++it;
-    }
-    
-    while (it != end) {
-      time_t t = it->time;
-      if (!subrange.contains(t)) {
-        break;
-      }
-      ++it;
-      r2 = it;
-    }
-    
-    PointCollection c(r1,r2,this->units());
-    group->summaryMap[t] = c;
+    TimeRange subrange(t - t_lag, t + t_lead);
+    auto r = group.retainedCollection.subRange(subrange);
+    group.ranges[t] = r;
   }
   
   return group;
 }
+
+
+
 
 
 

@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include "TimeSeriesFilter.h"
+#include "PointCollection.h"
 
 namespace RTX {
   
@@ -48,10 +49,11 @@ namespace RTX {
       StatsSamplingModeCentered = 2   /*!< Use a centered sampling window */
     } StatsSamplingMode_t;
     
+    typedef std::map< time_t,PointCollection::pvRange > subrangeMap; 
     
-    struct pointSummaryGroup {
-      PointCollection retainedPoints;
-      std::map< time_t, PointCollection > summaryMap;
+    struct rangeGroup {
+      PointCollection retainedCollection;
+      subrangeMap ranges;
     };
     
     RTX_BASE_PROPS(BaseStatsTimeSeries);
@@ -72,7 +74,7 @@ namespace RTX {
     
   protected:
     virtual PointCollection filterPointsInRange(TimeRange range) = 0; // pure virtual. don't use this class directly.
-    std::unique_ptr<pointSummaryGroup> filterSummaryCollection(std::set<time_t> times);
+    rangeGroup subRanges(std::set<time_t> times);
     
   private:
     Clock::_sp _window;

@@ -5,11 +5,11 @@ using namespace RTX;
 using namespace std;
 
 
-TimeSeries::PointCollection Curve::convert(const TimeSeries::PointCollection &pc) {
-  TimeSeries::PointCollection out;
+PointCollection Curve::convert(const PointCollection &pc) {
+  PointCollection out;
   out.units = this->outputUnits;
   vector<Point> outp;
-  TimeSeries::PointCollection input = pc;
+  PointCollection input = pc;
   if (!input.convertToUnits(this->inputUnits)) {
     return out;
   }
@@ -18,7 +18,7 @@ TimeSeries::PointCollection Curve::convert(const TimeSeries::PointCollection &pc
   double minY = curveData.cbegin()->second;
   double maxX = curveData.crbegin()->first;
   
-  input.apply([&](Point p){
+  input.apply([&](const Point& p){
     Point op;
     op.time = p.time;
     double inValue = p.value;

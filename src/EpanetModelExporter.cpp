@@ -13,7 +13,7 @@
 
 using namespace std;
 using namespace RTX;
-using PointCollection = TimeSeries::PointCollection;
+using PointCollection = PointCollection;
 using boost::join;
 
 #define BR '\n'
@@ -60,7 +60,7 @@ int _epanet_make_pattern(OW_Project *m, TimeSeries::_sp ts, Clock::_sp clock, Ti
 int _epanet_make_pattern(OW_Project *m, TimeSeries::_sp ts, Clock::_sp clock, TimeRange range, const string& patternName, Units patternUnits) {
   TimeSeriesFilter::_sp rsDemand(new TimeSeriesFilter);
   rsDemand->setClock(clock);
-  rsDemand->setResampleMode(TimeSeries::TimeSeriesResampleModeStep);
+  rsDemand->setResampleMode(ResampleModeStep);
   rsDemand->setSource(ts);
   PointCollection pc = rsDemand->pointCollection(range);
   pc.convertToUnits(patternUnits);
@@ -75,7 +75,7 @@ int _epanet_make_pattern(OW_Project *m, TimeSeries::_sp ts, Clock::_sp clock, Ti
   OW_getpatternindex(m, patName, &patIdx);
   double *pattern = (double*)calloc(len, sizeof(double));
   int i = 0;
-  pc.apply([&](Point p){
+  pc.apply([&](const Point& p){
     pattern[i] = p.value;
     ++i;
   });
@@ -243,8 +243,8 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
           // make sure that the first point is at or before "time zero"
           TimeRange settingRange = _range;
           settingRange.start = p->settingBoundary()->pointAtOrBefore(_range.start).time;
-          TimeSeries::PointCollection settings = p->settingBoundary()->pointCollection(settingRange).asDelta();
-          settings.apply([&](Point p){
+          PointCollection settings = p->settingBoundary()->pointCollection(settingRange).asDelta();
+          settings.apply([&](const Point& p){
             controls[p.time].setting = p;
           });
         }
@@ -252,8 +252,8 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
           // also back up by one point
           TimeRange statusRange = _range;
           statusRange.start = p->statusBoundary()->pointAtOrBefore(_range.start).time;
-          TimeSeries::PointCollection statuses = p->statusBoundary()->pointCollection(statusRange).asDelta();
-          statuses.apply([&](Point p){
+          PointCollection statuses = p->statusBoundary()->pointCollection(statusRange).asDelta();
+          statuses.apply([&](const Point& p){
             controls[p.time].status = p;
           });
         }

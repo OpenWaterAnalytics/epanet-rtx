@@ -67,7 +67,7 @@ set<time_t> FailoverTimeSeries::timeValuesInRange(TimeRange range) {
   return set<time_t>();
 }
 
-TimeSeries::PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange range) {
+PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange range) {
   if (!this->secondary()) {
     return TimeSeriesFilter::filterPointsInRange(range);
   }

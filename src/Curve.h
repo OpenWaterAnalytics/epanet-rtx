@@ -19,7 +19,7 @@ namespace RTX {
     Units outputUnits;
     std::map<double,double> curveData;
     
-    TimeSeries::PointCollection convert(const TimeSeries::PointCollection& p);
+    PointCollection convert(const PointCollection& p);
     
   };
 }

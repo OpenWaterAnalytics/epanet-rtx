@@ -71,8 +71,8 @@ namespace RTX {
     Clock::_sp clock();
     void setClock(Clock::_sp clock);
     
-    TimeSeriesResampleMode resampleMode();
-    void setResampleMode(TimeSeriesResampleMode mode);
+    ResampleMode resampleMode();
+    void setResampleMode(ResampleMode mode);
     
     std::vector< Point > points(TimeRange range);
     virtual Point pointBefore(time_t time);
@@ -98,13 +98,13 @@ namespace RTX {
     virtual bool canChangeToUnits(Units units);
     
     // chainable
-    TimeSeriesFilter::_sp resample(TimeSeriesResampleMode mode) {this->setResampleMode(mode); return share_me(this);};
+    TimeSeriesFilter::_sp resample(ResampleMode mode) {this->setResampleMode(mode); return share_me(this);};
     TimeSeriesFilter::_sp source(TimeSeries::_sp source) {this->setSource(source); return share_me(this);};
     
   private:
     TimeSeries::_sp _source;
     Clock::_sp _clock;
-    TimeSeriesResampleMode _resampleMode;
+    ResampleMode _resampleMode;
     
   };
 }

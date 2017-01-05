@@ -97,7 +97,7 @@ set<time_t> LagTimeSeries::timeValuesInRange(TimeRange range) {
   return outTimes;
 }
 
-TimeSeries::PointCollection LagTimeSeries::filterPointsInRange(TimeRange range) {
+PointCollection LagTimeSeries::filterPointsInRange(TimeRange range) {
   
   TimeRange laggedRange = range;
   laggedRange.start -= _lag;

@@ -3,7 +3,7 @@
 
 using namespace RTX;
 using namespace std;
-
+using PC = RTX::PointCollection;
 
 TimeSeriesLowess::TimeSeriesLowess() {
   _fraction = 0.5;
@@ -21,7 +21,7 @@ double TimeSeriesLowess::fraction() {
   return _fraction;
 }
 
-TimeSeries::PointCollection TimeSeriesLowess::filterPointsInRange(RTX::TimeRange range) {
+PointCollection TimeSeriesLowess::filterPointsInRange(RTX::TimeRange range) {
   
   TimeRange qRange = range;
   if (this->willResample()) {
@@ -32,18 +32,20 @@ TimeSeries::PointCollection TimeSeriesLowess::filterPointsInRange(RTX::TimeRange
   }
   
   set<time_t> times = this->timeValuesInRange(qRange);
-  auto smr = this->filterSummaryCollection(times);
+  auto subranges = this->subRanges(times);
   vector<Point> outPoints;
-  outPoints.reserve(smr->summaryMap.size());
+  outPoints.reserve(subranges.ranges.size());
   
-  for (auto &sumPair : smr->summaryMap) {
+  for (auto &rm : subranges.ranges) {
     // lowess requires in-sample smoothing. in case of gaps, drop the point.
-    time_t t = sumPair.first;
-    PointCollection c = sumPair.second;
-    if (!c.range().contains(t) || c.count() == 0) {
+    time_t t = rm.first;
+    auto pvr = rm.second;
+    TimeRange r = PC::timeRange(pvr);
+    
+    if (!r.contains(t) || PC::count(pvr) == 0) {
       continue;
     }
-    double v = this->valueFromCollectionAtTime(c,t);
+    double v = this->valueFromSampleAtTime(pvr,t);
     Point p(t,v);
     if (p.isValid) {
       outPoints.push_back(p);
@@ -58,17 +60,17 @@ TimeSeries::PointCollection TimeSeriesLowess::filterPointsInRange(RTX::TimeRange
 }
 
 
-double TimeSeriesLowess::valueFromCollectionAtTime(TimeSeries::PointCollection c, time_t t) {
-  
-  
+double TimeSeriesLowess::valueFromSampleAtTime(PointCollection::pvRange r, time_t t) {
   CppLowess::TemplatedLowess<vector<double>, double> lowess;
   
   vector<double> x;
   vector<double> y;
-  c.apply([&](Point p){
-    x.push_back(static_cast<double>(p.time));
-    y.push_back(p.value);
-  });
+  auto i = r.first;
+  while (i != r.second) {
+    x.push_back(static_cast<double>(i->time));
+    y.push_back(i->value);
+    ++i;
+  }
   
   vector<double> out(x.size()), tmp1(x.size()), tmp2(x.size());
   

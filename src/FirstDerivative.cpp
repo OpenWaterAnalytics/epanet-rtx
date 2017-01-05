@@ -20,7 +20,7 @@ FirstDerivative::~FirstDerivative() {
 }
 
 
-TimeSeries::PointCollection FirstDerivative::filterPointsInRange(TimeRange range) {
+PointCollection FirstDerivative::filterPointsInRange(TimeRange range) {
   PointCollection data(vector<Point>(), this->units());
   
   vector<Point> outPoints;

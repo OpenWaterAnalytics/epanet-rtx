@@ -17,7 +17,7 @@
 using namespace RTX;
 using namespace std;
 
-std::string InpTextPattern::textPatternWithTimeSeries(TimeSeries::_sp ts, const std::string& patternName, time_t from, time_t to, int step, TimeSeries::TimeSeriesResampleMode interp) {
+std::string InpTextPattern::textPatternWithTimeSeries(TimeSeries::_sp ts, const std::string& patternName, time_t from, time_t to, int step, ResampleMode interp) {
 
   stringstream patStream;
   
@@ -28,13 +28,13 @@ std::string InpTextPattern::textPatternWithTimeSeries(TimeSeries::_sp ts, const 
   filter->setClock(patClock);
   filter->setResampleMode(interp);
   
-  TimeSeries::PointCollection patternData = filter->pointCollection(TimeRange(from,to));
+  PointCollection patternData = filter->pointCollection(TimeRange(from,to));
   patStream << "; RTX-generated demand pattern: " << patternName << endl;
   
   uint i = 0;
   uint lineLength = 12;
   
-  BOOST_FOREACH(const Point& p, patternData.points()) {
+  patternData.apply([&](const Point& p){
     // start of line?
     if (i == 0) {
       patStream << patternName << "    ";
@@ -48,7 +48,7 @@ std::string InpTextPattern::textPatternWithTimeSeries(TimeSeries::_sp ts, const 
       i = 0;
       patStream << endl;
     }
-  }
+  });
   
   const string patternStr(patStream.str());
   return patternStr;
@@ -59,7 +59,7 @@ std::string InpTextPattern::textControlWithTimeSeries(TimeSeries::_sp ts, const 
   stringstream controlStmt;
   controlStmt << "; RTX Time-Based Control for " << linkName << " (" << ((type == InpControlTypeSetting)? "setting" : "status") << ")" << endl;
   
-  TimeSeries::PointCollection c = ts->pointCollection(TimeRange(from,to)).asDelta();
+  PointCollection c = ts->pointCollection(TimeRange(from,to)).asDelta();
   BOOST_FOREACH(const Point& p, c.points()) {
     double hrs = (double)(p.time - from) / (60.*60.);
     controlStmt << "LINK " << linkName << " ";

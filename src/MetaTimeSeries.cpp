@@ -10,7 +10,7 @@ MetaTimeSeries::MetaTimeSeries() {
 }
 
 
-TimeSeries::PointCollection MetaTimeSeries::filterPointsInRange(TimeRange range) {
+PointCollection MetaTimeSeries::filterPointsInRange(TimeRange range) {
   
   PointCollection gaps(vector<Point>(), RTX_DIMENSIONLESS);
   

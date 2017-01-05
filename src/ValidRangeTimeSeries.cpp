@@ -34,7 +34,7 @@ bool ValidRangeTimeSeries::canDropPoints() {
   return this->mode() == ValidRangeTimeSeries::drop;
 }
 
-TimeSeries::PointCollection ValidRangeTimeSeries::filterPointsInRange(TimeRange range) {
+PointCollection ValidRangeTimeSeries::filterPointsInRange(TimeRange range) {
   
   // if we are to resample, then there's a possibility that we need to expand the range
   // used to query the source ts. but we have to limit the search to something reasonable, in case
@@ -52,7 +52,7 @@ TimeSeries::PointCollection ValidRangeTimeSeries::filterPointsInRange(TimeRange 
   
   vector<Point> outP;
   
-  raw.apply([&](Point p){
+  raw.apply([&](const Point& p){
     Point newP;
     double pointValue = p.value;
     

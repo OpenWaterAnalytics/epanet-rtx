@@ -276,9 +276,9 @@ std::pair<time_t,int> TimeSeriesDuplicator::_fetchAll(time_t start, time_t end, 
   BOOST_FOREACH(TimeSeries::_sp ts, _destinationSeries) {
     if (_shouldRun) {
       ts->resetCache();
-      TimeSeries::PointCollection pc = ts->pointCollection(TimeRange(start, end));
+      PointCollection pc = ts->pointCollection(TimeRange(start, end));
       stringstream tsSS;
-      tsSS << ts->name() << " : " << pc.count() << " points (max:" << pc.max() << " min:" << pc.min() << " avg:" << pc.mean() << ")";
+//      tsSS << ts->name() << " : " << pc.count() << " points (max:" << pc.max() << " min:" << pc.min() << " avg:" << pc.mean() << ")";
       this->_logLine(tsSS.str(),RTX_DUPLICATOR_LOGLEVEL_VERBOSE);
       if (updatePctComplete) {
         _pctCompleteFetch += 1./(double)nSeries;

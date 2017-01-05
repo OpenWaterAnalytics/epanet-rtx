@@ -126,6 +126,8 @@
 		224B09D41CA9B2A900AEB41A /* LinkJsonSerialization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224B09D21CA9B2A900AEB41A /* LinkJsonSerialization.cpp */; };
 		2251940A1CD8F2EA00B1BC31 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 225194091CD8F2EA00B1BC31 /* libxml2.2.dylib */; };
 		22602B771D5A738000A668ED /* libgeohash.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22602B761D5A738000A668ED /* libgeohash.a */; };
+		227106511E1EA0FE002A2D30 /* PointCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2271064F1E1EA0FE002A2D30 /* PointCollection.cpp */; };
+		227106521E1EA0FE002A2D30 /* PointCollection.h in Headers */ = {isa = PBXBuildFile; fileRef = 227106501E1EA0FE002A2D30 /* PointCollection.h */; };
 		228137D91CA2F23B00AD81F3 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228137D81CA2F23B00AD81F3 /* main.cpp */; };
 		228137DE1CA2F2C600AD81F3 /* LinkService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228137DC1CA2F2C600AD81F3 /* LinkService.cpp */; };
 		2288C1241BE3C71900F9B8FB /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
@@ -463,6 +465,8 @@
 		226AC14C17340D06009B7C90 /* MultiplierTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MultiplierTimeSeries.h; path = ../../src/MultiplierTimeSeries.h; sourceTree = "<group>"; };
 		22707A9416309D4000FEB4DD /* OffsetTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OffsetTimeSeries.cpp; path = ../../src/OffsetTimeSeries.cpp; sourceTree = "<group>"; };
 		22707A9516309D4100FEB4DD /* OffsetTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OffsetTimeSeries.h; path = ../../src/OffsetTimeSeries.h; sourceTree = "<group>"; };
+		2271064F1E1EA0FE002A2D30 /* PointCollection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PointCollection.cpp; path = ../../src/PointCollection.cpp; sourceTree = "<group>"; };
+		227106501E1EA0FE002A2D30 /* PointCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PointCollection.h; path = ../../src/PointCollection.h; sourceTree = "<group>"; };
 		227510E616D4231800B2BA62 /* BufferPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BufferPointRecord.cpp; path = ../../src/BufferPointRecord.cpp; sourceTree = "<group>"; };
 		227510E716D4231800B2BA62 /* BufferPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = BufferPointRecord.h; path = ../../src/BufferPointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		227BCEF11B2B6CDB00B0AC52 /* LogicTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LogicTimeSeries.cpp; path = ../../src/LogicTimeSeries.cpp; sourceTree = "<group>"; };
@@ -1036,6 +1040,8 @@
 		22C62AC91439ED9300841E60 /* time series classes */ = {
 			isa = PBXGroup;
 			children = (
+				227106501E1EA0FE002A2D30 /* PointCollection.h */,
+				2271064F1E1EA0FE002A2D30 /* PointCollection.cpp */,
 				22C62ADA1439EE0B00841E60 /* TimeSeries.h */,
 				22C62AD91439EE0B00841E60 /* TimeSeries.cpp */,
 				22CF1C281A68094300161188 /* TimeSeriesFilter.h */,
@@ -1220,6 +1226,7 @@
 				221BFD801A8E8AD000143FCC /* Point.h in Headers */,
 				221BFD821A8E8AD000143FCC /* TimeSeries.h in Headers */,
 				221BFD831A8E8AD000143FCC /* InversionTimeSeries.h in Headers */,
+				227106521E1EA0FE002A2D30 /* PointCollection.h in Headers */,
 				229E95C11CB2FAE000216682 /* EpanetModelExporter.h in Headers */,
 				22B960691CD7D23700BF2BA5 /* OpcPointRecord.h in Headers */,
 				221BFD851A8E8AD000143FCC /* MathOpsTimeSeries.h in Headers */,
@@ -1620,6 +1627,7 @@
 				221BFD3F1A8E8AD000143FCC /* OdbcPointRecord.cpp in Sources */,
 				221BFD401A8E8AD000143FCC /* OdbcDirectPointRecord.cpp in Sources */,
 				221BFD411A8E8AD000143FCC /* BaseStatsTimeSeries.cpp in Sources */,
+				227106511E1EA0FE002A2D30 /* PointCollection.cpp in Sources */,
 				221BFD421A8E8AD000143FCC /* CorrelatorTimeSeries.cpp in Sources */,
 				22DC12D81ADD844D0033DD5E /* MetaTimeSeries.cpp in Sources */,
 				221BFD431A8E8AD000143FCC /* Element.cpp in Sources */,

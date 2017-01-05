@@ -47,7 +47,7 @@ bool OutlierExclusionTimeSeries::canDropPoints() {
   return true;
 }
 
-TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(TimeRange range) {
+PointCollection OutlierExclusionTimeSeries::filterPointsInRange(TimeRange range) {
   
   // if we are to resample, then there's a possibility that we need to expand the range
   // used to query the source ts. but we have to limit the search to something reasonable, in case
@@ -70,22 +70,21 @@ TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(Time
     proposedOutTimes = trim.times();
   }
   
-  auto smr = this->filterSummaryCollection(rawTimes);
+  auto subranges = this->subRanges(rawTimes);
   TimeSeries::_sp sourceTs = this->source();
   
   
   vector<Point> goodPoints;
   
   
-  goodPoints.reserve(smr->summaryMap.size());
+  goodPoints.reserve(subranges.ranges.size());
   
   // we have to re-map the points to the summaries that surround the points
   BOOST_FOREACH(const Point& p, raw.points()) {
     // find the summary corresponding to this point's time
-    PointCollection col;
-    if (smr->summaryMap.find(p.time) != smr->summaryMap.end()) {
-      col = smr->summaryMap[p.time];
-      Point summaryPoint = this->pointWithCollectionAndPoint(col, p);
+    if (subranges.ranges.find(p.time) != subranges.ranges.end()) {
+      auto range = subranges.ranges[p.time];
+      Point summaryPoint = this->pointWithSampleAndPoint(range, p);
       if (summaryPoint.isValid) {
         goodPoints.push_back(summaryPoint);
       }
@@ -103,16 +102,18 @@ TimeSeries::PointCollection OutlierExclusionTimeSeries::filterPointsInRange(Time
 
 
 
-Point OutlierExclusionTimeSeries::pointWithCollectionAndPoint(RTX::TimeSeries::PointCollection col, Point p) {
+Point OutlierExclusionTimeSeries::pointWithSampleAndPoint(PointCollection::pvRange sample, Point p) {
+  using PC = PointCollection;
+  
   Point pOut;
   double q25,q75,iqr,mean,stddev;
-  double m = this->outlierMultiplier();
+  const double m = this->outlierMultiplier();
   
   switch (this->exclusionMode()) {
     case OutlierExclusionModeInterquartileRange:
     {
-      q25 = col.percentile(.25);
-      q75 = col.percentile(.75);
+      q25 = PC::percentile(.25, sample);
+      q75 = PC::percentile(.75, sample);
       iqr = q75 - q25;
       if ( !( (p.value < q25 - m*iqr) || (m*iqr + q75 < p.value) )) {
         // store the point if it's within bounds
@@ -122,8 +123,8 @@ Point OutlierExclusionTimeSeries::pointWithCollectionAndPoint(RTX::TimeSeries::P
       break; // OutlierExclusionModeInterquartileRange
     case OutlierExclusionModeStdDeviation:
     {
-      mean = col.mean();
-      stddev = sqrt(col.variance());
+      mean = PC::mean(sample);
+      stddev = sqrt(PC::variance(sample));
       if ( fabs(mean - p.value) <= (m * stddev) ) {
         pOut = Point::convertPoint(p, this->source()->units(), this->units());
       }
@@ -132,7 +133,6 @@ Point OutlierExclusionTimeSeries::pointWithCollectionAndPoint(RTX::TimeSeries::P
   } // end switch mode
   
   return pOut;
-  
 }
 
 

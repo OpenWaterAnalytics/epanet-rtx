@@ -74,7 +74,7 @@ void CorrelatorTimeSeries::setLagSeconds(int nSeconds) {
 
 #pragma mark - superclass overrides
 
-TimeSeries::PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange range) {
+PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange range) {
   
   PointCollection data(vector<Point>(), this->units());
   if (!this->secondary() || !this->source()) {

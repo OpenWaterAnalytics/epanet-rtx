@@ -14,7 +14,7 @@
 
 using namespace RTX;
 using namespace std;
-
+using PC = PointCollection;
 
 StatsTimeSeries::StatsTimeSeries() {
   _statsType = StatsTimeSeriesMean;
@@ -56,7 +56,9 @@ void StatsTimeSeries::setArbitraryPercentile(double p) {
 }
 
 
-TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range) {
+PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range) {
+  
+  
   
   TimeRange qRange = range;
   if (this->willResample()) {
@@ -69,18 +71,18 @@ TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range
   
   set<time_t> times = this->timeValuesInRange(qRange);
   
-  auto smr = this->filterSummaryCollection(times);
+  auto subranges = this->subRanges(times);
   vector<Point> outPoints;
-  outPoints.reserve(smr->summaryMap.size());
+  outPoints.reserve(subranges.ranges.size());
   
   map< time_t,future<double> > statsTasks;
-  for(auto &x : smr->summaryMap) {
+  for(auto &x : subranges.ranges) {
     time_t t = x.first;
-    PointCollection col = x.second;
-    if (col.count() == 0 && _statsType != StatsTimeSeriesCount) {
+    auto r = x.second;
+    if (PC::count(r) == 0 && _statsType != StatsTimeSeriesCount) {
       continue;
     }
-    statsTasks[t] = async(launch::async, std::bind(&StatsTimeSeries::valueFromSummary, this, std::placeholders::_1), col);
+    statsTasks[t] = async(launch::async, std::bind(&StatsTimeSeries::valueFromRange, this, std::placeholders::_1), r);
   }
   
   for (auto& taskPair : statsTasks) {
@@ -114,48 +116,24 @@ TimeSeries::PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range
 
 
 
-double StatsTimeSeries::valueFromSummary(TimeSeries::PointCollection col) {
+double StatsTimeSeries::valueFromRange(PointCollection::pvRange r) {
   double v;
-  switch (_statsType) {
-    case StatsTimeSeriesMean:
-      v = col.mean();
-      break;
-    case StatsTimeSeriesStdDev:
-      v = sqrt(col.variance());
-      break;
-    case StatsTimeSeriesMedian:
-      v = col.percentile(.5);
-      break;
-    case StatsTimeSeriesQ25:
-      v = col.percentile(.25);
-      break;
-    case StatsTimeSeriesQ75:
-      v = col.percentile(.75);
-      break;
-    case StatsTimeSeriesInterQuartileRange:
-      v = col.percentile(.75) - col.percentile(.25);
-      break;
-    case StatsTimeSeriesMax:
-      v = col.max();
-      break;
-    case StatsTimeSeriesMin:
-      v = col.min();
-      break;
-    case StatsTimeSeriesCount:
-      v = col.count();
-      break;
-    case StatsTimeSeriesVar:
-      v = col.variance();
-      break;
-    case StatsTimeSeriesRMS:
-      v = sqrt(col.variance() + col.mean()*col.mean());
-      break;
-    case StatsTimeSeriesPercentile:
-      v = col.percentile(_percentile);
-    default:
-      break;
-  }
   
+  const map<StatsTimeSeriesType, function<void()> > getters({
+    {StatsTimeSeriesMean,   [&](){ v = PC::mean(r); } },
+    {StatsTimeSeriesStdDev, [&](){ v = sqrt(PC::variance(r)); } },
+    {StatsTimeSeriesMedian, [&](){ v = PC::percentile(.5,r); } },
+    {StatsTimeSeriesQ25,    [&](){ v = PC::percentile(.25,r); } },
+    {StatsTimeSeriesQ75,    [&](){ v = PC::percentile(.75,r); } },
+    {StatsTimeSeriesIQR,    [&](){ v = PC::interquartilerange(r); } },
+    {StatsTimeSeriesMax,    [&](){ v = PC::max(r); } },
+    {StatsTimeSeriesMin,    [&](){ v = PC::min(r); } },
+    {StatsTimeSeriesCount,  [&](){ v = PC::count(r); } },
+    {StatsTimeSeriesVar,    [&](){ v = PC::variance(r); } },
+    {StatsTimeSeriesRMS,    [&](){ v = PC::variance(r) + pow(PC::mean(r), 2.); } },
+    {StatsTimeSeriesPercentile, [&](){ v = PC::percentile(_percentile,r); } },
+  });
+  getters.at(_statsType)();
   
   // convert units?
   Units u1 = this->statsUnits(this->source()->units(), this->statsType());
@@ -224,7 +202,7 @@ Units StatsTimeSeries::statsUnits(Units sourceUnits, StatsTimeSeriesType type) {
     case StatsTimeSeriesQ75:
       return sourceUnits;
       break;
-    case StatsTimeSeriesInterQuartileRange:
+    case StatsTimeSeriesIQR:
       return sourceUnits;
       break;
     case StatsTimeSeriesMax:

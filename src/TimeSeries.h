@@ -18,6 +18,7 @@
 
 #include "rtxMacros.h"
 #include "Point.h"
+#include "PointCollection.h"
 #include "PointRecord.h"
 #include "Clock.h"
 #include "Units.h"
@@ -55,50 +56,6 @@ namespace RTX {
   
   class TimeSeries : public std::enable_shared_from_this<TimeSeries>, public RTX_object {
   public:
-    typedef enum {
-      TimeSeriesResampleModeLinear,
-      TimeSeriesResampleModeStep
-    } TimeSeriesResampleMode;
-    
-    // internal public class for managing meta-information
-    class PointCollection {
-    public:
-      PointCollection(std::vector<Point>::iterator start, std::vector<Point>::iterator end, Units units);
-      PointCollection(const PointCollection &pc);
-      PointCollection(std::vector<Point> points, Units units);
-      PointCollection(); // null constructor
-      
-      void apply(std::function<void(Point)> function);
-      std::pair<std::vector<Point>::iterator,std::vector<Point>::iterator> raw();
-      std::vector<Point> points();
-      void setPoints(std::vector<Point> points);
-      
-      Units units;
-      const std::set<time_t> times();
-      TimeRange range();
-      
-      bool resample(std::set<time_t> timeList, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
-      bool convertToUnits(Units u);
-      void addQualityFlag(Point::PointQuality q);
-      
-      // non-mutating
-      PointCollection trimmedToRange(TimeRange range);
-      PointCollection resampledAtTimes(std::set<time_t> times, TimeSeriesResampleMode mode = TimeSeriesResampleModeLinear);
-      PointCollection asDelta();
-      
-      // statistical methods on the collection
-      double min();
-      double max();
-      double mean();
-      double variance();
-      size_t count();
-      double percentile(double p);
-    private:
-      std::shared_ptr< std::vector<Point> > _points;
-      std::vector<Point>::iterator _start, _end;
-      bool _isRef;
-    };
-    
     RTX_BASE_PROPS(TimeSeries);
     
     TimeSeries();

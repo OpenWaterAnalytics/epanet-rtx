@@ -42,7 +42,7 @@ int MovingAverage::windowSize() {
 
 
 
-TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) {
+PointCollection MovingAverage::filterPointsInRange(TimeRange range) {
   vector<Point> filteredPoints;
   
   TimeRange rangeToResample = range;
@@ -87,7 +87,7 @@ TimeSeries::PointCollection MovingAverage::filterPointsInRange(TimeRange range) 
   {
     // use our new righ/left bounds to get the source data we need.
     PointCollection sourceRaw = this->source()->pointCollection(queryRange);
-    sourceRaw.apply([&](Point p){
+    sourceRaw.apply([&](const Point& p){
       if (p.isValid) {
         sourcePoints.push_back(p);
       }

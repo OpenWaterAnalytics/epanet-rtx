@@ -54,7 +54,7 @@ namespace RTX {
   private:
     double _outlierMultiplier;
     exclusion_mode_t _exclusionMode;
-    Point pointWithCollectionAndPoint(PointCollection c, Point p);
+    Point pointWithSampleAndPoint(PointCollection::pvRange sample, Point p);
   };
 }
 

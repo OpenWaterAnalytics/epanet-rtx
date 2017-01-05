@@ -51,7 +51,7 @@ namespace RTX {
       StatsTimeSeriesMedian = 2,  /*!< A 2nd quartile estimate. Low populations may result in bad estimates. */
       StatsTimeSeriesQ25    = 3,  /*!< A 1st quartile estimate. */
       StatsTimeSeriesQ75    = 4,  /*!< A 3rd quartile estimate. */
-      StatsTimeSeriesInterQuartileRange = 5,  /*!< IQR == Q75 - Q25 */
+      StatsTimeSeriesIQR = 5,  /*!< IQR == Q75 - Q25 */
       StatsTimeSeriesMax    = 6,  /*!< Maximum value in a population. */
       StatsTimeSeriesMin    = 7,  /*!< Minimum value in a population. */
       StatsTimeSeriesCount  = 8,  /*!< The number of points in the stats window. */
@@ -82,7 +82,7 @@ namespace RTX {
     
   private:
     StatsTimeSeriesType _statsType;
-    double valueFromSummary(TimeSeries::PointCollection collection);
+    double valueFromRange(PointCollection::pvRange r);
     Units statsUnits(Units sourceUnits, StatsTimeSeriesType type);
     double _percentile;
     

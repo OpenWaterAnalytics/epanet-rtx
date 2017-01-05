@@ -14,7 +14,7 @@ using namespace std;
 
 
 
-TimeSeries::PointCollection TimeSeriesFilterSinglePoint::filterPointsInRange(TimeRange range) {
+PointCollection TimeSeriesFilterSinglePoint::filterPointsInRange(TimeRange range) {
   
   TimeRange qRange = range;
   if (this->willResample()) {
@@ -30,7 +30,7 @@ TimeSeries::PointCollection TimeSeriesFilterSinglePoint::filterPointsInRange(Tim
   
   vector<Point> outPoints;
   bool didDropPoints = false;
-  data.apply([&](Point p){
+  data.apply([&](const Point& p){
     Point converted = this->filteredWithSourcePoint(p);
     if (converted.isValid) {
       outPoints.push_back(converted);

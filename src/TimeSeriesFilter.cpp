@@ -12,7 +12,7 @@ using namespace std;
 const int _tsfilter_maxStrides = 7; // FIXME 💩
 
 TimeSeriesFilter::TimeSeriesFilter() {
-  _resampleMode = TimeSeriesResampleModeLinear;
+  _resampleMode = ResampleModeLinear;
 }
 
 Clock::_sp TimeSeriesFilter::clock() {
@@ -28,11 +28,11 @@ void TimeSeriesFilter::setClock(Clock::_sp clock) {
   this->invalidate();
 }
 
-TimeSeries::TimeSeriesResampleMode TimeSeriesFilter::resampleMode() {
+ResampleMode TimeSeriesFilter::resampleMode() {
   return _resampleMode;
 }
 
-void TimeSeriesFilter::setResampleMode(TimeSeries::TimeSeriesResampleMode mode) {
+void TimeSeriesFilter::setResampleMode(ResampleMode mode) {
   
   if (_resampleMode != mode) {
     this->invalidate();
@@ -131,7 +131,7 @@ Point TimeSeriesFilter::pointBefore(time_t time) {
       if (this->source()->timeBefore(q.end + 1) == 0) {
         break; // actually no points. futile to search.
       }
-      c = TimeSeries::pointCollection(q);
+      c = this->pointCollection(q);
       if (c.count() > 0) {
         break; // found something
       }
@@ -264,7 +264,7 @@ TimeRange TimeSeriesFilter::expandedRange(RTX::TimeRange r) {
 }
 
 
-TimeSeries::PointCollection TimeSeriesFilter::filterPointsInRange(TimeRange range) {
+PointCollection TimeSeriesFilter::filterPointsInRange(TimeRange range) {
   
   TimeRange queryRange = range;
   if (this->willResample()) {

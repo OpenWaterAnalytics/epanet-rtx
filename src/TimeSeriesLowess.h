@@ -19,7 +19,7 @@ namespace RTX {
     
   private:
     double _fraction;
-    double valueFromCollectionAtTime(PointCollection c, time_t t);
+    double valueFromSampleAtTime(PointCollection::pvRange r, time_t t);
 
   };
 }

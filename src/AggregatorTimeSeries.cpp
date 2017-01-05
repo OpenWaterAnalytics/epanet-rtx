@@ -174,7 +174,7 @@ std::set<time_t> AggregatorTimeSeries::timeValuesInRange(TimeRange range) {
   return timeList;
 }
 
-TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange range) {
+PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange range) {
   set<time_t> droppedTimes;
   vector<Point> aggregated;
   double nSources = (double)(this->sources().size());
@@ -218,7 +218,7 @@ TimeSeries::PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange 
     
     // make it easy to find any times that were dropped (bad points from a source series)
     map<time_t, Point> sourcePointMap;
-    componentCollection.apply([&](Point p){
+    componentCollection.apply([&](const Point& p){
       sourcePointMap[p.time] = p;
     });
     
