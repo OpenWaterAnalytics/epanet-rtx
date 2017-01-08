@@ -44,7 +44,12 @@ TimeRange PointCollection::range() const {
 }
 
 vector<Point> PointCollection::points() const {
-  return vector<Point>(*_points.get());
+  if (_points) {
+    return vector<Point>(*_points.get());
+  }
+  else {
+    return vector<Point>();
+  }
 }
 
 void PointCollection::setPoints(vector<Point> points) {
