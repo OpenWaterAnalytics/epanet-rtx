@@ -39,8 +39,12 @@ void PointCollection::apply(std::function<void(const Point&)> function) const {
 }
 
 TimeRange PointCollection::range() const {
-  auto times = this->times();
-  return TimeRange(*times.begin(), *times.rbegin()); // because set is ordered
+  if (_points) {
+    return TimeRange(_points->begin()->time, _points->rbegin()->time);
+  }
+  else {
+    return TimeRange();
+  }
 }
 
 vector<Point> PointCollection::points() const {
