@@ -80,7 +80,9 @@ BaseStatsTimeSeries::rangeGroup BaseStatsTimeSeries::subRanges(set<time_t> times
     // get sub-ranges of the larger pre-fetched collection
     TimeRange subrange(t - t_lag, t + t_lead);
     auto r = group.retainedCollection.subRange(subrange);
-    group.ranges[t] = r;
+    if (r.first != r.second) {
+      group.ranges[t] = r;
+    }
   }
   
   return group;

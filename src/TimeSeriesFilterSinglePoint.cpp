@@ -26,7 +26,10 @@ PointCollection TimeSeriesFilterSinglePoint::filterPointsInRange(TimeRange range
   qRange.correctWithRange(range);
 //  PointCollection sourceData = this->source()->pointCollection(qRange);
   
-  PointCollection data = source()->pointCollection(qRange);
+  PointCollection data;
+  if (this->source()) {
+    data = source()->pointCollection(qRange);
+  }
   
   vector<Point> outPoints;
   bool didDropPoints = false;

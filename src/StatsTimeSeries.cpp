@@ -135,6 +135,10 @@ double StatsTimeSeries::valueFromRange(PointCollection::pvRange r) {
   });
   getters.at(_statsType)();
   
+  if (!this->source()) {
+    return 0.0;
+  }
+  
   // convert units?
   Units u1 = this->statsUnits(this->source()->units(), this->statsType());
   Units u2 = this->units();
