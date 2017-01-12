@@ -23,6 +23,9 @@ namespace RTX {
       if (Visitor<T> *p = dynamic_cast< Visitor<T> *> (&visitor)) {
         return p->visit(visited);
       }
+      else {
+        std::cerr << "Visitor not configured to visit this object" << std::endl;
+      }
     }
   };
   
