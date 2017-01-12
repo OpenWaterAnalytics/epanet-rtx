@@ -45,7 +45,8 @@ PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange range) {
     range.end = seekRightTime;
   }
   
-  PointCollection sourceData = this->source()->pointCollection(TimeRange(leftMostTime, range.end));
+  TimeRange sourceQuery(leftMostTime, range.end);
+  PointCollection sourceData = this->source()->pointCollection(sourceQuery);
   
   if (sourceData.count() < 2) {
     return PointCollection(vector<Point>(), this->units());
@@ -56,7 +57,7 @@ PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange range) {
   auto prev = raw.first;
   auto vEnd = raw.second;
   
-  time_t nextReset = lastReset;
+  time_t nextReset = this->resetClock()->timeAfter(lastReset);
   double integratedValue = 0;
   
   ++cursor;
