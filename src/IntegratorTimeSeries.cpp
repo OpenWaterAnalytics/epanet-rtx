@@ -35,12 +35,12 @@ PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange range) {
   // back up to previous reset clock tick
   time_t lastReset = this->resetClock()->timeBefore(range.start + 1);
   
-  // lagging area, so get this time or the one before it.
+  // make sure the reset is honored. the time value we have here may
+  // be before the actual reset. we will compensate later on.
   time_t leftMostTime = this->source()->timeBefore(lastReset + 1);
   
   // get next point in case it's out of the specified range
-  time_t seekRightTime = range.end - 1;
-  seekRightTime = this->source()->timeAfter(seekRightTime);
+  time_t seekRightTime = this->source()->timeAfter(range.end - 1);
   if (seekRightTime > 0) {
     range.end = seekRightTime;
   }
@@ -57,7 +57,7 @@ PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange range) {
   auto prev = raw.first;
   auto vEnd = raw.second;
   
-  time_t nextReset = this->resetClock()->timeAfter(lastReset);
+  time_t nextReset = lastReset;
   double integratedValue = 0;
   
   ++cursor;
@@ -68,7 +68,10 @@ PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange range) {
     integratedValue += area;
     // reset interval
     if (cursor->time >= nextReset) {
-      integratedValue = 0;
+      // compute the portion of the integral
+      // that is calculated for the time interval post-reset
+      double postResetPortion = double(cursor->time - nextReset) / (double)dt;
+      integratedValue = area * postResetPortion;
       nextReset = this->resetClock()->timeAfter(cursor->time);
     }
     if (range.contains(cursor->time)) {
