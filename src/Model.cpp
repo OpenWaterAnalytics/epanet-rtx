@@ -897,6 +897,19 @@ double Model::initialUniformQuality() {
   return _initialQuality;
 }
 
+void Model::setInitialJunctionQualityFromHotStart(time_t time) {
+  // assumes that any junction worth considering has a record with simulated results.
+  for (auto &j : this->junctions()) {
+    Point p = j->quality()->pointAtOrBefore(time);
+    if (p.isValid) {
+      j->state_quality = p.value;
+    }
+    else {
+      cerr << "invalid point for junction: " << j->name() << endl;
+    }
+  }
+}
+
 void Model::setInitialJunctionUniformQuality(double qual) {
   _initialQuality = qual;
   // Constant initial quality of Junctions and Tanks (Reservoirs are boundary conditions)
