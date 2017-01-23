@@ -56,16 +56,6 @@ namespace RTX {
     Model::_sp sp() { return shared_from_this(); };
     typedef void (^RTX_Logging_Callback_Block)(const char *msg);
     
-    // Control is a public class of Model
-    class Control {
-    public:
-      typedef enum {
-        ModelControlStatus,
-        ModelControlSetting
-      } ControlType;
-      std::vector<std::pair< Pipe::_sp, ControlType > > pipes;
-    };
-    
     Model();
     Model(const std::string& filename);
     virtual ~Model();
@@ -79,7 +69,6 @@ namespace RTX {
     virtual void useModelFromPath(const std::string& path);
     virtual string modelFile();
     virtual void overrideControls() throw(RtxException);
-    
     
     /// simulation methods
     void runSinglePeriod(time_t time);
