@@ -380,8 +380,11 @@ jsValue _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& record, uri ur
     config.set_timeout(std::chrono::seconds(RTX_INFLUX_CLIENT_TIMEOUT));
     web::http::client::http_client client(uri, config);
     http_response r = client.request(withMethod).get(); // waits for response
-    if (r.status_code() != 204) {
+    if (r.status_code() == status_codes::OK) {
       js = r.extract_json().get();
+    }
+    else {
+      cerr << "CONNECTION ERROR: " << r.reason_phrase() << EOL;
     }
   }
   catch (std::exception &e) {
