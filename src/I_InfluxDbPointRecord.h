@@ -15,7 +15,7 @@ namespace RTX {
     class connectionInfo {
     public:
       connectionInfo();
-      std::string host, user, pass, db;
+      std::string proto, host, user, pass, db;
       int port;
     };
     

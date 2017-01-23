@@ -115,7 +115,7 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
   if (!dbExists) {
     // create the database?
     web::http::uri_builder b;
-    b.set_scheme("http")
+    b.set_scheme(this->conn.proto)
     .set_host(this->conn.host)
     .set_port(this->conn.port)
     .set_path("query")
@@ -360,7 +360,7 @@ DbPointRecord::Query InfluxDbPointRecord::queryPartsFromMetricId(const std::stri
 uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const std::string& query, bool withTimePrecision) {
   
   web::http::uri_builder b;
-  b.set_scheme("http").set_host(record.conn.host).set_port(record.conn.port).set_path("query")
+  b.set_scheme(record.conn.proto).set_host(record.conn.host).set_port(record.conn.port).set_path("query")
    .append_query("db", record.conn.db, false)
    .append_query("u", record.conn.user, false)
    .append_query("p", record.conn.pass, false)
@@ -472,7 +472,7 @@ void InfluxDbPointRecord::sendPointsWithString(const string& content) {
   INFLUX_ASYNC_SEND = pplx::create_task([&,bodyContent]() {
     std::lock_guard<std::mutex> lock(_influxMutex);
     web::uri_builder b;
-    b.set_scheme("http").set_host(this->conn.host).set_port(this->conn.port).set_path("write")
+    b.set_scheme(this->conn.proto).set_host(this->conn.host).set_port(this->conn.port).set_path("write")
     .append_query("db", this->conn.db, false)
     .append_query("u", this->conn.user, false)
     .append_query("p", this->conn.pass, false)

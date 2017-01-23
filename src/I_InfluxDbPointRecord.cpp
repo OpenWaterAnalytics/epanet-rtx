@@ -21,6 +21,7 @@ const unsigned int __maxTransactionLines(1000);
 
 
 I_InfluxDbPointRecord::connectionInfo::connectionInfo() {
+  proto = "HTTP";
   host = "HOST";
   user = "USER";
   pass = "PASS";
@@ -36,7 +37,7 @@ I_InfluxDbPointRecord::I_InfluxDbPointRecord() {
 
 string I_InfluxDbPointRecord::connectionString() {
   stringstream ss;
-  ss << "host=" << this->conn.host << "&port=" << this->conn.port << "&db=" << this->conn.db << "&u=" << this->conn.user << "&p=" << this->conn.pass;
+  ss << "proto=" << this->conn.proto << "&host=" << this->conn.host << "&port=" << this->conn.port << "&db=" << this->conn.db << "&u=" << this->conn.user << "&p=" << this->conn.pass;
   return ss.str();
 }
 
@@ -54,21 +55,23 @@ void I_InfluxDbPointRecord::setConnectionString(const std::string &str) {
     }
   }
   
-  if (kvPairs.count("host")) {
-    this->conn.host = kvPairs["host"];
-  }
-  if (kvPairs.count("port")) {
-    int intPort = boost::lexical_cast<int>(kvPairs["port"]);
-    this->conn.port = intPort;
-  }
-  if (kvPairs.count("db")) {
-    this->conn.db = kvPairs["db"];
-  }
-  if (kvPairs.count("u")) {
-    this->conn.user = kvPairs["u"];
-  }
-  if (kvPairs.count("p")) {
-    this->conn.pass = kvPairs["p"];
+  const map<string, function<void(string)> > 
+  kvSetters({
+    {"proto", [&](string v){this->conn.proto = v;}},
+    {"host", [&](string v){this->conn.host = v;}},
+    {"port", [&](string v){this->conn.port = boost::lexical_cast<int>(v);}},
+    {"db", [&](string v){this->conn.db = v;}},
+    {"u", [&](string v){this->conn.user = v;}},
+    {"p", [&](string v){this->conn.pass = v;}}
+  }); 
+  
+  for (auto kv : kvPairs) {
+    if (kvSetters.count(kv.first) > 0) {
+      kvSetters.at(kv.first)(kv.second);
+    }
+    else {
+      cerr << "key not recognized: " << kv.first << " - skipping." << '\n' << flush;
+    }
   }
   
   return;
