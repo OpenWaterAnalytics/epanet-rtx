@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
+
+    <title>RTX:LINK</title>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-route.js"></script>
+
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.3.3/ui-bootstrap-tpls.min.js"></script>
+	<style>
+        html {
+			overflow-y:scroll;
+			height: 100%;
+		}
+        body {
+			padding-top:30px;
+			height: 100%
+		}
+		[ng-click] {
+			cursor: pointer
+		}
+		.container {
+			padding: 0 55px;
+		}
+		.fillPage {
+			min-height: 95%;
+			height: 95%;
+		}
+    </style>
+
+
+
+</head>
+<body ng-app="rtxLink">
+
+
+	<div class="container fillPage">
+  		<!-- HEADER -->
+  		<div class="header clearfix" ng-controller="HeaderController">
+        	<nav>
+          		<ul class="nav nav-tabs pull-right">
+            		<li ng-repeat="link in links" role="presentation" ng-class="{ active: isActive('/{{link.url}}')}"><a href="#{{link.url}}">{{link.text}}</a></li>
+          		</ul>
+        	</nav>
+        	<h3 class="text-muted">RTX:LINK</h3>
+      	</div>
+        <!-- /HEADER -->
+
+		<!-- alerts, info -->
+		<div id="alerts" style="position: fixed; top:12px; left:12px;">
+			<div class="alert alert-warning" role="alert" ng-if="infoMessage.length > 0">{{infoMessage}}</div>
+			<div class="alert alert-danger" role="alert" ng-if="errorMessage.length > 0">{{errorMessage}}</div>
+		</div>
+
+
+		<div ng-view class="fillPage">
+			<!-- Route provider controller content -->
+		</div>
+
+	</div>
+
+
+	<script src="core.js"></script>
+
+</body>
+</html>

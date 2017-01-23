@@ -110,6 +110,9 @@
 		221BFDB31A8E8AD000143FCC /* IntegratorTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 221BFC6E1A8E584500143FCC /* IntegratorTimeSeries.h */; };
 		221BFDB51A8E8AD000143FCC /* FailoverTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 220324CA18AC05A800BD7790 /* FailoverTimeSeries.h */; };
 		221C06C316077FB300B8969C /* timeseries_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221C06C216077FB300B8969C /* timeseries_demo.cpp */; };
+		221F07341E36A54300813EA6 /* LinkJsonSerialization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221F072F1E36A54300813EA6 /* LinkJsonSerialization.cpp */; };
+		221F07351E36A54300813EA6 /* LinkService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221F07311E36A54300813EA6 /* LinkService.cpp */; };
+		221F07361E36A54300813EA6 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 221F07331E36A54300813EA6 /* main.cpp */; };
 		22284F811BF115D1000256B8 /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		22284F821BF115D1000256B8 /* libTimeSeriesDuplicator.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */; };
 		222978311CA477DA0051D881 /* RTX_Visitable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2229782D1CA477DA0051D881 /* RTX_Visitable.h */; };
@@ -123,13 +126,10 @@
 		223372F61CA19E3D00C87ACD /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C81C1A048300298C0C /* libboost_system.a */; };
 		223372F71CA19E5300C87ACD /* libboost_thread-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C91C1A048300298C0C /* libboost_thread-mt.a */; };
 		2239413D1CAA1612008BD7FD /* libTimeSeriesDuplicator.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */; };
-		224B09D41CA9B2A900AEB41A /* LinkJsonSerialization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 224B09D21CA9B2A900AEB41A /* LinkJsonSerialization.cpp */; };
 		2251940A1CD8F2EA00B1BC31 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 225194091CD8F2EA00B1BC31 /* libxml2.2.dylib */; };
 		22602B771D5A738000A668ED /* libgeohash.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22602B761D5A738000A668ED /* libgeohash.a */; };
 		227106511E1EA0FE002A2D30 /* PointCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2271064F1E1EA0FE002A2D30 /* PointCollection.cpp */; };
 		227106521E1EA0FE002A2D30 /* PointCollection.h in Headers */ = {isa = PBXBuildFile; fileRef = 227106501E1EA0FE002A2D30 /* PointCollection.h */; };
-		228137D91CA2F23B00AD81F3 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228137D81CA2F23B00AD81F3 /* main.cpp */; };
-		228137DE1CA2F2C600AD81F3 /* LinkService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228137DC1CA2F2C600AD81F3 /* LinkService.cpp */; };
 		2288C1241BE3C71900F9B8FB /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		2288C1251BE3C74600F9B8FB /* TimeSeriesDuplicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2288C10A1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.cpp */; };
 		228C2D941A9E15BF003C826D /* TimeRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228C2D901A9E15BF003C826D /* TimeRange.cpp */; };
@@ -429,6 +429,12 @@
 		221C06C716077FD200B8969C /* sampletown_realtime.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; name = sampletown_realtime.cfg; path = ../../examples/validator/sampletown_realtime.cfg; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		221C06C816077FD200B8969C /* sampletown_synthetic.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; name = sampletown_synthetic.cfg; path = ../../examples/validator/sampletown_synthetic.cfg; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		221C06C916077FD200B8969C /* sampletown.inp */ = {isa = PBXFileReference; lastKnownFileType = text; name = sampletown.inp; path = ../../examples/validator/sampletown.inp; sourceTree = "<group>"; };
+		221F072E1E36A54300813EA6 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		221F072F1E36A54300813EA6 /* LinkJsonSerialization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LinkJsonSerialization.cpp; sourceTree = "<group>"; };
+		221F07301E36A54300813EA6 /* LinkJsonSerialization.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LinkJsonSerialization.hpp; sourceTree = "<group>"; };
+		221F07311E36A54300813EA6 /* LinkService.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LinkService.cpp; sourceTree = "<group>"; };
+		221F07321E36A54300813EA6 /* LinkService.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LinkService.hpp; sourceTree = "<group>"; };
+		221F07331E36A54300813EA6 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		2223206A1A6EF32E00B32D6A /* LagTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LagTimeSeries.cpp; path = ../../src/LagTimeSeries.cpp; sourceTree = "<group>"; };
 		2223206B1A6EF32E00B32D6A /* LagTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LagTimeSeries.h; path = ../../src/LagTimeSeries.h; sourceTree = "<group>"; };
 		22253D8D16022FB6002F7256 /* CurveFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CurveFunction.cpp; path = ../../src/CurveFunction.cpp; sourceTree = "<group>"; };
@@ -449,8 +455,6 @@
 		22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CorrelatorTimeSeries.h; path = ../../src/CorrelatorTimeSeries.h; sourceTree = "<group>"; };
 		2246439D150BD6E0005EA3BA /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../../src/Node.h; sourceTree = "<group>"; };
 		224643A0150BD72E005EA3BA /* Link.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Link.h; path = ../../src/Link.h; sourceTree = "<group>"; };
-		224B09D21CA9B2A900AEB41A /* LinkJsonSerialization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LinkJsonSerialization.cpp; path = "../../examples/LINK-service/LinkJsonSerialization.cpp"; sourceTree = "<group>"; };
-		224B09D31CA9B2A900AEB41A /* LinkJsonSerialization.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = LinkJsonSerialization.hpp; path = "../../examples/LINK-service/LinkJsonSerialization.hpp"; sourceTree = "<group>"; };
 		224D40D519786C3000160BD5 /* BaseStatsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BaseStatsTimeSeries.cpp; path = ../../src/BaseStatsTimeSeries.cpp; sourceTree = "<group>"; };
 		224D40D619786C3000160BD5 /* BaseStatsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BaseStatsTimeSeries.h; path = ../../src/BaseStatsTimeSeries.h; sourceTree = "<group>"; };
 		224E047E1979431C0039E3F9 /* StatsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StatsTimeSeries.cpp; path = ../../src/StatsTimeSeries.cpp; sourceTree = "<group>"; };
@@ -479,9 +483,6 @@
 		2280409C158F8326004222DA /* Valve.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Valve.h; path = ../../src/Valve.h; sourceTree = "<group>"; };
 		2280409E158F8351004222DA /* Valve.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Valve.cpp; path = ../../src/Valve.cpp; sourceTree = "<group>"; };
 		228137C91CA2F1FE00AD81F3 /* LINK-service */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "LINK-service"; sourceTree = BUILT_PRODUCTS_DIR; };
-		228137D81CA2F23B00AD81F3 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = "../../examples/LINK-service/main.cpp"; sourceTree = "<group>"; };
-		228137DC1CA2F2C600AD81F3 /* LinkService.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LinkService.cpp; path = "../../examples/LINK-service/LinkService.cpp"; sourceTree = "<group>"; };
-		228137DD1CA2F2C600AD81F3 /* LinkService.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = LinkService.hpp; path = "../../examples/LINK-service/LinkService.hpp"; sourceTree = "<group>"; };
 		2281A75915A743410018EC0F /* PointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = PointRecord.h; path = ../../src/PointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2281A75D15A744E60018EC0F /* DbPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DbPointRecord.h; path = ../../src/DbPointRecord.h; sourceTree = "<group>"; };
 		2281A75E15A7451F0018EC0F /* MysqlPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = MysqlPointRecord.h; path = ../../src/MysqlPointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -769,6 +770,28 @@
 			name = Libraries;
 			sourceTree = "<group>";
 		};
+		221F072C1E36A54300813EA6 /* LINK_SERVICE */ = {
+			isa = PBXGroup;
+			children = (
+				221F072D1E36A54300813EA6 /* cmake */,
+				221F072F1E36A54300813EA6 /* LinkJsonSerialization.cpp */,
+				221F07301E36A54300813EA6 /* LinkJsonSerialization.hpp */,
+				221F07311E36A54300813EA6 /* LinkService.cpp */,
+				221F07321E36A54300813EA6 /* LinkService.hpp */,
+				221F07331E36A54300813EA6 /* main.cpp */,
+			);
+			name = LINK_SERVICE;
+			path = ../../examples/LINK/service;
+			sourceTree = "<group>";
+		};
+		221F072D1E36A54300813EA6 /* cmake */ = {
+			isa = PBXGroup;
+			children = (
+				221F072E1E36A54300813EA6 /* CMakeLists.txt */,
+			);
+			path = cmake;
+			sourceTree = "<group>";
+		};
 		222F51B816D7D07400C86F71 /* db */ = {
 			isa = PBXGroup;
 			children = (
@@ -878,18 +901,6 @@
 			name = "Model Classes";
 			sourceTree = "<group>";
 		};
-		228137D71CA2F22C00AD81F3 /* LINK Service */ = {
-			isa = PBXGroup;
-			children = (
-				228137D81CA2F23B00AD81F3 /* main.cpp */,
-				228137DD1CA2F2C600AD81F3 /* LinkService.hpp */,
-				228137DC1CA2F2C600AD81F3 /* LinkService.cpp */,
-				224B09D31CA9B2A900AEB41A /* LinkJsonSerialization.hpp */,
-				224B09D21CA9B2A900AEB41A /* LinkJsonSerialization.cpp */,
-			);
-			name = "LINK Service";
-			sourceTree = "<group>";
-		};
 		2288C1041BE3C09F00F9B8FB /* TS Duplicator */ = {
 			isa = PBXGroup;
 			children = (
@@ -994,6 +1005,7 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
+				221F072C1E36A54300813EA6 /* LINK_SERVICE */,
 				22BECED01DEF25F200E7C4EC /* TEST */,
 				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
 				22C34357187D9441000100A4 /* epanetmsx.xcodeproj */,
@@ -1012,7 +1024,6 @@
 				22DD0FBC1CE3878300145959 /* Curve */,
 				22C62AC91439ED9300841E60 /* time series classes */,
 				228CA8CE1AA0CBC400D0353E /* model exporting extensions */,
-				228137D71CA2F22C00AD81F3 /* LINK Service */,
 				2288C1041BE3C09F00F9B8FB /* TS Duplicator */,
 				22C62AC11439ED6300841E60 /* Products */,
 				220DFA9C15502E4100AF41D0 /* Libraries */,
@@ -1689,9 +1700,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				224B09D41CA9B2A900AEB41A /* LinkJsonSerialization.cpp in Sources */,
-				228137DE1CA2F2C600AD81F3 /* LinkService.cpp in Sources */,
-				228137D91CA2F23B00AD81F3 /* main.cpp in Sources */,
+				221F07341E36A54300813EA6 /* LinkJsonSerialization.cpp in Sources */,
+				221F07351E36A54300813EA6 /* LinkService.cpp in Sources */,
+				221F07361E36A54300813EA6 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
