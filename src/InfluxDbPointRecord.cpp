@@ -503,6 +503,9 @@ void InfluxDbPointRecord::sendPointsWithString(const string& content) {
       if (r.status_code() == 204) {
         // no content. this is fine.
       }
+      if (r.status_code() != web::http::status_codes::OK) {
+        DebugLog << "send points to influx: POST returned " << r.status_code() << " - " << r.reason_phrase() << EOL;
+      }
     } catch (std::exception &e) {
       cerr << "exception POST: " << e.what() << endl;
     }

@@ -236,7 +236,7 @@ void TimeSeriesDuplicator::_backfillLoop(time_t start, time_t chunk, time_t rate
     char *tstr = asctime(localtime(&fetchEndTime));
     tstr[24] = '\0';
     stringstream ss;
-    ss << "RETROSPECTIVE Fetch: (" << tstr << ") took " << fetchDuration << " seconds.";
+    ss << "RETROSPECTIVE Fetch: (" << tstr << ") " << nPoints << " points in " << fetchDuration << " seconds.";
     this->_logLine(ss.str(), RTX_DUPLICATOR_LOGLEVEL_INFO);
     if (rateLimit > 0 && inThePast) {
       ss.clear();

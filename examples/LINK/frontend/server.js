@@ -15,7 +15,7 @@ var parseArgs = require('minimist');
 var ip = require('ip');
 
 // config options ===============================
-const link_server_host = 'http://localhost:3131';
+const link_server_host = 'http://127.0.0.1:3131';
 const linkExeName = 'link-server';
 const linkExePath = path.join(__dirname,'srv',process.platform,linkExeName);
 const linkDir = path.join(os.homedir(),'rtx_link');

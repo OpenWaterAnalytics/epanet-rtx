@@ -327,7 +327,7 @@ http_response LinkService::_post_config(JSV json) {
   }) {
     http_response thisres = fn();
     if (thisres.status_code() != status_codes::OK) {
-      cout << "POST FAILED:" << endl;
+      cout << "POST FAILED:" << thisres.reason_phrase() << endl;
       res = thisres;
     }
   }
@@ -605,12 +605,11 @@ http_response LinkService::_post_options(JSV js) {
 
 http_response LinkService::_post_logmessage(web::json::value js) {
   http_response r;
-  cout << "=====================================\n";
-  cout << "== LOGGING MESSAGE \n";
+  cout << "LINK SERVICE sending log entry \n";
 
   if (!js.is_object()) {
     r = _link_error_response(status_codes::ExpectationFailed, "data is not a json object");
-    cout << "== err: JSON not recognized.\n";
+    cerr << "err: JSON log object not recognized.\n";
   }
   else if (_destinationRecord) {
     auto influxdb = static_pointer_cast<I_InfluxDbPointRecord>(_destinationRecord);
@@ -628,10 +627,9 @@ http_response LinkService::_post_logmessage(web::json::value js) {
     
     r = _link_empty_response();
     
-    cout << "Sent Log Message: " << metric << " --> " << valueStr << endl << flush;
+    cout << "Sent Log Entry: " << metric << " --> " << valueStr << endl << flush;
   }
   
-  cout << "=====================================" << endl;
   return r;
 }
 
