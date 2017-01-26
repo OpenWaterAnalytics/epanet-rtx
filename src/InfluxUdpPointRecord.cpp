@@ -44,7 +44,6 @@ string InfluxUdpPointRecord::formatTimestamp(time_t t) {
   return to_string(t) + "000000000";
 };
 
-
 void InfluxUdpPointRecord::sendPointsWithString(const std::string &content) {
   if (_sendFuture.valid()) {
     _sendFuture.wait();

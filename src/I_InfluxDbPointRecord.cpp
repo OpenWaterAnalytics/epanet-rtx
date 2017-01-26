@@ -16,9 +16,6 @@ using namespace RTX;
 using web::http::uri;
 using jsValue = web::json::value;
 
-const unsigned int __maxTransactionLines(1000);
-
-
 
 I_InfluxDbPointRecord::connectionInfo::connectionInfo() {
   proto = "HTTP";
@@ -159,21 +156,25 @@ void I_InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point
     return;
   }
   
-  const string content = this->insertionLineFromPoints(dbId, insertionPoints);
+  auto content = this->insertionLinesFromPoints(dbId, insertionPoints);
   
   if (_inBulkOperation) {
     size_t nLines = 0;
-    {
+    { // mutex
       std::lock_guard<std::mutex> lock(_influxMutex);
-      _transactionLines.push_back(content);
+      for (auto s : content) {
+        _transactionLines.push_back(s);
+      }
       nLines = _transactionLines.size();
-    }
-    if (nLines > __maxTransactionLines) {
+    } // end mutex
+    if (nLines > maxTransactionLines()) {
       this->commitTransactionLines();
     }
   }
   else {
-    this->sendPointsWithString(content);
+    _transactionLines = content;
+    this->commitTransactionLines();
+    //this->sendPointsWithString(content);
   }
   
 }
@@ -197,7 +198,7 @@ void I_InfluxDbPointRecord::sendInfluxString(time_t time, const string& seriesId
       _transactionLines.push_back(data);
       nLines = _transactionLines.size();
     }
-    if (nLines > __maxTransactionLines) {
+    if (nLines > maxTransactionLines()) {
       this->commitTransactionLines();
     }
   }
@@ -232,7 +233,7 @@ string I_InfluxDbPointRecord::influxIdForTsId(const string& id) {
 
 
 
-string I_InfluxDbPointRecord::insertionLineFromPoints(const string& tsName, vector<Point> points) {
+vector<string> I_InfluxDbPointRecord::insertionLinesFromPoints(const string& tsName, vector<Point> points) {
   /*
    As you can see in the example below, you can post multiple points to multiple series at the same time by separating each point with a new line. Batching points in this manner will result in much higher performance.
    
@@ -245,21 +246,17 @@ string I_InfluxDbPointRecord::insertionLineFromPoints(const string& tsName, vect
   // escape any spaces in the tsName
   string tsNameEscaped = tsName;
   boost::replace_all(tsNameEscaped, " ", "\\ ");
+  vector<string> outData;
   
-  stringstream ss;
-  int i = 0;
   for(const Point& p: points) {
-    if (i > 0) {
-      ss << '\n';
-    }
+    stringstream ss;
     string valueStr = to_string(p.value); // influxdb 0.10+ supports integers, but only when followed by trailing "i"
     string timeStr = this->formatTimestamp(p.time);
     ss << tsNameEscaped << " value=" << valueStr << "," << "quality=" << (int)p.quality << "i," << "confidence=" << p.confidence << " " << timeStr;
-    ++i;
+    outData.push_back(ss.str());
   }
   
-  string data = ss.str();
-  return data;
+  return outData;
 }
 
 
@@ -292,18 +289,31 @@ void I_InfluxDbPointRecord::commitTransactionLines() {
       return;
     }
   }
-  string lines;
-  int i = 0;
   {
+    string concatLines;
     std::lock_guard<std::mutex> lock(_influxMutex);
-    for(const string line : _transactionLines) {
-      lines.append(line);
-      lines.append("\n");
-      ++i;
+    auto curs = _transactionLines.begin();
+    auto end = _transactionLines.end();
+    size_t iLine = 0;
+    while (curs != end) {
+      const string str = *curs;
+      ++iLine;
+      concatLines.append(str);
+      concatLines.append("\n");
+      // check for max lines (must respect max lines per send event)
+      if (iLine >= maxTransactionLines()) {
+        // push these lines and clear the queue
+        this->sendPointsWithString(concatLines);
+        concatLines.clear();
+      }
+      ++curs;
+    }
+    if (iLine > 0) {
+      // push all/remaining points out
+      this->sendPointsWithString(concatLines);
     }
     _transactionLines.clear();
   }
-  this->sendPointsWithString(lines);
 }
 
 

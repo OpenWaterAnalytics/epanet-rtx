@@ -29,6 +29,8 @@ namespace RTX {
     void commitTransactionLines();
     virtual void truncate() {};
     
+    virtual size_t maxTransactionLines() { return 1; };
+    
     void sendInfluxString(time_t time, const std::string& seriesId, const std::string& values);
     
     void insertSingle(const std::string& id, Point point);
@@ -60,7 +62,7 @@ namespace RTX {
     virtual void sendPointsWithString(const std::string& content) = 0;
     
     // static methods
-    std::string insertionLineFromPoints(const std::string& tsName, std::vector<Point> points);
+    std::vector<std::string> insertionLinesFromPoints(const std::string& tsName, std::vector<Point> points);
     
     // utility
     std::string influxIdForTsId(const std::string& id);

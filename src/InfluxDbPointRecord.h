@@ -22,6 +22,8 @@ namespace RTX {
     void dbConnect() throw(RtxException);
     IdentifierUnitsList identifiersAndUnits(); // class -specific override
     
+    size_t maxTransactionLines() {return 1000;};
+    
     void truncate();
     
   protected:

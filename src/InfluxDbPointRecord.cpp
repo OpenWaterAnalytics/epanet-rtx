@@ -181,8 +181,8 @@ PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
   _lastIdRequest = now;
   _identifiersAndUnitsCache.clear();
   
-  
-  if (!this->isConnected()) {
+  int max_try = 3;
+  for (int iTry = 0; !isConnected() && iTry < max_try; ++iTry) {
     this->dbConnect();
   }
   if (!this->isConnected()) {
@@ -192,48 +192,41 @@ PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
   uri uri = _InfluxDbPointRecord_uriForQuery(*this, kSHOW_SERIES, false);
   jsValue jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   
-  if (!jsv.has_field("results")) {
-    return _identifiersAndUnitsCache;
+  if (jsv.has_field(kRESULTS) &&
+      jsv[kRESULTS].is_array() &&
+      jsv[kRESULTS].size() > 0 &&
+      jsv[kRESULTS][0].has_field(kSERIES) &&
+      jsv[kRESULTS][0][kSERIES].is_array() ) 
+  {
+    jsArray seriesArray = jsv["results"][0][kSERIES].as_array();
+    for (auto seriesIt = seriesArray.begin(); seriesIt != seriesArray.end(); ++seriesIt) {
+      
+      string str = seriesIt->serialize();
+      jsObject thisSeries = seriesIt->as_object();
+      
+      jsArray columns = thisSeries["columns"].as_array(); // the only column is "key"
+      jsArray values = thisSeries["values"].as_array(); // array of single-string arrays
+      
+      for (auto valuesIt = values.begin(); valuesIt != values.end(); ++valuesIt) {
+        jsArray singleStrArr = valuesIt->as_array();
+        string dbId = singleStrArr[0].as_string();
+        boost::replace_all(dbId, "\\ ", " ");
+        MetricInfo m(dbId);
+        // now we have all kv pairs that define a time series.
+        // do we have units info? strip it off before showing the user.
+        Units units = RTX_NO_UNITS;
+        if (m.tags.count("units") > 0) {
+          units = Units::unitOfType(m.tags["units"]);
+          // remove units from string name.
+          m.tags.erase("units");
+        }
+        // now assemble the complete name and cache it:
+        string properId = m.name();
+        _identifiersAndUnitsCache.set(properId,units);
+      } // for each values array (ts definition)
+    }
   }
-  
-  jsArray resArr = jsv["results"].as_array();
-  if (resArr.size() == 0) {
-    return _identifiersAndUnitsCache;
-  }
-  
-  jsValue zeroObj = resArr[0];
-  if (!zeroObj.has_field(kSERIES)) {
-    return _identifiersAndUnitsCache;
-  }
-  
-  jsArray seriesArray = zeroObj["series"].as_array();
-  for (auto seriesIt = seriesArray.begin(); seriesIt != seriesArray.end(); ++seriesIt) {
-    
-    string str = seriesIt->serialize();
-    jsObject thisSeries = seriesIt->as_object();
-    
-    jsArray columns = thisSeries["columns"].as_array(); // the only column is "key"
-    jsArray values = thisSeries["values"].as_array(); // array of single-string arrays
-    
-    for (auto valuesIt = values.begin(); valuesIt != values.end(); ++valuesIt) {
-      jsArray singleStrArr = valuesIt->as_array();
-      jsValue strVal = singleStrArr[0];
-      string dbId = strVal.as_string();
-      boost::replace_all(dbId, "\\ ", " ");
-      MetricInfo m(dbId);
-      // now we have all kv pairs that define a time series.
-      // do we have units info? strip it off before showing the user.
-      Units units = RTX_NO_UNITS;
-      if (m.tags.count("units") > 0) {
-        units = Units::unitOfType(m.tags["units"]);
-        // remove units from string name.
-        m.tags.erase("units");
-      }
-      // now assemble the complete name and cache it:
-      string properId = m.name();
-      _identifiersAndUnitsCache.set(properId,units);
-    } // for each values array (ts definition)
-  }
+  // implicit ELSE
   
   return _identifiersAndUnitsCache;
 }
@@ -500,10 +493,11 @@ void InfluxDbPointRecord::sendPointsWithString(const string& content) {
       req.set_body(zippedContent);
       req.headers().add("Content-Encoding", "gzip");
       http_response r = client.request(req).get();
-      if (r.status_code() == 204) {
+      auto status = r.status_code();
+      if (status == status_codes::NoContent) {
         // no content. this is fine.
       }
-      if (r.status_code() != web::http::status_codes::OK) {
+      else if (status != status_codes::OK) {
         DebugLog << "send points to influx: POST returned " << r.status_code() << " - " << r.reason_phrase() << EOL;
       }
     } catch (std::exception &e) {

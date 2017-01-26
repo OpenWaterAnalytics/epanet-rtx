@@ -223,6 +223,7 @@ void OdbcPointRecord::dbConnect() throw(RtxException) {
         errorMessage = "Connected";
       } catch (string err) {
         connection_ok = false;
+        cerr << err << endl;
         errorMessage = err;
       }
       _isConnecting = false;

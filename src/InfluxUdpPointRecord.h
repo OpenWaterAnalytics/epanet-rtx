@@ -15,6 +15,8 @@ namespace RTX {
     void dbConnect() throw(RtxException);
     std::string connectionString();
     
+    size_t maxTransactionLines() {return 10;};
+    
   protected:
     void sendPointsWithString(const std::string& content);
     std::string formatTimestamp(time_t t);

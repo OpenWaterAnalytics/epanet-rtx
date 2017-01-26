@@ -197,7 +197,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
         {
           key: 'connectionString',
           text: 'Connection',
-          placeholder: 'host=http://flux.citilogics.io&u=user&p=pass',
+          placeholder: 'proto=http&host=linkDB.yourdomain.com&port=8086&db=dbname&u=user&p=pass',
           inputType: 'text-line'
         }
       ]
@@ -216,7 +216,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
         {
           key: 'connectionString',
           text: 'Connection',
-          placeholder: 'host=http://flux.citilogics.io&port=8086&db=dest_db&u=user&p=pass',
+          placeholder: 'proto=http&host=linkDB.yourdomain.com&port=8086&db=dest_db&u=user&p=pass',
           inputType: 'text-line'
         }
       ]
@@ -357,8 +357,6 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
   }, function (err) {
     console.log('err getting row template');
   });
-
-
 })
 
 .controller('HeaderController', function HeaderController($scope, $location) {
@@ -525,7 +523,6 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
         series.units = dupeSeries[dupeIndex].units
       }
     });
-
   };
 
   $scope.isSubOption = function (option) {
