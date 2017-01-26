@@ -230,4 +230,5 @@ Units StatsTimeSeries::statsUnits(Units sourceUnits, StatsTimeSeriesType type) {
     default:
       break;
   }
+  return sourceUnits;
 }
