@@ -805,6 +805,34 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
     });
   };
 
+ $scope.downloadConfig = function() {
+   $http.get('http://' + $location.host() + ':8585/config')
+   .then(function (response) {
+     var filename = "config.json";
+     var data = "{}";
+     if (typeof response.data === 'object') {
+      data = JSON.stringify(response.data, undefined, 2);
+     }
+     var blob = new Blob([data], {type: 'text/json'});
+     // FOR IE:
+     if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+         window.navigator.msSaveOrOpenBlob(blob, filename);
+     }
+     else{
+         var e = document.createEvent('MouseEvents'),
+             a = document.createElement('a');
+         a.download = filename;
+         a.href = window.URL.createObjectURL(blob);
+         a.dataset.downloadurl = ['application/json', a.download, a.href].join(':');
+         e.initEvent('click', true, false, window,
+             0, 0, 0, 0, 0, false, false, false, false, 0, null);
+         a.dispatchEvent(e);
+     }
+   }, function (errResponse) {
+     $rootScope.notifyHttpError(errResponse);
+   });
+ };
+
   // ON LOAD
   $scope.status = 'Checking...';
   $scope.runInfo = {
@@ -831,5 +859,5 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
 })
 
 .controller('AboutController', function AboutController($scope, $http) {
-  $scope.author = 'OWA';
+  $scope.author = 'Open Water Analytics and CitiLogics';
 });
