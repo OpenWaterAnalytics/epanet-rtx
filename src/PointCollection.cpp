@@ -26,7 +26,7 @@ PointCollection::PointCollection(vector<Point> points, Units units) : units(unit
   this->setPoints(points);
 }
 PointCollection::PointCollection() : units(1) { 
-  
+  this->setPoints(vector<Point>());
 }
 
 pair<pvIt,pvIt> PointCollection::raw() const {
