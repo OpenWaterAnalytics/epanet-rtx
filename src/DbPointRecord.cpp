@@ -67,6 +67,10 @@ bool DbPointRecord::request_t::contains(std::string id, time_t t) {
   return false;
 }
 
+void DbPointRecord::request_t::clear() {
+  this->range = TimeRange();
+  this->id = "";
+}
 
 
 DbPointRecord::DbPointRecord() : _last_request("",TimeRange()) {
@@ -411,7 +415,7 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, TimeRange qran
     set<time_t> addedTimes;
     vector<Point> deDuped;
     deDuped.reserve(merged.size());
-    BOOST_FOREACH(const Point& p, merged) {
+    for(const Point& p : merged) {
       if (addedTimes.count(p.time) == 0) {
         addedTimes.insert(p.time);
         if (qrange.start <= p.time && p.time <= qrange.end) {
@@ -456,6 +460,7 @@ void DbPointRecord::reset(const string& id) {
     // deprecate?
     //cout << "Whoops - don't use this" << endl;
     DB_PR_SUPER::reset(id);
+    _last_request.clear();
     //this->removeRecord(id);
     // wiped out the record completely, so re-initialize it.
     //this->registerAndGetIdentifier(id);

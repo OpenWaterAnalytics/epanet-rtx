@@ -152,6 +152,7 @@ namespace RTX {
       std::string id;
       request_t(std::string id, TimeRange range);
       bool contains(std::string id, time_t t);
+      void clear();
     };
     request_t _last_request;
     

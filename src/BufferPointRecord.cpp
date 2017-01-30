@@ -310,7 +310,7 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
         buffer.clear();
         
         // add new points.
-        BOOST_FOREACH(Point p, points) {
+        for(const Point &p : points) {
           buffer.push_back(p);
         }
       } // gap
