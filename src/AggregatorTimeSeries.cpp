@@ -13,6 +13,7 @@
 #include <boost/foreach.hpp>
 #include <boost/range/adaptors.hpp>
 #include <set>
+#include <future>
 
 using namespace RTX;
 using namespace std;
@@ -200,32 +201,50 @@ PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange range) {
     aggregated.push_back(p);
   }
   
+  
+  
+  // asynchronously get source series
+  vector< future< map< time_t, Point> > > aggSeriesData;
+  auto mySources = this->sources();
+  auto mode = this->_mode;
+  for(AggregatorSource sourceDesc : mySources) {
+    aggSeriesData.push_back(async(launch::async, std::bind([=](AggregatorSource sd) -> map< time_t, Point> {
+      TimeSeries::_sp sourceTs = sd.timeseries;
+      double multiplier = sd.multiplier;
+      TimeRange componentRange = range;
+      componentRange.start = sourceTs->timeBefore(range.start + 1);
+      componentRange.end = sourceTs->timeAfter(range.end - 1);
+      componentRange.correctWithRange(range);
+      
+      PointCollection componentCollection = sourceTs->pointCollection(componentRange);
+      if (mode != AggregatorModeUnion) {
+        componentCollection.resample(desiredTimes);
+      }
+      componentCollection.convertToUnits(this->units());
+      
+      // make it easy to find any times that were dropped (bad points from a source series)
+      map<time_t, Point> sourcePointMap;
+      componentCollection.apply([&](const Point& p){
+        sourcePointMap[p.time] = p * multiplier;
+      });
+      return sourcePointMap;
+    }, sourceDesc) //bind
+                                  ) //async
+                            ); //push_back;
+  }//for sourceDesc
+  
+  
+  
   set<time_t> unionSet;
   
-  for(AggregatorSource aggSource: this->sources()) {
-    TimeSeries::_sp sourceTs = aggSource.timeseries;
-    double multiplier = aggSource.multiplier;
-    TimeRange componentRange = range;
-    componentRange.start = sourceTs->timeBefore(range.start + 1);
-    componentRange.end = sourceTs->timeAfter(range.end - 1);
-    componentRange.correctWithRange(range);
+  for(auto &task : aggSeriesData) {
     
-    PointCollection componentCollection = sourceTs->pointCollection(componentRange);
-    if (_mode != AggregatorModeUnion) {
-      componentCollection.resample(desiredTimes);
-    }
-    componentCollection.convertToUnits(this->units());
-    
-    // make it easy to find any times that were dropped (bad points from a source series)
-    map<time_t, Point> sourcePointMap;
-    componentCollection.apply([&](const Point& p){
-      sourcePointMap[p.time] = p;
-    });
+    map<time_t, Point> sourcePointMap = task.get();
     
     // do the aggregation.
     for(Point& p: aggregated) {
       if (sourcePointMap.count(p.time) > 0) {
-        Point pointToAggregate = sourcePointMap[p.time] * multiplier;
+        Point pointToAggregate = sourcePointMap[p.time]; // already multiplied
         
         switch (_mode) {
           case AggregatorModeSum:
