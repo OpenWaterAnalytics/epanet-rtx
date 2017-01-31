@@ -82,7 +82,6 @@ namespace RTX {
     
   private:
     StatsTimeSeriesType _statsType;
-    double valueFromRange(PointCollection::pvRange r);
     Units statsUnits(Units sourceUnits, StatsTimeSeriesType type);
     double _percentile;
     

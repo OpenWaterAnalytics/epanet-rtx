@@ -110,7 +110,6 @@ PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range) {
       return Units::convertValue(v, u1, u2);
     });
     
-    
     statsTasks.insert( std::pair< time_t, future<double> >(t,std::move(task)) );
   }
   
@@ -142,12 +141,6 @@ PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range) {
   return ret;
 }
 
-
-
-
-double StatsTimeSeries::valueFromRange(PointCollection::pvRange r) {
-  
-}
 
 
 bool StatsTimeSeries::canSetSource(TimeSeries::_sp ts) {
