@@ -357,7 +357,7 @@ Point DbPointRecord::searchNextIteratively(const string& id, time_t time) {
 
 
 std::vector<Point> DbPointRecord::pointsInRange(const string& id, TimeRange qrange) {
-  
+  scoped_lock<boost::signals2::mutex> lock(*_db_mutex);
   // limit double-queries
   if (_last_request.range.containsRange(qrange) && _last_request.id == id) {
     return DB_PR_SUPER::pointsInRange(id, qrange);
@@ -432,6 +432,7 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, TimeRange qran
 
 
 void DbPointRecord::addPoint(const string& id, Point point) {
+  scoped_lock<boost::signals2::mutex> lock(*_db_mutex);
   if (!this->readonly()) {
     DB_PR_SUPER::addPoint(id, point);
     this->insertSingle(id, point);
@@ -440,6 +441,7 @@ void DbPointRecord::addPoint(const string& id, Point point) {
 
 
 void DbPointRecord::addPoints(const string& id, std::vector<Point> points) {
+  scoped_lock<boost::signals2::mutex> lock(*_db_mutex);
   if (!this->readonly()) {
     DB_PR_SUPER::addPoints(id, points);
     this->insertRange(id, points);
@@ -448,6 +450,7 @@ void DbPointRecord::addPoints(const string& id, std::vector<Point> points) {
 
 
 void DbPointRecord::reset() {
+  scoped_lock<boost::signals2::mutex> lock(*_db_mutex);
   if (!this->readonly()) {
     DB_PR_SUPER::reset();
     //this->truncate();
@@ -456,6 +459,7 @@ void DbPointRecord::reset() {
 
 
 void DbPointRecord::reset(const string& id) {
+  scoped_lock<boost::signals2::mutex> lock(*_db_mutex);
   if (!this->readonly()) {
     // deprecate?
     //cout << "Whoops - don't use this" << endl;

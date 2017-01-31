@@ -15,6 +15,23 @@
 using namespace RTX;
 using namespace std;
 using PC = PointCollection;
+using ST = StatsTimeSeries;
+
+const map<StatsTimeSeries::StatsTimeSeriesType, function<double(const PC::pvRange, double)> > __getters({
+  {ST::StatsTimeSeriesMean,   [](const PC::pvRange r, double pct)->double { return PC::mean(r); } },
+  {ST::StatsTimeSeriesStdDev, [](const PC::pvRange r, double pct)->double { return sqrt(PC::variance(r)); } },
+  {ST::StatsTimeSeriesMedian, [](const PC::pvRange r, double pct)->double { return PC::percentile(.5,r); } },
+  {ST::StatsTimeSeriesQ25,    [](const PC::pvRange r, double pct)->double { return PC::percentile(.25,r); } },
+  {ST::StatsTimeSeriesQ75,    [](const PC::pvRange r, double pct)->double { return PC::percentile(.75,r); } },
+  {ST::StatsTimeSeriesIQR,    [](const PC::pvRange r, double pct)->double { return PC::interquartilerange(r); } },
+  {ST::StatsTimeSeriesMax,    [](const PC::pvRange r, double pct)->double { return PC::max(r); } },
+  {ST::StatsTimeSeriesMin,    [](const PC::pvRange r, double pct)->double { return PC::min(r); } },
+  {ST::StatsTimeSeriesCount,  [](const PC::pvRange r, double pct)->double { return PC::count(r); } },
+  {ST::StatsTimeSeriesVar,    [](const PC::pvRange r, double pct)->double { return PC::variance(r); } },
+  {ST::StatsTimeSeriesRMS,    [](const PC::pvRange r, double pct)->double { return PC::variance(r) + pow(PC::mean(r), 2.); } },
+  {ST::StatsTimeSeriesPercentile, [](const PC::pvRange r, double pct)->double { return PC::percentile(pct,r); } },
+});
+
 
 StatsTimeSeries::StatsTimeSeries() {
   _statsType = StatsTimeSeriesMean;
@@ -58,8 +75,6 @@ void StatsTimeSeries::setArbitraryPercentile(double p) {
 
 PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range) {
   
-  
-  
   TimeRange qRange = range;
   if (this->willResample()) {
     // expand range
@@ -67,7 +82,6 @@ PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range) {
     qRange.end = this->source()->timeAfter(range.end - 1);
     qRange.correctWithRange(range);
   }
-  
   
   set<time_t> times = this->timeValuesInRange(qRange);
   
@@ -78,11 +92,26 @@ PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range) {
   map< time_t,future<double> > statsTasks;
   for(auto &x : subranges.ranges) {
     time_t t = x.first;
-    auto r = x.second;
+    PC::pvRange r = x.second;
     if (PC::count(r) == 0 && _statsType != StatsTimeSeriesCount) {
       continue;
     }
-    statsTasks[t] = async(launch::async, std::bind(&StatsTimeSeries::valueFromRange, this, std::placeholders::_1), r);
+    
+    auto mySource = this->source();
+    Units u1 = this->statsUnits(this->source()->units(), this->statsType());
+    Units u2 = this->units();
+    double pct = _percentile;
+    
+    auto task = async(launch::async, [=]()->double {
+      if (!mySource) {
+        return 0.0;
+      }
+      double v = __getters.at(_statsType)(r,pct);
+      return Units::convertValue(v, u1, u2);
+    });
+    
+    
+    statsTasks.insert( std::pair< time_t, future<double> >(t,std::move(task)) );
   }
   
   for (auto& taskPair : statsTasks) {
@@ -117,33 +146,7 @@ PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range) {
 
 
 double StatsTimeSeries::valueFromRange(PointCollection::pvRange r) {
-  double v;
   
-  const map<StatsTimeSeriesType, function<void()> > getters({
-    {StatsTimeSeriesMean,   [&](){ v = PC::mean(r); } },
-    {StatsTimeSeriesStdDev, [&](){ v = sqrt(PC::variance(r)); } },
-    {StatsTimeSeriesMedian, [&](){ v = PC::percentile(.5,r); } },
-    {StatsTimeSeriesQ25,    [&](){ v = PC::percentile(.25,r); } },
-    {StatsTimeSeriesQ75,    [&](){ v = PC::percentile(.75,r); } },
-    {StatsTimeSeriesIQR,    [&](){ v = PC::interquartilerange(r); } },
-    {StatsTimeSeriesMax,    [&](){ v = PC::max(r); } },
-    {StatsTimeSeriesMin,    [&](){ v = PC::min(r); } },
-    {StatsTimeSeriesCount,  [&](){ v = PC::count(r); } },
-    {StatsTimeSeriesVar,    [&](){ v = PC::variance(r); } },
-    {StatsTimeSeriesRMS,    [&](){ v = PC::variance(r) + pow(PC::mean(r), 2.); } },
-    {StatsTimeSeriesPercentile, [&](){ v = PC::percentile(_percentile,r); } },
-  });
-  getters.at(_statsType)();
-  
-  if (!this->source()) {
-    return 0.0;
-  }
-  
-  // convert units?
-  Units u1 = this->statsUnits(this->source()->units(), this->statsType());
-  Units u2 = this->units();
-  
-  return Units::convertValue(v, u1, u2);
 }
 
 

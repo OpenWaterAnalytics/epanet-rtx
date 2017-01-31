@@ -207,8 +207,9 @@ PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange range) {
   vector< future< map< time_t, Point> > > aggSeriesData;
   auto mySources = this->sources();
   auto mode = this->_mode;
-  for(AggregatorSource sourceDesc : mySources) {
-    aggSeriesData.push_back(async(launch::async, std::bind([=](AggregatorSource sd) -> map< time_t, Point> {
+  for(AggregatorSource sd : mySources) {
+    
+    auto task = async(launch::async, [=]() -> map< time_t, Point> {
       TimeSeries::_sp sourceTs = sd.timeseries;
       double multiplier = sd.multiplier;
       TimeRange componentRange = range;
@@ -228,9 +229,9 @@ PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange range) {
         sourcePointMap[p.time] = p * multiplier;
       });
       return sourcePointMap;
-    }, sourceDesc) //bind
-                                  ) //async
-                            ); //push_back;
+    });
+    
+    aggSeriesData.push_back( std::move(task) ); //push_back;
   }//for sourceDesc
   
   
