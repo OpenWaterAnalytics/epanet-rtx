@@ -164,7 +164,8 @@ app.use(session({
 }));
 // Authentication and Authorization Middleware
 var auth = function(req, res, next) {
-  if (req.session && req.session.user === _link_auth.u && req.session.admin)
+  if ((req.session && req.session.user === _link_auth.u && req.session.admin)
+      || req.url.includes('/assets/') /* allow access to js/css assets */ )
     return next();
   else
     return res.redirect('/login-page');

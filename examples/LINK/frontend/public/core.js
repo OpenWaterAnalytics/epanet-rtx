@@ -376,7 +376,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
   };
 })
 
-.config(['$routeProvider', function ($routeProvider) {
+.config(function($routeProvider,$locationProvider) {
   $routeProvider
   .when('/main', {
     templateUrl: 'templates/main.part.html',
@@ -413,7 +413,8 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
   .otherwise({
     redirectTo: '/main'
   });
-}])
+  $locationProvider.html5Mode(true);
+})
 
 .controller('OdbcDriverSelectController', function OdbcDriverSelectController($rootScope, $scope, $http) {
   $scope.drivers = ["getting driver list..."];

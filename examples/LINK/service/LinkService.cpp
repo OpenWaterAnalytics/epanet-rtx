@@ -521,7 +521,9 @@ http_response LinkService::_post_analytics(web::json::value json) {
     
     try {
       TimeSeries::_sp ts = DeserializerJson::analyticWithJson(a, _duplicator.series());
-      _analytics.push_back(ts);
+      if (ts) {
+        _analytics.push_back(ts);
+      }
     } catch (const web::json::json_exception &e) {
       cerr << e.what() << endl;
       return _link_error_response(status_codes::NotAcceptable, "Invalid: " + string(e.what()));

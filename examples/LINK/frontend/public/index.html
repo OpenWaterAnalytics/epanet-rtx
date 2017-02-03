@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
 
     <title>RTX:LINK</title>
-
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-route.js"></script>
-
-  <!-- Latest compiled and minified CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.3.3/ui-bootstrap-tpls.min.js"></script>
+	<base href="/" />
+  <script src="assets/angular.min.js"></script>
+  <script src="assets/angular-route.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="assets/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+  <script src="assets/ui-bootstrap-tpls-2.5.0.min.js"></script>
+  
 	<style>
         html {
 			overflow-y:scroll;
@@ -44,7 +43,7 @@
   		<div class="header clearfix" ng-controller="HeaderController">
         	<nav>
           		<ul class="nav nav-tabs pull-right">
-            		<li ng-repeat="link in links" role="presentation" ng-class="{ active: isActive('/{{link.url}}')}"><a href="#{{link.url}}">{{link.text}}</a></li>
+            		<li ng-repeat="link in links" role="presentation" ng-class="{ active: isActive('/{{link.url}}')}"><a href="{{link.url}}">{{link.text}}</a></li>
           		</ul>
         	</nav>
         	<h3 class="text-muted">RTX:LINK</h3>
