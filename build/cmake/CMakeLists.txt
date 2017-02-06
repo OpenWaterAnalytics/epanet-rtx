@@ -79,7 +79,6 @@ add_library(epanetrtx SHARED
 	../../src/FailoverTimeSeries.cpp
 	../../src/FirstDerivative.cpp
 	../../src/GainTimeSeries.cpp
-	../../src/GeoMetrics.cpp
 	../../src/I_InfluxDbPointRecord.cpp
 	../../src/InfluxDbPointRecord.cpp
 	../../src/InfluxUdpPointRecord.cpp
@@ -95,8 +94,6 @@ add_library(epanetrtx SHARED
 	../../src/MathOpsTimeSeries.cpp
 	../../src/MetaTimeSeries.cpp
 	../../src/Model.cpp
-	../../src/ModelPerformance.cpp
-	../../src/ModelPerformanceController.cpp
 	../../src/MovingAverage.cpp
 	../../src/MultiplierTimeSeries.cpp
 	../../src/Node.cpp
@@ -106,6 +103,7 @@ add_library(epanetrtx SHARED
 	../../src/OutlierExclusionTimeSeries.cpp
 	../../src/Pipe.cpp
 	../../src/Point.cpp
+	../../src/PointCollection.cpp
 	../../src/PointRecord.cpp
 	../../src/PointRecordTime.cpp
 	../../src/Pump.cpp
