@@ -31,7 +31,8 @@ namespace RTX {
 enum _epanet_section_t : int {
   none = 0,
   controls,
-  rules
+  rules,
+  other
 };
 
 const map<string, _epanet_section_t> _epanet_specialSections = {
@@ -51,7 +52,7 @@ _epanet_section_t _epanet_sectionFromLine(const string& line) {
         return loc->second;
       }
       else {
-        return none;
+        return other;
       }
     }
   }
@@ -101,6 +102,10 @@ EpanetModelExporter::EpanetModelExporter(EpanetModel::_sp model, TimeRange range
 void EpanetModelExporter::exportModel(EpanetModel::_sp model, TimeRange range, const std::string& dir, bool exportCalibration) {
   
   boost::filesystem::path path(dir);
+  if (!boost::filesystem::create_directory(path)) {
+    cerr << "could not create directory for export" << endl;
+    return;
+  }
   
   auto modelPath = path / "model.inp";
   
@@ -354,7 +359,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   /*******************************************************/
   
   boost::filesystem::path modelPath = boost::filesystem::temp_directory_path();
-  modelPath /= "model.inp";
+  modelPath /= "export_rt_model.inp";
   OW_saveinpfile(ow_project, modelPath.c_str());
   
   ifstream originalFile;
@@ -362,8 +367,12 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   
   string line;
   while (getline(originalFile, line)) {
+    
     _epanet_section_t section = _epanet_sectionFromLine(line);
+    
+    
     if (section == controls) {
+      cout << "high-jacking the controls section" << endl;
       // entered [CONTROLS] section.
       // copy the line over, then stream our own statements.
       stream << line << BR << BR << BR;
@@ -452,23 +461,43 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
       // section is still controls, and we may have lingering controls here.
       // ignore lines until a new section is reached.
       while (getline(originalFile, line)) {
-        if ( _epanet_sectionFromLine(line) != none) {
+        section = _epanet_sectionFromLine(line);
+        cout << "skipping the rest of the controls (if any)" << endl;
+        if ( section != none) {
           break;
         }
       }
       
-    }
-    else if (section == rules) {
+      stream << BR << BR;
+    } // end if section == controls
+    
+    if (section == rules) {
       // fast-forward thru rules section
       while (getline(originalFile, line)) {
-        if ( _epanet_sectionFromLine(line) != none) {
+        section = _epanet_sectionFromLine(line);
+        if ( section != none) {
           break;
         }
       }
+    } // end if section == rules
+    
+    
+    
+    
+    switch (section) {
+      case other:
+        cout << "found section line: " << line << endl;
+      case none:
+        stream << line << BR; // pass through
+        continue; // top of while loop
+        break;
+      default:
+        cout << "found section line: " << line << endl;
+        break;
     }
-    else {
-      stream << line << BR;
-    }
+    
+    
+    
   }
   stream.flush();
   originalFile.close();
