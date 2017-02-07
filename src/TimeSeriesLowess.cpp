@@ -87,7 +87,10 @@ double TimeSeriesLowess::valueFromSampleAtTime(PointCollection::pvRange r, time_
   
   outC.resample({t});
   
-  Point p = outC.points().front();
+  Point p;
+  if (outC.count() > 0) { 
+    p = outC.points().front();
+  }
   
   return p.value;
 }
