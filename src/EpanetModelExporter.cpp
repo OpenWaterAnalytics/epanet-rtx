@@ -30,11 +30,13 @@ namespace RTX {
 
 enum _epanet_section_t : int {
   none = 0,
-  controls
+  controls,
+  rules
 };
 
 const map<string, _epanet_section_t> _epanet_specialSections = {
-  {"CONTROLS", controls}
+  {"CONTROLS", controls},
+  {"RULES", rules}
 };
 
 _epanet_section_t _epanet_sectionFromLine(const string& line);
@@ -92,6 +94,150 @@ ostream& RTX::operator<<(ostream& stream, RTX::EpanetModelExporter& exporter) {
 
 
 EpanetModelExporter::EpanetModelExporter(EpanetModel::_sp model, TimeRange range) : _range(range), _model(model) {
+  
+}
+
+
+void EpanetModelExporter::exportModel(EpanetModel::_sp model, TimeRange range, const std::string& dir, bool exportCalibration) {
+  
+  boost::filesystem::path path(dir);
+  
+  auto modelPath = path / "model.inp";
+  
+  std::ofstream expFile;
+  expFile.open(modelPath.string());
+  
+  if (expFile) {
+    EpanetModelExporter e(static_pointer_cast<EpanetModel>(model), range);
+    expFile << e;
+  }
+  expFile.flush();
+  expFile.close();
+  
+  // calibration files:
+  
+  ////// pressure
+  {
+    auto calFile = path / "model_pressure.txt";
+    ofstream s;
+    s.open(calFile.string());
+    if (s) {
+      s << ";PRESSURE MEASUREMENTS" << BR;
+      s << ";Location    Time    Value" << BR;
+      
+      for (auto j : model->junctions()) {
+        if (j->pressureMeasure()) {
+          // element name
+          s << ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;" << BR;
+          s << "; Junction " << j->name() << " pressure measure" << BR;
+          s << j->name() << " ";
+          auto series = j->pressureMeasure()->points(range);
+          for (auto &p : series) {
+            s << (p.time - range.start)/3600.0 << "  " << p.value << BR;
+          }
+          s << BR << BR;
+        }
+      }
+      
+    }
+    s.flush();
+    s.close();
+  }
+  
+  ////// head (tank levels)
+  {
+    auto calFile = path / "model_head.txt";
+    ofstream s;
+    s.open(calFile.string());
+    if (s) {
+      s << ";HEAD (TANK LEVEL) MEASUREMENTS" << BR;
+      s << ";Location    Time    Value" << BR;
+      
+      for (auto t : model->tanks()) {
+        if (t->headMeasure()) {
+          // element name
+          s << ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;" << BR;
+          s << "; Tank " << t->name() << " head measure" << BR;
+          s << t->name() << " ";
+          auto series = t->headMeasure()->points(range);
+          for (auto &p : series) {
+            s << (p.time - range.start)/3600.0 << "  " << p.value << BR;
+          }
+          s << BR << BR;
+        }
+      }
+      
+    }
+    s.flush();
+    s.close();
+  }
+  
+  
+  ////// demand (measured demands)
+  {
+    auto calFile = path / "model_demand.txt";
+    ofstream s;
+    s.open(calFile.string());
+    if (s) {
+      s << ";DEMAND MEASUREMENTS" << BR;
+      s << ";Location    Time    Value" << BR;
+      
+      for (auto j : model->junctions()) {
+        if (j->boundaryFlow()) {
+          // element name
+          s << ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;" << BR;
+          s << "; Junction " << j->name() << " demand boundary" << BR;
+          s << j->name() << " ";
+          auto series = j->boundaryFlow()->points(range);
+          for (auto &p : series) {
+            s << (p.time - range.start)/3600.0 << "  " << p.value << BR;
+          }
+          s << BR << BR;
+        }
+      }
+      
+    }
+    s.flush();
+    s.close();
+  }
+  
+  ////// flow
+  {
+    auto calFile = path / "model_flow.txt";
+    ofstream s;
+    s.open(calFile.string());
+    if (s) {
+      s << ";FLOW MEASUREMENTS" << BR;
+      s << ";Location    Time    Value" << BR;
+      vector<Pipe::_sp> pipes = model->pipes();
+      for (auto p : model->pumps()) {
+        pipes.push_back(p);
+      }
+      for (auto v : model->valves()) {
+        pipes.push_back(v);
+      }
+      for (auto p : pipes) {
+        if (p->flowMeasure()) {
+          // element name
+          s << ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;" << BR;
+          s << "; Pipe " << p->name() << " flow measure" << BR;
+          s << p->name() << " ";
+          auto series = p->flowMeasure()->points(range);
+          for (auto &p : series) {
+            s << (p.time - range.start)/3600.0 << "  " << p.value << BR;
+          }
+          s << BR << BR;
+        }
+      }
+      
+    }
+    s.flush();
+    s.close();
+  }
+  
+  ////// quality (where measured?)
+  
+  
   
 }
 
@@ -301,6 +447,22 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
               }
             }
           } // for c: controls
+        }
+      }
+      // section is still controls, and we may have lingering controls here.
+      // ignore lines until a new section is reached.
+      while (getline(originalFile, line)) {
+        if ( _epanet_sectionFromLine(line) != none) {
+          break;
+        }
+      }
+      
+    }
+    else if (section == rules) {
+      // fast-forward thru rules section
+      while (getline(originalFile, line)) {
+        if ( _epanet_sectionFromLine(line) != none) {
+          break;
         }
       }
     }

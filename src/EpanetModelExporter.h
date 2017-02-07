@@ -10,6 +10,10 @@ namespace RTX {
   public:
     EpanetModelExporter(EpanetModel::_sp model, TimeRange range);
     std::ostream& to_stream(std::ostream &stream);
+    
+    // calibration files
+    static void exportModel(EpanetModel::_sp model, TimeRange range, const std::string& dir, bool exportCalibration);
+    
   private:
     TimeRange _range;
     EpanetModel::_sp _model;
