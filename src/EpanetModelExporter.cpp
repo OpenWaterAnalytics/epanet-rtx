@@ -11,6 +11,8 @@
 #include <regex>
 #include <algorithm>
 
+#include <LagTimeSeries.h>
+
 using namespace std;
 using namespace RTX;
 using PointCollection = PointCollection;
@@ -94,12 +96,12 @@ ostream& RTX::operator<<(ostream& stream, RTX::EpanetModelExporter& exporter) {
 
 
 
-EpanetModelExporter::EpanetModelExporter(EpanetModel::_sp model, TimeRange range) : _range(range), _model(model) {
+EpanetModelExporter::EpanetModelExporter(EpanetModel::_sp model, TimeRange range, ExportType exportType) : _range(range), _model(model), _exportType(exportType) {
   
 }
 
 
-void EpanetModelExporter::exportModel(EpanetModel::_sp model, TimeRange range, const std::string& dir, bool exportCalibration) {
+void EpanetModelExporter::exportModel(EpanetModel::_sp model, TimeRange range, const std::string& dir, bool exportCalibration, ExportType exportType) {
   
   boost::filesystem::path path(dir);
   if (!boost::filesystem::create_directory(path)) {
@@ -113,7 +115,7 @@ void EpanetModelExporter::exportModel(EpanetModel::_sp model, TimeRange range, c
   expFile.open(modelPath.string());
   
   if (expFile) {
-    EpanetModelExporter e(static_pointer_cast<EpanetModel>(model), range);
+    EpanetModelExporter e(static_pointer_cast<EpanetModel>(model), range, exportType);
     expFile << e;
   }
   expFile.flush();
@@ -297,7 +299,23 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   // for junctions with boundary demands, use unity pattern.
   /*******************************************************/
   for (auto dma: _model->dmas()) {
-    TimeSeries::_sp demand = dma->demand();
+    
+    TimeSeries::_sp demand;
+    
+    if (_exportType == Snapshot) { 
+      demand = dma->demand();
+    }
+    else {
+      auto d = dma->demand();
+      // demand model
+      LagTimeSeries::_sp weekAgo(new LagTimeSeries());
+      weekAgo->setName(d->name());
+      weekAgo->setOffset((time_t)(7*24*3600));
+      weekAgo->setSource(d);
+      demand = weekAgo;
+    }
+    
+    
     string pName = "rtxdma_" + demand->name();
     boost::replace_all(pName, " ", "_");
     int pIndex = _epanet_make_pattern(ow_project, demand, patternClock, _range, pName, _model->flowUnits());
@@ -313,29 +331,42 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   // and the tell reservoirs which head pattern to use
   // reset the boundary heads to unity
   /*******************************************************/
-  for (auto r: _model->reservoirs()) {
-    if (r->headMeasure()) {
-      TimeSeries::_sp h = r->headMeasure();
-      string pName = "rtxhead_" + h->name();
-      boost::replace_all(pName, " ", "_");
-      int pIndex = _epanet_make_pattern(ow_project, h, patternClock, _range, pName, _model->headUnits());
-      OW_setnodevalue(ow_project, _model->enIndexForJunction(r), EN_PATTERN, pIndex);
-      OW_setnodevalue(ow_project, _model->enIndexForJunction(r), EN_TANKLEVEL, 1.0);
+  if (_exportType == Snapshot) {
+    for (auto r: _model->reservoirs()) {
+      if (r->headMeasure()) {
+        TimeSeries::_sp h = r->headMeasure();
+        string pName = "rtxhead_" + h->name();
+        boost::replace_all(pName, " ", "_");
+        int pIndex = _epanet_make_pattern(ow_project, h, patternClock, _range, pName, _model->headUnits());
+        OW_setnodevalue(ow_project, _model->enIndexForJunction(r), EN_PATTERN, pIndex);
+        OW_setnodevalue(ow_project, _model->enIndexForJunction(r), EN_TANKLEVEL, 1.0);
+      }
     }
   }
+  else {
+    // only set initial reservoir heads.
+    for (auto r: _model->reservoirs()) {
+      if (r->headMeasure()) {
+        double iHead = r->headMeasure()->pointAtOrBefore(_range.start).value;
+        OW_setnodevalue(ow_project, _model->enIndexForJunction(r), EN_TANKLEVEL, iHead);
+      }
+    }
+  }
+  
   
   /*******************************************************/
   // get boundary demand series, and put them into epanet patterns
   // then tell that junction which pattern to use
   /*******************************************************/
-  
-  for (auto j: _model->junctions()) {
-    if (j->boundaryFlow()) {
-      TimeSeries::_sp demand = j->boundaryFlow();
-      string pName = "rtxdem_" + demand->name();
-      boost::replace_all(pName, " ", "_");
-      int pIndex = _epanet_make_pattern(ow_project, demand, patternClock, _range, pName, _model->flowUnits());
-      OW_setnodevalue(ow_project, _model->enIndexForJunction(j), EN_PATTERN, pIndex);
+  if (_exportType == Snapshot) {
+    for (auto j: _model->junctions()) {
+      if (j->boundaryFlow()) {
+        TimeSeries::_sp demand = j->boundaryFlow();
+        string pName = "rtxdem_" + demand->name();
+        boost::replace_all(pName, " ", "_");
+        int pIndex = _epanet_make_pattern(ow_project, demand, patternClock, _range, pName, _model->flowUnits());
+        OW_setnodevalue(ow_project, _model->enIndexForJunction(j), EN_PATTERN, pIndex);
+      }
     }
   }
   
@@ -365,11 +396,31 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   ifstream originalFile;
   originalFile.open(modelPath.string());
   
+  if (_exportType == Snapshot) {
+    this->replaceControlsInStream(originalFile, stream);
+  }
+  else {
+    // stream the entire file, no replacements.
+    string line;
+    while (getline(originalFile, line)) {
+      stream << line << BR; // pass through
+    }
+  }
+  
+  stream.flush();
+  
+  originalFile.close();
+  boost::filesystem::remove_all(modelPath);
+  
+  return stream;
+}
+
+
+void EpanetModelExporter::replaceControlsInStream(ifstream &originalFile, ostream &stream) {
   string line;
   while (getline(originalFile, line)) {
     
     _epanet_section_t section = _epanet_sectionFromLine(line);
-    
     
     if (section == controls) {
       cout << "high-jacking the controls section" << endl;
@@ -496,18 +547,9 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
         break;
     }
     
-    
-    
   }
   stream.flush();
-  originalFile.close();
-  boost::filesystem::remove_all(modelPath);
-  
-  return stream;
 }
-
-
-
 
 
 

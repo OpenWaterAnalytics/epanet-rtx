@@ -8,17 +8,28 @@
 namespace RTX {
   class EpanetModelExporter {
   public:
-    EpanetModelExporter(EpanetModel::_sp model, TimeRange range);
+    
+    enum ExportType {
+      Snapshot,
+      Forecast
+    };
+    
+    EpanetModelExporter(EpanetModel::_sp model, TimeRange range, ExportType exportType);
     std::ostream& to_stream(std::ostream &stream);
     
     // calibration files
-    static void exportModel(EpanetModel::_sp model, TimeRange range, const std::string& dir, bool exportCalibration);
+    static void exportModel(EpanetModel::_sp model, TimeRange range, const std::string& dir, bool exportCalibration, ExportType exportType);
     
   private:
+    void replaceControlsInStream(std::ifstream &original, std::ostream &stream);
+
     TimeRange _range;
     EpanetModel::_sp _model;
+    ExportType _exportType;
   };
+  
   std::ostream& operator<<(std::ostream& stream, EpanetModelExporter& exp);
+  
 }
 
 #endif /* EpanetModelExporter_hpp */
