@@ -325,24 +325,41 @@ void Model::initDMAs() {
   set<Pipe::_sp> boundaryPipes;
   
   using namespace boost;
-  std::map<Node::_sp, int> nodeIndexMap;
-  int iNode = 0;
-  for (auto nodePair : _nodes) {
-    nodeIndexMap[nodePair.second] = iNode++;
+
+  struct bNodeProp {
+    string name;
+    bool isMeasured;
+  };
+  struct bLinkProp {
+    string name;
+    bool isMeasured;
+  };
+  
+  // build a boost graph of the network
+  typedef boost::adjacency_list <boost::vecS, boost::vecS, boost::undirectedS, bNodeProp, bLinkProp> bNetwork;
+  bNetwork G;
+  
+  std::map<Node::_sp, bNetwork::vertex_descriptor> nodeIndexMap;
+  
+  for (auto node : this->nodes()) {
+    bNetwork::vertex_descriptor v = add_vertex(G);
+    nodeIndexMap[node] = v;
+    Junction::_sp j = dynamic_pointer_cast<Junction>(node);
+    G[v].name = j->name();
+    G[v].isMeasured = (j->headMeasure() ? true : false);
   }
   
-  boost::adjacency_list <boost::vecS, boost::vecS, boost::undirectedS> G;
-    
-  //
-  // build a boost graph of the network, ignoring links that are dma boundaries or explicitly ignored
-  // is this faster than adapting the model to be BGL compliant? certainly faster dev time, but this should be tested in code.
-  //
   vector<Pipe::_sp> ignorePipes = this->dmaPipesToIgnore();
   
-  for (auto linkPair : _links) {
-    Link::_sp link = linkPair.second;
+  for (auto link : this->links()) {
     Pipe::_sp pipe = std::static_pointer_cast<Pipe>(link);
-    // flow measure?
+    if (pipe->type() == Element::PIPE && pipe->fixedStatus() == Pipe::CLOSED) {
+      continue;
+    }
+    bNetwork::vertex_descriptor from = nodeIndexMap[pipe->from()];
+    bNetwork::vertex_descriptor to = nodeIndexMap[pipe->to()];
+    
+    // selectively ignore pipes
     if (pipe->flowMeasure()) {
       boundaryPipes.insert(pipe);
       continue;
@@ -356,14 +373,17 @@ void Model::initDMAs() {
     if (find(ignorePipes.begin(), ignorePipes.end(), pipe) != ignorePipes.end()) {
       continue;
     }
+    pair<bNetwork::edge_descriptor,bool> edgePair = add_edge(from, to, G); // BGL add edge to graph
+    auto e = edgePair.first;
+    G[e].name = pipe->name();
+    G[e].isMeasured = (pipe->flowMeasure() ? true : false);
     
-    int from = nodeIndexMap[link->from()];
-    int to = nodeIndexMap[link->to()];
-    add_edge(from, to, G); // BGL add edge to graph
-  }
+  } // done building edges
+  
+  
   
   // use the BGL to find the number of connected components and get the membership list
-  vector<int> componentMap(_nodes.size());
+  vector<int> componentMap(nodeIndexMap.size());
   int nDmas = connected_components(G, &componentMap[0]);
   
   // for each connected component, create a new dma.
