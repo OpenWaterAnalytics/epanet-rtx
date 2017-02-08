@@ -466,7 +466,6 @@ void InfluxDbPointRecord::sendPointsWithString(const string& content) {
   
   const string bodyContent(content);
   INFLUX_ASYNC_SEND = pplx::create_task([&,bodyContent]() {
-    std::lock_guard<std::mutex> lock(_influxMutex);
     web::uri_builder b;
     b.set_scheme(this->conn.proto).set_host(this->conn.host).set_port(this->conn.port).set_path("write")
     .append_query("db", this->conn.db, false)
