@@ -104,9 +104,11 @@ EpanetModelExporter::EpanetModelExporter(EpanetModel::_sp model, TimeRange range
 void EpanetModelExporter::exportModel(EpanetModel::_sp model, TimeRange range, const std::string& dir, bool exportCalibration, ExportType exportType) {
   
   boost::filesystem::path path(dir);
-  if (!boost::filesystem::create_directory(path)) {
-    cerr << "could not create directory for export" << endl;
-    return;
+  if (!boost::filesystem::exists(path)) {
+    if (!boost::filesystem::create_directory(path)) {
+      cerr << "could not create directory for export" << endl;
+      return;
+    }
   }
   
   auto modelPath = path / "model.inp";
