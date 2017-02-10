@@ -114,7 +114,7 @@ void EpanetModelExporter::exportModel(EpanetModel::_sp model, TimeRange range, c
   auto modelPath = path / "model.inp";
   
   std::ofstream expFile;
-  expFile.open(modelPath.string());
+  expFile.open(modelPath.string(), ios_base::out);
   
   if (expFile) {
     EpanetModelExporter e(static_pointer_cast<EpanetModel>(model), range, exportType);
@@ -419,8 +419,8 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
 
 
 void EpanetModelExporter::replaceControlsInStream(ifstream &originalFile, ostream &stream) {
-  string line;
-  while (getline(originalFile, line)) {
+  
+  for (string line; getline(originalFile, line); ) {
     
     _epanet_section_t section = _epanet_sectionFromLine(line);
     
@@ -542,7 +542,7 @@ void EpanetModelExporter::replaceControlsInStream(ifstream &originalFile, ostrea
         cout << "found section line: " << line << endl;
       case none:
         stream << line << BR; // pass through
-        continue; // top of while loop
+        continue; // top of loop
         break;
       default:
         cout << "found section line: " << line << endl;

@@ -115,6 +115,11 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
     this->dbConnect();
   }
   
+  if (!this->isConnected()) {
+    // fail connection. let the assignment occur anyway, subject to buffer-class implementation
+    return DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
+  }
+  
   auto match = this->identifiersAndUnits().doesHaveIdUnits(name,units);
   nameExists = match.first;
   unitsMatch = match.second;

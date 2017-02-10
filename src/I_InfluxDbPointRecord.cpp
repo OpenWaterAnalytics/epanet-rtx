@@ -141,6 +141,7 @@ void I_InfluxDbPointRecord::insertRange(const std::string& id, std::vector<Point
   
   vector<Point> existing;
   //existing = this->selectRange(dbId, points.front().time - 1, points.back().time + 1);
+  // NOPE - faster just to send
   map<time_t,bool> existingMap;
   for (const auto &p : existing) {
     existingMap[p.time] = true;
@@ -205,13 +206,7 @@ void I_InfluxDbPointRecord::sendInfluxString(time_t time, const string& seriesId
   else {
     this->sendPointsWithString(data);
   }
-
 }
-
-
-
-
-
 
 
 string I_InfluxDbPointRecord::influxIdForTsId(const string& id) {

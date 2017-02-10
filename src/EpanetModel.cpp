@@ -14,6 +14,7 @@
 #include <types.h>
 
 #include <boost/range/adaptors.hpp>
+#include <boost/filesystem.hpp>
 
 using namespace RTX;
 using namespace std;
@@ -60,9 +61,14 @@ EpanetModel::EpanetModel(const std::string& filename) {
 void EpanetModel::useEpanetFile(const std::string& filename) {
   
   Units volumeUnits(0);
-  long enTimeStep;
+  
   try {
-    OW_API_CHECK( OW_open((char*)filename.c_str(), &_enModel, (char*)"", (char*)""), "OW_open" );
+    // set up temp path for report file so EPANET does not mess with stdout buffer
+    boost::filesystem::path rptPath = boost::filesystem::temp_directory_path();
+    rptPath /= "en_report.txt";
+    
+    OW_API_CHECK( OW_open((char*)filename.c_str(), &_enModel, (char*)rptPath.c_str(), (char*)""), "OW_open" );
+    
   } catch (const std::string& errStr) {
     cerr << "model not formatted correctly. " << errStr << endl;
     throw "model not formatted correctly. " + errStr;
@@ -143,9 +149,11 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   //OW_API_CHECK(OW_setqualtype(_enModel, CHEM, (char*)"rtxConductivity", (char*)"us/cm", (char*)""), "OW_setqualtype");
   
   // get simulation parameters
-  OW_API_CHECK(OW_gettimeparam(_enModel, EN_HYDSTEP, &enTimeStep), "OW_gettimeparam EN_HYDSTEP");
-  
-  this->setHydraulicTimeStep((int)enTimeStep);
+  {
+    long enTimeStep;
+    OW_API_CHECK(OW_gettimeparam(_enModel, EN_HYDSTEP, &enTimeStep), "OW_gettimeparam EN_HYDSTEP");
+    this->setHydraulicTimeStep((int)enTimeStep);
+  }
   
   int nodeCount, tankCount, linkCount;
   char enName[RTX_MAX_CHAR_STRING];
