@@ -234,6 +234,7 @@ void Model::setVolumeUnits(RTX::Units units) {
   _volumeUnits = units;
   BOOST_FOREACH(Tank::_sp t, this->tanks()) {
     t->volume()->setUnits(units);
+    t->volumeMeasure()->setUnits(units);
   }
 }
 

@@ -2,7 +2,6 @@
 #include "InpTextPattern.h"
 
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/range/join.hpp>
 #include <boost/range/adaptors.hpp>
 #include <boost/range/algorithm/copy.hpp>
 #include <boost/filesystem.hpp>
@@ -12,11 +11,11 @@
 #include <algorithm>
 
 #include <LagTimeSeries.h>
+#include "PointRecordTime.h"
 
 using namespace std;
 using namespace RTX;
 using PointCollection = PointCollection;
-using boost::join;
 
 #define BR '\n'
 
@@ -106,7 +105,7 @@ void EpanetModelExporter::exportModel(EpanetModel::_sp model, TimeRange range, c
   boost::filesystem::path path(dir);
   if (!boost::filesystem::exists(path)) {
     if (!boost::filesystem::create_directory(path)) {
-      cerr << "could not create directory for export" << endl;
+      cerr << "could not create directory for export" << BR;
       return;
     }
   }
@@ -181,7 +180,6 @@ void EpanetModelExporter::exportModel(EpanetModel::_sp model, TimeRange range, c
     s.close();
   }
   
-  
   ////// demand (measured demands)
   {
     auto calFile = path / "model_demand.txt";
@@ -245,8 +243,6 @@ void EpanetModelExporter::exportModel(EpanetModel::_sp model, TimeRange range, c
   }
   
   ////// quality (where measured?)
-  
-  
   
 }
 
@@ -355,7 +351,6 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
     }
   }
   
-  
   /*******************************************************/
   // get boundary demand series, and put them into epanet patterns
   // then tell that junction which pattern to use
@@ -397,7 +392,37 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   
   ifstream originalFile;
   originalFile.open(modelPath.string());
+  if (!originalFile) {
+    cerr << "could not open original model file" << BR;
+    return stream;
+  }
   
+  
+  /*
+   insert header section to explain the model file   
+   */
+  
+  stream << setfill (';') << setw (80) << BR;
+  stream << ";;  EPANET-RTX MODEL EXPORT" << BR;
+  stream << ";;    - export type: " << (this->_exportType == Snapshot ? "Snapshot" : "Forecast") << BR;
+  stream << ";;    - date range: " 
+  << "UTC " << PointRecordTime::utcDateStringFromUnix(this->_range.start) 
+  << " --> UTC " << PointRecordTime::utcDateStringFromUnix(this->_range.end) << BR << BR;
+  
+  if (_exportType == Snapshot) {
+    stream << ";;  Logical model controls have been removed from this model, " << BR; 
+    stream << ";;  and time-based controls derived from data sources have been inserted. " << BR;
+    stream << ";;  Demands have been set based on historical data within the date ranges listed above." << BR;
+  }
+  else {
+    stream << ";;  Logical model controls have been preserved in this model. " << BR; 
+    stream << ";;  Demands have been set based on user-specified criteria." << BR;
+  }
+  stream << setfill (';') << setw (80) << '\n\n\n';
+  
+  
+  
+  // dump to the new .inp file
   if (_exportType == Snapshot) {
     this->replaceControlsInStream(originalFile, stream);
   }
@@ -425,7 +450,7 @@ void EpanetModelExporter::replaceControlsInStream(ifstream &originalFile, ostrea
     _epanet_section_t section = _epanet_sectionFromLine(line);
     
     if (section == controls) {
-      cout << "high-jacking the controls section" << endl;
+      cout << "high-jacking the controls section" << BR;
       // entered [CONTROLS] section.
       // copy the line over, then stream our own statements.
       stream << line << BR << BR << BR;
@@ -515,7 +540,7 @@ void EpanetModelExporter::replaceControlsInStream(ifstream &originalFile, ostrea
       // ignore lines until a new section is reached.
       while (getline(originalFile, line)) {
         section = _epanet_sectionFromLine(line);
-        cout << "skipping the rest of the controls (if any)" << endl;
+        cout << "skipping the rest of the controls (if any)" << BR;
         if ( section != none) {
           break;
         }
@@ -539,13 +564,13 @@ void EpanetModelExporter::replaceControlsInStream(ifstream &originalFile, ostrea
     
     switch (section) {
       case other:
-        cout << "found section line: " << line << endl;
+        cout << "found section line: " << line << BR;
       case none:
         stream << line << BR; // pass through
         continue; // top of loop
         break;
       default:
-        cout << "found section line: " << line << endl;
+        cout << "found section line: " << line << BR;
         break;
     }
     
