@@ -115,7 +115,7 @@ SQL_TIMESTAMP_STRUCT PointRecordTime::sqlTime(time_t uTime, time_format_t format
 
 
 
-string PointRecordTime::utcDateStringFromUnix(time_t unixTime) {
+string PointRecordTime::utcDateStringFromUnix(time_t unixTime, const char *fmt) {
   
   boost::posix_time::ptime pt = boost::posix_time::from_time_t(unixTime);
   string s;
@@ -124,7 +124,7 @@ string PointRecordTime::utcDateStringFromUnix(time_t unixTime) {
   locale special_locale (std::locale(""), p_time_output);
   // special_locale takes ownership of the p_time_output facet
   datetime_ss.imbue (special_locale);
-  (*p_time_output).format("%Y-%m-%d %H:%M:%S"); // date time
+  (*p_time_output).format(fmt); // date time
   datetime_ss << pt;
   s = datetime_ss.str().c_str();
   // don't explicitly delete p_time_output

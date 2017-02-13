@@ -110,7 +110,14 @@ void EpanetModelExporter::exportModel(EpanetModel::_sp model, TimeRange range, c
     }
   }
   
-  auto modelPath = path / "model.inp";
+  const char* fmt = "%Y-%m-%dT%H:%M:%SZ"
+  auto startStr = PointRecordTime::utcDateStringFromUnix(range.start,fmt);
+  auto endStr = PointRecordTime::utcDateStringFromUnix(range.end,fmt);
+  
+  stringstream p;
+  p << model->name() << "_" << startStr << "_" << endStr << "_" << (exportType == Snapshot ? "snapshot" : "forecast") << ".inp";
+  
+  auto modelPath = path / p.str();
   
   std::ofstream expFile;
   expFile.open(modelPath.string(), ios_base::out);
