@@ -1,8 +1,6 @@
 #include <map>
 #include <sstream>
 
-#include <curl/curl.h>
-
 //#include <boost/asio.hpp>
 //#include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>

@@ -41,10 +41,10 @@ string I_InfluxDbPointRecord::connectionString() {
 void I_InfluxDbPointRecord::setConnectionString(const std::string &str) {
   std::lock_guard<std::mutex> lock(_influxMutex);
   
+  regex kvReg("([^=]+)=([^&]+)&?"); // key - value pair
   // split the tokenized string. we're expecting something like "host=127.0.0.1&port=4242"
   std::map<std::string, std::string> kvPairs;
   {
-    regex kvReg("([^=]+)=([^&]+)&?"); // key - value pair
     auto kv_begin = sregex_iterator(str.begin(), str.end(), kvReg);
     auto kv_end = sregex_iterator();
     for (auto it = kv_begin ; it != kv_end; ++it) {

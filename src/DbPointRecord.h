@@ -45,8 +45,8 @@ namespace RTX {
     virtual std::string connectionString() {return "";};
     virtual void setConnectionString(const std::string& string) {};
     
-    bool readonly();
-    void setReadonly(bool readOnly);
+    virtual bool readonly();
+    virtual void setReadonly(bool readOnly);
     
     virtual bool supportsUnitsColumn() = 0; /// subs must implement!
     
