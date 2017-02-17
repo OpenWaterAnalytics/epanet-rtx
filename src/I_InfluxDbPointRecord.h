@@ -11,19 +11,10 @@
 namespace RTX {
   class I_InfluxDbPointRecord : public DbPointRecord {
   public:
-    // sub types
-    class connectionInfo {
-    public:
-      connectionInfo();
-      std::string proto, host, user, pass, db;
-      int port;
-    };
-    
+
     // public non-override
     I_InfluxDbPointRecord();
     bool isConnected() {return _connected;};
-    virtual std::string connectionString();
-    void setConnectionString(const std::string& str);
     void beginBulkOperation();
     void endBulkOperation();
     void commitTransactionLines();
@@ -36,9 +27,6 @@ namespace RTX {
     void insertSingle(const std::string& id, Point point);
     void insertRange(const std::string& id, std::vector<Point> points);
     
-    // must override interface methods:
-    virtual void dbConnect() throw(RtxException) = 0;
-    
     // optional overrides
     virtual bool supportsSinglyBoundedQueries() {return true;};
     virtual bool shouldSearchIteratively() {return false;};
@@ -46,11 +34,30 @@ namespace RTX {
     virtual bool insertIdentifierAndUnits(const std::string& id, Units units);
     virtual IdentifierUnitsList identifiersAndUnits();
     
-    // public ivars
-    connectionInfo conn;
+    
     
     
   protected:
+    // sub types
+    class connectionInfo {
+    public:
+      connectionInfo();
+      std::string proto, host, user, pass, db;
+      int port;
+    };
+    connectionInfo conn;
+    
+    class Query {
+    public:
+      std::vector<std::string> select,where;
+      std::string from,order;
+      std::string selectStr();
+      std::string nameAndWhereClause();
+    };
+    
+    
+    virtual void parseConnectionString(const std::string& str);
+    virtual std::string serializeConnectionString();
     // instance method interfaces - optional override
     virtual std::vector<Point> selectRange(const std::string& id, TimeRange range) {return std::vector<Point>();};
     virtual Point selectNext(const std::string& id, time_t time) {return Point();};
@@ -73,7 +80,6 @@ namespace RTX {
     std::vector<std::string> _transactionLines;
     
   private:
-    
     
     
   };

@@ -5,6 +5,8 @@
 #include <boost/signals2/mutex.hpp>
 
 #include <iostream>
+#include <cpprest/base_uri.h>
+
 
 #include "I_InfluxDbPointRecord.h"
 
@@ -19,7 +21,6 @@ namespace RTX {
     InfluxDbPointRecord();
     
     // obligate overrides
-    void dbConnect() throw(RtxException);
     IdentifierUnitsList identifiersAndUnits(); // class -specific override
     
     size_t maxTransactionLines() {return 1000;};
@@ -37,9 +38,13 @@ namespace RTX {
     void removeRecord(const std::string& id);
     
   private:
+    void doConnect() throw(RtxException);
     void sendPointsWithString(const std::string& content);
-    DbPointRecord::Query queryPartsFromMetricId(const std::string& name);
+    I_InfluxDbPointRecord::Query queryPartsFromMetricId(const std::string& name);
     std::shared_ptr<ITaskWrapper> _sendTask;
+    
+    web::uri uriForQuery(const std::string& query, bool withTimePrecision = true);
+
     
   };
 }

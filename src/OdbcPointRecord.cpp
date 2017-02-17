@@ -30,7 +30,6 @@ OdbcPointRecord::OdbcPointRecord() {
   _specifiedTimeZoneString = nyc;
   _specifiedTimeZone.reset(new posix_time_zone(nyc));
   
-  _connectionOk = false;
   _timeFormat = PointRecordTime::UTC;
   _handles.SCADAenv = NULL;
   _handles.SCADAdbc = NULL;
@@ -176,9 +175,20 @@ void OdbcPointRecord::rebuildQueries() {
   */
 }
 
-void OdbcPointRecord::dbConnect() throw(RtxException) {
+
+void OdbcPointRecord::parseConnectionString(const string& str) {
+  connection.conInformation = str;
+}
+
+string OdbcPointRecord::serializeConnectionString() {
+  return connection.conInformation;
+}
+
+
+
+void OdbcPointRecord::doConnect() throw(RtxException) {
   scoped_lock<boost::signals2::mutex> lock(_odbcMutex);
-  if (_connectionOk) {
+  if (_connected) {
     SQLDisconnect(_handles.SCADAdbc);
     SQLFreeHandle(SQL_HANDLE_DBC, _handles.SCADAdbc);
     /* Allocate a connection handle */
@@ -187,7 +197,7 @@ void OdbcPointRecord::dbConnect() throw(RtxException) {
     SQL_CHECK(SQLSetConnectAttr(_handles.SCADAdbc, SQL_ATTR_ACCESS_MODE, &mode, SQL_IS_UINTEGER), "SQLSetConnectAttr", _handles.SCADAdbc, SQL_HANDLE_DBC);
   }
   
-  _connectionOk = false;
+  _connected = false;
   if (RTX_STRINGS_ARE_EQUAL(this->connection.driver, "") ||
       RTX_STRINGS_ARE_EQUAL(this->connection.conInformation, "") ) {
     errorMessage = "Incomplete Connection Information";
@@ -235,11 +245,11 @@ void OdbcPointRecord::dbConnect() throw(RtxException) {
     future_status stat = _connectFuture.wait_for(timeout);
     if (stat == future_status::timeout) {
       // timed out. bad connection.
-      _connectionOk = false;
+      _connected = false;
       errorMessage = "Timeout";
     }
     else if (stat == future_status::ready) {
-      _connectionOk = _connectFuture.get();
+      _connected = _connectFuture.get();
     }
     
   }
@@ -247,15 +257,11 @@ void OdbcPointRecord::dbConnect() throw(RtxException) {
   // todo -- check time offset (dst?)
 }
 
-bool OdbcPointRecord::isConnected() {
-  return _connectionOk;
-}
-
 bool OdbcPointRecord::checkConnected() {
-  if (!_connectionOk) {
+  if (!_connected) {
     this->dbConnect();
   }
-  return _connectionOk;
+  return _connected;
 }
 
 PointRecord::IdentifierUnitsList OdbcPointRecord::identifiersAndUnits() {

@@ -11,7 +11,7 @@ InfluxUdpPointRecord::InfluxUdpPointRecord() {
   this->conn.port = 8089; // default udp for influx
 }
 
-void InfluxUdpPointRecord::dbConnect() throw(RTX::RtxException) {
+void InfluxUdpPointRecord::doConnect() throw(RTX::RtxException) {
   _connected = false;
   boost::asio::io_service io_service;
   try {
@@ -32,7 +32,7 @@ void InfluxUdpPointRecord::dbConnect() throw(RTX::RtxException) {
   _connected = true;
 }
 
-string InfluxUdpPointRecord::connectionString() {
+string InfluxUdpPointRecord::serializeConnectionString() {
   stringstream ss;
   ss << "host=" << this->conn.host << "&port=" << this->conn.port;
   return ss.str();

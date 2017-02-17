@@ -28,13 +28,9 @@ namespace RTX {
     bool insertIdentifierAndUnits(const std::string& id, Units units);
     virtual IdentifierUnitsList identifiersAndUnits();
     
-    void dbConnect() throw(RtxException);
-    bool isConnected();
+    
     
     TimeRange range(const string& id);
-    
-    std::string connectionString();
-    void setConnectionString(const std::string& path);
     
     bool supportsSinglyBoundedQueries() {return true;};
     bool shouldSearchIteratively() {return true;};
@@ -46,24 +42,27 @@ namespace RTX {
     virtual void endBulkOperation();
     
   protected:
+        
+  private:
+    void parseConnectionString(const std::string& str);
+    std::string serializeConnectionString();
+    void doConnect() throw(RtxException);
     std::vector<Point> selectRange(const std::string& id, TimeRange range);
     Point selectNext(const std::string& id, time_t time);
     Point selectPrevious(const std::string& id, time_t time);
     
-    // insertions or alterations may choose to ignore / deny
     void insertSingle(const std::string& id, Point point);
     void insertSingleInTransaction(const std::string &id, Point point);
     void insertRange(const std::string& id, std::vector<Point> points);
     void removeRecord(const std::string& id);
+
     
-  private:
     sqlite3 *_dbHandle;
     std::string _selectRangeStr, _selectSingleStr, _selectNamesStr, _selectPreviousStr, _selectNextStr, _insertSingleStr, _selectFirstStr, _selectLastStr;
     
     sqlite3_stmt *_insertSingleStmt;
     
     std::string _path;
-    bool _connected;
     
     bool _inTransaction;
     int _transactionStackCount;

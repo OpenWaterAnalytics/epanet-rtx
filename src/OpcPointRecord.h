@@ -13,11 +13,6 @@ namespace RTX {
     RTX_BASE_PROPS(OpcPointRecord);
     OpcPointRecord();
     
-    std::string connectionString();
-    void setConnectionString(const std::string& string);
-    
-    void dbConnect() throw(RtxException);
-    bool isConnected();
     bool supportsUnitsColumn() {return false;};
     const std::map<std::string, Units> identifiersAndUnits();
     
@@ -35,10 +30,15 @@ namespace RTX {
     void removeRecord(const std::string& id) {};
     bool insertIdentifierAndUnits(const std::string& id, Units units) {};
     
+  protected:
+    void doConnect() throw(RtxException);
+    
   private:
+    void parseConnectionString(const std::string& str);
+    std::string serializeConnectionString();
+    
     std::string _endpoint;
     UA_Client *_client;
-    bool _connected;
 //    std::map<string,OpcUa::Node> _nodes;
   };
 }

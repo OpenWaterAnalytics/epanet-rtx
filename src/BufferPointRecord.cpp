@@ -63,7 +63,7 @@ bool BufferPointRecord::registerAndGetIdentifierForSeriesWithUnits(std::string r
 PointRecord::IdentifierUnitsList BufferPointRecord::identifiersAndUnits() {
   IdentifierUnitsList list;
   std::map<std::string,Units> *ids = list.get();
-  BOOST_FOREACH(StringBufferPair p, _keyedBuffers) {
+  for (auto p : _keyedBuffers) {
     (*ids)[p.first] = p.second.units;
   }
   return list;
@@ -78,14 +78,14 @@ Point BufferPointRecord::point(const string& identifier, time_t time) {
   
   scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
   
-  KeyedBufferMap_t::iterator it = _keyedBuffers.find(identifier);
+  auto it = _keyedBuffers.find(identifier);
   if (it == _keyedBuffers.end()) {
     // nobody here by that name
     return Point();
   }
   
   // get the constituents
-  PointBuffer_t& buffer = (it->second.circularBuffer);
+  PointBuffer& buffer = (it->second.circularBuffer);
   
   if (buffer.empty()) {
     return Point();
@@ -97,8 +97,8 @@ Point BufferPointRecord::point(const string& identifier, time_t time) {
   if (pFirst.time <= time && time <= pLast.time) {
     // search the buffer
     Point finder(time, 0);
-    PointBuffer_t::iterator startIterator = buffer.begin();
-    PointBuffer_t::iterator pbIt = std::lower_bound(startIterator, buffer.end(), finder, &Point::comparePointTime);
+    PointBuffer::iterator startIterator = buffer.begin();
+    PointBuffer::iterator pbIt = std::lower_bound(startIterator, buffer.end(), finder, &Point::comparePointTime);
     if (pbIt != buffer.end() && pbIt->time == time) {
       Point p = *pbIt;
       PointRecord::addPoint(identifier, p);
@@ -123,12 +123,12 @@ Point BufferPointRecord::pointBefore(const string& identifier, time_t time) {
   //TimePointPair_t finder(time, PointPair_t(0,0));
   Point finder(time, 0);
   
-  KeyedBufferMap_t::iterator it = _keyedBuffers.find(identifier);
+  auto it = _keyedBuffers.find(identifier);
   if (it != _keyedBuffers.end()) {
     // get the constituents
-    PointBuffer_t& buffer = (it->second.circularBuffer);
+    PointBuffer& buffer = (it->second.circularBuffer);
     
-    PointBuffer_t::const_iterator it  = lower_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
+    PointBuffer::const_iterator it  = lower_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
     if (it != buffer.begin()) {
       // we're not at the beginning, so there is a point before time
       if (it != buffer.end()) {
@@ -165,12 +165,12 @@ Point BufferPointRecord::pointAfter(const string& identifier, time_t time) {
   //TimePointPair_t finder(time, PointPair_t(0,0));
   Point finder(time, 0);
   
-  KeyedBufferMap_t::iterator it = _keyedBuffers.find(identifier);
+  auto it = _keyedBuffers.find(identifier);
   if (it != _keyedBuffers.end()) {
     // get the constituents
-    PointBuffer_t& buffer = (it->second.circularBuffer);
+    PointBuffer& buffer = (it->second.circularBuffer);
     
-    PointBuffer_t::const_iterator it = upper_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
+    PointBuffer::const_iterator it = upper_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
     if (it != buffer.end()) {
       // OK we're not at the end, so there is a point after time
       if (it != buffer.begin() || (it->time == time + 1)) {
@@ -197,12 +197,12 @@ std::vector<Point> BufferPointRecord::pointsInRange(const string& identifier, Ti
   //TimePointPair_t finder(startTime, PointPair_t(0,0));
   Point finder(range.start, 0);
   
-  KeyedBufferMap_t::iterator it = _keyedBuffers.find(identifier);
+  auto it = _keyedBuffers.find(identifier);
   if (it != _keyedBuffers.end()) {
     // get the constituents
-    PointBuffer_t& buffer = (it->second.circularBuffer);
+    PointBuffer& buffer = (it->second.circularBuffer);
     
-    PointBuffer_t::const_iterator it = lower_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
+    PointBuffer::const_iterator it = lower_bound(buffer.begin(), buffer.end(), finder, &Point::comparePointTime);
     while ( (it != buffer.end()) && (it->time <= range.end) ) {
       Point newPoint = *it;
       pointVector.push_back(newPoint);
@@ -233,9 +233,9 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
   scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
   
   // check the cache size, and upgrade if needed.
-  KeyedBufferMap_t::iterator it = _keyedBuffers.find(identifier);
+  auto it = _keyedBuffers.find(identifier);
   if (it != _keyedBuffers.end()) {
-    PointBuffer_t& buffer = (it->second.circularBuffer);
+    PointBuffer& buffer = (it->second.circularBuffer);
     size_t capacity = buffer.capacity();
     if (capacity < points.size()) {
       // plenty of room
@@ -326,9 +326,9 @@ void BufferPointRecord::reset() {
 
 void BufferPointRecord::reset(const string& identifier) {
   scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
-  KeyedBufferMap_t::iterator it = _keyedBuffers.find(identifier);
+  auto it = _keyedBuffers.find(identifier);
   if (it != _keyedBuffers.end()) {
-    PointBuffer_t& buffer = (it->second.circularBuffer);
+    PointBuffer& buffer = (it->second.circularBuffer);
     buffer.clear();
   }
 }
@@ -336,9 +336,9 @@ void BufferPointRecord::reset(const string& identifier) {
 
 Point BufferPointRecord::firstPoint(const string& id) {
   Point foundPoint;
-  KeyedBufferMap_t::iterator it = _keyedBuffers.find(id);
+  auto it = _keyedBuffers.find(id);
   if (it != _keyedBuffers.end()) {
-    PointBuffer_t& buffer = (it->second.circularBuffer);
+    PointBuffer& buffer = (it->second.circularBuffer);
     if (buffer.empty()) {
       return foundPoint;
     }
@@ -349,11 +349,11 @@ Point BufferPointRecord::firstPoint(const string& id) {
 
 Point BufferPointRecord::lastPoint(const string& id) {
   Point foundPoint;
-  KeyedBufferMap_t::iterator it = _keyedBuffers.find(id);
+  auto it = _keyedBuffers.find(id);
   if (it != _keyedBuffers.end()) {
     // get the constituents
     //boost::signals2::mutex *mutex = (it->second.second.get());
-    PointBuffer_t& buffer = (it->second.circularBuffer);
+    PointBuffer& buffer = (it->second.circularBuffer);
     
     if (buffer.empty()) {
       return foundPoint;

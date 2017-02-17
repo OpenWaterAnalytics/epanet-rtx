@@ -31,15 +31,6 @@ namespace RTX {
   class BufferPointRecord : public PointRecord {
     
   public:
-//     types and small container for the actual buffers
-    typedef boost::circular_buffer<Point> PointBuffer_t;
-    class Buffer {
-    public:
-      Units units;
-      PointBuffer_t circularBuffer;
-    };
-    typedef std::map<std::string, Buffer> KeyedBufferMap_t;
-    typedef std::pair<std::string, Buffer> StringBufferPair;
     
     RTX_BASE_PROPS(BufferPointRecord);
     BufferPointRecord(int defaultCapacity = RTX_BUFFER_DEFAULT_CACHESIZE);
@@ -52,13 +43,15 @@ namespace RTX {
     virtual Point pointBefore(const string& identifier, time_t time);
     virtual Point pointAfter(const string& identifier, time_t time);
     virtual std::vector<Point> pointsInRange(const string& identifier, TimeRange range);
-    virtual void addPoint(const string& identifier, Point point);
-    virtual void addPoints(const string& identifier, std::vector<Point> points);
-    virtual void reset();
-    virtual void reset(const string& identifier);
     virtual Point firstPoint(const string& id);
     virtual Point lastPoint(const string& id);
     virtual TimeRange range(const string& id);
+    
+    virtual void addPoint(const string& identifier, Point point);
+    virtual void addPoints(const string& identifier, std::vector<Point> points);
+    
+    virtual void reset();
+    virtual void reset(const string& identifier);
     
     virtual std::ostream& toStream(std::ostream &stream);
     
@@ -66,7 +59,13 @@ namespace RTX {
   protected:
     
   private:
-    KeyedBufferMap_t _keyedBuffers;
+    typedef boost::circular_buffer<Point> PointBuffer;
+    class Buffer {
+    public:
+      Units units;
+      PointBuffer circularBuffer;
+    };
+    std::map<std::string, Buffer> _keyedBuffers;
     size_t _defaultCapacity;
     boost::signals2::mutex _bigMutex;
   };

@@ -76,12 +76,7 @@ namespace RTX {
     OdbcConnection connection;
     OdbcQuery querySyntax;
     
-    std::string connectionString() {return connection.conInformation;};
-    void setConnectionString(const std::string& con) {connection.conInformation = con;};
-
     virtual bool readonly() {return true;};
-    virtual void dbConnect() throw(RtxException);
-    virtual bool isConnected();
     
     virtual IdentifierUnitsList identifiersAndUnits();
     virtual std::ostream& toStream(std::ostream &stream);
@@ -97,6 +92,8 @@ namespace RTX {
     bool supportsUnitsColumn() { return false; };
     
   protected:
+    virtual void doConnect() throw(RtxException);
+
     void initDsnList();
     virtual bool insertIdentifierAndUnits(const std::string& id, Units units){ return false; };
     // abstract stubs
@@ -157,8 +154,10 @@ namespace RTX {
     std::string _specifiedTimeZoneString;
     
   private:
+    void parseConnectionString(const std::string& str);
+    std::string serializeConnectionString();
+    
     vector<string> _dsnList;
-    bool _connectionOk;
     SQLRETURN SQL_CHECK(SQLRETURN retVal, std::string function, SQLHANDLE handle, SQLSMALLINT type) throw(std::string);
     boost::atomic<bool> _isConnecting;
     std::future<bool> _connectFuture;

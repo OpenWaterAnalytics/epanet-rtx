@@ -53,7 +53,6 @@ PplxTaskWrapper::PplxTaskWrapper() {
 }
 #define INFLUX_ASYNC_SEND static_pointer_cast<PplxTaskWrapper>(_sendTask)->task
 
-uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const std::string& query, bool withTimePrecision = true);
 jsValue _InfluxDbPointRecord_jsonFromRequest(InfluxDbPointRecord& record, uri uri, method withMethod = methods::GET);
 std::vector<RTX::Point> _InfluxDbPointRecord_pointsFromJson(jsValue json);
 
@@ -74,7 +73,7 @@ InfluxDbPointRecord::InfluxDbPointRecord() {
 
 #pragma mark Connecting
 
-void InfluxDbPointRecord::dbConnect() throw(RtxException) {
+void InfluxDbPointRecord::doConnect() throw(RtxException) {
   
   _connected = false;
   this->errorMessage = "Connecting...";
@@ -82,7 +81,7 @@ void InfluxDbPointRecord::dbConnect() throw(RtxException) {
   // see if the database needs to be created
   bool dbExists = false;
   
-  uri uri = _InfluxDbPointRecord_uriForQuery(*this, "SHOW MEASUREMENTS LIMIT 1", false);
+  uri uri = uriForQuery("SHOW MEASUREMENTS LIMIT 1", false);
   jsValue jsoMeas = _InfluxDbPointRecord_jsonFromRequest(*this,uri);
   if (!jsoMeas.has_field(kRESULTS)) {
     if (jsoMeas.has_field("error")) {
@@ -187,7 +186,7 @@ PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
     return _identifiersAndUnitsCache;
   }
   
-  uri uri = _InfluxDbPointRecord_uriForQuery(*this, kSHOW_SERIES, false);
+  uri uri = uriForQuery(kSHOW_SERIES, false);
   jsValue jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   
   if (jsv.has_field(kRESULTS) &&
@@ -239,11 +238,11 @@ std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, TimeR
   //}
   std::lock_guard<std::mutex> lock(_influxMutex);
   string dbId = influxIdForTsId(id);
-  DbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
+  I_InfluxDbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time >= " + to_string(req_range.start) + "s");
   q.where.push_back("time <= " + to_string(req_range.end) + "s");
   
-  uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
+  uri uri = uriForQuery(q.selectStr());
   jsValue jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   return _InfluxDbPointRecord_pointsFromJson(jsv);
 }
@@ -251,11 +250,11 @@ std::vector<Point> InfluxDbPointRecord::selectRange(const std::string& id, TimeR
 Point InfluxDbPointRecord::selectNext(const std::string& id, time_t time) {
   std::vector<Point> points;
   string dbId = influxIdForTsId(id);
-  DbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
+  I_InfluxDbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time > " + to_string(time) + "s");
   q.order = "time asc limit 1";
   
-  uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
+  uri uri = uriForQuery(q.selectStr());
   jsValue jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   points = _InfluxDbPointRecord_pointsFromJson(jsv);
   
@@ -270,11 +269,11 @@ Point InfluxDbPointRecord::selectPrevious(const std::string& id, time_t time) {
   std::vector<Point> points;
   string dbId = influxIdForTsId(id);
   
-  DbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
+  I_InfluxDbPointRecord::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time < " + to_string(time) + "s");
   q.order = "time desc limit 1";
   
-  uri uri = _InfluxDbPointRecord_uriForQuery(*this, q.selectStr());
+  uri uri = uriForQuery(q.selectStr());
   jsValue jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
   points = _InfluxDbPointRecord_pointsFromJson(jsv);
   
@@ -295,7 +294,7 @@ void InfluxDbPointRecord::truncate() {
   stringstream sqlss;
   sqlss << "DROP DATABASE " << this->conn.db << "; CREATE DATABASE " << this->conn.db;
   
-  uri uri = _InfluxDbPointRecord_uriForQuery(*this, sqlss.str());
+  uri uri = uriForQuery(sqlss.str());
   jsValue v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
   
   auto ids = _identifiersAndUnitsCache; // copy
@@ -317,22 +316,22 @@ void InfluxDbPointRecord::truncate() {
 void InfluxDbPointRecord::removeRecord(const std::string& id) {
   
   const string dbId = this->influxIdForTsId(id);
-  DbPointRecord::Query q = this->queryPartsFromMetricId(id);
+  Query q = this->queryPartsFromMetricId(id);
   
   stringstream sqlss;
   sqlss << "DROP SERIES FROM " << q.nameAndWhereClause();
   
-  uri uri = _InfluxDbPointRecord_uriForQuery(*this, sqlss.str());
+  uri uri = uriForQuery(sqlss.str());
   jsValue v = _InfluxDbPointRecord_jsonFromRequest(*this, uri, methods::POST);
 }
 
 
 
 #pragma mark Query Building
-DbPointRecord::Query InfluxDbPointRecord::queryPartsFromMetricId(const std::string& name) {
+I_InfluxDbPointRecord::Query InfluxDbPointRecord::queryPartsFromMetricId(const std::string& name) {
   MetricInfo m(name);
   
-  DbPointRecord::Query q;
+  Query q;
   q.select = {"time", "value", "quality", "confidence"};
   q.from = "\"" + m.measurement + "\"";
   
@@ -348,13 +347,13 @@ DbPointRecord::Query InfluxDbPointRecord::queryPartsFromMetricId(const std::stri
 }
 
 
-uri _InfluxDbPointRecord_uriForQuery(InfluxDbPointRecord& record, const std::string& query, bool withTimePrecision) {
+uri InfluxDbPointRecord::uriForQuery(const std::string& query, bool withTimePrecision) {
   
   web::http::uri_builder b;
-  b.set_scheme(record.conn.proto).set_host(record.conn.host).set_port(record.conn.port).set_path("query")
-   .append_query("db", record.conn.db, false)
-   .append_query("u", record.conn.user, false)
-   .append_query("p", record.conn.pass, false)
+  b.set_scheme(this->conn.proto).set_host(this->conn.host).set_port(this->conn.port).set_path("query")
+   .append_query("db", this->conn.db, false)
+   .append_query("u", this->conn.user, false)
+   .append_query("p", this->conn.pass, false)
    .append_query("q", query, true);
   
   if (withTimePrecision) {

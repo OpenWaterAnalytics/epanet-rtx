@@ -18,11 +18,12 @@ OpcPointRecord::OpcPointRecord() {
   _connected = false;
 }
 
-void OpcPointRecord::setConnectionString(const std::string &string) {
+
+void OpcPointRecord::parseConnectionString(const std::string &string) {
   _endpoint = string;
 }
 
-string OpcPointRecord::connectionString() {
+string OpcPointRecord::serializeConnectionString() {
   return _endpoint;
 }
 /*
@@ -170,10 +171,6 @@ void _getChildren(OpcUa::Node node, map<string,OpcUa::Node>& nodes, int level) {
   }
 }
 
-
-bool OpcPointRecord::isConnected() {
-  return _connected;
-}
 
 void OpcPointRecord::dbConnect() throw(RtxException) {
   

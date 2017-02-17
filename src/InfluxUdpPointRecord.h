@@ -12,8 +12,6 @@ namespace RTX {
   public:
     RTX_BASE_PROPS(InfluxUdpPointRecord);
     InfluxUdpPointRecord();
-    void dbConnect() throw(RtxException);
-    std::string connectionString();
     
     size_t maxTransactionLines() {return 10;};
     
@@ -22,6 +20,8 @@ namespace RTX {
     std::string formatTimestamp(time_t t);
 
   private:
+    void doConnect() throw(RtxException);
+    std::string serializeConnectionString();
     std::future<void> _sendFuture;
   };
 }

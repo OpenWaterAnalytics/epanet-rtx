@@ -72,7 +72,6 @@ namespace RTX {
       std::shared_ptr< std::map< std::string, Units> > _d;
     };
     
-    typedef std::pair<std::string,Units> nameUnitsPair;
     RTX_BASE_PROPS(PointRecord);
     PointRecord::_sp sp() {return shared_from_this();};
     

@@ -24,6 +24,7 @@ using jsv = web::json::value;
 
 
 #define PI_MAX_POINT_COUNT 10000
+#define PI_TIMEOUT 3
 
 const string kOSI_REST("OSIsoft.REST");
 const string kFULL_VERSION("FullVersion");
@@ -69,40 +70,31 @@ Point _pointFromJson(const jsv& j) {
 
 
 
-
-
-
 PiPointRecord::PiPointRecord() {
-  conn.proto = "http";
-  conn.host = "devdata.osisoft.com";
-  conn.port = 80;
-  conn.apiPath = "piwebapi";
-  conn.dataServer = "PISRV1";
-  conn.user = "user";
-  conn.pass = "pass";
-  
-  _isConnected = false;
-  
+  _conn.proto = "http";
+  _conn.host = "devdata.osisoft.com";
+  _conn.port = 80;
+  _conn.apiPath = "piwebapi";
+  _conn.dataServer = "PISRV1";
+  _conn.user = "user";
+  _conn.pass = "pass";
 }
 
 PiPointRecord::~PiPointRecord() {
   
 }
 
-bool PiPointRecord::isConnected() {
-  return _isConnected;
-}
 
-string PiPointRecord::connectionString() {
+string PiPointRecord::serializeConnectionString() {
   
   stringstream ss;
-  ss << "proto=" << this->conn.proto << "&host=" << this->conn.host << "&port=" << this->conn.port << "&api=" << this->conn.apiPath << "&dataserver=" << this->conn.dataServer << "&u=" << this->conn.user << "&p=" << this->conn.pass;
+  ss << "proto=" << this->_conn.proto << "&host=" << this->_conn.host << "&port=" << this->_conn.port << "&api=" << this->_conn.apiPath << "&dataserver=" << this->_conn.dataServer << "&u=" << this->_conn.user << "&p=" << this->_conn.pass;
   return ss.str();
   
 }
 
 
-void PiPointRecord::setConnectionString(const std::string &str) {
+void PiPointRecord::parseConnectionString(const std::string &str) {
   std::lock_guard<std::mutex> lock(_mtx);
   
   // split the tokenized string. we're expecting something like "host=127.0.0.1&port=4242"
@@ -118,13 +110,13 @@ void PiPointRecord::setConnectionString(const std::string &str) {
   
   const map<string, function<void(string)> > 
   kvSetters({
-    {"proto", [&](string v){this->conn.proto = v;}},
-    {"host", [&](string v){this->conn.host = v;}},
-    {"port", [&](string v){this->conn.port = boost::lexical_cast<int>(v);}},
-    {"api", [&](string v){this->conn.apiPath = v;}},
-    {"dataserver", [&](string v){this->conn.dataServer = v;}},
-    {"u", [&](string v){this->conn.user = v;}},
-    {"p", [&](string v){this->conn.pass = v;}}
+    {"proto", [&](string v){this->_conn.proto = v;}},
+    {"host", [&](string v){this->_conn.host = v;}},
+    {"port", [&](string v){this->_conn.port = boost::lexical_cast<int>(v);}},
+    {"api", [&](string v){this->_conn.apiPath = v;}},
+    {"dataserver", [&](string v){this->_conn.dataServer = v;}},
+    {"u", [&](string v){this->_conn.user = v;}},
+    {"p", [&](string v){this->_conn.pass = v;}}
   }); 
   
   for (auto kv : kvPairs) {
@@ -142,15 +134,15 @@ void PiPointRecord::setConnectionString(const std::string &str) {
 
 web::uri_builder PiPointRecord::uriBase() {
   web::http::uri_builder b;
-  b.set_scheme(conn.proto).set_host(conn.host).set_port(conn.port)
-  .append_path(conn.apiPath);
+  b.set_scheme(_conn.proto).set_host(_conn.host).set_port(_conn.port)
+  .append_path(_conn.apiPath);
   return b;
 }
 
-void PiPointRecord::dbConnect() throw(RtxException) {
+void PiPointRecord::doConnect() throw(RtxException) {
   
-  _isConnected = false;
-  conn.dsWebId = "";
+  _connected = false;
+  _conn.dsWebId = "";
   
   // try the endpoint
   auto uriQ = uriBase()
@@ -168,7 +160,7 @@ void PiPointRecord::dbConnect() throw(RtxException) {
   }
   else {
     cerr << "could not retrieve version info from PI endpoint" << endl;
-    _isConnected = false;
+    _connected = false;
     errorMessage = "Malformed Response";
     return;
   }
@@ -177,7 +169,7 @@ void PiPointRecord::dbConnect() throw(RtxException) {
   // ok, now try to get the webId for the data server
   auto uriDS = uriBase()
   .append_path("dataservers")
-  .append_query("name", conn.dataServer)
+  .append_query("name", _conn.dataServer)
   .append_query("selectedFields", "WebId;Name;IsConnected;ServerVersion")
   .to_uri();
   
@@ -185,13 +177,13 @@ void PiPointRecord::dbConnect() throw(RtxException) {
   if (dj.has_field(kWebId)) {
     string webId = dj[kWebId].as_string();
     cout << "PI DATA SERVER WEB ID: " << webId << endl;
-    conn.dsWebId = webId;
-    _isConnected = true;
+    _conn.dsWebId = webId;
+    _connected = true;
     errorMessage = "Connected";
   }
   else {
     cerr << "could not retrieve dataserver WebId from PI endpoint" << endl;
-    _isConnected = false;
+    _connected = false;
     errorMessage = "No Data Server";
     return;
   }
@@ -210,7 +202,7 @@ PointRecord::IdentifierUnitsList PiPointRecord::identifiersAndUnits() {
   
   auto uriPointsB = uriBase()
   .append_path("dataservers")
-  .append_path(conn.dsWebId)
+  .append_path(_conn.dsWebId)
   .append_path("points")
   .append_query("selectedFields=Items.WebId;Items.Name;Items.Descriptor;Items.EngineeringUnits");
   
@@ -240,6 +232,7 @@ PointRecord::IdentifierUnitsList PiPointRecord::identifiersAndUnits() {
 
 
 vector<Point> PiPointRecord::selectRange(const string& id, TimeRange range) {
+  std::lock_guard<std::mutex> lock(_mtx);
   vector<Point> points;
   
   if (_webIdLookup.count(id) == 0) {
@@ -281,13 +274,13 @@ vector<Point> PiPointRecord::selectRange(const string& id, TimeRange range) {
 jsv PiPointRecord::jsonFromRequest(uri uri, method withMethod) {
   jsv js = jsv::object();
   try {
-    string auth = conn.user + ":" + conn.pass;
+    string auth = _conn.user + ":" + _conn.pass;
     std::vector<unsigned char> bytes(auth.begin(), auth.end());
     string userpass = utility::conversions::to_base64(bytes);
     
     http_client_config config;
-    config.set_timeout(std::chrono::seconds(3));
-    //    credentials cred(conn.user,conn.pass);
+    config.set_timeout(std::chrono::seconds(PI_TIMEOUT));
+    //    credentials cred(_conn.user,_conn.pass);
     //    config.set_credentials(cred);
     http_client client(uri, config);
     http_request req(methods::GET);

@@ -27,35 +27,6 @@ using namespace RTX;
 using namespace std;
 
 
-std::string DbPointRecord::Query::selectStr() {
-  stringstream ss;
-  ss << "SELECT ";
-  if (this->select.size() == 0) {
-    ss << "*";
-  }
-  else {
-    ss << boost::algorithm::join(this->select,", ");
-  }
-  
-  ss << " FROM " << this->nameAndWhereClause();
-  
-  if (this->order.length() > 0) {
-    ss << " ORDER BY " << this->order;
-  }
-  
-  return ss.str();
-}
-
-std::string DbPointRecord::Query::nameAndWhereClause() {
-  stringstream ss;
-  ss << this->from;
-  
-  if (this->where.size() > 0) {
-    ss << " WHERE " << boost::algorithm::join(this->where," AND ");
-  }
-  return ss.str();
-}
-
 DbPointRecord::request_t::request_t(string id, TimeRange r_range) : range(r_range), id(id) {
   
 }
@@ -86,10 +57,24 @@ DbPointRecord::DbPointRecord() : _last_request("",TimeRange()) {
   useTransactions = false;
   maxTransactionInserts = 1000;
   transactionInsertCount = 0;
+  _connected = false;
+}
 
+void DbPointRecord::setConnectionString(const std::string &str) {
+  this->parseConnectionString(str);
+}
+string DbPointRecord::connectionString() {
+  return this->serializeConnectionString();
 }
 
 
+bool DbPointRecord::isConnected() {
+  return _connected;
+}
+
+void DbPointRecord::dbConnect() throw(RtxException) {
+  return this->doConnect();
+}
 
 bool DbPointRecord::readonly() {
   return _readOnly;

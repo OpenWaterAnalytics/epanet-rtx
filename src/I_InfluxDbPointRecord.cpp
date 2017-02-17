@@ -26,19 +26,53 @@ I_InfluxDbPointRecord::connectionInfo::connectionInfo() {
   port = 8086;
 }
 
+
+std::string I_InfluxDbPointRecord::Query::selectStr() {
+  stringstream ss;
+  ss << "SELECT ";
+  if (this->select.size() == 0) {
+    ss << "*";
+  }
+  else {
+    ss << boost::algorithm::join(this->select,", ");
+  }
+  
+  ss << " FROM " << this->nameAndWhereClause();
+  
+  if (this->order.length() > 0) {
+    ss << " ORDER BY " << this->order;
+  }
+  
+  return ss.str();
+}
+
+std::string I_InfluxDbPointRecord::Query::nameAndWhereClause() {
+  stringstream ss;
+  ss << this->from;
+  
+  if (this->where.size() > 0) {
+    ss << " WHERE " << boost::algorithm::join(this->where," AND ");
+  }
+  return ss.str();
+}
+
+
+
+
+
+
 I_InfluxDbPointRecord::I_InfluxDbPointRecord() {
   _connected = false;
 }
 
 
-
-string I_InfluxDbPointRecord::connectionString() {
+string I_InfluxDbPointRecord::serializeConnectionString() {
   stringstream ss;
   ss << "proto=" << this->conn.proto << "&host=" << this->conn.host << "&port=" << this->conn.port << "&db=" << this->conn.db << "&u=" << this->conn.user << "&p=" << this->conn.pass;
   return ss.str();
 }
 
-void I_InfluxDbPointRecord::setConnectionString(const std::string &str) {
+void I_InfluxDbPointRecord::parseConnectionString(const std::string &str) {
   std::lock_guard<std::mutex> lock(_influxMutex);
   
   regex kvReg("([^=]+)=([^&]+)&?"); // key - value pair

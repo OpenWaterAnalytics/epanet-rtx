@@ -36,11 +36,12 @@ SqlitePointRecord::~SqlitePointRecord() {
   sqlite3_close(_dbHandle);
 }
 
-string SqlitePointRecord::connectionString() {
+
+string SqlitePointRecord::serializeConnectionString() {
   return _path;
 }
 
-void SqlitePointRecord::setConnectionString(const std::string& path) {
+void SqlitePointRecord::parseConnectionString(const std::string& path) {
   if (this->isConnected()) {
     sqlite3_close(_dbHandle);
   }
@@ -48,7 +49,7 @@ void SqlitePointRecord::setConnectionString(const std::string& path) {
 }
 
 
-void SqlitePointRecord::dbConnect() throw(RtxException) {
+void SqlitePointRecord::doConnect() throw(RtxException) {
 
   _identifiersAndUnitsCache.clear();
   
@@ -218,10 +219,6 @@ void SqlitePointRecord::logDbError(int ret) {
   cerr << "sqlite error: " << errorMessage << " :: " << errStr << endl;
 }
 
-
-bool SqlitePointRecord::isConnected() {
-  return _connected;
-}
 
 
 
