@@ -14,7 +14,7 @@
 namespace RTX {
   class PiPointRecord : public DbPointRecord {
   public:
-    
+    RTX_BASE_PROPS(PiPointRecord);
     class connectionInfo {
     public:
       // these are set through connection string parser
@@ -25,10 +25,13 @@ namespace RTX {
     };
     
     PiPointRecord();
+    virtual ~PiPointRecord();
     bool isConnected();
     
     std::string connectionString();
     void setConnectionString(const std::string& str);
+    
+    std::string tagSearchPath;
     
     void dbConnect() throw(RtxException);
     
@@ -37,16 +40,23 @@ namespace RTX {
     bool supportsSinglyBoundedQueries() { return false; };
     bool shouldSearchIteratively() { return true; };
     
+    
     IdentifierUnitsList identifiersAndUnits();
     
     connectionInfo conn;
     
   protected:
-    bool insertIdentifierAndUnits(const std::string& id, Units units){ return false; };
     
-    virtual std::vector<Point> selectRange(const std::string& id, TimeRange range);
+    std::vector<Point> selectRange(const std::string& id, TimeRange range);
     Point selectNext(const std::string& id, time_t time) { return Point(); };
     Point selectPrevious(const std::string& id, time_t time) { return Point(); };
+    
+    // readonly no-ops
+    bool insertIdentifierAndUnits(const std::string& id, Units units){ return false; };
+    void insertSingle(const std::string& id, Point point) {};
+    void insertRange(const std::string& id, std::vector<Point> points) {};
+    void removeRecord(const std::string& id) {};
+    void truncate() {};
     
   private:
     bool _isConnected;

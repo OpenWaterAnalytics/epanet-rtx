@@ -1,5 +1,7 @@
 #include "PointRecordTime.h"
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/algorithm/string/replace.hpp>
+
 
 using namespace RTX;
 using namespace std;
@@ -131,6 +133,20 @@ string PointRecordTime::utcDateStringFromUnix(time_t unixTime, const char *fmt) 
   return s;
   
 }
+
+
+time_t PointRecordTime::timeFromIso8601(const std::string& tstr) {
+  
+  string t_str(tstr);
+  boost::replace_all(t_str,"Z","");
+  
+  ptime pTimeEpoch = boost::posix_time::ptime(boost::gregorian::date(1970,1,1));
+  ptime dateTime = boost::date_time::parse_delimited_time<ptime>(t_str, 'T');
+  boost::posix_time::time_duration::sec_type x = (dateTime - pTimeEpoch).total_seconds();
+  time_t uTime = time_t(x);
+  return uTime;
+}
+
 
 
 

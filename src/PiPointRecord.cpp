@@ -7,6 +7,7 @@
 #include <cpprest/json.h>
 #include <cpprest/http_client.h>
 
+#include "PointRecordTime.h"
 
 using namespace RTX;
 using namespace std;
@@ -14,6 +15,7 @@ using namespace std;
 using namespace web::http::client;
 using web::http::method;
 using web::http::methods;
+using web::http::http_request;
 using web::http::status_codes;
 using web::http::http_response;
 using web::http::uri;
@@ -21,41 +23,48 @@ using web::http::uri;
 using jsv = web::json::value;
 
 
-static string kOSI_REST("OSIsoft.REST");
-static string kFULL_VERSION("FullVersion");
-static string kWebId("WebId");
+#define PI_MAX_POINT_COUNT 10000
+
+const string kOSI_REST("OSIsoft.REST");
+const string kFULL_VERSION("FullVersion");
+const string kWebId("WebId");
+const string kItems("Items");
+const string kName("Name");
+const string kDescriptor("Descriptor");
+const string kEngUnits("EngineeringUnits");
+const string kTimeStamp("Timestamp");
+const string kValue("Value");
+const string kGood("Good");
+const string kQuest("Questionable");
+const string kSubst("Substituted");
 
 
+const char* t_fmt = "%Y-%m-%dT%H:%M:%SZ";
 
 
-jsv PiPointRecord::jsonFromRequest(uri uri, method withMethod) {
-  jsv js = jsv::object();
-  try {
-    
-    credentials cred(conn.user,conn.pass);
-    http_client_config config;
-    config.set_timeout(std::chrono::seconds(3));
-    config.set_credentials(cred);
-    http_client client(uri, config);
-    http_response r = client.request(withMethod).get(); // waits for response
-    if (r.status_code() == status_codes::OK) {
-      js = r.extract_json().get();
-    }
-    else {
-      cerr << "CONNECTION ERROR: " << r.reason_phrase() << EOL;
+Point _pointFromJson(const jsv& j);
+Point _pointFromJson(const jsv& j) {
+  for (const string& key : {kTimeStamp,kValue,kGood,kQuest,kSubst}) {
+    if (!j.has_field(key)) {
+      cerr << "ERR: JSON object does not contain required field " << key << endl;
+      return Point();
     }
   }
-  catch (std::exception &e) {
-    cerr << "exception in GET: " << e.what() << endl;
+  
+  // check value type?
+  if (!j.at(kValue).is_double()) {
+    cerr << "Value field is not double" << endl;
+    return Point();
   }
-  return js;
+  
+  const string tstamp(j.at(kTimeStamp).as_string());
+  const double v(j.at(kValue).as_double());
+  const bool good(j.at(kGood).as_bool());
+  Point::PointQuality q = (good ? Point::PointQuality::opc_good : Point::PointQuality::opc_bad);
+  time_t t = PointRecordTime::timeFromIso8601(tstamp);
+  
+  return Point(t,v,q);
 }
-
-
-
-
-
-
 
 
 
@@ -76,10 +85,18 @@ PiPointRecord::PiPointRecord() {
   
 }
 
+PiPointRecord::~PiPointRecord() {
+  
+}
+
+bool PiPointRecord::isConnected() {
+  return _isConnected;
+}
+
 string PiPointRecord::connectionString() {
   
   stringstream ss;
-  ss << "proto=" << this->conn.proto << "&host=" << this->conn.host << "&port=" << this->conn.port << "&api=" << this->conn.apiPath << "&dataServer=" << this->conn.dataServer << "&u=" << this->conn.user << "&p=" << this->conn.pass;
+  ss << "proto=" << this->conn.proto << "&host=" << this->conn.host << "&port=" << this->conn.port << "&api=" << this->conn.apiPath << "&dataserver=" << this->conn.dataServer << "&u=" << this->conn.user << "&p=" << this->conn.pass;
   return ss.str();
   
 }
@@ -105,7 +122,7 @@ void PiPointRecord::setConnectionString(const std::string &str) {
     {"host", [&](string v){this->conn.host = v;}},
     {"port", [&](string v){this->conn.port = boost::lexical_cast<int>(v);}},
     {"api", [&](string v){this->conn.apiPath = v;}},
-    {"dataServer", [&](string v){this->conn.dataServer = v;}},
+    {"dataserver", [&](string v){this->conn.dataServer = v;}},
     {"u", [&](string v){this->conn.user = v;}},
     {"p", [&](string v){this->conn.pass = v;}}
   }); 
@@ -123,7 +140,7 @@ void PiPointRecord::setConnectionString(const std::string &str) {
 }
 
 
-uri_builder PiPointRecord::uriBase() {
+web::uri_builder PiPointRecord::uriBase() {
   web::http::uri_builder b;
   b.set_scheme(conn.proto).set_host(conn.host).set_port(conn.port)
   .append_path(conn.apiPath);
@@ -141,13 +158,19 @@ void PiPointRecord::dbConnect() throw(RtxException) {
   .append_path("versions")
   .to_uri();
   
-  jsv j = jsonFromRequest(uriQ, GET);
+  jsv j = jsonFromRequest(uriQ, methods::GET);
   if (j.has_field(kOSI_REST)) {
     auto v = j[kOSI_REST];
     if (v.has_field(kFULL_VERSION)) {
       string vers = v[kFULL_VERSION].as_string();
       cout << "PI REST VERSION: " << vers << endl;
     }
+  }
+  else {
+    cerr << "could not retrieve version info from PI endpoint" << endl;
+    _isConnected = false;
+    errorMessage = "Malformed Response";
+    return;
   }
   
   
@@ -158,25 +181,20 @@ void PiPointRecord::dbConnect() throw(RtxException) {
   .append_query("selectedFields", "WebId;Name;IsConnected;ServerVersion")
   .to_uri();
   
-  jsv dj = jsonFromRequest(uriDS, GET);
+  jsv dj = jsonFromRequest(uriDS, methods::GET);
   if (dj.has_field(kWebId)) {
     string webId = dj[kWebId].as_string();
     cout << "PI DATA SERVER WEB ID: " << webId << endl;
     conn.dsWebId = webId;
     _isConnected = true;
+    errorMessage = "Connected";
   }
   else {
+    cerr << "could not retrieve dataserver WebId from PI endpoint" << endl;
     _isConnected = false;
+    errorMessage = "No Data Server";
     return;
   }
-  
-  
-  
-  
-  
-  
-  
-  
   
   
 }
@@ -184,14 +202,109 @@ void PiPointRecord::dbConnect() throw(RtxException) {
 
 
 
+PointRecord::IdentifierUnitsList PiPointRecord::identifiersAndUnits() {
+  std::lock_guard<std::mutex> lock(_mtx);
+  
+  _identifiersAndUnitsCache.clear();
+  _webIdLookup.clear();
+  
+  auto uriPointsB = uriBase()
+  .append_path("dataservers")
+  .append_path(conn.dsWebId)
+  .append_path("points")
+  .append_query("selectedFields=Items.WebId;Items.Name;Items.Descriptor;Items.EngineeringUnits");
+  
+  if (this->tagSearchPath != "") {
+    uriPointsB.append_query("nameFilter",this->tagSearchPath);
+  }
+  jsv j = jsonFromRequest(uriPointsB.to_uri(), methods::GET);
+  
+  if (j.has_field(kItems)) {
+    for(auto i : j[kItems].as_array()) {
+      if (i.has_field(kName) && i.has_field(kWebId)) {
+        
+        string name = i[kName].as_string();
+        string webId = i[kWebId].as_string();
+        
+        _webIdLookup[name] = webId;
+        _identifiersAndUnitsCache.set(name, RTX_DIMENSIONLESS);
+        
+      }
+    }
+  }
+  
+  return _identifiersAndUnitsCache;
+}
 
 
 
 
+vector<Point> PiPointRecord::selectRange(const string& id, TimeRange range) {
+  vector<Point> points;
+  
+  if (_webIdLookup.count(id) == 0) {
+    cerr << "PI RECORD ERROR: id " << id << " not in cache" << endl;
+    return points;
+  }
+  
+  auto startStr = PointRecordTime::utcDateStringFromUnix(range.start,t_fmt);
+  auto endStr = PointRecordTime::utcDateStringFromUnix(range.end,t_fmt);
+  string webId = _webIdLookup[id];
+  
+  auto uriRange = uriBase()
+  .append_path("streams")
+  .append_path(webId)
+  .append_path("recorded")
+  .append_query("startTime",startStr)
+  .append_query("endTime",endStr)
+  .append_query("maxCount",PI_MAX_POINT_COUNT)
+  .to_uri();
+  
+  jsv j = jsonFromRequest(uriRange, methods::GET);
+  
+  if (!j.has_field(kItems)) {
+    cerr << "PI RECORD COULD NOT FIND ITEMS in response: " << j.serialize() << endl;
+    return points;
+  }
+  
+  for (auto pjs : j[kItems].as_array()) {
+    Point p = _pointFromJson(pjs);
+    if (p.isValid) {
+      points.push_back(p);
+    }
+  }
+  
+  return points;
+}
 
 
-
-
+jsv PiPointRecord::jsonFromRequest(uri uri, method withMethod) {
+  jsv js = jsv::object();
+  try {
+    string auth = conn.user + ":" + conn.pass;
+    std::vector<unsigned char> bytes(auth.begin(), auth.end());
+    string userpass = utility::conversions::to_base64(bytes);
+    
+    http_client_config config;
+    config.set_timeout(std::chrono::seconds(3));
+    //    credentials cred(conn.user,conn.pass);
+    //    config.set_credentials(cred);
+    http_client client(uri, config);
+    http_request req(methods::GET);
+    req.headers().add("Authorization", "Basic " + userpass);
+    http_response r = client.request(req).get(); // waits for response
+    if (r.status_code() == status_codes::OK) {
+      js = r.extract_json().get();
+    }
+    else {
+      cerr << "CONNECTION ERROR: " << r.reason_phrase() << EOL;
+    }
+  }
+  catch (std::exception &e) {
+    cerr << "exception in GET: " << e.what() << endl;
+  }
+  return js;
+}
 
 
 

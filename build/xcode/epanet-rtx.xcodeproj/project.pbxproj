@@ -128,6 +128,8 @@
 		2239413D1CAA1612008BD7FD /* libTimeSeriesDuplicator.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */; };
 		2251940A1CD8F2EA00B1BC31 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 225194091CD8F2EA00B1BC31 /* libxml2.2.dylib */; };
 		22602B771D5A738000A668ED /* libgeohash.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22602B761D5A738000A668ED /* libgeohash.a */; };
+		22670BF31E56091700B35882 /* PiPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22670BF11E56091700B35882 /* PiPointRecord.cpp */; };
+		22670BF41E56091700B35882 /* PiPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 22670BF21E56091700B35882 /* PiPointRecord.h */; };
 		227106511E1EA0FE002A2D30 /* PointCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2271064F1E1EA0FE002A2D30 /* PointCollection.cpp */; };
 		227106521E1EA0FE002A2D30 /* PointCollection.h in Headers */ = {isa = PBXBuildFile; fileRef = 227106501E1EA0FE002A2D30 /* PointCollection.h */; };
 		2288C1241BE3C71900F9B8FB /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
@@ -462,6 +464,8 @@
 		225194091CD8F2EA00B1BC31 /* libxml2.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.2.dylib; path = /usr/lib/libxml2.2.dylib; sourceTree = "<absolute>"; };
 		225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MysqlPointRecord.cpp; path = ../../src/MysqlPointRecord.cpp; sourceTree = "<group>"; };
 		22602B761D5A738000A668ED /* libgeohash.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgeohash.a; path = /usr/local/com.citilogics.dev/lib/libgeohash.a; sourceTree = "<absolute>"; };
+		22670BF11E56091700B35882 /* PiPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PiPointRecord.cpp; path = ../../src/PiPointRecord.cpp; sourceTree = "<group>"; };
+		22670BF21E56091700B35882 /* PiPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PiPointRecord.h; path = ../../src/PiPointRecord.h; sourceTree = "<group>"; };
 		226861C814716D2A000DDDEF /* Units.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Units.cpp; path = ../../src/Units.cpp; sourceTree = "<group>"; };
 		226AC1461733F996009B7C90 /* ValidRangeTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ValidRangeTimeSeries.cpp; path = ../../src/ValidRangeTimeSeries.cpp; sourceTree = "<group>"; };
 		226AC1471733F996009B7C90 /* ValidRangeTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ValidRangeTimeSeries.h; path = ../../src/ValidRangeTimeSeries.h; sourceTree = "<group>"; };
@@ -801,6 +805,7 @@
 				225D719E1497F96C00B90F6D /* MysqlPointRecord.cpp */,
 				22C0AE55184F86190013D51F /* SqlitePointRecord.h */,
 				22C0AE54184F86190013D51F /* SqlitePointRecord.cpp */,
+				22670BE91E5608F100B35882 /* PI */,
 				2294954E1DB90EFE00B85A1A /* INFLUX */,
 				22F41FAC1CE217EF00697B03 /* OPC */,
 				22067EB51873429500BAFF61 /* ODBC */,
@@ -825,6 +830,15 @@
 				22B928581A76EF1B006DBC57 /* MathOpsTimeSeries.cpp */,
 			);
 			name = "Single Point Filter";
+			sourceTree = "<group>";
+		};
+		22670BE91E5608F100B35882 /* PI */ = {
+			isa = PBXGroup;
+			children = (
+				22670BF21E56091700B35882 /* PiPointRecord.h */,
+				22670BF11E56091700B35882 /* PiPointRecord.cpp */,
+			);
+			name = PI;
 			sourceTree = "<group>";
 		};
 		226861C414715E53000DDDEF /* units */ = {
@@ -1234,6 +1248,7 @@
 				221BFD7E1A8E8AD000143FCC /* AggregatorTimeSeries.h in Headers */,
 				22DC12DB1ADD844D0033DD5E /* MetaTimeSeries.h in Headers */,
 				221BFD7F1A8E8AD000143FCC /* MovingAverage.h in Headers */,
+				22670BF41E56091700B35882 /* PiPointRecord.h in Headers */,
 				221BFD801A8E8AD000143FCC /* Point.h in Headers */,
 				221BFD821A8E8AD000143FCC /* TimeSeries.h in Headers */,
 				221BFD831A8E8AD000143FCC /* InversionTimeSeries.h in Headers */,
@@ -1649,6 +1664,7 @@
 				221BFD471A8E8AD000143FCC /* InversionTimeSeries.cpp in Sources */,
 				229E95C01CB2FAE000216682 /* EpanetModelExporter.cpp in Sources */,
 				221BFD4A1A8E8AD000143FCC /* Units.cpp in Sources */,
+				22670BF31E56091700B35882 /* PiPointRecord.cpp in Sources */,
 				221BFD4B1A8E8AD000143FCC /* EpanetModel.cpp in Sources */,
 				221BFD4C1A8E8AD000143FCC /* MysqlPointRecord.cpp in Sources */,
 				221BFD4E1A8E8AD000143FCC /* Clock.cpp in Sources */,
