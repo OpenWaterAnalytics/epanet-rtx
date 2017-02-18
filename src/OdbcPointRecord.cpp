@@ -25,6 +25,7 @@ using boost::local_time::time_zone_ptr;
 const time_t _rtx_odbc_connect_timeout(5);
 
 OdbcPointRecord::OdbcPointRecord() {
+  _dbOptions = DbOptions(false, false, true, false);
   _isConnecting = false;
   std::string nyc("EST-5EDT,M4.1.0,M10.5.0");
   _specifiedTimeZoneString = nyc;
@@ -264,11 +265,6 @@ bool OdbcPointRecord::checkConnected() {
   return _connected;
 }
 
-PointRecord::IdentifierUnitsList OdbcPointRecord::identifiersAndUnits() {
-  IdentifierUnitsList ids;
-  return ids;
-}
-
 
 
 #pragma mark - Protected
@@ -348,11 +344,6 @@ std::vector<Point> OdbcPointRecord::pointsFromStatement(SQLHSTMT statement) {
   std::sort(points.begin(), points.end(), &Point::comparePointTime);
   
   return points;
-}
-
-
-bool OdbcPointRecord::supportsSinglyBoundedQueries() {
-  return false;
 }
 
 

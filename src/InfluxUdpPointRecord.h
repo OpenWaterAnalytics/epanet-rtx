@@ -21,6 +21,7 @@ namespace RTX {
 
   private:
     void doConnect() throw(RtxException);
+    virtual void refreshIds() { /* no-op */ };
     std::string serializeConnectionString();
     std::future<void> _sendFuture;
   };

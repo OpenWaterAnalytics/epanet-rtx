@@ -28,11 +28,7 @@ namespace RTX {
     void insertRange(const std::string& id, std::vector<Point> points);
     
     // optional overrides
-    virtual bool supportsSinglyBoundedQueries() {return true;};
-    virtual bool shouldSearchIteratively() {return false;};
-    virtual bool supportsUnitsColumn() {return true;};
     virtual bool insertIdentifierAndUnits(const std::string& id, Units units);
-    virtual IdentifierUnitsList identifiersAndUnits();
     
     
     
@@ -80,8 +76,7 @@ namespace RTX {
     std::vector<std::string> _transactionLines;
     
   private:
-    
-    
+        
   };
 }
 

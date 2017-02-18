@@ -18,6 +18,7 @@ static string initTablesStr = "CREATE TABLE 'meta' ('series_id' INTEGER PRIMARY 
 /******************************************************************************************/
 
 SqlitePointRecord::SqlitePointRecord() {
+  _dbOptions = DbOptions(true,true,true,true);
   _path = "";
   _connected = false;
   _inTransaction = false;
@@ -222,11 +223,6 @@ void SqlitePointRecord::logDbError(int ret) {
 
 
 
-
-bool SqlitePointRecord::canAssignUnits() {
-  return true;
-}
-
 bool SqlitePointRecord::assignUnitsToRecord(const std::string &name, const Units& u) {
   Units units = u;
   int ret = 0;
@@ -309,53 +305,32 @@ bool SqlitePointRecord::insertIdentifierAndUnits(const std::string &id, RTX::Uni
 }
 
 
-PointRecord::IdentifierUnitsList SqlitePointRecord::identifiersAndUnits() {
-  
-  time_t now = time(NULL);
-  time_t stale = now - _lastIdRequest;
-  _lastIdRequest = now;
-  
-  if (stale < 5 && !_identifiersAndUnitsCache.get()->empty()) {
-    return DbPointRecord::identifiersAndUnits();
-  }
-  
-  if (!this->isConnected()) {
-    this->dbConnect();
-  }
-  
-  IdentifierUnitsList ids;
-  
-  
-  if (this->isConnected()) {
-    scoped_lock<boost::signals2::mutex> lock(*_mutex);
-    _metaCache.clear();
-    sqlite3_stmt *selectIdsStmt;
-    int ret;
-    ret = sqlite3_prepare_v2(_dbHandle, _selectNamesStr.c_str(), -1, &selectIdsStmt, NULL);
-    ret = sqlite3_step(selectIdsStmt);
-    while (ret == SQLITE_ROW) {
-      int uid = sqlite3_column_int(selectIdsStmt, 0);
-      string name = string((char*)sqlite3_column_text(selectIdsStmt, 1));
-      int type = sqlite3_column_type(selectIdsStmt, 2);
-      Units units;
-      if (type == SQLITE_NULL) {
-        units = RTX_NO_UNITS;
-      }
-      else {
-        string unitsStr = string((char*)sqlite3_column_text(selectIdsStmt, 2));
-        units = Units::unitOfType(unitsStr);
-      }
-      ids.set(name,units);
-      ret = sqlite3_step(selectIdsStmt);
-      _metaCache[name] = uid;
-    }
-    sqlite3_reset(selectIdsStmt);
-    sqlite3_finalize(selectIdsStmt);
-  }
+void SqlitePointRecord::refreshIds() {
   
   scoped_lock<boost::signals2::mutex> lock(*_mutex);
-  _identifiersAndUnitsCache = ids;
-  return _identifiersAndUnitsCache;
+  _metaCache.clear();
+  sqlite3_stmt *selectIdsStmt;
+  int ret;
+  ret = sqlite3_prepare_v2(_dbHandle, _selectNamesStr.c_str(), -1, &selectIdsStmt, NULL);
+  ret = sqlite3_step(selectIdsStmt);
+  while (ret == SQLITE_ROW) {
+    int uid = sqlite3_column_int(selectIdsStmt, 0);
+    string name = string((char*)sqlite3_column_text(selectIdsStmt, 1));
+    int type = sqlite3_column_type(selectIdsStmt, 2);
+    Units units;
+    if (type == SQLITE_NULL) {
+      units = RTX_NO_UNITS;
+    }
+    else {
+      string unitsStr = string((char*)sqlite3_column_text(selectIdsStmt, 2));
+      units = Units::unitOfType(unitsStr);
+    }
+    _identifiersAndUnitsCache.set(name,units);
+    ret = sqlite3_step(selectIdsStmt);
+    _metaCache[name] = uid;
+  }
+  sqlite3_reset(selectIdsStmt);
+  sqlite3_finalize(selectIdsStmt);
 }
 
 

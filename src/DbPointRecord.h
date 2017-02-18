@@ -39,7 +39,7 @@ namespace RTX {
     // superclass overrides
     //// registration
     bool registerAndGetIdentifierForSeriesWithUnits(std::string name, Units units);    
-    virtual IdentifierUnitsList identifiersAndUnits(); /// simple cache
+    IdentifierUnitsList identifiersAndUnits(); /// simple cache
 
     //// lookup
     Point point(const string& id, time_t time);
@@ -99,23 +99,27 @@ namespace RTX {
     
   protected:
     
+    class DbOptions {
+    public:
+      DbOptions(bool supportsUnitsCol, bool assignUnits, bool searchIteratively, bool singlyBoundQueries);
+      bool supportsUnitsColumn;
+      bool canAssignUnits;
+      bool searchIteratively;
+      bool supportsSinglyBoundQueries;
+    };
+    DbOptions _dbOptions;
+    
     // subclass handy flag vars
     bool _connected;
     
     // virtuals, with default no-ops for base class opt-in support
-    virtual bool supportsUnitsColumn() { return false; };
     virtual void doConnect() throw(RtxException) = 0;
     virtual void parseConnectionString(const std::string& str) = 0;
     virtual std::string serializeConnectionString() = 0;
+    virtual void refreshIds() = 0;
     
-    
-    
-    
-    virtual bool canAssignUnits();
     virtual bool assignUnitsToRecord(const std::string& name, const Units& units);
     
-    virtual bool supportsSinglyBoundedQueries() = 0; //! override for dbs that support LIMIT
-    virtual bool shouldSearchIteratively()  = 0;     //! override for dbs with slow LIMIT queries or no support.
     Point searchPreviousIteratively(const string& id, time_t time);
     Point searchNextIteratively(const string& id, time_t time);
     

@@ -27,6 +27,14 @@ using namespace RTX;
 using namespace std;
 
 
+
+DbPointRecord::DbOptions::DbOptions(bool supportsUnitsCol, bool assignUnits, bool searchIteratively, bool singlyBoundQueries) :
+  supportsUnitsColumn(supportsUnitsCol), canAssignUnits(assignUnits), searchIteratively(searchIteratively), supportsSinglyBoundQueries(singlyBoundQueries) {
+  
+}
+
+
+
 DbPointRecord::request_t::request_t(string id, TimeRange r_range) : range(r_range), id(id) {
   
 }
@@ -44,7 +52,7 @@ void DbPointRecord::request_t::clear() {
 }
 
 
-DbPointRecord::DbPointRecord() : _last_request("",TimeRange()) {
+DbPointRecord::DbPointRecord() : _last_request("",TimeRange()), _dbOptions(DbOptions(false,false,false,false)) {
   _searchDistance = 60*60*24*7; // 1-week
   errorMessage = "Not Connected";
   _readOnly = false;
@@ -112,7 +120,7 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
   
   if (this->readonly()) {
     // handle a read-only database.
-    if (nameExists && (unitsMatch || !this->supportsUnitsColumn()) ) {
+    if (nameExists && (unitsMatch || !_dbOptions.supportsUnitsColumn) ) {
       // everything is awesome. name matches, units match (or we don't support it and therefore don't care).
       // make a cache and return affirmative.
       DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
@@ -120,7 +128,7 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
     }
     else {
       // SPECIAL CASE FOR OLD RECORDS: we can update the units field if no units are specified.
-      if (this->canAssignUnits() && existingUnits == RTX_NO_UNITS) {
+      if (_dbOptions.canAssignUnits && existingUnits == RTX_NO_UNITS) {
         this->assignUnitsToRecord(name, units);
         DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
         return true;
@@ -134,7 +142,7 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
     if (nameExists && !unitsMatch) {
       // two possibilities: the units actually don't match, or my units haven't ever been set.
       if (existingUnits == RTX_NO_UNITS) {
-        if (this->canAssignUnits()) {
+        if (_dbOptions.canAssignUnits) {
           // aha. update my units then.
           return this->assignUnitsToRecord(name, units);
         }
@@ -156,9 +164,6 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
   return false;
 }
 
-bool DbPointRecord::canAssignUnits() {
-  return false;
-}
 
 bool DbPointRecord::assignUnitsToRecord(const std::string& name, const Units& units) {
   // nothing
@@ -166,6 +171,25 @@ bool DbPointRecord::assignUnitsToRecord(const std::string& name, const Units& un
 }
 
 PointRecord::IdentifierUnitsList DbPointRecord::identifiersAndUnits() {
+  
+  time_t now = time(NULL);
+  time_t stale = now - _lastIdRequest;
+  _lastIdRequest = now;
+  
+  if (stale < 5 && !_identifiersAndUnitsCache.get()->empty()) {
+    return _identifiersAndUnitsCache;
+  }
+  
+  int max_try = 3;
+  for (int iTry = 0; !isConnected() && iTry < max_try; ++iTry) {
+    this->dbConnect();
+  }
+  if (!this->isConnected()) {
+    return _identifiersAndUnitsCache;
+  }
+  
+  this->refreshIds();
+  
   return _identifiersAndUnitsCache;
 }
 
@@ -243,7 +267,7 @@ Point DbPointRecord::pointBefore(const string& id, time_t time) {
   }
   
   // should i search iteratively?
-  if (this->shouldSearchIteratively()) {
+  if (_dbOptions.searchIteratively) {
     p = this->searchPreviousIteratively(id, time);
     if (p.isValid) {
       return p;
@@ -252,7 +276,7 @@ Point DbPointRecord::pointBefore(const string& id, time_t time) {
   
   
   // try a singly-bounded query
-  if (this->supportsSinglyBoundedQueries()) {
+  if (_dbOptions.supportsSinglyBoundQueries) {
     p = this->selectPrevious(id, time);
   }
   if (p.isValid) {
@@ -276,7 +300,7 @@ Point DbPointRecord::pointAfter(const string& id, time_t time) {
     return Point();
   }
   
-  if (this->shouldSearchIteratively()) {
+  if (_dbOptions.searchIteratively) {
     p = this->searchNextIteratively(id, time);
   }
   if (p.isValid) {
@@ -284,7 +308,7 @@ Point DbPointRecord::pointAfter(const string& id, time_t time) {
   }
   
   // singly bounded?
-  if (this->supportsSinglyBoundedQueries()) {
+  if (_dbOptions.supportsSinglyBoundQueries) {
     p = this->selectNext(id, time);
   }
   if (p.isValid) {

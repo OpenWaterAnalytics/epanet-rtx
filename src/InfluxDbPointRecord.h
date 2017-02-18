@@ -20,9 +20,6 @@ namespace RTX {
     RTX_BASE_PROPS(InfluxDbPointRecord);
     InfluxDbPointRecord();
     
-    // obligate overrides
-    IdentifierUnitsList identifiersAndUnits(); // class -specific override
-    
     size_t maxTransactionLines() {return 1000;};
     
     void truncate();
@@ -39,6 +36,7 @@ namespace RTX {
     
   private:
     void doConnect() throw(RtxException);
+    void refreshIds();
     void sendPointsWithString(const std::string& content);
     I_InfluxDbPointRecord::Query queryPartsFromMetricId(const std::string& name);
     std::shared_ptr<ITaskWrapper> _sendTask;

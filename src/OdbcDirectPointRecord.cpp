@@ -25,26 +25,11 @@ void OdbcDirectPointRecord::dbConnect() throw(RtxException) {
   OdbcPointRecord::dbConnect();
 }
 
-PointRecord::IdentifierUnitsList OdbcDirectPointRecord::identifiersAndUnits() {
-  if (!this->isConnected()) {
-    this->dbConnect();
-  }
+void OdbcDirectPointRecord::refreshIds() {
   
   scoped_lock<boost::signals2::mutex> lock(_odbcMutex);
   SQLHSTMT getIdsStmt = 0;
-
-  IdentifierUnitsList ids;
-  if (!this->isConnected()) {
-    return ids;
-  }
-  
-  time_t now = time(NULL);
-  time_t stale = now - _lastIdRequest;
-  _lastIdRequest = now;
-  
-  if (stale < 5 && !_identifiersAndUnitsCache.empty()) {
-    return DbPointRecord::identifiersAndUnits();
-  }
+  _identifiersAndUnitsCache.clear();
   
   string metaQ = querySyntax.metaSelect;
   
@@ -65,15 +50,12 @@ PointRecord::IdentifierUnitsList OdbcDirectPointRecord::identifiersAndUnits() {
     while (SQL_SUCCEEDED(SQLFetch(getIdsStmt))) {
       SQLGetData(getIdsStmt, 1, SQL_C_CHAR, tagName, 512, &tagLengthInd);
       string newTag((char*)tagName);
-      ids.set(newTag,RTX_DIMENSIONLESS);
+      _identifiersAndUnitsCache.set(newTag,RTX_DIMENSIONLESS);
     }
   }
   
   SQLFreeStmt(getIdsStmt, SQL_CLOSE);
   SQLFreeHandle(SQL_HANDLE_STMT, getIdsStmt);
-  
-  _identifiersAndUnitsCache = ids;
-  return _identifiersAndUnitsCache;
 }
 
 

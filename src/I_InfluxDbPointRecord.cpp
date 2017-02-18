@@ -63,6 +63,7 @@ std::string I_InfluxDbPointRecord::Query::nameAndWhereClause() {
 
 I_InfluxDbPointRecord::I_InfluxDbPointRecord() {
   _connected = false;
+  _dbOptions = DbOptions(true, false, false, true);
 }
 
 
@@ -144,11 +145,6 @@ bool I_InfluxDbPointRecord::insertIdentifierAndUnits(const std::string &id, RTX:
 }
 
 
-
-PointRecord::IdentifierUnitsList I_InfluxDbPointRecord::identifiersAndUnits() {
-  // make no assumptions about the identifiers, or their staleness.
-  return DbPointRecord::identifiersAndUnits();
-}
 
 
 

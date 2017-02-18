@@ -20,7 +20,6 @@ namespace RTX {
     RTX_BASE_PROPS(OdbcDirectPointRecord);
     OdbcDirectPointRecord();
     virtual ~OdbcDirectPointRecord();
-    IdentifierUnitsList identifiersAndUnits();
     
   protected:
     void dbConnect() throw(RtxException);
@@ -31,6 +30,7 @@ namespace RTX {
     
   private:
     typedef enum {OdbcQueryBoundLower,OdbcQueryBoundUpper} OdbcQueryBoundType;
+    void refreshIds();
     std::string stringQueryForRange(const std::string& id, TimeRange range);
     std::string stringQueryForSinglyBoundedRange(const std::string& id, time_t bound, OdbcQueryBoundType boundType);
     std::string stringQueryForIds();

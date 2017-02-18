@@ -13,6 +13,7 @@ using namespace RTX;
 
 
 OpcPointRecord::OpcPointRecord() {
+  _dbOptions = DbOptions(false,false,true,false);
   // init
   _client = UA_Client_new(UA_ClientConfig_standard);
   _connected = false;
@@ -204,16 +205,8 @@ void OpcPointRecord::dbConnect() throw(RtxException) {
   
 }
 
-const map<string, Units> OpcPointRecord::identifiersAndUnits() {
+void OpcPointRecord::refreshIds() {
   
-  map<string, Units> ids;
-  
-  if (!isConnected()) {
-    this->dbConnect();
-  }
-  if (!isConnected()) {
-    return ids;
-  }
   
   OpcUa::Node root = _client.GetRootNode();
   
@@ -226,8 +219,6 @@ const map<string, Units> OpcPointRecord::identifiersAndUnits() {
   
   _identifiersAndUnitsCache = ids;
   
-  
-  return ids;
 }
 
 

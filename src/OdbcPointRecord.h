@@ -78,7 +78,6 @@ namespace RTX {
     
     virtual bool readonly() {return true;};
     
-    virtual IdentifierUnitsList identifiersAndUnits();
     virtual std::ostream& toStream(std::ostream &stream);
     
     void setTimeFormat(PointRecordTime::time_format_t timeFormat);
@@ -87,13 +86,12 @@ namespace RTX {
     std::string timeZoneString();
     void setTimeZoneString(const std::string& tzStr);
     
-    virtual bool shouldSearchIteratively() { return true; };
-    virtual bool supportsSinglyBoundedQueries();
-    bool supportsUnitsColumn() { return false; };
+    virtual void truncate() {};
+    
     
   protected:
     virtual void doConnect() throw(RtxException);
-
+    
     void initDsnList();
     virtual bool insertIdentifierAndUnits(const std::string& id, Units units){ return false; };
     // abstract stubs
@@ -109,7 +107,6 @@ namespace RTX {
     virtual void insertSingle(const std::string& id, Point point) {};
     virtual void insertRange(const std::string& id, std::vector<Point> points) {};
     virtual void removeRecord(const std::string& id) {};
-    virtual void truncate() {};
     
     bool checkConnected();
     
@@ -145,8 +142,6 @@ namespace RTX {
     std::vector<Point> pointsFromStatement(SQLHSTMT statement);
     std::string extract_error(std::string function, SQLHANDLE handle, SQLSMALLINT type);
     
-    
-    
     boost::signals2::mutex _odbcMutex;
     
     PointRecordTime::time_format_t _timeFormat;
@@ -156,7 +151,7 @@ namespace RTX {
   private:
     void parseConnectionString(const std::string& str);
     std::string serializeConnectionString();
-    
+        
     vector<string> _dsnList;
     SQLRETURN SQL_CHECK(SQLRETURN retVal, std::string function, SQLHANDLE handle, SQLSMALLINT type) throw(std::string);
     boost::atomic<bool> _isConnecting;

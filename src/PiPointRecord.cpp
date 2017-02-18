@@ -71,6 +71,7 @@ Point _pointFromJson(const jsv& j) {
 
 
 PiPointRecord::PiPointRecord() {
+  _dbOptions = DbOptions(false, false, true, false);
   _conn.proto = "http";
   _conn.host = "devdata.osisoft.com";
   _conn.port = 80;
@@ -194,7 +195,7 @@ void PiPointRecord::doConnect() throw(RtxException) {
 
 
 
-PointRecord::IdentifierUnitsList PiPointRecord::identifiersAndUnits() {
+void PiPointRecord::refreshIds() {
   std::lock_guard<std::mutex> lock(_mtx);
   
   _identifiersAndUnitsCache.clear();
@@ -225,7 +226,6 @@ PointRecord::IdentifierUnitsList PiPointRecord::identifiersAndUnits() {
     }
   }
   
-  return _identifiersAndUnitsCache;
 }
 
 

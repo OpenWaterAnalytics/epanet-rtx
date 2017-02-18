@@ -139,7 +139,7 @@ void InfluxDbPointRecord::doConnect() throw(RtxException) {
 #pragma mark Listing and creating series
 
 
-PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
+void InfluxDbPointRecord::refreshIds() {
   
   /*
    
@@ -166,25 +166,11 @@ PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
   
   // if i'm busy, then don't bother. unless this could be the first query.
   if (_inBulkOperation && !_identifiersAndUnitsCache.empty()) {
-    return I_InfluxDbPointRecord::identifiersAndUnits();
+    return;
   }
   std::lock_guard<std::mutex> lock(_influxMutex);
   
-  // quick cache hit. 5-second validity window.
-  time_t now = time(NULL);
-  if (now - _lastIdRequest < 5 && !_identifiersAndUnitsCache.empty()) {
-    return DbPointRecord::identifiersAndUnits();
-  }
-  _lastIdRequest = now;
   _identifiersAndUnitsCache.clear();
-  
-  int max_try = 3;
-  for (int iTry = 0; !isConnected() && iTry < max_try; ++iTry) {
-    this->dbConnect();
-  }
-  if (!this->isConnected()) {
-    return _identifiersAndUnitsCache;
-  }
   
   uri uri = uriForQuery(kSHOW_SERIES, false);
   jsValue jsv = _InfluxDbPointRecord_jsonFromRequest(*this, uri);
@@ -223,9 +209,8 @@ PointRecord::IdentifierUnitsList InfluxDbPointRecord::identifiersAndUnits() {
       } // for each values array (ts definition)
     }
   }
-  // implicit ELSE
+  // implicit ELSE no-op
   
-  return _identifiersAndUnitsCache;
 }
 
 

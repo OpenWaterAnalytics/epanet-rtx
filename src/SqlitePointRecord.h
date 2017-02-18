@@ -24,18 +24,11 @@ namespace RTX {
     SqlitePointRecord();
     virtual ~SqlitePointRecord();
     
-    bool supportsUnitsColumn() { return true; };
     bool insertIdentifierAndUnits(const std::string& id, Units units);
-    virtual IdentifierUnitsList identifiersAndUnits();
-    
-    
     
     TimeRange range(const string& id);
     
-    bool supportsSinglyBoundedQueries() {return true;};
-    bool shouldSearchIteratively() {return true;};
     void truncate();
-    bool canAssignUnits();
     bool assignUnitsToRecord(const std::string& name, const Units& units);
     
     virtual void beginBulkOperation();
@@ -47,6 +40,7 @@ namespace RTX {
     void parseConnectionString(const std::string& str);
     std::string serializeConnectionString();
     void doConnect() throw(RtxException);
+    void refreshIds();
     std::vector<Point> selectRange(const std::string& id, TimeRange range);
     Point selectNext(const std::string& id, time_t time);
     Point selectPrevious(const std::string& id, time_t time);

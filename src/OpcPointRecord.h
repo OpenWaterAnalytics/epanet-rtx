@@ -14,7 +14,6 @@ namespace RTX {
     OpcPointRecord();
     
     bool supportsUnitsColumn() {return false;};
-    const std::map<std::string, Units> identifiersAndUnits();
     
     // stubs
     void truncate() {};
@@ -34,6 +33,7 @@ namespace RTX {
     void doConnect() throw(RtxException);
     
   private:
+    void refreshIds();
     void parseConnectionString(const std::string& str);
     std::string serializeConnectionString();
     

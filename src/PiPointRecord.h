@@ -16,34 +16,22 @@ namespace RTX {
   public:
     RTX_BASE_PROPS(PiPointRecord);
     
-    
     PiPointRecord();
     virtual ~PiPointRecord();
     
     std::string tagSearchPath;
     
-    
-    
-    bool supportsUnitsColumn() { return false; }; // support not well-defined, so ignore
     bool readonly() { return true; };
-    bool supportsSinglyBoundedQueries() { return false; };
-    bool shouldSearchIteratively() { return true; };
-    
-    
-    IdentifierUnitsList identifiersAndUnits();
-    
-    
+    void truncate() {};
     
   protected:
-    
-    
     
     // readonly no-ops
     bool insertIdentifierAndUnits(const std::string& id, Units units){ return false; };
     void insertSingle(const std::string& id, Point point) {};
     void insertRange(const std::string& id, std::vector<Point> points) {};
     void removeRecord(const std::string& id) {};
-    void truncate() {};
+    
     
   private:
     class connectionInfo {
@@ -59,6 +47,8 @@ namespace RTX {
     void parseConnectionString(const std::string& str);
     std::string serializeConnectionString();
     
+    bool supportsUnitsColumn() { return false; }; // support not well-defined, so ignore
+    void refreshIds();
     std::vector<Point> selectRange(const std::string& id, TimeRange range);
     Point selectNext(const std::string& id, time_t time) { return Point(); };
     Point selectPrevious(const std::string& id, time_t time) { return Point(); };
