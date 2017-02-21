@@ -38,6 +38,9 @@ std::ostream& PointRecord::toStream(std::ostream &stream) {
 
 
 bool PointRecord::registerAndGetIdentifierForSeriesWithUnits(std::string recordName, Units units) {
+  
+  _idsCache.set(recordName, units);
+  
   if (_singlePointCache.find(recordName) == _singlePointCache.end()) {
     _singlePointCache[recordName] = Point();
   }
@@ -45,7 +48,7 @@ bool PointRecord::registerAndGetIdentifierForSeriesWithUnits(std::string recordN
 }
 
 IdentifierUnitsList PointRecord::identifiersAndUnits() {
-  return IdentifierUnitsList();
+  return _idsCache;
 }
 
 bool PointRecord::exists(const std::string &name, const RTX::Units &units) {
@@ -107,9 +110,7 @@ TimeRange PointRecord::range(const string& id) {
 
 void PointRecord::addPoint(const string& identifier, Point point) {
   // Cache this single point
-  if (_singlePointCache.find(identifier) != _singlePointCache.end()) {
-    _singlePointCache[identifier] = point;
-  }
+  _singlePointCache[identifier] = point;
 }
 
 

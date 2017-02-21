@@ -95,7 +95,7 @@ namespace RTX {
 
   protected:
     std::map<std::string,Point> _singlePointCache;
-//    std::map<std::string, std::vector<Point> > _pointVectorCache;
+    IdentifierUnitsList _idsCache;
     
   private:
     std::string _name;
