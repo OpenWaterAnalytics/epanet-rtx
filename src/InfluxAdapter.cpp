@@ -451,7 +451,7 @@ IdentifierUnitsList InfluxTcpAdapter::idUnitsList() {
   
   // if i'm busy, then don't bother. unless this could be the first query.
   if (_inTransaction) {
-    return ids;
+    return _idCache;
   }
   _RTX_DB_SCOPED_LOCK;
   
@@ -495,6 +495,7 @@ IdentifierUnitsList InfluxTcpAdapter::idUnitsList() {
     }
   }
   // else nothing
+  _idCache = ids;
   return ids;
 }
 

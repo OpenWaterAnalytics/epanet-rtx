@@ -50,6 +50,7 @@ void DbPointRecord::request_t::clear() {
 /************ impl *******************/
 
 DbPointRecord::DbPointRecord() : _last_request("",TimeRange()) {
+  _adapter = NULL;
   errorMessage = "Not Connected";
   _readOnly = false;
   _filterType = OpcNoFilter;
@@ -60,6 +61,8 @@ DbPointRecord::DbPointRecord() : _last_request("",TimeRange()) {
   _errCB = [&](const std::string& msg)->void {
     this->errorMessage = msg;
   };
+  
+  this->setOpcFilterType(OpcPassThrough);
 }
 
 void DbPointRecord::setConnectionString(const std::string &str) {
@@ -75,7 +78,9 @@ bool DbPointRecord::isConnected() {
 }
 
 void DbPointRecord::dbConnect() throw(RtxException) {
-  return _adapter->doConnect();
+  if (_adapter != NULL) {
+    _adapter->doConnect();
+  }
 }
 
 bool DbPointRecord::readonly() {
@@ -540,7 +545,6 @@ void DbPointRecord::setOpcFilterType(OpcFilterType type) {
     BufferPointRecord::reset(); // mem cache
     _filterType = type;
     _opcFilter = opcFilters.at(type);
-    this->dbConnect();
   }
 }
 
