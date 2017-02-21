@@ -23,6 +23,8 @@
 #include "rtxMacros.h"
 #include "rtxExceptions.h"
 #include "TimeRange.h"
+#include "IdentifierUnitsList.h"
+
 
 using std::string;
 
@@ -58,20 +60,6 @@ namespace RTX {
     
   public:
     
-    class IdentifierUnitsList {
-    public:
-      IdentifierUnitsList();
-      bool hasIdentifierAndUnits(const std::string& identifier, const Units& units);
-      std::pair<bool,bool> doesHaveIdUnits(const std::string& identifier, const Units& units);
-      void set(const std::string& identifier, const Units& units);
-      std::map< std::string, Units> *get();
-      void clear();
-      size_t count();
-      bool empty();
-    private:
-      std::shared_ptr< std::map< std::string, Units> > _d;
-    };
-    
     RTX_BASE_PROPS(PointRecord);
     PointRecord::_sp sp() {return shared_from_this();};
     
@@ -106,8 +94,6 @@ namespace RTX {
     virtual void endBulkOperation() {};
 
   protected:
-    boost::atomic<bool> _inBulkOperation;
-    
     std::map<std::string,Point> _singlePointCache;
 //    std::map<std::string, std::vector<Point> > _pointVectorCache;
     

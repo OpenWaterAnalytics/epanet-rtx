@@ -54,7 +54,7 @@ namespace RTX {
     double max() const { return PointCollection::min(this->raw()); };
     double mean() const { return PointCollection::mean(this->raw()); };
     double variance() const { return PointCollection::variance(this->raw()); };
-    size_t count() const { return PointCollection::count(this->raw()); };
+    size_t count() const { return _points->size(); };
     double percentile(double p) const { return PointCollection::percentile(p,this->raw()); };
     double interquartilerange() const { return PointCollection::interquartilerange(this->raw()); };
     TimeRange timeRange() const { return PointCollection::timeRange(this->raw()); };

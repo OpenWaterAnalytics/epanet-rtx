@@ -35,7 +35,7 @@
 
 //#include "SqliteProjectFile.h"
 
-#include "SqlitePointRecord.h"
+#include "ConcreteDbRecords.h"
 
 #include "PythonInterpreter.h"
 

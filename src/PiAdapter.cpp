@@ -1,16 +1,13 @@
-#include "PiPointRecord.h"
+#include "PiAdapter.h"
 
+#include <iostream>
 #include <regex>
 #include <boost/lexical_cast.hpp>
 
-#include <cpprest/uri.h>
-#include <cpprest/json.h>
-#include <cpprest/http_client.h>
-
 #include "PointRecordTime.h"
 
-using namespace RTX;
 using namespace std;
+using namespace RTX;
 
 using namespace web::http::client;
 using web::http::method;
@@ -42,7 +39,6 @@ const string kSubst("Substituted");
 
 const char* t_fmt = "%Y-%m-%dT%H:%M:%SZ";
 
-
 Point _pointFromJson(const jsv& j);
 Point _pointFromJson(const jsv& j) {
   for (const string& key : {kTimeStamp,kValue,kGood,kQuest,kSubst}) {
@@ -70,33 +66,43 @@ Point _pointFromJson(const jsv& j) {
 
 
 
-PiPointRecord::PiPointRecord() {
-  _dbOptions = DbOptions(false, false, true, false);
-  _conn.proto = "http";
+
+PiAdapter::PiAdapter(errCallback_t cb) : DbAdapter(cb) { 
+  _conn.proto = "https";
   _conn.host = "devdata.osisoft.com";
-  _conn.port = 80;
+  _conn.port = 443;
   _conn.apiPath = "piwebapi";
   _conn.dataServer = "PISRV1";
   _conn.user = "user";
   _conn.pass = "pass";
+  
+  tagSearchPath = "";
 }
 
-PiPointRecord::~PiPointRecord() {
+PiAdapter::~PiAdapter() { 
   
 }
 
-
-string PiPointRecord::serializeConnectionString() {
+const DbAdapter::adapterOptions PiAdapter::options() const {
+  DbAdapter::adapterOptions o;
   
+  o.supportsUnitsColumn = false;
+  o.canAssignUnits = false;
+  o.searchIteratively = true;
+  o.supportsSinglyBoundQuery = false;
+  o.implementationReadonly = true;
+  
+  return o;
+}
+
+std::string PiAdapter::connectionString() {
   stringstream ss;
   ss << "proto=" << this->_conn.proto << "&host=" << this->_conn.host << "&port=" << this->_conn.port << "&api=" << this->_conn.apiPath << "&dataserver=" << this->_conn.dataServer << "&u=" << this->_conn.user << "&p=" << this->_conn.pass;
   return ss.str();
-  
 }
 
-
-void PiPointRecord::parseConnectionString(const std::string &str) {
-  std::lock_guard<std::mutex> lock(_mtx);
+void PiAdapter::setConnectionString(const std::string& str) {
+  _RTX_DB_SCOPED_LOCK;
   
   // split the tokenized string. we're expecting something like "host=127.0.0.1&port=4242"
   regex kvReg("([^=]+)=([^&]+)&?"); // key - value pair
@@ -132,16 +138,8 @@ void PiPointRecord::parseConnectionString(const std::string &str) {
   return;
 }
 
-
-web::uri_builder PiPointRecord::uriBase() {
-  web::http::uri_builder b;
-  b.set_scheme(_conn.proto).set_host(_conn.host).set_port(_conn.port)
-  .append_path(_conn.apiPath);
-  return b;
-}
-
-void PiPointRecord::doConnect() throw(RtxException) {
-  
+void PiAdapter::doConnect() {
+  _RTX_DB_SCOPED_LOCK;
   _connected = false;
   _conn.dsWebId = "";
   
@@ -162,7 +160,7 @@ void PiPointRecord::doConnect() throw(RtxException) {
   else {
     cerr << "could not retrieve version info from PI endpoint" << endl;
     _connected = false;
-    errorMessage = "Malformed Response";
+    _errCallback("Malformed Response");
     return;
   }
   
@@ -180,25 +178,21 @@ void PiPointRecord::doConnect() throw(RtxException) {
     cout << "PI DATA SERVER WEB ID: " << webId << endl;
     _conn.dsWebId = webId;
     _connected = true;
-    errorMessage = "Connected";
+    _errCallback("Connected");
   }
   else {
     cerr << "could not retrieve dataserver WebId from PI endpoint" << endl;
     _connected = false;
-    errorMessage = "No Data Server";
+    _errCallback("No Data Server");
     return;
   }
   
-  
 }
 
-
-
-
-void PiPointRecord::refreshIds() {
-  std::lock_guard<std::mutex> lock(_mtx);
+IdentifierUnitsList PiAdapter::idUnitsList() {
+  _RTX_DB_SCOPED_LOCK;
   
-  _identifiersAndUnitsCache.clear();
+  IdentifierUnitsList ids;
   _webIdLookup.clear();
   
   auto uriPointsB = uriBase()
@@ -210,29 +204,32 @@ void PiPointRecord::refreshIds() {
   if (this->tagSearchPath != "") {
     uriPointsB.append_query("nameFilter",this->tagSearchPath);
   }
-  jsv j = jsonFromRequest(uriPointsB.to_uri(), methods::GET);
   
+  jsv j = jsonFromRequest(uriPointsB.to_uri(), methods::GET);
   if (j.has_field(kItems)) {
     for(auto i : j[kItems].as_array()) {
       if (i.has_field(kName) && i.has_field(kWebId)) {
-        
         string name = i[kName].as_string();
         string webId = i[kWebId].as_string();
-        
         _webIdLookup[name] = webId;
-        _identifiersAndUnitsCache.set(name, RTX_DIMENSIONLESS);
-        
+        ids.set(name, RTX_DIMENSIONLESS);
       }
     }
   }
   
+  return ids;
 }
 
+void PiAdapter::beginTransaction() {
+  // nope
+}
+void PiAdapter::endTransaction() {
+  // nope
+}
 
-
-
-vector<Point> PiPointRecord::selectRange(const string& id, TimeRange range) {
-  std::lock_guard<std::mutex> lock(_mtx);
+// READ
+std::vector<Point> PiAdapter::selectRange(const std::string& id, TimeRange range) {
+  _RTX_DB_SCOPED_LOCK;
   vector<Point> points;
   
   if (_webIdLookup.count(id) == 0) {
@@ -269,9 +266,43 @@ vector<Point> PiPointRecord::selectRange(const string& id, TimeRange range) {
   
   return points;
 }
+Point PiAdapter::selectNext(const std::string& id, time_t time) {
+  return Point();
+}
+
+Point PiAdapter::selectPrevious(const std::string& id, time_t time) {
+  return Point();
+}
+
+// CREATE
+bool PiAdapter::insertIdentifierAndUnits(const std::string& id, Units units) {
+  return false;
+}
+
+void PiAdapter::insertSingle(const std::string& id, Point point) {
+  // nope.
+}
+
+void PiAdapter::insertRange(const std::string& id, std::vector<Point> points) {
+  // nope.
+}
+
+// UPDATE
+bool PiAdapter::assignUnitsToRecord(const std::string& name, const Units& units) {
+  return false;
+}
+
+// DELETE
+void PiAdapter::removeRecord(const std::string& id) {
+  // nope.
+}
+
+void PiAdapter::removeAllRecords() {
+  // nope.
+}
 
 
-jsv PiPointRecord::jsonFromRequest(uri uri, method withMethod) {
+web::json::value PiAdapter::jsonFromRequest(web::http::uri uri, web::http::method withMethod) {
   jsv js = jsv::object();
   try {
     string auth = _conn.user + ":" + _conn.pass;
@@ -299,8 +330,11 @@ jsv PiPointRecord::jsonFromRequest(uri uri, method withMethod) {
   return js;
 }
 
-
-
-
+web::http::uri_builder PiAdapter::uriBase() {
+  web::http::uri_builder b;
+  b.set_scheme(_conn.proto).set_host(_conn.host).set_port(_conn.port)
+  .append_path(_conn.apiPath);
+  return b;
+}
 
 

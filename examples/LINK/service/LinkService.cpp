@@ -614,7 +614,7 @@ http_response LinkService::_post_logmessage(web::json::value js) {
     cerr << "err: JSON log object not recognized.\n";
   }
   else if (_destinationRecord) {
-    auto influxdb = static_pointer_cast<I_InfluxDbPointRecord>(_destinationRecord);
+    
     
     json::object o = js.as_object();
     string metric = js["metric"].as_string();
@@ -625,7 +625,18 @@ http_response LinkService::_post_logmessage(web::json::value js) {
     ss << field << "=\"" << logValue << "\" ";
     string valueStr = ss.str();
     
-    influxdb->sendInfluxString(time(NULL), metric, valueStr);
+    auto influxdb = dynamic_pointer_cast<InfluxDbPointRecord>(_destinationRecord);
+    if (influxdb) {
+      influxdb->sendInfluxString(time(NULL), metric, valueStr);
+    }
+    else {
+      auto influxUdp = dynamic_pointer_cast<InfluxUdpPointRecord>(_destinationRecord);
+      if (influxUdp) {
+        influxUdp->sendInfluxString(time(NULL), metric, valueStr);
+      }
+    }
+    
+    
     
     r = _link_empty_response();
     

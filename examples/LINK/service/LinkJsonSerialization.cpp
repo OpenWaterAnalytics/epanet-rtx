@@ -134,12 +134,12 @@ void SerializerJson::visit(InfluxUdpPointRecord &pr) {
   this->visit((DbPointRecord&)pr);
   _v[_c] = JSV("influx_udp");
 }
-void SerializerJson::visit(OdbcDirectPointRecord &pr) {
+void SerializerJson::visit(OdbcPointRecord &pr) {
   this->visit((DbPointRecord&)pr);
   _v[_c] = JSV("odbc");
-  _v["driver"] = JSV(pr.connection.driver);
-  _v["meta"] = JSV(pr.querySyntax.metaSelect);
-  _v["range"] = JSV(pr.querySyntax.rangeSelect);
+  _v["driver"] = JSV(pr.driver());
+  _v["meta"] = JSV(pr.metaQuery());
+  _v["range"] = JSV(pr.rangeQuery());
   
   for (auto z : _odbc_zone_strings()) {
     if (z.second == pr.timeFormat()) {
@@ -172,7 +172,7 @@ RTX_object::_sp DeserializerJson::from_json(JSV json) {
       { "sqlite",     &_newRtxObj<SqlitePointRecord>},
       { "influx",     &_newRtxObj<InfluxDbPointRecord>},
       { "influx_udp", &_newRtxObj<InfluxUdpPointRecord>},
-      { "odbc",       &_newRtxObj<OdbcDirectPointRecord>},
+      { "odbc",       &_newRtxObj<OdbcPointRecord>},
       { "timeseries", &_newRtxObj<TimeSeries>},
       { "filter",     &_newRtxObj<TimeSeriesFilter>},
       { "units",      &_newRtxObj<Units>},
@@ -263,13 +263,13 @@ void DeserializerJson::visit(InfluxDbPointRecord &pr) {
 void DeserializerJson::visit(InfluxUdpPointRecord &pr) {
   this->visit((DbPointRecord&)pr);
 };
-void DeserializerJson::visit(OdbcDirectPointRecord &pr) {
+void DeserializerJson::visit(OdbcPointRecord &pr) {
   this->visit((DbPointRecord&)pr);
   _checkKeys(_v, {"driver","meta","range","zone"});   // throws if not found
   web::json::object o = _v.as_object();
-  pr.connection.driver = o.at("driver").as_string();
-  pr.querySyntax.metaSelect = o.at("meta").as_string();
-  pr.querySyntax.rangeSelect = o.at("range").as_string();
+  pr.setDriver(o.at("driver").as_string());
+  pr.setMetaQuery(o.at("meta").as_string());
+  pr.setRangeQuery(o.at("range").as_string());
   
   string thisTF = o.at("zone").as_string();
   map<string, PointRecordTime::time_format_t> tf = _odbc_zone_strings();

@@ -1,55 +1,50 @@
-//
-//  SqlitePointRecord.h
-//  epanet-rtx
-//
-//  Open Water Analytics [wateranalytics.org]
-//  See README.md and license.txt for more information
-//
+#ifndef SqliteAdapter_hpp
+#define SqliteAdapter_hpp
 
-#ifndef __epanet_rtx__SqlitePointRecord__
-#define __epanet_rtx__SqlitePointRecord__
+#include <stdio.h>
 
-#include <iostream>
+#include "DbAdapter.h"
 #include <sqlite3.h>
 
-#include "DbPointRecord.h"
-
-#include <boost/signals2/mutex.hpp>
 
 namespace RTX {
-  
-  class SqlitePointRecord : public DbPointRecord {
+  class SqliteAdapter : public DbAdapter {
   public:
-    RTX_BASE_PROPS(SqlitePointRecord);
-    SqlitePointRecord();
-    virtual ~SqlitePointRecord();
+    SqliteAdapter( errCallback_t cb );
+    ~SqliteAdapter();
     
-    bool insertIdentifierAndUnits(const std::string& id, Units units);
+    const adapterOptions options() const;
     
-    TimeRange range(const string& id);
+    std::string connectionString();
+    void setConnectionString(const std::string& con);
     
-    void truncate();
-    bool assignUnitsToRecord(const std::string& name, const Units& units);
+    void doConnect();
     
-    virtual void beginBulkOperation();
-    virtual void endBulkOperation();
+    IdentifierUnitsList idUnitsList();
     
-  protected:
-        
-  private:
-    void parseConnectionString(const std::string& str);
-    std::string serializeConnectionString();
-    void doConnect() throw(RtxException);
-    void refreshIds();
+    // TRANSACTIONS
+    void beginTransaction();
+    void endTransaction();
+    
+    // READ
     std::vector<Point> selectRange(const std::string& id, TimeRange range);
     Point selectNext(const std::string& id, time_t time);
     Point selectPrevious(const std::string& id, time_t time);
     
+    // CREATE
+    bool insertIdentifierAndUnits(const std::string& id, Units units);
     void insertSingle(const std::string& id, Point point);
-    void insertSingleInTransaction(const std::string &id, Point point);
     void insertRange(const std::string& id, std::vector<Point> points);
+    
+    // UPDATE
+    bool assignUnitsToRecord(const std::string& name, const Units& units);
+    
+    // DELETE
     void removeRecord(const std::string& id);
-
+    void removeAllRecords();
+    
+    
+  private:
     
     sqlite3 *_dbHandle;
     std::string _selectRangeStr, _selectSingleStr, _selectNamesStr, _selectPreviousStr, _selectNextStr, _insertSingleStr, _selectFirstStr, _selectLastStr;
@@ -62,25 +57,26 @@ namespace RTX {
     int _transactionStackCount;
     int _maxTransactionStackCount;
     void checkTransactions(bool forceEndTranaction);
-    
-    std::shared_ptr<boost::signals2::mutex> _mutex;
-    
+        
     bool initTables();
     void logDbError(int ret);
     
     Point pointFromStatment(sqlite3_stmt *stmt);
     std::vector<Point> pointsFromPreparedStatement(sqlite3_stmt *stmt);
+    void insertSingleInTransaction(const std::string &id, Point point);
     
     bool updateSchema();
     int dbSchemaVersion();
     void setDbSchemaVersion(int v);
     
     std::map<std::string,int> _metaCache;
+
     
   };
-  
 }
 
 
 
-#endif /* defined(__epanet_rtx__SqlitePointRecord__) */
+
+
+#endif /* SqliteAdapter_hpp */

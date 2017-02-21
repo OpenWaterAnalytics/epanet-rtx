@@ -11,36 +11,26 @@
 #include <sstream>
 #include <set>
 #include <vector>
-#include <boost/foreach.hpp>
-#include <boost/algorithm/string/join.hpp>
 #include <string>
-#include <boost/interprocess/sync/scoped_lock.hpp>
-#include <boost/signals2/mutex.hpp>
-
-using boost::signals2::mutex;
-using boost::interprocess::scoped_lock;
+#include <mutex>
 
 #include "DbPointRecord.h"
-
+#include "DbAdapter.h"
 
 using namespace RTX;
 using namespace std;
+using boost::signals2::mutex;
 
 
 
-DbPointRecord::DbOptions::DbOptions(bool supportsUnitsCol, bool assignUnits, bool searchIteratively, bool singlyBoundQueries) :
-  supportsUnitsColumn(supportsUnitsCol), canAssignUnits(assignUnits), searchIteratively(searchIteratively), supportsSinglyBoundQueries(singlyBoundQueries) {
-  
-}
+/************ request type *******************/
 
-
-
-DbPointRecord::request_t::request_t(string id, TimeRange r_range) : range(r_range), id(id) {
-  
-}
+DbPointRecord::request_t::request_t(string id, TimeRange r_range) : range(r_range), id(id) { }
 
 bool DbPointRecord::request_t::contains(std::string id, time_t t) {
-  if (this->range.start <= t && t <= this->range.end && RTX_STRINGS_ARE_EQUAL(id, this->id)) {
+  if (this->range.start <= t 
+      && t <= this->range.end 
+      && RTX_STRINGS_ARE_EQUAL(id, this->id)) {
     return true;
   }
   return false;
@@ -52,49 +42,63 @@ void DbPointRecord::request_t::clear() {
 }
 
 
-DbPointRecord::DbPointRecord() : _last_request("",TimeRange()), _dbOptions(DbOptions(false,false,false,false)) {
-  _searchDistance = 60*60*24*7; // 1-week
+
+
+
+
+
+/************ impl *******************/
+
+DbPointRecord::DbPointRecord() : _last_request("",TimeRange()) {
   errorMessage = "Not Connected";
   _readOnly = false;
-  _filterType = OpcPassThrough;
+  _filterType = OpcNoFilter;
   
   iterativeSearchMaxIterations = 8;
   iterativeSearchStride = 3*60*60;
-  _db_mutex.reset(new boost::signals2::mutex);
-  
-  useTransactions = false;
-  maxTransactionInserts = 1000;
-  transactionInsertCount = 0;
-  _connected = false;
+    
+  _errCB = [&](const std::string& msg)->void {
+    this->errorMessage = msg;
+  };
 }
 
 void DbPointRecord::setConnectionString(const std::string &str) {
-  this->parseConnectionString(str);
+  _adapter->setConnectionString(str);
 }
 string DbPointRecord::connectionString() {
-  return this->serializeConnectionString();
+  return _adapter->connectionString();
 }
 
 
 bool DbPointRecord::isConnected() {
-  return _connected;
+  return _adapter->adapterConnected();
 }
 
 void DbPointRecord::dbConnect() throw(RtxException) {
-  return this->doConnect();
+  return _adapter->doConnect();
 }
 
 bool DbPointRecord::readonly() {
-  return _readOnly;
+  if (_adapter->options().implementationReadonly) {
+    return true;
+  }
+  else {
+    return _readOnly;
+  }
 }
 
 void DbPointRecord::setReadonly(bool readOnly) {
-  _readOnly = readOnly;
+  if (_adapter->options().implementationReadonly) {
+    _readOnly = false;
+    return;
+  }
+  else {
+    _readOnly = readOnly;
+  }
 }
 
 bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Units units) {
-  
-  scoped_lock<boost::signals2::mutex> lock(*_db_mutex);
+  std::lock_guard<std::mutex> lock(_db_pr_mtx);
   
   if (name.length() == 0) {
     return false;
@@ -120,7 +124,7 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
   
   if (this->readonly()) {
     // handle a read-only database.
-    if (nameExists && (unitsMatch || !_dbOptions.supportsUnitsColumn) ) {
+    if (nameExists && (unitsMatch || !_adapter->options().supportsUnitsColumn) ) {
       // everything is awesome. name matches, units match (or we don't support it and therefore don't care).
       // make a cache and return affirmative.
       DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
@@ -128,8 +132,8 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
     }
     else {
       // SPECIAL CASE FOR OLD RECORDS: we can update the units field if no units are specified.
-      if (_dbOptions.canAssignUnits && existingUnits == RTX_NO_UNITS) {
-        this->assignUnitsToRecord(name, units);
+      if (_adapter->options().canAssignUnits && existingUnits == RTX_NO_UNITS) {
+        _adapter->assignUnitsToRecord(name, units);
         DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
         return true;
       }
@@ -142,18 +146,18 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
     if (nameExists && !unitsMatch) {
       // two possibilities: the units actually don't match, or my units haven't ever been set.
       if (existingUnits == RTX_NO_UNITS) {
-        if (_dbOptions.canAssignUnits) {
+        if (_adapter->options().canAssignUnits) {
           // aha. update my units then.
-          return this->assignUnitsToRecord(name, units);
+          return _adapter->assignUnitsToRecord(name, units);
         }
       }
       else {
         // must remove the old record. units don't match for real.
-        this->removeRecord(name);
+        _adapter->removeRecord(name);
         return DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
       }
     }
-    else if ( ( !nameExists || !unitsMatch ) && this->insertIdentifierAndUnits(name, units) && DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units) ) {
+    else if ( ( !nameExists || !unitsMatch ) && _adapter->insertIdentifierAndUnits(name, units) && DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units) ) {
       // this will either insert a new record name, or ignore because it's already there.
       return true;
     }
@@ -165,12 +169,7 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
 }
 
 
-bool DbPointRecord::assignUnitsToRecord(const std::string& name, const Units& units) {
-  // nothing
-  return false;
-}
-
-PointRecord::IdentifierUnitsList DbPointRecord::identifiersAndUnits() {
+IdentifierUnitsList DbPointRecord::identifiersAndUnits() {
   
   time_t now = time(NULL);
   time_t stale = now - _lastIdRequest;
@@ -188,18 +187,19 @@ PointRecord::IdentifierUnitsList DbPointRecord::identifiersAndUnits() {
     return _identifiersAndUnitsCache;
   }
   
-  this->refreshIds();
+  _identifiersAndUnitsCache = _adapter->idUnitsList();
   
   return _identifiersAndUnitsCache;
 }
 
 
-void DbPointRecord::setSearchDistance(time_t time) {
-  _searchDistance = time;
+
+void DbPointRecord::beginBulkOperation() {
+  _adapter->beginTransaction();
 }
 
-time_t DbPointRecord::searchDistance() {
-  return _searchDistance;
+void DbPointRecord::endBulkOperation() {
+  _adapter->endTransaction();
 }
 
 
@@ -222,7 +222,7 @@ Point DbPointRecord::point(const string& id, time_t time) {
     
     // do the request, and cache the request parameters.
     
-    vector<Point> pVec = this->selectRange(id, TimeRange(start, end));
+    vector<Point> pVec = _adapter->selectRange(id, TimeRange(start, end));
     pVec = this->pointsWithOpcFilter(pVec);
     
     if (pVec.size() > 0) {
@@ -267,17 +267,17 @@ Point DbPointRecord::pointBefore(const string& id, time_t time) {
   }
   
   // should i search iteratively?
-  if (_dbOptions.searchIteratively) {
+  if (_adapter->options().searchIteratively) {
     p = this->searchPreviousIteratively(id, time);
     if (p.isValid) {
-      return p;
+      return this->pointWithOpcFilter(p);
     }
   }
   
   
   // try a singly-bounded query
-  if (_dbOptions.supportsSinglyBoundQueries) {
-    p = this->selectPrevious(id, time);
+  if (_adapter->options().supportsSinglyBoundQuery) {
+    p = _adapter->selectPrevious(id, time);
   }
   if (p.isValid) {
     return this->pointWithOpcFilter(p);
@@ -300,16 +300,16 @@ Point DbPointRecord::pointAfter(const string& id, time_t time) {
     return Point();
   }
   
-  if (_dbOptions.searchIteratively) {
+  if (_adapter->options().searchIteratively) {
     p = this->searchNextIteratively(id, time);
   }
   if (p.isValid) {
-    return p;
+    return this->pointWithOpcFilter(p);
   }
   
   // singly bounded?
-  if (_dbOptions.supportsSinglyBoundQueries) {
-    p = this->selectNext(id, time);
+  if (_adapter->options().supportsSinglyBoundQuery) {
+    p = _adapter->selectNext(id, time);
   }
   if (p.isValid) {
     return this->pointWithOpcFilter(p);
@@ -371,7 +371,8 @@ Point DbPointRecord::searchNextIteratively(const string& id, time_t time) {
 
 
 std::vector<Point> DbPointRecord::pointsInRange(const string& id, TimeRange qrange) {
-  scoped_lock<boost::signals2::mutex> lock(*_db_mutex);
+  std::lock_guard<std::mutex> lock(_db_pr_mtx);
+  
   // limit double-queries
   if (_last_request.range.containsRange(qrange) && _last_request.id == id) {
     return DB_PR_SUPER::pointsInRange(id, qrange);
@@ -392,7 +393,7 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, TimeRange qran
       // left-fill query
       n_range.start = qrange.start;
       n_range.end = range.start;
-      middle = this->pointsWithOpcFilter(this->selectRange(id, n_range));
+      middle = this->pointsWithOpcFilter(_adapter->selectRange(id, n_range));
       right = DB_PR_SUPER::pointsInRange(id, TimeRange(range.start, qrange.end));
     }
     else if (intersect == TimeRange::intersect_right) {
@@ -400,7 +401,7 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, TimeRange qran
       n_range.start = range.end;
       n_range.end = qrange.end;
       left = DB_PR_SUPER::pointsInRange(id, TimeRange(qrange.start, range.end));
-      middle = this->pointsWithOpcFilter(this->selectRange(id, n_range));
+      middle = this->pointsWithOpcFilter(_adapter->selectRange(id, n_range));
     }
     else if (intersect == TimeRange::intersect_other_external){
       // query overlaps but extends on both sides
@@ -411,12 +412,12 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, TimeRange qran
       q_right.start = range.end;
       q_right.end = qrange.end;
       
-      left = this->pointsWithOpcFilter(this->selectRange(id, q_left));
+      left = this->pointsWithOpcFilter(_adapter->selectRange(id, q_left));
       middle = DB_PR_SUPER::pointsInRange(id, range);
-      right = this->pointsWithOpcFilter(this->selectRange(id, q_right));
+      right = this->pointsWithOpcFilter(_adapter->selectRange(id, q_right));
     }
     else {
-      middle = this->pointsWithOpcFilter(this->selectRange(id, qrange));
+      middle = this->pointsWithOpcFilter(_adapter->selectRange(id, qrange));
     }
     // db hit
     
@@ -446,34 +447,35 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, TimeRange qran
 
 
 void DbPointRecord::addPoint(const string& id, Point point) {
-  scoped_lock<boost::signals2::mutex> lock(*_db_mutex);
+  std::lock_guard<std::mutex> lock(_db_pr_mtx);
   if (!this->readonly()) {
     DB_PR_SUPER::addPoint(id, point);
-    this->insertSingle(id, point);
+    _adapter->insertSingle(id, point);
   }
 }
 
 
 void DbPointRecord::addPoints(const string& id, std::vector<Point> points) {
-  scoped_lock<boost::signals2::mutex> lock(*_db_mutex);
+  std::lock_guard<std::mutex> lock(_db_pr_mtx);
   if (!this->readonly()) {
     DB_PR_SUPER::addPoints(id, points);
-    this->insertRange(id, points);
+    _adapter->insertRange(id, points);
   }
 }
 
 
 void DbPointRecord::reset() {
-  scoped_lock<boost::signals2::mutex> lock(*_db_mutex);
+  std::lock_guard<std::mutex> lock(_db_pr_mtx);
   if (!this->readonly()) {
     DB_PR_SUPER::reset();
+    cerr << "deprecated. do not use" << endl;
     //this->truncate();
   }
 }
 
 
 void DbPointRecord::reset(const string& id) {
-  scoped_lock<boost::signals2::mutex> lock(*_db_mutex);
+  std::lock_guard<std::mutex> lock(_db_pr_mtx);
   if (!this->readonly()) {
     // deprecate?
     //cout << "Whoops - don't use this" << endl;
@@ -487,7 +489,7 @@ void DbPointRecord::reset(const string& id) {
 
 void DbPointRecord::invalidate(const string &identifier) {
   if (!this->readonly()) {
-    this->removeRecord(identifier);
+    _adapter->removeRecord(identifier);
     this->reset(identifier);
   }
 }
@@ -496,9 +498,48 @@ void DbPointRecord::invalidate(const string &identifier) {
 #pragma mark - opc filter list
 
 void DbPointRecord::setOpcFilterType(OpcFilterType type) {
+  
+  const map< OpcFilterType,function<Point(Point)> > opcFilters({
+    { OpcPassThrough , 
+      [&](Point p)->Point { 
+        return p;
+      } },
+    { OpcWhiteList ,   
+      [&](Point p)->Point { 
+        if (this->opcFilterList().count(p.quality) > 0) {
+          return Point(p.time, p.value, Point::opc_rtx_override, p.confidence);
+        }
+        else {
+          return Point();
+        }
+      } },
+    { OpcBlackList ,
+      [&](Point p)->Point {
+        if (this->opcFilterList().count(p.quality)) {
+          return Point();
+        }
+        else {
+          return Point(p.time, p.value, Point::opc_rtx_override, p.confidence);
+        }
+      }
+    },
+    { OpcCodesToValues ,
+      [&](Point p)->Point {
+        return Point(p.time, (double)p.quality, Point::opc_rtx_override, p.confidence);
+      }
+    },
+    { OpcCodesToConfidence ,
+      [&](Point p)->Point {
+        return Point(p.time, p.value, Point::opc_rtx_override, (double)p.quality);
+      }
+    }
+  });
+
+  
   if (_filterType != type) {
     BufferPointRecord::reset(); // mem cache
     _filterType = type;
+    _opcFilter = opcFilters.at(type);
     this->dbConnect();
   }
 }
@@ -536,7 +577,7 @@ void DbPointRecord::removeOpcFilterCode(unsigned int code) {
 vector<Point> DbPointRecord::pointsWithOpcFilter(std::vector<Point> points) {
   vector<Point> out;
   
-  BOOST_FOREACH(Point p, points) {
+  for(const Point& p : points) {
     Point outPoint = this->pointWithOpcFilter(p);
     if (outPoint.isValid) {
       out.push_back(outPoint);
@@ -546,125 +587,8 @@ vector<Point> DbPointRecord::pointsWithOpcFilter(std::vector<Point> points) {
   return out;
 }
 
+
 Point DbPointRecord::pointWithOpcFilter(Point p) {
-  Point pOut = p;
-  
-  switch (this->opcFilterType()) {
-    case OpcPassThrough:
-      break;
-    case OpcWhiteList:
-      if (this->opcFilterList().count(p.quality) > 0) {
-        pOut = Point(p.time, p.value, Point::opc_rtx_override, p.confidence);
-      }
-      else {
-        pOut = Point();
-      }
-      break;
-    case OpcBlackList:
-      if (this->opcFilterList().count(p.quality)) {
-        pOut = Point();
-      }
-      else {
-        pOut = Point(p.time, p.value, Point::opc_rtx_override, p.confidence);
-      }
-      break;
-    case OpcCodesToValues:
-    {
-      pOut = Point(p.time, (double)p.quality, Point::opc_rtx_override, p.confidence);
-    }
-      break;
-    case OpcCodesToConfidence:
-    {
-      pOut = Point(p.time, p.value, Point::opc_rtx_override, (double)p.quality);
-    }
-      break;
-    default:
-      break;
-  }
-  
-  return pOut;
-  
+  return _opcFilter(p);
 }
 
-
-
-/*
-Point DbPointRecord::firstPoint(const string& id) {
-  
-}
-
-
-Point DbPointRecord::lastPoint(const string& id) {
-  
-}
-
-*/
-
-
-
-
-
-/*
-// default virtual implementations
-void DbPointRecord::fetchRange(const std::string& id, time_t startTime, time_t endTime) {
-  reqRange = make_pair(startTime, endTime);
-  
-  vector<Point> points = selectRange(id, startTime, endTime);
-  if (points.size() > 0) {
-    DB_PR_SUPER::addPoints(id, points);
-  }
-}
-
-void DbPointRecord::fetchNext(const std::string& id, time_t time) {
-  Point p = selectNext(id, time);
-  if (p.isValid) {
-    DB_PR_SUPER::addPoint(id, p);
-  }
-}
-
-
-void DbPointRecord::fetchPrevious(const std::string& id, time_t time) {
-  Point p = selectPrevious(id, time);
-  if (p.isValid) {
-    DB_PR_SUPER::addPoint(id, p);
-  }
-}
-*/
-
-
-
-
-
-
-/*
-
-
-
-
-
-void DbPointRecord::preFetchRange(const string& id, time_t start, time_t end) {
-  // TODO -- performance optimization - caching -- see OdbcPointRecord.cpp for code snippets.
-  // get out if we've already hinted this.
-
-  time_t first = DB_PR_SUPER::firstPoint(id).time;
-  time_t last = DB_PR_SUPER::lastPoint(id).time;
-  if (first <= start && end <= last) {
-    return;
-  }
-  
-  // clear out the base-class cache
-  //PointRecord::reset(id);
-  
-  // re-populate base class with new hinted range
-  time_t margin = 60*60;
-  
-  cout << "RTX-DB-FETCH: " << id << " :: " << start << " - " << end << endl;
-  
-  vector<Point> newPoints = selectRange(id, start - margin, end + margin);
-
-  //cout << "RTX-DB-FETCH: " << id << " :: DONE" << endl;
-  
-  DB_PR_SUPER::addPoints(id, newPoints);
-}
-
-*/

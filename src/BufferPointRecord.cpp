@@ -60,7 +60,7 @@ bool BufferPointRecord::registerAndGetIdentifierForSeriesWithUnits(std::string r
   return true;
 }
 
-PointRecord::IdentifierUnitsList BufferPointRecord::identifiersAndUnits() {
+IdentifierUnitsList BufferPointRecord::identifiersAndUnits() {
   IdentifierUnitsList list;
   std::map<std::string,Units> *ids = list.get();
   for (auto p : _keyedBuffers) {

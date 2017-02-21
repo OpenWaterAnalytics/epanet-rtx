@@ -12,9 +12,11 @@
 #define DB_PR_SUPER BufferPointRecord
 
 #include <set>
+#include <mutex>
 
 #include "BufferPointRecord.h"
 #include "rtxExceptions.h"
+#include "DbAdapter.h"
 
 
 namespace RTX {
@@ -39,7 +41,7 @@ namespace RTX {
     // superclass overrides
     //// registration
     bool registerAndGetIdentifierForSeriesWithUnits(std::string name, Units units);    
-    IdentifierUnitsList identifiersAndUnits(); /// simple cache
+    IdentifierUnitsList identifiersAndUnits();
 
     //// lookup
     Point point(const string& id, time_t time);
@@ -66,6 +68,10 @@ namespace RTX {
     virtual void setReadonly(bool readOnly);
     virtual void truncate() { }; 
     
+    void beginBulkOperation();
+    void endBulkOperation();
+    
+    
     
     // helper class/functions
     /*--------------------------------------------*/
@@ -75,7 +81,8 @@ namespace RTX {
       OpcBlackList     = 1, //!< explicitly exclude codes
       OpcWhiteList     = 2, //!< only allow these codes
       OpcCodesToValues = 3,  //!< convert opc codes to values
-      OpcCodesToConfidence = 4 //!< convert opc codes to point confidence field
+      OpcCodesToConfidence = 4, //!< convert opc codes to point confidence field
+      OpcNoFilter = 5
     };
     
     void setOpcFilterType(OpcFilterType type);
@@ -99,66 +106,15 @@ namespace RTX {
     
   protected:
     
-    class DbOptions {
-    public:
-      DbOptions(bool supportsUnitsCol, bool assignUnits, bool searchIteratively, bool singlyBoundQueries);
-      bool supportsUnitsColumn;
-      bool canAssignUnits;
-      bool searchIteratively;
-      bool supportsSinglyBoundQueries;
-    };
-    DbOptions _dbOptions;
-    
-    // subclass handy flag vars
-    bool _connected;
-    
-    // virtuals, with default no-ops for base class opt-in support
-    virtual void doConnect() throw(RtxException) = 0;
-    virtual void parseConnectionString(const std::string& str) = 0;
-    virtual std::string serializeConnectionString() = 0;
-    virtual void refreshIds() = 0;
-    
-    virtual bool assignUnitsToRecord(const std::string& name, const Units& units);
+    DbAdapter *_adapter;
+    DbAdapter::errCallback_t _errCB;
     
     Point searchPreviousIteratively(const string& id, time_t time);
     Point searchNextIteratively(const string& id, time_t time);
     
     int iterativeSearchStride;
     int iterativeSearchMaxIterations;
-    
-    
-    // db searching prefs
-    void setSearchDistance(time_t time);
-    time_t searchDistance();
-    
-        
-    
-    
-    
-    
-    
-    /*--------------------------------------------*/
-    
-    
-    
-    
-    
-    
-    bool useTransactions;
-    int maxTransactionInserts;
-    int transactionInsertCount;
-        
-    // select statements
-    virtual std::vector<Point> selectRange(const std::string& id, TimeRange range)=0;
-    virtual Point selectNext(const std::string& id, time_t time)=0;
-    virtual Point selectPrevious(const std::string& id, time_t time)=0;
-    
-    // insertions or alterations: may choose to ignore / deny
-    virtual void insertSingle(const std::string& id, Point point)=0;
-    virtual void insertRange(const std::string& id, std::vector<Point> points)=0;
-    virtual void removeRecord(const std::string& id)=0;
-    virtual bool insertIdentifierAndUnits(const std::string& id, Units units)=0;
-    
+
     IdentifierUnitsList _identifiersAndUnitsCache; /// for subs to use
     time_t _lastIdRequest;
     
@@ -177,11 +133,12 @@ namespace RTX {
     Point pointWithOpcFilter(Point p);
     std::vector<Point> pointsWithOpcFilter(std::vector<Point> points);
     
-    time_t _searchDistance;
     bool _readOnly;
     std::set<unsigned int> _opcFilterCodes;
     OpcFilterType _filterType;
-    std::shared_ptr<boost::signals2::mutex> _db_mutex;
+    std::mutex _db_pr_mtx;
+    
+    std::function<Point(Point)> _opcFilter;
     
   };
 

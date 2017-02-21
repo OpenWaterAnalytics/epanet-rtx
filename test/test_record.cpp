@@ -1,5 +1,5 @@
 #include "test_main.h"
-#include "SqlitePointRecord.h"
+#include "ConcreteDbRecords.h"
 
 using namespace RTX;
 using namespace std;

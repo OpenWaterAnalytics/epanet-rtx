@@ -37,15 +37,20 @@ add_library(epanet-rtx STATIC
   ../../../../src/Clock.cpp
   ../../../../src/ConstantTimeSeries.cpp
   ../../../../src/CorrelatorTimeSeries.cpp
+  ../../../../src/ConcreteDbRecords.cpp
   ../../../../src/Curve.cpp
   ../../../../src/CurveFunction.cpp
   ../../../../src/DbPointRecord.cpp
+  
+  ../../../../src/InfluxAdapter.cpp
+  ../../../../src/PiAdapter.cpp
+  ../../../../src/SqliteAdapter.cpp
+  ../../../../src/OdbcAdapter.cpp
+  
   ../../../../src/FailoverTimeSeries.cpp
   ../../../../src/FirstDerivative.cpp
   ../../../../src/GainTimeSeries.cpp
-  ../../../../src/I_InfluxDbPointRecord.cpp
-  ../../../../src/InfluxUdpPointRecord.cpp
-  ../../../../src/InfluxDbPointRecord.cpp
+  ../../../../src/IdentifierUnitsList.cpp
   ../../../../src/IntegratorTimeSeries.cpp
   ../../../../src/InversionTimeSeries.cpp
   ../../../../src/LagTimeSeries.cpp
@@ -54,8 +59,6 @@ add_library(epanet-rtx STATIC
   ../../../../src/MetaTimeSeries.cpp
   ../../../../src/MovingAverage.cpp
   ../../../../src/MultiplierTimeSeries.cpp
-  ../../../../src/OdbcDirectPointRecord.cpp
-  ../../../../src/OdbcPointRecord.cpp
   ../../../../src/OffsetTimeSeries.cpp
   ../../../../src/OutlierExclusionTimeSeries.cpp
   ../../../../src/Point.cpp
@@ -63,7 +66,6 @@ add_library(epanet-rtx STATIC
   ../../../../src/PointRecord.cpp
   ../../../../src/PointRecordTime.cpp
   ../../../../src/SineTimeSeries.cpp
-  ../../../../src/SqlitePointRecord.cpp
   ../../../../src/StatsTimeSeries.cpp
   ../../../../src/ThresholdTimeSeries.cpp
   ../../../../src/TimeRange.cpp
