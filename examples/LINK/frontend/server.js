@@ -194,8 +194,7 @@ app.use(bodyParser.urlencoded({'extended':'true'}));            // parse applica
 app.use(methodOverride());
 
 
-// application -------------------------------------------------------------
-app.use('/', [auth, express.static(__dirname + '/public')]);
+
 
 //
 // relay dashboard configuration to grafana
@@ -295,6 +294,15 @@ app.route('/config/:configPath')
 
 }); // POST
 
+// application -------------------------------------------------------------
+var myRoutes = ['main','source','destination','analytics','options','run','dashboard','about'];
+for (var i = 0, len = myRoutes.length; i < len; i++) {
+  var r = myRoutes[i];
+  var theRoute = '/' + r;
+  console.log("adding route: " + theRoute);
+  app.use(theRoute, [auth, express.static(__dirname + '/public/index.html')]);
+}
+app.use('/', [auth, express.static(__dirname + '/public')]);
 
 // listen (start app with node server.js) ======================================
 app.listen(8585);
