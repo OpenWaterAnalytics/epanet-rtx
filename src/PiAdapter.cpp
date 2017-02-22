@@ -199,6 +199,7 @@ IdentifierUnitsList PiAdapter::idUnitsList() {
   .append_path("dataservers")
   .append_path(_conn.dsWebId)
   .append_path("points")
+  .append_query("maxCount",10000)
   .append_query("selectedFields=Items.WebId;Items.Name;Items.Descriptor;Items.EngineeringUnits");
   
   if (this->tagSearchPath != "") {

@@ -22,7 +22,8 @@ namespace RTX {
   public Visitor<SqlitePointRecord>,
   public Visitor<InfluxDbPointRecord>,
   public Visitor<InfluxUdpPointRecord>,
-  public Visitor<OdbcPointRecord>
+  public Visitor<OdbcPointRecord>,
+  public Visitor<PiPointRecord>
   {
   public:
     static web::json::value to_json(RTX_object::_sp obj);
@@ -40,6 +41,7 @@ namespace RTX {
     void visit(InfluxDbPointRecord &pr);
     void visit(InfluxUdpPointRecord &pr);
     void visit(OdbcPointRecord &pr);
+    void visit(PiPointRecord &pr);
     web::json::value json();
     
   private:
@@ -57,7 +59,8 @@ namespace RTX {
   public Visitor<SqlitePointRecord>,
   public Visitor<InfluxDbPointRecord>,
   public Visitor<InfluxUdpPointRecord>,
-  public Visitor<OdbcPointRecord>
+  public Visitor<OdbcPointRecord>,
+  public Visitor<PiPointRecord>
   {
   public:
     static RTX_object::_sp from_json(web::json::value json);
@@ -77,6 +80,7 @@ namespace RTX {
     void visit(InfluxDbPointRecord &pr);
     void visit(InfluxUdpPointRecord &pr);
     void visit(OdbcPointRecord &pr);
+    void visit(PiPointRecord &pr);
     
   private:
     web::json::value _v;

@@ -362,14 +362,13 @@ http_response LinkService::_post_timeseries(JSV js) {
       cerr << e.what() << endl;
       return _link_error_response(status_codes::NotAcceptable, "Invalid: " + string(e.what()));
     }
-    vector<TimeSeries::_sp> tsList;
+    _tsList.clear();
     for (auto o : oList) {
       TimeSeries::_sp ts = static_pointer_cast<TimeSeries>(o);
       ts->setRecord(_sourceRecord); // no record set by client. set it here.
-      tsList.push_back(ts);
-//      cout << "== " << ts->name() << '\n';
+      _tsList.push_back(ts);
     }
-    _duplicator.setSeries(tsList);
+    this->setDuplicatorSeries();
     r = _link_empty_response();
   }
   else {
@@ -516,27 +515,20 @@ http_response LinkService::_post_analytics(web::json::value json) {
     if (!a.is_object() ||
         a.as_object().find("type") == a.as_object().end() ||
         !a.as_object()["type"].is_string() ) {
-      return _link_error_response(status_codes::BadRequest, "JSON not recognized"); // not an object or type membery not found, or member not a string
+      return _link_error_response(status_codes::BadRequest, "JSON not recognized"); // not an object or type member not found, or member not a string
     }
-    
     try {
       TimeSeries::_sp ts = DeserializerJson::analyticWithJson(a, _duplicator.series());
       if (ts) {
+        ts->setRecord(_destinationRecord);
         _analytics.push_back(ts);
       }
     } catch (const web::json::json_exception &e) {
       cerr << e.what() << endl;
       return _link_error_response(status_codes::NotAcceptable, "Invalid: " + string(e.what()));
     }
-    
-    
   }
-  
-  vector<TimeSeries::_sp> dupeSeries = _duplicator.series();
-  for (auto a : _analytics) {
-    dupeSeries.push_back(a);
-  }
-  _duplicator.setSeries(dupeSeries);
+  this->setDuplicatorSeries();
   
   return _link_empty_response();
 }
@@ -673,4 +665,14 @@ void LinkService::stopDuplication() {
   }
   
 }
+
+
+void LinkService::setDuplicatorSeries() {
+  vector<TimeSeries::_sp> dupeSeries = _tsList;
+  for (auto a : _analytics) {
+    dupeSeries.push_back(a);
+  }
+  _duplicator.setSeries(dupeSeries);
+}
+
 

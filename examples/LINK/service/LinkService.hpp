@@ -80,6 +80,8 @@ namespace RTX {
     boost::signals2::mutex _dupeMutex;
     std::vector<TimeSeries::_sp> _analytics;
     
+    void setDuplicatorSeries();
+    
   };
 }
 

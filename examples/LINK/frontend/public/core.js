@@ -201,6 +201,28 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
           inputType: 'text-line'
         }
       ]
+    },
+    'pi': {
+      inputRows: [
+        {
+          key: 'name',
+          text: 'Name',
+          placeholder: 'User-defined Name',
+          inputType: 'text-line'
+        },
+        {
+          key: 'connectionString',
+          text: 'Connection',
+          placeholder: 'proto=http&host=linkDB.yourdomain.com&port=8086&db=dbname&u=user&p=pass',
+          inputType: 'text-line'
+        },
+        {
+          key: 'tagSearchPath',
+          text: 'Tag Search Path',
+          placeholder: 'Example.OpcDaServer.Sahara.*',
+          inputType: 'text-line'
+        }
+      ]
     }
   };
 
@@ -244,7 +266,8 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
     'sqlite': 'SQLite',
     'influx': 'Influx',
     'influx_udp': "Influx-UDP",
-    'opc': 'OPC'
+    'opc': 'OPC',
+    'pi':'OSI-PI'
   };
 
   $rootScope.errorMessagePromise = $timeout();
