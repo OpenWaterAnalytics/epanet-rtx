@@ -15,6 +15,7 @@ using namespace std;
 
 
 PointRecord::PointRecord() : _name("") {
+  
 }
 
 

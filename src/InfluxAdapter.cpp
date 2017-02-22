@@ -351,6 +351,7 @@ const DbAdapter::adapterOptions InfluxTcpAdapter::options() const {
   o.supportsSinglyBoundQuery = true;
   o.searchIteratively = false;
   o.canAssignUnits = false;
+  o.implementationReadonly = false;
   
   return o;
 }
@@ -787,6 +788,7 @@ const DbAdapter::adapterOptions InfluxUdpAdapter::options() const {
   o.supportsSinglyBoundQuery = true;
   o.searchIteratively = false;
   o.canAssignUnits = false;
+  o.implementationReadonly = false;
   
   return o;
 }

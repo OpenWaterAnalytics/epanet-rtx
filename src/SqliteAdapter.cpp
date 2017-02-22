@@ -35,6 +35,7 @@ const DbAdapter::adapterOptions SqliteAdapter::options() const {
   
   o.canAssignUnits = true;
   o.supportsUnitsColumn = true;
+  o.searchIteratively = true;
   o.supportsSinglyBoundQuery = true;
   o.implementationReadonly = false;
   
