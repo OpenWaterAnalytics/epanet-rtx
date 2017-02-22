@@ -21,7 +21,7 @@ using namespace RTX;
 using namespace std;
 using boost::signals2::mutex;
 
-
+#define _DB_MAX_CONNECT_TRY 5
 
 /************ request type *******************/
 
@@ -83,6 +83,14 @@ void DbPointRecord::dbConnect() throw(RtxException) {
   }
 }
 
+bool DbPointRecord::checkConnected() {
+  int iTry = 0;
+  while (!_adapter->adapterConnected() && ++iTry < _DB_MAX_CONNECT_TRY) {
+    this->dbConnect();
+  }
+  return isConnected();
+}
+
 bool DbPointRecord::readonly() {
   if (_adapter->options().implementationReadonly) {
     return true;
@@ -113,15 +121,10 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
   bool unitsMatch = false;
   Units existingUnits = RTX_NO_UNITS;
   
-  if (!this->isConnected()) {
-    this->dbConnect();
-  }
-  
-  if (!this->isConnected()) {
-    // fail connection. let the assignment occur anyway, subject to buffer-class implementation
+  if (!checkConnected()) {
     return DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
   }
-  
+    
   auto match = this->identifiersAndUnits().doesHaveIdUnits(name,units);
   nameExists = match.first;
   unitsMatch = match.second;
@@ -184,33 +187,34 @@ IdentifierUnitsList DbPointRecord::identifiersAndUnits() {
     return _identifiersAndUnitsCache;
   }
   
-  int max_try = 3;
-  for (int iTry = 0; !isConnected() && iTry < max_try; ++iTry) {
-    this->dbConnect();
+  if (checkConnected()) {
+    _identifiersAndUnitsCache = _adapter->idUnitsList();
   }
-  if (!this->isConnected()) {
-    return _identifiersAndUnitsCache;
-  }
-  
-  _identifiersAndUnitsCache = _adapter->idUnitsList();
-  
   return _identifiersAndUnitsCache;
 }
 
 
 
 void DbPointRecord::beginBulkOperation() {
-  _adapter->beginTransaction();
+  if (checkConnected()) {
+    _adapter->beginTransaction();
+  }
 }
 
 void DbPointRecord::endBulkOperation() {
-  _adapter->endTransaction();
+  if (checkConnected()) {
+    _adapter->endTransaction();
+  }
 }
 
 
 Point DbPointRecord::point(const string& id, time_t time) {
   
   Point p = DB_PR_SUPER::point(id, time);
+  
+  if (!checkConnected()) {
+    return p;
+  }
   
   if (!p.isValid) {
     
@@ -271,6 +275,10 @@ Point DbPointRecord::pointBefore(const string& id, time_t time) {
     return Point();
   }
   
+  if (!checkConnected()) {
+    return p;
+  }
+  
   // should i search iteratively?
   if (_adapter->options().searchIteratively) {
     p = this->searchPreviousIteratively(id, time);
@@ -305,6 +313,10 @@ Point DbPointRecord::pointAfter(const string& id, time_t time) {
     return Point();
   }
   
+  if (!checkConnected()) {
+    return p;
+  }
+  
   if (_adapter->options().searchIteratively) {
     p = this->searchNextIteratively(id, time);
   }
@@ -327,50 +339,50 @@ Point DbPointRecord::pointAfter(const string& id, time_t time) {
 Point DbPointRecord::searchPreviousIteratively(const string& id, time_t time) {
   int lookBehindLimit = iterativeSearchMaxIterations;
   
-  if (!isConnected()) {
-    this->dbConnect();
+  if (!checkConnected()) {
+    return Point();
   }
-  if (isConnected()) {
-    vector<Point> points;
-    // iterative lookbehind is faster than unbounded lookup
-    TimeRange r;
-    r.start = time - iterativeSearchStride;
-    r.end = time - 1;
-    while (points.size() == 0 && lookBehindLimit > 0) {
-      points = this->pointsInRange(id, r);
-      r.end   -= iterativeSearchStride;
-      r.start -= iterativeSearchStride;
-      --lookBehindLimit;
-    }
-    if (points.size() > 0) {
-      return points.back();
-    }
+  
+  vector<Point> points;
+  // iterative lookbehind is faster than unbounded lookup
+  TimeRange r;
+  r.start = time - iterativeSearchStride;
+  r.end = time - 1;
+  while (points.size() == 0 && lookBehindLimit > 0) {
+    points = this->pointsInRange(id, r);
+    r.end   -= iterativeSearchStride;
+    r.start -= iterativeSearchStride;
+    --lookBehindLimit;
   }
+  if (points.size() > 0) {
+    return points.back();
+  }
+  
   return Point();
 }
 
 Point DbPointRecord::searchNextIteratively(const string& id, time_t time) {
   int lookAheadLimit = iterativeSearchMaxIterations;
   
-  if (!isConnected()) {
-    this->dbConnect();
+  if (!checkConnected()) {
+    return Point();
   }
-  if (isConnected()) {
-    vector<Point> points;
-    // iterative lookbehind is faster than unbounded lookup
-    TimeRange r;
-    r.start = time + 1;
-    r.end = time + iterativeSearchStride;
-    while (points.size() == 0 && lookAheadLimit > 0) {
-      points = this->pointsInRange(id, r);
-      r.start += iterativeSearchStride;
-      r.end += iterativeSearchStride;
-      --lookAheadLimit;
-    }
-    if (points.size() > 0) {
-      return points.front();
-    }
+  
+  vector<Point> points;
+  // iterative lookbehind is faster than unbounded lookup
+  TimeRange r;
+  r.start = time + 1;
+  r.end = time + iterativeSearchStride;
+  while (points.size() == 0 && lookAheadLimit > 0) {
+    points = this->pointsInRange(id, r);
+    r.start += iterativeSearchStride;
+    r.end += iterativeSearchStride;
+    --lookAheadLimit;
   }
+  if (points.size() > 0) {
+    return points.front();
+  }
+  
   return Point();
 }
 
@@ -380,6 +392,10 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, TimeRange qran
   
   // limit double-queries
   if (_last_request.range.containsRange(qrange) && _last_request.id == id) {
+    return DB_PR_SUPER::pointsInRange(id, qrange);
+  }
+  
+  if (!checkConnected()) {
     return DB_PR_SUPER::pointsInRange(id, qrange);
   }
   
@@ -453,7 +469,7 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, TimeRange qran
 
 void DbPointRecord::addPoint(const string& id, Point point) {
   std::lock_guard<std::mutex> lock(_db_pr_mtx);
-  if (!this->readonly()) {
+  if (!this->readonly() && checkConnected()) {
     DB_PR_SUPER::addPoint(id, point);
     _adapter->insertSingle(id, point);
   }
@@ -462,7 +478,7 @@ void DbPointRecord::addPoint(const string& id, Point point) {
 
 void DbPointRecord::addPoints(const string& id, std::vector<Point> points) {
   std::lock_guard<std::mutex> lock(_db_pr_mtx);
-  if (!this->readonly()) {
+  if (!this->readonly() && checkConnected()) {
     DB_PR_SUPER::addPoints(id, points);
     _adapter->insertRange(id, points);
   }
@@ -471,7 +487,7 @@ void DbPointRecord::addPoints(const string& id, std::vector<Point> points) {
 
 void DbPointRecord::reset() {
   std::lock_guard<std::mutex> lock(_db_pr_mtx);
-  if (!this->readonly()) {
+  if (!this->readonly() && checkConnected()) {
     DB_PR_SUPER::reset();
     cerr << "deprecated. do not use" << endl;
     //this->truncate();
@@ -481,7 +497,7 @@ void DbPointRecord::reset() {
 
 void DbPointRecord::reset(const string& id) {
   std::lock_guard<std::mutex> lock(_db_pr_mtx);
-  if (!this->readonly()) {
+  if (!this->readonly() && checkConnected()) {
     // deprecate?
     //cout << "Whoops - don't use this" << endl;
     DB_PR_SUPER::reset(id);
@@ -493,7 +509,7 @@ void DbPointRecord::reset(const string& id) {
 }
 
 void DbPointRecord::invalidate(const string &identifier) {
-  if (!this->readonly()) {
+  if (!this->readonly() && checkConnected()) {
     _adapter->removeRecord(identifier);
     this->reset(identifier);
   }

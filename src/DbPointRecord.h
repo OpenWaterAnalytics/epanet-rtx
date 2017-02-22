@@ -130,6 +130,7 @@ namespace RTX {
     
     
   private:
+    bool checkConnected();
     Point pointWithOpcFilter(Point p);
     std::vector<Point> pointsWithOpcFilter(std::vector<Point> points);
     
