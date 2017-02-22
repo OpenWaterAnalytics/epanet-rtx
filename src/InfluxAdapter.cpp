@@ -132,6 +132,7 @@ void InfluxAdapter::commitTransactionLines() {
         // push these lines and clear the queue
         this->sendPointsWithString(concatLines);
         concatLines.clear();
+        iLine = 0;
       }
       ++curs;
     }
@@ -584,7 +585,7 @@ void InfluxTcpAdapter::removeAllRecords() {
 }
 
 size_t InfluxTcpAdapter::maxTransactionLines() {
-  return 100;
+  return 1000;
 }
 
 void InfluxTcpAdapter::sendPointsWithString(const std::string& content) {
