@@ -52,9 +52,6 @@ std::string SqliteAdapter::connectionString() {
   return _path;
 }
 void SqliteAdapter::setConnectionString(const std::string& con) {
-  if (this->adapterConnected()) {
-    
-  }
   _path = con;
 }
 
@@ -152,16 +149,12 @@ void SqliteAdapter::endTransaction() {
 std::vector<Point> SqliteAdapter::selectRange(const std::string& id, TimeRange range) {
   vector<Point> points;
   
-  if (!adapterConnected()) {
-    this->doConnect();
-  }
-  if (adapterConnected()) {
-    _RTX_DB_SCOPED_LOCK;
-    _dbq << _selectRangeStr << id << (int)range.start << (int)range.end
-    >> [&](int t, double v, int q, double c) {
-      points.push_back(Point((time_t)t, v, Point::PointQuality( q ), c));
-    };
-  }
+  _RTX_DB_SCOPED_LOCK;
+  _dbq << _selectRangeStr << id << (int)range.start << (int)range.end
+  >> [&](int t, double v, int q, double c) {
+    points.push_back(Point((time_t)t, v, Point::PointQuality( q ), c));
+  };
+  
   return points;
 }
 Point SqliteAdapter::selectNext(const std::string& id, time_t time) {
@@ -198,22 +191,15 @@ Point SqliteAdapter::selectPrevious(const std::string& id, time_t time) {
 bool SqliteAdapter::insertIdentifierAndUnits(const std::string& id, Units units) {
   bool success = false;
   
-  // has to be connected, otherwise there may not be a row for this guy in the meta table.
-  // TODO -- check for errors when inserting data??
-  if (!this->adapterConnected()) {
-    this->doConnect();
-  }
+  _RTX_DB_SCOPED_LOCK;
   
-  if (this->adapterConnected()) {
-    _RTX_DB_SCOPED_LOCK;
-    
-    _dbq << "insert or ignore into meta (name,units) values (?,?)"
-    << id << units.to_string();
-    
-    int uid = (int)_db->last_insert_rowid();    
-    // add to the cache.
-    _metaCache[id] = uid;
-  }
+  _dbq << "insert or ignore into meta (name,units) values (?,?)"
+  << id << units.to_string();
+  
+  int uid = (int)_db->last_insert_rowid();    
+  // add to the cache.
+  _metaCache[id] = uid;
+  
   if (_inTransaction) {
     this->checkTransactions(false);
   }
@@ -236,55 +222,38 @@ void SqliteAdapter::insertSingle(const std::string& id, Point point) {
 
 void SqliteAdapter::insertSingleInTransaction(const std::string& id, Point point) {
   
-  if (!adapterConnected()) {
-    doConnect();
-  }
-  if (adapterConnected()) {
-    _RTX_DB_SCOPED_LOCK; 
-    int tsUid = _metaCache[id];
-    _dbq << _insertSingleStr << (int)point.time << tsUid << point.value << (int)point.quality << point.confidence;
-  }
+  _RTX_DB_SCOPED_LOCK; 
+  int tsUid = _metaCache[id];
+  _dbq << _insertSingleStr << (int)point.time << tsUid << point.value << (int)point.quality << point.confidence;
+  
 }
 
 
 void SqliteAdapter::insertRange(const std::string& id, std::vector<Point> points) {
-  if (!adapterConnected()) {
-    doConnect();
+  {
+    checkTransactions(true); // any tranactions currently? tell them to quit.
+    _RTX_DB_SCOPED_LOCK;
+    _dbq << "BEGIN";
   }
-  if (adapterConnected()) {
-    
-    {
-      checkTransactions(true); // any tranactions currently? tell them to quit.
-      _RTX_DB_SCOPED_LOCK;
-      _dbq << "begin exclusive transaction";
-    }
-    
-    // this is always within a transaction
-    for(const Point &p : points) {
-      this->insertSingleInTransaction(id, p);
-    }
-    {
-      _RTX_DB_SCOPED_LOCK;
-      _dbq << "end transaction";
-    }
+  
+  // this is always within a transaction
+  for(const Point &p : points) {
+    this->insertSingleInTransaction(id, p);
   }
+  {
+    _RTX_DB_SCOPED_LOCK;
+    _dbq << "END";
+  }
+  
 
 }
 
 // UPDATE
 bool SqliteAdapter::assignUnitsToRecord(const std::string& name, const Units& units) {
   
-  // has to be connected, otherwise there may not be a row for this guy in the meta table.
-  // TODO -- check for errors when inserting data??
-  if (!this->adapterConnected()) {
-    this->doConnect();
-  }
-  
-  if (this->adapterConnected()) {
-    _RTX_DB_SCOPED_LOCK;
-    string q = "update meta set units = ? where name = \'" + name + "\'";
-    _dbq << q << units.to_string();
-  }
+  _RTX_DB_SCOPED_LOCK;
+  string q = "update meta set units = ? where name = \'" + name + "\'";
+  _dbq << q << units.to_string();
   
   return true;
 }
@@ -292,17 +261,10 @@ bool SqliteAdapter::assignUnitsToRecord(const std::string& name, const Units& un
 // DELETE
 void SqliteAdapter::removeRecord(const std::string& id) {
   _RTX_DB_SCOPED_LOCK;
-  
-  if (!_connected) {
-    return;
-  }
   string sqlStr = "delete from points where series_id = (SELECT series_id FROM meta where name = \'" + id + "\'); delete from meta where name = \'" + id + "\'";
   _dbq << sqlStr;
 }
 void SqliteAdapter::removeAllRecords() {
-  if (!_connected) {
-    return;
-  }
   _RTX_DB_SCOPED_LOCK;
   _dbq << "delete from points";
 }
