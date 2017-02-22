@@ -4,6 +4,8 @@
 #include <stdio.h>
 
 #include "DbAdapter.h"
+
+#include <sqlite_modern_cpp.h>
 #include <sqlite3.h>
 
 
@@ -45,12 +47,7 @@ namespace RTX {
     
     
   private:
-    
-    sqlite3 *_dbHandle;
-    std::string _selectRangeStr, _selectSingleStr, _selectNamesStr, _selectPreviousStr, _selectNextStr, _insertSingleStr, _selectFirstStr, _selectLastStr;
-    
-    sqlite3_stmt *_insertSingleStmt;
-    
+    std::shared_ptr<sqlite::database> _db;        
     std::string _path;
     
     bool _inTransaction;
@@ -59,10 +56,6 @@ namespace RTX {
     void checkTransactions(bool forceEndTranaction);
         
     bool initTables();
-    void logDbError(int ret);
-    
-    Point pointFromStatment(sqlite3_stmt *stmt);
-    std::vector<Point> pointsFromPreparedStatement(sqlite3_stmt *stmt);
     void insertSingleInTransaction(const std::string &id, Point point);
     
     bool updateSchema();
