@@ -2,8 +2,7 @@
 
 #include <set>
 #include <sstream>
-
-#include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string.hpp>
 
 using namespace std;
 using namespace RTX;
@@ -265,15 +264,10 @@ void SqliteAdapter::removeAllRecords() {
 #pragma mark private
 
 bool SqliteAdapter::initTables() {
-  
-  auto dbh = _db->connection();
-  sqlite3 *handle = dbh.get();
-  string schemaStr = initTablesStr;
-  boost::replace_all(schemaStr,"\n"," ");
-  int err = sqlite3_exec(handle, schemaStr.c_str(), NULL, NULL, NULL);
-  if (err != SQLITE_OK) {
-    cerr << sqlite3_errmsg(handle) << endl << flush;
-    return false;
+  vector<string> stmts;
+  boost::split(stmts, initTablesStr, boost::is_any_of(";"), boost::algorithm::token_compress_on); // split on semicolon
+  for (auto s : stmts) {
+    _dbq << s;
   }
   return true;
 }
