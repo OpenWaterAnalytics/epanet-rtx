@@ -485,6 +485,14 @@ void DbPointRecord::addPoints(const string& id, std::vector<Point> points) {
 }
 
 
+void DbPointRecord::truncate() {
+  std::lock_guard<std::mutex> lock(_db_pr_mtx);
+  if (!this->readonly() && checkConnected()) {
+    DB_PR_SUPER::reset();
+    _adapter->removeAllRecords();
+  }
+}
+
 void DbPointRecord::reset() {
   std::lock_guard<std::mutex> lock(_db_pr_mtx);
   if (!this->readonly() && checkConnected()) {

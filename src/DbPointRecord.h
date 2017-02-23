@@ -66,7 +66,7 @@ namespace RTX {
     bool isConnected();
     virtual bool readonly();
     virtual void setReadonly(bool readOnly);
-    virtual void truncate() { }; 
+    virtual void truncate(); 
     
     void beginBulkOperation();
     void endBulkOperation();
