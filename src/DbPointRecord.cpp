@@ -110,6 +110,13 @@ void DbPointRecord::setReadonly(bool readOnly) {
   }
 }
 
+
+/******
+ 
+ the logic below is incredibly complex. i've tried to flatten it out by providing multiple exits
+ but it still feels a bit  overwrought. 
+ 
+******/
 bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Units units) {
   std::lock_guard<std::mutex> lock(_db_pr_mtx);
   
@@ -129,50 +136,61 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
   nameExists = match.first;
   unitsMatch = match.second;
   
+  // no matter what happens, we are messing with cache invalidation... 
+  _lastIdRequest = 0; // so invalidate the request cache.  
   
-  if (this->readonly()) {
-    // handle a read-only database.
-    if (nameExists && (unitsMatch || !_adapter->options().supportsUnitsColumn) ) {
-      // everything is awesome. name matches, units match (or we don't support it and therefore don't care).
-      // make a cache and return affirmative.
-      DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
-      return true;
-    }
-    else {
-      // SPECIAL CASE FOR OLD RECORDS: we can update the units field if no units are specified.
-      if (_adapter->options().canAssignUnits && existingUnits == RTX_NO_UNITS) {
-        _adapter->assignUnitsToRecord(name, units);
-        DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
-        return true;
-      }
-      // names don't match (or units prevent us from using this record) and we can't write to this db. fail.
-      return false;
-    }
+  ///// sucess cases
+  
+  // ideal case: everything checks out.
+  if (nameExists 
+      && unitsMatch) 
+  {
+    return DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);;
   }
-  else {
-    // not a readonly db.
+  
+  // almost ideal: name is good, units mismatch, but adaptor doesn't care
+  if (nameExists 
+      && !unitsMatch 
+      && !_adapter->options().supportsUnitsColumn) 
+  {
+    return DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
+  }
+  
+  // special snowflake case: name is good, existing units don't match and are junk, but adapter can assign. 
+  if (nameExists 
+      && !unitsMatch 
+      && _adapter->options().canAssignUnits 
+      && existingUnits == RTX_NO_UNITS) 
+  {
+    _adapter->assignUnitsToRecord(name, units);
+    return DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
+  }
+  
+  //// cases where a series is created in the record
+  if (!this->readonly()) {
+    
+    // name is there, units don't match, and we were not a snowflake.
     if (nameExists && !unitsMatch) {
-      // two possibilities: the units actually don't match, or my units haven't ever been set.
-      if (existingUnits == RTX_NO_UNITS) {
-        if (_adapter->options().canAssignUnits) {
-          // aha. update my units then.
-          return _adapter->assignUnitsToRecord(name, units);
-        }
-      }
-      else {
-        // must remove the old record. units don't match for real.
-        _adapter->removeRecord(name);
-        return DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
-      }
+      // remove old record and register new one
+      _adapter->removeRecord(name);
     }
-    else if ( ( !nameExists || !unitsMatch ) && _adapter->insertIdentifierAndUnits(name, units) && DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units) ) {
-      // this will either insert a new record name, or ignore because it's already there.
-      return true;
-    }
-    else if (nameExists && unitsMatch) {
-      return DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
-    }
+    
+    // by now, nothing is there - insert a new series.
+    bool inserted = _adapter->insertIdentifierAndUnits(name, units);
+    bool cached = DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
+    return inserted && cached;
   }
+  
+  
+  //// failure cases
+  
+  // if nothing above applies, and the record is readonly, then fail.
+  if (this->readonly()) {
+    return false;
+  }
+  
+  // everything else is some combination of failures
+  
   return false;
 }
 
