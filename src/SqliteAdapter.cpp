@@ -2,7 +2,6 @@
 
 #include <set>
 #include <sstream>
-#include <boost/algorithm/string.hpp>
 
 using namespace std;
 using namespace RTX;
