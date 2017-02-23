@@ -3,6 +3,8 @@
 #include <set>
 #include <sstream>
 
+#include <boost/algorithm/string/replace.hpp>
+
 using namespace std;
 using namespace RTX;
 
@@ -57,12 +59,11 @@ void SqliteAdapter::setConnectionString(const std::string& con) {
 
 void SqliteAdapter::doConnect() {
   _RTX_DB_SCOPED_LOCK;
-  
+
   if (RTX_STRINGS_ARE_EQUAL(_path, "")) {
     _errCallback("No File Specified");
     return;
   }
-  
   
   sqlite3* _rawDb;
   int returnCode;
@@ -131,18 +132,14 @@ IdentifierUnitsList SqliteAdapter::idUnitsList() {
 
 // TRANSACTIONS
 void SqliteAdapter::beginTransaction() {
-  if (_inTransaction) {
-    return;
+  if (!_inTransaction) {
+    this->checkTransactions();
   }
-  this->checkTransactions(false);
-  _inTransaction = true;
 }
 void SqliteAdapter::endTransaction() {
-  if (!_inTransaction) {
-    return;
+  if (_inTransaction) {
+    this->commit();
   }
-  this->checkTransactions(true);
-  _inTransaction = false;
 }
 
 // READ
@@ -157,6 +154,7 @@ std::vector<Point> SqliteAdapter::selectRange(const std::string& id, TimeRange r
   
   return points;
 }
+
 Point SqliteAdapter::selectNext(const std::string& id, time_t time) {
   vector<Point> points;
   _RTX_DB_SCOPED_LOCK;
@@ -171,6 +169,7 @@ Point SqliteAdapter::selectNext(const std::string& id, time_t time) {
   }
   return Point();
 }
+
 Point SqliteAdapter::selectPrevious(const std::string& id, time_t time) {
   
   vector<Point> points;
@@ -190,18 +189,18 @@ Point SqliteAdapter::selectPrevious(const std::string& id, time_t time) {
 // CREATE
 bool SqliteAdapter::insertIdentifierAndUnits(const std::string& id, Units units) {
   bool success = false;
-  
-  _RTX_DB_SCOPED_LOCK;
-  
-  _dbq << "insert or ignore into meta (name,units) values (?,?)"
-  << id << units.to_string();
-  
-  int uid = (int)_db->last_insert_rowid();    
-  // add to the cache.
-  _metaCache[id] = uid;
-  
+  {
+    _RTX_DB_SCOPED_LOCK;
+    
+    _dbq << "insert or ignore into meta (name,units) values (?,?)"
+    << id << units.to_string();
+    
+    int uid = (int)_db->last_insert_rowid();    
+    // add to the cache.
+    _metaCache[id] = uid;
+  }
   if (_inTransaction) {
-    this->checkTransactions(false);
+    this->checkTransactions(); // allow flushing if we've exceeded max transaction stack size
   }
   return success;
 }
@@ -209,13 +208,13 @@ bool SqliteAdapter::insertIdentifierAndUnits(const std::string& id, Units units)
 void SqliteAdapter::insertSingle(const std::string& id, Point point) {
   if (_inTransaction) { // caller has promised to end the bulk operation eventually.
     insertSingleInTransaction(id, point);
-    this->checkTransactions(false); // only flush if we've reached the stride size.
+    this->checkTransactions();
   }
   
   else {
-    this->checkTransactions(false);
+    this->beginTransaction();
     this->insertSingleInTransaction(id, point);
-    this->checkTransactions(true);
+    this->endTransaction();
   }
 
 }
@@ -230,22 +229,14 @@ void SqliteAdapter::insertSingleInTransaction(const std::string& id, Point point
 
 
 void SqliteAdapter::insertRange(const std::string& id, std::vector<Point> points) {
-  {
-    checkTransactions(true); // any tranactions currently? tell them to quit.
-    _RTX_DB_SCOPED_LOCK;
-    _dbq << "BEGIN";
-  }
   
-  // this is always within a transaction
+  this->commit(); // commit any transactions in progress
+  
+  this->beginTransaction();
   for(const Point &p : points) {
     this->insertSingleInTransaction(id, p);
   }
-  {
-    _RTX_DB_SCOPED_LOCK;
-    _dbq << "END";
-  }
-  
-
+  this->endTransaction();
 }
 
 // UPDATE
@@ -275,8 +266,15 @@ void SqliteAdapter::removeAllRecords() {
 
 bool SqliteAdapter::initTables() {
   
-  _dbq << initTablesStr;
-  
+  auto dbh = _db->connection();
+  sqlite3 *handle = dbh.get();
+  string schemaStr = initTablesStr;
+  boost::replace_all(schemaStr,"\n"," ");
+  int err = sqlite3_exec(handle, schemaStr.c_str(), NULL, NULL, NULL);
+  if (err != SQLITE_OK) {
+    cerr << sqlite3_errmsg(handle) << endl << flush;
+    return false;
+  }
   return true;
 }
 
@@ -287,8 +285,9 @@ int SqliteAdapter::dbSchemaVersion() {
 }
 void SqliteAdapter::setDbSchemaVersion(int v) {
   stringstream ss;
-  ss << "PRAGMA user_version = " << v;
-  _dbq << ss.str();
+  ss << "PRAGMA user_version = " << v << ";";
+  auto q = ss.str();
+  _dbq << q;
 }
 
 
@@ -303,20 +302,15 @@ bool SqliteAdapter::updateSchema() {
       case 1:
       {
         // migrate 0,1->2
-        _dbq << 
-        "BEGIN TRANSACTION; "
-        "UPDATE points SET quality = 128; "
-        "END TRANSACTION; ";
-        
-        currentVersion = 2;
-        this->setDbSchemaVersion(currentVersion);
+        _dbq << "UPDATE points SET quality = 128";
+        this->setDbSchemaVersion(2);
       }
         break;
         
       default:
         break;
     }
-    
+    currentVersion = this->dbSchemaVersion();
   }
   
   if (currentVersion == sqlitePointRecordCurrentDbVersion) {
@@ -329,42 +323,33 @@ bool SqliteAdapter::updateSchema() {
 
 
 
-void SqliteAdapter::checkTransactions(bool forceEndTranaction) {
-  _RTX_DB_SCOPED_LOCK;
-  // forcing to end?
-  if (forceEndTranaction) {
-    if (_inTransaction) {
-      _transactionStackCount = 0;
-      _dbq << "END";
-      _inTransaction = false;
-      return;
-    }
-    else {
-      // do nothing
-      return;
-    }
+void SqliteAdapter::checkTransactions() {
+  if (!_inTransaction) {
+    _RTX_DB_SCOPED_LOCK;
+    _dbq << "begin;";
+    _inTransaction = true;
+    return;
   }
   
-  
-  if (_inTransaction) {
-    if (_transactionStackCount >= _maxTransactionStackCount) {
-      // reset the stack, commit the stack
-      _transactionStackCount = 0;
-      _dbq << "END";
-      _inTransaction = false;
-    }
-    else {
-      // increment the stack count.
-      ++_transactionStackCount;
-    }
+  if (_transactionStackCount >= _maxTransactionStackCount) {
+    // reset the stack, commit the transaction
+    this->commit();
   }
   else {
-    _dbq << "BEGIN";
-    _inTransaction = true;
+    // increment the stack count.
+    _RTX_DB_SCOPED_LOCK;
+    ++_transactionStackCount;
   }
-  
 }
 
 
+void SqliteAdapter::commit() {
+  _RTX_DB_SCOPED_LOCK;
+  if (_inTransaction) {
+    _dbq << "end;";
+    _transactionStackCount = 0;
+    _inTransaction = false;
+  }
+}
 
 

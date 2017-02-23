@@ -53,8 +53,9 @@ namespace RTX {
     bool _inTransaction;
     int _transactionStackCount;
     int _maxTransactionStackCount;
-    void checkTransactions(bool forceEndTranaction);
-        
+    void checkTransactions();
+    void commit();
+    
     bool initTables();
     void insertSingleInTransaction(const std::string &id, Point point);
     
