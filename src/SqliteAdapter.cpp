@@ -190,13 +190,18 @@ bool SqliteAdapter::insertIdentifierAndUnits(const std::string& id, Units units)
   bool success = false;
   {
     _RTX_DB_SCOPED_LOCK;
+    try {
+      _dbq << "insert or ignore into meta (name,units) values (?,?)"
+      << id << units.to_string();
     
-    _dbq << "insert or ignore into meta (name,units) values (?,?)"
-    << id << units.to_string();
-    
-    int uid = (int)_db->last_insert_rowid();    
-    // add to the cache.
-    _metaCache[id] = uid;
+      int uid = (int)_db->last_insert_rowid();    
+      // add to the cache.
+      _metaCache[id] = uid;
+      success = true;
+    }
+    catch (exception& e) {
+      cerr << "could not create series" << endl;
+    }
   }
   if (_inTransaction) {
     this->checkTransactions(); // allow flushing if we've exceeded max transaction stack size
@@ -251,8 +256,8 @@ bool SqliteAdapter::assignUnitsToRecord(const std::string& name, const Units& un
 // DELETE
 void SqliteAdapter::removeRecord(const std::string& id) {
   _RTX_DB_SCOPED_LOCK;
-  string sqlStr = "delete from points where series_id = (SELECT series_id FROM meta where name = \'" + id + "\'); delete from meta where name = \'" + id + "\'";
-  _dbq << sqlStr;
+  _dbq << "delete from points where series_id = (SELECT series_id FROM meta where name = \'" + id + "\');";
+  _dbq << "delete from meta where name = \'" + id + "\'";
 }
 void SqliteAdapter::removeAllRecords() {
   _RTX_DB_SCOPED_LOCK;
@@ -264,12 +269,8 @@ void SqliteAdapter::removeAllRecords() {
 #pragma mark private
 
 bool SqliteAdapter::initTables() {
-  vector<string> stmts;
-  boost::split(stmts, initTablesStr, boost::is_any_of(";"), boost::algorithm::token_compress_on); // split on semicolon
-  for (auto s : stmts) {
-    _dbq << s;
-  }
-  return true;
+  auto err = sqlite3_exec(_db->connection().get(), initTablesStr.c_str(), nullptr, nullptr, nullptr);
+  return (err == SQLITE_OK);
 }
 
 int SqliteAdapter::dbSchemaVersion() {
