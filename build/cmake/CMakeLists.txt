@@ -127,7 +127,6 @@ add_library(epanetrtx SHARED
 target_compile_definitions(epanetrtx PRIVATE MAXFLOAT=3.40282347e+38F)
 set(rtx_lib_deps 
 	epanet
-	geohash
 	curl 
 	boost_system 
 	boost_filesystem 

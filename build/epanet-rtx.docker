@@ -1,0 +1,64 @@
+FROM ubuntu:xenial
+
+RUN apt-get update && \
+	apt-get install -y libsqlite3-dev cmake libiodbc2-dev tdsodbc curl libcurl4-openssl-dev g++ openssl libssl-dev git
+RUN apt-get install -y llvm clang libblocksruntime-dev
+RUN apt-get install -y wget
+
+## build / install boost
+ARG boost_version=1.62.0
+ARG boost_dir=boost_1_62_0
+ENV boost_version ${boost_version}
+
+RUN wget http://downloads.sourceforge.net/project/boost/boost/${boost_version}/${boost_dir}.tar.gz \
+    && tar xfz ${boost_dir}.tar.gz \
+    && rm ${boost_dir}.tar.gz \
+    && cd ${boost_dir} \
+    && ./bootstrap.sh \
+    && ./b2 --without-python --prefix=/usr -j 4 link=shared runtime-link=shared install \
+    && cd .. && rm -rf ${boost_dir} && ldconfig
+
+WORKDIR /opt/src
+
+### install cpprestsdk library
+RUN git clone https://github.com/Microsoft/cpprestsdk.git casablanca \
+	&& cd casablanca/Release \
+	&& mkdir build.release \
+	&& cd build.release \
+	&& cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=0 -DBUILD_SAMPLES=0 \
+	&& make \
+	&& make install \
+	&& cd /opt/src \
+	&& rm -rf casablanca
+
+## install sqlite_modern dep
+RUN git clone https://github.com/aminroosta/sqlite_modern_cpp.git \
+	&& cp -R sqlite_modern_cpp/hdr/* /usr/local/include/ \
+	&& cd /opt/src \
+	&& rm -rf sqlite_modern_cpp
+
+##########################################################################################
+####  everything above here should be pretty stable. cache this.
+##########################################################################################
+
+## build/install EPANET
+RUN git clone https://github.com/samhatchett/EPANET.git \
+	&& cd EPANET \
+	&& git checkout owa_netBuilder \
+	&& cd build/CMake \
+	&& mkdir build && cd build \
+	&& cmake -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ .. \
+	&& make \
+	&& make install
+
+RUN git clone https://github.com/OpenWaterAnalytics/epanet-rtx.git \
+	&& cd epanet-rtx \
+	&& git checkout dev \
+	&& cd build/cmake \
+	&& mkdir build && cd build \
+	&& cmake -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ .. \
+	&& make \
+	&& make test ARGS="-V" \
+	&& make install
+
+
