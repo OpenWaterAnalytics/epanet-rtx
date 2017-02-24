@@ -60,8 +60,8 @@ _epanet_section_t _epanet_sectionFromLine(const string& line) {
   return none;
 }
 
-int _epanet_make_pattern(OW_Project *m, TimeSeries::_sp ts, Clock::_sp clock, TimeRange range, const string& patternName, Units patternUnits);
-int _epanet_make_pattern(OW_Project *m, TimeSeries::_sp ts, Clock::_sp clock, TimeRange range, const string& patternName, Units patternUnits) {
+int _epanet_make_pattern(EN_Project *m, TimeSeries::_sp ts, Clock::_sp clock, TimeRange range, const string& patternName, Units patternUnits);
+int _epanet_make_pattern(EN_Project *m, TimeSeries::_sp ts, Clock::_sp clock, TimeRange range, const string& patternName, Units patternUnits) {
   TimeSeriesFilter::_sp rsDemand(new TimeSeriesFilter);
   rsDemand->setClock(clock);
   rsDemand->setResampleMode(ResampleModeStep);
@@ -73,17 +73,17 @@ int _epanet_make_pattern(OW_Project *m, TimeSeries::_sp ts, Clock::_sp clock, Ti
   pName = pName.substr(0,30);
   boost::replace_all(pName, " ", "_");
   char *patName = (char*)pName.c_str();
-  OW_addpattern(m, patName);
+  EN_addpattern(m, patName);
   int patIdx;
   size_t len = pc.count();
-  OW_getpatternindex(m, patName, &patIdx);
+  EN_getpatternindex(m, patName, &patIdx);
   double *pattern = (double*)calloc(len, sizeof(double));
   int i = 0;
   pc.apply([&](const Point& p){
     pattern[i] = p.value;
     ++i;
   });
-  OW_setpattern(m, patIdx, pattern, (int)len);
+  EN_setpattern(m, patIdx, pattern, (int)len);
   free(pattern);
   return patIdx;
 }
@@ -261,7 +261,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   // create a copy of the project, so that we don't alter important properties of this one.
   string fileName = _model->modelFile();
   EpanetModel::_sp modelTemplate( new EpanetModel(fileName) );
-  OW_Project *ow_project = modelTemplate->epanetModelPointer();
+  EN_Project *ow_project = modelTemplate->epanetModelPointer();
   
   // the pattern clock matches the hydraulic timestep,
   // and has an offset that makes the first tick occur at
@@ -269,8 +269,8 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   Clock::_sp patternClock(new Clock(_model->hydraulicTimeStep(), _range.start));
   
   // simulation time parameters
-  OW_settimeparam(ow_project, EN_PATTERNSTEP, (long)_model->hydraulicTimeStep());
-  OW_settimeparam(ow_project, EN_DURATION, (long)(_range.duration()));
+  EN_settimeparam(ow_project, EN_PATTERNSTEP, (long)_model->hydraulicTimeStep());
+  EN_settimeparam(ow_project, EN_DURATION, (long)(_range.duration()));
   
   /*******************************************************/
   // get relative base demands for junctions, and set them
@@ -291,7 +291,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
       if (totalBase != 0) {
         thisBase = (junction->boundaryFlow()) ? 1 : (junction->baseDemand() / totalBase);
       }
-      OW_setnodevalue(ow_project,
+      EN_setnodevalue(ow_project,
                       _model->enIndexForJunction(junction),
                       EN_BASEDEMAND,
                       thisBase );
@@ -327,7 +327,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
     
     for (auto j: dma->junctions()) {
       int jPatIdx = (j->boundaryFlow()) ? 0 : pIndex;
-      OW_setnodevalue(ow_project, _model->enIndexForJunction(j), EN_PATTERN, jPatIdx);
+      EN_setnodevalue(ow_project, _model->enIndexForJunction(j), EN_PATTERN, jPatIdx);
     }
   }
   
@@ -343,8 +343,8 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
         string pName = "rtxhead_" + h->name();
         boost::replace_all(pName, " ", "_");
         int pIndex = _epanet_make_pattern(ow_project, h, patternClock, _range, pName, _model->headUnits());
-        OW_setnodevalue(ow_project, _model->enIndexForJunction(r), EN_PATTERN, pIndex);
-        OW_setnodevalue(ow_project, _model->enIndexForJunction(r), EN_TANKLEVEL, 1.0);
+        EN_setnodevalue(ow_project, _model->enIndexForJunction(r), EN_PATTERN, pIndex);
+        EN_setnodevalue(ow_project, _model->enIndexForJunction(r), EN_TANKLEVEL, 1.0);
       }
     }
   }
@@ -353,7 +353,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
     for (auto r: _model->reservoirs()) {
       if (r->headMeasure()) {
         double iHead = r->headMeasure()->pointAtOrBefore(_range.start).value;
-        OW_setnodevalue(ow_project, _model->enIndexForJunction(r), EN_TANKLEVEL, iHead);
+        EN_setnodevalue(ow_project, _model->enIndexForJunction(r), EN_TANKLEVEL, iHead);
       }
     }
   }
@@ -369,7 +369,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
         string pName = "rtxdem_" + demand->name();
         boost::replace_all(pName, " ", "_");
         int pIndex = _epanet_make_pattern(ow_project, demand, patternClock, _range, pName, _model->flowUnits());
-        OW_setnodevalue(ow_project, _model->enIndexForJunction(j), EN_PATTERN, pIndex);
+        EN_setnodevalue(ow_project, _model->enIndexForJunction(j), EN_PATTERN, pIndex);
       }
     }
   }
@@ -381,7 +381,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   for (auto t: _model->tanks()) {
     if (t->levelMeasure()) {
       double iLevel = t->levelMeasure()->pointAtOrBefore(_range.start).value;
-      OW_setnodevalue(ow_project, _model->enIndexForJunction(t), EN_TANKLEVEL, iLevel);
+      EN_setnodevalue(ow_project, _model->enIndexForJunction(t), EN_TANKLEVEL, iLevel);
     }
   }
   
@@ -395,7 +395,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   
   boost::filesystem::path modelPath = boost::filesystem::temp_directory_path();
   modelPath /= "export_rt_model.inp";
-  OW_saveinpfile(ow_project, modelPath.c_str());
+  EN_saveinpfile(ow_project, modelPath.c_str());
   
   ifstream originalFile;
   originalFile.open(modelPath.string());

@@ -23,13 +23,13 @@ EpanetModel::EpanetModel() : Model() {
   // nothing to do, right?
   _enOpened = false;
   _enModel = NULL;
-//  OW_API_CHECK( OW_newModel(&_enModel), "OW_newModel");
+//  EN_API_CHECK( EN_newModel(&_enModel), "EN_newModel");
 }
 
 EpanetModel::~EpanetModel() {
   this->closeEngine();
-  OW_API_CHECK( OW_close(_enModel), "OW_close");
-  //  OW_API_CHECK(OW_freeModel(_enModel), "OW_freeModel");
+  EN_API_CHECK( EN_close(_enModel), "EN_close");
+  //  EN_API_CHECK(EN_freeModel(_enModel), "EN_freeModel");
 }
 
 EpanetModel::EpanetModel(const EpanetModel& o) {
@@ -41,7 +41,7 @@ EpanetModel::EpanetModel(const EpanetModel& o) {
   
 }
 
-OW_Project* EpanetModel::epanetModelPointer() {
+EN_Project* EpanetModel::epanetModelPointer() {
   return _enModel;
 }
 
@@ -67,7 +67,7 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
     boost::filesystem::path rptPath = boost::filesystem::temp_directory_path();
     rptPath /= "en_report.txt";
     
-    OW_API_CHECK( OW_open((char*)filename.c_str(), &_enModel, (char*)rptPath.c_str(), (char*)""), "OW_open" );
+    EN_API_CHECK( EN_open((char*)filename.c_str(), &_enModel, (char*)rptPath.c_str(), (char*)""), "EN_open" );
     
   } catch (const std::string& errStr) {
     cerr << "model not formatted correctly. " << errStr << endl;
@@ -81,7 +81,7 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   
   int qualCode, traceNode;
   char chemName[32],chemUnits[32];
-  OW_API_CHECK( OW_getqualinfo(_enModel, &qualCode, chemName, chemUnits, &traceNode), "OW_getqualinfo" );
+  EN_API_CHECK( EN_getqualinfo(_enModel, &qualCode, chemName, chemUnits, &traceNode), "EN_getqualinfo" );
   string chemUnitsStr(chemUnits);
   if (chemUnitsStr == "hrs") {
     chemUnitsStr = "hr";
@@ -89,7 +89,7 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   Units qualUnits = Units::unitOfType(chemUnitsStr);
   this->setQualityUnits(qualUnits);
   
-  OW_API_CHECK( OW_getflowunits(_enModel, &flowUnitType), "OW_getflowunits");
+  EN_API_CHECK( EN_getflowunits(_enModel, &flowUnitType), "EN_getflowunits");
   switch (flowUnitType)
   {
     case EN_LPS:
@@ -146,31 +146,31 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   
   // what units are quality in? who knows!
   //this->setQualityUnits(RTX_MICROSIEMENS_PER_CM);
-  //OW_API_CHECK(OW_setqualtype(_enModel, CHEM, (char*)"rtxConductivity", (char*)"us/cm", (char*)""), "OW_setqualtype");
+  //EN_API_CHECK(EN_setqualtype(_enModel, CHEM, (char*)"rtxConductivity", (char*)"us/cm", (char*)""), "EN_setqualtype");
   
   // get simulation parameters
   {
     long enTimeStep;
-    OW_API_CHECK(OW_gettimeparam(_enModel, EN_HYDSTEP, &enTimeStep), "OW_gettimeparam EN_HYDSTEP");
+    EN_API_CHECK(EN_gettimeparam(_enModel, EN_HYDSTEP, &enTimeStep), "EN_gettimeparam EN_HYDSTEP");
     this->setHydraulicTimeStep((int)enTimeStep);
   }
   
   int nodeCount, tankCount, linkCount;
   char enName[RTX_MAX_CHAR_STRING];
   
-  OW_API_CHECK( OW_getcount(_enModel, EN_NODECOUNT, &nodeCount), "OW_getcount EN_NODECOUNT" );
-  OW_API_CHECK( OW_getcount(_enModel, EN_TANKCOUNT, &tankCount), "OW_getcount EN_TANKCOUNT" );
-  OW_API_CHECK( OW_getcount(_enModel, EN_LINKCOUNT, &linkCount), "OW_getcount EN_LINKCOUNT" );
+  EN_API_CHECK( EN_getcount(_enModel, EN_NODECOUNT, &nodeCount), "EN_getcount EN_NODECOUNT" );
+  EN_API_CHECK( EN_getcount(_enModel, EN_TANKCOUNT, &tankCount), "EN_getcount EN_TANKCOUNT" );
+  EN_API_CHECK( EN_getcount(_enModel, EN_LINKCOUNT, &linkCount), "EN_getcount EN_LINKCOUNT" );
   
   // create lookup maps for name->index
   for (int iNode=1; iNode <= nodeCount; iNode++) {
-    OW_API_CHECK( OW_getnodeid(_enModel, iNode, enName), "OW_getnodeid" );
+    EN_API_CHECK( EN_getnodeid(_enModel, iNode, enName), "EN_getnodeid" );
     // and keep track of the epanet-toolkit index of this element
     _nodeIndex[string(enName)] = iNode;
   }
   
   for (int iLink = 1; iLink <= linkCount; iLink++) {
-    OW_API_CHECK(OW_getlinkid(_enModel, iLink, enName), "OW_getlinkid");
+    EN_API_CHECK(EN_getlinkid(_enModel, iLink, enName), "EN_getlinkid");
     // keep track of this element index
     _linkIndex[string(enName)] = iLink;
   }
@@ -180,7 +180,7 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   BOOST_FOREACH(Valve::_sp v, this->valves()) {
     int enIdx = _linkIndex[v->name()];
     EN_LinkType type = EN_PIPE;
-    OW_getlinktype(_enModel, enIdx, &type);
+    EN_getlinktype(_enModel, enIdx, &type);
     if (type == EN_PIPE) {
       // should not happen
       continue;
@@ -204,10 +204,10 @@ void EpanetModel::initEngine() {
     return;
   }
   try {
-    OW_API_CHECK(OW_openH(_enModel), "OW_openH");
-    OW_API_CHECK(OW_initH(_enModel, 10), "OW_initH");
-    OW_API_CHECK(OW_openQ(_enModel), "OW_openQ");
-    OW_API_CHECK(OW_initQ(_enModel, EN_NOSAVE), "OW_initQ");
+    EN_API_CHECK(EN_openH(_enModel), "EN_openH");
+    EN_API_CHECK(EN_initH(_enModel, 10), "EN_initH");
+    EN_API_CHECK(EN_openQ(_enModel), "EN_openQ");
+    EN_API_CHECK(EN_initQ(_enModel, EN_NOSAVE), "EN_initQ");
   } catch (...) {
     cerr << "warning: epanet opened improperly" << endl;
   }
@@ -218,8 +218,8 @@ void EpanetModel::initEngine() {
 void EpanetModel::closeEngine() {
   if (_enOpened) {
     try {
-      OW_API_CHECK( OW_closeQ(_enModel), "OW_closeQ");
-      OW_API_CHECK( OW_closeH(_enModel), "OW_closeH");
+      EN_API_CHECK( EN_closeQ(_enModel), "EN_closeQ");
+      EN_API_CHECK( EN_closeH(_enModel), "EN_closeH");
     } catch (...) {
       cerr << "warning: epanet closed improperly" << endl;
     }
@@ -234,10 +234,10 @@ void EpanetModel::createRtxWrappers() {
   int curveCount, nodeCount, tankCount, linkCount;
   
   try {
-    OW_API_CHECK( OW_getcount(_enModel, EN_CURVECOUNT, &curveCount), "OW_getcount EN_CURVECOUNT");
-    OW_API_CHECK( OW_getcount(_enModel, EN_NODECOUNT, &nodeCount), "OW_getcount EN_NODECOUNT" );
-    OW_API_CHECK( OW_getcount(_enModel, EN_TANKCOUNT, &tankCount), "OW_getcount EN_TANKCOUNT" );
-    OW_API_CHECK( OW_getcount(_enModel, EN_LINKCOUNT, &linkCount), "OW_getcount EN_LINKCOUNT" );
+    EN_API_CHECK( EN_getcount(_enModel, EN_CURVECOUNT, &curveCount), "EN_getcount EN_CURVECOUNT");
+    EN_API_CHECK( EN_getcount(_enModel, EN_NODECOUNT, &nodeCount), "EN_getcount EN_NODECOUNT" );
+    EN_API_CHECK( EN_getcount(_enModel, EN_TANKCOUNT, &tankCount), "EN_getcount EN_TANKCOUNT" );
+    EN_API_CHECK( EN_getcount(_enModel, EN_LINKCOUNT, &linkCount), "EN_getcount EN_LINKCOUNT" );
   } catch (...) {
     throw "Could not create wrappers";
   }
@@ -248,7 +248,7 @@ void EpanetModel::createRtxWrappers() {
     double *xVals, *yVals;
     int nPoints;
     char buf[1024];
-    int ok = OW_getcurve (_enModel, iCurve, buf, &nPoints, &xVals, &yVals);
+    int ok = EN_getcurve (_enModel, iCurve, buf, &nPoints, &xVals, &yVals);
     
     map<double,double> curveData;
     for (int iPoint = 0; iPoint < nPoints; ++iPoint) {
@@ -279,11 +279,11 @@ void EpanetModel::createRtxWrappers() {
     char enComment[MAXMSG];
     
     // get relevant info from EPANET toolkit
-    OW_API_CHECK( OW_getnodeid(_enModel, iNode, enName), "OW_getnodeid" );
-    OW_API_CHECK( OW_getnodevalue(_enModel, iNode, EN_ELEVATION, &z), "OW_getnodevalue EN_ELEVATION");
-    OW_API_CHECK( OW_getnodetype(_enModel, iNode, &nodeType), "OW_getnodetype");
-    OW_API_CHECK( OW_getcoord(_enModel, iNode, &x, &y), "OW_getcoord");
-    OW_API_CHECK( OW_getnodecomment(_enModel, iNode, enComment), "OW_getnodecomment");
+    EN_API_CHECK( EN_getnodeid(_enModel, iNode, enName), "EN_getnodeid" );
+    EN_API_CHECK( EN_getnodevalue(_enModel, iNode, EN_ELEVATION, &z), "EN_getnodevalue EN_ELEVATION");
+    EN_API_CHECK( EN_getnodetype(_enModel, iNode, &nodeType), "EN_getnodetype");
+    EN_API_CHECK( EN_getcoord(_enModel, iNode, &x, &y), "EN_getcoord");
+    EN_API_CHECK( EN_getnodecomment(_enModel, iNode, enComment), "EN_getnodecomment");
     
     nodeName = string(enName);
     comment = string(enComment);
@@ -298,8 +298,8 @@ void EpanetModel::createRtxWrappers() {
         
         addTank(newTank);
         
-        OW_API_CHECK(OW_getnodevalue(_enModel, iNode, EN_MAXLEVEL, &maxLevel), "OW_getnodevalue(EN_MAXLEVEL)");
-        OW_API_CHECK(OW_getnodevalue(_enModel, iNode, EN_MINLEVEL, &minLevel), "OW_getnodevalue(EN_MINLEVEL)");
+        EN_API_CHECK(EN_getnodevalue(_enModel, iNode, EN_MAXLEVEL, &maxLevel), "EN_getnodevalue(EN_MAXLEVEL)");
+        EN_API_CHECK(EN_getnodevalue(_enModel, iNode, EN_MINLEVEL, &minLevel), "EN_getnodevalue(EN_MINLEVEL)");
         newTank->setMinMaxLevel(minLevel, maxLevel);
         
         newTank->level()->setUnits(headUnits());
@@ -310,7 +310,7 @@ void EpanetModel::createRtxWrappers() {
         
         Curve::_sp volumeCurve;
         double volumeCurveIndex;
-        OW_API_CHECK(OW_getnodevalue(_enModel, iNode, EN_VOLCURVE, &volumeCurveIndex), "OW_getnodevalue EN_VOLCURVE");
+        EN_API_CHECK(EN_getnodevalue(_enModel, iNode, EN_VOLCURVE, &volumeCurveIndex), "EN_getnodevalue EN_VOLCURVE");
         
         if (volumeCurveIndex > 0) {
           // curved tank
@@ -321,10 +321,10 @@ void EpanetModel::createRtxWrappers() {
           double minVolume, maxVolume;
           double minLevel, maxLevel;
           
-          OW_API_CHECK(OW_getnodevalue(_enModel, iNode, EN_MAXLEVEL, &maxLevel), "EN_MAXLEVEL");
-          OW_API_CHECK(OW_getnodevalue(_enModel, iNode, EN_MINLEVEL, &minLevel), "EN_MINLEVEL");
-          OW_API_CHECK(OW_getnodevalue(_enModel, iNode, EN_MINVOLUME, &minVolume), "EN_MINVOLUME");
-          OW_API_CHECK(OW_getnodevalue(_enModel, iNode, EN_MAXVOLUME, &maxVolume), "EN_MAXVOLUME");
+          EN_API_CHECK(EN_getnodevalue(_enModel, iNode, EN_MAXLEVEL, &maxLevel), "EN_MAXLEVEL");
+          EN_API_CHECK(EN_getnodevalue(_enModel, iNode, EN_MINLEVEL, &minLevel), "EN_MINLEVEL");
+          EN_API_CHECK(EN_getnodevalue(_enModel, iNode, EN_MINVOLUME, &minVolume), "EN_MINVOLUME");
+          EN_API_CHECK(EN_getnodevalue(_enModel, iNode, EN_MAXVOLUME, &maxVolume), "EN_MAXVOLUME");
           
           volumeCurve.reset( new Curve );
           volumeCurve->curveData[minLevel] = minVolume;
@@ -371,19 +371,19 @@ void EpanetModel::createRtxWrappers() {
     
     // Initial quality specified in input data
     double initQual;
-    OW_API_CHECK(OW_getnodevalue(_enModel, iNode, EN_INITQUAL, &initQual), "EN_INITQUAL");
+    EN_API_CHECK(EN_getnodevalue(_enModel, iNode, EN_INITQUAL, &initQual), "EN_INITQUAL");
     newJunction->state_quality = initQual;
     
     // Base demand is sum of all demand categories, accounting for patterns
     double demand = 0, categoryDemand = 0, avgPatternValue = 0;
     int numDemands = 0, patternIdx = 0;
-    OW_API_CHECK( OW_getnumdemands(_enModel, iNode, &numDemands), "OW_getnumdemands()");
+    EN_API_CHECK( EN_getnumdemands(_enModel, iNode, &numDemands), "EN_getnumdemands()");
     for (int demandIdx = 1; demandIdx <= numDemands; demandIdx++) {
-      OW_API_CHECK( OW_getbasedemand(_enModel, iNode, demandIdx, &categoryDemand), "OW_getbasedemand()" );
-      OW_API_CHECK( OW_getdemandpattern(_enModel, iNode, demandIdx, &patternIdx), "OW_getdemandpattern()");
+      EN_API_CHECK( EN_getbasedemand(_enModel, iNode, demandIdx, &categoryDemand), "EN_getbasedemand()" );
+      EN_API_CHECK( EN_getdemandpattern(_enModel, iNode, demandIdx, &patternIdx), "EN_getdemandpattern()");
       avgPatternValue = 1.0;
       if (patternIdx > 0) { // Not the default "pattern" = 1
-        OW_API_CHECK( OW_getaveragepatternvalue(_enModel, patternIdx, &avgPatternValue), "OW_getaveragepatternvalue()");
+        EN_API_CHECK( EN_getaveragepatternvalue(_enModel, patternIdx, &avgPatternValue), "EN_getaveragepatternvalue()");
       }
       demand += categoryDemand * avgPatternValue;
     }
@@ -406,18 +406,18 @@ void EpanetModel::createRtxWrappers() {
     Valve::_sp newValve;
     
     // a bunch of epanet api calls to get properties from the link
-    OW_API_CHECK(OW_getlinkid(_enModel, iLink, enLinkName), "OW_getlinkid");
-    OW_API_CHECK(OW_getlinktype(_enModel, iLink, &linkType), "OW_getlinktype");
-    OW_API_CHECK(OW_getlinknodes(_enModel, iLink, &enFrom, &enTo), "OW_getlinknodes");
-    OW_API_CHECK(OW_getnodeid(_enModel, enFrom, enFromName), "OW_getnodeid - enFromName");
-    OW_API_CHECK(OW_getnodeid(_enModel, enTo, enToName), "OW_getnodeid - enToName");
-    OW_API_CHECK(OW_getlinkvalue(_enModel, iLink, EN_DIAMETER, &diameter), "OW_getlinkvalue EN_DIAMETER");
-    OW_API_CHECK(OW_getlinkvalue(_enModel, iLink, EN_LENGTH, &length), "OW_getlinkvalue EN_LENGTH");
-    OW_API_CHECK(OW_getlinkvalue(_enModel, iLink, EN_INITSTATUS, &status), "OW_getlinkvalue EN_STATUS");
-    OW_API_CHECK(OW_getlinkvalue(_enModel, iLink, EN_ROUGHNESS, &rough), "OW_getlinkvalue EN_ROUGHNESS");
-    OW_API_CHECK(OW_getlinkvalue(_enModel, iLink, EN_MINORLOSS, &mloss), "OW_getlinkvalue EN_MINORLOSS");
-    OW_API_CHECK(OW_getlinkvalue(_enModel, iLink, EN_INITSETTING, &setting), "OW_getlinkvalue EN_INITSETTING");
-    OW_API_CHECK(OW_getlinkcomment(_enModel, iLink, enComment), "OW_getlinkcomment");
+    EN_API_CHECK(EN_getlinkid(_enModel, iLink, enLinkName), "EN_getlinkid");
+    EN_API_CHECK(EN_getlinktype(_enModel, iLink, &linkType), "EN_getlinktype");
+    EN_API_CHECK(EN_getlinknodes(_enModel, iLink, &enFrom, &enTo), "EN_getlinknodes");
+    EN_API_CHECK(EN_getnodeid(_enModel, enFrom, enFromName), "EN_getnodeid - enFromName");
+    EN_API_CHECK(EN_getnodeid(_enModel, enTo, enToName), "EN_getnodeid - enToName");
+    EN_API_CHECK(EN_getlinkvalue(_enModel, iLink, EN_DIAMETER, &diameter), "EN_getlinkvalue EN_DIAMETER");
+    EN_API_CHECK(EN_getlinkvalue(_enModel, iLink, EN_LENGTH, &length), "EN_getlinkvalue EN_LENGTH");
+    EN_API_CHECK(EN_getlinkvalue(_enModel, iLink, EN_INITSTATUS, &status), "EN_getlinkvalue EN_STATUS");
+    EN_API_CHECK(EN_getlinkvalue(_enModel, iLink, EN_ROUGHNESS, &rough), "EN_getlinkvalue EN_ROUGHNESS");
+    EN_API_CHECK(EN_getlinkvalue(_enModel, iLink, EN_MINORLOSS, &mloss), "EN_getlinkvalue EN_MINORLOSS");
+    EN_API_CHECK(EN_getlinkvalue(_enModel, iLink, EN_INITSETTING, &setting), "EN_getlinkvalue EN_INITSETTING");
+    EN_API_CHECK(EN_getlinkcomment(_enModel, iLink, enComment), "EN_getlinkcomment");
     
     linkName = string(enLinkName);
     comment = string(enComment);
@@ -447,7 +447,7 @@ void EpanetModel::createRtxWrappers() {
         
       {
         // has curve?
-        int err = OW_getlinkvalue(_enModel, iLink, EN_HEADCURVE, &curveIdx);
+        int err = EN_getlinkvalue(_enModel, iLink, EN_HEADCURVE, &curveIdx);
         if (err == EN_OK) {
           Curve::_sp pumpCurve = namedCurves[(int)curveIdx];
           if (pumpCurve) {
@@ -456,7 +456,7 @@ void EpanetModel::createRtxWrappers() {
             newPump->setHeadCurve(pumpCurve);
           }
         }
-        err = OW_getlinkvalue(_enModel, iLink, EN_EFFICIENCYCURVE, &curveIdx);
+        err = EN_getlinkvalue(_enModel, iLink, EN_EFFICIENCYCURVE, &curveIdx);
         if (err == EN_OK) {
           Curve::_sp effCurve = namedCurves[(int)curveIdx];
           if (effCurve) {
@@ -510,8 +510,8 @@ void EpanetModel::overrideControls() throw(RTX::RtxException) {
   int nodeCount, tankCount;
   
   try {
-    OW_API_CHECK( OW_getcount(_enModel, EN_NODECOUNT, &nodeCount), "OW_getcount EN_NODECOUNT" );
-    OW_API_CHECK( OW_getcount(_enModel, EN_TANKCOUNT, &tankCount), "OW_getcount EN_TANKCOUNT" );
+    EN_API_CHECK( EN_getcount(_enModel, EN_NODECOUNT, &nodeCount), "EN_getcount EN_NODECOUNT" );
+    EN_API_CHECK( EN_getcount(_enModel, EN_TANKCOUNT, &tankCount), "EN_getcount EN_TANKCOUNT" );
     
     // eliminate all patterns and control rules
     
@@ -522,24 +522,24 @@ void EpanetModel::overrideControls() throw(RTX::RtxException) {
     
     // clear all patterns, set to zero.  we do this to get rid of extra demand patterns set in [DEMANDS],
     // since there's no other way to get to them using the toolkit.
-    OW_API_CHECK( OW_getcount(_enModel, EN_PATCOUNT, &nPatterns), "OW_getcount(EN_PATCOUNT)" );
+    EN_API_CHECK( EN_getcount(_enModel, EN_PATCOUNT, &nPatterns), "EN_getcount(EN_PATCOUNT)" );
     for (int i=1; i<=nPatterns; i++) {
-      OW_API_CHECK( OW_setpattern(_enModel, i, zeroPattern, 1), "OW_setpattern" );
+      EN_API_CHECK( EN_setpattern(_enModel, i, zeroPattern, 1), "EN_setpattern" );
     }
     for(int iNode = 1; iNode <= nodeCount ; iNode++)  {
       // set pattern to index 0 (unity multiplier). this also rids us of any multiple demand patterns.
-      OW_API_CHECK( OW_setnodevalue(_enModel, iNode, EN_PATTERN, 0 ), "OW_setnodevalue(EN_PATTERN)" );  // demand patterns to unity
-      OW_API_CHECK( OW_setnodevalue(_enModel, iNode, EN_BASEDEMAND, 0. ), "OW_setnodevalue(EN_BASEDEMAND)" );	// set base demand to zero
+      EN_API_CHECK( EN_setnodevalue(_enModel, iNode, EN_PATTERN, 0 ), "EN_setnodevalue(EN_PATTERN)" );  // demand patterns to unity
+      EN_API_CHECK( EN_setnodevalue(_enModel, iNode, EN_BASEDEMAND, 0. ), "EN_setnodevalue(EN_BASEDEMAND)" );	// set base demand to zero
       // look for a quality source and nullify its existance
-      int errCode = OW_getnodevalue(_enModel, iNode, EN_SOURCEPAT, &sourcePat);
-      if (errCode != OW_ERR_UNDEF_SOURCE) {
-        OW_API_CHECK( OW_setnodevalue(_enModel, iNode, EN_SOURCETYPE, EN_CONCEN), "OW_setnodevalue(EN_SOURCETYPE)" );
-        OW_API_CHECK( OW_setnodevalue(_enModel, iNode, EN_SOURCEQUAL, 0.), "OW_setnodevalue(EN_SOURCEQUAL)" );
-        OW_API_CHECK( OW_setnodevalue(_enModel, iNode, EN_SOURCEPAT, 0.), "OW_setnodevalue(EN_SOURCEPAT)" );
+      int errCode = EN_getnodevalue(_enModel, iNode, EN_SOURCEPAT, &sourcePat);
+      if (errCode != EN_ERR_UNDEF_SOURCE) {
+        EN_API_CHECK( EN_setnodevalue(_enModel, iNode, EN_SOURCETYPE, EN_CONCEN), "EN_setnodevalue(EN_SOURCETYPE)" );
+        EN_API_CHECK( EN_setnodevalue(_enModel, iNode, EN_SOURCEQUAL, 0.), "EN_setnodevalue(EN_SOURCEQUAL)" );
+        EN_API_CHECK( EN_setnodevalue(_enModel, iNode, EN_SOURCEPAT, 0.), "EN_setnodevalue(EN_SOURCEPAT)" );
       }
     }
     // set the global demand multiplier is unity as well.
-    OW_setoption(_enModel, EN_DEMANDMULT, 1.);
+    EN_setoption(_enModel, EN_DEMANDMULT, 1.);
     
     // disregard controls and rules.
     this->disableControls();
@@ -584,12 +584,12 @@ void EpanetModel::setJunctionDemand(const string& junction, double demand) {
   int nodeIndex = _nodeIndex[junction];
   // Junction demand is total demand - so deal with multiple categories
   int numDemands = 0;
-  OW_API_CHECK( OW_getnumdemands(_enModel, nodeIndex, &numDemands), "OW_getnumdemands()");
+  EN_API_CHECK( EN_getnumdemands(_enModel, nodeIndex, &numDemands), "EN_getnumdemands()");
   for (int demandIdx = 1; demandIdx < numDemands; demandIdx++) {
-    OW_API_CHECK( OW_setbasedemand(_enModel, nodeIndex, demandIdx, 0.0), "OW_setbasedemand()" );
+    EN_API_CHECK( EN_setbasedemand(_enModel, nodeIndex, demandIdx, 0.0), "EN_setbasedemand()" );
   }
   // Last demand category is the one... per EPANET convention
-  OW_API_CHECK( OW_setbasedemand(_enModel, nodeIndex, numDemands, demand), "OW_setbasedemand()" );
+  EN_API_CHECK( EN_setbasedemand(_enModel, nodeIndex, numDemands, demand), "EN_setbasedemand()" );
 }
 
 void EpanetModel::setJunctionQuality(const std::string& junction, double quality) {
@@ -666,28 +666,28 @@ double EpanetModel::pumpEnergy(const string &pump) {
 #pragma mark - Sim options
 void EpanetModel::enableControls() {
   int nC;
-  OW_getcount(_enModel, EN_CONTROLCOUNT, &nC);
+  EN_getcount(_enModel, EN_CONTROLCOUNT, &nC);
   
   for (int i = 1; i <= nC; ++i) {
-    OW_setControlEnabled(_enModel, i, EN_ENABLE);
+    EN_setControlEnabled(_enModel, i, EN_ENABLE);
   }
-  OW_getcount(_enModel, EN_RULECOUNT, &nC);
+  EN_getcount(_enModel, EN_RULECOUNT, &nC);
   for (int i = 1; i <= nC; ++i) {
-    OW_setRuleEnabled(_enModel, i, EN_ENABLE);
+    EN_setRuleEnabled(_enModel, i, EN_ENABLE);
   }
 }
 
 void EpanetModel::disableControls() {
   int nC;
-  OW_getcount(_enModel, EN_CONTROLCOUNT, &nC);
+  EN_getcount(_enModel, EN_CONTROLCOUNT, &nC);
   
   for (int i = 1; i <= nC; ++i) {
-    OW_setControlEnabled(_enModel, i, EN_DISABLE);
+    EN_setControlEnabled(_enModel, i, EN_DISABLE);
   }
   
-  OW_getcount(_enModel, EN_RULECOUNT, &nC);
+  EN_getcount(_enModel, EN_RULECOUNT, &nC);
   for (int i = 1; i <= nC; ++i) {
-    OW_setRuleEnabled(_enModel, i, EN_DISABLE);
+    EN_setRuleEnabled(_enModel, i, EN_DISABLE);
   }
 }
 
@@ -708,16 +708,16 @@ bool EpanetModel::solveSimulation(time_t time) {
   
   // set the current epanet-time to zero, since we override epanet-time.
   setCurrentSimulationTime( time );
-  OW_API_CHECK(OW_settimeparam(_enModel, EN_HTIME, 0), "OW_settimeparam(EN_HTIME)");
-  OW_API_CHECK(OW_settimeparam(_enModel, EN_QTIME, 0), "OW_settimeparam(EN_QTIME)");
+  EN_API_CHECK(EN_settimeparam(_enModel, EN_HTIME, 0), "EN_settimeparam(EN_HTIME)");
+  EN_API_CHECK(EN_settimeparam(_enModel, EN_QTIME, 0), "EN_settimeparam(EN_QTIME)");
   // solve the hydraulics
-  OW_API_CHECK(errorCode = OW_runH(_enModel, &timestep), "OW_runH");
+  EN_API_CHECK(errorCode = EN_runH(_enModel, &timestep), "EN_runH");
   // check for success
   success = this->_didConverge(time, errorCode);
   
   if (errorCode > 0) {
     char errorMsg[256];
-    OW_geterror(errorCode, errorMsg, 255);
+    EN_geterror(errorCode, errorMsg, 255);
     struct tm * timeinfo = localtime (&time);
     stringstream ss;
     ss << std::string(errorMsg) << " :: " << asctime(timeinfo);
@@ -726,7 +726,7 @@ bool EpanetModel::solveSimulation(time_t time) {
 
   // how to deal with lack of hydraulic convergence here - reset boundary/initial conditions?
   if (this->shouldRunWaterQuality()) {
-    OW_API_CHECK(OW_runQ(_enModel, &timestep), "OW_runQ");
+    EN_API_CHECK(EN_runQ(_enModel, &timestep), "EN_runQ");
   }
   
   return success;
@@ -748,7 +748,7 @@ time_t EpanetModel::nextHydraulicStep(time_t time) {
   EN_TimestepEvent eventType;
   long duration = 0;
   int elementIndex = 0;
-  OW_API_CHECK(OW_timeToNextEvent(_enModel, &eventType, &duration, &elementIndex), "OW_timeToNextEvent");
+  EN_API_CHECK(EN_timeToNextEvent(_enModel, &eventType, &duration, &elementIndex), "EN_timeToNextEvent");
   nextTime += duration;
   
   if (eventType == EN_STEP_TANKEVENT || eventType == EN_STEP_CONTROLEVENT) {
@@ -759,7 +759,7 @@ time_t EpanetModel::nextHydraulicStep(time_t time) {
     if (eventType == EN_STEP_TANKEVENT) {
       elementTypeStr = "Tank";
       char id[MAXID+1];
-      OW_API_CHECK( OW_getnodeid(_enModel, elementIndex, id), "OW_getnodeid()" );
+      EN_API_CHECK( EN_getnodeid(_enModel, elementIndex, id), "EN_getnodeid()" );
       elementDescStr = string(id);
     }
     else {
@@ -768,7 +768,7 @@ time_t EpanetModel::nextHydraulicStep(time_t time) {
       
       int controlType, linkIndex, nodeIndex;
       double setting, level;
-      OW_getcontrol(_enModel, elementIndex, &controlType, &linkIndex, &setting, &nodeIndex, &level);
+      EN_getcontrol(_enModel, elementIndex, &controlType, &linkIndex, &setting, &nodeIndex, &level);
       //
       //#define EN_LOWLEVEL     0   /* Control types.  */
       //#define EN_HILEVEL      1   /* See ControlType */
@@ -776,7 +776,7 @@ time_t EpanetModel::nextHydraulicStep(time_t time) {
       //#define EN_TIMEOFDAY    3
       
       char linkName[1024];
-      OW_getlinkid(_enModel, linkIndex, linkName);
+      EN_getlinkid(_enModel, linkIndex, linkName);
       
       string nodeOrTime("");
       if (nodeIndex == 0) {
@@ -784,7 +784,7 @@ time_t EpanetModel::nextHydraulicStep(time_t time) {
       }
       else {
         char nodeId[1024];
-        OW_getnodeid(_enModel, nodeIndex, nodeId);
+        EN_getnodeid(_enModel, nodeIndex, nodeId);
         nodeOrTime = string(nodeId);
       }
       
@@ -829,10 +829,10 @@ void EpanetModel::stepSimulation(time_t time) {
   
   int actualStep = this->hydraulicTimeStep();
   this->setHydraulicTimeStep(step);
-  OW_API_CHECK( OW_nextH(_enModel, &computedStep), "OW_nextH()" );
+  EN_API_CHECK( EN_nextH(_enModel, &computedStep), "EN_nextH()" );
   
   if (this->shouldRunWaterQuality()) {
-    OW_API_CHECK(OW_nextQ(_enModel, &qstep), "OW_nextQ");
+    EN_API_CHECK(EN_nextQ(_enModel, &qstep), "EN_nextQ");
   }
   
   if (step != computedStep) {
@@ -848,13 +848,13 @@ void EpanetModel::stepSimulation(time_t time) {
 
 int EpanetModel::iterations(time_t time) {
   double iterations;
-  OW_API_CHECK( OW_getstatistic(_enModel, EN_ITERATIONS, &iterations), "OW_getstatistic(EN_ITERATIONS)");
+  EN_API_CHECK( EN_getstatistic(_enModel, EN_ITERATIONS, &iterations), "EN_getstatistic(EN_ITERATIONS)");
   return iterations;
 }
 
 double EpanetModel::relativeError(time_t time) {
   double relativeError;
-  OW_API_CHECK( OW_getstatistic(_enModel, EN_RELATIVEERROR, &relativeError), "OW_getstatistic(EN_RELATIVEERROR)");
+  EN_API_CHECK( EN_getstatistic(_enModel, EN_RELATIVEERROR, &relativeError), "EN_getstatistic(EN_RELATIVEERROR)");
   return relativeError;
 }
 
@@ -862,7 +862,7 @@ bool EpanetModel::_didConverge(time_t time, int errorCode) {
   // return true if the simulation did converge
   EN_API_FLOAT_TYPE accuracy;
   
-  OW_API_CHECK( OW_getoption(_enModel, EN_ACCURACY, &accuracy), "OW_getoption");
+  EN_API_CHECK( EN_getoption(_enModel, EN_ACCURACY, &accuracy), "EN_getoption");
   bool illcondition = errorCode == 101 || errorCode == 110; // 101 is memory issue, 110 is illconditioning
   bool unbalanced = relativeError(time) > accuracy;
   if (illcondition || unbalanced) {
@@ -875,16 +875,16 @@ bool EpanetModel::_didConverge(time_t time, int errorCode) {
 
 
 void EpanetModel::setHydraulicTimeStep(int seconds) {
-  OW_API_CHECK( OW_settimeparam(_enModel, EN_DURATION, (long)seconds), "OW_settimeparam(EN_DURATION)" );
-//  OW_API_CHECK( OW_settimeparam(_enModel, EN_REPORTSTEP, (long)seconds), "OW_settimeparam(EN_REPORTSTEP)" );
-  OW_API_CHECK( OW_settimeparam(_enModel, EN_HYDSTEP, (long)seconds), "OW_settimeparam(EN_HYDSTEP)" );
+  EN_API_CHECK( EN_settimeparam(_enModel, EN_DURATION, (long)seconds), "EN_settimeparam(EN_DURATION)" );
+//  EN_API_CHECK( EN_settimeparam(_enModel, EN_REPORTSTEP, (long)seconds), "EN_settimeparam(EN_REPORTSTEP)" );
+  EN_API_CHECK( EN_settimeparam(_enModel, EN_HYDSTEP, (long)seconds), "EN_settimeparam(EN_HYDSTEP)" );
   // base class method
   Model::setHydraulicTimeStep(seconds);
   
 }
 
 void EpanetModel::setQualityTimeStep(int seconds) {
-  OW_API_CHECK( OW_settimeparam(_enModel, EN_QUALSTEP, (long)seconds), "OW_settimeparam(EN_QUALSTEP)");
+  EN_API_CHECK( EN_settimeparam(_enModel, EN_QUALSTEP, (long)seconds), "EN_settimeparam(EN_QUALSTEP)");
   // call base class
   Model::setQualityTimeStep(seconds);
 }
@@ -894,31 +894,31 @@ void EpanetModel::applyInitialQuality() {
     DebugLog << "Could not apply initial quality conditions; engine not opened" << EOL;
     return;
   }
-  OW_API_CHECK(OW_closeQ(_enModel), "OW_closeQ");
-  OW_API_CHECK(OW_openQ(_enModel), "OW_openQ");
+  EN_API_CHECK(EN_closeQ(_enModel), "EN_closeQ");
+  EN_API_CHECK(EN_openQ(_enModel), "EN_openQ");
 
   // Junctions
   BOOST_FOREACH(Junction::_sp junc, this->junctions()) {
     double qual = junc->state_quality;
     int iNode = _nodeIndex[junc->name()];
-    OW_API_CHECK(OW_setnodevalue(_enModel, iNode, EN_INITQUAL, qual), "OW_setnodevalue - EN_INITQUAL");
+    EN_API_CHECK(EN_setnodevalue(_enModel, iNode, EN_INITQUAL, qual), "EN_setnodevalue - EN_INITQUAL");
   }
   
   // Tanks
   BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
     double qual = tank->state_quality;
     int iNode = _nodeIndex[tank->name()];
-    OW_API_CHECK(OW_setnodevalue(_enModel, iNode, EN_INITQUAL, qual), "OW_setnodevalue - EN_INITQUAL");
+    EN_API_CHECK(EN_setnodevalue(_enModel, iNode, EN_INITQUAL, qual), "EN_setnodevalue - EN_INITQUAL");
   }
   
   // reservoirs
   for(auto r: this->reservoirs()) {
     double q = r->state_quality;
     int iNode = _nodeIndex[r->name()];
-    OW_API_CHECK(OW_setnodevalue(_enModel, iNode, EN_INITQUAL, q), "OW_setnodevalue - EN_INITIALQUAL");
+    EN_API_CHECK(EN_setnodevalue(_enModel, iNode, EN_INITQUAL, q), "EN_setnodevalue - EN_INITIALQUAL");
   }
   
-  OW_API_CHECK(OW_initQ(_enModel, EN_NOSAVE), "ENinitQ");
+  EN_API_CHECK(EN_initQ(_enModel, EN_NOSAVE), "ENinitQ");
 }
 
 
@@ -971,26 +971,26 @@ void EpanetModel::updateEngineWithElementProperties(Element::_sp e) {
 double EpanetModel::getNodeValue(int epanetCode, const string& node) {
   int nodeIndex = _nodeIndex[node];
   double value;
-  OW_API_CHECK(OW_getnodevalue(_enModel, nodeIndex, epanetCode, &value), "OW_getnodevalue");
+  EN_API_CHECK(EN_getnodevalue(_enModel, nodeIndex, epanetCode, &value), "EN_getnodevalue");
   return value;
 }
 void EpanetModel::setNodeValue(int epanetCode, const string& node, double value) {
   int nodeIndex = _nodeIndex[node];
   stringstream s;
-  s << "OW_setnodevalue " << node << " : " << value;
+  s << "EN_setnodevalue " << node << " : " << value;
   const string str = s.str();
-  OW_API_CHECK(OW_setnodevalue(_enModel, nodeIndex, epanetCode, value), str);
+  EN_API_CHECK(EN_setnodevalue(_enModel, nodeIndex, epanetCode, value), str);
 }
 
 double EpanetModel::getLinkValue(int epanetCode, const string& link) {
   int linkIndex = _linkIndex[link];
   double value;
-  OW_API_CHECK(OW_getlinkvalue(_enModel, linkIndex, epanetCode, &value), "OW_getlinkvalue");
+  EN_API_CHECK(EN_getlinkvalue(_enModel, linkIndex, epanetCode, &value), "EN_getlinkvalue");
   return value;
 }
 void EpanetModel::setLinkValue(int epanetCode, const string& link, double value) {
   int linkIndex = _linkIndex[link];
-  OW_API_CHECK(OW_setlinkvalue(_enModel, linkIndex, epanetCode, value), "OW_setlinkvalue");
+  EN_API_CHECK(EN_setlinkvalue(_enModel, linkIndex, epanetCode, value), "EN_setlinkvalue");
 }
 
 void EpanetModel::setComment(Element::_sp element, const std::string& comment)
@@ -1002,7 +1002,7 @@ void EpanetModel::setComment(Element::_sp element, const std::string& comment)
     case Element::RESERVOIR:
     {
       int nodeIndex = _nodeIndex[element->name()];
-      OW_API_CHECK(OW_setnodecomment(_enModel, nodeIndex, comment.c_str()), "OW_setnodecomment");
+      EN_API_CHECK(EN_setnodecomment(_enModel, nodeIndex, comment.c_str()), "EN_setnodecomment");
     }
       break;
     case Element::PIPE:
@@ -1010,7 +1010,7 @@ void EpanetModel::setComment(Element::_sp element, const std::string& comment)
     case Element::VALVE:
     {
       int linkIndex = _linkIndex[element->name()];
-      OW_API_CHECK(OW_setlinkcomment(_enModel, linkIndex, comment.c_str()), "OW_setlinkcomment");
+      EN_API_CHECK(EN_setlinkcomment(_enModel, linkIndex, comment.c_str()), "EN_setlinkcomment");
     }
       break;
     default:
@@ -1019,10 +1019,10 @@ void EpanetModel::setComment(Element::_sp element, const std::string& comment)
   
 }
 
-void EpanetModel::OW_API_CHECK(int errorCode, string externalFunction) throw(string) {
+void EpanetModel::EN_API_CHECK(int errorCode, string externalFunction) throw(string) {
   if (errorCode > 10) {
     char errorMsg[256];
-    OW_geterror(errorCode, errorMsg, 255);
+    EN_geterror(errorCode, errorMsg, 255);
     this->logLine(string(externalFunction + " :: " + errorMsg));
     throw externalFunction + "::" + std::string(errorMsg);
   }

@@ -41,7 +41,7 @@ namespace RTX {
     void useEpanetFile(const std::string& filename);
     virtual void overrideControls() throw(RtxException);
     virtual std::ostream& toStream(std::ostream &stream);
-    OW_Project *epanetModelPointer();
+    EN_Project *epanetModelPointer();
     
     int enIndexForJunction(Junction::_sp j);
     int enIndexForPipe(Pipe::_sp p);
@@ -89,7 +89,7 @@ namespace RTX {
     virtual void setHydraulicTimeStep(int seconds);
     virtual void setQualityTimeStep(int seconds);
     virtual void applyInitialQuality();
-    void OW_API_CHECK(int errorCode, std::string externalFunction) throw(std::string);
+    void EN_API_CHECK(int errorCode, std::string externalFunction) throw(std::string);
     void updateEngineWithElementProperties(Element::_sp e);
     
     // protected accessors
@@ -99,7 +99,7 @@ namespace RTX {
     void setLinkValue(int epanetCode, const std::string& link, double value);
     void setComment(Element::_sp element, const std::string& comment);
     
-    OW_Project *_enModel; // protected scope so subclasses can use epanet api
+    EN_Project *_enModel; // protected scope so subclasses can use epanet api
     
   private:
     std::map<std::string, int> _nodeIndex;
