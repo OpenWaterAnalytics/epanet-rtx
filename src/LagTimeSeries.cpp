@@ -111,9 +111,13 @@ PointCollection LagTimeSeries::filterPointsInRange(TimeRange range) {
   PointCollection data = this->source()->pointCollection(queryRange);
   
   // move the points in time
-  for(Point& p: data.points()) {
-    p.time += _lag;
+  vector<Point> laggedPoints;
+  for(const Point& p: data.points()) {
+    Point lagP = p;
+    lagP.time += _lag;
+    laggedPoints.push_back(lagP);
   }
+  data.setPoints(laggedPoints);
   
   bool dataOk = false;
   dataOk = data.convertToUnits(this->units());
