@@ -110,7 +110,7 @@ void EpanetModelExporter::exportModel(EpanetModel::_sp model, TimeRange range, c
     }
   }
   
-  const char* fmt = "%Y-%m-%dT%H:%M:%SZ";
+  const char* fmt = "%Y-%m-%dT%H-%M-%SZ";
   auto startStr = PointRecordTime::utcDateStringFromUnix(range.start,fmt);
   auto endStr = PointRecordTime::utcDateStringFromUnix(range.end,fmt);
   
