@@ -276,12 +276,12 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   // clean up junction demands. 
   // any categories? ignore them by setting their base to zero
   for (auto junction : _model->junctions()) {
-    int jIdx = _model->enIndexForJunction(junction),
+    int jIdx = _model->enIndexForJunction(junction);
     // Junction demand is total demand - so deal with multiple categories
     int numDemands = 0;
     EN_getnumdemands(ow_project, jIdx, &numDemands);
     for (int demandIdx = 1; demandIdx < numDemands; demandIdx++) {
-      EN_setbasedemand(ow_project, nodeIndex, demandIdx, 0.0);
+      EN_setbasedemand(ow_project, jIdx, demandIdx, 0.0);
     }
   }
   
