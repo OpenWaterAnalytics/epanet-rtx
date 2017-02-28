@@ -225,7 +225,7 @@ PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange range) {
       
       // make it easy to find any times that were dropped (bad points from a source series)
       map<time_t, Point> sourcePointMap;
-      componentCollection.apply([&](const Point& p){
+      componentCollection.apply([&](Point& p){
         sourcePointMap[p.time] = p * multiplier;
       });
       return sourcePointMap;

@@ -12,7 +12,7 @@ using pvIt = PointCollection::pvIt;
 
 
 
-inline void __apply(RTX::PointCollection::pvRange r, function<void(const Point&)> fn) {
+inline void __apply(RTX::PointCollection::pvRange r, function<void(Point&)> fn) {
   auto i = r.first;
   while (i != r.second) {
     fn(*i);
@@ -33,7 +33,7 @@ pair<pvIt,pvIt> PointCollection::raw() const {
   return make_pair(_points->begin(),_points->end());
 }
 
-void PointCollection::apply(std::function<void(const Point&)> function) const {
+void PointCollection::apply(std::function<void(Point&)> function) const {
   auto raw = this->raw();
   __apply(raw, function);
 }
@@ -62,7 +62,7 @@ void PointCollection::setPoints(vector<Point> points) {
 
 const set<time_t> PointCollection::times() const {
   set<time_t> t;
-  this->apply([&](const Point& p){
+  this->apply([&](Point& p){
     t.insert(p.time);
   });
   return t;
@@ -73,7 +73,7 @@ bool PointCollection::convertToUnits(RTX::Units u) {
     return false;
   }
   vector<Point> converted;
-  this->apply([&](const Point& p){
+  this->apply([&](Point& p){
     converted.push_back(Point::convertPoint(p, this->units, u));
   });
   this->setPoints(converted);
@@ -209,7 +209,7 @@ PointCollection PointCollection::asDelta() const {
   Point lastP = _points->front();
   deltaPoints.push_back(lastP);
   
-  this->apply([&](const Point& p){
+  this->apply([&](Point& p){
     if (p.value != lastP.value) {
       lastP = p;
       deltaPoints.push_back(lastP);
@@ -247,7 +247,7 @@ double PointCollection::percentile(double p, pvRange r) {
   
   if (p <= 0.5) {
     accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::left> > > centile( tag::tail<boost::accumulators::left>::cache_size = cacheSize );
-    __apply(r,[&](const Point& p){
+    __apply(r,[&](Point& p){
       centile(p.value);
     });
     
@@ -256,7 +256,7 @@ double PointCollection::percentile(double p, pvRange r) {
   }
   else {
     accumulator_set<double, stats<tag::tail_quantile<boost::accumulators::right> > > centile( tag::tail<boost::accumulators::right>::cache_size = cacheSize );
-    __apply(r,[&](const Point& p){
+    __apply(r,[&](Point& p){
       centile(p.value);
     });
     double pct = quantile(centile, quantile_probability = p);
@@ -267,7 +267,7 @@ double PointCollection::percentile(double p, pvRange r) {
 
 size_t PointCollection::count(pvRange r) {
   size_t count = 0;
-  __apply(r,[&](const Point& p){
+  __apply(r,[&](Point& p){
     ++count;
   });
   return count;
@@ -281,7 +281,7 @@ double PointCollection::min(pvRange r) {
   
   accumulator_set<double, features<tag::min> > acc;
   
-  __apply(r,[&](const Point& p){
+  __apply(r,[&](Point& p){
     acc(p.value);
   });
   
@@ -295,7 +295,7 @@ double PointCollection::max(pvRange r) {
   }
   
   accumulator_set<double, features<tag::max> > acc;
-  __apply(r,[&](const Point& p){
+  __apply(r,[&](Point& p){
     acc(p.value);
   });
   
@@ -309,7 +309,7 @@ double PointCollection::mean(pvRange r) {
   }
   accumulator_set<double, features<tag::mean> > acc;
   
-  __apply(r,[&](const Point& p){
+  __apply(r,[&](Point& p){
     acc(p.value);
   });
   
@@ -323,7 +323,7 @@ double PointCollection::variance(pvRange r) {
   }
   accumulator_set<double, features<tag::variance(lazy)> > acc;
   
-  __apply(r,[&](const Point& p){
+  __apply(r,[&](Point& p){
     acc(p.value);
   });
   

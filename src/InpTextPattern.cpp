@@ -34,7 +34,7 @@ std::string InpTextPattern::textPatternWithTimeSeries(TimeSeries::_sp ts, const 
   uint i = 0;
   uint lineLength = 12;
   
-  patternData.apply([&](const Point& p){
+  patternData.apply([&](Point& p){
     // start of line?
     if (i == 0) {
       patStream << patternName << "    ";

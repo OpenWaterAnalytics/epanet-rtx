@@ -87,7 +87,7 @@ PointCollection MovingAverage::filterPointsInRange(TimeRange range) {
   {
     // use our new righ/left bounds to get the source data we need.
     PointCollection sourceRaw = this->source()->pointCollection(queryRange);
-    sourceRaw.apply([&](const Point& p){
+    sourceRaw.apply([&](Point& p){
       if (p.isValid) {
         sourcePoints.push_back(p);
       }

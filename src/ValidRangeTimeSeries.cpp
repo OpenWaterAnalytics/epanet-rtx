@@ -52,7 +52,7 @@ PointCollection ValidRangeTimeSeries::filterPointsInRange(TimeRange range) {
   
   vector<Point> outP;
   
-  raw.apply([&](const Point& p){
+  raw.apply([&](Point& p){
     Point newP;
     double pointValue = p.value;
     

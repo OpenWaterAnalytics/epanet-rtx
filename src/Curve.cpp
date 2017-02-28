@@ -18,7 +18,7 @@ PointCollection Curve::convert(const PointCollection &pc) {
   double minY = curveData.cbegin()->second;
   double maxX = curveData.crbegin()->first;
   
-  input.apply([&](const Point& p){
+  input.apply([&](Point& p){
     Point op;
     op.time = p.time;
     double inValue = p.value;

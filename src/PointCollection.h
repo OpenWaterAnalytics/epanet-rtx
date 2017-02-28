@@ -26,7 +26,7 @@ namespace RTX {
     PointCollection(std::vector<Point> points, Units units);
     PointCollection();
     
-    void apply(std::function<void(const Point&)> function) const;
+    void apply(std::function<void(Point&)> function) const;
     pvRange raw() const;
     std::vector<Point> points() const;
     void setPoints(std::vector<Point> points);

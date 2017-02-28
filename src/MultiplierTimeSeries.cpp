@@ -110,10 +110,10 @@ PointCollection MultiplierTimeSeries::filterPointsInRange(RTX::TimeRange range) 
   for (auto t : combinedTimes) {
     multiplyPoints[t] = make_pair(Point(), Point());
   }
-  primary.apply([&](const Point& p){
+  primary.apply([&](Point& p){
     multiplyPoints[p.time].first = p;
   });
-  secondary.apply([&](const Point& p){
+  secondary.apply([&](Point& p){
     multiplyPoints[p.time].second = p;
   });
   for (auto ppP : multiplyPoints) {

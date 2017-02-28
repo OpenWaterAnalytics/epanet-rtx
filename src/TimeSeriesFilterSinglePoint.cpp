@@ -33,7 +33,7 @@ PointCollection TimeSeriesFilterSinglePoint::filterPointsInRange(TimeRange range
   
   vector<Point> outPoints;
   bool didDropPoints = false;
-  data.apply([&](const Point& p){
+  data.apply([&](Point& p){
     Point converted = this->filteredWithSourcePoint(p);
     if (converted.isValid) {
       outPoints.push_back(converted);

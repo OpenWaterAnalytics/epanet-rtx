@@ -79,7 +79,7 @@ int _epanet_make_pattern(EN_Project *m, TimeSeries::_sp ts, Clock::_sp clock, Ti
   EN_getpatternindex(m, patName, &patIdx);
   double *pattern = (double*)calloc(len, sizeof(double));
   int i = 0;
-  pc.apply([&](const Point& p){
+  pc.apply([&](Point& p){
     pattern[i] = p.value;
     ++i;
   });
@@ -484,7 +484,7 @@ void EpanetModelExporter::replaceControlsInStream(ifstream &originalFile, ostrea
           TimeRange settingRange = _range;
           settingRange.start = p->settingBoundary()->pointAtOrBefore(_range.start).time;
           PointCollection settings = p->settingBoundary()->pointCollection(settingRange).asDelta();
-          settings.apply([&](const Point& p){
+          settings.apply([&](Point& p){
             controls[p.time].setting = p;
           });
         }
@@ -493,7 +493,7 @@ void EpanetModelExporter::replaceControlsInStream(ifstream &originalFile, ostrea
           TimeRange statusRange = _range;
           statusRange.start = p->statusBoundary()->pointAtOrBefore(_range.start).time;
           PointCollection statuses = p->statusBoundary()->pointCollection(statusRange).asDelta();
-          statuses.apply([&](const Point& p){
+          statuses.apply([&](Point& p){
             controls[p.time].status = p;
           });
         }
