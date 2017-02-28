@@ -272,6 +272,20 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   EN_settimeparam(ow_project, EN_PATTERNSTEP, (long)_model->hydraulicTimeStep());
   EN_settimeparam(ow_project, EN_DURATION, (long)(_range.duration()));
   
+  /***************************************************************/
+  // clean up junction demands. 
+  // any categories? ignore them by setting their base to zero
+  for (auto junction : _model->junctions()) {
+    int jIdx = _model->enIndexForJunction(junction),
+    // Junction demand is total demand - so deal with multiple categories
+    int numDemands = 0;
+    EN_getnumdemands(ow_project, jIdx, &numDemands);
+    for (int demandIdx = 1; demandIdx < numDemands; demandIdx++) {
+      EN_setbasedemand(ow_project, nodeIndex, demandIdx, 0.0);
+    }
+  }
+  
+  
   /*******************************************************/
   // get relative base demands for junctions, and set them
   // using the epanet api.
@@ -291,6 +305,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
       if (totalBase != 0) {
         thisBase = (junction->boundaryFlow()) ? 1 : (junction->baseDemand() / totalBase);
       }
+      // setnodevalue will set the last category's base demand.
       EN_setnodevalue(ow_project,
                       _model->enIndexForJunction(junction),
                       EN_BASEDEMAND,
