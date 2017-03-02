@@ -20,6 +20,10 @@ using web::http::uri;
 using jsv = web::json::value;
 
 
+#ifndef PI_SSL_VALIDATE
+#define PI_SSL_VALIDATE true
+#endif
+
 #define PI_MAX_POINT_COUNT 10000
 #define PI_TIMEOUT 3
 
@@ -311,6 +315,7 @@ web::json::value PiAdapter::jsonFromRequest(web::http::uri uri, web::http::metho
     string userpass = utility::conversions::to_base64(bytes);
     
     http_client_config config;
+    config.set_validate_certificates(PI_SSL_VALIDATE);
     config.set_timeout(std::chrono::seconds(PI_TIMEOUT));
     //    credentials cred(_conn.user,_conn.pass);
     //    config.set_credentials(cred);

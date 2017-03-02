@@ -41,12 +41,10 @@ add_library(epanet-rtx STATIC
   ../../../../src/Curve.cpp
   ../../../../src/CurveFunction.cpp
   ../../../../src/DbPointRecord.cpp
-  
   ../../../../src/InfluxAdapter.cpp
   ../../../../src/PiAdapter.cpp
   ../../../../src/SqliteAdapter.cpp
   ../../../../src/OdbcAdapter.cpp
-  
   ../../../../src/FailoverTimeSeries.cpp
   ../../../../src/FirstDerivative.cpp
   ../../../../src/GainTimeSeries.cpp
@@ -79,7 +77,7 @@ add_library(epanet-rtx STATIC
   ../../../../src/MetricInfo.cpp
 )
 
-target_compile_definitions(epanet-rtx PRIVATE MAXFLOAT=3.40282347e+38F)
+target_compile_definitions(epanet-rtx PRIVATE MAXFLOAT=3.40282347e+38F PI_SSL_VALIDATE=false)
 target_link_libraries(epanet-rtx
   curl
   boost_system
