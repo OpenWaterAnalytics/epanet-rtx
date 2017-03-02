@@ -28,6 +28,7 @@ cmake_minimum_required (VERSION 2.6)
 project (EPANET-RTX)
 SET (CMAKE_C_FLAGS "-std=c99")
 SET (CMAKE_CXX_FLAGS "-Wall -std=c++11 -fblocks")
+SET (CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_definitions(-DRTX_NO_MYSQL)
 enable_testing()
 
