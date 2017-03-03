@@ -221,6 +221,12 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
           text: 'Tag Search Path',
           placeholder: 'Example.OpcDaServer.Sahara.*',
           inputType: 'text-line'
+        },
+        {
+          key: 'conversions',
+          text: 'Value Conversions',
+          placeholder: 'Inactive=0&Active=1',
+          inputType: 'text-line'
         }
       ]
     }
