@@ -410,7 +410,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   
   boost::filesystem::path modelPath = boost::filesystem::temp_directory_path();
   modelPath /= "export_rt_model.inp";
-  EN_saveinpfile(ow_project, modelPath.c_str());
+  EN_saveinpfile(ow_project, (char*)modelPath.c_str());
   
   ifstream originalFile;
   originalFile.open(modelPath.string());

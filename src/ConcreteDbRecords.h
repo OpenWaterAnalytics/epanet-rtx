@@ -23,6 +23,8 @@ namespace RTX {
     ~PiPointRecord();
     void setTagSearchPath(const std::string& path);
     std::string tagSearchPath();
+    void setConversions(const std::string& conversions);
+    std::string conversions();
   };
   
   

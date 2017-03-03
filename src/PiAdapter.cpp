@@ -43,8 +43,8 @@ const string kSubst("Substituted");
 
 const char* t_fmt = "%Y-%m-%dT%H:%M:%SZ";
 
-Point _pointFromJson(const jsv& j);
-Point _pointFromJson(const jsv& j) {
+
+Point PiAdapter::_pointFromJson(const jsv& j) {
   for (const string& key : {kTimeStamp,kValue,kGood,kQuest,kSubst}) {
     if (!j.has_field(key)) {
       cerr << "ERR: JSON object does not contain required field " << key << endl;
@@ -52,14 +52,43 @@ Point _pointFromJson(const jsv& j) {
     }
   }
   
+  double v;
+  
   // check value type?
-  if (!j.at(kValue).is_double()) {
-    cerr << "Value field is not double" << endl;
+  auto ov = j.at(kValue);
+  auto ovType = ov.type();
+  
+  if (ovType == jsv::value_type::Number) {
+    v = ov.as_double();
+  }
+  else if (ovType == jsv::value_type::String) {
+    string key = ov.as_string();
+    if (_conversions.count(key) > 0) {
+      v = _conversions.at(key);
+    }
+    else {
+      cerr << "No valid conversion for: " << ov.serialize() << endl;
+      return Point();
+    }
+  }
+  else if (ovType == jsv::Object) {
+    // try getting Value.Value
+    if (ov.has_field(kValue) && ov.at(kValue).is_number()) {
+      // nested value, as in an object
+      auto nested = ov.at(kValue);
+      v = nested.as_double();
+    }
+    else {
+      cerr << "Nested value could not be retrieved: " << ov.serialize() << endl;
+      return Point();
+    }
+  }
+  else {
+    cerr << "Value field is not double, or no conversion exists" << endl;
     return Point();
   }
   
   const string tstamp(j.at(kTimeStamp).as_string());
-  const double v(j.at(kValue).as_double());
   const bool good(j.at(kGood).as_bool());
   Point::PointQuality q = (good ? Point::PointQuality::opc_good : Point::PointQuality::opc_bad);
   time_t t = PointRecordTime::timeFromIso8601(tstamp);
@@ -81,6 +110,7 @@ PiAdapter::PiAdapter(errCallback_t cb) : DbAdapter(cb) {
   _conn.pass = "pass";
   
   tagSearchPath = "";
+  valueConversions = "Active=1&Inactive=0&On=1&Off=0";
 }
 
 PiAdapter::~PiAdapter() { 
@@ -109,15 +139,7 @@ void PiAdapter::setConnectionString(const std::string& str) {
   _RTX_DB_SCOPED_LOCK;
   
   // split the tokenized string. we're expecting something like "host=127.0.0.1&port=4242"
-  regex kvReg("([^=]+)=([^&]+)&?"); // key - value pair
-  std::map<std::string, std::string> kvPairs;
-  {
-    auto kv_begin = sregex_iterator(str.begin(), str.end(), kvReg);
-    auto kv_end = sregex_iterator();
-    for (auto it = kv_begin ; it != kv_end; ++it) {
-      kvPairs[(*it)[1]] = (*it)[2];
-    }
-  }
+  
   
   const map<string, function<void(string)> > 
   kvSetters({
@@ -129,6 +151,8 @@ void PiAdapter::setConnectionString(const std::string& str) {
     {"u", [&](string v){this->_conn.user = v;}},
     {"p", [&](string v){this->_conn.pass = v;}}
   }); 
+  
+  auto kvPairs = _kvFromDelimited(str);
   
   for (auto kv : kvPairs) {
     if (kvSetters.count(kv.first) > 0) {
@@ -146,6 +170,16 @@ void PiAdapter::doConnect() {
   _RTX_DB_SCOPED_LOCK;
   _connected = false;
   _conn.dsWebId = "";
+  
+  _conversions.clear();
+  try {
+    auto kvPairs = _kvFromDelimited(valueConversions);
+    for (auto kv : kvPairs) {
+      _conversions[kv.first] = boost::lexical_cast<double>(kv.second);
+    }
+  } catch (const exception& e) {
+    //...
+  }
   
   // try the endpoint
   auto uriQ = uriBase()
@@ -342,5 +376,21 @@ web::http::uri_builder PiAdapter::uriBase() {
   .append_path(_conn.apiPath);
   return b;
 }
+
+
+map<string,string> PiAdapter::_kvFromDelimited(const string& str) {
+  std::map<std::string, std::string> kvPairs;
+  regex kvReg("([^=]+)=([^&]+)&?"); // key - value pair
+  auto kv_begin = sregex_iterator(str.begin(), str.end(), kvReg);
+  auto kv_end = sregex_iterator();
+  for (auto it = kv_begin ; it != kv_end; ++it) {
+    kvPairs[(*it)[1]] = (*it)[2];
+  }
+  
+  return kvPairs;
+}
+
+
+
 
 

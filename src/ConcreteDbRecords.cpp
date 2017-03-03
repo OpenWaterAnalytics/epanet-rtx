@@ -32,6 +32,13 @@ void PiPointRecord::setTagSearchPath(const std::string& path) {
 std::string PiPointRecord::tagSearchPath() {
   return ((PiAdapter*)_adapter)->tagSearchPath;
 }
+void PiPointRecord::setConversions(const std::string& conversions) {
+  ((PiAdapter*)_adapter)->valueConversions = conversions;
+}
+std::string PiPointRecord::conversions() {
+  return ((PiAdapter*)_adapter)->valueConversions;
+}
+
 
 /***************************************************************************************/
 

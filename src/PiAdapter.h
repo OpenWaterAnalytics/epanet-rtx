@@ -48,6 +48,7 @@ namespace RTX {
     
     // PI_SPECIFIC details
     std::string tagSearchPath;
+    std::string valueConversions; /// use for text-field conversions to numerical type... "Active=1&Inactive=0".
     
     
     
@@ -62,9 +63,13 @@ namespace RTX {
     connectionInfo _conn;
     
     std::map<std::string, std::string> _webIdLookup; // name->webId
+    std::map<std::string, double> _conversions;
     web::json::value jsonFromRequest(web::http::uri uri, web::http::method withMethod);
     web::http::uri_builder uriBase();
 
+    std::map<std::string,std::string> _kvFromDelimited(const std::string& str);
+    Point _pointFromJson(const web::json::value& j);
+    
   };
 }
 

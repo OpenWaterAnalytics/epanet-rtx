@@ -151,6 +151,7 @@ void SerializerJson::visit(PiPointRecord &pr) {
   this->visit((DbPointRecord&)pr);
   _v[_c] = JSV("pi");
   _v["tagSearchPath"] = JSV(pr.tagSearchPath());
+  _v["conversions"] = JSV(pr.conversions());
 }
 
 
@@ -288,6 +289,9 @@ void DeserializerJson::visit(PiPointRecord &pr) {
   this->visit((DbPointRecord&)pr);
   if (_v.has_field("tagSearchPath")) {
     pr.setTagSearchPath(_v["tagSearchPath"].as_string());
+  }
+  if (_v.has_field("conversions")) {
+    pr.setConversions(_v["conversions"].as_string());
   }
 }
 
