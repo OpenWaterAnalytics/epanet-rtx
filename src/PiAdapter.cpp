@@ -21,10 +21,14 @@ using jsv = web::json::value;
 
 
 #ifndef PI_SSL_VALIDATE
-#define PI_SSL_VALIDATE true
+  #define PI_SSL_VALIDATE true
 #endif
 
-#define PI_MAX_POINT_COUNT 10000
+#ifndef PI_MAX_POINT_COUNT
+  // max points should accomodate data at 1-s resolution for 24-h
+  #define PI_MAX_POINT_COUNT 90000
+#endif
+
 #define PI_TIMEOUT 3
 
 const string kOSI_REST("OSIsoft.REST");
