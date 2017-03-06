@@ -69,27 +69,25 @@ void TimeSeriesDuplicator::_refreshDestinations() {
 
 
 
-void TimeSeriesDuplicator::catchUpAndRun(time_t fetchWindow, time_t frequency, time_t backfill, time_t chunkSize, time_t rateLimit) {
-  boost::thread t(&TimeSeriesDuplicator::_catchupLoop, this, fetchWindow, frequency, backfill, chunkSize, rateLimit);
+void TimeSeriesDuplicator::catchUpAndRun(time_t fetchWindow, time_t frequency, time_t backfill, time_t lag, time_t chunkSize, time_t rateLimit) {
+  boost::thread t(&TimeSeriesDuplicator::_catchupLoop, this, fetchWindow, frequency, backfill, lag, chunkSize, rateLimit);
   _dupeBackground.swap(t);
 }
 
-void TimeSeriesDuplicator::_catchupLoop(time_t fetchWindow, time_t frequency, time_t backfill, time_t chunkSize, time_t rateLimit) {
+void TimeSeriesDuplicator::_catchupLoop(time_t fetchWindow, time_t frequency, time_t backfill, time_t lag, time_t chunkSize, time_t rateLimit) {
   _shouldRun = true;
   time_t backfillStart = time(NULL) - backfill;
-  this->_backfillLoop(backfillStart, chunkSize);
+  this->_backfillLoop(backfillStart, lag, chunkSize);
   if (!_shouldRun) {
     return;
   }
-  this->_dupeLoop(fetchWindow, frequency);
+  this->_dupeLoop(fetchWindow, frequency, lag);
   
 }
 
-void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency) {
-  
-  boost::thread t(&TimeSeriesDuplicator::_dupeLoop, this, fetchWindow, frequency);
+void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency, time_t lag) {
+  boost::thread t(&TimeSeriesDuplicator::_dupeLoop, this, fetchWindow, frequency, lag);
   _dupeBackground.swap(t);
-  
 }
 
 void TimeSeriesDuplicator::wait() {
@@ -98,17 +96,14 @@ void TimeSeriesDuplicator::wait() {
   }
 }
 
-void TimeSeriesDuplicator::_dupeLoop(time_t win, time_t freq) {
+void TimeSeriesDuplicator::_dupeLoop(time_t win, time_t freq, time_t lag) {
   _shouldRun = true;
   
-  time_t nextFetch = time(NULL);
-  
+  time_t nextFetch = time(NULL) - lag;
   
   stringstream s;
   s << "Starting fetch: freq-" << freq << " win-" << win;
   this->_logLine(s.str(),RTX_DUPLICATOR_LOGLEVEL_INFO);
-  
-  
   
   bool saveMetrics = true;
   TimeSeries::_sp metricsPointCount( new TimeSeries );
@@ -132,21 +127,21 @@ void TimeSeriesDuplicator::_dupeLoop(time_t win, time_t freq) {
       pair<time_t,int> fetchRes = this->_fetchAll(nextFetch - win, nextFetch);
       time_t fetchDuration = fetchRes.first;
       int nPoints = fetchRes.second;
-      time_t now = time(NULL);
       if (saveMetrics) {
-        metricsPointCount->insert(Point(now, (double)nPoints));
-        metricsTimeElapased->insert(Point(now, (double)fetchDuration));
+        metricsPointCount->insert(Point(time(NULL), (double)nPoints));
+        metricsTimeElapased->insert(Point(time(NULL), (double)fetchDuration));
       }
       
+      time_t nowFetch = time(NULL) - lag;
       
       nextFetch += freq;
       
       // edge case: sometimes system clock hasn't been set (maybe no ntp response yet)
-      if (nextFetch < now) {
+      if (nextFetch < nowFetch) {
         // check how far off we are?
         // arbitrarily, let us be off by 5 windows...
-        if (nextFetch + (5 * win) < now) {
-          nextFetch = now; // just skip a bunch and get us current.
+        if (nextFetch + (5 * win) < nowFetch) {
+          nextFetch = nowFetch; // just skip a bunch and get us current.
           this->_logLine("Skipping an interval due to too much lag", RTX_DUPLICATOR_LOGLEVEL_WARN);
         }
       }
@@ -185,14 +180,14 @@ void TimeSeriesDuplicator::stop() {
   _shouldRun = false;
 }
 
-void TimeSeriesDuplicator::runRetrospective(time_t start, time_t chunkSize, time_t rateLimit) {
+void TimeSeriesDuplicator::runRetrospective(time_t start, time_t lag, time_t chunkSize, time_t rateLimit) {
   
-  boost::thread t(&TimeSeriesDuplicator::_backfillLoop, this, start, chunkSize, rateLimit);
+  boost::thread t(&TimeSeriesDuplicator::_backfillLoop, this, start, lag, chunkSize, rateLimit);
   _dupeBackground.swap(t);
   
 }
 
-void TimeSeriesDuplicator::_backfillLoop(time_t start, time_t chunk, time_t rateLimit) {
+void TimeSeriesDuplicator::_backfillLoop(time_t start, time_t lag, time_t chunk, time_t rateLimit) {
   bool saveMetrics = true;
   TimeSeries::_sp metricsPointCount( new TimeSeries );
   metricsPointCount->setUnits(RTX_DIMENSIONLESS);
@@ -212,12 +207,12 @@ void TimeSeriesDuplicator::_backfillLoop(time_t start, time_t chunk, time_t rate
   s << "Starting catchup from " << start << " in " << chunk << "second chunks";
   this->_logLine(s.str(),RTX_DUPLICATOR_LOGLEVEL_INFO);
   
-  bool inThePast = start < time(NULL);
+  bool inThePast = start < time(NULL) - lag;
   
   _pctCompleteFetch = 0.;
   
   while (_shouldRun && inThePast) {
-    time_t thisLoop = time(NULL);
+    time_t thisLoop = time(NULL) - lag;
     _isRunning = true;
     time_t fetchEndTime = nextFetch;
     if (nextFetch > thisLoop) {

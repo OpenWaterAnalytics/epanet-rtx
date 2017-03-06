@@ -74,9 +74,9 @@ namespace RTX {
     TimeSeriesDuplicator _duplicator;
     PointRecord::_sp _sourceRecord, _destinationRecord;
     
-    void runDuplication(time_t win, time_t freq, time_t backfill);
+    void runDuplication(time_t win, time_t freq, time_t backfill, time_t lag);
     void stopDuplication();
-    time_t _window, _frequency, _backfill;
+    time_t _window, _frequency, _backfill, _lag;
     boost::signals2::mutex _dupeMutex;
     std::vector<TimeSeries::_sp> _analytics;
     

@@ -6,7 +6,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
   $rootScope.config = {
     source:      {},
     destination: {},
-    options:       { window:12, interval:5, backfill:30},
+    options:       { window:12, interval:5, backfill:30, lag:0},
     series:      [],
     dash:        { proto:'http' },
     run:         { run: false },

@@ -33,9 +33,9 @@ namespace RTX {
     void setSeries(std::vector<TimeSeries::_sp> series); /// source series !
     
     // view / change state
-    void catchUpAndRun(time_t fetchWindow, time_t frequency, time_t backfill, time_t chunkSize = 24*60*60, time_t rateLimit = 0);
-    void run(time_t fetchWindow, time_t frequency); /// run starting now
-    void runRetrospective(time_t start, time_t retroChunkSize, time_t rateLimit = 0); // catch up to current and stop
+    void catchUpAndRun(time_t fetchWindow, time_t frequency, time_t backfill, time_t lag, time_t chunkSize = 24*60*60, time_t rateLimit = 0);
+    void run(time_t fetchWindow, time_t frequency, time_t lag); /// run starting now
+    void runRetrospective(time_t start, time_t lag, time_t retroChunkSize, time_t rateLimit = 0); // catch up to current and stop
     void stop();
     bool isRunning();
     double pctCompleteFetch();
@@ -59,9 +59,9 @@ namespace RTX {
     void _refreshDestinations();
     void _logLine(const std::string& str, int level);
     
-    void _dupeLoop(time_t win, time_t freq);
-    void _backfillLoop(time_t start, time_t chunk, time_t rateLimit = 0);
-    void _catchupLoop(time_t fetchWindow, time_t frequency, time_t backfill, time_t chunkSize = 24*60*60, time_t rateLimit = 0);
+    void _dupeLoop(time_t win, time_t freq, time_t lag);
+    void _backfillLoop(time_t start, time_t lag, time_t chunk, time_t rateLimit = 0);
+    void _catchupLoop(time_t fetchWindow, time_t frequency, time_t backfill, time_t lag, time_t chunkSize = 24*60*60, time_t rateLimit = 0);
     boost::thread _dupeBackground;
     
     void sendMetric(const std::string &metric, const std::string &field, const boost::any &value);

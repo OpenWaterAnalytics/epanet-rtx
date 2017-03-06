@@ -277,9 +277,10 @@ void LinkService::_get_units(http_request message) {
 void LinkService::_get_options(http_request message) {
   JSV o = JSV::object();
   
-  o.as_object()["interval"] = JSV((int)(_frequency / 60)); // minutes
-  o.as_object()["window"] =   JSV((int)(_window / 60)); // minutes
-  o.as_object()["backfill"] = JSV((int)(_backfill / (60 * 60 * 24))); // days
+  o["interval"] = JSV((int)(_frequency / 60)); // minutes
+  o["window"] =   JSV((int)(_window / 60)); // minutes
+  o["backfill"] = JSV((int)(_backfill / (60 * 60 * 24))); // days
+  o["lag"] = JSV((int)_lag); // seconds
   
   _link_respond(message, o);
   
@@ -294,14 +295,15 @@ void LinkService::_get_config(http_request message) {
     tsVec.push_back(ts);
   }
   
-  config.as_object()["series"] = SerializerJson::to_json(tsVec);
-  config.as_object()["source"] = SerializerJson::to_json(_sourceRecord);
-  config.as_object()["destination"] = SerializerJson::to_json(_destinationRecord);
+  config["series"] = SerializerJson::to_json(tsVec);
+  config["source"] = SerializerJson::to_json(_sourceRecord);
+  config["destination"] = SerializerJson::to_json(_destinationRecord);
   
   JSV opts = JSV::object();
-  opts.as_object()["interval"] = JSV((int)(_frequency / 60)); // minutes
-  opts.as_object()["window"] =   JSV((int)(_window / 60)); // minutes
-  opts.as_object()["backfill"] = JSV((int)(_backfill / (60 * 60 * 24))); // days
+  opts["interval"] = JSV((int)(_frequency / 60)); // minutes
+  opts["window"] =   JSV((int)(_window / 60)); // minutes
+  opts["backfill"] = JSV((int)(_backfill / (60 * 60 * 24))); // days
+  opts["lag"] = JSV((int)_lag);
   config.as_object()["fetch"] = opts;
   
   _link_respond(message, config);
@@ -387,7 +389,7 @@ http_response LinkService::_post_runState(JSV js) {
   
   if (o["run"].as_bool()) {
     // run
-    this->runDuplication(_window,_frequency,_backfill);
+    this->runDuplication(_window,_frequency,_backfill,_lag);
   }
   else {
     // stop
@@ -542,7 +544,7 @@ http_response LinkService::_post_options(JSV js) {
   
   
   // expecting :
-  // {'interval': ###, 'window': ###, 'backfill': ###}
+  // {'interval': ###, 'window': ###, 'backfill': ###, 'lag': ###}
   
   if (!js.is_object()) {
     r = _link_error_response(status_codes::ExpectationFailed, "data is not a json object");
@@ -561,13 +563,14 @@ http_response LinkService::_post_options(JSV js) {
       }
     };
     
-    int freqMinutes, windowMinutes, backfillDays;
+    int freqMinutes, windowMinutes, backfillDays, lagSeconds;
     
     // map the required keys to the time_t ivars
     map<string,int*> defs = {
       {"interval",&freqMinutes},
       {"window",&windowMinutes},
-      {"backfill",&backfillDays}
+      {"backfill",&backfillDays},
+      {"lag",&lagSeconds}
     };
     
     // execute the setter function for each pair of key/value-ref definitions
@@ -586,6 +589,7 @@ http_response LinkService::_post_options(JSV js) {
     _frequency = freqMinutes * 60;
     _window = windowMinutes * 60;
     _backfill = backfillDays * 60 * 60 * 24;
+    _lag = lagSeconds;
     
     
     r = _link_empty_response();
@@ -628,29 +632,22 @@ http_response LinkService::_post_logmessage(web::json::value js) {
       }
     }
     
-    
-    
     r = _link_empty_response();
-    
     cout << "Sent Log Entry: " << metric << " --> " << valueStr << endl << flush;
   }
-  
   return r;
 }
 
-
-
-
-void LinkService::runDuplication(time_t win, time_t freq, time_t backfill) {
+void LinkService::runDuplication(time_t win, time_t freq, time_t backfill, time_t lag) {
   if (_duplicator.isRunning()) {
     return;
   }
   
   if (backfill > 0) {
-    _duplicator.catchUpAndRun(win, freq, backfill);
+    _duplicator.catchUpAndRun(win, freq, backfill, lag);
   }
   else {
-    _duplicator.run(win, freq);
+    _duplicator.run(win, freq, lag);
   }
 }
 
