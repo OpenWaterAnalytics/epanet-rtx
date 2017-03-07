@@ -15,11 +15,11 @@ using std::endl;
 using namespace RTX;
 
 
-Point::Point() : time(0),value(0),quality(PointQuality::opc_bad),isValid(false),confidence(0) {
+Point::Point() : time(0),value(0),quality(PointQuality::opc_bad),confidence(0),isValid(false) {
   
 }
 
-Point::Point(time_t t, double v, PointQuality q, double c) : time(t),value(v),quality(q),isValid((std::isnan(v)) ? false : true),confidence(c) {
+Point::Point(time_t t, double v, PointQuality q, double c) : time(t),value(v),quality(q),confidence(c),isValid((std::isnan(v)) ? false : true) {
   if (std::isnan(v)) {
     cout << "nan" << endl;
   }
