@@ -102,7 +102,7 @@ void TimeSeriesDuplicator::_dupeLoop(time_t win, time_t freq, time_t lag) {
   time_t nextFetch = time(NULL) - lag;
   
   stringstream s;
-  s << "Starting fetch: freq-" << freq << " win-" << win;
+  s << "Starting fetch: freq-" << freq << " win-" << win << " lag-" << lag;
   this->_logLine(s.str(),RTX_DUPLICATOR_LOGLEVEL_INFO);
   
   bool saveMetrics = true;
@@ -118,6 +118,10 @@ void TimeSeriesDuplicator::_dupeLoop(time_t win, time_t freq, time_t lag) {
   }
   
   
+  auto nowFetch = [lag]()->time_t{
+    return (time(NULL) - lag);
+  };
+  
   while (_shouldRun) {
     
     try {
@@ -132,16 +136,14 @@ void TimeSeriesDuplicator::_dupeLoop(time_t win, time_t freq, time_t lag) {
         metricsTimeElapased->insert(Point(time(NULL), (double)fetchDuration));
       }
       
-      time_t nowFetch = time(NULL) - lag;
-      
       nextFetch += freq;
       
       // edge case: sometimes system clock hasn't been set (maybe no ntp response yet)
-      if (nextFetch < nowFetch) {
+      if (nextFetch < nowFetch()) {
         // check how far off we are?
         // arbitrarily, let us be off by 5 windows...
-        if (nextFetch + (5 * win) < nowFetch) {
-          nextFetch = nowFetch; // just skip a bunch and get us current.
+        if (nextFetch + (5 * win) < nowFetch()) {
+          nextFetch = nowFetch(); // just skip a bunch and get us current.
           this->_logLine("Skipping an interval due to too much lag", RTX_DUPLICATOR_LOGLEVEL_WARN);
         }
       }
@@ -154,12 +156,13 @@ void TimeSeriesDuplicator::_dupeLoop(time_t win, time_t freq, time_t lag) {
         ss << "Fetch: (" << tstr << ") took " << fetchDuration << " seconds.";
         this->_logLine(ss.str(),RTX_DUPLICATOR_LOGLEVEL_INFO);
       }
-      while (_shouldRun && nextFetch > time(NULL)) {
-        time_t waitLength = nextFetch - time(NULL);
+      while (_shouldRun && nextFetch > nowFetch()) {
+        time_t waitLength = nextFetch - nowFetch();
         ss.str("");
         ss << "Fetch: (" << tstr << ") took " << fetchDuration << " seconds." << "\n" << "Will fire again in " << waitLength << " seconds";
         this->_logLine(ss.str(),RTX_DUPLICATOR_LOGLEVEL_VERBOSE);
-        boost::this_thread::sleep_for(boost::chrono::seconds(1));
+        int nSecWait = waitLength > 5 ? 5 : 1;
+        boost::this_thread::sleep_for(boost::chrono::seconds(nSecWait));
       }
     } catch (const std::exception &e) {
       cerr << e.what() << '\n';
