@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		2200ED191C7797F3009A6C5F /* libepanet-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 228CD55F1C0F5E4E00C67802 /* libepanet-static.a */; };
-		220D42ED1BF0000200C9AB36 /* DuperDaemon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220D42EC1BF0000200C9AB36 /* DuperDaemon.cpp */; };
 		220F9DD618F9E1BE00BB842C /* readConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220F9DD518F9E1BE00BB842C /* readConfig.cpp */; };
 		221A4B061B8CC00C006967AE /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		221BFD371A8E8AD000143FCC /* TimeSeriesSynthetic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2211D2041A6D69EA00E34B9B /* TimeSeriesSynthetic.cpp */; };
@@ -410,7 +409,6 @@
 		220AE472145B2A0C002F07B4 /* Link.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Link.cpp; path = ../../src/Link.cpp; sourceTree = "<group>"; };
 		220AE474145B2A28002F07B4 /* Dma.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Dma.cpp; path = ../../src/Dma.cpp; sourceTree = "<group>"; };
 		220D42DD1BEFFF9000C9AB36 /* RTX_DuperDaemon */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = RTX_DuperDaemon; sourceTree = BUILT_PRODUCTS_DIR; };
-		220D42EC1BF0000200C9AB36 /* DuperDaemon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DuperDaemon.cpp; path = ../../examples/Duplicator/DuperDaemon.cpp; sourceTree = "<group>"; };
 		220F9DD518F9E1BE00BB842C /* readConfig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = readConfig.cpp; path = ../../examples/readConfig.cpp; sourceTree = "<group>"; };
 		2211D2041A6D69EA00E34B9B /* TimeSeriesSynthetic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesSynthetic.cpp; path = ../../src/TimeSeriesSynthetic.cpp; sourceTree = "<group>"; };
 		2211D2051A6D69EA00E34B9B /* TimeSeriesSynthetic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeSeriesSynthetic.h; path = ../../src/TimeSeriesSynthetic.h; sourceTree = "<group>"; };
@@ -552,8 +550,6 @@
 		22D8C1CC1C1A048300298C0C /* libmysqlclient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmysqlclient.a; path = /usr/local/com.citilogics.dev/lib/libmysqlclient.a; sourceTree = "<absolute>"; };
 		22D8C1CD1C1A048300298C0C /* libmysqlcppconn-static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libmysqlcppconn-static.a"; path = "/usr/local/com.citilogics.dev/lib/libmysqlcppconn-static.a"; sourceTree = "<absolute>"; };
 		22D8C2251C1A0DFE00298C0C /* libcurl.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.4.dylib; path = /usr/lib/libcurl.4.dylib; sourceTree = "<absolute>"; };
-		22D8C2A11C1A419C00298C0C /* rtxduplicator-init.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = "rtxduplicator-init.sh"; path = "../../examples/Duplicator/rtxduplicator-init.sh"; sourceTree = "<group>"; };
-		22D8C2A21C1A446800298C0C /* rtxduplicator */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = rtxduplicator; path = ../../examples/Duplicator/defaults/rtxduplicator; sourceTree = "<group>"; };
 		22D982F017F4A3CD00DD7EB4 /* rt_simulator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rt_simulator; sourceTree = BUILT_PRODUCTS_DIR; };
 		22D9830D17F4AFDE00DD7EB4 /* rt_simulator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rt_simulator.cpp; path = ../../examples/rtxNetSim/rt_simulator.cpp; sourceTree = "<group>"; };
 		22DC12D41ADD844D0033DD5E /* MetaTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MetaTimeSeries.cpp; path = ../../src/MetaTimeSeries.cpp; sourceTree = "<group>"; };
@@ -886,9 +882,6 @@
 		2288C1041BE3C09F00F9B8FB /* TS Duplicator */ = {
 			isa = PBXGroup;
 			children = (
-				220D42EC1BF0000200C9AB36 /* DuperDaemon.cpp */,
-				22D8C2A11C1A419C00298C0C /* rtxduplicator-init.sh */,
-				22D8C2A21C1A446800298C0C /* rtxduplicator */,
 				2288C10B1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.h */,
 				2288C10A1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.cpp */,
 			);
@@ -1634,7 +1627,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				220D42ED1BF0000200C9AB36 /* DuperDaemon.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

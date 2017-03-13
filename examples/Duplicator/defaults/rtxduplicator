@@ -1,2 +1,0 @@
-# RTX DUPLICATOR DEFAULTS - VARS SET WHEN INIT SCRIPT RUNS
-RTX_OPTS="--path /opt/rtx/rtxconfig.rtx --odbcinst /opt/rtx/odbc/odbcinst.ini --catchup-lookbehind 2 --catchup-window 4"
