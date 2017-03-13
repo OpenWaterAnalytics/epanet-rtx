@@ -50,10 +50,9 @@ namespace RTX {
   using std::string;
   using std::set;
   
-  class Model : public std::enable_shared_from_this<Model>,  public RTX_object {
+  class Model : public RTX_object {
   public:
     RTX_BASE_PROPS(Model);
-    Model::_sp sp() { return shared_from_this(); };
     typedef void (^RTX_Logging_Callback_Block)(const char *msg);
     
     Model();

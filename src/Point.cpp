@@ -14,7 +14,6 @@ using std::cout;
 using std::endl;
 using namespace RTX;
 
-
 Point::Point() : time(0),value(0),quality(PointQuality::opc_bad),confidence(0),isValid(false) {
   
 }
@@ -32,7 +31,6 @@ Point::Point(time_t t, double v, PointQuality q, double c) : time(t),value(v),qu
 Point::~Point() {
   
 }
-
 
 const bool Point::hasQual(PointQuality qual) const {
   return (this->quality & qual) || (this->quality == qual);

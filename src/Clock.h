@@ -80,11 +80,10 @@ namespace RTX {
   
   
   
-  class Clock : public std::enable_shared_from_this<Clock>, public RTX_object {
+  class Clock : public RTX_object {
     
   public:
     RTX_BASE_PROPS(Clock);
-    Clock::_sp sp() {return shared_from_this();};
     Clock(int period = 3600, time_t start = 0);
     virtual ~Clock();
     

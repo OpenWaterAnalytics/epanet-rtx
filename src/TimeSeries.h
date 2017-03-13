@@ -54,7 +54,7 @@ namespace RTX {
   
   
   
-  class TimeSeries : public std::enable_shared_from_this<TimeSeries>, public RTX_object {
+  class TimeSeries : public RTX_object {
   public:
     RTX_BASE_PROPS(TimeSeries);
     
@@ -91,7 +91,7 @@ namespace RTX {
     virtual void setUnits(Units newUnits);
     virtual bool canChangeToUnits(Units units) {return true;};
     
-    virtual TimeSeries::_sp rootTimeSeries() { return shared_from_this(); };
+    virtual TimeSeries::_sp rootTimeSeries() { return this->sp(); };
     virtual void resetCache();
     virtual void invalidate();
     
@@ -101,7 +101,6 @@ namespace RTX {
     void setExpectedPeriod(time_t seconds);
     
     // chainable
-    TimeSeries::_sp sp();
     TimeSeries::_sp units(Units u) {this->setUnits(u); return this->sp();};
     TimeSeries::_sp c(Clock::_sp c) {this->setClock(c); return this->sp();};
     TimeSeries::_sp name(const std::string& n) {this->setName(n); return share_me(this);};
@@ -114,11 +113,7 @@ namespace RTX {
       return sp;
     };
     
-    template<class T>
-    std::shared_ptr<T> share_me(T* thisPtr) {
-      return std::static_pointer_cast<T>(shared_from_this());
-    };
-
+    
   protected:
     boost::atomic<bool> _valid;
     

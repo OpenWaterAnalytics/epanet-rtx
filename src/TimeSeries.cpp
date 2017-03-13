@@ -225,9 +225,6 @@ std::ostream& TimeSeries::toStream(std::ostream &stream) {
 
 // chaning
 
-TimeSeries::_sp TimeSeries::sp() {
-  return shared_from_this();
-}
 
 
 

@@ -56,12 +56,10 @@ namespace RTX {
    */
   
     
-  class PointRecord : public std::enable_shared_from_this<PointRecord>, public RTX_object {
+  class PointRecord : public RTX_object {
     
   public:
-    
     RTX_BASE_PROPS(PointRecord);
-    PointRecord::_sp sp() {return shared_from_this();};
     
     PointRecord();
     virtual ~PointRecord() {};
@@ -92,7 +90,8 @@ namespace RTX {
     
     virtual void beginBulkOperation() {};
     virtual void endBulkOperation() {};
-
+    
+    
   protected:
     std::map<std::string,Point> _singlePointCache;
     IdentifierUnitsList _idsCache;
