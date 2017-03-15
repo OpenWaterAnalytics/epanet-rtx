@@ -16,6 +16,7 @@ namespace RTX {
     virtual ~SqlitePointRecord();
   };
   
+  
   class PiPointRecord : public DbPointRecord {
   public:
     RTX_BASE_PROPS(PiPointRecord);

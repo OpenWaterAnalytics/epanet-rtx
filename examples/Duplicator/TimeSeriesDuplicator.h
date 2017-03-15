@@ -18,7 +18,7 @@
 
 
 namespace RTX {
-  class TimeSeriesDuplicator : RTX_object {
+  class TimeSeriesDuplicator : public RTX_object {
     
   public:
     RTX_BASE_PROPS(TimeSeriesDuplicator);
