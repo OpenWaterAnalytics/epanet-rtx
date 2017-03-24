@@ -18,6 +18,13 @@ SqlitePointRecord::~SqlitePointRecord() {
   delete _adapter;
 }
 
+std::string SqlitePointRecord::basePath() {
+  return ((SqliteAdapter*)_adapter)->basePath;
+}
+void SqlitePointRecord::setBasePath(const std::string& path) {
+  ((SqliteAdapter*)_adapter)->basePath = path;
+}
+
 /***************************************************************************************/
 
 PiPointRecord::PiPointRecord() {

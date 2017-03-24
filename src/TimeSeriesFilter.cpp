@@ -19,13 +19,13 @@ Clock::_sp TimeSeriesFilter::clock() {
   return _clock;
 }
 void TimeSeriesFilter::setClock(Clock::_sp clock) {
-  if (clock) {
-    _clock = clock;
+  if (clock == _clock) {
+    return;
   }
   else {
-    _clock.reset();
+    _clock = clock;
+    this->invalidate();
   }
-  this->invalidate();
 }
 
 ResampleMode TimeSeriesFilter::resampleMode() {

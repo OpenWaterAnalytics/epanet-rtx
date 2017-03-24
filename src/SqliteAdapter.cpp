@@ -2,6 +2,7 @@
 
 #include <set>
 #include <sstream>
+#include <boost/filesystem.hpp>
 
 using namespace std;
 using namespace RTX;
@@ -28,6 +29,7 @@ const string _selectNamesStr = "select series_id,name,units from meta order by n
 
 SqliteAdapter::SqliteAdapter( errCallback_t cb ) : DbAdapter(cb) {
   _path = "";
+  basePath = "";
   _inTransaction = false;
   _transactionStackCount = 0;
   _maxTransactionStackCount = 50000;
@@ -63,12 +65,16 @@ void SqliteAdapter::doConnect() {
     return;
   }
   
+  boost::filesystem::path dbPath(this->basePath);
+  dbPath /= _path;
+  auto realPath = dbPath.native();
+  
   sqlite3* _rawDb;
   int returnCode;
-  returnCode = sqlite3_open_v2(_path.c_str(), &_rawDb, SQLITE_OPEN_READWRITE, NULL); // only if exists
+  returnCode = sqlite3_open_v2(realPath.c_str(), &_rawDb, SQLITE_OPEN_READWRITE, NULL); // only if exists
   if (returnCode == SQLITE_CANTOPEN) {
     // attempt to create the db.
-    returnCode = sqlite3_open_v2(_path.c_str(), &_rawDb, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+    returnCode = sqlite3_open_v2(realPath.c_str(), &_rawDb, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
     if (returnCode == SQLITE_OK) {
       shared_ptr<sqlite3> dbHandle = shared_ptr<sqlite3>(_rawDb, [=](sqlite3* ptr) { sqlite3_close_v2(ptr); });
       _db.reset(new sqlite::database(dbHandle));

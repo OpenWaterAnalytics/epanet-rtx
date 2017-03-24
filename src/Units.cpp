@@ -34,6 +34,21 @@ Units::Units(double conversion, int mass, int length, int time, int current, int
   _offset     = offset;
 }
 
+Units::Units(const std::string& type) {
+  Units u = Units::unitOfType(type);
+  
+  _kg = u._kg;
+  _m = u._m;
+  _s = u._s;
+  _A = u._A;
+  _K = u._K;
+  _mol = u._mol;
+  _cd = u._cd;
+  _conversion = u._conversion;
+  _offset = u._offset;
+  
+}
+
 const double Units::conversion() const {
   return _conversion;
 }

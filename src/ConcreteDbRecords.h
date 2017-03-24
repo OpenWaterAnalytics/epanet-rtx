@@ -14,6 +14,9 @@ namespace RTX {
     RTX_BASE_PROPS(SqlitePointRecord);
     SqlitePointRecord();
     virtual ~SqlitePointRecord();
+    
+    std::string basePath();
+    void setBasePath(const std::string& path);
   };
   
   

@@ -45,6 +45,7 @@ namespace RTX {
     void removeRecord(const std::string& id);
     void removeAllRecords();
     
+    std::string basePath;
     
   private:
     std::shared_ptr<sqlite::database> _db;        

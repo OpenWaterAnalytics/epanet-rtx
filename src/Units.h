@@ -118,7 +118,7 @@ namespace RTX {
     RTX_BASE_PROPS(Units);
     
     Units(double conversion = 1., int kilogram = 0, int meter = 0, int second = 0, int ampere = 0, int kelvin = 0, int mole = 0, int candela = 0, double offset = 0);
-    
+    Units(const std::string& type);
     Units operator*(const Units& unit) const;
     Units operator*(const double factor) const;
     Units operator/(const Units& unit) const;
