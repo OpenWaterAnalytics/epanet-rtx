@@ -332,7 +332,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
     dmaDemand->setUnits(RTX_GALLON_PER_MINUTE);
     dmaDemand->setName("DMA " + this->name() + " demand");
     BOOST_FOREACH(Tank::_sp t, _tanks) {
-      dmaDemand->addSource(t->flowMeasure(), -1.);
+      dmaDemand->addSource(t->flowCalc(), -1.);
     }
     /* boundary flows are accounted for in the allocation method
      BOOST_FOREACH(Junction::_sp j, _boundaryFlowJunctions) {

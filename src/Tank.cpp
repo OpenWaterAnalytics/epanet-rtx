@@ -28,14 +28,14 @@ Tank::Tank(const std::string& name) : Junction(name) {
   _maxLevel = 0;
   
   
-  _volumeMeasure.reset( new CurveFunction() );
-  _volumeMeasure->setUnits(RTX_LITER);
-  _volumeMeasure->setName("calc_volume,n=" + name);
+  _volumeCalc.reset( new CurveFunction() );
+  _volumeCalc->setUnits(RTX_LITER);
+  _volumeCalc->setName("calc_volume,n=" + name);
   
-  _flowMeasure.reset( new FirstDerivative() );
-  _flowMeasure->setUnits(RTX_LITER_PER_SECOND);
-  _flowMeasure->setSource(_volumeMeasure);
-  _flowMeasure->setName("calc_flow,n=" + name);
+  _flowCalc.reset( new FirstDerivative() );
+  _flowCalc->setUnits(RTX_LITER_PER_SECOND);
+  _flowCalc->setSource(_volumeCalc);
+  _flowCalc->setName("calc_flow,n=" + name);
   
   _volume.reset( new TimeSeries );
   _volume->setUnits(RTX_LITER);
@@ -68,11 +68,11 @@ double Tank::maxLevel() {
 
 void Tank::setGeometry(Curve::_sp curve) {
   _geometry = curve;
-  _volumeMeasure->setCurve(_geometry);
+  _volumeCalc->setCurve(_geometry);
   if (!curve) {
     return;
   }
-  _volumeMeasure->setUnits(_geometry->outputUnits);
+  _volumeCalc->setUnits(_geometry->outputUnits);
 }
 
 Curve::_sp Tank::geometry() {
@@ -106,11 +106,11 @@ void Tank::setLevelMeasure(TimeSeries::_sp levelMeasure) {
     Junction::setHeadMeasure(TimeSeries::_sp());
     _levelMeasure = TimeSeries::_sp();
     TimeSeries::_sp blank;
-    _volumeMeasure->setSource(blank);
+    _volumeCalc->setSource(blank);
   }
   else {
-    _volumeMeasure->resetCache();
-    _flowMeasure->resetCache();
+    _volumeCalc->resetCache();
+    _flowCalc->resetCache();
     
     OffsetTimeSeries::_sp offsetHeadMeasure( new OffsetTimeSeries() );
     offsetHeadMeasure->setName(this->name() + ".measure.head");
@@ -121,7 +121,7 @@ void Tank::setLevelMeasure(TimeSeries::_sp levelMeasure) {
     // test for success:
     if (Junction::headMeasure() == offsetHeadMeasure) {
       _levelMeasure = levelMeasure;
-      _volumeMeasure->setSource(levelMeasure);
+      _volumeCalc->setSource(levelMeasure);
     }
   }
 }
@@ -132,8 +132,8 @@ TimeSeries::_sp Tank::levelMeasure() {
 
 void Tank::setHeadMeasure(TimeSeries::_sp head) {
   
-  _volumeMeasure->resetCache();
-  _flowMeasure->resetCache();
+  _volumeCalc->resetCache();
+  _flowCalc->resetCache();
   
   // base class method first
   Junction::setHeadMeasure(head);
@@ -155,9 +155,9 @@ void Tank::setHeadMeasure(TimeSeries::_sp head) {
     offsetHeadMeasure->setUnits(head->units());
     _levelMeasure = offsetHeadMeasure;
     
-    _volumeMeasure->setClock(head->clock());
-    _volumeMeasure->setSource(_levelMeasure);
-    _flowMeasure->setClock(head->clock());
+    _volumeCalc->setClock(head->clock());
+    _volumeCalc->setSource(_levelMeasure);
+    _flowCalc->setClock(head->clock());
   }
   else {
     // invalidate tank flow timeseries.
@@ -179,11 +179,11 @@ TimeSeries::_sp Tank::volume() {
 
 
 
-TimeSeries::_sp Tank::flowMeasure() {
-  return _flowMeasure;
+TimeSeries::_sp Tank::flowCalc() {
+  return _flowCalc;
 }
-TimeSeries::_sp Tank::volumeMeasure() {
-  return _volumeMeasure;
+TimeSeries::_sp Tank::volumeCalc() {
+  return _volumeCalc;
 }
 
 

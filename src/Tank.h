@@ -50,15 +50,15 @@ namespace RTX {
     TimeSeries::_sp volume();
     TimeSeries::_sp flow();
     
-    TimeSeries::_sp volumeMeasure(); // based on tank geometry
-    TimeSeries::_sp flowMeasure();  // calculated flow into the tank
+    TimeSeries::_sp volumeCalc(); // based on tank geometry
+    TimeSeries::_sp flowCalc();  // calculated flow into the tank
     
     
   private:
     TimeSeries::_sp _level;
     TimeSeries::_sp _levelMeasure;
-    CurveFunction::_sp _volumeMeasure;
-    FirstDerivative::_sp _flowMeasure;
+    CurveFunction::_sp _volumeCalc;
+    FirstDerivative::_sp _flowCalc;
     TimeSeries::_sp _volume,_flow;
     double _minLevel, _maxLevel;
     Curve::_sp _geometry;

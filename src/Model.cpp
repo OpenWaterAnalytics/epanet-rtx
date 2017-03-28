@@ -182,7 +182,7 @@ void Model::setFlowUnits(Units units)    {
     j->demand()->setUnits(units);
   }
   BOOST_FOREACH(Tank::_sp t, this->tanks()) {
-    t->flowMeasure()->setUnits(units);
+    t->flowCalc()->setUnits(units);
     t->flow()->setUnits(units);
   }
   BOOST_FOREACH(Pipe::_sp p, this->pipes()) {
@@ -234,7 +234,7 @@ void Model::setVolumeUnits(RTX::Units units) {
   _volumeUnits = units;
   BOOST_FOREACH(Tank::_sp t, this->tanks()) {
     t->volume()->setUnits(units);
-    t->volumeMeasure()->setUnits(units);
+    t->volumeCalc()->setUnits(units);
   }
 }
 

@@ -188,7 +188,7 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
   if (this->readonly()) {
     return false;
   }
-  
+    
   // everything else is some combination of failures
   
   return false;
