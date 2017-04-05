@@ -658,21 +658,38 @@ uri InfluxTcpAdapter::uriForQuery(const std::string& query, bool withTimePrecisi
 
 jsValue __jsonFromRequest(uri uri, method withMethod) {
   jsValue js = jsValue::object();
-  try {
+  
+  auto getFn = [&]()->bool{
     web::http::client::http_client_config config;
     config.set_timeout(std::chrono::seconds(RTX_INFLUX_CLIENT_TIMEOUT));
     web::http::client::http_client client(uri, config);
-    http_response r = client.request(withMethod).get(); // waits for response
-    if (r.status_code() == status_codes::OK) {
-      js = r.extract_json().get();
+    try {
+      http_response r = client.request(withMethod).get(); // waits for response
+      if (r.status_code() == status_codes::OK) {
+        js = r.extract_json().get();
+        return true;
+      }
+      else {
+        cerr << "CONNECTION ERROR: " << r.reason_phrase() << EOL;
+        return false;
+      }
+    } catch (exception& e) {
+      cerr << "exception in GET: " << e.what() << endl;
+      return false;
     }
-    else {
-      cerr << "CONNECTION ERROR: " << r.reason_phrase() << EOL;
+    return false;
+  };
+  
+  
+  
+  int max_retry = 3;
+  int iTry = 0;
+  while (++iTry <= max_retry) {
+    if (getFn()) {
+      return js;
     }
   }
-  catch (std::exception &e) {
-    cerr << "exception in GET: " << e.what() << endl;
-  }
+  
   return js;
 }
 

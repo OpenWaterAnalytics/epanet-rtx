@@ -112,6 +112,7 @@
 		222C114D1D956B67007A747B /* TimeSeriesLowess.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 222C114B1D956B67007A747B /* TimeSeriesLowess.cpp */; };
 		222C114E1D956B67007A747B /* TimeSeriesLowess.h in Headers */ = {isa = PBXBuildFile; fileRef = 222C114C1D956B67007A747B /* TimeSeriesLowess.h */; };
 		222C11591D956BEA007A747B /* Lowess.h in Headers */ = {isa = PBXBuildFile; fileRef = 222C11581D956BEA007A747B /* Lowess.h */; };
+		222CC53D1E92EE6800ED8F09 /* InfluxAdapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22E71E2E1E5B710A0044E084 /* InfluxAdapter.cpp */; };
 		22324B631CAEF15000CFC745 /* libcpprest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E996FE1CA591CB00D6F34F /* libcpprest.a */; };
 		223372F41CA19DFA00C87ACD /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 223372F21CA19DFA00C87ACD /* libcrypto.a */; };
 		223372F51CA19DFA00C87ACD /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 223372F31CA19DFA00C87ACD /* libssl.a */; };
@@ -1727,6 +1728,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				228CA8E61AA0F56D00D0353E /* data_access.cpp in Sources */,
+				222CC53D1E92EE6800ED8F09 /* InfluxAdapter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
