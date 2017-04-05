@@ -366,9 +366,12 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
   }
   
   
-  set<string> flowMeasuredPipes, closedBoundaryPipes, tanks;
+  
+  
+  set<string> flowMeasuredPipes, closedBoundaryPipes, tanks, junctions;
   for (auto p : this->measuredBoundaryPipes()) {
-    flowMeasuredPipes.insert(p.first->name());
+    const char* dirChar = (p.second == Pipe::direction_t::inDirection ? "+" : "-");
+    flowMeasuredPipes.insert( string(dirChar) + p.first->name());
   }
   for (auto p : this->closedBoundaryPipes()) {
     closedBoundaryPipes.insert(p.first->name());
@@ -376,18 +379,41 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
   for (auto t : this->tanks()) {
     tanks.insert(t->name());
   }
+  for (auto j : this->junctions()) {
+    junctions.insert(j->name());
+  }
   
-  stringstream hashableStream;
-  hashableStream
-  << "<" << boost::algorithm::join(flowMeasuredPipes, "><")
-  << ">+<" << boost::algorithm::join(closedBoundaryPipes, "><")
-  << ">+<" << boost::algorithm::join(tanks, "><")
-  << ">";
   
-  const string hashable = hashableStream.str();
-  const unsigned char *hashChar = reinterpret_cast<const unsigned char*>(hashable.c_str());
+  
+  // hash formulation. entries are ordered using build-in std::set sorting.
+  // m:[+/-]<mbpName>,[+/-]<mbpName>,[...],c:<cbpName>,<cbpName>,[...],t:<tankName>,<tankName>,[...],j:<juncName>,<juncName>,[...]
+  
+  SHA_CTX ctx;
+  SHA1_Init(&ctx);
+  
+  auto updateSha = [&](set<string> &strings){
+    bool firstEntry = true;
+    for (auto str : strings) {
+      if (!firstEntry) {
+        SHA1_Update(&ctx, (unsigned char *)(","), 1);
+      }
+      SHA1_Update(&ctx, (unsigned char *)str.c_str(), str.length());
+      firstEntry = false;
+    }
+  };
+  
+  SHA1_Update(&ctx, (unsigned char *)("m:"), 2);
+  updateSha(flowMeasuredPipes);
+  SHA1_Update(&ctx, (unsigned char *)("c:"), 2);
+  updateSha(closedBoundaryPipes);
+  SHA1_Update(&ctx, (unsigned char *)("t:"), 2);
+  updateSha(tanks);
+  SHA1_Update(&ctx, (unsigned char *)("j:"), 2);
+  updateSha(junctions);
+  
   unsigned char digest[SHA_DIGEST_LENGTH]; // len == 20
-  SHA1(hashChar, hashable.length(), digest);
+  SHA1_Final(digest, &ctx); 
+  
   int len = 0;
   char hashedNameCh[SHA_DIGEST_LENGTH*2+1];
   for (int i = 0; i < SHA_DIGEST_LENGTH; i++) {
