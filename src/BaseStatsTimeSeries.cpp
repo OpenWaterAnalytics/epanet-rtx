@@ -24,7 +24,9 @@ BaseStatsTimeSeries::BaseStatsTimeSeries() {
 
 
 void BaseStatsTimeSeries::setWindow(Clock::_sp window) {
-  _window = window;
+  if (window) {
+    _window = window;
+  }
   this->invalidate();
 }
 Clock::_sp BaseStatsTimeSeries::window() {
