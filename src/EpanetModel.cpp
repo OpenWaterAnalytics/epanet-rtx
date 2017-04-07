@@ -177,7 +177,7 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   
   
   // get the valve types
-  BOOST_FOREACH(Valve::_sp v, this->valves()) {
+  for(Valve::_sp v : this->valves()) {
     int enIdx = _linkIndex[v->name()];
     EN_LinkType type = EN_PIPE;
     EN_getlinktype(_enModel, enIdx, &type);
@@ -190,10 +190,10 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   
   
   // copy my comments into the model
-  BOOST_FOREACH(Node::_sp n, this->nodes()) {
+  for(Node::_sp n : this->nodes()) {
     this->setComment(n, n->userDescription());
   }
-  BOOST_FOREACH(Link::_sp l, this->links()) {
+  for(Link::_sp l : this->links()) {
     this->setComment(l, l->userDescription());
   }
   
@@ -898,14 +898,14 @@ void EpanetModel::applyInitialQuality() {
   EN_API_CHECK(EN_openQ(_enModel), "EN_openQ");
 
   // Junctions
-  BOOST_FOREACH(Junction::_sp junc, this->junctions()) {
+  for(Junction::_sp junc : this->junctions()) {
     double qual = junc->state_quality;
     int iNode = _nodeIndex[junc->name()];
     EN_API_CHECK(EN_setnodevalue(_enModel, iNode, EN_INITQUAL, qual), "EN_setnodevalue - EN_INITQUAL");
   }
   
   // Tanks
-  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
+  for(Tank::_sp tank : this->tanks()) {
     double qual = tank->state_quality;
     int iNode = _nodeIndex[tank->name()];
     EN_API_CHECK(EN_setnodevalue(_enModel, iNode, EN_INITQUAL, qual), "EN_setnodevalue - EN_INITQUAL");

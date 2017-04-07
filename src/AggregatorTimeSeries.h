@@ -49,6 +49,7 @@ namespace RTX {
     AggregatorTimeSeries();
     TimeSeries::_sp source();
     void setSource(TimeSeries::_sp ts);
+    virtual bool canDropPoints() { return true; };
     
     // add a time series to this aggregator. optional parameter "multiplier" allows you to scale
     // the aggregated time series (for instance, by -1 if it needs to be subtracted).

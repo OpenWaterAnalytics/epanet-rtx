@@ -47,8 +47,8 @@ std::ostream& Dma::toStream(std::ostream &stream) {
   stream << " - " << _measuredInteriorPipes.size() << " Measured Interior Pipes" << endl;
   stream << " - " << _closedInteriorPipes.size() << " Closed Interior Pipes" << endl;
   stream << "Closed Boundary Pipes:" << endl;
-  std::pair<Pipe::_sp, Pipe::direction_t> cp;
-  BOOST_FOREACH(cp, _closedBoundaryPipesDirectional) {
+
+  for (auto cp : _closedBoundaryPipesDirectional) {
     double multiplier = cp.second;
     Pipe::_sp p = cp.first;
     string dir = (multiplier > 0)? "(+)" : "(-)";
@@ -136,7 +136,7 @@ void Dma::removeJunction(Junction::_sp junction) {
 //    //cout << " - adding: " << thisJ->name() << endl;
 //    this->addJunction(thisJ);
 //    vector<Link::_sp> connectedLinks = thisJ->links();
-//    BOOST_FOREACH(Link::_sp l, connectedLinks) {
+//    for(Link::_sp l : connectedLinks) {
 //      // follow this link?
 //      Pipe::_sp p = std::static_pointer_cast<Pipe>(l);
 //      if (p->doesHaveFlowMeasure()) {
@@ -166,7 +166,7 @@ void Dma::removeJunction(Junction::_sp junction) {
 //      vector<Junction::_sp> juncs;
 //      juncs.push_back(std::static_pointer_cast<Junction>(nodes.first));
 //      juncs.push_back(std::static_pointer_cast<Junction>(nodes.second));
-//      BOOST_FOREACH(Junction::_sp candidateJ, juncs) {
+//      for(Junction::_sp candidateJ : juncs) {
 //        if (candidateJ != thisJ && !this->doesHaveJunction(candidateJ)) {
 //          // add to follow list
 //          candidateJunctions.push_back(candidateJ);
@@ -180,7 +180,7 @@ void Dma::removeJunction(Junction::_sp junction) {
 //  // this set may include "ignored" pipes.
 //  
 //  map<Pipe::_sp, Pipe::direction_t> measuredBoundaryPipesDirectional = measuredBoundaryPipes();
-//  BOOST_FOREACH(Pipe::_sp p, measuredBoundaryPipesDirectional | boost::adaptors::map_keys) {
+//  for(Pipe::_sp p : measuredBoundaryPipesDirectional | boost::adaptors::map_keys) {
 //    if (this->doesHaveJunction(std::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(std::static_pointer_cast<Junction>(p->to()))) {
 //      //cout << "removing orphaned pipe: " << p->name() << endl;
 //      _measuredBoundaryPipesDirectional.erase(p);
@@ -188,7 +188,7 @@ void Dma::removeJunction(Junction::_sp junction) {
 //    }
 //  }
 //  map<Pipe::_sp, Pipe::direction_t> closedBoundaryPipesDirectional = closedBoundaryPipes();
-//  BOOST_FOREACH(Pipe::_sp p, closedBoundaryPipesDirectional | boost::adaptors::map_keys) {
+//  for(Pipe::_sp p : closedBoundaryPipesDirectional | boost::adaptors::map_keys) {
 //    if (this->doesHaveJunction(std::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(std::static_pointer_cast<Junction>(p->to()))) {
 //      //cout << "removing orphaned pipe: " << p->name() << endl;
 //      _closedBoundaryPipesDirectional.erase(p);
@@ -202,7 +202,7 @@ void Dma::removeJunction(Junction::_sp junction) {
 //  // -- storage tanks
 //  
 //  
-//  BOOST_FOREACH(Junction::_sp j, _junctions) {
+//  for(Junction::_sp j : _junctions) {
 //    // is this a reservoir? if so, that's bad news -- we can't compute a control volume. the volume is infinite.
 //    if (j->type() == Element::RESERVOIR) {
 //      doesContainReservoir = true;
@@ -228,16 +228,16 @@ void Dma::removeJunction(Junction::_sp junction) {
 //    AggregatorTimeSeries::_sp dmaDemand( new AggregatorTimeSeries() );
 //    dmaDemand->setUnits(RTX_GALLON_PER_MINUTE);
 //    dmaDemand->setName("DMA " + this->name() + " demand");
-//    BOOST_FOREACH(Tank::_sp t, _tanks) {
+//    for(Tank::_sp t : _tanks) {
 //      dmaDemand->addSource(t->flowMeasure(), -1.);
 //    }
 //    /* boundary flows are accounted for in the allocation method
-//     BOOST_FOREACH(Junction::_sp j, _boundaryFlowJunctions) {
+//     for(Junction::_sp j : _boundaryFlowJunctions) {
 //     dmaDemand->addSource(j->boundaryFlow(), -1.);
 //     }
 //     */
 //    
-//    BOOST_FOREACH(pipeDirPair_t pd, _measuredBoundaryPipesDirectional) {
+//    for(pipeDirPair_t pd : _measuredBoundaryPipesDirectional) {
 //      Pipe::_sp p = pd.first;
 //      Pipe::direction_t dir = pd.second;
 //      double dirMult = ( dir == Pipe::inDirection ? 1. : -1. );
@@ -265,7 +265,7 @@ void Dma::removeJunction(Junction::_sp junction) {
 void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
   
   // we've supplied a list of candidate boundary pipes. prune the list of pipes that don't connect to this dma.
-  BOOST_FOREACH(const Pipe::_sp p, boundarySet) {
+  for(const Pipe::_sp p : boundarySet) {
     Junction::_sp j1, j2;
     j1 = std::static_pointer_cast<Junction>(p->from());
     j2 = std::static_pointer_cast<Junction>(p->to());
@@ -317,7 +317,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
   
   bool doesContainReservoir = false;
   
-  BOOST_FOREACH(Junction::_sp j, _junctions) {
+  for(Junction::_sp j : _junctions) {
     // is this a reservoir? if so, that's bad news -- we can't compute a control volume. the volume is infinite.
     if (j->type() == Element::RESERVOIR) {
       doesContainReservoir = true;
@@ -331,11 +331,11 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
     AggregatorTimeSeries::_sp dmaDemand( new AggregatorTimeSeries() );
     dmaDemand->setUnits(RTX_GALLON_PER_MINUTE);
     dmaDemand->setName("DMA " + this->name() + " demand");
-    BOOST_FOREACH(Tank::_sp t, _tanks) {
+    for(Tank::_sp t : _tanks) {
       dmaDemand->addSource(t->flowCalc(), -1.);
     }
     /* boundary flows are accounted for in the allocation method
-     BOOST_FOREACH(Junction::_sp j, _boundaryFlowJunctions) {
+     for(Junction::_sp j : _boundaryFlowJunctions) {
      dmaDemand->addSource(j->boundaryFlow(), -1.);
      }
      */
@@ -347,7 +347,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
       this->setDemand(zero);
     }
     else {
-      BOOST_FOREACH(pipeDirPair_t pd, _measuredBoundaryPipesDirectional) {
+      for(pipeDirPair_t pd : _measuredBoundaryPipesDirectional) {
         Pipe::_sp p = pd.first;
         Pipe::direction_t dir = pd.second;
         double dirMult = ( dir == Pipe::inDirection ? 1. : -1. );
@@ -460,7 +460,7 @@ void Dma::followJunction(Junction::_sp junction) {
   
   
   // for each link connected to the junction, follow it and add its junctions
-  BOOST_FOREACH(Link::_sp link, junction->links()) {
+  for(Link::_sp link : junction->links()) {
     cout << "... examining pipe " << link->name() << endl;
     Pipe::_sp pipe = std::static_pointer_cast<Pipe>(link);
     
@@ -501,7 +501,7 @@ void Dma::followJunction(Junction::_sp junction) {
 */
 
 Junction::_sp Dma::findJunction(std::string name) {
-  BOOST_FOREACH(Junction::_sp j, _junctions) {
+  for(Junction::_sp j : _junctions) {
     if (RTX_STRINGS_ARE_EQUAL(j->name(), name)) {
       return j;
     }
@@ -543,7 +543,7 @@ std::vector<Pipe::_sp> Dma::measuredInteriorPipes() {
 
 bool Dma::isMeasuredBoundaryPipe(Pipe::_sp pipe) {
   
-  BOOST_FOREACH(const pipeDirPair_t& pdp, _measuredBoundaryPipesDirectional) {
+  for(const pipeDirPair_t& pdp : _measuredBoundaryPipesDirectional) {
     if (pdp.first == pipe) {
       return true;
     }
@@ -554,7 +554,7 @@ bool Dma::isMeasuredBoundaryPipe(Pipe::_sp pipe) {
 
 bool Dma::isMeasuredInteriorPipe(Pipe::_sp pipe) {
   
-  BOOST_FOREACH(const Pipe::_sp p, _measuredInteriorPipes) {
+  for(const Pipe::_sp p : _measuredInteriorPipes) {
     if (p == pipe) {
       return true;
     }
@@ -578,7 +578,7 @@ bool Dma::isMeasuredPipe(Pipe::_sp pipe) {
 
 bool Dma::isClosedBoundaryPipe(Pipe::_sp pipe) {
   
-  BOOST_FOREACH(const pipeDirPair_t& pdp, _closedBoundaryPipesDirectional) {
+  for(const pipeDirPair_t& pdp : _closedBoundaryPipesDirectional) {
     if (pdp.first == pipe) {
       return true;
     }
@@ -589,7 +589,7 @@ bool Dma::isClosedBoundaryPipe(Pipe::_sp pipe) {
 
 bool Dma::isClosedInteriorPipe(Pipe::_sp pipe) {
   
-  BOOST_FOREACH(const Pipe::_sp p, _closedInteriorPipes) {
+  for(const Pipe::_sp p : _closedInteriorPipes) {
     if (p == pipe) {
       return true;
     }
@@ -656,7 +656,7 @@ int Dma::allocateDemandToJunctions(time_t time) {
   
   // if the junction has a boundary flow condition, add it to the "known" demand pool.
   // otherwise, add the nominal base demand to the totalBaseDemand pool.
-  BOOST_FOREACH(Junction::_sp junction, _junctions) {
+  for(Junction::_sp junction : _junctions) {
     
     if ( junction->boundaryFlow() ) {
       Point dp = junction->boundaryFlow()->pointAtOrBefore(time);
@@ -696,7 +696,7 @@ int Dma::allocateDemandToJunctions(time_t time) {
 //  cout << "allocable: " << allocableDemand << endl;
 //  cout << "dma base demand: " << totalBaseDemand << endl;
   // insert junction demand points at current simulation time
-  BOOST_FOREACH(Junction::_sp junction, _junctions) {
+  for(Junction::_sp junction : _junctions) {
     if (junction->boundaryFlow()) {
       // junction does have boundary flow...
       // just need to copy the boundary flow into the junction's demand time series

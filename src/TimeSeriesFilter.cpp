@@ -91,7 +91,7 @@ vector<Point> TimeSeriesFilter::points(TimeRange range) {
   if (cached.size() == pointTimes.size()) {
     // looks good, let's make sure that all time values line up.
     alreadyCached = true;
-    BOOST_FOREACH(const Point& p, cached) {
+    for(const Point& p : cached) {
       if (pointTimes.count(p.time) == 0) {
         alreadyCached = false;
         break; // break foreach, with false "alreadyCached" flag
@@ -188,7 +188,7 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
       p = c.points().front();
     }
     else {
-      cerr << "TimeSeriesFilter::pointAfter iterative search exceeded max strides." << endl;
+      cerr << "Iterative search exceeded max strides:" << this->name() << " (root: " << this->rootTimeSeries()->name() << ")" << endl;
     }
   }
   else {

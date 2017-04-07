@@ -56,7 +56,7 @@ void TimeSeriesDuplicator::_refreshDestinations() {
     scoped_lock<boost::signals2::mutex> mx(_mutex);
     _destinationSeries.clear();
     
-    BOOST_FOREACH(TimeSeries::_sp source, _sourceSeries) {
+    for(TimeSeries::_sp source : _sourceSeries) {
       // make a simple modular ts
       TimeSeriesFilter::_sp mod( new TimeSeriesFilter() );
       mod->setSource(source);
@@ -271,7 +271,7 @@ std::pair<time_t,int> TimeSeriesDuplicator::_fetchAll(time_t start, time_t end, 
     _pctCompleteFetch = 0.;
   }
   size_t nSeries = _destinationSeries.size();
-  BOOST_FOREACH(TimeSeries::_sp ts, _destinationSeries) {
+  for(TimeSeries::_sp ts : _destinationSeries) {
     if (_shouldRun) {
       ts->resetCache();
       PointCollection pc = ts->pointCollection(TimeRange(start, end));

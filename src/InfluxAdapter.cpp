@@ -331,7 +331,7 @@ std::string InfluxTcpAdapter::Query::nameAndWhereClause() {
 }
 
 
-jsValue __jsonFromRequest(uri uri, method withMethod = methods::GET);
+jsValue __jsonFromRequest(uri uri, method withMethod, std::function<void(const std::string errMsg)> errCallback);
 std::vector<RTX::Point> __pointsFromJson(jsValue json);
 
 
@@ -371,14 +371,14 @@ void InfluxTcpAdapter::doConnect() {
   bool dbExists = false;
   
   uri uri = uriForQuery("SHOW MEASUREMENTS LIMIT 1", false);
-  jsValue jsoMeas = __jsonFromRequest(uri);
+  jsValue jsoMeas = __jsonFromRequest(uri,methods::GET,_errCallback);
   if (!jsoMeas.has_field(kRESULTS)) {
     if (jsoMeas.has_field("error")) {
       _errCallback(jsoMeas["error"].as_string());
       return;
     }
     else {
-      _errCallback("Connect failed: No Database?");
+      //_errCallback("Connect failed: No Database?");
       return;
     }
   }
@@ -409,7 +409,7 @@ void InfluxTcpAdapter::doConnect() {
     .append_query("p", this->conn.pass, false)
     .append_query("q", "CREATE DATABASE " + this->conn.db, true);
     
-    jsValue response = __jsonFromRequest(b.to_uri());
+    jsValue response = __jsonFromRequest(b.to_uri(),methods::GET,_errCallback);
     if (response.size() == 0 || !response.has_field(kRESULTS) ) {
       _errCallback("Can't create database");
       return;
@@ -460,7 +460,7 @@ IdentifierUnitsList InfluxTcpAdapter::idUnitsList() {
   
   
   uri uri = uriForQuery(kSHOW_SERIES, false);
-  jsValue jsv = __jsonFromRequest(uri);
+  jsValue jsv = __jsonFromRequest(uri,methods::GET,_errCallback);
   
   if (jsv.has_field(kRESULTS) &&
       jsv[kRESULTS].is_array() &&
@@ -509,8 +509,8 @@ std::vector<Point> InfluxTcpAdapter::selectRange(const std::string& id, TimeRang
   q.where.push_back("time >= " + to_string(range.start) + "s");
   q.where.push_back("time <= " + to_string(range.end) + "s");
   
-  uri uri = uriForQuery(q.selectStr());
-  jsValue jsv = __jsonFromRequest(uri);
+  uri uri = this->uriForQuery(q.selectStr());
+  jsValue jsv = __jsonFromRequest(uri,methods::GET,_errCallback);
   return __pointsFromJson(jsv);
 }
 
@@ -522,7 +522,7 @@ Point InfluxTcpAdapter::selectNext(const std::string& id, time_t time) {
   q.order = "time asc limit 1";
   
   uri uri = uriForQuery(q.selectStr());
-  jsValue jsv = __jsonFromRequest(uri);
+  jsValue jsv = __jsonFromRequest(uri,methods::GET,_errCallback);
   points = __pointsFromJson(jsv);
   
   if (points.size() == 0) {
@@ -541,7 +541,7 @@ Point InfluxTcpAdapter::selectPrevious(const std::string& id, time_t time) {
   q.order = "time desc limit 1";
   
   uri uri = uriForQuery(q.selectStr());
-  jsValue jsv = __jsonFromRequest(uri);
+  jsValue jsv = __jsonFromRequest(uri,methods::GET,_errCallback);
   points = __pointsFromJson(jsv);
   
   if (points.size() == 0) {
@@ -560,7 +560,7 @@ void InfluxTcpAdapter::removeRecord(const std::string& id) {
   sqlss << "DROP SERIES FROM " << q.nameAndWhereClause();
   
   uri uri = uriForQuery(sqlss.str());
-  jsValue v = __jsonFromRequest(uri, methods::POST);
+  jsValue v = __jsonFromRequest(uri, methods::POST,_errCallback);
 }
 
 void InfluxTcpAdapter::removeAllRecords() {
@@ -572,7 +572,7 @@ void InfluxTcpAdapter::removeAllRecords() {
   sqlss << "DROP DATABASE " << this->conn.db << "; CREATE DATABASE " << this->conn.db;
   
   uri uri = uriForQuery(sqlss.str());
-  jsValue v = __jsonFromRequest(uri, methods::POST);
+  jsValue v = __jsonFromRequest(uri, methods::POST,_errCallback);
   
   this->beginTransaction();
   for (auto ts_units : *ids.get()) {
@@ -653,28 +653,40 @@ uri InfluxTcpAdapter::uriForQuery(const std::string& query, bool withTimePrecisi
     b.append_query("epoch","s");
   }
   
-  return b.to_uri();
+  try {
+    auto uri = b.to_uri();
+    return uri;
+  } catch (exception& e) {
+    return web::uri();
+  }
 }
 
-jsValue __jsonFromRequest(uri uri, method withMethod) {
+jsValue __jsonFromRequest(uri uri, method withMethod, std::function<void(const std::string errMsg)> errCallback) {
   jsValue js = jsValue::object();
   
   auto getFn = [&]()->bool{
     web::http::client::http_client_config config;
     config.set_timeout(std::chrono::seconds(RTX_INFLUX_CLIENT_TIMEOUT));
-    web::http::client::http_client client(uri, config);
     try {
+      web::http::client::http_client client(uri, config);
       http_response r = client.request(withMethod).get(); // waits for response
       if (r.status_code() == status_codes::OK) {
         js = r.extract_json().get();
+        errCallback("Connected");
         return true;
       }
       else {
-        cerr << "CONNECTION ERROR: " << r.reason_phrase() << EOL;
+        stringstream ss;
+        ss << "Connection Error: " << r.reason_phrase();
+        errCallback(ss.str());
+        cerr << ss.str() << EOL;
         return false;
       }
     } catch (exception& e) {
-      cerr << "exception in GET: " << e.what() << endl;
+      stringstream ss;
+      ss << "exception in GET: " << e.what();
+      cerr << ss.str() << endl;
+      errCallback(ss.str());
       return false;
     }
     return false;

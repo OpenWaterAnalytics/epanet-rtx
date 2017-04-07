@@ -289,9 +289,9 @@ Point DbPointRecord::pointBefore(const string& id, time_t time) {
   }
   
   // if it's not buffered, but the last request covered this range, then there is no point here.
-  if (_last_request.contains(id, time-1)) {
-    return Point();
-  }
+//  if (_last_request.contains(id, time-1)) {
+//    return Point();
+//  }
   
   if (!checkConnected()) {
     return p;
@@ -327,9 +327,9 @@ Point DbPointRecord::pointAfter(const string& id, time_t time) {
   }
   
   // last request covered this already?
-  if (_last_request.contains(id, time + 1)) {
-    return Point();
-  }
+//  if (_last_request.contains(id, time + 1)) {
+//    return Point();
+//  }
   
   if (!checkConnected()) {
     return p;

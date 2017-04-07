@@ -37,7 +37,7 @@ void Node::removeLink(std::shared_ptr<Link> link) {
 std::vector< std::shared_ptr<Link> > Node::links() {
   std::vector<std::shared_ptr<Link> > linkvector;
   // get shared pointers for these weakly pointed-to links
-  BOOST_FOREACH(Link *l, _links) {
+  for(Link *l : _links) {
     Link::_sp sharedLink = dynamic_pointer_cast<Link>(l->sp());
     linkvector.push_back(sharedLink);
   }

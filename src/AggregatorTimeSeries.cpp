@@ -160,16 +160,33 @@ time_t AggregatorTimeSeries::timeAfter(time_t time) {
 
 std::set<time_t> AggregatorTimeSeries::timeValuesInRange(TimeRange range) {
   set<time_t> timeList;
+  TimeRange netRange = range;
+  
+  for(AggregatorSource aggSource: this->sources()) {      
+    auto src = aggSource.timeseries;
+    auto seekLeft = src->timeBefore(range.start + 1);
+    if (seekLeft == 0) {
+      seekLeft = src->timeAfter(range.start - 1);
+    }
+    auto seekRight = src->timeAfter(range.end - 1);
+    if (seekRight == 0) {
+      seekRight = src->timeBefore(range.end + 1);
+    }
+    TimeRange componentRange(seekLeft,seekRight);
+    netRange = TimeRange::intersectionOf(netRange, componentRange);
+  }
   
   if (this->clock()) {
     // align the query with the clock
-    timeList = this->clock()->timeValuesInRange(range);
+    timeList = this->clock()->timeValuesInRange(netRange);
   }
   else {
     // get the set of times from the aggregator sources
-    for(AggregatorSource aggSource: this->sources()) {
-      set<time_t> sourceTimes = aggSource.timeseries->timeValuesInRange(range);
-      timeList.insert(sourceTimes.begin(), sourceTimes.end());
+    if (netRange.isValid()) {
+      for (auto aggSource : this->sources()) {
+        set<time_t> sourceTimes = aggSource.timeseries->timeValuesInRange(netRange);
+        timeList.insert(sourceTimes.begin(), sourceTimes.end());
+      }
     }
   }
   return timeList;
@@ -184,7 +201,7 @@ PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange range) {
   
   // pre-load a vector of points.
   for(time_t now: desiredTimes) {
-    Point p(now);
+    Point p(now); // default quality == bad
     
     switch (_mode) {
       case AggregatorModeMin:

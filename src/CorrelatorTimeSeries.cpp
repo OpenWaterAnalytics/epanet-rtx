@@ -109,7 +109,7 @@ PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange range) {
   vector<Point> thePoints;
   thePoints.reserve(sampleTimes.size());
   
-  BOOST_FOREACH(time_t t, sampleTimes) {
+  for(time_t t : sampleTimes) {
     double corrcoef = 0;
     TimeRange q(t-windowWidth, t);
     PointCollection sourceCollection = m_primaryCollection.trimmedToRange(q); //sourceTs->pointCollection(q);
@@ -123,7 +123,7 @@ PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange range) {
     
     pair<double, int> maxCorrelationAtLaggedTime(-MAXFLOAT,0);
     
-    BOOST_FOREACH(time_t lagTime, lagEvaluationTimes) {
+    for(time_t lagTime : lagEvaluationTimes) {
       
       int timeDistance = (int)(t - lagTime);
       PointCollection sourceCollectionForAnalysis = sourceCollection;

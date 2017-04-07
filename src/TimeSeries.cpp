@@ -185,7 +185,7 @@ void TimeSeries::setUnits(Units newUnits) {
     if (! (newUnits == this->units())) {
       // if original units were NONE, then we don't need to invalidate. we are just setting this up for the first time.
       bool shouldInvalidate = true;
-      if (_units == RTX_NO_UNITS) {
+      if (_units == RTX_NO_UNITS || _units == newUnits) {
         shouldInvalidate = false;
       }
       _units = newUnits;

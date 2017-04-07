@@ -44,7 +44,7 @@ bool GainTimeSeries::canSetSource(TimeSeries::_sp ts) {
 void GainTimeSeries::didSetSource(TimeSeries::_sp ts) {
   Units derived = ts->units() * this->gainUnits();
   if (!this->units().isSameDimensionAs(derived) || this->units() == RTX_NO_UNITS) {
-    this->setUnits(ts->units() * this->gainUnits());
+    this->setUnits(derived);
   }
 }
 

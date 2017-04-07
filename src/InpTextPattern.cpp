@@ -60,7 +60,7 @@ std::string InpTextPattern::textControlWithTimeSeries(TimeSeries::_sp ts, const 
   controlStmt << "; RTX Time-Based Control for " << linkName << " (" << ((type == InpControlTypeSetting)? "setting" : "status") << ")" << endl;
   
   PointCollection c = ts->pointCollection(TimeRange(from,to)).asDelta();
-  BOOST_FOREACH(const Point& p, c.points()) {
+  for(const Point& p : c.points()) {
     double hrs = (double)(p.time - from) / (60.*60.);
     controlStmt << "LINK " << linkName << " ";
     switch (type) {

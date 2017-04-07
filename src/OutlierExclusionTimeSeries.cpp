@@ -80,7 +80,7 @@ PointCollection OutlierExclusionTimeSeries::filterPointsInRange(TimeRange range)
   goodPoints.reserve(subranges.ranges.size());
   
   // we have to re-map the points to the summaries that surround the points
-  BOOST_FOREACH(const Point& p, raw.points()) {
+  for(const Point& p : raw.points()) {
     // find the summary corresponding to this point's time
     if (subranges.ranges.find(p.time) != subranges.ranges.end()) {
       auto range = subranges.ranges[p.time];

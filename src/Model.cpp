@@ -178,61 +178,47 @@ void Model::setFlowUnits(Units units)    {
     return;
   }
   _flowUnits = units;
-  BOOST_FOREACH(Junction::_sp j, this->junctions()) {
+  for(Node::_sp n : this->nodes()) {
+    auto j = dynamic_pointer_cast<Junction>(n);
     j->demand()->setUnits(units);
   }
-  BOOST_FOREACH(Tank::_sp t, this->tanks()) {
+  for(Tank::_sp t : this->tanks()) {
     t->flowCalc()->setUnits(units);
     t->flow()->setUnits(units);
   }
-  BOOST_FOREACH(Pipe::_sp p, this->pipes()) {
+  for(Link::_sp l : this->links()) {
+    auto p = dynamic_pointer_cast<Pipe>(l);
     p->flow()->setUnits(units);
-  }
-  BOOST_FOREACH(Pump::_sp p, this->pumps()) {
-    p->flow()->setUnits(units);
-  }
-  BOOST_FOREACH(Valve::_sp v, this->valves()) {
-    v->flow()->setUnits(units);
   }
 }
 void Model::setHeadUnits(Units units)    {
   _headUnits = units;
-  
-  BOOST_FOREACH(Junction::_sp j, this->junctions()) {
+  for(Node::_sp n : this->nodes()) {
+    auto j = dynamic_pointer_cast<Junction>(n);
     j->head()->setUnits(units);
   }
-  BOOST_FOREACH(Tank::_sp t, this->tanks()) {
-    t->head()->setUnits(units);
+  for(Tank::_sp t : this->tanks()) {
     t->level()->setUnits(units);
-  }
-  BOOST_FOREACH(Reservoir::_sp r, this->reservoirs()) {
-    r->head()->setUnits(units);
-  }
-  
+  }  
 }
 void Model::setPressureUnits(Units units) {
   _pressureUnits = units;
-  BOOST_FOREACH(Junction::_sp j, this->junctions()) {
+  for(Node::_sp n : this->nodes()) {
+    Junction::_sp j = dynamic_pointer_cast<Junction>(n);
     j->pressure()->setUnits(units);
   }
 }
 void Model::setQualityUnits(Units units) {
   _qualityUnits = units;
-  BOOST_FOREACH(Junction::_sp j, this->junctions()) {
+  for(Node::_sp n : this->nodes()) {
+    Junction::_sp j = dynamic_pointer_cast<Junction>(n);
     j->quality()->setUnits(units);
   }
-  BOOST_FOREACH(Tank::_sp t, this->tanks()) {
-    t->quality()->setUnits(units);
-  }
-  BOOST_FOREACH(Reservoir::_sp r, this->reservoirs()) {
-    r->quality()->setUnits(units);
-  }
-  
 }
 
 void Model::setVolumeUnits(RTX::Units units) {
   _volumeUnits = units;
-  BOOST_FOREACH(Tank::_sp t, this->tanks()) {
+  for(Tank::_sp t : this->tanks()) {
     t->volume()->setUnits(units);
     t->volumeCalc()->setUnits(units);
   }
@@ -242,7 +228,7 @@ void Model::setVolumeUnits(RTX::Units units) {
 
 void Model::setRecordForDmaDemands(PointRecord::_sp record) {
   
-  BOOST_FOREACH(Dma::_sp dma, dmas()) {
+  for(Dma::_sp dma : dmas()) {
     dma->setRecord(record);
   }
   
@@ -259,53 +245,53 @@ void Model::setRecordForSimulationStats(PointRecord::_sp record) {
 
 set<PointRecord::_sp> Model::recordsForModeledStates() {
   set<PointRecord::_sp> stateRecordsUsed;
-  BOOST_FOREACH(Junction::_sp e, this->junctions()) {
+  for(Junction::_sp e: this->junctions()) {
     vector<PointRecord::_sp> elementRecords;
     elementRecords.push_back(e->pressure()->record());
     elementRecords.push_back(e->head()->record());
     elementRecords.push_back(e->quality()->record());
     elementRecords.push_back(e->demand()->record());
     
-    BOOST_FOREACH(PointRecord::_sp r, elementRecords) {
+    for(PointRecord::_sp r: elementRecords) {
       if (_rtxmodel_isDbRecord(r)) {
         stateRecordsUsed.insert(r);
       }
     }
   }
-  BOOST_FOREACH(Tank::_sp t, this->tanks()) {
+  for(Tank::_sp t: this->tanks()) {
     vector<PointRecord::_sp> recVec;
     recVec.push_back(t->level()->record());
     recVec.push_back(t->flow()->record());
-    BOOST_FOREACH(PointRecord::_sp r, recVec) {
+    for(PointRecord::_sp r: recVec) {
       if (_rtxmodel_isDbRecord(r)) {
         stateRecordsUsed.insert(r);
       }
     }
   }
-  BOOST_FOREACH(Pipe::_sp p, this->pipes()) {
+  for(Pipe::_sp p: this->pipes()) {
     vector<PointRecord::_sp> recVec;
     recVec.push_back(p->flow()->record());
     recVec.push_back(p->setting()->record());
     recVec.push_back(p->status()->record());
-    BOOST_FOREACH(PointRecord::_sp r, recVec) {
+    for(PointRecord::_sp r: recVec) {
       if (_rtxmodel_isDbRecord(r)) {
         stateRecordsUsed.insert(r);
       }
     }
   }
-  BOOST_FOREACH(Valve::_sp p, this->valves()) {
+  for(Valve::_sp p: this->valves()) {
     vector<PointRecord::_sp> recVec;
     recVec.push_back(p->flow()->record());
-    BOOST_FOREACH(PointRecord::_sp r, recVec) {
+    for(PointRecord::_sp r: recVec) {
       if (_rtxmodel_isDbRecord(r)) {
         stateRecordsUsed.insert(r);
       }
     }
   }
-  BOOST_FOREACH(Pump::_sp p, this->pumps()) {
+  for(Pump::_sp p: this->pumps()) {
     vector<PointRecord::_sp> recVec;
     recVec.push_back(p->flow()->record());
-    BOOST_FOREACH(PointRecord::_sp r, recVec) {
+    for(PointRecord::_sp r: recVec) {
       if (_rtxmodel_isDbRecord(r)) {
         stateRecordsUsed.insert(r);
       }
@@ -410,7 +396,7 @@ void Model::initDMAs() {
   }
   
   // finally, let the dma assemble its aggregators
-  BOOST_FOREACH(const Dma::_sp dma, newDmas) {
+  for(const Dma::_sp dma : newDmas) {
     dma->initDemandTimeseries(boundaryPipes);
     dma->demand()->setUnits(this->flowUnits());
     this->addDma(dma);
@@ -738,6 +724,8 @@ bool Model::updateSimulationToTime(time_t updateToTime) {
     return false;
   }
   
+  _shouldCancelSimulation = false;
+  
   while (this->currentSimulationTime() < updateToTime && !_shouldCancelSimulation) {
     
     {
@@ -867,14 +855,14 @@ void Model::runForecast(time_t start, time_t end) {
       simulationTime = currentSimulationTime();
       
       timeinfo = localtime (&simulationTime);
-      cout << "Simulation time :: " << asctime(timeinfo) << endl << flush;
+      cout << "Simulation time :: " << asctime(timeinfo) << EOL << flush;
     }
     else {
       // simulation failed -- advance the time and reset tank levels
       nextClockTime = _regularMasterClock->timeAfter(simulationTime);
       simulationTime = nextClockTime;
       setCurrentSimulationTime(simulationTime);
-      cout << "will reset tanks" << endl << flush;
+      cout << "will reset tanks" << EOL << flush;
       this->setTanksNeedReset(true);
     }
     
@@ -934,10 +922,10 @@ void Model::setInitialJunctionQualityFromHotStart(time_t time) {
 void Model::setInitialJunctionUniformQuality(double qual) {
   _initialQuality = qual;
   // Constant initial quality of Junctions and Tanks (Reservoirs are boundary conditions)
-  BOOST_FOREACH(Junction::_sp junc, this->junctions()) {
+  for(Junction::_sp junc : this->junctions()) {
     junc->state_quality = qual;
   }
-  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
+  for(Tank::_sp tank : this->tanks()) {
     tank->state_quality = qual;
   }
   for(auto r : this->reservoirs()) {
@@ -957,7 +945,7 @@ bool Model::tanksNeedReset() {
 void Model::setTanksNeedReset(bool reset) {
   _tanksNeedReset = reset;
   
-  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
+  for(Tank::_sp tank : this->tanks()) {
     tank->setNeedsReset(reset);
   }
   
@@ -969,7 +957,7 @@ void Model::_checkTanksForReset(time_t time) {
     return;
   }
   
-  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
+  for(Tank::_sp tank : this->tanks()) {
     if (tank->levelMeasure()) {
       Point p = tank->levelMeasure()->pointAtOrBefore(time);
       if (p.isValid) {
@@ -995,7 +983,7 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
   
   // junction measurements
   std::vector< std::pair<Junction::_sp, double> > measuredJunctions;
-  BOOST_FOREACH(Junction::_sp junc, this->junctions()) {
+  for(Junction::_sp junc : this->junctions()) {
     if (junc->qualityMeasure()) {
       TimeSeries::_sp qualityTS = junc->qualityMeasure();
       Point aPoint = qualityTS->pointAtOrBefore(time);
@@ -1005,7 +993,7 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
     }
   }
   // tank measurements
-  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
+  for(Tank::_sp tank : this->tanks()) {
     if (tank->qualityMeasure()) {
       TimeSeries::_sp qualityTS = tank->qualityMeasure();
       Point aPoint = qualityTS->pointAtOrBefore(time);
@@ -1017,11 +1005,10 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
   
   // Nearest neighbor interpolation by enumeration
   // junctions
-  BOOST_FOREACH(Junction::_sp junc, this->junctions()) {
-    std::pair<Junction::_sp, double> mjunc;
+  for(Junction::_sp junc : this->junctions()) {
     double minDistance = DBL_MAX;
     double initQuality = 0;
-    BOOST_FOREACH(mjunc, measuredJunctions) {
+    for(auto mjunc : measuredJunctions) {
       double d = nodeDirectDistance(junc, mjunc.first);
       if (d < minDistance) {
         minDistance = d;
@@ -1033,11 +1020,10 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
 //    cout << "Junction " << junc->name() << " Quality: " << initQuality << endl;
   }
   // tanks
-  BOOST_FOREACH(Tank::_sp tank, this->tanks()) {
-    std::pair<Junction::_sp, double> mjunc;
+  for(Tank::_sp tank : this->tanks()) {
     double minDistance = DBL_MAX;
     double initQuality = 0;
-    BOOST_FOREACH(mjunc, measuredJunctions) {
+    for(auto mjunc : measuredJunctions) {
       double d = nodeDirectDistance(tank, mjunc.first);
       if (d < minDistance) {
         minDistance = d;
@@ -1091,7 +1077,7 @@ std::ostream& Model::toStream(std::ostream &stream) {
   
   if (_dmas.size() > 0) {
     stream << "Demand DMAs:" << endl;
-    BOOST_FOREACH(Dma::_sp d, _dmas) {
+    for(Dma::_sp d : _dmas) {
       stream << "## DMA: " << d->name() << endl;
       stream << *d << endl;
     }
@@ -1104,7 +1090,7 @@ std::ostream& Model::toStream(std::ostream &stream) {
 void Model::setSimulationParameters(time_t time) {
   struct tm * timeinfo = localtime (&time);
   
-  DebugLog << "*** SETTING MODEL INPUTS ***" << EOL;
+  DebugLog << EOL << "*** SETTING MODEL INPUTS ***" << EOL;
   // set all element parameters
   
   // allocate junction demands based on dmas, and set the junction demand values in the model.
@@ -1118,7 +1104,7 @@ void Model::setSimulationParameters(time_t time) {
       }
       else {
         Point dPoint = dma->demand()->pointAtOrBefore(time);
-        DebugLog << "*  DMA: " << dma->name() << " demand --> " << dPoint.value << '\n';
+        DebugLog << "*  DMA: " << dma->name() << " demand --> " << dPoint.value << EOL;
       }
       
     }
@@ -1301,7 +1287,7 @@ void Model::fetchSimulationStates() {
   // then insert the state values into elements' "short-term" memory
   
   // junctions, tanks, reservoirs
-  BOOST_FOREACH(Junction::_sp junction, junctions()) {
+  for(Junction::_sp junction : junctions()) {
     double head;
     head = Units::convertValue(junctionHead(junction->name()), headUnits(), junction->head()->units());
     junction->state_head = head;
@@ -1319,13 +1305,13 @@ void Model::fetchSimulationStates() {
   }
   
   if (!_doesOverrideDemands) { // otherwise this state ivar is set by the containing DMA object
-    BOOST_FOREACH(Junction::_sp junction, junctions()) {
+    for(Junction::_sp junction : junctions()) {
       double demand = Units::convertValue(junctionDemand(junction->name()), flowUnits(), junction->demand()->units());
       junction->state_demand = demand;
     }
   }
   
-  BOOST_FOREACH(Reservoir::_sp reservoir, reservoirs()) {
+  for(Reservoir::_sp reservoir : reservoirs()) {
     double head;
     head = Units::convertValue(junctionHead(reservoir->name()), headUnits(), reservoir->head()->units());
     reservoir->state_head = head;
@@ -1335,7 +1321,7 @@ void Model::fetchSimulationStates() {
     reservoir->state_quality = quality;
   }
   
-  BOOST_FOREACH(Tank::_sp tank, tanks()) {
+  for(Tank::_sp tank : tanks()) {
     double head;
     head = Units::convertValue(junctionHead(tank->name()), headUnits(), tank->head()->units());
     tank->state_head = head;
@@ -1358,8 +1344,10 @@ void Model::fetchSimulationStates() {
     
   }
   
-  // pipe elements
-  BOOST_FOREACH(Pipe::_sp pipe, pipes()) {
+  // link elements
+  for(Link::_sp link : this->links()) {
+    auto pipe = dynamic_pointer_cast<Pipe>(link);
+    
     double flow;
     flow = Units::convertValue(pipeFlow(pipe->name()), flowUnits(), pipe->flow()->units());
     pipe->state_flow = flow;
@@ -1371,18 +1359,12 @@ void Model::fetchSimulationStates() {
     pipe->state_status = status;
   }
   
-  BOOST_FOREACH(Valve::_sp valve, valves()) {
-    double flow;
-    flow = Units::convertValue(pipeFlow(valve->name()), flowUnits(), valve->flow()->units());
-    valve->state_flow = flow;
+  for(Valve::_sp valve : valves()) {
+    // nothing extra
   }
   
   // pump energy
-  BOOST_FOREACH(Pump::_sp pump, pumps()) {
-    double flow;
-    flow = Units::convertValue(pipeFlow(pump->name()), flowUnits(), pump->flow()->units());
-    pump->state_flow = flow;
-    
+  for(Pump::_sp pump : pumps()) {
     double energy;
     energy = pumpEnergy(pump->name());
     pump->energy_state = energy;
@@ -1393,13 +1375,15 @@ void Model::fetchSimulationStates() {
 
 void Model::saveNetworkStates(time_t time, std::set<PointRecord::_sp> bulkRecords) {
   
-  BOOST_FOREACH(PointRecord::_sp r, bulkRecords) {
+  DebugLog << "******* saving network states *********" << EOL << flush;
+  
+  for(PointRecord::_sp r: bulkRecords) {
     r->beginBulkOperation();
   }
   // retrieve results from the hydraulic sim
   // then insert the state values into elements' time series.
   // junctions, tanks, reservoirs
-  BOOST_FOREACH(Junction::_sp junction, junctions()) {
+  for(Junction::_sp junction : junctions()) {
     junction->head()->insert(Point(time, junction->state_head));
     junction->pressure()->insert(Point(time, junction->state_pressure));
     // todo - more fine-grained quality data? at wq step resolution...
@@ -1408,18 +1392,18 @@ void Model::saveNetworkStates(time_t time, std::set<PointRecord::_sp> bulkRecord
     }
   }
   
-  BOOST_FOREACH(Junction::_sp junction, junctions()) {
+  for(Junction::_sp junction : junctions()) {
     junction->demand()->insert(Point(time, junction->state_demand));
   }
   
-  BOOST_FOREACH(Reservoir::_sp reservoir, reservoirs()) {
+  for(Reservoir::_sp reservoir : reservoirs()) {
     reservoir->head()->insert(Point(time, reservoir->state_head));
     if (this->shouldRunWaterQuality()) {
       reservoir->quality()->insert(Point(time, reservoir->state_quality));
     }
   }
   
-  BOOST_FOREACH(Tank::_sp tank, tanks()) {
+  for(Tank::_sp tank : tanks()) {
     tank->head()->insert(Point(time, tank->state_head));
     tank->level()->insert(Point(time, tank->state_level));
     tank->volume()->insert(Point(time,tank->state_volume));
@@ -1430,20 +1414,20 @@ void Model::saveNetworkStates(time_t time, std::set<PointRecord::_sp> bulkRecord
   }
   
   // pipe elements
-  BOOST_FOREACH(Pipe::_sp pipe, pipes()) {
+  for(Pipe::_sp pipe : pipes()) {
     pipe->flow()->insert(Point(time, pipe->state_flow));
     pipe->setting()->insert(Point(time, pipe->state_setting));
     pipe->status()->insert(Point(time, pipe->state_status));
   }
   
-  BOOST_FOREACH(Valve::_sp valve, valves()) {
+  for(Valve::_sp valve : valves()) {
     valve->flow()->insert(Point(time, valve->state_flow));
     valve->setting()->insert(Point(time, valve->state_setting));
     valve->status()->insert(Point(time, valve->state_status));
   }
   
   // pump energy
-  BOOST_FOREACH(Pump::_sp pump, pumps()) {
+  for(Pump::_sp pump : pumps()) {
     pump->flow()->insert(Point(time, pump->state_flow));
     pump->energy()->insert(Point(time, pump->energy_state));
     pump->setting()->insert(Point(time, pump->state_setting));
@@ -1451,9 +1435,11 @@ void Model::saveNetworkStates(time_t time, std::set<PointRecord::_sp> bulkRecord
   }
   
   
-  BOOST_FOREACH(PointRecord::_sp r, bulkRecords) {
+  for(PointRecord::_sp r : bulkRecords) {
     r->endBulkOperation();
   }
+  
+  DebugLog << "******* finished saving states ********" << EOL << flush;
 }
 
 void Model::setCurrentSimulationTime(time_t time) {
@@ -1498,7 +1484,7 @@ vector<TimeSeries::_sp> Model::networkStatesWithOptions(elementOption_t options)
     options = (elementOption_t)(options | ElementOptionMeasuredFlows | ElementOptionMeasuredPressures | ElementOptionMeasuredQuality | ElementOptionMeasuredTanks);
   }
 
-  BOOST_FOREACH(Element::_sp element, modelElements) {
+  for(Element::_sp element : modelElements) {
     switch (element->type()) {
       case Element::JUNCTION:
       case Element::TANK:
@@ -1556,7 +1542,7 @@ vector<TimeSeries::_sp> Model::networkInputSeries(elementOption_t options) {
     options = (elementOption_t)(options | ElementOptionMeasuredFlows | ElementOptionMeasuredPressures | ElementOptionMeasuredQuality | ElementOptionMeasuredTanks | ElementOptionMeasuredSettings | ElementOptionMeasuredStatuses);
   }
   
-  BOOST_FOREACH(Element::_sp element, modelElements) {
+  for(Element::_sp element : modelElements) {
     switch (element->type()) {
       case Element::TANK:
       {
@@ -1636,7 +1622,7 @@ vector<TimeSeries::_sp> Model::networkInputSeries(elementOption_t options) {
 set<TimeSeries::_sp> Model::networkInputRootSeries(elementOption_t options) {
   vector<TimeSeries::_sp> inputs = this->networkInputSeries(options);
   set<TimeSeries::_sp> rootTs;
-  BOOST_FOREACH(TimeSeries::_sp ts, inputs) {
+  for(TimeSeries::_sp ts : inputs) {
     TimeSeries::_sp rTs = ts->rootTimeSeries();
     rootTs.insert(rTs);
   }
@@ -1647,14 +1633,14 @@ set<TimeSeries::_sp> Model::networkInputRootSeries(elementOption_t options) {
 // useful for pre-fetching simulation inputs
 void Model::setRecordForElementInputs(PointRecord::_sp pr) {
   vector<TimeSeries::_sp> inputs = this->networkInputSeries(ElementOptionMeasuredAll);
-  BOOST_FOREACH(TimeSeries::_sp ts, inputs) {
+  for(TimeSeries::_sp ts : inputs) {
     ts->setRecord(pr);
   }
 }
 
 void Model::setRecordForElementOutput(PointRecord::_sp record, elementOption_t options) {
   vector<TimeSeries::_sp> outputs = this->networkStatesWithOptions(options);
-  BOOST_FOREACH(TimeSeries::_sp ts, outputs) {
+  for(TimeSeries::_sp ts : outputs) {
     ts->setRecord(record);
   }
 }
@@ -1666,7 +1652,7 @@ void Model::fetchElementInputs(TimeRange range) {
   time_t t2 = range.start + chunkSize;
   while (t1 < range.end) {
     TimeRange tr(t1,t2);
-    BOOST_FOREACH(TimeSeries::_sp ts, inputs) {
+    for(TimeSeries::_sp ts : inputs) {
       cout << "Pre-fetching " << ts->name()  << " :: Times " << t1 << "-" << t2 << endl << flush;
       ts->points(tr);
     }

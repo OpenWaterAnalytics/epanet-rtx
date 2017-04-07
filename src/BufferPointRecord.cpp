@@ -120,6 +120,12 @@ Point BufferPointRecord::pointBefore(const string& identifier, time_t time) {
   scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
   
   Point foundPoint;
+  
+  if (!this->range(identifier).contains(time)) {
+    // don't bother if its' not in range
+    return foundPoint;
+  }
+  
   //TimePointPair_t finder(time, PointPair_t(0,0));
   Point finder(time, 0);
   

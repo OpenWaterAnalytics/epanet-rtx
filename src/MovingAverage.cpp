@@ -103,7 +103,7 @@ PointCollection MovingAverage::filterPointsInRange(TimeRange range) {
   // simple approach: take each point, and search through the vector for where
   // to place the left/right cursors, then take the average.
   
-  BOOST_FOREACH(const Point& sPoint, sourcePoints) {
+  for(const Point& sPoint : sourcePoints) {
     time_t now = sPoint.time;
     if (!rangeToResample.contains(now)) {
       continue; // out of bounds.

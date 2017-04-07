@@ -89,7 +89,7 @@ int main(int argc, const char * argv[])
 
 
 void printPoints(vector<Point> pointVector) {
-  BOOST_FOREACH(Point thePoint, pointVector) {
+  for(Point thePoint : pointVector) {
     cout << thePoint << endl;
   }
 }

@@ -7,7 +7,7 @@
 //
 
 #include "TimeRange.h"
-
+#include "rtxMacros.h"
 
 using namespace RTX;
 
@@ -101,7 +101,16 @@ TimeRange::intersect_type TimeRange::intersection(const TimeRange& otherRange) {
 }
 
 
-
+TimeRange TimeRange::intersectionOf(TimeRange r1, TimeRange r2) {
+  
+  if (!r1.touches(r2)) {
+    return TimeRange(0,0);
+  }
+  
+  TimeRange net( RTX_MAX(r1.start,r2.start), RTX_MIN(r1.end, r2.end) );
+  
+  return net;
+}
 
 
 
