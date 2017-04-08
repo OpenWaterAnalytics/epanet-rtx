@@ -75,31 +75,26 @@ vector<Point> TimeSeriesFilter::points(TimeRange range) {
   
   set<time_t> pointTimes;
   
-  if (this->canDropPoints()) {
-    // optmized fetching: we know we're going to use these same points...
-    PointCollection c = this->filterPointsInRange(range);
-    cached = c.points();
-    pointTimes = c.times();
-  }
-  else {
+  if (!this->canDropPoints()) {
     pointTimes = this->timeValuesInRange(range);
     cached = TimeSeries::points(range); // base class call -> find any pre-cached points
-  }
-  
-  // important optimization. if this range has already been constructed and cached, then don't recreate it.
-  bool alreadyCached = false;
-  if (cached.size() == pointTimes.size()) {
-    // looks good, let's make sure that all time values line up.
-    alreadyCached = true;
-    for(const Point& p : cached) {
-      if (pointTimes.count(p.time) == 0) {
-        alreadyCached = false;
-        break; // break foreach, with false "alreadyCached" flag
+    
+    // important optimization. if this range has already been constructed and cached, then don't recreate it.
+    bool alreadyCached = false;
+    if (cached.size() == pointTimes.size()) {
+      // looks good, let's make sure that all time values line up.
+      alreadyCached = true;
+      for(const Point& p : cached) {
+        if (pointTimes.count(p.time) == 0) {
+          alreadyCached = false;
+          break; // break foreach, with false "alreadyCached" flag
+        }
       }
     }
-  }
-  if (alreadyCached) {
-    return cached; // we're done here. all points are present.
+    if (alreadyCached) {
+      return cached; // we're done here. all points are present.
+    }
+    
   }
   
   PointCollection outCollection = this->filterPointsInRange(range);
