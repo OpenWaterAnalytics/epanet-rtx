@@ -66,41 +66,50 @@ void TimeSeriesFilter::setSource(TimeSeries::_sp ts) {
 
 
 vector<Point> TimeSeriesFilter::points(TimeRange range) {
-  vector<Point> filtered;
-  vector<Point> cached;
   
-  if (! this->source()) {
-    return filtered;
-  }
-  
+  PointCollection cached;
   set<time_t> pointTimes;
+  auto canDrop = this->canDropPoints();
+  PointCollection outCollection;
+  bool didFetch = false;
   
-  if (!this->canDropPoints()) {
-    pointTimes = this->timeValuesInRange(range);
-    cached = TimeSeries::points(range); // base class call -> find any pre-cached points
-    
-    // important optimization. if this range has already been constructed and cached, then don't recreate it.
-    bool alreadyCached = false;
-    if (cached.size() == pointTimes.size()) {
-      // looks good, let's make sure that all time values line up.
-      alreadyCached = true;
-      for(const Point& p : cached) {
-        if (pointTimes.count(p.time) == 0) {
-          alreadyCached = false;
-          break; // break foreach, with false "alreadyCached" flag
-        }
-      }
-    }
-    if (alreadyCached) {
-      return cached; // we're done here. all points are present.
-    }
-    
+  if (!this->source()) {
+    return vector<Point>();
   }
   
-  PointCollection outCollection = this->filterPointsInRange(range);
+  cached = PointCollection(TimeSeries::points(range), this->units()); // base class call -> find any pre-cached points
+  
+  if (canDrop) {
+    // optmized fetching: 
+    // if this filter can drop points, then asking for the time values implies a lookup.
+    // so if we find that the existing (base TimeSeries::points) cache is not valid, then 
+    // we will be forced to do another fetch, and  
+    // a full point lookup will have been wasted. so this piece of logic
+    // is a partial duplication of that method that allows us to do it all here instead
+    // of making a round trip. If the cache is complete, then we have wasted some time
+    // although doing a fetch is the only way to know for sure...
+    // but if the cache is not complete, then we will have saved time by fetching here.
+    outCollection = this->filterPointsInRange(range);
+    pointTimes = outCollection.times();
+    didFetch = true;
+  }
+  else {
+    pointTimes = this->timeValuesInRange(range); // what time value should we expect?
+  }
+  
+  // important optimization. if this range has already been constructed and cached, then don't recreate it.
+  if (cached.times() == pointTimes) {
+    // all time values are there, so the cache is valid and complete.
+    return cached.points();
+  }
+  else if (!didFetch) {
+    // expensive lookup needed.
+    // otherwise we've already hit the stack.
+    outCollection = this->filterPointsInRange(range);
+  }
+  
   this->insertPoints(outCollection.points());
   outCollection = outCollection.trimmedToRange(range); // safeguard if filter doesn't respected the range
-
   return outCollection.points();
 }
 
@@ -243,7 +252,7 @@ TimeRange TimeSeriesFilter::expandedRange(RTX::TimeRange r) {
   // tricky trick here. un-set my clock to find the actual range accounting for dropped points.
   // then re-set the clock after.
   if (canDrop) {
-    this->setClock(Clock::_sp());
+    this->setClock(nullptr);
   }
   q.start = this->timeBefore(r.start);
   q.end = this->timeAfter(r.end);
