@@ -953,8 +953,12 @@ void EpanetModel::updateEngineWithElementProperties(Element::_sp e) {
       this->setLinkValue(EN_ROUGHNESS, p->name(), p->roughness());
       this->setLinkValue(EN_LENGTH, p->name(), p->length());
       // is it check valve? can't set status
+      bool canSetStatus = true;
       Valve::_sp v = std::dynamic_pointer_cast<Valve>(p);
-      if (v && v->valveType != EN_CVPIPE) {
+      if (v && v->valveType == EN_CVPIPE) {
+        canSetStatus = false;
+      }
+      if (canSetStatus) {
         this->setLinkValue(EN_STATUS, p->name(), p->fixedStatus());
       }
       this->setComment(p, p->userDescription());
