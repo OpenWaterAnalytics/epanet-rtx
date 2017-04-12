@@ -71,6 +71,8 @@ namespace RTX {
     void beginBulkOperation();
     void endBulkOperation();
     
+    void willQuery(TimeRange range);
+
     
     
     // helper class/functions

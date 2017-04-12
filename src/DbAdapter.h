@@ -47,6 +47,9 @@ namespace RTX {
     virtual void beginTransaction() = 0;
     virtual void endTransaction() = 0;
     
+    // PREFETCH OPTIMIZATION
+    virtual std::map<std::string, std::vector<Point> > wideQuery(TimeRange range) { return std::map<std::string, std::vector<Point> >(); };
+    
     // READ
     virtual std::vector<Point> selectRange(const std::string& id, TimeRange range) = 0;
     virtual Point selectNext(const std::string& id, time_t time) = 0;

@@ -332,8 +332,8 @@ std::string InfluxTcpAdapter::Query::nameAndWhereClause() {
 
 
 jsValue __jsonFromRequest(uri uri, method withMethod, std::function<void(const std::string errMsg)> errCallback);
-std::vector<RTX::Point> __pointsFromJson(jsValue json);
-
+vector<RTX::Point> __pointsFromJson(jsValue& json);
+map<string, vector<Point> > __multiPointsFromJson(jsValue& json);
 
 
 
@@ -501,9 +501,39 @@ IdentifierUnitsList InfluxTcpAdapter::idUnitsList() {
   return ids;
 }
 
+
+std::map<std::string, std::vector<Point> > InfluxTcpAdapter::wideQuery(TimeRange range) {
+  _RTX_DB_SCOPED_LOCK;
+  
+  
+  // aggressive prefetch. query all series for some range, then shortcut subsequent queries if they are in the range cached.
+  
+  // influx allows regex in queries: 
+  // select "value" from /[.]+/ where time > ... and time < ...
+  
+  vector<string> fields({"time", "value", "quality", "confidence"});
+  vector<string> where({"time >= " + to_string(range.start) + "s", "time <= " + to_string(range.end) + "s"});
+  
+  stringstream ss;
+  ss << "SELECT ";
+  ss << boost::algorithm::join(fields,", ");
+  ss << " FROM /[.]+/";
+  ss << " WHERE " << boost::algorithm::join(where," AND ");
+  ss << " GROUP BY * ORDER BY ASC";
+  auto qstr = ss.str();
+  
+  uri qUri = this->uriForQuery(qstr);
+  jsValue jsv = __jsonFromRequest(qUri,methods::GET,_errCallback);
+  
+  auto fetch = __multiPointsFromJson(jsv);
+  
+  return fetch;
+}
+
 // READ
 std::vector<Point> InfluxTcpAdapter::selectRange(const std::string& id, TimeRange range) {
   _RTX_DB_SCOPED_LOCK;
+    
   string dbId = influxIdForTsId(id);
   InfluxTcpAdapter::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time >= " + to_string(range.start) + "s");
@@ -585,7 +615,7 @@ void InfluxTcpAdapter::removeAllRecords() {
 }
 
 size_t InfluxTcpAdapter::maxTransactionLines() {
-  return 1000;
+  return 5000;
 }
 
 void InfluxTcpAdapter::sendPointsWithString(const std::string& content) {
@@ -705,7 +735,7 @@ jsValue __jsonFromRequest(uri uri, method withMethod, std::function<void(const s
   return js;
 }
 
-std::vector<RTX::Point> __pointsFromJson(jsValue json) {
+std::vector<RTX::Point> __pointsFromJson(jsValue& json) {
   
   // multiple time series might be returned eventually, but for now it's just a single-value array.
   vector<Point> points;
@@ -772,6 +802,95 @@ std::vector<RTX::Point> __pointsFromJson(jsValue json) {
   
   return points;
 }
+
+
+map<string, vector<Point> > __multiPointsFromJson(jsValue& json) {
+  
+  map<string, vector<Point> > out;
+  
+  if (!json.is_object() || json.size() == 0) {
+    return out;
+  }
+  if ( !json.has_field(kRESULTS) ) {
+    return out;
+  }
+  jsValue resultsVal = json[kRESULTS];
+  if (!resultsVal.is_array() || resultsVal.size() == 0) {
+    return out;
+  }
+  jsValue firstRes = resultsVal[0];
+  if ( !firstRes.is_object() || !firstRes.has_field(kSERIES) ) {
+    return out;
+  }
+  
+  auto seriesArray = firstRes[kSERIES].as_array();
+  
+  for (auto &series : seriesArray) {
+    
+    // assemble the proper identifier for this series
+    MetricInfo metric("");
+    metric.measurement = series["name"].as_string();
+    auto tagsObj = series["tags"].as_object();
+    auto tagsIter = tagsObj.begin();
+    while (tagsIter != tagsObj.end()) {
+      metric.tags[tagsIter->first] = tagsIter->second.as_string();
+      ++tagsIter;
+    }
+    Units units = Units::unitOfType(metric.tags.at("units"));
+    metric.tags.erase("units"); // get rid of units if they are included.
+    string properId = metric.name();
+    
+    
+    map<string,int> columnMap;
+    jsArray cols = series["columns"].as_array();
+    for (int i = 0; i < cols.size(); ++i) {
+      string colName = cols[i].as_string();
+      columnMap[colName] = (int)i;
+    }
+    
+    // check columns are all there
+    bool allColumnsPresent = true;
+    for (const string &key : {"time","value","quality","confidence"}) {
+      if (columnMap.count(key) == 0) {
+        cerr << "column map does not contain key: " << key << endl;
+        allColumnsPresent = false;
+      }
+    }
+    if (!allColumnsPresent) {
+      continue; // skip this parsing iteration
+    }
+    
+    const int timeIndex = columnMap["time"];
+    const int valueIndex = columnMap["value"];
+    const int qualityIndex = columnMap["quality"];
+    const int confidenceIndex = columnMap["confidence"];
+    
+    auto values = series["values"].as_array();
+    if (values.size() == 0) {
+      continue;
+    }
+    
+    out[properId] = vector<Point>();
+    auto pointVec = &(out.at(properId));
+    
+    vector<Point> points;
+    points.reserve(values.size());
+    for (auto &rowV : values) {
+      jsArray row = rowV.as_array();
+      time_t t = row[timeIndex].as_integer();
+      double v = row[valueIndex].as_double();
+      Point::PointQuality q = (Point::PointQuality)(row[qualityIndex].as_integer());
+      double c = row[confidenceIndex].as_double();
+      pointVec->push_back(Point(t,v,q,c));
+    }
+    
+  }
+  
+  return out;
+  
+}
+
+
 
 
 InfluxTcpAdapter::Query InfluxTcpAdapter::queryPartsFromMetricId(const std::string &name) {

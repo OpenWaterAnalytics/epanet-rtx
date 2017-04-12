@@ -225,6 +225,15 @@ void DbPointRecord::endBulkOperation() {
   }
 }
 
+void DbPointRecord::willQuery(RTX::TimeRange range) {
+  if (checkConnected()) {
+    auto fetch = _adapter->wideQuery(range);
+    for (auto res : fetch) {
+      DB_PR_SUPER::addPoints(res.first, res.second);
+    }
+  }
+}
+
 
 Point DbPointRecord::point(const string& id, time_t time) {
   

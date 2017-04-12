@@ -81,6 +81,9 @@ namespace RTX {
     Point selectNext(const std::string& id, time_t time);
     Point selectPrevious(const std::string& id, time_t time);
     
+    // PREFETCH
+    std::map<std::string, std::vector<Point> > wideQuery(TimeRange range);
+    
     // DELETE
     void removeRecord(const std::string& id);
     void removeAllRecords();

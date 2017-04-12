@@ -121,7 +121,8 @@ Point BufferPointRecord::pointBefore(const string& identifier, time_t time) {
   
   Point foundPoint;
   
-  if (!this->range(identifier).contains(time)) {
+  auto vRange = this->range(identifier);
+  if (!vRange.contains(time)) {
     // don't bother if its' not in range
     return foundPoint;
   }
@@ -163,7 +164,8 @@ Point BufferPointRecord::pointAfter(const string& identifier, time_t time) {
   
   Point foundPoint;
   
-  if (!this->range(identifier).contains(time)) {
+  auto vRange = this->range(identifier);
+  if (!vRange.contains(time)) {
     // don't bother if its' not in range
     return foundPoint;
   }
