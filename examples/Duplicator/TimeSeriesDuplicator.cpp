@@ -272,6 +272,11 @@ std::pair<time_t,int> TimeSeriesDuplicator::_fetchAll(time_t start, time_t end, 
   if (updatePctComplete) {
     _pctCompleteFetch = 0.;
   }
+  
+  for(TimeSeries::_sp ts : _destinationSeries) {
+    ts->resetCache();
+  }
+  
   size_t nSeries = _destinationSeries.size();
   auto db = dynamic_pointer_cast<DbPointRecord>(_destinationRecord);
   if (db) {
@@ -280,7 +285,6 @@ std::pair<time_t,int> TimeSeriesDuplicator::_fetchAll(time_t start, time_t end, 
   
   for(TimeSeries::_sp ts : _destinationSeries) {
     if (_shouldRun) {
-      ts->resetCache();
       PointCollection pc = ts->pointCollection(TimeRange(start, end));
       stringstream tsSS;
 //      tsSS << ts->name() << " : " << pc.count() << " points (max:" << pc.max() << " min:" << pc.min() << " avg:" << pc.mean() << ")";
