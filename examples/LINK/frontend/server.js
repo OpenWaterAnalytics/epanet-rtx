@@ -189,8 +189,8 @@ app.get('/logout', function (req, res) {
 
 // express configuration =================
 //app.use(express.static(__dirname + '/public'));                 // set the static files location /public/img will be /img for users
-app.use(bodyParser.json());                                     // parse application/json
-app.use(bodyParser.urlencoded({'extended':'true'}));            // parse application/x-www-form-urlencoded
+app.use(bodyParser.json({limit: '10mb'}));                                     // parse application/json
+app.use(bodyParser.urlencoded({limit: '10mb', extended: true}));            // parse application/x-www-form-urlencoded
 app.use(methodOverride());
 
 
