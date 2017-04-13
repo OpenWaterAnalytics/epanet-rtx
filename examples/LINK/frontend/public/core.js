@@ -470,6 +470,10 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
 
 .controller('SourceController', function SourceController($rootScope, $scope, $http, $interval, $location) {
 
+  $scope.filteredContent = {
+    series : []
+  };
+
   $scope.saveAndNext = function () {
     var tsList = $scope.sourceSeries.filter(function (v) { return v._link_selected; });
     $rootScope.config.series = tsList;
@@ -537,6 +541,13 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
       item._link_selected = false
     });
   };
+
+  $scope.addAll = function() {
+    console.log($scope.filteredContent.series);
+    angular.forEach($scope.filteredContent.series, function(item) {
+      item._link_selected = true;
+    });
+  }
 
   $scope.reconcileSeries = function () {
     // and match dupe series to the list of series (if any)

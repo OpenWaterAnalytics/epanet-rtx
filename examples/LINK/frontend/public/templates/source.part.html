@@ -64,7 +64,7 @@
             </colgroup>
             <thead>
             <tr>
-                <th><span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="deselectAll()""></span></th>
+                <th><span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="deselectAll()"></span></th>
                 <th>Name</th>
                 <th>Units</th>
             </tr>
@@ -81,12 +81,19 @@
         </table>
         <div class="col-md-5">
           <div class="input-group">
-            <span class="input-group-addon">
-              <i class="glyphicon glyphicon-filter"></i>
+            <span class="input-group-btn">
+              <button type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-filter"></span>
+              </button>
             </span>
             <input type="text" class="form-control" ng-model="query" type="text" placeholder="Filter by" autofocus />
-            <span class="input-group-addon">
-              <i class="glyphicon glyphicon-remove"  ng-click="query=''"></i>
+            <span class="input-group-btn">
+              <button type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-remove"  ng-click="query=''"></span>
+              </button>
+              <button type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-log-in" ng-click="addAll()"></span>
+              </button>
             </span>
           </div>
         </div>
@@ -103,7 +110,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="ts in sourceSeries | filter:{name:query, _link_selected:false } | orderBy: 'name'" ng-class="{'success':ts._link_selected == true}">
+            <tr ng-repeat="ts in filteredContent.series = (sourceSeries | filter:{name:query, _link_selected:false } | orderBy: 'name')" ng-class="{'success':ts._link_selected == true}">
                 <td ng-click="ts._link_selected = !ts._link_selected">{{ts.name}}</td>
                 <td>
                     <select ng-options="unit as unit.unitString for unit in availableUnits track by unit.rawUnits" ng-model="ts.units"></select>
