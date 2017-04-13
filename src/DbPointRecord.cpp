@@ -136,9 +136,7 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
   nameExists = match.first;
   unitsMatch = match.second;
   
-  // no matter what happens, we are messing with cache invalidation... 
-  _lastIdRequest = 0; // so invalidate the request cache.  
-  
+    
   ///// sucess cases
   
   // ideal case: everything checks out.
@@ -148,6 +146,9 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
     return DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);;
   }
   
+  // no matter what happens, we are messing with cache invalidation... 
+  _lastIdRequest = 0; // so invalidate the request cache.  
+
   // almost ideal: name is good, units mismatch, but adaptor doesn't care
   if (nameExists 
       && !unitsMatch 

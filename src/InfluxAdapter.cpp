@@ -332,9 +332,8 @@ std::string InfluxTcpAdapter::Query::nameAndWhereClause() {
 
 
 jsValue __jsonFromRequest(uri uri, method withMethod, std::function<void(const std::string errMsg)> errCallback);
-vector<RTX::Point> __pointsFromJson(jsValue& json);
-map<string, vector<Point> > __multiPointsFromJson(jsValue& json);
-
+map<string, vector<Point> > __pointsFromJson(jsValue& json);
+vector<Point> __pointsSingle(jsValue& json, const std::string& id);
 
 
 InfluxTcpAdapter::InfluxTcpAdapter( errCallback_t cb) : InfluxAdapter(cb) {
@@ -525,7 +524,7 @@ std::map<std::string, std::vector<Point> > InfluxTcpAdapter::wideQuery(TimeRange
   uri qUri = this->uriForQuery(qstr);
   jsValue jsv = __jsonFromRequest(qUri,methods::GET,_errCallback);
   
-  auto fetch = __multiPointsFromJson(jsv);
+  auto fetch = __pointsFromJson(jsv);
   
   return fetch;
 }
@@ -541,7 +540,7 @@ std::vector<Point> InfluxTcpAdapter::selectRange(const std::string& id, TimeRang
   
   uri uri = this->uriForQuery(q.selectStr());
   jsValue jsv = __jsonFromRequest(uri,methods::GET,_errCallback);
-  return __pointsFromJson(jsv);
+  return __pointsSingle(jsv, id);
 }
 
 Point InfluxTcpAdapter::selectNext(const std::string& id, time_t time) {
@@ -553,7 +552,7 @@ Point InfluxTcpAdapter::selectNext(const std::string& id, time_t time) {
   
   uri uri = uriForQuery(q.selectStr());
   jsValue jsv = __jsonFromRequest(uri,methods::GET,_errCallback);
-  points = __pointsFromJson(jsv);
+  points = __pointsSingle(jsv, id);
   
   if (points.size() == 0) {
     return Point();
@@ -572,7 +571,7 @@ Point InfluxTcpAdapter::selectPrevious(const std::string& id, time_t time) {
   
   uri uri = uriForQuery(q.selectStr());
   jsValue jsv = __jsonFromRequest(uri,methods::GET,_errCallback);
-  points = __pointsFromJson(jsv);
+  points = __pointsSingle(jsv, id);
   
   if (points.size() == 0) {
     return Point();
@@ -735,89 +734,33 @@ jsValue __jsonFromRequest(uri uri, method withMethod, std::function<void(const s
   return js;
 }
 
-std::vector<RTX::Point> __pointsFromJson(jsValue& json) {
-  
-  // multiple time series might be returned eventually, but for now it's just a single-value array.
-  vector<Point> points;
-  
-  if (!json.is_object() || json.size() == 0) {
-    return points;
+
+vector<Point> __pointsSingle(jsValue& json, const std::string& id) {
+  auto multi = __pointsFromJson(json);
+  if (multi.count(id) > 0) {
+    return multi[id];
   }
-  if ( !json.has_field(kRESULTS) ) {
-    return points;
+  else {
+    return vector<Point>();
   }
-  jsValue resultsVal = json[kRESULTS];
-  if (!resultsVal.is_array() || resultsVal.size() == 0) {
-    return points;
-  }
-  jsValue firstRes = resultsVal.as_array()[0];
-  if ( !firstRes.is_object() || !firstRes.has_field(kSERIES) ) {
-    return points;
-  }
-  jsArray seriesArr = firstRes.as_object()[kSERIES].as_array();
-  if (seriesArr.size() == 0) {
-    return points;
-  }
-  jsObject series = seriesArr[0].as_object();
-  string measureName = series["name"].as_string();
-  
-  // create a little map so we know what order the columns are in
-  map<string,int> columnMap;
-  jsArray cols = series["columns"].as_array();
-  for (int i = 0; i < cols.size(); ++i) {
-    string colName = cols[i].as_string();
-    columnMap[colName] = (int)i;
-  }
-  
-  // check columns are all there
-  for (const string &key : {"time","value","quality","confidence"}) {
-    if (columnMap.count(key) == 0) {
-      cerr << "column map does not contain key: " << key << endl;
-      return points;
-    }
-  }
-  
-  int timeIndex = columnMap["time"];
-  int valueIndex = columnMap["value"];
-  int qualityIndex = columnMap["quality"];
-  int confidenceIndex = columnMap["confidence"];
-  
-  // now go through each returned row and create a point.
-  // use the column name map to set point properties.
-  jsArray rows = series["values"].as_array();
-  if (rows.size() == 0) {
-    return points;
-  }
-  
-  points.reserve((size_t)rows.size());
-  for (jsValue rowV : rows) {
-    jsArray row = rowV.as_array();
-    time_t t = row[timeIndex].as_integer();
-    double v = row[valueIndex].as_double();
-    Point::PointQuality q = (Point::PointQuality)(row[qualityIndex].as_integer());
-    double c = row[confidenceIndex].as_double();
-    Point p(t,v,q,c);
-    points.push_back(p);
-  }
-  
-  return points;
 }
 
 
-map<string, vector<Point> > __multiPointsFromJson(jsValue& json) {
+map<string, vector<Point> > __pointsFromJson(jsValue& json) {
   
   map<string, vector<Point> > out;
   
-  if (!json.is_object() || json.size() == 0) {
+  // check for correct response format:
+  if (!json.is_object() || 
+      json.size() == 0 ||
+      !json.has_field(kRESULTS) ||
+      !json[kRESULTS].is_array() ||
+      json[kRESULTS].size() == 0)
+  {
     return out;
   }
-  if ( !json.has_field(kRESULTS) ) {
-    return out;
-  }
+  
   jsValue resultsVal = json[kRESULTS];
-  if (!resultsVal.is_array() || resultsVal.size() == 0) {
-    return out;
-  }
   jsValue firstRes = resultsVal[0];
   if ( !firstRes.is_object() || !firstRes.has_field(kSERIES) ) {
     return out;
@@ -860,10 +803,11 @@ map<string, vector<Point> > __multiPointsFromJson(jsValue& json) {
       continue; // skip this parsing iteration
     }
     
-    const int timeIndex = columnMap["time"];
-    const int valueIndex = columnMap["value"];
-    const int qualityIndex = columnMap["quality"];
-    const int confidenceIndex = columnMap["confidence"];
+    const int 
+    timeIndex = columnMap["time"], 
+    valueIndex = columnMap["value"], 
+    qualityIndex = columnMap["quality"], 
+    confidenceIndex = columnMap["confidence"];
     
     auto values = series["values"].as_array();
     if (values.size() == 0) {
@@ -883,11 +827,9 @@ map<string, vector<Point> > __multiPointsFromJson(jsValue& json) {
       double c = row[confidenceIndex].as_double();
       pointVec->push_back(Point(t,v,q,c));
     }
-    
   }
   
   return out;
-  
 }
 
 
