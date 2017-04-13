@@ -1,6 +1,7 @@
 #include "TimeSeriesDuplicator.h"
 
 #include "TimeSeriesFilter.h"
+#include "DbPointRecord.h"
 
 #include <boost/interprocess/sync/scoped_lock.hpp>
 #include <boost/thread/thread.hpp>
@@ -264,6 +265,7 @@ void TimeSeriesDuplicator::_backfillLoop(time_t start, time_t lag, time_t chunk,
 
 
 std::pair<time_t,int> TimeSeriesDuplicator::_fetchAll(time_t start, time_t end, bool updatePctComplete) {
+  const time_t six_hours = 60*60*6;
   scoped_lock<boost::signals2::mutex> mx(_mutex);
   time_t fStart = time(NULL);
   int nPoints = 0;
@@ -271,6 +273,11 @@ std::pair<time_t,int> TimeSeriesDuplicator::_fetchAll(time_t start, time_t end, 
     _pctCompleteFetch = 0.;
   }
   size_t nSeries = _destinationSeries.size();
+  auto db = dynamic_pointer_cast<DbPointRecord>(_destinationRecord);
+  if (db) {
+    db->willQuery(TimeRange(start-six_hours,end+six_hours));
+  }
+  
   for(TimeSeries::_sp ts : _destinationSeries) {
     if (_shouldRun) {
       ts->resetCache();

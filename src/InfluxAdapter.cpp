@@ -333,7 +333,7 @@ std::string InfluxTcpAdapter::Query::nameAndWhereClause() {
 
 jsValue __jsonFromRequest(uri uri, method withMethod, std::function<void(const std::string errMsg)> errCallback);
 map<string, vector<Point> > __pointsFromJson(jsValue& json);
-vector<Point> __pointsSingle(jsValue& json, const std::string& id);
+vector<Point> __pointsSingle(jsValue& json);
 
 
 InfluxTcpAdapter::InfluxTcpAdapter( errCallback_t cb) : InfluxAdapter(cb) {
@@ -540,7 +540,7 @@ std::vector<Point> InfluxTcpAdapter::selectRange(const std::string& id, TimeRang
   
   uri uri = this->uriForQuery(q.selectStr());
   jsValue jsv = __jsonFromRequest(uri,methods::GET,_errCallback);
-  return __pointsSingle(jsv, id);
+  return __pointsSingle(jsv);
 }
 
 Point InfluxTcpAdapter::selectNext(const std::string& id, time_t time) {
@@ -552,7 +552,7 @@ Point InfluxTcpAdapter::selectNext(const std::string& id, time_t time) {
   
   uri uri = uriForQuery(q.selectStr());
   jsValue jsv = __jsonFromRequest(uri,methods::GET,_errCallback);
-  points = __pointsSingle(jsv, id);
+  points = __pointsSingle(jsv);
   
   if (points.size() == 0) {
     return Point();
@@ -571,7 +571,7 @@ Point InfluxTcpAdapter::selectPrevious(const std::string& id, time_t time) {
   
   uri uri = uriForQuery(q.selectStr());
   jsValue jsv = __jsonFromRequest(uri,methods::GET,_errCallback);
-  points = __pointsSingle(jsv, id);
+  points = __pointsSingle(jsv);
   
   if (points.size() == 0) {
     return Point();
@@ -735,10 +735,10 @@ jsValue __jsonFromRequest(uri uri, method withMethod, std::function<void(const s
 }
 
 
-vector<Point> __pointsSingle(jsValue& json, const std::string& id) {
+vector<Point> __pointsSingle(jsValue& json) {
   auto multi = __pointsFromJson(json);
-  if (multi.count(id) > 0) {
-    return multi[id];
+  if (multi.size() > 0) {
+    return multi.begin()->second;
   }
   else {
     return vector<Point>();
@@ -773,16 +773,17 @@ map<string, vector<Point> > __pointsFromJson(jsValue& json) {
     // assemble the proper identifier for this series
     MetricInfo metric("");
     metric.measurement = series["name"].as_string();
-    auto tagsObj = series["tags"].as_object();
-    auto tagsIter = tagsObj.begin();
-    while (tagsIter != tagsObj.end()) {
-      metric.tags[tagsIter->first] = tagsIter->second.as_string();
-      ++tagsIter;
+    if (series.has_field("tags")) {
+      auto tagsObj = series["tags"].as_object();
+      auto tagsIter = tagsObj.begin();
+      while (tagsIter != tagsObj.end()) {
+        metric.tags[tagsIter->first] = tagsIter->second.as_string();
+        ++tagsIter;
+      }
+      Units units = Units::unitOfType(metric.tags.at("units"));
+      metric.tags.erase("units"); // get rid of units if they are included.
     }
-    Units units = Units::unitOfType(metric.tags.at("units"));
-    metric.tags.erase("units"); // get rid of units if they are included.
     string properId = metric.name();
-    
     
     map<string,int> columnMap;
     jsArray cols = series["columns"].as_array();
