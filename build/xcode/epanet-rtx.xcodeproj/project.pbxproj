@@ -193,6 +193,8 @@
 		22E997091CA5937B00D6F34F /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E997031CA5932300D6F34F /* CoreFoundation.framework */; };
 		22F175F61C7235BB0042916C /* TimeSeriesFilterSecondary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22F175F41C7235BB0042916C /* TimeSeriesFilterSecondary.cpp */; };
 		22F175F91C7235BB0042916C /* TimeSeriesFilterSecondary.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F175F51C7235BB0042916C /* TimeSeriesFilterSecondary.h */; };
+		22FA7B7D1EA12A76006637E9 /* TimeSeriesQuery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22FA7B7B1EA12A76006637E9 /* TimeSeriesQuery.cpp */; };
+		22FA7B7E1EA12A76006637E9 /* TimeSeriesQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FA7B7C1EA12A76006637E9 /* TimeSeriesQuery.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -587,6 +589,8 @@
 		22F175F51C7235BB0042916C /* TimeSeriesFilterSecondary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeSeriesFilterSecondary.h; path = ../../src/TimeSeriesFilterSecondary.h; sourceTree = "<group>"; };
 		22F63D3516C5735100A15368 /* SineTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SineTimeSeries.cpp; path = ../../src/SineTimeSeries.cpp; sourceTree = "<group>"; };
 		22F63D3616C5735100A15368 /* SineTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SineTimeSeries.h; path = ../../src/SineTimeSeries.h; sourceTree = "<group>"; };
+		22FA7B7B1EA12A76006637E9 /* TimeSeriesQuery.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesQuery.cpp; path = ../../src/TimeSeriesQuery.cpp; sourceTree = "<group>"; };
+		22FA7B7C1EA12A76006637E9 /* TimeSeriesQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeSeriesQuery.h; path = ../../src/TimeSeriesQuery.h; sourceTree = "<group>"; };
 		43627EC9171F27E3007AE0F5 /* ThresholdTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThresholdTimeSeries.h; path = ../../src/ThresholdTimeSeries.h; sourceTree = "<group>"; };
 		43627ECF171F286C007AE0F5 /* ThresholdTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ThresholdTimeSeries.cpp; path = ../../src/ThresholdTimeSeries.cpp; sourceTree = "<group>"; };
 		43E5BBE51A8AF55A00CC93D6 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = /usr/lib/libsqlite3.dylib; sourceTree = "<absolute>"; };
@@ -1036,6 +1040,8 @@
 				2271064F1E1EA0FE002A2D30 /* PointCollection.cpp */,
 				22C62ADA1439EE0B00841E60 /* TimeSeries.h */,
 				22C62AD91439EE0B00841E60 /* TimeSeries.cpp */,
+				22FA7B7C1EA12A76006637E9 /* TimeSeriesQuery.h */,
+				22FA7B7B1EA12A76006637E9 /* TimeSeriesQuery.cpp */,
 				22CF1C281A68094300161188 /* TimeSeriesFilter.h */,
 				22CF1C271A68094300161188 /* TimeSeriesFilter.cpp */,
 				22F175F51C7235BB0042916C /* TimeSeriesFilterSecondary.h */,
@@ -1269,6 +1275,7 @@
 				221BFD8F1A8E8AD000143FCC /* EpanetMsxModel.h in Headers */,
 				221BFD901A8E8AD000143FCC /* rtxMacros.h in Headers */,
 				221BFD911A8E8AD000143FCC /* EpanetModel.h in Headers */,
+				22FA7B7E1EA12A76006637E9 /* TimeSeriesQuery.h in Headers */,
 				221BFD931A8E8AD000143FCC /* Clock.h in Headers */,
 				221BFD941A8E8AD000143FCC /* Node.h in Headers */,
 				221BFD951A8E8AD000143FCC /* Link.h in Headers */,
@@ -1682,6 +1689,7 @@
 				221BFD621A8E8AD000143FCC /* FailoverTimeSeries.cpp in Sources */,
 				221BFD631A8E8AD000143FCC /* SineTimeSeries.cpp in Sources */,
 				221BFD641A8E8AD000143FCC /* BufferPointRecord.cpp in Sources */,
+				22FA7B7D1EA12A76006637E9 /* TimeSeriesQuery.cpp in Sources */,
 				221BFD651A8E8AD000143FCC /* LagTimeSeries.cpp in Sources */,
 				22E71E2C1E5B61110044E084 /* SqliteAdapter.cpp in Sources */,
 				221BFD681A8E8AD000143FCC /* ThresholdTimeSeries.cpp in Sources */,

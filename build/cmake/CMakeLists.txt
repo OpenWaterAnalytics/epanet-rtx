@@ -62,7 +62,7 @@ link_directories(
 	/usr/local/lib
 	)
 	
-add_library(epanetrtx SHARED  
+add_library(epanetrtx 
 ../../src/AggregatorTimeSeries.cpp
 ../../src/BaseStatsTimeSeries.cpp
 ../../src/BufferPointRecord.cpp
@@ -119,6 +119,7 @@ add_library(epanetrtx SHARED
 ../../src/TimeSeriesFilterSecondary.cpp
 ../../src/TimeSeriesFilterSinglePoint.cpp
 ../../src/TimeSeriesLowess.cpp
+../../src/TimeSeriesQuery.cpp
 ../../src/TimeSeriesSynthetic.cpp
 ../../src/Units.cpp
 ../../src/ValidRangeTimeSeries.cpp
@@ -142,6 +143,7 @@ set(rtx_lib_deps
 	ssl
 	crypto
 	cpprest
+	pthread
 	)
 
 	
@@ -156,10 +158,12 @@ file(GLOB TEST_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ../../test/*.cpp)
 
 add_executable(rtx_tests ${TEST_SRCS})
 
+find_library(UNIT_TEST boost_unit_test_framework)
+
 target_link_libraries(
-        	rtx_tests 
-        	${Boost_LIBRARIES} 
+        	rtx_tests
         	epanetrtx
+			UNIT_TEST
         	${rtx_lib_deps}
         	)
 

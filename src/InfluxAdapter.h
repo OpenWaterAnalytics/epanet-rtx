@@ -79,7 +79,9 @@ namespace RTX {
     // READ
     std::vector<Point> selectRange(const std::string& id, TimeRange range);
     Point selectNext(const std::string& id, time_t time);
-    Point selectPrevious(const std::string& id, time_t time);
+    Point selectPrevious(const std::string& id, time_t time);    
+    std::vector<Point> selectWithQuery(const std::string& query, TimeRange range);
+
     
     // PREFETCH
     std::map<std::string, std::vector<Point> > wideQuery(TimeRange range);

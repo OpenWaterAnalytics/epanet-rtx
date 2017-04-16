@@ -11,6 +11,8 @@
 #include <cpprest/http_client.h>
 
 #include <boost/asio.hpp>
+#include <boost/algorithm/string/find.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 #include "InfluxAdapter.h"
 
@@ -532,7 +534,7 @@ std::map<std::string, std::vector<Point> > InfluxTcpAdapter::wideQuery(TimeRange
 // READ
 std::vector<Point> InfluxTcpAdapter::selectRange(const std::string& id, TimeRange range) {
   _RTX_DB_SCOPED_LOCK;
-    
+  
   string dbId = influxIdForTsId(id);
   InfluxTcpAdapter::Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time >= " + to_string(range.start) + "s");
@@ -578,6 +580,50 @@ Point InfluxTcpAdapter::selectPrevious(const std::string& id, time_t time) {
   }
   
   return points.front();
+}
+
+
+
+vector<Point> InfluxTcpAdapter::selectWithQuery(const std::string& query, TimeRange range) {
+  
+  // expects a "$timeFilter" placeholder, to be replaced with the time range, e.g., "time >= t1 and time <= t2"
+  
+  //case insensitive find
+  if (boost::ifind_first(query, std::string("$timeFilter")).empty()) {
+    // add WHERE clause
+    return vector<Point>();
+  }
+  
+  string qStr = query;
+  
+  stringstream tfss;
+  if (range.start > 0) {
+    tfss << "time >= " << range.start << "s";
+  }
+  if (range.start > 0 && range.end > 0) {
+    tfss << " and ";
+  }
+  if (range.end > 0) {
+    tfss << "time <= " << range.end << "s";
+  }
+  string timeFilter = tfss.str();
+  
+  boost::replace_all(qStr, "$timeFilter", timeFilter);
+  
+  if (range.start == 0) {
+    qStr += " order by desc limit 1";
+  }
+  else if (range.end == 0) {
+    qStr += " order by asc limit 1";
+  }
+  else {
+    qStr += " order by asc";
+  }
+
+  uri qUri = uriForQuery(qStr);
+  jsValue jsv = __jsonFromRequest(qUri,methods::GET,_errCallback);
+  auto points = __pointsSingle(jsv);
+  return points;
 }
 
 // DELETE

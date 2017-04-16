@@ -54,6 +54,7 @@ namespace RTX {
     virtual std::vector<Point> selectRange(const std::string& id, TimeRange range) = 0;
     virtual Point selectNext(const std::string& id, time_t time) = 0;
     virtual Point selectPrevious(const std::string& id, time_t time) = 0;
+    virtual std::vector<Point> selectWithQuery(const std::string& query, TimeRange range) { return std::vector<Point>(); };
     
     // CREATE
     virtual bool insertIdentifierAndUnits(const std::string& id, Units units) = 0;

@@ -235,6 +235,13 @@ void DbPointRecord::willQuery(RTX::TimeRange range) {
   }
 }
 
+vector<Point> DbPointRecord::pointsWithQuery(const string& query, TimeRange range) {
+  if (checkConnected()) {
+    return _adapter->selectWithQuery(query, range);
+  }
+  return vector<Point>();
+}
+
 
 Point DbPointRecord::point(const string& id, time_t time) {
   

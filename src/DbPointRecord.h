@@ -72,6 +72,8 @@ namespace RTX {
     void endBulkOperation();
     
     void willQuery(TimeRange range);
+    
+    std::vector<Point> pointsWithQuery(const std::string& query, TimeRange range);
 
     
     
