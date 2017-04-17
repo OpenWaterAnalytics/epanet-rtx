@@ -201,6 +201,8 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
 
 void EpanetModel::initEngine() {
   if (_enOpened) {
+    EN_API_CHECK(EN_initH(_enModel, 10), "EN_initH");
+    EN_API_CHECK(EN_initQ(_enModel, EN_NOSAVE), "EN_initQ");
     return;
   }
   try {
