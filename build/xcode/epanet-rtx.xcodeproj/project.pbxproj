@@ -119,6 +119,7 @@
 		223372F61CA19E3D00C87ACD /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C81C1A048300298C0C /* libboost_system.a */; };
 		223372F71CA19E5300C87ACD /* libboost_thread-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C91C1A048300298C0C /* libboost_thread-mt.a */; };
 		2239413D1CAA1612008BD7FD /* libTimeSeriesDuplicator.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */; };
+		224526711EA54D1400EE81B1 /* libboost_unit_test_framework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 224526701EA54D1400EE81B1 /* libboost_unit_test_framework.a */; };
 		2251940A1CD8F2EA00B1BC31 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 225194091CD8F2EA00B1BC31 /* libxml2.2.dylib */; };
 		22602B771D5A738000A668ED /* libgeohash.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22602B761D5A738000A668ED /* libgeohash.a */; };
 		227106511E1EA0FE002A2D30 /* PointCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2271064F1E1EA0FE002A2D30 /* PointCollection.cpp */; };
@@ -141,7 +142,6 @@
 		22BECEF11DEF276C00E7C4EC /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		22BECEFA1DEF2F8B00E7C4EC /* test_units.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BECED81DEF25FB00E7C4EC /* test_units.cpp */; };
 		22BECEFB1DEF2F8D00E7C4EC /* test_record.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BECEF21DEF27F100E7C4EC /* test_record.cpp */; };
-		22BECEFE1DEF305D00E7C4EC /* libboost_unit_test_framework.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22BECEFD1DEF305D00E7C4EC /* libboost_unit_test_framework.dylib */; };
 		22BECF001DEF31A100E7C4EC /* test_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BECEFF1DEF31A100E7C4EC /* test_main.cpp */; };
 		22D570141D6741B000C25997 /* libboost_iostreams.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D570131D6741B000C25997 /* libboost_iostreams.a */; };
 		22D8C1CE1C1A048300298C0C /* libboost_chrono-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1BF1C1A048300298C0C /* libboost_chrono-mt.a */; };
@@ -448,6 +448,7 @@
 		223947E71AF3B27000C8AE4F /* model exporter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "model exporter"; sourceTree = BUILT_PRODUCTS_DIR; };
 		223AF32E18F6E4C0002E846F /* InversionTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InversionTimeSeries.cpp; path = ../../src/InversionTimeSeries.cpp; sourceTree = "<group>"; };
 		223AF32F18F6E4C0002E846F /* InversionTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InversionTimeSeries.h; path = ../../src/InversionTimeSeries.h; sourceTree = "<group>"; };
+		224526701EA54D1400EE81B1 /* libboost_unit_test_framework.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_unit_test_framework.a; path = ../../../../../../../usr/local/com.citilogics.dev/lib/libboost_unit_test_framework.a; sourceTree = "<group>"; };
 		22459FA51A44C41800AFD0BD /* CorrelatorTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CorrelatorTimeSeries.cpp; path = ../../src/CorrelatorTimeSeries.cpp; sourceTree = "<group>"; };
 		22459FA61A44C41800AFD0BD /* CorrelatorTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CorrelatorTimeSeries.h; path = ../../src/CorrelatorTimeSeries.h; sourceTree = "<group>"; };
 		2246439D150BD6E0005EA3BA /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = ../../src/Node.h; sourceTree = "<group>"; };
@@ -701,7 +702,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22BECEFE1DEF305D00E7C4EC /* libboost_unit_test_framework.dylib in Frameworks */,
+				224526711EA54D1400EE81B1 /* libboost_unit_test_framework.a in Frameworks */,
 				22BECEF11DEF276C00E7C4EC /* libepanet-rtx.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -972,6 +973,7 @@
 		22BECEFC1DEF305D00E7C4EC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				224526701EA54D1400EE81B1 /* libboost_unit_test_framework.a */,
 				22BECEFD1DEF305D00E7C4EC /* libboost_unit_test_framework.dylib */,
 			);
 			name = Frameworks;
