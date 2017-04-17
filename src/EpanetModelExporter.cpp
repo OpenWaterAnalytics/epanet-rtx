@@ -440,7 +440,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
     stream << ";;  Logical model controls have been preserved in this model. " << BR; 
     stream << ";;  Demands have been set based on user-specified criteria." << BR;
   }
-  stream << setfill (';') << setw (80) << '\n\n\n';
+  stream << setfill (';') << setw (80) << "\n\n\n";
   
   
   

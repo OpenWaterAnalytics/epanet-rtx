@@ -22,7 +22,7 @@ namespace RTX {
     
   public:
     RTX_BASE_PROPS(TimeSeriesDuplicator);
-    typedef std::function<void(const char*)> RTX_Duplicator_log_callback;
+    typedef std::function<void(const std::string&)> RTX_Duplicator_log_callback;
     
     TimeSeriesDuplicator();
     

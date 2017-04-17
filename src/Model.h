@@ -53,7 +53,7 @@ namespace RTX {
   class Model : public RTX_object {
   public:
     RTX_BASE_PROPS(Model);
-    typedef void (^RTX_Logging_Callback_Block)(const char *msg);
+    typedef std::function<void(const std::string&)> RTX_Logging_Callback_Block;
     
     Model();
     Model(const std::string& filename);

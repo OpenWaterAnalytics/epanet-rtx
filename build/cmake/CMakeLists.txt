@@ -27,7 +27,7 @@ cmake_minimum_required (VERSION 2.6)
 
 project (EPANET-RTX)
 SET (CMAKE_C_FLAGS "-std=c99")
-SET (CMAKE_CXX_FLAGS "-Wall -std=c++11 -fblocks")
+SET (CMAKE_CXX_FLAGS "-Wall -std=c++11")
 SET (CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_definitions(-DRTX_NO_MYSQL)
 enable_testing()
@@ -131,6 +131,7 @@ set(rtx_lib_deps
 	epanet
 	curl 
 	boost_system 
+	boost_chrono
 	boost_filesystem 
 	boost_date_time 
 	boost_regex 
@@ -139,7 +140,6 @@ set(rtx_lib_deps
 	sqlite3 
 	m 
 	z
-	BlocksRuntime
 	ssl
 	crypto
 	cpprest
@@ -158,12 +158,10 @@ file(GLOB TEST_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ../../test/*.cpp)
 
 add_executable(rtx_tests ${TEST_SRCS})
 
-find_library(UNIT_TEST boost_unit_test_framework)
-
 target_link_libraries(
         	rtx_tests
         	epanetrtx
-			UNIT_TEST
+			boost_unit_test_framework
         	${rtx_lib_deps}
         	)
 
