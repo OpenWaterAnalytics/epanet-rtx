@@ -1123,7 +1123,7 @@ void Model::setSimulationParameters(time_t time) {
       if (p.isValid) {
         double headValue = Units::convertValue(p.value, reservoir->boundaryHead()->units(), headUnits());
         setReservoirHead( reservoir->name(), headValue );
-        DebugLog << "*  Reservoir " << reservoir->name() << " level --> " << p.value << EOL;
+        DebugLog << "*  Reservoir " << reservoir->name() << " head --> " << p.value << EOL;
       }
       else {
         stringstream ss;
@@ -1150,7 +1150,7 @@ void Model::setSimulationParameters(time_t time) {
       if (p.isValid) {
         status = (p.value > 0 ? Pipe::OPEN : Pipe::CLOSED);
         setPipeStatus( valve->name(), status );
-        DebugLog << "*  Valve " << valve->name() << " status --> " << p.value << EOL;
+        DebugLog << "*  Valve " << valve->name() << " status --> " << (p.value > 0 ? "ON" : "OFF") << EOL;
       }
       else {
         stringstream ss;
@@ -1195,7 +1195,7 @@ void Model::setSimulationParameters(time_t time) {
       if (p.isValid) {
         status = Pipe::status_t((int)(p.value));
         setPumpStatus( pump->name(), status );
-        DebugLog << "*  Pump " << pump->name() << " status --> " << p.value << EOL;
+        DebugLog << "*  Pump " << pump->name() << " status --> " << (p.value > 0 ? "ON" : "OFF") << EOL;
       }
       else {
         stringstream ss;
@@ -1230,7 +1230,7 @@ void Model::setSimulationParameters(time_t time) {
       Point p = pipe->statusBoundary()->pointAtOrBefore(time);
       if (p.isValid) {
         setPipeStatus(pipe->name(), Pipe::status_t((int)(p.value)));
-        DebugLog << "*  Pipe " << pipe->name() << " status --> " << p.value << EOL;
+        DebugLog << "*  Pipe " << pipe->name() << " status --> " << (p.value > 0 ? "ON" : "OFF") << EOL;
       }
       else {
         stringstream ss;
