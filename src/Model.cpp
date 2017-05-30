@@ -57,6 +57,7 @@ void Model::initObj() {
   _relativeError.reset( new TimeSeries() );
   _iterations.reset( new TimeSeries() );
   _convergence.reset( new TimeSeries() );
+  _heartbeat.reset( new TimeSeries() );
   
   _relativeError->setName("rel_err,generator=simulation");
   _relativeError->setUnits(RTX_DIMENSIONLESS);
@@ -64,6 +65,8 @@ void Model::initObj() {
   _iterations->setUnits(RTX_DIMENSIONLESS);
   _convergence->setName("convergence,generator=simulation");
   _convergence->setUnits(RTX_DIMENSIONLESS);
+  _heartbeat->name("heartbeat,generator=simulation")->units(RTX_DIMENSIONLESS);
+  
   _doesOverrideDemands = false;
   _shouldRunWaterQuality = false;
   
@@ -239,7 +242,12 @@ void Model::setRecordForSimulationStats(PointRecord::_sp record) {
   _relativeError->setRecord(record);
   _iterations->setRecord(record);
   _convergence->setRecord(record);
+  _heartbeat->setRecord(record);
   
+}
+
+TimeSeries::_sp Model::heartbeat() {
+  return _heartbeat;
 }
 
 
@@ -685,6 +693,8 @@ bool Model::solveAndSaveOutputAtTime(time_t simulationTime) {
   _iterations->insert(iterationCount);
   Point convergenceStatus(simulationTime, (double)success);
   _convergence->insert(convergenceStatus);
+  
+  _heartbeat->insert(Point(simulationTime,1.0));
   
   // get the record(s) being used
   set<PointRecord::_sp> stateRecordsUsed = this->recordsForModeledStates();

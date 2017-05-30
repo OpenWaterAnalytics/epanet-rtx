@@ -47,7 +47,7 @@ namespace RTX {
     int enIndexForPipe(Pipe::_sp p);
     void useModelFromPath(const std::string& path) {this->useEpanetFile(path);};
     
-  protected:
+  
     // overridden accessors
     // node elements
     double reservoirLevel(const std::string& reservoir);
@@ -79,6 +79,8 @@ namespace RTX {
     
     virtual void disableControls();
     virtual void enableControls();
+    
+  protected:
     
     // simulation methods
     virtual bool solveSimulation(time_t time);

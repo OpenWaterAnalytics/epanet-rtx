@@ -159,6 +159,8 @@ namespace RTX {
 
     void setRecordForDmaDemands(PointRecord::_sp record);
     void setRecordForSimulationStats(PointRecord::_sp record);
+    TimeSeries::_sp heartbeat();
+    
     
     // specify records for certain states or inputs
     typedef enum {
@@ -208,7 +210,7 @@ namespace RTX {
     
     void waitResults();
     
-  protected:
+  
     
     void setSimulationParameters(time_t time);
     void fetchSimulationStates();
@@ -243,6 +245,8 @@ namespace RTX {
     virtual void setPumpStatus(const string& pump, Pipe::status_t status) { };
     virtual void setPumpSetting(const std::string& pump, double setting) { };
     virtual void setValveSetting(const string& valve, double setting) { };
+    
+  protected:
     
     virtual bool solveSimulation(time_t time) { return false; };
     virtual time_t nextHydraulicStep(time_t time) { return 0; };
@@ -294,6 +298,7 @@ namespace RTX {
     TimeSeries::_sp _relativeError;
     TimeSeries::_sp _iterations;
     TimeSeries::_sp _convergence;
+    TimeSeries::_sp _heartbeat;
     Clock::_sp _tankResetClock;
     int _qualityTimeStep;
     bool _doesOverrideDemands;
