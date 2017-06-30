@@ -89,6 +89,7 @@ target_link_libraries(epanet-rtx
   sqlite3
   m
   cpprest
+  z
 )
 
 # the duper library
@@ -101,3 +102,6 @@ link_directories(/usr/local/lib)
 
 add_executable(link-server ../LinkService.cpp ../LinkJsonSerialization.cpp ../main.cpp)
 target_link_libraries(link-server LINK_PUBLIC timeseries_duplicator epanet-rtx boost_iostreams boost_thread boost_program_options boost_chrono pthread ssl cpprest crypto ${EXTRA_LIBS})
+
+install(TARGETS link-server DESTINATION bin)
+

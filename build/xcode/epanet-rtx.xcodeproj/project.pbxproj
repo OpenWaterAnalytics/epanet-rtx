@@ -143,6 +143,7 @@
 		22BECEFA1DEF2F8B00E7C4EC /* test_units.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BECED81DEF25FB00E7C4EC /* test_units.cpp */; };
 		22BECEFB1DEF2F8D00E7C4EC /* test_record.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BECEF21DEF27F100E7C4EC /* test_record.cpp */; };
 		22BECF001DEF31A100E7C4EC /* test_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BECEFF1DEF31A100E7C4EC /* test_main.cpp */; };
+		22C48B351F018D45008FC368 /* OpcAdapter.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C48B331F018D45008FC368 /* OpcAdapter.h */; };
 		22D570141D6741B000C25997 /* libboost_iostreams.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D570131D6741B000C25997 /* libboost_iostreams.a */; };
 		22D8C1CE1C1A048300298C0C /* libboost_chrono-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1BF1C1A048300298C0C /* libboost_chrono-mt.a */; };
 		22D8C1CF1C1A048300298C0C /* libboost_date_time-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C01C1A048300298C0C /* libboost_date_time-mt.a */; };
@@ -525,6 +526,8 @@
 		22C34350187D9426000100A4 /* EpanetMsxModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetMsxModel.cpp; path = ../../src/EpanetMsxModel.cpp; sourceTree = "<group>"; };
 		22C34351187D9426000100A4 /* EpanetMsxModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EpanetMsxModel.h; path = ../../src/EpanetMsxModel.h; sourceTree = "<group>"; };
 		22C34357187D9441000100A4 /* epanetmsx.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = epanetmsx.xcodeproj; path = "../../../epanet-msx/build/Xcode/epanetmsx/epanetmsx.xcodeproj"; sourceTree = "<group>"; };
+		22C48B321F018D45008FC368 /* OpcAdapter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpcAdapter.cpp; path = ../../src/OpcAdapter.cpp; sourceTree = "<group>"; };
+		22C48B331F018D45008FC368 /* OpcAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpcAdapter.h; path = ../../src/OpcAdapter.h; sourceTree = "<group>"; };
 		22C62ACB1439EE0B00841E60 /* AggregatorTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AggregatorTimeSeries.cpp; path = ../../src/AggregatorTimeSeries.cpp; sourceTree = "<group>"; };
 		22C62ACC1439EE0B00841E60 /* AggregatorTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AggregatorTimeSeries.h; path = ../../src/AggregatorTimeSeries.h; sourceTree = "<group>"; };
 		22C62AD21439EE0B00841E60 /* MovingAverage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MovingAverage.cpp; path = ../../src/MovingAverage.cpp; sourceTree = "<group>"; };
@@ -989,6 +992,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		22C48B2A1F018CE4008FC368 /* OPC */ = {
+			isa = PBXGroup;
+			children = (
+				22C48B331F018D45008FC368 /* OpcAdapter.h */,
+				22C48B321F018D45008FC368 /* OpcAdapter.cpp */,
+			);
+			name = OPC;
+			sourceTree = "<group>";
+		};
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
@@ -1201,6 +1213,7 @@
 				22E71E321E5B85E40044E084 /* PI */,
 				22E71E331E5B85ED0044E084 /* SQLITE */,
 				22B0108B1E5C8E84008C44F0 /* ODBC */,
+				22C48B2A1F018CE4008FC368 /* OPC */,
 			);
 			name = adaptors;
 			sourceTree = "<group>";
@@ -1305,6 +1318,7 @@
 				221BFDAD1A8E8AD000143FCC /* ConstantTimeSeries.h in Headers */,
 				221BFDAE1A8E8AD000143FCC /* ValidRangeTimeSeries.h in Headers */,
 				221BFDAF1A8E8AD000143FCC /* TimeSeriesFilter.h in Headers */,
+				22C48B351F018D45008FC368 /* OpcAdapter.h in Headers */,
 				221BFDB01A8E8AD000143FCC /* MultiplierTimeSeries.h in Headers */,
 				221BFDB21A8E8AD000143FCC /* GainTimeSeries.h in Headers */,
 				222C114E1D956B67007A747B /* TimeSeriesLowess.h in Headers */,

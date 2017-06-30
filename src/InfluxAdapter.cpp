@@ -44,6 +44,7 @@ InfluxAdapter::connectionInfo::connectionInfo() {
   pass = "PASS";
   db = "DB";
   port = 8086;
+  validate = true;
 }
 /***************************************************************************************/
 
@@ -76,7 +77,8 @@ void InfluxAdapter::setConnectionString(const std::string& str) {
     {"port", [&](string v){this->conn.port = boost::lexical_cast<int>(v);}},
     {"db", [&](string v){this->conn.db = v;}},
     {"u", [&](string v){this->conn.user = v;}},
-    {"p", [&](string v){this->conn.pass = v;}}
+    {"p", [&](string v){this->conn.pass = v;}},
+    {"validate", [&](string v){this->conn.validate = boost::lexical_cast<bool>(v);}}
   }); 
   
   for (auto kv : kvPairs) {
@@ -333,7 +335,7 @@ std::string InfluxTcpAdapter::Query::nameAndWhereClause() {
 }
 
 
-jsValue __jsonFromRequest(uri uri, method withMethod, std::function<void(const std::string errMsg)> errCallback);
+jsValue __jsonFromRequest(uri uri, method withMethod, bool validate_ssl, std::function<void(const std::string errMsg)> errCallback);
 map<string, vector<Point> > __pointsFromJson(jsValue& json);
 vector<Point> __pointsSingle(jsValue& json);
 
@@ -360,7 +362,7 @@ const DbAdapter::adapterOptions InfluxTcpAdapter::options() const {
 
 std::string InfluxTcpAdapter::connectionString() {
   stringstream ss;
-  ss << "proto=" << this->conn.proto << "&host=" << this->conn.host << "&port=" << this->conn.port << "&db=" << this->conn.db << "&u=" << this->conn.user << "&p=" << this->conn.pass;
+  ss << "proto=" << this->conn.proto << "&host=" << this->conn.host << "&port=" << this->conn.port << "&db=" << this->conn.db << "&u=" << this->conn.user << "&p=" << this->conn.pass << "&validate=" << (this->conn.validate ? 1 : 0);
   return ss.str();
 }
 
@@ -372,7 +374,7 @@ void InfluxTcpAdapter::doConnect() {
   bool dbExists = false;
   
   uri uri = uriForQuery("SHOW MEASUREMENTS LIMIT 1", false);
-  jsValue jsoMeas = __jsonFromRequest(uri,methods::GET,_errCallback);
+  jsValue jsoMeas = __jsonFromRequest(uri,methods::GET,this->conn.validate,_errCallback);
   if (!jsoMeas.has_field(kRESULTS)) {
     if (jsoMeas.has_field("error")) {
       _errCallback(jsoMeas["error"].as_string());
@@ -410,7 +412,7 @@ void InfluxTcpAdapter::doConnect() {
     .append_query("p", this->conn.pass, false)
     .append_query("q", "CREATE DATABASE " + this->conn.db, true);
     
-    jsValue response = __jsonFromRequest(b.to_uri(),methods::GET,_errCallback);
+    jsValue response = __jsonFromRequest(b.to_uri(),methods::GET,this->conn.validate,_errCallback);
     if (response.size() == 0 || !response.has_field(kRESULTS) ) {
       _errCallback("Can't create database");
       return;
@@ -461,7 +463,7 @@ IdentifierUnitsList InfluxTcpAdapter::idUnitsList() {
   
   
   uri uri = uriForQuery(kSHOW_SERIES, false);
-  jsValue jsv = __jsonFromRequest(uri,methods::GET,_errCallback);
+  jsValue jsv = __jsonFromRequest(uri,methods::GET,this->conn.validate,_errCallback);
   
   if (jsv.has_field(kRESULTS) &&
       jsv[kRESULTS].is_array() &&
@@ -524,7 +526,7 @@ std::map<std::string, std::vector<Point> > InfluxTcpAdapter::wideQuery(TimeRange
   auto qstr = ss.str();
   
   uri qUri = this->uriForQuery(qstr);
-  jsValue jsv = __jsonFromRequest(qUri,methods::GET,_errCallback);
+  jsValue jsv = __jsonFromRequest(qUri,methods::GET,this->conn.validate,_errCallback);
   
   auto fetch = __pointsFromJson(jsv);
   
@@ -541,7 +543,7 @@ std::vector<Point> InfluxTcpAdapter::selectRange(const std::string& id, TimeRang
   q.where.push_back("time <= " + to_string(range.end) + "s");
   
   uri uri = this->uriForQuery(q.selectStr());
-  jsValue jsv = __jsonFromRequest(uri,methods::GET,_errCallback);
+  jsValue jsv = __jsonFromRequest(uri,methods::GET,this->conn.validate,_errCallback);
   return __pointsSingle(jsv);
 }
 
@@ -553,7 +555,7 @@ Point InfluxTcpAdapter::selectNext(const std::string& id, time_t time) {
   q.order = "time asc limit 1";
   
   uri uri = uriForQuery(q.selectStr());
-  jsValue jsv = __jsonFromRequest(uri,methods::GET,_errCallback);
+  jsValue jsv = __jsonFromRequest(uri,methods::GET,this->conn.validate,_errCallback);
   points = __pointsSingle(jsv);
   
   if (points.size() == 0) {
@@ -572,7 +574,7 @@ Point InfluxTcpAdapter::selectPrevious(const std::string& id, time_t time) {
   q.order = "time desc limit 1";
   
   uri uri = uriForQuery(q.selectStr());
-  jsValue jsv = __jsonFromRequest(uri,methods::GET,_errCallback);
+  jsValue jsv = __jsonFromRequest(uri,methods::GET,this->conn.validate,_errCallback);
   points = __pointsSingle(jsv);
   
   if (points.size() == 0) {
@@ -621,7 +623,7 @@ vector<Point> InfluxTcpAdapter::selectWithQuery(const std::string& query, TimeRa
   }
 
   uri qUri = uriForQuery(qStr);
-  jsValue jsv = __jsonFromRequest(qUri,methods::GET,_errCallback);
+  jsValue jsv = __jsonFromRequest(qUri,methods::GET,this->conn.validate,_errCallback);
   auto points = __pointsSingle(jsv);
   return points;
 }
@@ -635,7 +637,7 @@ void InfluxTcpAdapter::removeRecord(const std::string& id) {
   sqlss << "DROP SERIES FROM " << q.nameAndWhereClause();
   
   uri uri = uriForQuery(sqlss.str());
-  jsValue v = __jsonFromRequest(uri, methods::POST,_errCallback);
+  jsValue v = __jsonFromRequest(uri, methods::POST,this->conn.validate,_errCallback);
 }
 
 void InfluxTcpAdapter::removeAllRecords() {
@@ -647,7 +649,7 @@ void InfluxTcpAdapter::removeAllRecords() {
   sqlss << "DROP DATABASE " << this->conn.db << "; CREATE DATABASE " << this->conn.db;
   
   uri uri = uriForQuery(sqlss.str());
-  jsValue v = __jsonFromRequest(uri, methods::POST,_errCallback);
+  jsValue v = __jsonFromRequest(uri, methods::POST,this->conn.validate,_errCallback);
   
   this->beginTransaction();
   for (auto ts_units : *ids.get()) {
@@ -689,6 +691,7 @@ void InfluxTcpAdapter::sendPointsWithString(const std::string& content) {
       config.set_timeout(std::chrono::seconds(RTX_INFLUX_CLIENT_TIMEOUT));
       //    credentials not supported in cpprestsdk
       //    config.set_credentials(http::client::credentials(this->user, this->pass));
+      config.set_validate_certificates(this->conn.validate);
       web::http::client::http_client client(b.to_uri(), config);
       web::http::http_request req(methods::POST);
       req.set_body(zippedContent);
@@ -736,12 +739,13 @@ uri InfluxTcpAdapter::uriForQuery(const std::string& query, bool withTimePrecisi
   }
 }
 
-jsValue __jsonFromRequest(uri uri, method withMethod, std::function<void(const std::string errMsg)> errCallback) {
+jsValue __jsonFromRequest(uri uri, method withMethod, bool validate_ssl, std::function<void(const std::string errMsg)> errCallback) {
   jsValue js = jsValue::object();
   
   auto getFn = [&]()->bool{
     web::http::client::http_client_config config;
     config.set_timeout(std::chrono::seconds(RTX_INFLUX_CLIENT_TIMEOUT));
+    config.set_validate_certificates(validate_ssl);
     try {
       web::http::client::http_client client(uri, config);
       http_response r = client.request(withMethod).get(); // waits for response

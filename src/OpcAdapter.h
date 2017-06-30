@@ -1,19 +1,26 @@
-#ifndef SqliteAdapter_hpp
-#define SqliteAdapter_hpp
+#ifndef OpcAdapter_hpp
+#define OpcAdapter_hpp
 
 #include <stdio.h>
+#include <vector>
+#include <list>
+#include <string>
+#include <future>
+#include <boost/atomic.hpp>
 
 #include "DbAdapter.h"
+#include "PointRecordTime.h"
 
-#include <sqlite_modern_cpp.h>
-#include <sqlite3.h>
+#include <sql.h>
+#include <sqlext.h>
 
+#include <open62541.h>
 
 namespace RTX {
-  class SqliteAdapter : public DbAdapter {
+  class OpcAdapter : public DbAdapter {
   public:
-    SqliteAdapter( errCallback_t cb );
-    ~SqliteAdapter();
+    OpcAdapter( errCallback_t cb );
+    ~OpcAdapter();
     
     const adapterOptions options() const;
     
@@ -27,7 +34,6 @@ namespace RTX {
     // TRANSACTIONS
     void beginTransaction();
     void endTransaction();
-    bool inTransaction() {return _inTransaction;};
     
     // READ
     std::vector<Point> selectRange(const std::string& id, TimeRange range);
@@ -46,33 +52,26 @@ namespace RTX {
     void removeRecord(const std::string& id);
     void removeAllRecords();
     
-    std::string basePath;
+    
+    // opc-specific methods
     
   private:
-    std::shared_ptr<sqlite::database> _db;        
-    std::string _path;
+    class connectionInfo {
+    public:
+      connectionInfo();
+      std::string proto, host, user, pass;
+      int port;
+      bool validate;
+    };
+    connectionInfo _conn;
     
-    bool _inTransaction;
-    int _transactionStackCount;
-    int _maxTransactionStackCount;
-    void checkTransactions();
-    void commit();
+    UA_Client *_client;
     
-    bool initTables();
-    void insertSingleInTransaction(const std::string &id, Point point);
-    
-    bool updateSchema();
-    int dbSchemaVersion();
-    void setDbSchemaVersion(int v);
-    
-    std::map<std::string,int> _metaCache;
-    IdentifierUnitsList _idCache;
+    std::map<std::string, UA_NodeId> _nodes;
     
   };
 }
 
 
 
-
-
-#endif /* SqliteAdapter_hpp */
+#endif /* OpcAdapter_hpp */

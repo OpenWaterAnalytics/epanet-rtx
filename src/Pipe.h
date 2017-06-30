@@ -43,10 +43,13 @@ public:
 
   // states
   TimeSeries::_sp flow();
+  TimeSeries::_sp quality();
 
   // public ivars for temporary (that is, steady-state) solutions
   double state_flow, state_setting, state_status;
-
+  double state_quality();
+  
+  
   // parameters
   TimeSeries::_sp statusBoundary();
   void setStatusBoundary(TimeSeries::_sp status);
@@ -66,7 +69,7 @@ private:
   double _diameter;
   double _roughness;
   double _minorLoss;
-  TimeSeries::_sp _flowState;
+  TimeSeries::_sp _flowState, _qualityState;
   TimeSeries::_sp _flowMeasure;
   TimeSeries::_sp _statusBoundary;
   TimeSeries::_sp _settingBoundary;

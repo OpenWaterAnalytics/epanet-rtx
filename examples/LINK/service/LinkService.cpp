@@ -16,8 +16,8 @@ using namespace utility;
 using namespace http::experimental::listener;
 using JSV = json::value;
 
-void _link_callback(LinkService* svc, const char* msg);
-void _link_callback(LinkService* svc, const char* msg) {
+void _link_callback(LinkService* svc, const std::string& msg);
+void _link_callback(LinkService* svc, const std::string& msg) {
   string myLine(msg);
   size_t loc = myLine.find("\n");
   if (loc == string::npos) {
@@ -610,8 +610,6 @@ http_response LinkService::_post_logmessage(web::json::value js) {
     cerr << "err: JSON log object not recognized.\n";
   }
   else if (_destinationRecord) {
-    
-    
     json::object o = js.as_object();
     string metric = js["metric"].as_string();
     string field = js["field"].as_string();

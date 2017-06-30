@@ -118,8 +118,13 @@ void SqliteAdapter::doConnect() {
 
 IdentifierUnitsList SqliteAdapter::idUnitsList() {
   _RTX_DB_SCOPED_LOCK;
-  IdentifierUnitsList ids;
+  
+  if (_inTransaction) {
+    return _idCache;
+  }
+  
   _metaCache.clear();
+  _idCache.clear();
     
   _dbq << _selectNamesStr
   >> [&](int uid, string name, std::unique_ptr<string> unitStr) {
@@ -127,22 +132,25 @@ IdentifierUnitsList SqliteAdapter::idUnitsList() {
     if (unitStr != nullptr) {
       units = Units::unitOfType(*unitStr);
     }
-    ids.set(name,units);
+    _idCache.set(name,units);
     _metaCache[name] = uid;
   };
     
-  return ids;
+  return _idCache;
 }
 
 // TRANSACTIONS
 void SqliteAdapter::beginTransaction() {
   if (!_inTransaction) {
-    this->checkTransactions();
+    _RTX_DB_SCOPED_LOCK;
+    _dbq << "begin;";
+    _inTransaction = true;
   }
 }
 void SqliteAdapter::endTransaction() {
   if (_inTransaction) {
     this->commit();
+    //_inTransaction = false;
   }
 }
 
@@ -202,15 +210,15 @@ bool SqliteAdapter::insertIdentifierAndUnits(const std::string& id, Units units)
       int uid = (int)_db->last_insert_rowid();    
       // add to the cache.
       _metaCache[id] = uid;
+      _idCache.set(id, units);
       success = true;
     }
     catch (exception& e) {
       cerr << "could not create series" << endl;
     }
   }
-  if (_inTransaction) {
-    this->checkTransactions(); // allow flushing if we've exceeded max transaction stack size
-  }
+  this->checkTransactions(); // allow flushing if we've exceeded max transaction stack size
+  
   return success;
 }
 
@@ -324,21 +332,17 @@ bool SqliteAdapter::updateSchema() {
 
 
 void SqliteAdapter::checkTransactions() {
-  if (!_inTransaction) {
-    _RTX_DB_SCOPED_LOCK;
-    _dbq << "begin;";
-    _inTransaction = true;
-    return;
-  }
-  
-  if (_transactionStackCount >= _maxTransactionStackCount) {
-    // reset the stack, commit the transaction
-    this->commit();
-  }
-  else {
-    // increment the stack count.
-    _RTX_DB_SCOPED_LOCK;
-    ++_transactionStackCount;
+  if (_inTransaction) {
+    if (_transactionStackCount >= _maxTransactionStackCount) {
+      // reset the stack, commit the transaction
+      this->endTransaction();
+      this->beginTransaction();
+    }
+    else {
+      // increment the stack count.
+      _RTX_DB_SCOPED_LOCK;
+      ++_transactionStackCount;
+    }
   }
 }
 

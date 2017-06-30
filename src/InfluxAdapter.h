@@ -19,6 +19,7 @@ namespace RTX {
     // TRANSACTIONS
     void beginTransaction();
     void endTransaction();
+    bool inTransaction() {return _inTransaction;};
     
     
     // CREATE
@@ -45,6 +46,7 @@ namespace RTX {
       connectionInfo();
       std::string proto, host, user, pass, db;
       int port;
+      bool validate;
     };
     connectionInfo conn;
     

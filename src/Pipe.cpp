@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include "Pipe.h"
+#include "Junction.h"
 
 using namespace RTX;
 
@@ -26,6 +27,10 @@ Pipe::Pipe(const std::string& name) : Link(name) {
   _status.reset( new TimeSeries() );
   _status->setUnits(RTX_DIMENSIONLESS);
   _status->setName("status,l=" + name);
+  
+  _qualityState.reset( new TimeSeries() );
+  _qualityState->setUnits(RTX_SECOND);
+  _qualityState->setName("quality,l=" + name);
   
   _fixedStatus = Pipe::OPEN;
   
@@ -99,6 +104,16 @@ TimeSeries::_sp Pipe::status() {
 }
 TimeSeries::_sp Pipe::setting() {
   return _setting;
+}
+TimeSeries::_sp Pipe::quality() {
+  return _qualityState;
+}
+
+double Pipe::state_quality() {
+  auto j1 = std::dynamic_pointer_cast<Junction>(this->from());
+  auto j2 = std::dynamic_pointer_cast<Junction>(this->to());
+  
+  return (j1->state_quality + j2->state_quality) / 2.0;
 }
 
 

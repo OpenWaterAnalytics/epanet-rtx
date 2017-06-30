@@ -32,23 +32,26 @@ backupConfig = function(){
 // ensure that the config file is there. create it if it does not exist.
 // these calls are blocking on purpose.
 try {
-  fs.ensureFileSync(configFile);
+  if (!fs.pathExistsSync(configFile)) {
+    fs.ensureFileSync(configFile);
+    jsf.writeFileSync(configFile, {run:false});
+  }
   _rtx_config = jsf.readFileSync(configFile);
 } catch (e) {
   console.log(e);
 }
 
 try {
-  fs.accessSync(authFile);
+  if (!fs.pathExistsSync(authFile)) {
+    fs.ensureFileSync(authFile);
+    jsf.writeFileSync(authFile,{u:'admin',p:'admin'});
+  }
   _link_auth = jsf.readFileSync(authFile);
   console.log('found local auth: ');
   console.log(_link_auth);
 } catch (e) {
-  console.log('could not find local auth file. defaulting to admin // admin');
-  _link_auth = {u:'admin',p:'admin'};
-  fs.outputJsonSync(authFile, _link_auth, {}, function(err) {
-    console.log('error writing auth file');
-  });
+  console.log("could not find or create auth file");
+  console.log(e);
 }
 
 sendLog = function(metric,field,value) {
@@ -77,6 +80,8 @@ sendConfig = function() {
     url: link_server_host + "/config",
     json: _rtx_config
   }; // opts
+  console.log("SENDING CONFIG:");
+  console.log(opts);
   request(opts, function(error, response, body) {
     if (error) {
       console.log("ERROR sending config :: ");
@@ -305,8 +310,33 @@ for (var i = 0, len = myRoutes.length; i < len; i++) {
 app.use('/', [auth, express.static(__dirname + '/public')]);
 
 // listen (start app with node server.js) ======================================
-app.listen(8585);
+var server = app.listen(8585);
 console.log("App listening on port 8585");
+
+
+
+var gracefulShutdown = function() {
+  console.log("Received kill signal, shutting down gracefully.");
+  link_monitor.stop();
+  server.close(function() {
+    console.log("Closed out remaining connections.");
+    process.exit();
+  });
+
+   // if after
+   setTimeout(function() {
+       console.error("Could not close connections in time, forcefully shutting down");
+       process.exit();
+  }, 2*1000);
+}
+
+// listen for TERM signal .e.g. kill
+process.on ('SIGTERM', gracefulShutdown);
+// listen for INT signal e.g. Ctrl-C
+process.on ('SIGINT', gracefulShutdown);
+
+
+
 
 
 exports.link_app = app;

@@ -147,7 +147,9 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
   }
   
   // no matter what happens, we are messing with cache invalidation... 
-  _lastIdRequest = 0; // so invalidate the request cache.  
+  if (!_adapter->inTransaction()) {
+    _lastIdRequest = 0; // so invalidate the request cache.  
+  }
 
   // almost ideal: name is good, units mismatch, but adaptor doesn't care
   if (nameExists 

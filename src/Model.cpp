@@ -927,6 +927,15 @@ void Model::setInitialJunctionQualityFromHotStart(time_t time) {
       cerr << "invalid point for junction: " << j->name() << endl;
     }
   }
+  for(auto t : this->tanks()) {
+    t->state_quality = t->quality()->pointAtOrBefore(time).value;
+  }
+  for(auto r : this->reservoirs()) {
+    r->state_quality = r->quality()->pointAtOrBefore(time).value;
+  }
+  
+  this->applyInitialQuality();
+  
 }
 
 void Model::setInitialJunctionUniformQuality(double qual) {
@@ -1423,7 +1432,21 @@ void Model::saveNetworkStates(time_t time, std::set<PointRecord::_sp> bulkRecord
     }
   }
   
+  
   // pipe elements
+  
+  if (this->shouldRunWaterQuality()) {
+    for(Pipe::_sp pipe : pipes()) {
+      pipe->quality()->insert(Point(time, pipe->state_quality()));
+    }
+    for(Valve::_sp valve : valves()) {
+      valve->quality()->insert(Point(time, valve->state_quality()));
+    }
+    for(Pump::_sp pump : pumps()) {
+      pump->quality()->insert(Point(time, pump->state_quality()));
+    }
+  }
+  
   for(Pipe::_sp pipe : pipes()) {
     pipe->flow()->insert(Point(time, pipe->state_flow));
     pipe->setting()->insert(Point(time, pipe->state_setting));

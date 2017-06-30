@@ -3,11 +3,13 @@
 #include <thread>
 #include "LinkService.hpp"
 
-
-
 using namespace std;
 
 atomic<bool> _doRun;
+std::unique_ptr<RTX::LinkService> svc;
+static string bindAddr = "http://0.0.0.0:3131";
+
+
 void _signalHandler(int);
 void _signalHandler(int signum) {
   cout << "Interrupt signal (" << signum << ") received.\n";
@@ -16,9 +18,6 @@ void _signalHandler(int signum) {
 
 int main(int argc, const char * argv[]) {
   
-  RTX::LinkService svc(web::uri("http://127.0.0.1:3131"));
-  svc.open().wait();
-  
   _doRun = true;
   struct sigaction sigIntHandler;
   sigIntHandler.sa_handler = _signalHandler;
@@ -26,10 +25,13 @@ int main(int argc, const char * argv[]) {
   sigIntHandler.sa_flags = 0;
   sigaction(SIGINT, &sigIntHandler, NULL);
   
+  svc.reset(new RTX::LinkService(web::uri(bindAddr)));
+  svc->open();
+    
   while(_doRun) {
     this_thread::sleep_for(chrono::seconds(1));
   }
   
   cout << "SHUTTING DOWN SERVICE" << endl << flush;
-  svc.close().wait();
+  svc->close().wait();
 }
