@@ -326,7 +326,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
   };
 
   $rootScope.relayGet = function (path, successCallback, failureCallback) {
-    $http.get('http://' + $location.host() + ':8585/relay/' + path)
+    $http.get('http://' + $location.host() + ':' + $location.port() + '/relay/' + path)
     .then(function (response) {
       typeof successCallback == "function" && successCallback(response);
     }, function (errResponse) {
@@ -341,7 +341,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
     console.log(data);
     $http({
       method: 'POST',
-      url: 'http://' + $location.host() + ':8585/config/' + path,
+      url: 'http://' + $location.host() + ':' + $location.port() + '/config/' + path,
       headers: {'Content-type': 'application/json'},
       data: data
     }).then(function (response) {
@@ -358,7 +358,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
   $rootScope.$on('$destroy', function () { $interval.cancel(pingInterval); });
 
   // get the complete configuration object from NODE
-  $http.get('http://' + $location.host() + ':8585/config')
+  $http.get('http://' + $location.host() + ':' + $location.port() + '/config')
   .then(function (response) {
     $rootScope.config = response.data;
     if (!$rootScope.config.dash) {
@@ -783,7 +783,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
     // relay data to Node, since we can't make real POST requests otherwise.
     $http({
       method: 'POST',
-      url: 'http://' + $location.host() + ':8585/send_dashboards',
+      url: 'http://' + $location.host() + ':' + $location.port() + '/send_dashboards',
       headers: {
         'Content-Type': 'application/json'
       },
@@ -847,7 +847,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
   };
 
  $scope.downloadConfig = function() {
-   $http.get('http://' + $location.host() + ':8585/config')
+   $http.get('http://' + $location.host() + ':' + $location.port() + '/config')
    .then(function (response) {
      var filename = "config.json";
      var data = "{}";
