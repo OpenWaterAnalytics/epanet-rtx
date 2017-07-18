@@ -46,12 +46,11 @@ namespace RTX {
       connectionInfo();
       std::string proto, host, user, pass, db;
       int port;
+      int msec_ratelimit;
       bool validate;
     };
     connectionInfo conn;
     
-    
-
     std::vector<std::string> insertionLinesFromPoints(const std::string& tsName, std::vector<Point> points);
     std::string influxIdForTsId(const std::string& id);
     std::vector<std::string> _transactionLines;
@@ -60,8 +59,6 @@ namespace RTX {
     
   private:
     void commitTransactionLines();
-    
-    
   };
   
   class ITaskWrapper {

@@ -45,6 +45,7 @@ InfluxAdapter::connectionInfo::connectionInfo() {
   db = "DB";
   port = 8086;
   validate = true;
+  msec_ratelimit = 0;
 }
 /***************************************************************************************/
 
@@ -78,7 +79,8 @@ void InfluxAdapter::setConnectionString(const std::string& str) {
     {"db", [&](string v){this->conn.db = v;}},
     {"u", [&](string v){this->conn.user = v;}},
     {"p", [&](string v){this->conn.pass = v;}},
-    {"validate", [&](string v){this->conn.validate = boost::lexical_cast<bool>(v);}}
+    {"validate", [&](string v){this->conn.validate = boost::lexical_cast<bool>(v);}},
+    {"ratelimit", [&](string v){this->conn.msec_ratelimit = boost::lexical_cast<int>(v);}}
   }); 
   
   for (auto kv : kvPairs) {
@@ -938,7 +940,7 @@ const DbAdapter::adapterOptions InfluxUdpAdapter::options() const {
 
 std::string InfluxUdpAdapter::connectionString() {
   stringstream ss;
-  ss << "host=" << this->conn.host << "&port=" << this->conn.port;
+  ss << "host=" << this->conn.host << "&port=" << this->conn.port << "&ratelimit=" << this->conn.msec_ratelimit;
   return ss.str();
 }
 
@@ -1013,6 +1015,9 @@ void InfluxUdpAdapter::sendPointsWithString(const std::string& content) {
       DebugLog << "UDP SEND ERROR: " << err.message() << EOL << flush;
     }
     socket.close();
+    if (conn.msec_ratelimit > 0) {
+      this_thread::sleep_for(chrono::milliseconds(conn.msec_ratelimit));
+    }
   });
 
 }
