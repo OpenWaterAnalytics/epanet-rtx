@@ -637,7 +637,7 @@ http_response LinkService::_post_logmessage(web::json::value js) {
 }
 
 void LinkService::runDuplication(time_t win, time_t freq, time_t backfill, time_t lag) {
-  if (_duplicator.isRunning()) {
+  if (_duplicator.isRunning() || !_sourceRecord || !_destinationRecord) {
     return;
   }
   

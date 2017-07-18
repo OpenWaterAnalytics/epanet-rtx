@@ -100,6 +100,15 @@ void TimeSeriesDuplicator::wait() {
 void TimeSeriesDuplicator::_dupeLoop(time_t win, time_t freq, time_t lag) {
   _shouldRun = true;
   
+  if (win <= 0 || freq <= 0) {
+    _shouldRun = false;
+    _isRunning = false;
+    this->_logLine("invalid window or frequency",RTX_DUPLICATOR_LOGLEVEL_INFO);
+    return;
+  }
+  
+  
+  
   time_t nextFetch = time(NULL) - lag;
   
   stringstream s;
