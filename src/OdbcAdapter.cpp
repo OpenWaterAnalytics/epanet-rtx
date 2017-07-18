@@ -71,7 +71,7 @@ OdbcAdapter::OdbcAdapter( errCallback_t cb ) : DbAdapter(cb) {
   
   // sample queries as default
   _querySyntax.rangeSelect = "SELECT date_col, value_col, quality_col FROM data_tbl WHERE tagname_col = ? AND date_col >= ? AND date_col <= ? ORDER BY date_col ASC";
-  _querySyntax.metaSelect = "SELECT tagname_col, units_col FROM tag_list_tbl ORDER BY tagname_col ASC";
+  _querySyntax.metaSelect = "SELECT tagname_col FROM tag_list_tbl ORDER BY tagname_col ASC";
   
   SQLRETURN sqlRet;
   
