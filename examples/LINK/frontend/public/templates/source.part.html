@@ -1,5 +1,5 @@
 <div class="alert alert-info" role="alert">
-    Set the type of source record, and configure it.
+    Set the type of source record, and configure it. This is how Link will access your Historian server.
     <a class="pull-right" ng-click="saveAndNext()">Save <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
 </div>
 
@@ -25,20 +25,20 @@
                 <tr ng-repeat="dict in sourceTypes[config.source._class].inputRows" ng-switch on="dict.inputType" ng-if="!dict.visible_when || isSubOption(dict.visible_when)">
                     <th scope="row">{{dict.text}}</th>
                     <td ng-switch-when="text-line">
-                        <input type="text" class="form-control" placeholder="{{dict.placeholder}}" ng-model="config.source[dict.key]" ng-change="refreshAdvanced(dict.visible_when)" uib-tooltip="{{dict.helptext}}">
+                        <input type="text" class="form-control" placeholder="{{dict.placeholder}}" ng-model="config.source[dict.key]" ng-change="refreshAdvanced(dict.visible_when)" uib-tooltip="{{dict.helptext}}" tooltip-placement="top-right">
                     </td>
                     <td ng-switch-when="select-line">
-                        <select class="form-control" aria-describedby="basic-addon3" ng-controller="OdbcDriverSelectController" ng-model="config.source[dict.key]" uib-tooltip="{{dict.helptext}}"">
+                        <select class="form-control" aria-describedby="basic-addon3" ng-controller="OdbcDriverSelectController" ng-model="config.source[dict.key]" uib-tooltip="{{dict.helptext}}" tooltip-placement="top-right">
                             <option ng-repeat="driver in drivers" value={{driver}}>{{driver}}</option>
                         </select>
                     </td>
                     <td ng-switch-when="select-line-options">
-                       <select class="form-control" aria-describedby="basic-addon3" ng-model="config.source[dict.key]" uib-tooltip="{{dict.helptext}}"">
+                       <select class="form-control" aria-describedby="basic-addon3" ng-model="config.source[dict.key]" uib-tooltip="{{dict.helptext}}">
                            <option ng-repeat="optionValue in dict.options" value={{optionValue}}>{{optionValue}}</option>
                        </select>
                     </td>
                     <td ng-switch-when="text-area">
-                        <textarea class="form-control" rows="3" placeholder="{{dict.placeholder}}" ng-model="config.source[dict.key]" uib-tooltip="{{dict.helptext}}""></textarea>
+                        <textarea class="form-control" rows="3" placeholder="{{dict.placeholder}}" ng-model="config.source[dict.key]" uib-tooltip="{{dict.helptext}}"></textarea>
                     </td>
                 </tr>
             </tbody>

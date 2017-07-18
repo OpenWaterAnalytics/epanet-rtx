@@ -31,14 +31,15 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
 
   $rootScope.sourceTypes = {
     'odbc': {
-      subOptions: ["simple", "advanced"],
+      //subOptions: ["simple", "advanced"], // deprecating simple panel
+      subOptions: ["advanced"],
       inputRows: [
         {
           inputType:'text-line',
           key:'name',
           text:'Name',
-          placeholder:'SCADA User-Defined Name',
-          helptext:'User-Defined Name. Type anything here.'
+          placeholder:'SCADA Historian Database User-Defined Name',
+          helptext:'User-Defined Label or Description for the Database. Type anything here.'
         },{
           inputType:'select-line',
           key:'driver',
@@ -48,10 +49,10 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
         },{
           inputType:'select-line-options',
           key:'zone',
-          text:'Database Timezone',
+          text:'Query Timezone',
           placeholder:'local',
           options:['local','utc'],
-          helptext:'The Timezone of the date/time stamps in the database'
+          helptext:'Link can assemble queries in terms of UTC or local time.'
         },{
           inputType:'text-line',
           key:'simple_connection_ip',
@@ -141,16 +142,16 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
           inputType: 'text-line',
           key:'meta',
           text: 'Name lookup query',
-          placeholder: 'SELECT tagname, units FROM tag_list ORDER BY tagname ASC',
+          placeholder: 'SELECT tagname FROM tag_table ORDER BY tagname ASC',
           visible_when: 'advanced',
-          helptext: 'A query that will return the list of tag names, and optionally a column of unit strings.'
+          helptext: 'A query that will return the list of tag names.'
         },{
           inputType: 'text-area',
           key: 'range',
           text: 'Data lookup query',
           placeholder: 'SELECT date, value, quality FROM tbl WHERE tagname = ? AND date >= ? AND date <= ? ORDER BY date ASC',
           visible_when: 'advanced',
-          helptext: 'A query that will return (date,value,quality) columns with three ? placeholders specifying the tagname, start date, and end date.'
+          helptext: 'A query that will return three columns: (date,value,quality), with three ? placeholders for the tagname, start-date, and end-date, respectively.'
         }
       ]
     },
@@ -239,13 +240,15 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
           key: 'name',
           text: 'Name',
           placeholder: 'User-defined Name',
-          inputType: 'text-line'
+          inputType: 'text-line',
+          helptext: 'User-defined label or description. Type anything here.'
         },
         {
           key: 'connectionString',
           text: 'Connection',
           placeholder: 'proto=http&host=linkDB.yourdomain.com&port=8086&db=dest_db&u=user&p=pass',
-          inputType: 'text-line'
+          inputType: 'text-line',
+          helptext: 'If you do not have this information, contact the cloud database manager.'
         }
       ]
     },
@@ -255,13 +258,15 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
           key: 'name',
           text: 'Name',
           placeholder: 'User-defined Name',
-          inputType: 'text-line'
+          inputType: 'text-line',
+          helptext: 'User-defined label or description. Type anything here.'
         },
         {
           key: 'connectionString',
           text: 'Connection',
           placeholder: 'host=http://flux.citilogics.io&port=8089',
-          inputType: 'text-line'
+          inputType: 'text-line',
+          helptext: 'If you do not have this information, contact the cloud database manager.'
         }
       ]
     }
@@ -393,7 +398,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
     //{url:'main', text:'Main'},
     {url:'source', text:'Source'},
     {url:'destination', text:'Destination'},
-    {url:'analytics', text:'Analytics'},
+    //{url:'analytics', text:'Analytics'},
     {url:'options', text:'Options'},
     {url:'run', text:'Run'},
     {url:'dashboard', text:'Dashboard'},
@@ -496,7 +501,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
   };
 
   $scope.isType = function (typeName) {
-    return typeName === $rootScope.config.source._class;
+    return $rootScope.config.source && typeName === $rootScope.config.source._class;
   };
   $scope.setSourceType = function (typeName) {
     $rootScope.config.source = {_class: typeName};
@@ -647,7 +652,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
   };
 
   $scope.isType = function (typeName) {
-    return typeName === $rootScope.config.destination._class;
+    return $rootScope.config.destination && typeName === $rootScope.config.destination._class;
   };
   $scope.setDestinationType = function (typeName) {
     $rootScope.config.destination = {_class: typeName};
@@ -740,7 +745,7 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
 /**************************/
 /******** OPTIONS *********/
 /**************************/
-.controller('OptionsController', function OptionsController($rootScope, $scope, $http, $location) {
+.controller('OptionsController', function OptionsController($rootScope, $scope, $http, $location, $window) {
 
   $scope.saveAndNext = function () {
     // send dash credentials
@@ -809,6 +814,8 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
 
   $scope.setProto = function (p) {
     $rootScope.config.dash.proto = p;
+    var urlField = $window.document.getElementById('options_dash_url');
+    urlField.focus();
   };
 
 
@@ -900,5 +907,5 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
 })
 
 .controller('AboutController', function AboutController($scope, $http) {
-  $scope.author = 'Open Water Analytics and CitiLogics';
+  $scope.author = 'CitiLogics and Open Water Analytics, with support from USEPA office of Research and Development';
 });

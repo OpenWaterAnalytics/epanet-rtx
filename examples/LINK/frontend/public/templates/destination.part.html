@@ -3,7 +3,9 @@
     Configure the connection to the destination database.
     <a class="pull-right" ng-click="saveAndNext()">Save <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
 </div>
-
+<div class="alert alert-info">
+Please ensure that your firewall settings will allow traffic over the selected protocol. If you do not manage the cloud database, then contact the cloud database manager for this information.
+</div>
 <!-- Destination -->
 <div id="destination-select">
   <div class="form-group pull-left">
@@ -19,7 +21,7 @@
             <tr ng-repeat="dict in destinationTypes[config.destination._class].inputRows" ng-switch on="dict.inputType">
                 <th scope="row">{{dict.text}}</th>
                 <td>
-                    <input type="text" class="form-control" placeholder="{{dict.placeholder}}" ng-model="config.destination[dict.key]">
+                    <input type="text" class="form-control" placeholder="{{dict.placeholder}}" ng-model="config.destination[dict.key]" uib-tooltip="{{dict.helptext}}">
                 </td>
             </tr>
             </tbody>

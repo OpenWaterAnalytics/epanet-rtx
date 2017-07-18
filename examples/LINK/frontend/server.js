@@ -214,11 +214,15 @@ app.post('/send_dashboards', function (clientReq, clientRes) {
         headers: {'Authorization': auth},
         json: clientReq.body.data
     }, function (error, response, body) {
-        if(response.statusCode == 200){
-            clientRes.status(200).json({message:"Dashboard Created."})
-        } else {
-            clientRes.status(500).json({message:"Failed to Create Dashboard. " + body.message})
-        }
+      if (error) {
+        clientRes.status(500).json({message:"Could not connect to server."});
+        console.log(error);
+      }
+      else if (response.statusCode == 200){
+        clientRes.status(200).json({message:"Dashboard Created."});
+      } else {
+        clientRes.status(500).json({message:"Failed to Create Dashboard. " + body.message});
+      }
     });
 });
 
