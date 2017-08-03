@@ -302,8 +302,11 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
     // distribute the demand
     for (auto junction: dma->junctions()) {
       double thisBase = 0;
-      if (totalBase != 0) {
-        thisBase = (junction->boundaryFlow()) ? 1 : (junction->baseDemand() / totalBase);
+      if (junction->boundaryFlow()) {
+        thisBase = 1;
+      }
+      else if (totalBase != 0) {
+        thisBase = (junction->baseDemand() / totalBase);
       }
       // setnodevalue will set the last category's base demand.
       EN_setnodevalue(ow_project,
@@ -381,7 +384,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
     for (auto j: _model->junctions()) {
       if (j->boundaryFlow()) {
         TimeSeries::_sp demand = j->boundaryFlow();
-        string pName = "rtxdem_" + demand->name();
+        string pName = "rtxdemand_" + demand->name();
         boost::replace_all(pName, " ", "_");
         int pIndex = _epanet_make_pattern(ow_project, demand, patternClock, _range, pName, _model->flowUnits());
         EN_setnodevalue(ow_project, _model->enIndexForJunction(j), EN_PATTERN, pIndex);
