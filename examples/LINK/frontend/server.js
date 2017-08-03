@@ -331,7 +331,7 @@ var gracefulShutdown = function() {
    setTimeout(function() {
        console.error("Could not close connections in time, forcefully shutting down");
        process.exit();
-  }, 2*1000);
+  }, 5*1000);
 }
 
 // listen for TERM signal .e.g. kill
