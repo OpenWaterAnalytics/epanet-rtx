@@ -128,6 +128,7 @@ void Junction::setPressureMeasure(TimeSeries::_sp pressure) {
   if (pressure == NULL || !pressure) {
     _pressureMeasure = TimeSeries::_sp();
     _headMeasure = TimeSeries::_sp();
+    return;
   }
   else if ( !(pressure->units().isSameDimensionAs(RTX_PASCAL)) ) {
     return;
