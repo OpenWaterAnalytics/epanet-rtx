@@ -113,6 +113,17 @@ void AggregatorTimeSeries::setMultiplierForSource(TimeSeries::_sp timeSeries, do
   }
 }
 
+bool AggregatorTimeSeries::hasUpstreamSeries(TimeSeries::_sp other) {
+  
+  for (auto i : _tsList) {
+    auto ts = i.timeseries;
+    if (ts == other || ts->hasUpstreamSeries(other)) {
+      return true;
+    }
+  }
+  
+  return false;
+}
 
 time_t AggregatorTimeSeries::timeBefore(time_t time) {
   std::set<time_t> timeSet;

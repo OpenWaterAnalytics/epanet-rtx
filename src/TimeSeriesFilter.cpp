@@ -64,6 +64,12 @@ void TimeSeriesFilter::setSource(TimeSeries::_sp ts) {
   }
 }
 
+bool TimeSeriesFilter::hasUpstreamSeries(TimeSeries::_sp ts) {
+  if (!_source) {
+    return false;
+  }
+  return _source == ts || _source->hasUpstreamSeries(ts);
+}
 
 vector<Point> TimeSeriesFilter::points(TimeRange range) {
   

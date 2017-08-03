@@ -23,6 +23,8 @@ namespace RTX {
     virtual void didSetSecondary(TimeSeries::_sp secondary);
     TimeSeriesFilterSecondary::_sp secondary(TimeSeries::_sp sec) {this->setSecondary(sec); return share_me(this);};
     
+    virtual bool hasUpstreamSeries(TimeSeries::_sp other);
+    
   protected:
     TimeSeries::_sp _secondary;
     

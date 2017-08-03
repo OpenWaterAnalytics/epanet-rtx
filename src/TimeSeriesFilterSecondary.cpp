@@ -28,3 +28,8 @@ bool TimeSeriesFilterSecondary::canSetSecondary(TimeSeries::_sp secondary) {
 void TimeSeriesFilterSecondary::didSetSecondary(TimeSeries::_sp secondary) {
   this->invalidate();
 }
+
+
+bool TimeSeriesFilterSecondary::hasUpstreamSeries(TimeSeries::_sp other) {
+  return TimeSeriesFilter::hasUpstreamSeries(other) || (this->secondary() && this->secondary()->hasUpstreamSeries(other));
+}

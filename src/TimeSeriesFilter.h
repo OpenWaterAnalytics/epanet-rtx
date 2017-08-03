@@ -97,6 +97,8 @@ namespace RTX {
     virtual void didSetSource(TimeSeries::_sp ts);
     virtual bool canChangeToUnits(Units units);
     
+    virtual bool hasUpstreamSeries(TimeSeries::_sp ts);
+    
     // chainable
     TimeSeriesFilter::_sp resample(ResampleMode mode) {this->setResampleMode(mode); return share_me(this);};
     TimeSeriesFilter::_sp source(TimeSeries::_sp source) {this->setSource(source); return share_me(this);};

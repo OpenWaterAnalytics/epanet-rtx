@@ -206,7 +206,7 @@ void OdbcAdapter::doConnect() {
     // first connection attempt. wait for "timeout" seconds
     // async connection timeout
     _connectFuture = std::async(launch::async, [&]() -> bool {
-      string connStr = "DRIVER=" + _connection.driver + ";" + _connection.connectionString;
+      string connStr = "DRIVER={" + _connection.driver + "};" + _connection.connectionString;
       SQLCHAR outConStr[1024];
       SQLSMALLINT outConStrLen;
       

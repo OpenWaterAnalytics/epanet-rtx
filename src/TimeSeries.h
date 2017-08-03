@@ -100,6 +100,8 @@ namespace RTX {
     time_t expectedPeriod();
     void setExpectedPeriod(time_t seconds);
     
+    virtual bool hasUpstreamSeries(TimeSeries::_sp other);
+    
     // chainable
     TimeSeries::_sp units(Units u) {this->setUnits(u); return this->sp();};
     TimeSeries::_sp c(Clock::_sp c) {this->setClock(c); return this->sp();};

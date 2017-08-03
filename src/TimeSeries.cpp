@@ -213,6 +213,12 @@ void TimeSeries::setExpectedPeriod(time_t seconds) {
   _expectedPeriod = seconds;
 }
 
+
+bool TimeSeries::hasUpstreamSeries(TimeSeries::_sp other) {
+  return false;
+}
+
+
 #pragma mark Protected Methods
 
 std::ostream& TimeSeries::toStream(std::ostream &stream) {
