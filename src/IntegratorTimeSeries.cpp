@@ -38,6 +38,11 @@ PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange range) {
   // make sure the reset is honored. the time value we have here may
   // be before the actual reset. we will compensate later on.
   time_t leftMostTime = this->source()->timeBefore(lastReset + 1);
+  if (leftMostTime == 0) {
+    // no data prior to a reset. get the start-time for data availability
+    leftMostTime = this->source()->timeAfter(lastReset);
+    lastReset = leftMostTime;
+  }
   
   // get next point in case it's out of the specified range
   time_t seekRightTime = this->source()->timeAfter(range.end - 1);
@@ -49,7 +54,15 @@ PointCollection IntegratorTimeSeries::filterPointsInRange(TimeRange range) {
   PointCollection sourceData = this->source()->pointCollection(sourceQuery);
   
   if (sourceData.count() < 2) {
-    return PointCollection(vector<Point>(), this->units());
+    // special edge-case: one point is returned. implicit re-set?
+    if (sourceData.count() == 1) {
+      Point p(sourceData.points().front().time, 0);
+      p.addQualFlag(Point::rtx_integrated);
+      outPoints.push_back(p);
+    }
+    else {
+      return PointCollection(vector<Point>(), this->units());
+    }
   }
   
   auto raw = sourceData.raw();
