@@ -424,21 +424,17 @@ std::string OdbcAdapter::stringQueryForRange(const std::string& id, TimeRange ra
   string startStr,endStr;
   
   if (this->timeFormat() == PointRecordTime::UTC) {
-    startStr = PointRecordTime::utcDateStringFromUnix(range.start-1);
-    endStr = PointRecordTime::utcDateStringFromUnix(range.end+1);
+    startStr = PointRecordTime::utcDateStringFromUnix(range.start-1); // minus one because of wonderware's silly "initial value" in delta retrieval.
+    endStr = PointRecordTime::utcDateStringFromUnix(range.end+1); // because wonderware does fractional seconds
   }
   else {
     startStr = PointRecordTime::localDateStringFromUnix(range.start-1, _specifiedTimeZone);
     endStr = PointRecordTime::localDateStringFromUnix(range.end+1, _specifiedTimeZone);
   }
   
-  string startDateStr = "'" + startStr + "'"; // minus one because of wonderware's silly "initial value" in delta retrieval.
-  string endDateStr = "'" + endStr + "'"; // because wonderware does fractional seconds
-  string idStr = "'" + id + "'";
-  
-  boost::replace_first(query, "?", idStr);
-  boost::replace_first(query, "?", startDateStr);
-  boost::replace_first(query, "?", endDateStr);
+  boost::replace_first(query, "?", id);
+  boost::replace_first(query, "?", startStr);
+  boost::replace_first(query, "?", endStr);
   
   return query;
 }
