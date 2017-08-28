@@ -83,6 +83,9 @@
 #define RTX_WATT                   RTX::Units(1,             1,2,-3)
 #define RTX_KILOWATT               RTX::Units(1000,          1,2,-3)
 
+#define RTX_VOLT                   RTX::Units(1,             1,2,-3,-1) // (kg * m2) / ( A * s3)
+#define RTX_AMP                    RTX::Units(1,             0,0,0,1)
+
 // energy density
 #define RTX_ENERGY_DENSITY        RTX::Units(3600000,        1,-1,-2)
 #define RTX_ENERGY_DENSITY_MG     RTX::Units(951.01983668876,1,-1,-2)

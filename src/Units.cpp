@@ -314,6 +314,9 @@ std::map<std::string, Units> Units::unitStringMap = []()
   m["W"] = RTX_WATT;
   m["kW"] = RTX_KILOWATT;
   
+  m["V"] = RTX_VOLT;
+  m["A"] = RTX_AMP;
+  
   return m;
 }();
 
