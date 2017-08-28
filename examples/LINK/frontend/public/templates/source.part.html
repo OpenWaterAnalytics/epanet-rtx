@@ -74,7 +74,7 @@
                 <td><span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="ts._link_selected = !ts._link_selected" ></span></td>
                 <td>{{ts.name}}</td>
                 <td>
-                    <select ng-options="unit as unit.unitString for unit in availableUnits track by unit.rawUnits" ng-model="ts.units"></select>
+                    <select ng-options="unit as unit.unitString for unit in availableUnits track by unit.unitString" ng-model="ts.units"></select>
                 </td>
             </tr>
             </tbody>
@@ -113,7 +113,7 @@
             <tr ng-repeat="ts in filteredContent.series = (sourceSeries | filter:{name:query, _link_selected:false } | orderBy: 'name')" ng-class="{'success':ts._link_selected == true}">
                 <td ng-click="ts._link_selected = !ts._link_selected">{{ts.name}}</td>
                 <td>
-                    <select ng-options="unit as unit.unitString for unit in availableUnits track by unit.rawUnits" ng-model="ts.units"></select>
+                    <select ng-options="unit as unit.unitString for unit in availableUnits track by unit.unitString" ng-model="ts.units"></select>
                 </td>
             </tr>
             </tbody>
