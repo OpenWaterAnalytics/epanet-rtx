@@ -190,6 +190,8 @@ void LinkService::_get_runState(web::http::http_request message) {
   }
   else {
     state.as_object()["run"] = JSV(false);
+    state.as_object()["progress"] = JSV(0);
+    state.as_object()["message"] = JSV(_statusMessage);
   }
   _link_respond(message, state);
   
@@ -351,6 +353,7 @@ http_response LinkService::_post_config(JSV json) {
 }
 
 http_response LinkService::_post_timeseries(JSV js) {
+  _statusMessage = "configuring tag list";
   http_response r;
 //  cout << "=====================================\n";
 //  cout << "== SETTING TIMESERIES\n";
@@ -383,7 +386,7 @@ http_response LinkService::_post_timeseries(JSV js) {
 }
 
 http_response LinkService::_post_runState(JSV js) {
-  
+  _statusMessage = "staring run";
   // expect obj with keys: run(bool), window(int), frequency(int)
   json::object o = js.as_object();
   
@@ -399,10 +402,10 @@ http_response LinkService::_post_runState(JSV js) {
 }
 
 http_response LinkService::_post_source(JSV js) {
-  
+  _statusMessage = "setting duplication source";
   http_response r;
-//  cout << "================================\n";
-//  cout << "== SETTING DUPLICATION SOURCE\n";
+  cout << "================================\n";
+  cout << "== SETTING DUPLICATION SOURCE\n";
   
   try {
     RTX_object::_sp o = DeserializerJson::from_json(js);
@@ -420,13 +423,14 @@ http_response LinkService::_post_source(JSV js) {
     cerr << e.what() << endl;
     r = _link_error_response(status_codes::NotAcceptable, "Invalid: " + string(e.what()));
   }
-  
-//  cout << "================================" << endl;
+  cout << "== DONE SETTING DUPLICATION SOURCE\n";
+  cout << "===================================" << endl;
+  _statusMessage = "";
   return r;
 }
 
 http_response LinkService::_post_destination(JSV js) {
-  
+  _statusMessage = "configuring destination record";
   http_response r;
   cout << "=====================================\n";
   cout << "== SETTING DUPLICATION DESTINATION\n";
@@ -473,6 +477,7 @@ http_response LinkService::_post_destination(JSV js) {
   }
   
   cout << "=====================================" << endl;
+  _statusMessage = "";
   return r;
 }
 
@@ -537,7 +542,7 @@ http_response LinkService::_post_analytics(web::json::value json) {
 
 
 http_response LinkService::_post_options(JSV js) {
-  
+  _statusMessage = "posting options";
   http_response r;
   cout << "=====================================\n";
   cout << "== SETTING OPTIONS\n";
@@ -596,6 +601,7 @@ http_response LinkService::_post_options(JSV js) {
   }
   
   cout << "=====================================" << endl;
+  _statusMessage = "";
   return r;
 }
 
@@ -654,6 +660,7 @@ void LinkService::stopDuplication() {
     _duplicator.stop();
     
     boost::thread waitOnStop([&]() {
+      _statusMessage = "Waiting for Stop";
       _duplicator.wait();
       _statusMessage = "Idle";
     });
