@@ -13,6 +13,7 @@
   "dependencies": {
     "auto-updater": "^1.0.2",
     "body-parser": "~1.15.0",
+    "circular-buffer": "^1.0.2",
     "express": "~4.13.4",
     "express-session": "^1.14.0",
     "fs-extra": "^3.0.1",

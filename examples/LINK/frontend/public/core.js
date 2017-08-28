@@ -402,7 +402,8 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
     {url:'options', text:'Options'},
     {url:'run', text:'Run'},
     {url:'dashboard', text:'Dashboard'},
-    {url:'about', text:'About'}
+    {url:'about', text:'About'},
+    {url:'logs', text:'Logs'}
   ];
 
   $scope.isActive = function (viewLocation) {
@@ -443,6 +444,10 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
   .when('/dashboard', {
     templateUrl: 'templates/dash.part.html',
     controller: 'DashController'
+  })
+  .when('/logs', {
+    templateUrl: 'templates/logs.part.html',
+    controller: 'LogController'
   })
   .otherwise({
     redirectTo: '/main'
@@ -843,13 +848,14 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
   };
 
   $scope.refreshStatus = function() {
-    $scope.status = "Checking...";
+
     $rootScope.relayGet('run', function(response) {
       $scope.runInfo = response.data;
       $scope.status = $scope.runInfo.run ? 'Running: ' + $scope.runInfo.message : 'Idle';
       $rootScope.config.run = $scope.runInfo;
     }, function(err) {
       // nothing
+      $scope.status = "Error Checking Status...";
     });
   };
 
@@ -905,7 +911,20 @@ var rtxLink = angular.module('rtxLink', ['ngRoute','ui.bootstrap'])
     return $sce.trustAsResourceUrl(src);
   };
 })
+.controller('LogController', function LogController($rootScope,$scope,$http,$location,$interval,$timeout) {
 
+  $scope.refreshLogs = function(){
+    $http.get('http://' + $location.host() + ':' + $location.port() + '/svc/logs')
+    .then(function (response) {
+      $scope.logrows = response.data;
+    }, function (errResponse) {
+      $rootScope.notifyHttpError(errResponse);
+    });
+  };
+
+  $scope.refreshLogs();
+
+})
 .controller('AboutController', function AboutController($scope, $http) {
   $scope.author = 'CitiLogics and Open Water Analytics, with support from USEPA office of Research and Development';
 });

@@ -13,6 +13,7 @@ var fs = require('fs-extra');
 var respawn = require('respawn');
 var parseArgs = require('minimist');
 var ip = require('ip');
+var CircularBuffer = require("circular-buffer");
 
 // config options ===============================
 const link_server_host = 'http://127.0.0.1:3131';
@@ -24,6 +25,22 @@ const authFile = path.join(linkDir,'auth.json');
 var _rtx_config = {};
 var _link_auth = {};
 jsf.spaces = 2;
+
+
+
+const _maxLog = 1000;
+const _logMessages = new CircularBuffer(_maxLog);
+
+_logLine = function(msg){
+  console.log(msg);
+  _logMessages.enq(msg);
+};
+_errLine = function(msg){
+  console.log(msg);
+  _logMessages.enq(msg);
+};
+
+
 
 backupConfig = function(){
   // to-do: send config.json to the cloud, for backup
@@ -38,7 +55,7 @@ try {
   }
   _rtx_config = jsf.readFileSync(configFile);
 } catch (e) {
-  console.log(e);
+  _errLine(e);
 }
 
 try {
@@ -47,11 +64,11 @@ try {
     jsf.writeFileSync(authFile,{u:'admin',p:'admin'});
   }
   _link_auth = jsf.readFileSync(authFile);
-  console.log('found local auth: ');
-  console.log(_link_auth);
+  _logLine('found local auth: ');
+  _logLine(JSON.stringify(_link_auth));
 } catch (e) {
-  console.log("could not find or create auth file");
-  console.log(e);
+  _errLine("could not find or create auth file");
+  _errLine(e);
 }
 
 sendLog = function(metric,field,value) {
@@ -62,13 +79,13 @@ sendLog = function(metric,field,value) {
   };
   request(opts, function(error, response, body) {
     if (!error && response.statusCode == 200) {
-      console.log('sent log entry');
-      console.log(body);
+      _logLine('sent log entry');
+      _logLine(body);
     }
     else {
-      console.log("ERROR sending log entry");
-      console.log(error);
-      console.log(body);
+      _errLine("ERROR sending log entry");
+      _errLine(error);
+      _errLine(body);
     }
   });
 }
@@ -80,16 +97,16 @@ sendConfig = function() {
     url: link_server_host + "/config",
     json: _rtx_config
   }; // opts
-  console.log("SENDING CONFIG:");
+  _logLine("SENDING CONFIG:");
   console.log(opts);
   request(opts, function(error, response, body) {
     if (error) {
-      console.log("ERROR sending config :: ");
-      console.log(error);
+      _errLine("ERROR sending config :: ");
+      _errLine(error);
       return false;
     }
     else {
-      console.log('sent config to LINK service');
+      _logLine('sent config to LINK service');
       sendLog('startinfo','ip',ip.address());
     }
   }); // request
@@ -114,9 +131,9 @@ var debug = false; // using external LINK service = do not spawn
 var argv = parseArgs(process.argv);
 if (argv.debug) {
   debug = true;
-  console.log("==================================================");
-  console.log("====  DEBUG MODE: USING EXTERNAL LINK SERVICE ====");
-  console.log("==================================================");
+  _logLine("==================================================");
+  _logLine("====  DEBUG MODE: USING EXTERNAL LINK SERVICE ====");
+  _logLine("==================================================");
   sendConfig(); // normally handled in spawn
 }
 
@@ -124,19 +141,19 @@ if (argv.debug) {
 // start the LINK server cmd-line app ======================================
 var link_monitor = respawn([linkExePath], {maxRestarts:10, sleep:2000});
 link_monitor.on('stdout', function(data) {
-  console.log('stdout: ' + data);
+  _logLine('stdout: ' + data);
 });
 link_monitor.on('stderr', function(data) {
-  console.log('stderr: ' + data);
+  _errLine('stderr: ' + data);
 });
 link_monitor.on('spawn', function(child) {
-  console.log('LINK MONITOR is spawning');
-  console.log('SENDING CONFIG to new instance');
+  _logLine('LINK MONITOR is spawning');
+  _logLine('SENDING CONFIG to new instance');
   setTimeout(function() {
     ok = sendConfig();
     if (!ok) {
       // respawn?
-      console.log('error sending config. respawning');
+      _errLine('error sending config. respawning');
       link_monitor.stop(function() {
           link_monitor.start();
       });
@@ -144,13 +161,13 @@ link_monitor.on('spawn', function(child) {
   }, 2000);
 });
 link_monitor.on('warn', function(error) {
-  console.log('LINK warning: ' + error);
+  _logLine('LINK warning: ' + error);
 });
 link_monitor.on('exit', function(code,signal) {
-  console.log('LINK exited with code: ' + code);
+  _logLine('LINK exited with code: ' + code);
 });
 link_monitor.on('crash', function() {
-  throw new Error('LINK SERVICE CRASHED');
+  throw new Error('SERVICE MONITOR HAS CRASHED');
 })
 if (!debug) {
   link_monitor.start() // spawn and watch
@@ -205,7 +222,7 @@ app.use(methodOverride());
 // relay dashboard configuration to grafana
 //
 app.post('/send_dashboards', function (clientReq, clientRes) {
-  console.log('Sending Dashboards');
+  _logLine('Sending Dashboards');
   var login = clientReq.body.login;
   var auth = 'Basic ' + new Buffer(clientReq.body.login.user + ':' + clientReq.body.login.pass).toString('base64');
   request({
@@ -216,7 +233,7 @@ app.post('/send_dashboards', function (clientReq, clientRes) {
     }, function (error, response, body) {
       if (error) {
         clientRes.status(500).json({message:"Could not connect to server."});
-        console.log(error);
+        _errLine(error);
       }
       else if (response.statusCode == 200){
         clientRes.status(200).json({message:"Dashboard Created."});
@@ -231,6 +248,12 @@ app.get('/config', function(req,res) {
   res.json(_rtx_config);
 });
 
+// get log messages
+app.get('/svc/logs', function(req,res) {
+  console.log('getting log rows. ', _logMessages.size(), ' messages in queue');
+  res.json(_logMessages.toarray());
+});
+
 app.route('/relay/:linkPath/:subPath?') // odbc, units, source/series
 .get(function(req,res) {
   var url = link_server_host + '/' + req.params.linkPath;
@@ -239,8 +262,8 @@ app.route('/relay/:linkPath/:subPath?') // odbc, units, source/series
   }
   request.get(url, function(error, response, body) {
     if (error) {
-      console.log("RTX-LINK Error :: ");
-      console.log(error);
+      _errLine("RTX-LINK Error :: ");
+      _errLine(error);
       msg = error.message;
       if (error.code == 'ECONNREFUSED') {
         msg = 'LINK service offline or unreachable';
@@ -248,6 +271,12 @@ app.route('/relay/:linkPath/:subPath?') // odbc, units, source/series
       res.status(500).json({error: "RTX-LINK Error :: " + msg + " - Server status is " + link_monitor.status});
     }
     else {
+      if (response.statusCode == 200 || response.statusCode == 204) {
+
+      }
+      else {
+        _logLine('GET ' + url + ' --> ' + response.statusCode);
+      }
       res.status(response.statusCode).send(body);
     }
   });
@@ -256,7 +285,7 @@ app.route('/relay/:linkPath/:subPath?') // odbc, units, source/series
 // store configuration updates and relay them to LINK server
 app.route('/config/:configPath')
 .post(function(req,res) {
-  console.log('posting config, with path ' + req.params.configPath);
+  _logLine('posting config, with path ' + req.params.configPath);
 
   // save the config to local state
   const configKey = req.params.configPath;
@@ -264,10 +293,10 @@ app.route('/config/:configPath')
 
   // save config to disk
   saveConfig(_rtx_config, function() {                // success
-    console.log('SAVED CONFIG TO LOCAL STORE');
+    _logLine('SAVED CONFIG TO LOCAL STORE');
   }, function(e) {                                  // error
-    console.log('RTX-LINK JSON WRITING ERROR :: ');
-    console.log(e);
+    _errLine('RTX-LINK JSON WRITING ERROR :: ');
+    _errLine(e);
     res.status(500).json({error: "RTX-LINK NODE Error :: " + e.message});
   });
 
@@ -284,8 +313,8 @@ app.route('/config/:configPath')
     };
     request(opts, function(error, response, body) {
       if (error) {
-        console.log('RTX-LINK SERVER Error :: ');
-        console.log(error);
+        _errLine('RTX-LINK SERVER Error :: ');
+        _errLine(error);
         msg = error.message;
         if (error.code == 'ECONNREFUSED') {
           msg = 'LINK service offline or unreachable';
@@ -293,6 +322,7 @@ app.route('/config/:configPath')
         res.status(500).json({error: "RTX-LINK Error :: " + msg + " - Server status is " + link_monitor.status});
       }
       else {
+        _logLine('POST ' + configKey + ' --> ' + response.statusCode);
         res.status(response.statusCode).send(body);
       }
     }); // request
@@ -304,7 +334,7 @@ app.route('/config/:configPath')
 }); // POST
 
 // application -------------------------------------------------------------
-var myRoutes = ['main','source','destination','analytics','options','run','dashboard','about'];
+var myRoutes = ['main','source','destination','analytics','options','run','dashboard','about','logs'];
 for (var i = 0, len = myRoutes.length; i < len; i++) {
   var r = myRoutes[i];
   var theRoute = '/' + r;
@@ -315,15 +345,15 @@ app.use('/', [auth, express.static(__dirname + '/public')]);
 
 // listen (start app with node server.js) ======================================
 var server = app.listen(8585);
-console.log("App listening on port 8585");
+_logLine("App listening on port 8585");
 
 
 
 var gracefulShutdown = function() {
-  console.log("Received kill signal, shutting down gracefully.");
+  _logLine("Received kill signal, shutting down gracefully.");
   link_monitor.stop();
   server.close(function() {
-    console.log("Closed out remaining connections.");
+    _logLine("Closed out remaining connections.");
     process.exit();
   });
 
