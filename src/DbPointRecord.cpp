@@ -118,8 +118,6 @@ void DbPointRecord::setReadonly(bool readOnly) {
  
 ******/
 bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Units units) {
-  std::lock_guard<std::mutex> lock(_db_pr_mtx);
-  
   if (name.length() == 0) {
     return false;
   }
@@ -127,12 +125,13 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
   bool nameExists = false;
   bool unitsMatch = false;
   Units existingUnits = RTX_NO_UNITS;
+  auto match = this->identifiersAndUnits().doesHaveIdUnits(name,units);
+  std::lock_guard<std::mutex> lock(_db_pr_mtx);
   
   if (!checkConnected()) {
     return DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
   }
-    
-  auto match = this->identifiersAndUnits().doesHaveIdUnits(name,units);
+  
   nameExists = match.first;
   unitsMatch = match.second;
   
@@ -199,7 +198,7 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
 
 
 IdentifierUnitsList DbPointRecord::identifiersAndUnits() {
-  
+  std::lock_guard<std::mutex> lock(_db_pr_mtx);
   time_t now = time(NULL);
   time_t stale = now - _lastIdRequest;
   _lastIdRequest = now;
