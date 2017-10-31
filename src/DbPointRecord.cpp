@@ -201,7 +201,6 @@ IdentifierUnitsList DbPointRecord::identifiersAndUnits() {
   std::lock_guard<std::mutex> lock(_db_pr_mtx);
   time_t now = time(NULL);
   time_t stale = now - _lastIdRequest;
-  _lastIdRequest = now;
   
   if (stale < 5 && !_identifiersAndUnitsCache.get()->empty()) {
     return _identifiersAndUnitsCache;
@@ -209,6 +208,7 @@ IdentifierUnitsList DbPointRecord::identifiersAndUnits() {
   
   if (checkConnected()) {
     _identifiersAndUnitsCache = _adapter->idUnitsList();
+    _lastIdRequest = time(NULL);
   }
   return _identifiersAndUnitsCache;
 }

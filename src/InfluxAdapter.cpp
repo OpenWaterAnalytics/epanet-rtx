@@ -425,6 +425,8 @@ void InfluxTcpAdapter::doConnect() {
   _connected = true;
   _errCallback("OK");
   
+  cout << "influx connector: " << this->conn.db << " connected? " << (_connected ? "yes" : "NO") << EOL << flush;
+  
   return;
 
 }
@@ -461,8 +463,6 @@ IdentifierUnitsList InfluxTcpAdapter::idUnitsList() {
     return _idCache;
   }
   _RTX_DB_SCOPED_LOCK;
-  
-  
   
   uri uri = uriForQuery(kSHOW_SERIES, false);
   jsValue jsv = __jsonFromRequest(uri,methods::GET,this->conn.validate,_errCallback);
@@ -700,11 +700,14 @@ void InfluxTcpAdapter::sendPointsWithString(const std::string& content) {
       req.headers().add("Content-Encoding", "gzip");
       http_response r = client.request(req).get();
       auto status = r.status_code();
-      if (status == status_codes::NoContent) {
-        // no content. this is fine.
-      }
-      else if (status != status_codes::OK) {
-        DebugLog << "send points to influx: POST returned " << r.status_code() << " - " << r.reason_phrase() << EOL;
+      switch (status) {
+        case status_codes::NoContent:
+        case status_codes::OK:
+          // fine.
+          break;
+        default:
+          DebugLog << "send points to influx: POST returned " << r.status_code() << " - " << r.reason_phrase() << EOL;
+          break;
       }
     } catch (std::exception &e) {
       cerr << "exception POST: " << e.what() << endl;
@@ -781,6 +784,7 @@ jsValue __jsonFromRequest(uri uri, method withMethod, bool validate_ssl, std::fu
     if (getFn()) {
       return js;
     }
+    cout << "INFLUX query was not successful. I will try again..." << EOL;
   }
   
   return js;

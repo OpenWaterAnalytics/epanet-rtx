@@ -69,7 +69,6 @@ void TimeSeriesDuplicator::_refreshDestinations() {
 }
 
 
-
 void TimeSeriesDuplicator::catchUpAndRun(time_t fetchWindow, time_t frequency, time_t backfill, time_t lag, time_t chunkSize, time_t rateLimit) {
   boost::thread t(&TimeSeriesDuplicator::_catchupLoop, this, fetchWindow, frequency, backfill, lag, chunkSize, rateLimit);
   _dupeBackground.swap(t);
@@ -83,7 +82,6 @@ void TimeSeriesDuplicator::_catchupLoop(time_t fetchWindow, time_t frequency, ti
     return;
   }
   this->_dupeLoop(fetchWindow, frequency, lag);
-  
 }
 
 void TimeSeriesDuplicator::run(time_t fetchWindow, time_t frequency, time_t lag) {
@@ -106,8 +104,6 @@ void TimeSeriesDuplicator::_dupeLoop(time_t win, time_t freq, time_t lag) {
     this->_logLine("invalid window or frequency",RTX_DUPLICATOR_LOGLEVEL_INFO);
     return;
   }
-  
-  
   
   time_t nextFetch = time(NULL) - lag;
   

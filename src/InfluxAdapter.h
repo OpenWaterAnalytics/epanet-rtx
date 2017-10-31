@@ -53,6 +53,7 @@ namespace RTX {
     
     std::vector<std::string> insertionLinesFromPoints(const std::string& tsName, std::vector<Point> points);
     std::string influxIdForTsId(const std::string& id);
+    
     std::vector<std::string> _transactionLines;
     IdentifierUnitsList _idCache;
     bool _inTransaction;

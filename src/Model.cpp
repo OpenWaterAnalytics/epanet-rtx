@@ -916,8 +916,15 @@ double Model::initialUniformQuality() {
   return _initialQuality;
 }
 
-void Model::setInitialJunctionQualityFromHotStart(time_t time) {
+void Model::setInitialQualityConditionsFromHotStart(time_t time) {
   // assumes that any junction worth considering has a record with simulated results.
+  
+//  auto r = this->junctions().front()->quality()->record();
+//  auto dbRec = dynamic_pointer_cast<DbPointRecord>(r);
+//  if (dbRec) {
+//    dbRec->willQuery(TimeRange(time - 1, time + 1));
+//  }
+//  
   for (auto &j : this->junctions()) {
     Point p = j->quality()->pointAtOrBefore(time);
     if (p.isValid) {
@@ -935,7 +942,6 @@ void Model::setInitialJunctionQualityFromHotStart(time_t time) {
   }
   
   this->applyInitialQuality();
-  
 }
 
 void Model::setInitialJunctionUniformQuality(double qual) {

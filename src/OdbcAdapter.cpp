@@ -1,7 +1,5 @@
 #include "OdbcAdapter.h"
 
-
-
 using namespace std;
 using namespace RTX;
 
@@ -9,7 +7,6 @@ using boost::local_time::posix_time_zone;
 using boost::local_time::time_zone_ptr;
 
 const time_t _rtx_odbc_connect_timeout(5);
-
 
 #define RTX_ODBC_MAX_RETRY 5
 
@@ -54,9 +51,6 @@ SQLRETURN __SQL_CHECK(SQLRETURN retVal, string function, SQLHANDLE handle, SQLSM
   }
   return retVal;
 }
-
-
-
 
 
 OdbcAdapter::OdbcAdapter( errCallback_t cb ) : DbAdapter(cb) {
