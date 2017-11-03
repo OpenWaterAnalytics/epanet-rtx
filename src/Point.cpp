@@ -26,6 +26,9 @@ Point::Point(time_t t, double v, PointQuality q, double c) : time(t),value(v),qu
     isValid = false;
     quality = (PointQuality::opc_bad);
   }
+  if (this->hasQual(opc_bad)) {
+    this->isValid = false;
+  }
 }
 
 Point::~Point() {
@@ -33,6 +36,11 @@ Point::~Point() {
 }
 
 const bool Point::hasQual(PointQuality qual) const {
+  
+  if (this->quality <= 0b00111111 && qual == opc_bad) {
+    return true; // has "bad" flag - ie, 2 highest bits are '00'
+  }
+  
   return (this->quality & qual) || (this->quality == qual);
 }
 
