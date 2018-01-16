@@ -219,6 +219,21 @@ bool TimeSeries::hasUpstreamSeries(TimeSeries::_sp other) {
 }
 
 
+void TimeSeries::filterDidAddSource(TimeSeriesFilter::_sp filter) {
+  _sinks.insert(filter);
+}
+void TimeSeries::filterDidRemoveSource(TimeSeriesFilter::_sp filter) {
+  _sinks.erase(filter);
+}
+bool TimeSeries::isSink(TimeSeriesFilter::_sp filter) {
+  return _sinks.count(filter) > 0;
+}
+std::set<TimeSeriesFilter::_sp> TimeSeries::sinks() {
+  return _sinks;
+}
+
+
+
 #pragma mark Protected Methods
 
 std::ostream& TimeSeries::toStream(std::ostream &stream) {

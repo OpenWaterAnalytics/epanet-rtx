@@ -16,8 +16,8 @@ using pvRange = PointCollection::pvRange;
 
 
 BaseStatsTimeSeries::BaseStatsTimeSeries() {
-  Clock::_sp window(new Clock(60));
-  _window = window;
+//  Clock::_sp window(new Clock(60));
+//  _window = window;
   _summaryOnly = true;
   _samplingMode = StatsSamplingModeLagging;
 }

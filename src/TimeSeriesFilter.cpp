@@ -57,10 +57,14 @@ void TimeSeriesFilter::setSource(TimeSeries::_sp ts) {
   if (ts && !this->canSetSource(ts)) {
     return;
   }
+  if (_source) {
+    _source->filterDidRemoveSource(share_me(this));
+  }
   _source = ts;
   if (ts) {
     this->invalidate();
     this->didSetSource(ts);
+    ts->filterDidAddSource(share_me(this));
   }
 }
 
@@ -419,6 +423,7 @@ bool TimeSeriesFilter::canChangeToUnits(Units units) {
   
   return canChange;
 }
+
 
 TimeSeries::_sp TimeSeriesFilter::rootTimeSeries() {
   TimeSeries::_sp source = this->source();

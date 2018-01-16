@@ -9,7 +9,6 @@
 #include <iostream>
 #include <stdlib.h>
 
-#include <boost/foreach.hpp>
 #include <boost/random.hpp>
 
 #include "Point.h"

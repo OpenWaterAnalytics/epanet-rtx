@@ -305,16 +305,15 @@ std::vector<Point> OdbcAdapter::selectRange(const std::string& id, TimeRange ran
         fetchSuccess = true;
         points = this->pointsFromStatement(rangeStmt);
       }
+      if(!fetchSuccess) {
+        cerr << __extract_error("SQLExecDirect", rangeStmt, SQL_HANDLE_STMT) << endl;
+        cerr << "query did not succeed: " << q << endl;
+      }
       SQLFreeStmt(rangeStmt, SQL_CLOSE);
       SQLFreeHandle(SQL_HANDLE_STMT, rangeStmt);
     }
     
     if(!fetchSuccess) {
-      {
-        _RTX_DB_SCOPED_LOCK;
-        cerr << __extract_error("SQLExecDirect", rangeStmt, SQL_HANDLE_STMT) << endl;
-        cerr << "query did not succeed: " << q << endl;
-      }
       // do something more intelligent here. re-check connection?
       this->doConnect();
     }

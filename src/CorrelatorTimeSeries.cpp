@@ -26,8 +26,8 @@ using namespace std;
 
 
 CorrelatorTimeSeries::CorrelatorTimeSeries() {
-  Clock::_sp c( new Clock(3600) );
-  _corWindow = c;
+//  Clock::_sp c( new Clock(3600) );
+//  _corWindow = c;
   _lagSeconds = 0;
   this->setUnits(RTX_DIMENSIONLESS);
 }

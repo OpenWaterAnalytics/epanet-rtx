@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include "TimeSeries.h"
+#include <set>
 
 namespace RTX {
   
@@ -99,6 +100,7 @@ namespace RTX {
     
     virtual bool hasUpstreamSeries(TimeSeries::_sp ts);
     
+    
     // chainable
     TimeSeriesFilter::_sp resample(ResampleMode mode) {this->setResampleMode(mode); return share_me(this);};
     TimeSeriesFilter::_sp source(TimeSeries::_sp source) {this->setSource(source); return share_me(this);};
@@ -107,6 +109,8 @@ namespace RTX {
     TimeSeries::_sp _source;
     Clock::_sp _clock;
     ResampleMode _resampleMode;
+    
+    std::set<TimeSeriesFilter::_sp> _sinks;
     
   };
 }

@@ -15,9 +15,7 @@ using namespace RTX;
 using namespace std;
 
 TimeSeriesSynthetic::TimeSeriesSynthetic() {
-  Clock::_sp reg( new Clock(3600) );
-  reg->setName("RTX CONSTANT 3600s");
-  this->setClock(reg);
+  
 }
 
 Clock::_sp TimeSeriesSynthetic::clock() {

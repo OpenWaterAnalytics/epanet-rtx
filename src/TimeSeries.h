@@ -51,7 +51,8 @@ namespace RTX {
    \sa Point
    */
   
-  
+  class TimeSeriesFilter;
+  typedef std::shared_ptr<TimeSeriesFilter> TimeSeriesFilter_sp;
   
   
   class TimeSeries : public RTX_object {
@@ -102,6 +103,11 @@ namespace RTX {
     
     virtual bool hasUpstreamSeries(TimeSeries::_sp other);
     
+    virtual void filterDidAddSource(TimeSeriesFilter_sp filter);
+    virtual void filterDidRemoveSource(TimeSeriesFilter_sp filter);
+    virtual bool isSink(TimeSeriesFilter_sp filter);
+    std::set<TimeSeriesFilter_sp> sinks();
+    
     // chainable
     TimeSeries::_sp units(Units u) {this->setUnits(u); return this->sp();};
     TimeSeries::_sp c(Clock::_sp c) {this->setClock(c); return this->sp();};
@@ -125,6 +131,7 @@ namespace RTX {
     Units _units;
     std::pair<time_t, time_t> _validTimeRange;
     time_t _expectedPeriod;
+    std::set<TimeSeriesFilter_sp> _sinks; 
   
   };
 
