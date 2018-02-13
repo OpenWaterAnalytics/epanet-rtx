@@ -22,6 +22,7 @@
 
 
 #include "TimeSeries.h"
+#include "TimeSeriesFilter.h"
 #include "ConcreteDbRecords.h"
 
 #include "LinkJsonSerialization.hpp"
@@ -69,7 +70,8 @@ namespace RTX {
 
     http_listener _listener;
     
-    std::vector<RTX::TimeSeries::_sp> _tsList;
+    std::vector<RTX::TimeSeries::_sp> _sourceSeries;
+    std::vector<RTX::TimeSeriesFilter::_sp> _destinationSeries;
         
     TimeSeriesDuplicator _duplicator;
     PointRecord::_sp _sourceRecord, _destinationRecord;

@@ -16,6 +16,9 @@ using namespace utility;
 using namespace http::experimental::listener;
 using JSV = json::value;
 
+
+static string kRenameKey = "rename_to";
+
 void _link_callback(LinkService* svc, const std::string& msg);
 void _link_callback(LinkService* svc, const std::string& msg) {
   string myLine(msg);
@@ -169,9 +172,8 @@ void LinkService::_get_timeseries(http_request message) {
   
   auto tsList = _duplicator.series();
   vector<RTX_object::_sp> tsVec;
-  for (auto ts : tsList) {
-    tsVec.push_back(ts);
-  }
+  tsVec.reserve(tsList.size());
+  std::copy(std::begin(tsList), std::end(tsList), std::back_inserter(tsVec));
   
   json::value v = SerializerJson::to_json(tsVec);
   _link_respond(message, v);
@@ -358,22 +360,30 @@ http_response LinkService::_post_timeseries(JSV js) {
 //  cout << "=====================================\n";
 //  cout << "== SETTING TIMESERIES\n";
   
+  _sourceSeries.clear();
+  _destinationSeries.clear();
+  
   if (js.is_array()) {
-    vector<RTX_object::_sp> oList;
-    try {
-      oList = DeserializerJson::from_json_array(js);
+    for (auto jsts : js.as_array()) {
+      RTX_object::_sp o = DeserializerJson::from_json(jsts);
+      if (o) {
+        TimeSeries::_sp ts = static_pointer_cast<TimeSeries>(o);
+        ts->setRecord(_sourceRecord); // no record set by client. set it here.
+        _sourceSeries.push_back(ts);
+        
+        TimeSeriesFilter::_sp filter(new TimeSeriesFilter);
+        filter->source(ts)->units(ts->units());
+        if (jsts.has_field(kRenameKey)) {
+          string newName = jsts[kRenameKey].as_string();
+          filter->name(newName);
+        }
+        else {
+          filter->name(ts->name());
+        }
+        
+        _destinationSeries.push_back(filter);
+      }
     }
-    catch (const web::json::json_exception &e) {
-      cerr << e.what() << endl;
-      return _link_error_response(status_codes::NotAcceptable, "Invalid: " + string(e.what()));
-    }
-    _tsList.clear();
-    for (auto o : oList) {
-      TimeSeries::_sp ts = static_pointer_cast<TimeSeries>(o);
-      ts->setRecord(_sourceRecord); // no record set by client. set it here.
-      _tsList.push_back(ts);
-    }
-    this->setDuplicatorSeries();
     r = _link_empty_response();
   }
   else {
