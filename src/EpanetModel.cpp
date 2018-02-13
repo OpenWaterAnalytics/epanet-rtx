@@ -64,7 +64,7 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   
   try {
     // set up temp path for report file so EPANET does not mess with stdout buffer
-    boost::filesystem::path rptPath = boost::filesystem::temp_directory_path();
+    boost::filesystem::path rptPath = boost::filesystem::current_path();
     rptPath /= "en_report.txt";
     
     EN_API_CHECK( EN_open((char*)filename.c_str(), &_enModel, (char*)rptPath.c_str(), (char*)""), "EN_open" );
