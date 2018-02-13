@@ -12,6 +12,7 @@
 
 #include <LagTimeSeries.h>
 #include "PointRecordTime.h"
+#include "AggregatorTimeSeries.h"
 
 using namespace std;
 using namespace RTX;
@@ -297,7 +298,10 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
     double totalBase = 0;
     // compute total demand
     for (auto junction: dma->junctions()) {
-      totalBase += junction->baseDemand();
+      if (!junction->boundaryFlow()) {
+        // baseDemand = 0 at demand boundaries, but ... make sure we ignore them
+        totalBase += junction->baseDemand();
+      }
     }
     // distribute the demand
     for (auto junction: dma->junctions()) {
@@ -325,8 +329,19 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
     
     TimeSeries::_sp demand;
     
-    if (_exportType == Snapshot) { 
-      demand = dma->demand();
+    if (_exportType == Snapshot) {
+      // dma pattern is D(t) - DM(t) where D(t) is the DMA demand,
+      // and DM(t) the total demand at measured boundaries.
+      // This requires that demand boundary base demands = 1
+      AggregatorTimeSeries::_sp d(new AggregatorTimeSeries);
+      d->addSource(dma->demand(), 1);
+      d->setName(dma->name());
+      for (auto j: dma->junctions()) {
+        if (j->boundaryFlow()) {
+          d->addSource(j->boundaryFlow(), -1);
+        }
+      }
+      demand = d;
     }
     else {
       auto d = dma->demand();
