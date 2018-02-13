@@ -156,6 +156,7 @@
 		22BECEFB1DEF2F8D00E7C4EC /* test_record.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BECEF21DEF27F100E7C4EC /* test_record.cpp */; };
 		22BECF001DEF31A100E7C4EC /* test_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BECEFF1DEF31A100E7C4EC /* test_main.cpp */; };
 		22C48B351F018D45008FC368 /* OpcAdapter.h in Headers */ = {isa = PBXBuildFile; fileRef = 22C48B331F018D45008FC368 /* OpcAdapter.h */; };
+		22D29AAE20320F04001A5270 /* AutoRunner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22D29AAC20320F04001A5270 /* AutoRunner.cpp */; };
 		22D8C1CE1C1A048300298C0C /* libboost_chrono-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1BF1C1A048300298C0C /* libboost_chrono-mt.a */; };
 		22D8C1CF1C1A048300298C0C /* libboost_date_time-mt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C01C1A048300298C0C /* libboost_date_time-mt.a */; };
 		22D8C1D01C1A048300298C0C /* libboost_date_time.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C11C1A048300298C0C /* libboost_date_time.a */; };
@@ -569,6 +570,8 @@
 		22CF1C271A68094300161188 /* TimeSeriesFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesFilter.cpp; path = ../../src/TimeSeriesFilter.cpp; sourceTree = "<group>"; };
 		22CF1C281A68094300161188 /* TimeSeriesFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeSeriesFilter.h; path = ../../src/TimeSeriesFilter.h; sourceTree = "<group>"; };
 		22CF1C3B1A6842DC00161188 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		22D29AAC20320F04001A5270 /* AutoRunner.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AutoRunner.cpp; sourceTree = "<group>"; };
+		22D29AAD20320F04001A5270 /* AutoRunner.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AutoRunner.hpp; sourceTree = "<group>"; };
 		22D4D32118F8298300DA1648 /* readConfigTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = readConfigTest; sourceTree = BUILT_PRODUCTS_DIR; };
 		22D570131D6741B000C25997 /* libboost_iostreams.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_iostreams.a; path = /usr/local/com.citilogics.dev/lib/libboost_iostreams.a; sourceTree = "<absolute>"; };
 		22D8C1BF1C1A048300298C0C /* libboost_chrono-mt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libboost_chrono-mt.a"; path = "/usr/local/com.citilogics.dev/lib/libboost_chrono-mt.a"; sourceTree = "<absolute>"; };
@@ -795,6 +798,8 @@
 				221F07311E36A54300813EA6 /* LinkService.cpp */,
 				221F07321E36A54300813EA6 /* LinkService.hpp */,
 				221F07331E36A54300813EA6 /* main.cpp */,
+				22D29AAD20320F04001A5270 /* AutoRunner.hpp */,
+				22D29AAC20320F04001A5270 /* AutoRunner.cpp */,
 			);
 			name = LINK_SERVICE;
 			path = ../../examples/LINK/service;
@@ -1795,6 +1800,7 @@
 			files = (
 				221F07341E36A54300813EA6 /* LinkJsonSerialization.cpp in Sources */,
 				221F07351E36A54300813EA6 /* LinkService.cpp in Sources */,
+				22D29AAE20320F04001A5270 /* AutoRunner.cpp in Sources */,
 				221F07361E36A54300813EA6 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
