@@ -112,12 +112,20 @@ void Junction::setHeadMeasure(TimeSeries::_sp headMeas) {
   
   // pressure depends on elevation --> head = mx(pressure) + elev
   GainTimeSeries::_sp gainTs( new GainTimeSeries() );
-  gainTs->setUnits(RTX_PASCAL);
-  gainTs->setGainUnits( RTX_PASCAL / RTX_METER);
-  gainTs->setGain(9804.13943198467193);
+  if ( this->head()->units() == RTX_METER || this->head()->units() == RTX_CENTIMETER ) {
+    gainTs->setUnits(RTX_KILOPASCAL);
+    gainTs->setGainUnits( RTX_KILOPASCAL / RTX_METER);
+    gainTs->setGain(9.80413943198467193);
+  }
+  else {
+    gainTs->setUnits(RTX_PSI);
+    gainTs->setGainUnits( RTX_PSI / RTX_FOOT);
+    gainTs->setGain(1.0/2.30665873688);
+  }
+
   gainTs->setSource(relativeHead);
   gainTs->setName(this->name() + " pressure measure");
-  
+
   _pressureMeasure = gainTs;
 }
 TimeSeries::_sp Junction::headMeasure() {
