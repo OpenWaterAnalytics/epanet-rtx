@@ -12,6 +12,7 @@
 #include "OffsetTimeSeries.h"
 #include "GainTimeSeries.h"
 
+using namespace std;
 using namespace RTX;
 
 Junction::Junction(const std::string& name) : Node(name) {
@@ -98,8 +99,11 @@ void Junction::setHeadMeasure(TimeSeries::_sp headMeas) {
   if (headMeas == NULL || !headMeas) {
     _headMeasure = TimeSeries::_sp();
     _pressureMeasure = TimeSeries::_sp();
+    DebugLog << "removing head measure: " << this->name() << EOL;
+    return;
   }
   else if ( !(headMeas->units().isSameDimensionAs(RTX_METER)) ) {
+    DebugLog << "removing head measure: " << this->name() << EOL;
     return;
   }
   
@@ -110,23 +114,39 @@ void Junction::setHeadMeasure(TimeSeries::_sp headMeas) {
   relativeHead->setOffset(this->elevation() * -1.);
   relativeHead->setSource(headMeas);
   
+  auto pUnits = (this->head()->units() == RTX_METER) ? RTX_KILOPASCAL : RTX_PSI;
+  
   // pressure depends on elevation --> head = mx(pressure) + elev
   GainTimeSeries::_sp gainTs( new GainTimeSeries() );
-  if ( this->head()->units() == RTX_METER || this->head()->units() == RTX_CENTIMETER ) {
-    gainTs->setUnits(RTX_KILOPASCAL);
-    gainTs->setGainUnits( RTX_KILOPASCAL / RTX_METER);
-    gainTs->setGain(9.80413943198467193);
-  }
-  else {
-    gainTs->setUnits(RTX_PSI);
-    gainTs->setGainUnits( RTX_PSI / RTX_FOOT);
-    gainTs->setGain(1.0/2.30665873688);
-  }
-
-  gainTs->setSource(relativeHead);
-  gainTs->setName(this->name() + " pressure measure");
-
+  gainTs
+    ->gain(1.0)
+    ->gainUnits(Units::unitOfType("psi-per-ft"))
+    ->source(relativeHead)
+    ->units(pUnits)
+    ->name(this->name() + " pressure measure");
+  
   _pressureMeasure = gainTs;
+  
+  DebugLog << "Setting head measure for: " << this->name() << " -> Units: " << this->head()->units().to_string() <<
+    " -> Elev: " << this->elevation() << EOL;
+  DebugLog << "Head series: " << headMeas->name() << " -> Units: " << headMeas->units().to_string() <<  EOL;
+  DebugLog << "Pres series: " << gainTs->name() << " -> Units: " << gainTs->units().to_string() <<  EOL;
+
+  // deprecated because we don't trust hard-coded units conversions
+  // outside of the Units class!
+//  if ( this->head()->units() == RTX_METER || this->head()->units() == RTX_CENTIMETER ) {
+//    gainTs->setUnits(RTX_KILOPASCAL);
+//    gainTs->setGainUnits( RTX_KILOPASCAL / RTX_METER);
+//    gainTs->setGain(9.80413943198467193);
+//  }
+//  else {
+//    gainTs->setUnits(RTX_PSI);
+//    gainTs->setGainUnits( RTX_PSI / RTX_FOOT);
+//    gainTs->setGain(1.0/2.30665873688);
+//  }
+
+
+  
 }
 TimeSeries::_sp Junction::headMeasure() {
   return _headMeasure;
@@ -145,10 +165,11 @@ void Junction::setPressureMeasure(TimeSeries::_sp pressure) {
   _pressureMeasure = pressure;
   // pressure depends on elevation --> head = mx(pressure) + elev
   GainTimeSeries::_sp gainTs( new GainTimeSeries() );
-  gainTs->setUnits(this->head()->units());
-  gainTs->setGainUnits( RTX_METER / RTX_PASCAL );
-  gainTs->setGain(0.0001019977334);
-  gainTs->setSource(pressure);
+  gainTs
+    ->gain(1.0)
+    ->gainUnits(Units::unitOfType("ft-per-psi"))
+    ->source(pressure)
+    ->units(this->head()->units());
   
   OffsetTimeSeries::_sp headMeas( new OffsetTimeSeries() );
   headMeas->setUnits(this->head()->units());

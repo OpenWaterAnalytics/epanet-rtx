@@ -188,6 +188,16 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
     v->valveType = (int)type;
   }
   
+  // consistency checking (should add more)
+  for(Node::_sp n : this->nodes()) {
+    double elev;
+    auto en_idx = _nodeIndex[n->name()];
+    EN_getnodevalue(_enModel, en_idx, EN_ELEVATION, &elev);
+    if (elev != n->elevation()) {
+      cout << 'ERROR: Database elevation inconsistent with model' << EOL;
+      exit(1);
+    }
+  }
   
   // copy my comments into the model
   for(Node::_sp n : this->nodes()) {
