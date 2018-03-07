@@ -85,6 +85,9 @@ namespace RTX {
     virtual std::string name();
     virtual void setName(const std::string& name);
     
+    std::string userDescription();
+    void setUserDescription(const std::string& desc);
+    
     virtual PointRecord::_sp record();
     virtual void setRecord(PointRecord::_sp record);
     
@@ -112,6 +115,7 @@ namespace RTX {
     TimeSeries::_sp units(Units u) {this->setUnits(u); return this->sp();};
     TimeSeries::_sp c(Clock::_sp c) {this->setClock(c); return this->sp();};
     TimeSeries::_sp name(const std::string& n) {this->setName(n); return share_me(this);};
+    TimeSeries::_sp userDescription(const std::string& d) {this->setUserDescription(d); return share_me(this);};
     TimeSeries::_sp record(PointRecord::_sp record) {this->setRecord(record); return share_me(this);};
     
     template<class T>
@@ -127,7 +131,7 @@ namespace RTX {
     
   private:
     PointRecord::_sp _points;
-    std::string _name;
+    std::string _name, _userDescription;
     Units _units;
     std::pair<time_t, time_t> _validTimeRange;
     time_t _expectedPeriod;

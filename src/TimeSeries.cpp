@@ -60,6 +60,15 @@ std::string TimeSeries::name() {
   return _name;
 }
 
+
+std::string TimeSeries::userDescription() {
+  return _userDescription;
+}
+
+void TimeSeries::setUserDescription(const std::string& desc) {
+  _userDescription = desc;
+}
+
 void TimeSeries::insert(Point thisPoint) {
   _points->addPoint(name(), thisPoint);
 }
