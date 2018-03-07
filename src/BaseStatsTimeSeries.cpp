@@ -55,7 +55,7 @@ BaseStatsTimeSeries::StatsSamplingMode_t BaseStatsTimeSeries::samplingMode() {
 BaseStatsTimeSeries::rangeGroup BaseStatsTimeSeries::subRanges(set<time_t> times) {
   rangeGroup group;
     
-  if (times.size() == 0) {
+  if (times.size() == 0 || !this->window()) {
     return group;
   }
   
