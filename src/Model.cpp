@@ -694,16 +694,13 @@ bool Model::solveAndSaveOutputAtTime(time_t simulationTime) {
   Point convergenceStatus(simulationTime, (double)success);
   _convergence->insert(convergenceStatus);
   
-  _heartbeat->insert(Point(simulationTime,1.0));
-  
-  // get the record(s) being used
-  set<PointRecord::_sp> stateRecordsUsed = this->recordsForModeledStates();
   
   if (success) {
+    // get the record(s) being used
+    set<PointRecord::_sp> stateRecordsUsed = this->recordsForModeledStates();
     
     // tell each element to update its derived states (simulation-computed values)
     if (!_simReportClock || _simReportClock->isValid(simulationTime)) {
-      
       // move short-term states into timeseries, and do so concurrently:
       if (true) {
         // c++11 futures
@@ -919,12 +916,12 @@ double Model::initialUniformQuality() {
 void Model::setInitialQualityConditionsFromHotStart(time_t time) {
   // assumes that any junction worth considering has a record with simulated results.
   
-//  auto r = this->junctions().front()->quality()->record();
-//  auto dbRec = dynamic_pointer_cast<DbPointRecord>(r);
-//  if (dbRec) {
-//    dbRec->willQuery(TimeRange(time - 1, time + 1));
-//  }
-//  
+  auto r = this->junctions().front()->quality()->record();
+  auto dbRec = dynamic_pointer_cast<DbPointRecord>(r);
+  if (dbRec) {
+    dbRec->willQuery(TimeRange(time - 1, time + 1));
+  }
+  
   for (auto &j : this->junctions()) {
     Point p = j->quality()->pointAtOrBefore(time);
     if (p.isValid) {
@@ -1477,6 +1474,9 @@ void Model::saveNetworkStates(time_t time, std::set<PointRecord::_sp> bulkRecord
   for(PointRecord::_sp r : bulkRecords) {
     r->endBulkOperation();
   }
+  
+  // beating heart just after everything else is done.
+  _heartbeat->insert(Point(time,1.0));
   
   DebugLog << "******* finished saving states ********" << EOL << flush;
 }

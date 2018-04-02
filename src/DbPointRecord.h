@@ -55,8 +55,6 @@ namespace RTX {
     void reset();
     void reset(const string& id);
     
-    
-    
     // db-only methods
     std::string errorMessage;
     std::string connectionString();

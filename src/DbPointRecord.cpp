@@ -202,7 +202,7 @@ IdentifierUnitsList DbPointRecord::identifiersAndUnits() {
   time_t now = time(NULL);
   time_t stale = now - _lastIdRequest;
   
-  if (stale < 5 && !_identifiersAndUnitsCache.get()->empty()) {
+  if ((stale < 5 || _adapter->inTransaction()) && !_identifiersAndUnitsCache.get()->empty()) {
     return _identifiersAndUnitsCache;
   }
   
