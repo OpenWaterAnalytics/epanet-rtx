@@ -1,0 +1,93 @@
+<:Head>
+	<title>Configuration</title>
+</:Head>
+
+<Layout page='config'>
+	<h1>Configuration</h1>
+	<div>
+		<a download="config.json" href="/api/config?pretty=true">download</a>
+	</div>
+	<div>
+		<textarea class="configInput" name="myTextBox" cols="50" rows="20" bind:value='configString'></textarea>
+	</div>
+	<div>
+		<button type="submit" on:click="sendJson()">Update</button>
+	</div>
+</Layout>
+
+<style>
+.configInput {
+	font-family: monospace;
+}
+</style>
+
+<script>
+import { goto } from 'sapper/runtime.js';
+import Layout from './_components/Layout.html';
+import _ from 'underscore';
+
+const fetchOpts = {headers: {}, credentials: 'include'};
+
+const postOpts = {
+	method: 'post',
+	headers: {'Content-Type': 'application/json'},
+	credentials: 'include'
+};
+
+export default {
+	components: {
+		Layout
+	},
+	data() {
+		return {
+
+		};
+	},
+	preload(req) {
+		let { params, query } = req;
+		let myFetchOpts = fetchOpts;
+		// forward any cookies to preserve session information
+		if (req.headers && req.headers.cookie) {
+			myFetchOpts.headers.cookie = req.headers.cookie;
+		}
+		// fetch some important data for the render...
+		return fetch('/api/config',myFetchOpts)
+		.then(r => r.json())
+		.then(config => {
+			console.log('preloaded config', config);
+			return {config};
+		});
+	},
+	oncreate() {
+		console.log('hello config app: ');
+	},
+	ondestroy() {
+
+	},
+	computed: {
+		configString: (config) => JSON.stringify(config, null, 2),
+	},
+	methods: {
+		sendJson() {
+			let myPostOpts = _.extend({body: this.get('configString')}, postOpts);
+			fetch('/api/config',myPostOpts)
+			.then(r => {
+				if (r.ok) {
+
+		    }
+				else {
+					r.json().then( err => {
+						alert(`${r.statusText}: ${err.error}`);
+					});
+
+				}
+			})
+			.catch(err => {
+				alert(err);
+			})
+		}
+
+
+	}
+};
+</script>

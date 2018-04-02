@@ -1,0 +1,342 @@
+<:Head>
+	<title>Source Definition</title>
+</:Head>
+
+<Layout page='source'>
+  <div class="alert alert-info" role="alert">
+    Set the type of source record, and configure it. This is how Link will access your Historian server.
+		<a href="" class="badge badge-pill badge-info" on:click='saveAndNext()'>Save &gt;</a>
+  </div>
+
+<!-- SOURCE SELECT -->
+<div id="series-select">
+    <div class="form-group pull-left">
+			<nav class="nav nav-pills nav-justified">
+				{{#each Object.keys(sourceTypes) as type}}
+  			<a class="nav-link {{sourceType == type ? 'active' : ''}}" href="#" on:click='setSourceType(event,type)'>{{rtxTypes[type]}}</a>
+				{{/each}}
+			</nav>
+    </div>
+
+    <form role="form" class='form-horizontal'>
+
+        <table class="table">
+            <tbody>
+              {{#each inputRows as row}}
+              <tr>
+                <th scope="row">{{row.text}}</th>
+                {{#if row.inputType == "text-line"}}
+                <td>
+                  <input type="text" class="form-control" bind:value='config.source[row.key]' data-toggle="tooltip" data-placement="top" title="{{row.helptext}}" />
+                </td>
+                {{/if}}
+                <td>
+                  {{#if row.inputType == "select-driver"}}
+                  <select class="form-control" bind:value='config.source[row.key]' data-toggle="tooltip" data-placement="top" title="{{row.helptext}}">
+                    {{#each drivers as driver}}
+                    <option value="{{driver}}">{{driver}}</option>
+                    {{/each}}
+                  </select>
+                  {{/if}}
+                  {{#if row.inputType == "select-zone"}}
+                  <select class="form-control" bind:value='config.source[row.key]' data-toggle="tooltip" data-placement="top" title="{{row.helptext}}">
+                    {{#each row.options as option}}
+                    <option value="{{option}}">{{option}}</option>
+                    {{/each}}
+                  </select>
+                  {{/if}}
+                  {{#if row.inputType == "text-area"}}
+                  <textarea class="form-control" rows="3" placeholder="{{row.placeholder}}" bind:value='config.source[row.key]' data-toggle="tooltip" data-placement="top" title="{{row.helptext}}">
+                  </textarea>
+                  {{/if}}
+                </td>
+              </tr>
+              {{/each}}
+            </tbody>
+        </table>
+				{{#if sourceType !== 'none'}}
+        <div class="input-group">
+            <button type="submit" class="btn btn-default" on:click='connect(event)'>Connect</button>
+        </div>
+				{{/if}}
+    </form>
+
+		<hr>
+
+
+		<div class="row">
+			<div class="col form-group">
+				<label for="seriesSelection">Available Series</label> <span><a download="series.csv" href="/api/source/series?format=csv">download list</a></span>
+				<OptionListView ref:all_series_list objects={{filteredSeries}} objKey="name" />
+				<input type="text" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="basic-addon1" bind:value=seriesSearch>
+			</div>
+			<div class="col-md-auto form-group">
+				<label for="selectionControl"></label>
+				<div class="list-group">
+					<a href="#" class="list-group-item list-group-item-action" on:click='addSeries(event)'>
+						&gt;
+					</a>
+					<a href="#" class="list-group-item list-group-item-action" on:click='removeSeries(event)'>
+						&lt;
+					</a>
+				</div>
+			</div>
+			<div class="col form-group">
+				<label for="seriesSelection">Selected Series</label><span><button id="drop">Upload CSV</button></span>
+				<OptionListView ref:user_series_list objects={{config.series}} objKey="name" on:change='reloadDetailViews()' />
+			</div>
+		</div>
+
+		{{#each detailViewObjects as o}}
+		<table>
+			<tr> <td>Name:</td>              <td>{{o.name}}</td>             </tr>
+			<tr> <td>Units:</td>             <td>{{o.units.unitString}}</td> </tr>
+			<tr> <td>Source Name:</td>       <td>{{o.renamed_from}}</td>        </tr>
+		</table>
+		<hr>
+		{{/each}}
+
+</div>
+
+</Layout>
+
+<style>
+
+
+</style>
+
+<script>
+	import { goto } from 'sapper/runtime.js';
+	import Layout from './_components/Layout.html';
+	import OptionListView from './_components/OptionListView.html';
+  import {sourceTypes,rtxTypes} from './_model/typeData.js';
+	import $ from "jquery";
+	import _ from 'underscore';
+
+  const fetchOpts = {headers: {}, credentials: 'include'};
+
+	const postOpts = {
+		method: 'post',
+		headers: {'Content-Type': 'application/json'},
+		credentials: 'include'
+	};
+
+	const alertHandler = (err) => {
+		alert(err);
+	};
+	const handleErrors = (response) => {
+    if (response.ok) {
+      return response;
+    }
+		else {
+    	throw Error(`${response.statusText} ${response.url}`);
+		}
+	};
+
+	export default {
+		components: {
+			Layout,
+			OptionListView
+		},
+    data () {
+      return {
+				sourceType: 'none',
+        sourceTypes,rtxTypes,
+				availableSeries: [],
+				seriesSearch: '',
+				detailViewObjects: [],
+      };
+	  },
+    oncreate () {
+			$('[data-toggle="tooltip"]').tooltip()
+
+			if (this.get('config').source._class) {
+				this.set({sourceType: this.get('config').source._class});
+			}
+
+			this.sourceTypeObserver = this.observe('sourceType', t => {
+				if (t == '') {
+					t = Object.keys(sourceTypes)[0];
+				}
+        let config = this.get('config');
+				config.source._class = t;
+				// set default values so they are not null
+				let thisSourceOpts = sourceTypes[this.get('config').source._class];
+				thisSourceOpts = thisSourceOpts ? thisSourceOpts : {inputRows:[]};
+				for (let row of thisSourceOpts.inputRows) {
+					if (config.source[row.key] == undefined) {
+						config.source[row.key] = '';
+						if (row.inputType == "select-driver") {
+							config.source[row.key] = this.get('drivers')[0];
+						}
+						if (row.inputType == "select-zone") {
+							config.source[row.key] = 'utc';
+						}
+					}
+
+				}
+				this.set({config});
+			});
+
+			var DropZone = require('dropzone');
+			require('dropzone/dist/dropzone.css');
+			DropZone.autoDiscover = false;
+
+			let dzOpts = {
+				url: '/api/series',
+				timeout: 180000,
+				acceptedFiles: '.csv'
+			};
+
+			this.dropZone = new DropZone("button#drop", dzOpts);
+			let dz = this.dropZone;
+			this.dropZone.handleFiles = function(files) {
+				var _this5 = this;
+				var files_array = [];
+				for (var i = 0; i < files.length; i++) {
+					files_array.push(files[i]);
+				}
+				return files_array.map(function(file) {
+					return _this5.addFile(file);
+				});
+			};
+			this.dropZone.on('success', (file, res) => {
+				console.log('dropzone response:', res);
+				this.refreshDuplicatorSeries();
+			});
+			this.dropZone.on("complete", function(file) {
+				dz.removeFile(file);
+			});
+			this.dropZone.on('error', function(file, errorMessage) {
+				alert(`Error uploading file: ${errorMessage}`);
+			});
+
+    },
+		ondestroy() {
+			this.sourceTypeObserver.cancel();
+		},
+    preload(req) {
+			let { params, query } = req;
+			let myFetchOpts = fetchOpts;
+			// forward any cookies to preserve session information
+			if (req.headers && req.headers.cookie) {
+				myFetchOpts.headers.cookie = req.headers.cookie;
+			}
+			// fetch some important data for the render...
+      return Promise
+			.all([
+				fetch('/api/config',myFetchOpts).then(handleErrors).then(r=>r.json()).catch(alertHandler),
+				fetch('/api/units',myFetchOpts).then(handleErrors).then(r=>r.json()).catch(alertHandler),
+				fetch('/api/odbc',myFetchOpts).then(handleErrors).then(r=>r.json()).catch(alertHandler)
+			])
+			.then(([config,availableUnits,drivers]) => {
+				availableUnits = availableUnits ? availableUnits : [];
+				drivers = drivers ? drivers : [];
+				return {config,availableUnits,drivers};
+			});
+    },
+		computed: {
+			availableSeriesNames: (availableSeries) => _.pluck(availableSeries,'name'),
+    	filteredSeries: (seriesSearch, availableSeries) => {
+      	if (seriesSearch == undefined || seriesSearch == "") {
+        	return availableSeries;
+      	}
+      	seriesSearch = seriesSearch.toLowerCase();
+      	return availableSeries.filter(s => s.name.toLowerCase().includes(seriesSearch));
+    	},
+			filteredSeriesNames: (filteredSeries) => _.pluck(filteredSeries, 'name'),
+      inputRows: (sourceType,sourceTypes) => {
+				let rows = [];
+				if (sourceType !== 'none') {
+					rows = sourceTypes[sourceType].inputRows;
+				}
+        return rows;
+      },
+			userSeriesNames: (config) => _.pluck(config.series, 'name'),
+    },
+    methods: {
+			popError(err) {
+				alert(err.error);
+			},
+      connect(event) {
+				event.preventDefault();
+				let s = this.get('config').source;
+				let myPostOpts = _.extend({body:JSON.stringify(s)},postOpts);
+        fetch('/api/source',myPostOpts)
+				.then(res=> {
+					if (res.status != 200) {
+						return res.json().then(j => Promise.reject(j));
+					}
+					else {
+						this.refreshSeriesList();
+					}
+				})
+				.catch(err => {
+					this.popError(err);
+				});
+      },
+			setSourceType(event, type) {
+				event.preventDefault();
+				this.set({sourceType:type});
+			},
+			refreshSeriesList() {
+				fetch('/api/source/series', fetchOpts)
+				.then(handleErrors)
+				.then(res=>res.json())
+				.then(availableSeries => {
+					this.set({availableSeries});
+				})
+				.catch(alertHandler);
+			},
+			refreshDuplicatorSeries() {
+				fetch('/api/series', fetchOpts)
+				.then(handleErrors)
+				.then(r => r.json())
+				.then(userSeries => {
+					let config = this.get('config');
+					config.series = userSeries;
+					this.set({config});
+				})
+				.catch(alertHandler);
+			},
+			reloadDetailViews() {
+				let detailViewObjects = this.refs.user_series_list.get('selectedObjects');
+				this.set({detailViewObjects});
+			},
+			addSeries: function(event) {
+				event.preventDefault()
+				let config = this.get('config');
+				let seriesToAdd = this.refs.all_series_list.get('selectedObjects');
+				seriesToAdd.forEach( e => {
+					// modify for filtering/renaming
+					_.extend(e, {
+						_class: 'filter',
+						renamed_from: e.name,
+					});
+					if (_.filter(config.series, (s) => s.name === e.name).length == 0) {
+						config.series.push(e);
+					}
+				});
+				this.set({config})
+			},
+			removeSeries: function(event) {
+				event.preventDefault();
+				let config = this.get('config');
+				var removeList = this.refs.user_series_list.get('selectedObjects');
+				config.series = config.series.filter(e => !removeList.includes(e));
+				this.set({detailViewObjects:[]});
+				this.set({config});
+			},
+      saveAndNext() {
+				let config = this.get('config');
+				let opts = _.extend({body:JSON.stringify(config)},postOpts);
+				fetch('/api/config', opts).then( res => {
+					return res.json();
+				}).then( resj => {
+					// if ok, then go to next step.
+					goto('/destination');
+				});
+      }
+    }
+	};
+</script>

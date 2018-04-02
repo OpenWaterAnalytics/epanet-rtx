@@ -10,9 +10,12 @@
 using namespace RTX;
 using namespace std;
 
+const auto shortTime = chrono::milliseconds(200);
+
 AutoRunner::AutoRunner() {
   _is_running_token = false;
   _cancellation_token = false;
+  _pct = 0;
   setLogging([](string msg){
     cout << msg << endl;
   }, RTX_AUTORUNNER_LOGLEVEL_VERBOSE);
@@ -37,6 +40,11 @@ void AutoRunner::setParams(bool smartQueries, int maxWindowSeconds, int frequenc
 
 void AutoRunner::run(time_t since) {
   
+  // avoid accidental LONG querys
+  if (since == 0) {
+    since = time(NULL);
+  }
+  
   for(auto &e : _series) {
     if (e.lastGood == 0) { // never fetched.
       e.lastGood = since;
@@ -57,6 +65,10 @@ bool AutoRunner::isRunning() {
   return _is_running_token ? true : false;
 }
 
+void AutoRunner::wait() {
+  _task.wait();
+}
+
 void AutoRunner::setLogging(std::function<void (std::string)> fn, int level) {
   _logFn = fn;
   _logLevel = level;
@@ -68,11 +80,27 @@ void AutoRunner::_log(std::string msg, int msgLevel) {
   }
 }
 
+double AutoRunner::pctCompleteFetch() {
+  return _pct;
+}
+
+void _throttleWait(int nSeconds);
+void _throttleWait(int nSeconds) {
+  // wait for throttling
+  if (nSeconds > 0) {
+    time_t last = time(NULL);
+    while (last + nSeconds > time(NULL)) {
+      this_thread::sleep_for(shortTime);
+    }
+  }
+}
+
 void AutoRunner::_runLoop(std::atomic_bool &cancel) {
   _is_running_token = true;
+  
   while (!cancel) {
     time_t tick = time(NULL);
-    
+    _pct = 0;
     for(auto &e : _series) {
       // might be doing a backfill,
       // if the last-good is older than window.
@@ -91,6 +119,7 @@ void AutoRunner::_runLoop(std::atomic_bool &cancel) {
         }
         e.series->points(TimeRange(e.lastGood, qEnd));
         e.lastGood = qEnd; // increment the backfill window
+        _throttleWait(_throttle);
       }
       
       // ok, now we are in "normal" querying mode.
@@ -107,23 +136,24 @@ void AutoRunner::_runLoop(std::atomic_bool &cancel) {
       }
       else {
         // dumb queries: each query is window-length long.
-        // this allows for some overlap (tunable parameter)
+        // this allows for some overlap (a tunable parameter)
         e.lastGood = (tick + _freq) - _window;
       }
       
+      _pct += (1.0 / _series.size()); 
       
+      _throttleWait(_throttle);
     } // for series
     
     // wait for another cycle? check often.
     while (!cancel && tick + _freq > time(NULL)) {
-      this_thread::sleep_for(chrono::milliseconds(200));
+      this_thread::sleep_for(shortTime);
     }
-    
   } // while !cancel
   
   _is_running_token = false;
   _cancellation_token = false;
-  
+  _pct = 0;
 }
 
 

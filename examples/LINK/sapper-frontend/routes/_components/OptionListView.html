@@ -1,0 +1,54 @@
+
+<select multiple class="form-control" bind:value='selectedObjectValues' on:change="notify()">
+	{{#each objValues as objVal}} <option>{{objVal}}</option> {{/each}}
+</select>
+
+<style>
+
+</style>
+
+
+<script>
+import _ from 'underscore';
+
+export default {
+	data () {
+		return {
+			'objects': [
+				'empty',
+			],
+			'selectedObjectValues': [],
+			'objKey': 'XXXSTUPIDMAGICKEYXXX',
+		};
+	},
+
+	oncreate () {
+		console.log('hello option list view');
+		console.log('objkey is ', this.get('objKey'));
+	},
+	computed: {
+		objValues: (objects,objKey) => {
+			if (objKey === 'XXXSTUPIDMAGICKEYXXX') {
+			 	return objects;
+			}
+			else {
+				return _.pluck(objects,objKey);
+			}
+		 },
+		selectedObjects: (objects, objValues, selectedObjectValues) => {
+			let objs = [];
+			for (let selected of selectedObjectValues) {
+				let idx = objValues.indexOf(selected);
+				objs.push(objects[idx]);
+			}
+			return objs;
+		}
+	},
+	methods: {
+		notify() {
+			this.fire('change', this.get('selectedObjects'));
+		}
+	},
+};
+
+</script>

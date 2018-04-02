@@ -225,10 +225,11 @@ void DeserializerJson::visit(TimeSeries& ts) {
 };
 void DeserializerJson::visit(TimeSeriesFilter& ts) {
   this->visit((TimeSeries&)ts);
-  _checkKeys(_v, {"clock"});  // throws if not found
-  JSV jsC = _v.as_object()["clock"];
-  Clock::_sp c = static_pointer_cast<Clock>(from_json(jsC));
-  ts.setClock(c);
+  if (_v.has_field("clock")) {
+    JSV jsC = _v.as_object()["clock"];
+    Clock::_sp c = static_pointer_cast<Clock>(from_json(jsC));
+    ts.setClock(c);
+  }
 };
 /******* UNITS *******/
 void DeserializerJson::visit(Units &u) {

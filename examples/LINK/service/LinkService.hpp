@@ -27,7 +27,7 @@
 
 #include "LinkJsonSerialization.hpp"
 
-#include "TimeSeriesDuplicator.h"
+#include "AutoRunner.hpp"
 
 using web::http::http_request;
 using web::http::http_response;
@@ -49,15 +49,15 @@ namespace RTX {
     void _post(http_request message);
     void _delete(http_request message);
     
-    void _get_ping(http_request message);
-    void _get_timeseries(http_request message);
-    void _get_runState(http_request message);
-    void _get_source(http_request message);
-    void _get_destination(http_request message);
-    void _get_odbc_drivers(http_request message);
-    void _get_units(http_request message);
-    void _get_options(http_request message);
-    void _get_config(http_request message);
+    http_response _get_ping(http_request message);
+    http_response _get_timeseries(http_request message);
+    http_response _get_runState(http_request message);
+    http_response _get_source(http_request message);
+    http_response _get_destination(http_request message);
+    http_response _get_odbc_drivers(http_request message);
+    http_response _get_units(http_request message);
+    http_response _get_options(http_request message);
+    http_response _get_config(http_request message);
     
     http_response _post_config(web::json::value json);
     http_response _post_timeseries(web::json::value json);
@@ -67,18 +67,26 @@ namespace RTX {
     http_response _post_destination(web::json::value json);
     http_response _post_analytics(web::json::value json);
     http_response _post_logmessage(web::json::value json);
+    
+    void refreshDestinationSeriesRecords();
 
     http_listener _listener;
     
     std::vector<RTX::TimeSeries::_sp> _sourceSeries;
     std::vector<RTX::TimeSeriesFilter::_sp> _destinationSeries;
+    std::map<RTX::TimeSeries::_sp, RTX::TimeSeriesFilter::_sp> _translation;
         
-    TimeSeriesDuplicator _duplicator;
-    PointRecord::_sp _sourceRecord, _destinationRecord;
+    AutoRunner _runner;
+    DbPointRecord::_sp _sourceRecord, _destinationRecord;
     
-    void runDuplication(time_t win, time_t freq, time_t backfill, time_t lag);
+    void runDuplication();
     void stopDuplication();
-    time_t _window, _frequency, _backfill, _lag;
+    
+    struct Options {
+      int window, frequency, backfill, throttle;
+      bool smart;
+    } _options;
+    
     boost::signals2::mutex _dupeMutex;
     std::vector<TimeSeries::_sp> _analytics;
     

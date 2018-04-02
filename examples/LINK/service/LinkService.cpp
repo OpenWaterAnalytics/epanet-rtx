@@ -17,7 +17,7 @@ using namespace http::experimental::listener;
 using JSV = json::value;
 
 
-static string kRenameKey = "rename_to";
+static string kFromNameKey = "renamed_from";
 
 void _link_callback(LinkService* svc, const std::string& msg);
 void _link_callback(LinkService* svc, const std::string& msg) {
@@ -60,11 +60,7 @@ LinkService::LinkService(uri uri) : _listener(uri) {
   _listener.support(methods::PUT,  std::bind(&LinkService::_put,    this, std::placeholders::_1));
   _listener.support(methods::POST, std::bind(&LinkService::_post,   this, std::placeholders::_1));
   _listener.support(methods::DEL,  std::bind(&LinkService::_delete, this, std::placeholders::_1));
-  
-  TimeSeriesDuplicator::RTX_Duplicator_log_callback cb = std::bind(&_link_callback, this, std::placeholders::_1);
-  
-  _duplicator.setLoggingFunction(cb);
-  _duplicator.logLevel = RTX_DUPLICATOR_LOGLEVEL_INFO;
+  _runner.setLogging(std::bind(&_link_callback, this, std::placeholders::_1), RTX_AUTORUNNER_LOGLEVEL_VERBOSE);
 }
 
 pplx::task<void> LinkService::open() {
@@ -89,7 +85,7 @@ void LinkService::_get(http_request message) {
   
   string entryPoint = paths[0];
   
-  const map< string, function<void(http_request)> > res = {
+  const map< string, function<http_response(http_request)> > responders = {
     {"ping",   std::bind(&LinkService::_get_ping,         this, std::placeholders::_1)},
     {"series", std::bind(&LinkService::_get_timeseries,   this, std::placeholders::_1)},
     {"run",    std::bind(&LinkService::_get_runState,     this, std::placeholders::_1)},
@@ -101,8 +97,9 @@ void LinkService::_get(http_request message) {
     {"config", std::bind(&LinkService::_get_config,       this, std::placeholders::_1)}
   };
   
-  if (res.count(entryPoint)) {
-    res.at(entryPoint)(message);
+  if (responders.count(entryPoint)) {
+    http_response response = responders.at(entryPoint)(message);
+    message.reply(response);
     return;
   }
   
@@ -162,32 +159,37 @@ void LinkService::_delete(http_request message) {
 
 #pragma mark - ping
 
-void LinkService::_get_ping(web::http::http_request message) {
-  message.reply(_link_empty_response(status_codes::NoContent));
+http_response LinkService::_get_ping(web::http::http_request message) {
+  return _link_empty_response(status_codes::NoContent);
 }
 
 #pragma mark - GET
 
-void LinkService::_get_timeseries(http_request message) {
+http_response LinkService::_get_timeseries(http_request message) {
   
-  auto tsList = _duplicator.series();
-  vector<RTX_object::_sp> tsVec;
-  tsVec.reserve(tsList.size());
-  std::copy(std::begin(tsList), std::end(tsList), std::back_inserter(tsVec));
-  
-  json::value v = SerializerJson::to_json(tsVec);
-  _link_respond(message, v);
-  return;
+  JSV v = JSV::array(_sourceSeries.size());
+  int i = 0;
+  for (auto src_obj : _sourceSeries) {
+    auto obj = _translation[src_obj];
+    auto e = SerializerJson::to_json(obj);
+    e[kFromNameKey] = JSV(obj->name());
+    v.as_array()[i] = e;
+    ++i;
+  }
+    
+  http_response response = _link_empty_response();
+  response.set_body(v);
+  return response;
 }
 
-void LinkService::_get_runState(web::http::http_request message) {
-  
+http_response LinkService::_get_runState(web::http::http_request message) {
+  http_response response = _link_empty_response();
   JSV state = JSV::object();
   
   string stateStr;
-  if (_duplicator.isRunning()) {
+  if (_runner.isRunning()) {
     state.as_object()["run"] = JSV(true);
-    state.as_object()["progress"] = JSV(_duplicator.pctCompleteFetch());
+    state.as_object()["progress"] = JSV(_runner.pctCompleteFetch());
     state.as_object()["message"] = JSV(_statusMessage);
   }
   else {
@@ -195,11 +197,13 @@ void LinkService::_get_runState(web::http::http_request message) {
     state.as_object()["progress"] = JSV(0);
     state.as_object()["message"] = JSV(_statusMessage);
   }
-  _link_respond(message, state);
-  
+
+  response.set_body(state);
+  return response;
 }
 
-void LinkService::_get_source(http_request message) {
+http_response LinkService::_get_source(http_request message) {
+  http_response response = _link_empty_response();
   
   auto paths = http::uri::split_path(http::uri::decode(message.relative_uri().path()));
   if (paths.size() > 1) {
@@ -211,8 +215,7 @@ void LinkService::_get_source(http_request message) {
       if (rec) {
         rec->dbConnect();
         if (!rec->isConnected()) {
-          message.reply(_link_error_response(status_codes::ExpectationFailed, "Could not connect to record"));
-          return;
+          return _link_error_response(status_codes::ExpectationFailed, "Could not connect to record");
         }
       }
       
@@ -230,44 +233,48 @@ void LinkService::_get_source(http_request message) {
         }
       }
       JSV js = SerializerJson::to_json(series);
-      _link_respond(message, js);
-      return;
+      response.set_body(js);
+      return response;
     } // GET series list
-    
   }
   
   if (_sourceRecord) {
     json::value v = SerializerJson::to_json(_sourceRecord);
-    _link_respond(message, v);
+    response.set_body(v);
+    return response;
   }
   else {
-    _link_respond(message, JSV::object());
+    response.set_body(JSV::object());
+    return response;
   }
-  
 }
 
-void LinkService::_get_destination(http_request message) {
+http_response LinkService::_get_destination(http_request message) {
+  http_response response = _link_empty_response();
   if (_destinationRecord) {
     json::value v = SerializerJson::to_json(_destinationRecord);
-    _link_respond(message, v);
+    response.set_body(v);
   }
   else {
-    _link_respond(message, JSV::object());
+    response.set_body(JSV::object());
   }
+  return response;
 }
 
-
-void LinkService::_get_odbc_drivers(http_request message) {
+http_response LinkService::_get_odbc_drivers(http_request message) {
+  http_response response = _link_empty_response();
   list<string> drivers = OdbcPointRecord::driverList();
   JSV d = JSV::array(drivers.size());
   int i = 0;
   for(auto driver : drivers) {
     d.as_array()[i++] = JSV(driver);
   }
-  _link_respond(message, d);
+  response.set_body(d);
+  return response;
 }
 
-void LinkService::_get_units(http_request message) {
+http_response LinkService::_get_units(http_request message) {
+  http_response response = _link_empty_response();
   auto unitsMap = Units::unitStringMap;
   vector<RTX_object::_sp> units;
   for (auto unitTypes : unitsMap) {
@@ -275,42 +282,36 @@ void LinkService::_get_units(http_request message) {
     units.push_back(usp);
   }
   JSV u = SerializerJson::to_json(units);
-  _link_respond(message, u);
+  response.set_body(u);
+  return response;
 }
 
-void LinkService::_get_options(http_request message) {
+http_response LinkService::_get_options(http_request message) {
   JSV o = JSV::object();
+  http_response response = _link_empty_response();
   
-  o["interval"] = JSV((int)(_frequency / 60)); // minutes
-  o["window"] =   JSV((int)(_window / 60)); // minutes
-  o["backfill"] = JSV((int)(_backfill / (60 * 60 * 24))); // days
-  o["lag"] = JSV((int)_lag); // seconds
+  o["interval"] = JSV(_options.frequency / 60); // minutes
+  o["window"] =   JSV(_options.window / 60); // minutes
+  o["backfill"] = JSV(_options.backfill / (60 * 60 * 24)); // days
+  o["throttle"] = JSV(_options.throttle); // seconds
+  o["smart"] = JSV(_options.smart);
   
-  _link_respond(message, o);
-  
+  response.set_body(o);
+  return response;
 }
 
-void LinkService::_get_config(http_request message) {
+http_response LinkService::_get_config(http_request message) {
   JSV config = JSV::object();
+  http_response response = _link_empty_response();
+
+  config["series"] = this->_get_timeseries(message).extract_json().get();
+  config["source"] = this->_get_source(message).extract_json().get();
+  config["destination"] = this->_get_destination(message).extract_json().get();
+  config["options"] = this->_get_options(message).extract_json().get();
+  config["run"] = this->_get_runState(message).extract_json().get();
   
-  auto tsList = _duplicator.series();
-  vector<RTX_object::_sp> tsVec;
-  for (auto ts : tsList) {
-    tsVec.push_back(ts);
-  }
-  
-  config["series"] = SerializerJson::to_json(tsVec);
-  config["source"] = SerializerJson::to_json(_sourceRecord);
-  config["destination"] = SerializerJson::to_json(_destinationRecord);
-  
-  JSV opts = JSV::object();
-  opts["interval"] = JSV((int)(_frequency / 60)); // minutes
-  opts["window"] =   JSV((int)(_window / 60)); // minutes
-  opts["backfill"] = JSV((int)(_backfill / (60 * 60 * 24))); // days
-  opts["lag"] = JSV((int)_lag);
-  config.as_object()["fetch"] = opts;
-  
-  _link_respond(message, config);
+  response.set_body(config);
+  return response;
 }
 
 
@@ -362,29 +363,33 @@ http_response LinkService::_post_timeseries(JSV js) {
   
   _sourceSeries.clear();
   _destinationSeries.clear();
+  _translation.clear();
   
   if (js.is_array()) {
     for (auto jsts : js.as_array()) {
       RTX_object::_sp o = DeserializerJson::from_json(jsts);
       if (o) {
-        TimeSeries::_sp ts = static_pointer_cast<TimeSeries>(o);
-        ts->setRecord(_sourceRecord); // no record set by client. set it here.
-        _sourceSeries.push_back(ts);
+        auto filter = dynamic_pointer_cast<TimeSeriesFilter>(o);
         
-        TimeSeriesFilter::_sp filter(new TimeSeriesFilter);
-        filter->source(ts)->units(ts->units());
-        if (jsts.has_field(kRenameKey)) {
-          string newName = jsts[kRenameKey].as_string();
-          filter->name(newName);
+        if (jsts.has_field(kFromNameKey)) {
+          // map the source for this filter.
+          TimeSeries::_sp ts(new TimeSeries);
+          ts->setName(jsts[kFromNameKey].as_string());
+          ts->setUnits(filter->units());
+          ts->setRecord(_sourceRecord);
+          _sourceSeries.push_back(ts);
+          
+          filter->setSource(ts);
+          _destinationSeries.push_back(filter);
+          _translation[ts] = filter;
         }
-        else {
-          filter->name(ts->name());
-        }
-        
-        _destinationSeries.push_back(filter);
       }
     }
     r = _link_empty_response();
+    vector<RTX::TimeSeries::_sp> series;
+    series.reserve(_destinationSeries.size());
+    std::copy(std::begin(_destinationSeries), std::end(_destinationSeries), std::back_inserter(series));
+    _runner.setSeries(series);
   }
   else {
     r = _link_error_response(status_codes::MethodNotAllowed, "Series must be specified as an Array");
@@ -397,12 +402,12 @@ http_response LinkService::_post_timeseries(JSV js) {
 
 http_response LinkService::_post_runState(JSV js) {
   _statusMessage = "staring run";
-  // expect obj with keys: run(bool), window(int), frequency(int)
+  // expect obj with keys: run(bool)
   json::object o = js.as_object();
   
   if (o["run"].as_bool()) {
     // run
-    this->runDuplication(_window,_frequency,_backfill,_lag);
+    this->runDuplication();
   }
   else {
     // stop
@@ -424,7 +429,8 @@ http_response LinkService::_post_source(JSV js) {
       r = _link_error_response(status_codes::BadRequest, "JSON not recognized");
     }
     else {
-      _sourceRecord = static_pointer_cast<PointRecord>(o);
+      _sourceRecord = static_pointer_cast<DbPointRecord>(o);
+      _sourceRecord->dbConnect();
 //      cout << "== " << _sourceRecord->name() << '\n';
       r = _link_empty_response();
     }
@@ -457,25 +463,25 @@ http_response LinkService::_post_destination(JSV js) {
   }
   
   if (!d) {
-    cout << "== ERROR: JSON not recognized\n==\n";
-    r = _link_error_response(status_codes::BadRequest, "JSON not recognized");
+    cout << "== empty destination specified.\n==\n";
+    _destinationRecord.reset();
+    r = _link_empty_response();
     return r;
   }
   
-  _destinationRecord = static_pointer_cast<PointRecord>(d);
+  _destinationRecord = static_pointer_cast<DbPointRecord>(d);
   
-  DbPointRecord::_sp dbRecord = dynamic_pointer_cast<DbPointRecord>(_destinationRecord);
-  if (dbRecord) {
-    dbRecord->setReadonly(false);
-    cout << "== " << dbRecord->name() << '\n';
-    dbRecord->dbConnect();
-    if (dbRecord->isConnected()) {
+  if (_destinationRecord) {
+    _destinationRecord->setReadonly(false);
+    cout << "== " << _destinationRecord->name() << '\n';
+    _destinationRecord->dbConnect();
+    if (_destinationRecord->isConnected()) {
       cout << "== connection successful\n";
       r = _link_empty_response();
-      _duplicator.setDestinationRecord(dbRecord);
+      this->refreshDestinationSeriesRecords();
     }
     else {
-      string err = "Destination Record: " + dbRecord->errorMessage;
+      string err = "Destination Record: " + _destinationRecord->errorMessage;
       cout << "== err: " << err << '\n';
       r = _link_error_response(status_codes::NotAcceptable, err);
     }
@@ -491,6 +497,11 @@ http_response LinkService::_post_destination(JSV js) {
   return r;
 }
 
+void LinkService::refreshDestinationSeriesRecords() {
+  for (auto ts : _destinationSeries) {
+    ts->setRecord(_destinationRecord);
+  }
+}
 
 http_response LinkService::_post_analytics(web::json::value json) {
   
@@ -518,34 +529,34 @@ http_response LinkService::_post_analytics(web::json::value json) {
   	}
    ]
    */
-  
-  
-  _analytics.clear();
-  
-  if (!json.is_array()) {
-    return _link_error_response(status_codes::BadRequest, "JSON not recognized");
-  }
-  
-  json::array analytics = json.as_array();
-  
-  for (auto a : analytics) {
-    if (!a.is_object() ||
-        a.as_object().find("type") == a.as_object().end() ||
-        !a.as_object()["type"].is_string() ) {
-      return _link_error_response(status_codes::BadRequest, "JSON not recognized"); // not an object or type member not found, or member not a string
-    }
-    try {
-      TimeSeries::_sp ts = DeserializerJson::analyticWithJson(a, _duplicator.series());
-      if (ts) {
-        ts->setRecord(_destinationRecord);
-        _analytics.push_back(ts);
-      }
-    } catch (const web::json::json_exception &e) {
-      cerr << e.what() << endl;
-      return _link_error_response(status_codes::NotAcceptable, "Invalid: " + string(e.what()));
-    }
-  }
-  this->setDuplicatorSeries();
+//  
+//  
+//  _analytics.clear();
+//  
+//  if (!json.is_array()) {
+//    return _link_error_response(status_codes::BadRequest, "JSON not recognized");
+//  }
+//  
+//  json::array analytics = json.as_array();
+//  
+//  for (auto a : analytics) {
+//    if (!a.is_object() ||
+//        a.as_object().find("type") == a.as_object().end() ||
+//        !a.as_object()["type"].is_string() ) {
+//      return _link_error_response(status_codes::BadRequest, "JSON not recognized"); // not an object or type member not found, or member not a string
+//    }
+//    try {
+//      TimeSeries::_sp ts = DeserializerJson::analyticWithJson(a, _duplicator.series());
+//      if (ts) {
+//        ts->setRecord(_destinationRecord);
+//        _analytics.push_back(ts);
+//      }
+//    } catch (const web::json::json_exception &e) {
+//      cerr << e.what() << endl;
+//      return _link_error_response(status_codes::NotAcceptable, "Invalid: " + string(e.what()));
+//    }
+//  }
+////  this->setDuplicatorSeries();
   
   return _link_empty_response();
 }
@@ -559,7 +570,7 @@ http_response LinkService::_post_options(JSV js) {
   
   
   // expecting :
-  // {'interval': ###, 'window': ###, 'backfill': ###, 'lag': ###}
+  // {'interval': ###, 'window': ###, 'backfill': ###, 'smart': bool}
   
   if (!js.is_object()) {
     r = _link_error_response(status_codes::ExpectationFailed, "data is not a json object");
@@ -567,49 +578,18 @@ http_response LinkService::_post_options(JSV js) {
   }
   else {
     json::object o = js.as_object();
-    
-    // quick anonymous function to handle setting key values by reference
-    function<bool (string,int*)> setParam = [&](string key, int* v) {
-      if (o.find(key) != o.end()) {
-        *v = o[key].as_integer();
-        return true;
-      } else {
-        return false;
-      }
-    };
-    
-    int freqMinutes, windowMinutes, backfillDays, lagSeconds;
-    
-    // map the required keys to the time_t ivars
-    map<string,int*> defs = {
-      {"interval",&freqMinutes},
-      {"window",&windowMinutes},
-      {"backfill",&backfillDays},
-      {"lag",&lagSeconds}
-    };
-    
-    // execute the setter function for each pair of key/value-ref definitions
-    // and test for key-not-found error
-    for (auto def : defs) {
-      if (!setParam(def.first, def.second)) {
-        r = _link_error_response(status_codes::MethodNotAllowed, "key not found: " + def.first);
-        cout << "== key not found: " << def.first << '\n';
-        break;
-      }
-      else {
-        cout << "== " << def.first << " :: " << *def.second << '\n';
-      }
+
+    try {
+      _options.frequency = o["interval"].as_integer() * 60;
+      _options.window = o["window"].as_integer() * 60;
+      _options.backfill = o["backfill"].as_integer() * 60 * 60 * 24;
+      _options.throttle = o["throttle"].as_integer(); // seconds
+      _options.smart = o["smart"].as_bool();
+      r = _link_empty_response();
+    } catch (std::exception &e) {
+      r = _link_error_response(status_codes::MethodNotAllowed, e.what());
     }
-    
-    _frequency = freqMinutes * 60;
-    _window = windowMinutes * 60;
-    _backfill = backfillDays * 60 * 60 * 24;
-    _lag = lagSeconds;
-    
-    
-    r = _link_empty_response();
   }
-  
   cout << "=====================================" << endl;
   _statusMessage = "";
   return r;
@@ -652,26 +632,23 @@ http_response LinkService::_post_logmessage(web::json::value js) {
   return r;
 }
 
-void LinkService::runDuplication(time_t win, time_t freq, time_t backfill, time_t lag) {
-  if (_duplicator.isRunning() || !_sourceRecord || !_destinationRecord) {
+void LinkService::runDuplication() {
+  if (_runner.isRunning() || !_sourceRecord || !_destinationRecord) {
     return;
   }
+  time_t since = time(NULL) - _options.backfill;
   
-  if (backfill > 0) {
-    _duplicator.catchUpAndRun(win, freq, backfill, lag);
-  }
-  else {
-    _duplicator.run(win, freq, lag);
-  }
+  _runner.setParams(_options.smart, _options.window, _options.frequency, _options.throttle);
+  _runner.run(since);
 }
 
 void LinkService::stopDuplication() {
-  if (_duplicator.isRunning()) {
-    _duplicator.stop();
+  if (_runner.isRunning()) {
+    _runner.cancel();
     
-    boost::thread waitOnStop([&]() {
+    boost::thread trackStopTask([&]() {
       _statusMessage = "Waiting for Stop";
-      _duplicator.wait();
+      _runner.wait();
       _statusMessage = "Idle";
     });
   }
@@ -680,11 +657,11 @@ void LinkService::stopDuplication() {
 
 
 void LinkService::setDuplicatorSeries() {
-  vector<TimeSeries::_sp> dupeSeries = _tsList;
-  for (auto a : _analytics) {
-    dupeSeries.push_back(a);
-  }
-  _duplicator.setSeries(dupeSeries);
+//  vector<TimeSeries::_sp> dupeSeries = _tsList;
+//  for (auto a : _analytics) {
+//    dupeSeries.push_back(a);
+//  }
+//  _duplicator.setSeries(dupeSeries);
 }
 
 

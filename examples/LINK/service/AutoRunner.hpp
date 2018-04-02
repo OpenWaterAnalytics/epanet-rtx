@@ -28,9 +28,10 @@ namespace RTX {
     void setParams(bool smartQueries, int maxWindowSeconds, int frequencySeconds, int throttleSeconds);
     void run(time_t since);
     void cancel();
+    void wait();
     bool isRunning();
     void setLogging(std::function<void(std::string)> fn, int level);
-    
+    double pctCompleteFetch();
     
   private:
     std::future<void> _task;
@@ -41,6 +42,7 @@ namespace RTX {
     int _window;
     int _freq;
     int _throttle;
+    double _pct;
     
     class TsEntry {
     public:

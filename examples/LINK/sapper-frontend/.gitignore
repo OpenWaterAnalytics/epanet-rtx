@@ -1,0 +1,9 @@
+.DS_Store
+node_modules
+.sapper
+yarn.lock
+cypress/screenshots
+templates/.*
+export
+build
+app/manifest
