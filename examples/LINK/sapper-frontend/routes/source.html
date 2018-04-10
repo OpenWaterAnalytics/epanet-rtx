@@ -91,7 +91,8 @@
 		<table>
 			<tr> <td>Name:</td>              <td>{{o.name}}</td>             </tr>
 			<tr> <td>Units:</td>             <td>{{o.units.unitString}}</td> </tr>
-			<tr> <td>Source Name:</td>       <td>{{o.renamed_from}}</td>        </tr>
+			<tr> <td>Source Name:</td>       <td>{{o.renamed_from_name}}</td>        </tr>
+			<tr> <td>Source Units:</td>      <td>{{o.renamed_from_units.unitString}} </td></tr>
 		</table>
 		<hr>
 		{{/each}}
@@ -311,7 +312,11 @@
 					// modify for filtering/renaming
 					_.extend(e, {
 						_class: 'filter',
-						renamed_from: e.name,
+						renamed_from_name: e.name,
+						renamed_from_units: {
+							_class: 'units',
+							unitString: e.units.unitString
+						}
 					});
 					if (_.filter(config.series, (s) => s.name === e.name).length == 0) {
 						config.series.push(e);

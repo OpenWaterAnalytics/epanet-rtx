@@ -17,7 +17,8 @@ using namespace http::experimental::listener;
 using JSV = json::value;
 
 
-static string kFromNameKey = "renamed_from";
+static string kFromNameKey = "renamed_from_name";
+static string kFromUnitsKey = "renamed_from_units";
 
 void _link_callback(LinkService* svc, const std::string& msg);
 void _link_callback(LinkService* svc, const std::string& msg) {
@@ -173,6 +174,7 @@ http_response LinkService::_get_timeseries(http_request message) {
     auto obj = _translation[src_obj];
     auto e = SerializerJson::to_json(obj);
     e[kFromNameKey] = JSV(obj->name());
+    e[kFromUnitsKey] = SerializerJson::to_json(obj->units().sp());
     v.as_array()[i] = e;
     ++i;
   }
@@ -358,8 +360,8 @@ http_response LinkService::_post_config(JSV json) {
 http_response LinkService::_post_timeseries(JSV js) {
   _statusMessage = "configuring tag list";
   http_response r;
-//  cout << "=====================================\n";
-//  cout << "== SETTING TIMESERIES\n";
+  cout << "=====================================\n";
+  cout << "== SETTING TIMESERIES\n";
   
   _sourceSeries.clear();
   _destinationSeries.clear();
@@ -371,11 +373,12 @@ http_response LinkService::_post_timeseries(JSV js) {
       if (o) {
         auto filter = dynamic_pointer_cast<TimeSeriesFilter>(o);
         
-        if (jsts.has_field(kFromNameKey)) {
+        if (jsts.has_field(kFromNameKey) && jsts.has_field(kFromUnitsKey)) {
           // map the source for this filter.
           TimeSeries::_sp ts(new TimeSeries);
           ts->setName(jsts[kFromNameKey].as_string());
-          ts->setUnits(filter->units());
+          Units::_sp u = static_pointer_cast<Units>(DeserializerJson::from_json(jsts[kFromUnitsKey]));
+          ts->setUnits(*u.get());
           ts->setRecord(_sourceRecord);
           _sourceSeries.push_back(ts);
           
@@ -396,7 +399,7 @@ http_response LinkService::_post_timeseries(JSV js) {
     cout << "== Series must be specified as an array\n";
   }
   
-//  cout << "=====================================" << endl;
+  cout << "=====================================" << endl;
   return r;
 }
 

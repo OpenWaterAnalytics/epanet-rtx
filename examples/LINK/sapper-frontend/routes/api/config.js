@@ -5,7 +5,7 @@ import _ from 'underscore';
 
 export function get(req, res, next) {
 
-  // /api/source/series?format=csv --> download csv file
+  // /api/source/series?pretty=true --> download json file
   if (req.query.pretty && req.query.pretty === 'true') {
     return fetch('http://127.0.0.1:3131/config')
     .then(r => r.json())

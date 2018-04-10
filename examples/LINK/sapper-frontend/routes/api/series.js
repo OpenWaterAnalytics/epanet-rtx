@@ -22,12 +22,16 @@ export function post(req, res, next) {
         return;
       }
 
-      let [sName,unitString,dName] = r;
+      let [sName,sUnits,dName,dUnits] = r;
       tsJson.push({
         _class: 'timeseries',
         name: dName,
-        units: {_class:'units', unitString},
-        renamed_from: sName
+        units: {_class:'units', unitString: dUnits},
+        renamed_from_name: sName,
+        renamed_from_units: {
+          _class:'units',
+          unitString: sUnits
+        }
       });
 
     });
