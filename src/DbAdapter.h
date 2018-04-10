@@ -4,6 +4,7 @@
 #include <boost/atomic.hpp>
 #include <mutex>
 #include <vector>
+#include <functional>
 
 #include "Point.h"
 #include "Units.h"

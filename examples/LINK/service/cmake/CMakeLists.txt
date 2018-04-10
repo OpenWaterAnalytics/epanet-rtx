@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.6)
 
 project (EPANET-RTX)
 SET (CMAKE_C_FLAGS "-std=c99")
-SET (CMAKE_CXX_FLAGS "-Wall -std=c++11")
+SET (CMAKE_CXX_FLAGS "-Wall -std=c++14")
 SET (CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_definitions(-DRTX_NO_MYSQL)
 
@@ -92,16 +92,16 @@ target_link_libraries(epanet-rtx
   z
 )
 
-# the duper library
-include_directories(../../../Duplicator)
-add_library(timeseries_duplicator STATIC ../../../Duplicator/TimeSeriesDuplicator.cpp)
+# the AutoRunner class
+include_directories(../)
+add_library(auto_runner STATIC ../AutoRunner.cpp)
 
 # the link service executable
 include_directories(../ ../../../../src)
 link_directories(/usr/local/lib)
 
 add_executable(link-server ../LinkService.cpp ../LinkJsonSerialization.cpp ../main.cpp)
-target_link_libraries(link-server LINK_PUBLIC timeseries_duplicator epanet-rtx boost_iostreams boost_thread boost_program_options boost_chrono pthread ssl cpprest crypto ${EXTRA_LIBS})
+target_link_libraries(link-server LINK_PUBLIC auto_runner epanet-rtx boost_iostreams boost_thread boost_program_options boost_chrono pthread ssl cpprest crypto ${EXTRA_LIBS})
 
 install(TARGETS link-server DESTINATION bin)
 

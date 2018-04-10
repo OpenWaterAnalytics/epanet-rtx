@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <vector>
 #include <set>
+#include <functional>
 
 #include "Units.h"
 #include "TimeRange.h"
