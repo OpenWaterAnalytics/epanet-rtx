@@ -1,0 +1,31 @@
+<Nav page={myPage}/>
+
+<main>
+	<svelte:component this={Page} {...props}/>
+</main>
+
+<script>
+	import Nav from '../components/Nav.html';
+	import navigationData from '../model/navigationData.js';
+
+	export default {
+		components: {
+			Nav
+		},
+		oncreate() {
+			require('jquery');
+			require('popper.js');
+			require('bootstrap');
+			require('bootstrap/dist/css/bootstrap.min.css');
+		},
+		computed: {
+			myPage: ({props}) => {
+				for (let item of navigationData) {
+					if (item.href == props.path) {
+						return item.title;
+					}
+				}
+			},
+		},
+	};
+</script>

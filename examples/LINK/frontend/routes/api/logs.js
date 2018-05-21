@@ -1,5 +1,5 @@
-var proxy = require('../_model/linkProxy.js');
+var log = require('../../model/log.js');
 
 export function get(req, res, next) {
-  res.json(proxy.linkLogs());
+  res.json(log.linkLogs());
 }

@@ -1,19 +1,19 @@
-<:Head>
+<svelte:head>
 	<title>Configuration</title>
-</:Head>
+</svelte:head>
 
-<Layout page='config'>
+
 	<h1>Configuration</h1>
 	<div>
 		<a download="config.json" href="/api/config?pretty=true">download</a>
 	</div>
 	<div>
-		<textarea class="configInput" name="myTextBox" cols="50" rows="20" bind:value='configString'></textarea>
+		<textarea class="configInput" name="myTextBox" cols="70" rows="20" bind:value='configString'></textarea>
 	</div>
 	<div>
 		<button type="submit" on:click="sendJson()">Update</button>
 	</div>
-</Layout>
+
 
 <style>
 .configInput {
@@ -23,7 +23,6 @@
 
 <script>
 import { goto } from 'sapper/runtime.js';
-import Layout from './_components/Layout.html';
 import _ from 'underscore';
 
 const fetchOpts = {headers: {}, credentials: 'include'};
@@ -36,7 +35,7 @@ const postOpts = {
 
 export default {
 	components: {
-		Layout
+
 	},
 	data() {
 		return {
@@ -46,12 +45,12 @@ export default {
 	preload(req) {
 		let { params, query } = req;
 		let myFetchOpts = fetchOpts;
-		// forward any cookies to preserve session information
-		if (req.headers && req.headers.cookie) {
-			myFetchOpts.headers.cookie = req.headers.cookie;
-		}
-		// fetch some important data for the render...
-		return fetch('/api/config',myFetchOpts)
+		// // forward any cookies to preserve session information
+		// if (req.headers && req.headers.cookie) {
+		// 	myFetchOpts.headers.cookie = req.headers.cookie;
+		// }
+		// // fetch some important data for the render...
+		return this.fetch('/api/config',myFetchOpts)
 		.then(r => r.json())
 		.then(config => {
 			console.log('preloaded config', config);
@@ -65,11 +64,11 @@ export default {
 
 	},
 	computed: {
-		configString: (config) => JSON.stringify(config, null, 2),
+		configString: ({config}) => JSON.stringify(config, null, 2),
 	},
 	methods: {
 		sendJson() {
-			let myPostOpts = _.extend({body: this.get('configString')}, postOpts);
+			let myPostOpts = _.extend({body: this.get().configString}, postOpts);
 			fetch('/api/config',myPostOpts)
 			.then(r => {
 				if (r.ok) {

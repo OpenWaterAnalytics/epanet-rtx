@@ -1,27 +1,28 @@
-<:Head>
+<svelte:head>
 	<title>RTX:LINK</title>
-</:Head>
+</svelte:head>
 
-<Layout page='home' config='config'>
 	<div class="alert alert-info" role="alert">
     Welcome to the RTX:LINK setup tool. Let's get started.
 		<a href="/source" class="badge badge-primary">Next</a>
-</div>
+	</div>
 
 <div class="row col-md-8">
 <p>
   RTX:LINK will synchronize your SCADA Historian database with a cloud server for high-efficiency analytics and visualization.
 </p>
 </div>
-</Layout>
+
 
 
 <script>
-	import Layout from './_components/Layout.html';
 
 	export default {
+		data() {
+			return {page:'home'}
+		},
 		components: {
-			Layout
+
 		}
 	};
 </script>

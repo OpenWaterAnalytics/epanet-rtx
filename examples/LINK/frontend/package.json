@@ -6,7 +6,7 @@
     "dev": "sapper dev",
     "build": "sapper build",
     "export": "sapper export",
-    "start": "sapper start",
+    "start": "node build",
     "cy:run": "cypress run",
     "cy:open": "cypress open",
     "test": "run-p --race dev cy:run"
@@ -21,22 +21,32 @@
     "css-loader": "^0.28.11",
     "csv-parse": "^2.0.4",
     "dropzone": "^5.4.0",
+    "ejs": "^2.6.1",
     "express": "^4.16.3",
     "express-fileupload": "^0.4.0",
+    "express-flash": "0.0.2",
     "express-session": "^1.15.6",
     "fs-extra": "^5.0.0",
     "jquery": "^3.3.1",
-    "node-fetch": "^2.1.1",
+    "jsonfile": "^4.0.0",
+    "minimist": "^1.2.0",
+    "node-fetch": "^2.1.2",
     "npm-run-all": "^4.1.2",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
     "popper.js": "^1.14.1",
     "request": "^2.85.0",
-    "sapper": "^0.10.0",
+    "respawn": "^2.5.0",
+    "sapper": "^0.12.0",
     "serve-static": "^1.13.1",
+    "session-memory-store": "^0.2.2",
     "style-loader": "^0.20.3",
-    "svelte": "^1.57.3",
-    "svelte-loader": "^2.3.3",
-    "underscore": "^1.8.3",
-    "webpack": "^4.1.1",
-    "wepback": "^1.0.0"
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.2",
+    "svelte": "^2.6.1",
+    "svelte-loader": "^2.9.0",
+    "webpack": "^4.7.0"
   }
 }

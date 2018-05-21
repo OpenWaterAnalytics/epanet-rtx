@@ -1,5 +1,5 @@
-var proxy = require('../_model/linkProxy.js');
-import {config} from '../_model/configuration.js';
+var proxy = require('../../model/linkProxy.js');
+import {config} from '../../model/configuration.js';
 import fetch from 'node-fetch';
 import _ from 'underscore';
 

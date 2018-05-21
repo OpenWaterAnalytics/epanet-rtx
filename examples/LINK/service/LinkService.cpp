@@ -62,6 +62,13 @@ LinkService::LinkService(uri uri) : _listener(uri) {
   _listener.support(methods::POST, std::bind(&LinkService::_post,   this, std::placeholders::_1));
   _listener.support(methods::DEL,  std::bind(&LinkService::_delete, this, std::placeholders::_1));
   _runner.setLogging(std::bind(&_link_callback, this, std::placeholders::_1), RTX_AUTORUNNER_LOGLEVEL_VERBOSE);
+  
+  _options.backfill = 0;
+  _options.frequency = 0;
+  _options.throttle = 0;
+  _options.window = 0;
+  _options.smart = false;
+  
 }
 
 pplx::task<void> LinkService::open() {

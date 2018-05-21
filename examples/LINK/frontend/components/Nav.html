@@ -1,0 +1,27 @@
+<nav>
+	<ul class="nav nav-tabs">
+		{#each navitems as item}
+		<li class="nav-item"><a class='nav-link {page === item.title  ? "active" : ""}' href={item.href}>{item.linkText}</a></li>
+		{/each}
+	</ul>
+</nav>
+
+<style>
+  nav {
+		padding-top: 12px;
+	}
+	a {
+		font-color:#ccc
+	}
+</style>
+
+<script>
+	import navigationData from '../model/navigationData.js';
+
+	export default {
+		data() {
+			return { 'navitems': navigationData };
+		}
+	};
+
+</script>

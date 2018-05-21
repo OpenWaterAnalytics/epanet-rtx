@@ -1,19 +1,17 @@
-<:Head>
+<svelte:head>
 	<title>About</title>
-</:Head>
+</svelte:head>
 
-<Layout page='about'>
+
 	<h1>About this site</h1>
 
 	<p>This is the 'about' page. There's not much here.</p>
-</Layout>
+
 
 <script>
-	import Layout from './_components/Layout.html';
-
 	export default {
-		components: {
-			Layout
+		data() {
+			return {page: 'about'};
 		}
 	};
 </script>

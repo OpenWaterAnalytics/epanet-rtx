@@ -1,40 +1,37 @@
-<:Head>
+<svelte:head>
 	<title>Logs</title>
-</:Head>
+</svelte:head>
 
-<Layout page='logs'>
 	<h1>Device Logs</h1>
 
 	<h4>Logs</h4>
 	<textarea cols="50" rows="20" bind:value='logText' />
 
-</Layout>
 
 <script>
-	import Layout from './_components/Layout.html';
 	import _ from 'underscore';
 	const fetchOpts = {headers: {}, credentials: 'include'};
 
 	export default {
 		components: {
-			Layout
+
 		},
 		preload(req) {
 			let { params, query } = req;
 			let myFetchOpts = fetchOpts;
 			// forward any cookies to preserve session information
-			if (req.headers && req.headers.cookie) {
-				myFetchOpts.headers.cookie = req.headers.cookie;
-			}
+			// if (req.headers && req.headers.cookie) {
+			// 	myFetchOpts.headers.cookie = req.headers.cookie;
+			// }
 			// fetch some important data for the render...
-      return fetch('/api/logs',myFetchOpts)
+      return this.fetch('/api/logs',myFetchOpts)
 			.then(r => r.json())
 			.then(logs => {
 				return {logs};
 			});
     },
 		computed: {
-			logText: (logs) => {
+			logText: ({logs}) => {
 				return logs.log.join('\n');
 			}
 		},

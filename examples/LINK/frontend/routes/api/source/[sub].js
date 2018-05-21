@@ -1,4 +1,4 @@
-var proxy = require('../../_model/linkProxy.js');
+var proxy = require('../../../model/linkProxy.js');
 import fetch from 'node-fetch';
 
 export function get(req, res, next) {
@@ -10,7 +10,7 @@ export function get(req, res, next) {
     .then(r => {
       res.set('Content-Type', 'text/csv');
       for (let series of r) {
-        res.write(`${series.name}, ${series.units.unitString}, ${series.name}\n`);
+        res.write(`${series.name}, ${series.units.unitString}, ${series.name}, ${series.units.unitString}\n`);
       }
       res.end();
     })

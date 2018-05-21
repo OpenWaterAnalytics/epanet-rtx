@@ -5,32 +5,32 @@ const navigationData = [
     linkText: 'Home'
   },
   {
-    href: 'source',
+    href: '/source',
     title: 'source',
     linkText: 'Source'
   },
   {
-    href: 'destination',
+    href: '/destination',
     title: 'destination',
     linkText: 'Destination'
   },
   {
-    href: 'options',
+    href: '/options',
     title: 'options',
     linkText: 'Options'
   },
   {
-    href: 'run',
+    href: '/run',
     title: 'run',
     linkText: 'Run'
   },
   {
-    href: 'logs',
+    href: '/logs',
     title: 'logs',
     linkText: 'Logs'
   },
 	{
-		href: 'config',
+		href: '/config',
 		title: 'config',
 		linkText: 'Configuration'
 	}

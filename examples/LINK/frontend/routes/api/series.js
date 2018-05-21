@@ -1,4 +1,4 @@
-var proxy = require('../_model/linkProxy.js');
+var proxy = require('../../model/linkProxy.js');
 var parse = require('csv-parse');
 import fetch from 'node-fetch';
 
@@ -18,7 +18,7 @@ export function post(req, res, next) {
         return;
       }
       console.log('reading line: ', r);
-      if (r.length !== 3) {
+      if (r.length !== 4) {
         return;
       }
 

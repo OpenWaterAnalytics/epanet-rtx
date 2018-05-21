@@ -1,8 +1,8 @@
-<:Head>
+<svelte:head>
 <title>Destination Definition</title>
-</:Head>
+</svelte:head>
 
-<Layout page='destination'>
+
 	<div class="alert alert-info" role="alert">
 		Configure the connection to the destination database.
 		<a href="#" class="badge badge-pill badge-info" on:click='saveAndNext(event)'>Save &gt;</a>
@@ -15,22 +15,22 @@
 	<div id="destination-select">
 		<div class="form-group pull-left">
 			<nav class="nav nav-pills nav-justified">
-				{{#each Object.keys(destinationTypes) as type}}
-  			<a class="nav-link {{config.destination._class == type ? 'active' : ''}}" href="#" on:click='setDestinationType(event,type)'>{{rtxTypes[type]}}</a>
-				{{/each}}
+				{#each Object.keys(destinationTypes) as type}
+  			<a class="nav-link {config.destination._class == type ? 'active' : ''}" href="#" on:click='setDestinationType(event,type)'>{rtxTypes[type]}</a>
+				{/each}
 			</nav>
 		</div>
 		<form role="form" class='form-horizontal'>
 			<table class="table">
 				<tbody>
-					{{#each viewInputRows as dict}}
+					{#each viewInputRows as dict}
 					<tr>
-						<th scope="row">{{dict.text}}</th>
+						<th scope="row">{dict.text}</th>
 						<td>
-							<input type="text" class="form-control" placeholder="{{dict.placeholder}}" bind:value="config.destination[dict.key]" uib-tooltip="{{dict.helptext}}">
+							<input type="text" class="form-control" placeholder="{dict.placeholder}" bind:value="config.destination[dict.key]" uib-tooltip="{dict.helptext}">
 						</td>
 					</tr>
-					{{/each}}
+					{/each}
 				</tbody>
 			</table>
 
@@ -39,26 +39,25 @@
 			</div>
 		</form>
 		<hr>
-		{{#if connectionMessage}}
+		{#if connectionMessage}
 		<div class="row">
 			<div class="col-md-8">
 				<div class="alert alert-info" role="alert">
-					{{connectionMessage}}
+					{connectionMessage}
 				</div>
 			</div>
 		</div>
-		{{/if}}
+		{/if}
 	</div>
 
 
 
-</Layout>
+
 
 <script>
 	import { goto } from 'sapper/runtime.js';
-	import Layout from './_components/Layout.html';
 	import _ from 'underscore';
-	import {destinationTypes,rtxTypes} from './_model/typeData.js';
+	import {destinationTypes,rtxTypes} from '../model/typeData.js';
 	const fetchOpts = {headers: {}, credentials: 'include'};
 	const postOpts = {
 		method: 'post',
@@ -69,7 +68,7 @@
 
 	export default {
 		components: {
-			Layout
+
 		},
 		data() {
 			return {
@@ -81,29 +80,34 @@
 		preload(req) {
 			let { params, query } = req;
 			let myFetchOpts = fetchOpts;
-			// forward any cookies to preserve session information
-			if (req.headers && req.headers.cookie) {
-				myFetchOpts.headers.cookie = req.headers.cookie;
-			}
+			// // forward any cookies to preserve session information
+			// if (req.headers && req.headers.cookie) {
+			// 	myFetchOpts.headers.cookie = req.headers.cookie;
+			// }
 			// fetch some important data for the render...
-      return fetch('/api/config',myFetchOpts)
+      return this.fetch('/api/config',myFetchOpts)
 			.then(r => r.json())
 			.then(config => {
 				return {config};
 			});
     },
 		oncreate() {
-			this.set({destinationType: this.get('config').destination._class});
+			this.set({destinationType: this.get().config.destination._class});
+		},
+		ondestroy() {
 
-			this.destinationTypeObserver = this.observe('destinationType', t => {
+		},
+		onupdate({changed, current, previous}) {
+			if (changed.destinationType) {
+				let t = current.destinationType;
 				if (t == '') {
 					t = Object.keys(destinationTypes)[0];
 				}
-        let config = this.get('config');
+        let {config} = this.get();
 				config.destination._class = t;
 				// set default values so they are not null
-				let dt = this.get('destinationType');
-				if (dt in destinationTypes) {
+				let {destinationType} = this.get();
+				if (destinationType in destinationTypes) {
 					let thisDestOpts = destinationTypes[t];
 					for (let row of thisDestOpts.inputRows) {
 						if (config.destination[row.key] == undefined) {
@@ -112,13 +116,10 @@
 					}
 				}
 				this.set({config});
-			});
-		},
-		ondestroy() {
-			this.destinationTypeObserver.cancel();
+			}
 		},
 		computed: {
-			viewInputRows: (destinationType, config) => {
+			viewInputRows: ({destinationType, config}) => {
 				if (!config || !config.destination || !(destinationType in destinationTypes)) {
 					return [];
 				}
@@ -135,7 +136,7 @@
 			},
 			connect(event) {
 				event.preventDefault();
-				let d = this.get('config').destination;
+				let d = this.get().config.destination;
 				let myPostOpts = _.extend({body:JSON.stringify(d)},postOpts);
         fetch('/api/destination',myPostOpts)
 				.then(res=> {
@@ -152,7 +153,7 @@
 			},
 			saveAndNext() {
 				event.preventDefault();
-				let config = this.get('config');
+				let {config} = this.get();
 				let opts = _.extend({body:JSON.stringify(config)},postOpts);
 				fetch('/api/config', opts).then( res => {
 					if (res.ok) {

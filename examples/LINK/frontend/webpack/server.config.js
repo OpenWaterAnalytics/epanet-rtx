@@ -5,6 +5,10 @@ module.exports = {
 	entry: config.server.entry(),
 	output: config.server.output(),
 	target: 'node',
+	node: {
+		__dirname: false,
+		__filename: false,
+	},
 	resolve: {
 		extensions: ['.js', '.json', '.html']
 	},
@@ -18,8 +22,6 @@ module.exports = {
 					loader: 'svelte-loader',
 					options: {
 						css: false,
-						cascade: false,
-						store: true,
 						generate: 'ssr'
 					}
 				}

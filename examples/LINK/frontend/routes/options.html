@@ -1,8 +1,7 @@
-<:Head>
+<svelte:head>
 	<title>Options</title>
-</:Head>
+</svelte:head>
 
-<Layout page='options'>
 	<div class="alert alert-info" role="alert">
 		Configure the replication parameters and Backfill options.
 		<a href="#" class="badge badge-pill badge-info" on:click='saveAndNext(event)'>Save &gt;</a>
@@ -38,10 +37,8 @@
 	    </div>
 	</div>
 
-</Layout>
 
 <script>
-	import Layout from './_components/Layout.html';
 	import { goto } from 'sapper/runtime.js';
 	import _ from 'underscore';
 	const fetchOpts = {headers: {}, credentials: 'include'};
@@ -53,7 +50,7 @@
 
 	export default {
 		components: {
-			Layout
+
 		},
 
 		data() {
@@ -66,12 +63,12 @@
 		preload(req) {
 			let { params, query } = req;
 			let myFetchOpts = fetchOpts;
-			// forward any cookies to preserve session information
-			if (req.headers && req.headers.cookie) {
-				myFetchOpts.headers.cookie = req.headers.cookie;
-			}
+			// // forward any cookies to preserve session information
+			// if (req.headers && req.headers.cookie) {
+			// 	myFetchOpts.headers.cookie = req.headers.cookie;
+			// }
 			// fetch some important data for the render...
-      return fetch('/api/config',myFetchOpts)
+      return this.fetch('/api/config',myFetchOpts)
 			.then(r => r.json())
 			.then(config => {
 				return {options: _.defaults(config.options, {
@@ -86,7 +83,7 @@
 
 		methods: {
 			saveAndNext() {
-				let options = this.get('options');
+				let {options} = this.get();
 				let opts = _.extend({body:JSON.stringify(options)},postOpts);
 				fetch('/api/options', opts).then( res => {
 					if (res.ok) {

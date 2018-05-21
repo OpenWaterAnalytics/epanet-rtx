@@ -1,6 +1,6 @@
 
 <select multiple class="form-control" bind:value='selectedObjectValues' on:change="notify()">
-	{{#each objValues as objVal}} <option>{{objVal}}</option> {{/each}}
+	{#each objValues as objVal} <option>{objVal}</option> {/each}
 </select>
 
 <style>
@@ -27,7 +27,7 @@ export default {
 		console.log('objkey is ', this.get('objKey'));
 	},
 	computed: {
-		objValues: (objects,objKey) => {
+		objValues: ({objects,objKey}) => {
 			if (objKey === 'XXXSTUPIDMAGICKEYXXX') {
 			 	return objects;
 			}
@@ -35,7 +35,7 @@ export default {
 				return _.pluck(objects,objKey);
 			}
 		 },
-		selectedObjects: (objects, objValues, selectedObjectValues) => {
+		selectedObjects: ({objects, objValues, selectedObjectValues}) => {
 			let objs = [];
 			for (let selected of selectedObjectValues) {
 				let idx = objValues.indexOf(selected);
@@ -46,7 +46,8 @@ export default {
 	},
 	methods: {
 		notify() {
-			this.fire('change', this.get('selectedObjects'));
+			let {selectedObjects} = this.get();
+			this.fire('change', selectedObjects);
 		}
 	},
 };

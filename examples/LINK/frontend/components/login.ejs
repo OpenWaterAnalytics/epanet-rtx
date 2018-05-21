@@ -1,0 +1,22 @@
+<html>
+<form action="/login" method="post">
+    <div>
+        <label>Username:</label>
+        <input type="text" name="username"/>
+    </div>
+    <div>
+        <label>Password:</label>
+        <input type="password" name="password"/>
+    </div>
+    <div>
+        <input type="submit" value="Log In"/>
+    </div>
+</form>
+<hr>
+<% Object.keys(flash).forEach(function(type) { %>
+  <% flash[type].forEach(function(str) { %>
+    <%- type %>: <%- str %>
+  <% }); %>
+<% }); %>
+
+</html>
