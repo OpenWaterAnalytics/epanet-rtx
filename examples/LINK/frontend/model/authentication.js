@@ -41,9 +41,11 @@ module.exports.init = (app) => {
   app.use(passport.session());
   passport.use(new LocalStrategy((user,pass,done) => {
     if (user == _auth.u && pass == _auth.p) {
+      console.log('authentication succeeded. access granted');
       return done(null,user);
     }
     else {
+      console.log('authentication failed');
       return done(null, false, {message: 'Not Permitted'});
     }
   }));

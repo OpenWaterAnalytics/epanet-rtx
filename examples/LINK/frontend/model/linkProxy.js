@@ -15,7 +15,7 @@ function makeUrl(rawpath) {
 
 module.exports.get = function(req, res) {
   var url = makeUrl(req.path);
-  console.log(url);
+  console.log(`PROXY GET ${req.path}`);
   request.get(url, (err,response,body) => {
     if (err) {
       logger.errLine("RTX-LINK Error :: ");
@@ -41,6 +41,7 @@ module.exports.get = function(req, res) {
 
 module.exports.post = function(req, res) {
   var url = makeUrl(req.path);
+  console.log(`PROXY POST ${req.path}`);
   var opts = {
     method: 'post',
     url: url,

@@ -4,7 +4,7 @@
 
   <div class="alert alert-info" role="alert">
     Set the type of source record, and configure it. This is how Link will access your Historian server.
-		<a href="" class="badge badge-pill badge-info" on:click='saveAndNext()'>Save &gt;</a>
+		<a href="" class="badge badge-pill badge-info" on:click='saveAndNext(event)'>Save &gt;</a>
   </div>
 
 <!-- SOURCE SELECT -->
@@ -26,26 +26,26 @@
                 <th scope="row">{row.text}</th>
                 {#if row.inputType == "text-line"}
                 <td>
-                  <input type="text" class="form-control" placeholder="{row.placeholder}" bind:value='config.source[row.key]' data-toggle="tooltip" data-placement="top" title="{row.helptext}" />
+                  <input type="text" class="form-control" placeholder="{row.placeholder}" bind:value='source[row.key]' data-toggle="tooltip" data-placement="top" title="{row.helptext}" />
                 </td>
                 {/if}
                 <td>
                   {#if row.inputType == "select-driver"}
-                  <select class="form-control" bind:value='config.source[row.key]' data-toggle="tooltip" data-placement="top" title="{row.helptext}">
+                  <select class="form-control" bind:value='source[row.key]' data-toggle="tooltip" data-placement="top" title="{row.helptext}">
                     {#each drivers as driver}
                     <option value="{driver}">{driver}</option>
                     {/each}
                   </select>
                   {/if}
                   {#if row.inputType == "select-zone"}
-                  <select class="form-control" bind:value='config.source[row.key]' data-toggle="tooltip" data-placement="top" title="{row.helptext}">
+                  <select class="form-control" bind:value='source[row.key]' data-toggle="tooltip" data-placement="top" title="{row.helptext}">
                     {#each row.options as option}
                     <option value="{option}">{option}</option>
                     {/each}
                   </select>
                   {/if}
                   {#if row.inputType == "text-area"}
-                  <textarea class="form-control" rows="3" placeholder="{row.placeholder}" bind:value='config.source[row.key]' data-toggle="tooltip" data-placement="top" title="{row.helptext}">
+                  <textarea class="form-control" rows="3" placeholder="{row.placeholder}" bind:value='source[row.key]' data-toggle="tooltip" data-placement="top" title="{row.helptext}">
                   </textarea>
                   {/if}
                 </td>
@@ -82,7 +82,7 @@
 			</div>
 			<div class="col form-group">
 				<label for="seriesSelection">Selected Series</label><span><button id="drop">Upload CSV</button></span>
-				<OptionListView ref:user_series_list objects={config.series} objKey="name" on:change='reloadDetailViews()' />
+				<OptionListView ref:user_series_list objects={series} objKey="name" on:change='reloadDetailViews()' />
 			</div>
 		</div>
 
@@ -111,7 +111,7 @@
 	import $ from 'jquery';
 	import _ from 'underscore';
 
-  const fetchOpts = {headers: {}, credentials: 'include'};
+  const fetchOpts = {credentials: 'include'};
 
 	const postOpts = {
 		method: 'post',
@@ -144,13 +144,26 @@
 				detailViewObjects: [],
       };
 	  },
+		preload(req) {
+			let { params, query } = req;
+			// fetch some important data for the render...
+			let urls = ['/api/source','/api/series','/api/odbc'];
+      return Promise
+			.all(urls.map((url) => {
+					return this.fetch(url,fetchOpts).then(handleErrors).then(r => r.json()).catch(alertHandler)
+				}))
+			.then(([source,series,drivers]) => {
+				drivers = drivers ? drivers : [];
+				return {source,series,drivers};
+			});
+    },
     oncreate () {
 			$(function () {
     		$('[data-toggle="tooltip"]').tooltip()
   		});
 
-			if (this.get().config.source._class) {
-				this.set({sourceType: this.get().config.source._class});
+			if (this.get().source._class) {
+				this.set({sourceType: this.get().source._class});
 			}
 
 			var DropZone = require('dropzone');
@@ -171,18 +184,15 @@
 				for (var i = 0; i < files.length; i++) {
 					files_array.push(files[i]);
 				}
-				return files_array.map(function(file) {
-					return _this5.addFile(file);
-				});
+				return files_array.map((file) => _this5.addFile(file));
 			};
 			this.dropZone.on('success', (file, res) => {
-				console.log('dropzone response:', res);
 				this.refreshDuplicatorSeries();
 			});
-			this.dropZone.on("complete", function(file) {
+			this.dropZone.on('complete', (file) => {
 				dz.removeFile(file);
 			});
-			this.dropZone.on('error', function(file, errorMessage) {
+			this.dropZone.on('error', (file, errorMessage) => {
 				alert(`Error uploading file: ${errorMessage}`);
 			});
 
@@ -190,26 +200,6 @@
 		ondestroy() {
 
 		},
-    preload(req) {
-			let { params, query } = req;
-			let myFetchOpts = fetchOpts;
-			// // forward any cookies to preserve session information
-			// if (req.headers && req.headers.cookie) {
-			// 	myFetchOpts.headers.cookie = req.headers.cookie;
-			// }
-			// // fetch some important data for the render...
-      return Promise
-			.all([
-				this.fetch('/api/config',myFetchOpts).then(handleErrors).then(r=>r.json()).catch(alertHandler),
-				this.fetch('/api/units',myFetchOpts).then(handleErrors).then(r=>r.json()).catch(alertHandler),
-				this.fetch('/api/odbc',myFetchOpts).then(handleErrors).then(r=>r.json()).catch(alertHandler)
-			])
-			.then(([config,availableUnits,drivers]) => {
-				availableUnits = availableUnits ? availableUnits : [];
-				drivers = drivers ? drivers : [];
-				return {config,availableUnits,drivers};
-			});
-    },
 		computed: {
 			availableSeriesNames: ({availableSeries}) => _.pluck(availableSeries,'name'),
     	filteredSeries: ({seriesSearch, availableSeries}) => {
@@ -227,7 +217,7 @@
 				}
         return rows;
       },
-			userSeriesNames: ({config}) => _.pluck(config.series, 'name'),
+			userSeriesNames: ({series}) => _.pluck(series, 'name'),
     },
 		onupdate({ changed, current, previous }) {
 			if (changed.sourceType) {
@@ -235,24 +225,24 @@
 				if (!t || t == '') {
 					t = Object.keys(sourceTypes)[0];
 				}
-        let {config} = this.get();
-				config.source._class = t;
+        let {source} = this.get();
+				source._class = t;
 				// set default values so they are not null
-				let thisSourceOpts = sourceTypes[config.source._class];
+				let thisSourceOpts = sourceTypes[source._class];
 				thisSourceOpts = thisSourceOpts ? thisSourceOpts : {inputRows:[]};
 				for (let row of thisSourceOpts.inputRows) {
-					if (config.source[row.key] == undefined) {
-						config.source[row.key] = '';
+					if (source[row.key] == undefined) {
+						source[row.key] = '';
 						if (row.inputType == "select-driver") {
-							config.source[row.key] = this.get().drivers[0];
+							source[row.key] = this.get().drivers[0];
 						}
 						if (row.inputType == "select-zone") {
-							config.source[row.key] = 'utc';
+							source[row.key] = 'utc';
 						}
 					}
 
 				}
-				this.set({config});
+				this.set({source});
 			}
 			// this fires before oncreate, and on every state change.
 			// the first time it runs, `previous` is undefined
@@ -266,7 +256,7 @@
 			},
       connect(event) {
 				event.preventDefault();
-				let s = this.get().config.source;
+				let s = this.get().source;
 				let myPostOpts = _.extend({body:JSON.stringify(s)},postOpts);
         fetch('/api/source',myPostOpts)
 				.then(res=> {
@@ -299,10 +289,8 @@
 				fetch('/api/series', fetchOpts)
 				.then(handleErrors)
 				.then(r => r.json())
-				.then(userSeries => {
-					let {config} = this.get();
-					config.series = userSeries;
-					this.set({config});
+				.then(series => {
+					this.set({series});
 				})
 				.catch(alertHandler);
 			},
@@ -310,9 +298,9 @@
 				let detailViewObjects = this.refs.user_series_list.get().selectedObjects;
 				this.set({detailViewObjects});
 			},
-			addSeries: function(event) {
+			addSeries(event) {
 				event.preventDefault()
-				let {config} = this.get();
+				let {series} = this.get();
 				let seriesToAdd = this.refs.all_series_list.get().selectedObjects;
 				seriesToAdd.forEach( e => {
 					// modify for filtering/renaming
@@ -324,29 +312,34 @@
 							unitString: e.units.unitString
 						}
 					});
-					if (_.filter(config.series, (s) => s.name === e.name).length == 0) {
-						config.series.push(e);
+					if (_.filter(series, (s) => s.name === e.name).length == 0) {
+						series.push(e);
 					}
 				});
-				this.set({config})
+				this.set({series})
 			},
-			removeSeries: function(event) {
+			removeSeries(event) {
 				event.preventDefault();
-				let {config} = this.get();
+				let {series} = this.get();
 				var removeList = this.refs.user_series_list.get('selectedObjects');
-				config.series = config.series.filter(e => !removeList.includes(e));
+				series = series.filter(e => !removeList.includes(e));
 				this.set({detailViewObjects:[]});
-				this.set({config});
+				this.set({series});
 			},
-      saveAndNext() {
-				let {config} = this.get();
-				let opts = _.extend({body:JSON.stringify(config)},postOpts);
-				fetch('/api/config', opts).then( res => {
-					return res.json();
-				}).then( resj => {
-					// if ok, then go to next step.
+      saveAndNext(event) {
+				event.preventDefault();
+				let {series} = this.get();
+				let opts = _.extend({body:JSON.stringify(series)},postOpts);
+
+				fetch('/api/series',opts)
+				.then(handleErrors)
+				.then(() => fetch('/api/saveConfig',{method:'POST',credentials:'include'}))
+				.then(handleErrors)
+				.then(r => {
 					goto('/destination');
-				});
+				})
+				.catch(alertHandler);
+
       }
     }
 	};

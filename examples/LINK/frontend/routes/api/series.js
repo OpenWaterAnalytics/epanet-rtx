@@ -17,27 +17,27 @@ export function post(req, res, next) {
       if (!r) {
         return;
       }
-      console.log('reading line: ', r);
+      // console.log('reading line: ', r);
       if (r.length !== 4) {
         return;
       }
 
       let [sName,sUnits,dName,dUnits] = r;
       tsJson.push({
-        _class: 'timeseries',
-        name: dName,
-        units: {_class:'units', unitString: dUnits},
-        renamed_from_name: sName,
+        _class: 'filter',
+        name: dName.trim(),
+        units: {_class:'units', unitString: dUnits.trim()},
+        renamed_from_name: sName.trim(),
         renamed_from_units: {
           _class:'units',
-          unitString: sUnits
+          unitString: sUnits.trim()
         }
       });
 
     });
 
     parser.on('finish', () => {
-      console.log('finished with csv data: ', tsJson);
+      // console.log('finished with csv data: ', tsJson);
       const postOpts = {
     		method: 'post',
     		headers: {'Content-Type': 'application/json'},
@@ -45,6 +45,8 @@ export function post(req, res, next) {
     	};
       fetch('http://127.0.0.1:3131/series', postOpts)
       .then(r => {
+        console.log('POST series response:')
+        console.log(r)
         res.send(r);
       });
     });

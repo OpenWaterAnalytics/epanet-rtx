@@ -142,7 +142,7 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
   if (nameExists 
       && unitsMatch) 
   {
-    return DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);;
+    return DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
   }
   
   // no matter what happens, we are messing with cache invalidation... 

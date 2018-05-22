@@ -181,7 +181,8 @@ http_response LinkService::_get_timeseries(http_request message) {
     auto obj = _translation[src_obj];
     auto e = SerializerJson::to_json(obj);
     e[kFromNameKey] = JSV(obj->name());
-    e[kFromUnitsKey] = SerializerJson::to_json(obj->units().sp());
+    Units::_sp u = make_shared<Units>(obj->units());
+    e[kFromUnitsKey] = SerializerJson::to_json(u);
     v.as_array()[i] = e;
     ++i;
   }
@@ -375,10 +376,16 @@ http_response LinkService::_post_timeseries(JSV js) {
   _translation.clear();
   
   if (js.is_array()) {
+    _sourceRecord->beginBulkOperation();
     for (auto jsts : js.as_array()) {
       RTX_object::_sp o = DeserializerJson::from_json(jsts);
       if (o) {
         auto filter = dynamic_pointer_cast<TimeSeriesFilter>(o);
+        if (!filter) {
+          r = _link_error_response(status_codes::ExpectationFailed, "Source series must be a filter");
+          cerr << "Source series must be a filter" << EOL;
+          return r;
+        }
         
         if (jsts.has_field(kFromNameKey) && jsts.has_field(kFromUnitsKey)) {
           // map the source for this filter.
@@ -395,6 +402,7 @@ http_response LinkService::_post_timeseries(JSV js) {
         }
       }
     }
+    _sourceRecord->endBulkOperation();
     r = _link_empty_response();
     vector<RTX::TimeSeries::_sp> series;
     series.reserve(_destinationSeries.size());
@@ -508,9 +516,11 @@ http_response LinkService::_post_destination(JSV js) {
 }
 
 void LinkService::refreshDestinationSeriesRecords() {
+  _destinationRecord->beginBulkOperation();
   for (auto ts : _destinationSeries) {
     ts->setRecord(_destinationRecord);
   }
+  _destinationRecord->endBulkOperation();
 }
 
 http_response LinkService::_post_analytics(web::json::value json) {

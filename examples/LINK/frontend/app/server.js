@@ -5,7 +5,6 @@ const serve = require('serve-static');
 var parseArgs = require('minimist');
 var path = require('path');
 
-var auth = require('../model/authentication.js');
 var logger = require('../model/log.js');
 var configuration = require('../model/configuration.js');
 var spawnMonitor = require('../model/spawnMonitor.js');
@@ -27,10 +26,23 @@ if (debug) {
 	spawnMonitor.init(linkExePath);
 }
 
+var auth;
+if (process.env.NO_LOGIN) {
+  auth = require('../model/no_authentication.js');
+} else {
+  auth = require('../model/authentication.js');
+}
+
 require('../model/commonSetup.js').init(app);
 app.use(serve('assets'));
 auth.init(app);
-app.use(auth.check, sapper({routes,App}));
+app.use(
+  auth.check,
+  sapper({
+    routes,
+    App
+  })
+);
 
 app.listen(PORT, () => {
 	console.log(`listening on port ${PORT}`);

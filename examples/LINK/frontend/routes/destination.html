@@ -2,7 +2,6 @@
 <title>Destination Definition</title>
 </svelte:head>
 
-
 	<div class="alert alert-info" role="alert">
 		Configure the connection to the destination database.
 		<a href="#" class="badge badge-pill badge-info" on:click='saveAndNext(event)'>Save &gt;</a>
@@ -16,7 +15,7 @@
 		<div class="form-group pull-left">
 			<nav class="nav nav-pills nav-justified">
 				{#each Object.keys(destinationTypes) as type}
-  			<a class="nav-link {config.destination._class == type ? 'active' : ''}" href="#" on:click='setDestinationType(event,type)'>{rtxTypes[type]}</a>
+  			<a class="nav-link {destination._class == type ? 'active' : ''}" href="#" on:click='setDestinationType(event,type)'>{rtxTypes[type]}</a>
 				{/each}
 			</nav>
 		</div>
@@ -27,7 +26,7 @@
 					<tr>
 						<th scope="row">{dict.text}</th>
 						<td>
-							<input type="text" class="form-control" placeholder="{dict.placeholder}" bind:value="config.destination[dict.key]" uib-tooltip="{dict.helptext}">
+							<input type="text" class="form-control" placeholder="{dict.placeholder}" bind:value="destination[dict.key]" uib-tooltip="{dict.helptext}">
 						</td>
 					</tr>
 					{/each}
@@ -58,7 +57,7 @@
 	import { goto } from 'sapper/runtime.js';
 	import _ from 'underscore';
 	import {destinationTypes,rtxTypes} from '../model/typeData.js';
-	const fetchOpts = {headers: {}, credentials: 'include'};
+	const fetchOpts = {credentials: 'include'};
 	const postOpts = {
 		method: 'post',
 		headers: {'Content-Type': 'application/json'},
@@ -85,14 +84,14 @@
 			// 	myFetchOpts.headers.cookie = req.headers.cookie;
 			// }
 			// fetch some important data for the render...
-      return this.fetch('/api/config',myFetchOpts)
+      return this.fetch('/api/destination',myFetchOpts)
 			.then(r => r.json())
-			.then(config => {
-				return {config};
+			.then(destination => {
+				return {destination};
 			});
     },
 		oncreate() {
-			this.set({destinationType: this.get().config.destination._class});
+			this.set({destinationType: this.get().destination._class});
 		},
 		ondestroy() {
 
@@ -103,24 +102,24 @@
 				if (t == '') {
 					t = Object.keys(destinationTypes)[0];
 				}
-        let {config} = this.get();
-				config.destination._class = t;
+        let {destination} = this.get();
+				destination._class = t;
 				// set default values so they are not null
 				let {destinationType} = this.get();
 				if (destinationType in destinationTypes) {
 					let thisDestOpts = destinationTypes[t];
 					for (let row of thisDestOpts.inputRows) {
-						if (config.destination[row.key] == undefined) {
-							config.destination[row.key] = '';
+						if (destination[row.key] == undefined) {
+							destination[row.key] = '';
 						}
 					}
 				}
-				this.set({config});
+				this.set({destination});
 			}
 		},
 		computed: {
-			viewInputRows: ({destinationType, config}) => {
-				if (!config || !config.destination || !(destinationType in destinationTypes)) {
+			viewInputRows: ({destinationType, destination}) => {
+				if (!destination || !(destinationType in destinationTypes)) {
 					return [];
 				}
 				return destinationTypes[destinationType].inputRows;
@@ -136,7 +135,8 @@
 			},
 			connect(event) {
 				event.preventDefault();
-				let d = this.get().config.destination;
+				this.set({connectionMessage: 'Trying Connection...'});
+				let d = this.get().destination;
 				let myPostOpts = _.extend({body:JSON.stringify(d)},postOpts);
         fetch('/api/destination',myPostOpts)
 				.then(res=> {
@@ -151,11 +151,11 @@
 					this.popError(err);
 				});
 			},
-			saveAndNext() {
+			saveAndNext(event) {
 				event.preventDefault();
-				let {config} = this.get();
-				let opts = _.extend({body:JSON.stringify(config)},postOpts);
-				fetch('/api/config', opts).then( res => {
+				let {destination} = this.get();
+				let opts = _.extend({body:JSON.stringify(destination)},postOpts);
+				fetch('/api/destination', opts).then( res => {
 					if (res.ok) {
 						goto('/options');
 					}

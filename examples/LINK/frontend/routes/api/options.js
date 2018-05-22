@@ -1,5 +1,4 @@
 var proxy = require('../../model/linkProxy.js');
-import fetch from 'node-fetch';
 
 export function get(req, res, next) {
   proxy.get(req,res);

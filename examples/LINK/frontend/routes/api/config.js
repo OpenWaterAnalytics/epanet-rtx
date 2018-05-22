@@ -1,5 +1,5 @@
 var proxy = require('../../model/linkProxy.js');
-import {config} from '../../model/configuration.js';
+var config = require('../../model/configuration.js');
 import fetch from 'node-fetch';
 import _ from 'underscore';
 
@@ -23,6 +23,8 @@ export function get(req, res, next) {
 };
 
 export function post(req,res,next) {
+  let newconfig = req.body;
+  config.set(newconfig);
   console.log('posted config: ', req.body);
   proxy.post(req,res);
 };

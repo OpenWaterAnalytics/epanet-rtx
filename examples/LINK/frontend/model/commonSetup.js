@@ -7,7 +7,7 @@ var MemoryStore = require('session-memory-store')(session);
 
 module.exports.init = (app) => {
   app.use(compression({ threshold: 0 }));
-  app.use(bodyParser.json())
+  app.use(bodyParser.json({limit: '50mb'}))
   app.use(bodyParser.urlencoded({extended: false}))
   app.use(
   	session({

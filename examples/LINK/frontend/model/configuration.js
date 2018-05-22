@@ -38,10 +38,13 @@ _rtx_config = _.defaults(_rtx_config,defaultConfig);
 
 module.exports.config = _rtx_config;
 
-module.exports.save = function(successCallback,errorCallback) {
-  jsf.writeFile(configFile,_rtx_config,(err)=>{
-    log.errLine(e);
-    typeof errorCallback == "function" && errorCallback(e);
+module.exports.set = function(newconfig, successCallback, errorCallback) {
+  _rtx_config = newconfig;
+  jsf.writeFile(configFile, _rtx_config, {spaces: 2}, (err) => {
+    if (err) {
+      log.errLine(err);
+      typeof errorCallback == "function" && errorCallback(err);
+    }
   });
 }
 
@@ -52,9 +55,7 @@ module.exports.send = () => {
     headers: { 'Content-Type': 'application/json' }
   })
   .then(r => {
-    console.log('configuration sent:');
-    console.log(r);
-
+    console.log('configuration sent');
   })
   .catch(err => {
     console.log('send failed:');

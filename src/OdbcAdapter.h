@@ -6,7 +6,7 @@
 #include <list>
 #include <string>
 #include <future>
-#include <boost/atomic.hpp>
+#include <atomic>
 
 #include "DbAdapter.h"
 #include "PointRecordTime.h"
@@ -32,6 +32,7 @@ namespace RTX {
     // TRANSACTIONS
     void beginTransaction();
     void endTransaction();
+    bool inTransaction() {return _inTransaction;};
     
     // READ
     std::vector<Point> selectRange(const std::string& id, TimeRange range);
@@ -99,12 +100,13 @@ namespace RTX {
     OdbcQuery _querySyntax;
     OdbcSqlHandle _handles;
     ScadaRecord _tempRecord;
-    boost::atomic<bool> _isConnecting;
+    std::atomic<bool> _isConnecting;
     std::future<bool> _connectFuture;
     std::vector<std::string> _dsnList;
     std::string _specifiedTimeZoneString;
     boost::local_time::time_zone_ptr _specifiedTimeZone;
     PointRecordTime::time_format_t _timeFormat;
+    std::atomic<bool> _inTransaction;
     
     //** methods **//
     void initDsnList();

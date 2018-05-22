@@ -274,11 +274,12 @@ IdentifierUnitsList OdbcAdapter::idUnitsList() {
 
 // TRANSACTIONS
 void OdbcAdapter::beginTransaction() {
-  // nope
+  // transactions on a read-only connection just means that we're adding many linked timeseries...
+  _inTransaction = true;
 }
 
 void OdbcAdapter::endTransaction() {
-  // nope
+  _inTransaction = false;
 }
 
 
