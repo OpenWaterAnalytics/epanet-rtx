@@ -38,7 +38,9 @@ PointCollection MetaTimeSeries::filterPointsInRange(TimeRange range) {
   auto raw = sourceData.raw();
   vector<Point>::const_iterator it = raw.first;
   vector<Point>::const_iterator prev = it;
-  ++it;
+  if (_metaMode == MetaModeGap) {
+    ++it;
+  }
   vector<Point> theGaps;
   while (it != raw.second) {
     time_t t1,t2;
