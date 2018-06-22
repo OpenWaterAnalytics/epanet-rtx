@@ -6,6 +6,7 @@
 //
 
 #include "AutoRunner.hpp"
+#include <sstream>
 
 using namespace RTX;
 using namespace std;
@@ -100,11 +101,12 @@ void AutoRunner::_runLoop(std::atomic_bool &cancel) {
   
   while (!cancel) {
     time_t tick = time(NULL);
+    size_t nPoints = 0;
     _pct = 0;
     for(auto &e : _series) {
       // might be doing a backfill,
       // if the last-good is older than window.
-      while (tick - e.lastGood > (_window + _freq)) {
+      while (!cancel && tick - e.lastGood > (_window + _freq)) {
         // this is the backfill loop.
         // just query with window-width ranges until queries are all caught-up.
         // ignore whether there's actually data there.
@@ -117,9 +119,19 @@ void AutoRunner::_runLoop(std::atomic_bool &cancel) {
         if (qEnd - e.lastGood > _window) {
           qEnd = e.lastGood + _window;
         }
-        e.series->points(TimeRange(e.lastGood, qEnd));
+        auto points = e.series->points(TimeRange(e.lastGood, qEnd));
         e.lastGood = qEnd; // increment the backfill window
+        
+        stringstream ss;
+        ss << "Backfill: Fetched " << points.size() << " points.";
+        _log(ss.str(), RTX_AUTORUNNER_LOGLEVEL_VERBOSE);
+        
         _throttleWait(_throttle);
+      }
+      
+      // check for cancellation - break loop
+      if (cancel) {
+        continue;
       }
       
       // ok, now we are in "normal" querying mode.
@@ -140,10 +152,16 @@ void AutoRunner::_runLoop(std::atomic_bool &cancel) {
         e.lastGood = (tick + _freq) - _window;
       }
       
+      nPoints += points.size();
+      
       _pct += (1.0 / _series.size()); 
       
       _throttleWait(_throttle);
     } // for series
+    
+    stringstream ss;
+    ss << "Fetched " << nPoints << " points in " << time(NULL) - tick << " seconds.";
+    _log(ss.str(), RTX_AUTORUNNER_LOGLEVEL_VERBOSE);
     
     // wait for another cycle? check often.
     while (!cancel && tick + _freq > time(NULL)) {

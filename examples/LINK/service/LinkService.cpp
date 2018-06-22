@@ -375,7 +375,12 @@ http_response LinkService::_post_timeseries(JSV js) {
   _destinationSeries.clear();
   _translation.clear();
   
-  if (js.is_array()) {
+  if (!_sourceRecord) {
+    r = _link_error_response(status_codes::MethodNotAllowed, "Must specify a source record first");
+    return r;
+  }
+  
+  if (js.is_array() && js.size() > 0) {
     _sourceRecord->beginBulkOperation();
     for (auto jsts : js.as_array()) {
       RTX_object::_sp o = DeserializerJson::from_json(jsts);
@@ -419,7 +424,7 @@ http_response LinkService::_post_timeseries(JSV js) {
 }
 
 http_response LinkService::_post_runState(JSV js) {
-  _statusMessage = "staring run";
+  _statusMessage = "starting run";
   // expect obj with keys: run(bool)
   json::object o = js.as_object();
   
