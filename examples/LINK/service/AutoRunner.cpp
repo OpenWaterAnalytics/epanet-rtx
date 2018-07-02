@@ -17,6 +17,10 @@ AutoRunner::AutoRunner() {
   _is_running_token = false;
   _cancellation_token = false;
   _pct = 0;
+  setMetricsCallback([](int n, int t){
+    // no-op by default.
+    cout << "points: " << n << " time: " << t << endl;
+  });
   setLogging([](string msg){
     cout << msg << endl;
   }, RTX_AUTORUNNER_LOGLEVEL_VERBOSE);
@@ -75,6 +79,10 @@ void AutoRunner::setLogging(std::function<void (std::string)> fn, int level) {
   _logLevel = level;
 }
 
+void AutoRunner::setMetricsCallback(std::function<void (int, int)> fn) {
+  _metricsCallback = fn;
+}
+
 void AutoRunner::_log(std::string msg, int msgLevel) {
   if (msgLevel <= _logLevel) {
     _logFn(msg);
@@ -98,12 +106,17 @@ void _throttleWait(int nSeconds) {
 
 void AutoRunner::_runLoop(std::atomic_bool &cancel) {
   _is_running_token = true;
-  
+  stringstream ss;
   while (!cancel) {
     time_t tick = time(NULL);
     size_t nPoints = 0;
     _pct = 0;
+    size_t backfillCount = 0;
+    size_t iSeries = 0;
+    _log("Scanning Series...", RTX_AUTORUNNER_LOGLEVEL_VERBOSE);
+    
     for(auto &e : _series) {
+      ++iSeries;
       // might be doing a backfill,
       // if the last-good is older than window.
       while (!cancel && tick - e.lastGood > (_window + _freq)) {
@@ -122,8 +135,9 @@ void AutoRunner::_runLoop(std::atomic_bool &cancel) {
         auto points = e.series->points(TimeRange(e.lastGood, qEnd));
         e.lastGood = qEnd; // increment the backfill window
         
-        stringstream ss;
-        ss << "Backfill: Fetched " << points.size() << " points.";
+        backfillCount += points.size();
+        ss.str(std::string());
+        ss << "Backfill Operation: Fetched " << backfillCount << " points. Scanning " << iSeries << " of " << _series.size() << " series.";
         _log(ss.str(), RTX_AUTORUNNER_LOGLEVEL_VERBOSE);
         
         _throttleWait(_throttle);
@@ -131,7 +145,7 @@ void AutoRunner::_runLoop(std::atomic_bool &cancel) {
       
       // check for cancellation - break loop
       if (cancel) {
-        continue;
+        break;
       }
       
       // ok, now we are in "normal" querying mode.
@@ -153,22 +167,27 @@ void AutoRunner::_runLoop(std::atomic_bool &cancel) {
       }
       
       nPoints += points.size();
-      
       _pct += (1.0 / _series.size()); 
+      
+      ss.str(std::string());
+      ss << "Fetched " << nPoints << " points. Scanning " << iSeries << " of " << _series.size() << " series.";
+      _log(ss.str(), RTX_AUTORUNNER_LOGLEVEL_VERBOSE);
       
       _throttleWait(_throttle);
     } // for series
     
-    stringstream ss;
-    ss << "Fetched " << nPoints << " points in " << time(NULL) - tick << " seconds.";
-    _log(ss.str(), RTX_AUTORUNNER_LOGLEVEL_VERBOSE);
+    int duration = int(time(NULL) - tick);
     
     // wait for another cycle? check often.
     while (!cancel && tick + _freq > time(NULL)) {
+      ss.str(std::string());
+      ss << "Waiting for " << (tick + _freq - time(NULL)) << " seconds. Last fetch took " << duration << "s for " << nPoints << " points.";
+      _log(ss.str(), RTX_AUTORUNNER_LOGLEVEL_VERBOSE);
       this_thread::sleep_for(shortTime);
     }
   } // while !cancel
   
+  _logFn("Process has completed.");
   _is_running_token = false;
   _cancellation_token = false;
   _pct = 0;

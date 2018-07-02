@@ -92,6 +92,11 @@ namespace RTX {
     
     void setDuplicatorSeries();
     
+    struct MetricsSeries {
+      TimeSeries::_sp count;
+      TimeSeries::_sp time;
+    } _metrics;
+    
   };
 }
 

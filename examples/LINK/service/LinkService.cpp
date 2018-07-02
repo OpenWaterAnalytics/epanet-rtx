@@ -63,11 +63,22 @@ LinkService::LinkService(uri uri) : _listener(uri) {
   _listener.support(methods::DEL,  std::bind(&LinkService::_delete, this, std::placeholders::_1));
   _runner.setLogging(std::bind(&_link_callback, this, std::placeholders::_1), RTX_AUTORUNNER_LOGLEVEL_VERBOSE);
   
+  _runner.setMetricsCallback([&](int n, int t){
+    _metrics.time->insert(Point(time(NULL), double(t)));
+    _metrics.count->insert(Point(time(NULL), double(n)));
+  });
+  
   _options.backfill = 0;
   _options.frequency = 0;
   _options.throttle = 0;
   _options.window = 0;
   _options.smart = false;
+  
+  _metrics.count.reset(new TimeSeries());
+  _metrics.time.reset(new TimeSeries());
+  
+  _metrics.count->name("count,generator=link")->units(RTX_DIMENSIONLESS);
+  _metrics.time->name("time,generator=link")->units(RTX_SECOND);
   
 }
 
@@ -180,13 +191,13 @@ http_response LinkService::_get_timeseries(http_request message) {
   for (auto src_obj : _sourceSeries) {
     auto obj = _translation[src_obj];
     auto e = SerializerJson::to_json(obj);
-    e[kFromNameKey] = JSV(obj->name());
-    Units::_sp u = make_shared<Units>(obj->units());
+    e[kFromNameKey] = JSV(src_obj->name());
+    Units::_sp u = make_shared<Units>(src_obj->units());
     e[kFromUnitsKey] = SerializerJson::to_json(u);
     v.as_array()[i] = e;
     ++i;
   }
-    
+  
   http_response response = _link_empty_response();
   response.set_body(v);
   return response;
@@ -525,6 +536,8 @@ void LinkService::refreshDestinationSeriesRecords() {
   for (auto ts : _destinationSeries) {
     ts->setRecord(_destinationRecord);
   }
+  _metrics.count->setRecord(_destinationRecord);
+  _metrics.time->setRecord(_destinationRecord);
   _destinationRecord->endBulkOperation();
 }
 

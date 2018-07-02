@@ -1,27 +1,27 @@
-#  ________  _______    ______   __    __  ________  ________ 
+#  ________  _______    ______   __    __  ________  ________
 # |        \|       \  /      \ |  \  |  \|        \|        \
 # | $$$$$$$$| $$$$$$$\|  $$$$$$\| $$\ | $$| $$$$$$$$ \$$$$$$$$
-# | $$__    | $$__/ $$| $$__| $$| $$$\| $$| $$__       | $$   
-# | $$  \   | $$    $$| $$    $$| $$$$\ $$| $$  \      | $$   
-# | $$$$$   | $$$$$$$ | $$$$$$$$| $$\$$ $$| $$$$$      | $$   
-# | $$_____ | $$      | $$  | $$| $$ \$$$$| $$_____    | $$   
-# | $$     \| $$      | $$  | $$| $$  \$$$| $$     \   | $$   
-#  \$$$$$$$$ \$$       \$$   \$$ \$$   \$$ \$$$$$$$$    \$$   
-#                                                             
-#                                                             
-#                                                             
-#              _______  ________  __    __                    
-#             |       \|        \|  \  |  \                   
-#             | $$$$$$$\\$$$$$$$$| $$  | $$                   
-#             | $$__| $$  | $$    \$$\/  $$                   
-#             | $$    $$  | $$     >$$  $$                    
-#             | $$$$$$$\  | $$    /  $$$$\                    
-#             | $$  | $$  | $$   |  $$ \$$\                   
-#             | $$  | $$  | $$   | $$  | $$                   
-#              \$$   \$$   \$$    \$$   \$$                   
+# | $$__    | $$__/ $$| $$__| $$| $$$\| $$| $$__       | $$
+# | $$  \   | $$    $$| $$    $$| $$$$\ $$| $$  \      | $$
+# | $$$$$   | $$$$$$$ | $$$$$$$$| $$\$$ $$| $$$$$      | $$
+# | $$_____ | $$      | $$  | $$| $$ \$$$$| $$_____    | $$
+# | $$     \| $$      | $$  | $$| $$  \$$$| $$     \   | $$
+#  \$$$$$$$$ \$$       \$$   \$$ \$$   \$$ \$$$$$$$$    \$$
 #
-#                          
-                                                                      
+#
+#
+#              _______  ________  __    __
+#             |       \|        \|  \  |  \
+#             | $$$$$$$\\$$$$$$$$| $$  | $$
+#             | $$__| $$  | $$    \$$\/  $$
+#             | $$    $$  | $$     >$$  $$
+#             | $$$$$$$\  | $$    /  $$$$\
+#             | $$  | $$  | $$   |  $$ \$$\
+#             | $$  | $$  | $$   | $$  | $$
+#              \$$   \$$   \$$    \$$   \$$
+#
+#
+
 
 cmake_minimum_required (VERSION 2.6)
 
@@ -48,19 +48,19 @@ ENDIF (APPLE)
 # the rtx library
 include_directories(
 	../../src
-	/usr/local/include 
+	/usr/local/include
 	/usr/local/include/iODBC
 	/usr/include
 	/usr/include/iodbc
 	../../../EPANET/src
 	)
-	
+
 link_directories(
 	/usr/lib
 	/usr/local/lib
 	)
-	
-add_library(epanetrtx 
+
+add_library(epanetrtx
 ../../src/AggregatorTimeSeries.cpp
 ../../src/BaseStatsTimeSeries.cpp
 ../../src/BufferPointRecord.cpp
@@ -125,18 +125,18 @@ add_library(epanetrtx
 )
 
 target_compile_definitions(epanetrtx PRIVATE MAXFLOAT=3.40282347e+38F)
-set(rtx_lib_deps 
+set(rtx_lib_deps
 	epanet
-	curl 
-	boost_system 
+	curl
+	boost_system
 	boost_chrono
-	boost_filesystem 
-	boost_date_time 
-	boost_regex 
+	boost_filesystem
+	boost_date_time
+	boost_regex
 	boost_iostreams
-	iodbc 
-	sqlite3 
-	m 
+	iodbc
+	sqlite3
+	m
 	z
 	ssl
 	crypto

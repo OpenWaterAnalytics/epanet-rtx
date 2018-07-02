@@ -31,12 +31,14 @@ namespace RTX {
     void wait();
     bool isRunning();
     void setLogging(std::function<void(std::string)> fn, int level);
+    void setMetricsCallback(std::function<void(int,int)> fn);
     double pctCompleteFetch();
     
   private:
     std::future<void> _task;
     std::atomic_bool _cancellation_token, _is_running_token;
     std::function<void(std::string)> _logFn;
+    std::function<void(int,int)> _metricsCallback;
     int _logLevel;
     bool _smart;
     int _window;
