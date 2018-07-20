@@ -236,7 +236,8 @@ http_response LinkService::_get_source(http_request message) {
       if (rec) {
         rec->dbConnect();
         if (!rec->isConnected()) {
-          return _link_error_response(status_codes::ExpectationFailed, "Could not connect to record");
+          auto msg = rec->errorMessage;
+          return _link_error_response(status_codes::ExpectationFailed, "Could not connect to record: " + msg);
         }
       }
       

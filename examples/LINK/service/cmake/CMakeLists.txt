@@ -101,7 +101,6 @@ include_directories(../ ../../../../src)
 link_directories(/usr/local/lib)
 
 add_executable(link-server ../LinkService.cpp ../LinkJsonSerialization.cpp ../main.cpp)
-target_link_libraries(link-server LINK_PUBLIC auto_runner epanet-rtx boost_iostreams boost_thread boost_program_options boost_chrono pthread ssl cpprest crypto ${EXTRA_LIBS})
+target_link_libraries(link-server LINK_PUBLIC auto_runner epanet-rtx ssl crypto boost_iostreams boost_thread boost_program_options boost_chrono pthread cpprest ${EXTRA_LIBS})
 
 install(TARGETS link-server DESTINATION bin)
-
