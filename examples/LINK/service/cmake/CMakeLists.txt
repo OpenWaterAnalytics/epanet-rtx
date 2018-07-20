@@ -20,6 +20,10 @@ IF(APPLE)
    SET(EXTRA_LIBS ${SECURITY_FRAMEWORK} ${CORE_FRAMEWORK})
 ENDIF (APPLE)
 
+FIND_PACKAGE( ZLIB REQUIRED )
+IF (ZLIB_FOUND)
+        MESSAGE( STATUS "CMAKE found zlib")
+ENDIF(ZLIB_FOUND)
 
 # the rtx library
 include_directories(
@@ -29,6 +33,9 @@ include_directories(
   /usr/include/iodbc
   /usr/include/python2.7
   /usr/include
+  /opt/lib
+  /usr/lib/x86_64-linux-gnu/
+  ${ZLIB_INCLUDE_DIRS}
 )
 
 add_library(epanet-rtx STATIC
@@ -80,7 +87,12 @@ add_library(epanet-rtx STATIC
 
 target_compile_definitions(epanet-rtx PRIVATE MAXFLOAT=3.40282347e+38F PI_SSL_VALIDATE=false)
 target_link_libraries(epanet-rtx
+  z
+  boost_iostreams
+  ${ZLIB_LIBRARIES}
   curl
+  ssl
+  crypto
   boost_system
   boost_filesystem
   boost_date_time
@@ -89,7 +101,6 @@ target_link_libraries(epanet-rtx
   sqlite3
   m
   cpprest
-  z
 )
 
 # the AutoRunner class
@@ -101,6 +112,8 @@ include_directories(../ ../../../../src)
 link_directories(/usr/local/lib)
 
 add_executable(link-server ../LinkService.cpp ../LinkJsonSerialization.cpp ../main.cpp)
-target_link_libraries(link-server LINK_PUBLIC auto_runner epanet-rtx ssl crypto boost_iostreams boost_thread boost_program_options boost_chrono pthread cpprest ${EXTRA_LIBS})
+
+target_link_libraries(link-server LINK_PUBLIC z auto_runner epanet-rtx  ssl crypto boost_iostreams boost_thread boost_program_options boost_chrono pthread ssl cpprest crypto ${EXTRA_LIBS})
+
 
 install(TARGETS link-server DESTINATION bin)
