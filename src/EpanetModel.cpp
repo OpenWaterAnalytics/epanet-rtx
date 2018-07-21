@@ -194,7 +194,7 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
     auto en_idx = _nodeIndex[n->name()];
     EN_getnodevalue(_enModel, en_idx, EN_ELEVATION, &elev);
     if (elev != n->elevation()) {
-      cout << "ERROR: Database elevation inconsistent with model for node " << n->name() << EOL;
+      cout << "ERROR: Database elevation inconsistent with model" << EOL;
       exit(1);
     }
   }
