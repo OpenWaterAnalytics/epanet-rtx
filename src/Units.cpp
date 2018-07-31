@@ -317,6 +317,11 @@ std::map<std::string, Units> Units::unitStringMap = []()
   m["V"] = RTX_VOLT;
   m["A"] = RTX_AMP;
   
+  m["ft²"] = RTX_SQ_FOOT;
+  m["m²"] = RTX_SQ_METER;
+  m["cm²"] = RTX_SQ_CENTIMETER;
+  m["in²"] = RTX_SQ_INCH;
+  
   return m;
 }();
 

@@ -90,6 +90,12 @@
 #define RTX_ENERGY_DENSITY        RTX::Units(3600000,        1,-1,-2)
 #define RTX_ENERGY_DENSITY_MG     RTX::Units(951.01983668876,1,-1,-2)
 
+// area
+#define RTX_SQ_FOOT               RTX::Units(0.092903,       0,2)
+#define RTX_SQ_METER              RTX::Units(1,              0,2)
+#define RTX_SQ_INCH               RTX::Units(0.00064516,     0,2)
+#define RTX_SQ_CENTIMETER         RTX::Units(0.0001,         0,2)
+
 namespace RTX {
   /*!
    \class Units
