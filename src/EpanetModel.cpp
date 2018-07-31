@@ -967,7 +967,14 @@ void EpanetModel::updateEngineWithElementProperties(Element::_sp e) {
       // is it check valve? can't set status
       Valve::_sp v = std::dynamic_pointer_cast<Valve>(p);
       if (!(v && v->valveType == EN_CVPIPE)) {
+        this->setLinkValue(EN_INITSTATUS, p->name(), p->fixedStatus());
         this->setLinkValue(EN_STATUS, p->name(), p->fixedStatus());
+      }
+      if (e->type() == Element::VALVE) {
+        // valve/pump setting
+        auto valve = dynamic_pointer_cast<Valve>(e);
+        this->setLinkValue(EN_INITSETTING, valve->name(), valve->fixedSetting);
+        this->setLinkValue(EN_SETTING, valve->name(), valve->fixedSetting);
       }
       this->setComment(p, p->userDescription());
     }
