@@ -13,7 +13,7 @@
 using namespace RTX;
 
 Valve::Valve(const std::string& name) : Pipe(name){
-setType(VALVE);
+  setType(VALVE);
 }
 Valve::~Valve() {
 

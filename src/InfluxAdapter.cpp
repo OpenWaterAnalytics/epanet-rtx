@@ -13,6 +13,7 @@
 #include <boost/asio.hpp>
 #include <boost/algorithm/string/find.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string/join.hpp>
 
 #include "InfluxAdapter.h"
 
