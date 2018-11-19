@@ -52,6 +52,7 @@ InfluxAdapter::connectionInfo::connectionInfo() {
 
 InfluxAdapter::InfluxAdapter( errCallback_t cb ) : DbAdapter(cb) {
   _inTransaction = false;
+  _connected = false;
 }
 InfluxAdapter::~InfluxAdapter() {
   

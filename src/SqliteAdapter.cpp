@@ -33,6 +33,7 @@ SqliteAdapter::SqliteAdapter( errCallback_t cb ) : DbAdapter(cb) {
   _inTransaction = false;
   _transactionStackCount = 0;
   _maxTransactionStackCount = 50000;
+  _connected = false;
 }
 SqliteAdapter::~SqliteAdapter() {
   
