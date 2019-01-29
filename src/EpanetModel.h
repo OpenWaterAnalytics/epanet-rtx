@@ -70,10 +70,14 @@ namespace RTX {
     void setTankLevel(const std::string& tank, double level);
     void setJunctionDemand(const std::string& junction, double demand);
     void setPipeStatus(const std::string& pipe, Pipe::status_t status);
+    void setPipeStatusControl(const std::string& pipe, Pipe::status_t status, enableControl_t);
     void setPumpStatus(const std::string& pump, Pipe::status_t status);
+    void setPumpStatusControl(const std::string& pump, Pipe::status_t status, enableControl_t);
     void setPumpSetting(const std::string& pump, double setting);
+    void setPumpSettingControl(const std::string& pump, double setting, enableControl_t);
     void setValveSetting(const std::string& valve, double setting);
-    
+    void setValveSettingControl(const std::string& valve, double setting, enableControl_t);
+
     // quality
     void setJunctionQuality(const std::string& junction, double quality);
     
@@ -106,12 +110,15 @@ namespace RTX {
   private:
     std::map<std::string, int> _nodeIndex;
     std::map<std::string, int> _linkIndex;
+    std::map<std::string, int> _statusControlIndex;
+    std::map<std::string, int> _settingControlIndex;
     // TODO - use boost filesystem instead of std::string path
 //    std::string _modelFile;
     
     void createRtxWrappers();
     bool _didConverge(time_t time, int errorCode);
     bool _enOpened;
+    int _controlCount;
     
     
   };

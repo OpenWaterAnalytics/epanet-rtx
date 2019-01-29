@@ -241,11 +241,16 @@ namespace RTX {
     virtual void setJunctionDemand(const string& junction, double demand) { };
     virtual void setJunctionQuality(const string& junction, double quality) { };
     
+    enum enableControl_t : bool {enable=true,disable=false};
     virtual void setPipeStatus(const string& pipe, Pipe::status_t status) { };
+    virtual void setPipeStatusControl(const string& pipe, Pipe::status_t status, enableControl_t) { };
     virtual void setPumpStatus(const string& pump, Pipe::status_t status) { };
+    virtual void setPumpStatusControl(const string& pump, Pipe::status_t status, enableControl_t) { };
     virtual void setPumpSetting(const std::string& pump, double setting) { };
+    virtual void setPumpSettingControl(const std::string& pump, double setting, enableControl_t) { };
     virtual void setValveSetting(const string& valve, double setting) { };
-    
+    virtual void setValveSettingControl(const string& valve, double setting, enableControl_t) { };
+
   protected:
     
     virtual bool solveSimulation(time_t time) { return false; };

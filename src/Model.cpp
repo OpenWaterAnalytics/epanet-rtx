@@ -1171,7 +1171,7 @@ void Model::setSimulationParameters(time_t time) {
       Point p = valve->statusBoundary()->pointAtOrBefore(time);
       if (p.isValid) {
         status = (p.value > 0 ? Pipe::OPEN : Pipe::CLOSED);
-        setPipeStatus( valve->name(), status );
+        setPipeStatusControl( valve->name(), status, enable );
         DebugLog << "*  Valve " << valve->name() << " status --> " << (p.value > 0 ? "ON" : "OFF") << EOL;
       }
       else {
@@ -1191,7 +1191,7 @@ void Model::setSimulationParameters(time_t time) {
           else if (settingUnits.isSameDimensionAs(RTX_GALLON_PER_MINUTE)) {
             p = Point::convertPoint(p, settingUnits, this->flowUnits());
           }
-          setValveSetting( valve->name(), p.value );
+          setValveSettingControl( valve->name(), p.value, enable );
           DebugLog << "*  Valve " << valve->name() << " setting --> " << p.value << EOL;
         }
         else {
@@ -1201,6 +1201,7 @@ void Model::setSimulationParameters(time_t time) {
         }
       }
       else {
+        setValveSettingControl( valve->name(), 0.0, disable );
         stringstream ss;
         ss << "WARN: Ignoring setting for Valve because status is Closed: " << valve->name() << " :: " << asctime(timeinfo);
 //        this->logLine(ss.str());
@@ -1216,7 +1217,7 @@ void Model::setSimulationParameters(time_t time) {
       Point p = pump->statusBoundary()->pointAtOrBefore(time);
       if (p.isValid) {
         status = Pipe::status_t((int)(p.value));
-        setPumpStatus( pump->name(), status );
+        setPumpStatusControl( pump->name(), status, enable );
         DebugLog << "*  Pump " << pump->name() << " status --> " << (p.value > 0 ? "ON" : "OFF") << EOL;
       }
       else {
@@ -1229,7 +1230,7 @@ void Model::setSimulationParameters(time_t time) {
       if (status == Pipe::OPEN) {
         Point p = pump->settingBoundary()->pointAtOrBefore(time);
         if (p.isValid) {
-          setPumpSetting( pump->name(), p.value );
+          setPumpSettingControl( pump->name(), p.value, enable );
           DebugLog << "*  Pump " << pump->name() << " setting --> " << p.value << EOL;
         }
         else {
@@ -1239,6 +1240,7 @@ void Model::setSimulationParameters(time_t time) {
         }
       }
       else {
+        setPumpSettingControl( pump->name(), 0.0, disable );
         stringstream ss;
         ss << "WARN: Ignoring setting for Pump because status is Closed: " << pump->name() << " :: " << asctime(timeinfo);
 //        this->logLine(ss.str());
@@ -1251,7 +1253,8 @@ void Model::setSimulationParameters(time_t time) {
     if (pipe->statusBoundary()) {
       Point p = pipe->statusBoundary()->pointAtOrBefore(time);
       if (p.isValid) {
-        setPipeStatus(pipe->name(), Pipe::status_t((int)(p.value)));
+        Pipe::status_t status = Pipe::status_t((int)(p.value));
+        setPipeStatusControl(pipe->name(), status, enable);
         DebugLog << "*  Pipe " << pipe->name() << " status --> " << (p.value > 0 ? "ON" : "OFF") << EOL;
       }
       else {

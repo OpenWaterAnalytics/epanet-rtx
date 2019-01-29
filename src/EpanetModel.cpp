@@ -162,6 +162,11 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   EN_API_CHECK( EN_getcount(_enModel, EN_TANKCOUNT, &tankCount), "EN_getcount EN_TANKCOUNT" );
   EN_API_CHECK( EN_getcount(_enModel, EN_LINKCOUNT, &linkCount), "EN_getcount EN_LINKCOUNT" );
   
+  // store the original number of simple controls, since we'll be adding new ones
+  int controlCount;
+  EN_API_CHECK( EN_getcount(_enModel, EN_CONTROLCOUNT, &controlCount), "EN_getcount EN_CONTROLCOUNT" );
+  _controlCount = controlCount;
+  
   // create lookup maps for name->index
   for (int iNode=1; iNode <= nodeCount; iNode++) {
     EN_API_CHECK( EN_getnodeid(_enModel, iNode, enName), "EN_getnodeid" );
@@ -615,17 +620,65 @@ void EpanetModel::setPipeStatus(const string& pipe, Pipe::status_t status) {
   setLinkValue(EN_STATUS, pipe, status);
 }
 
+void EpanetModel::setPipeStatusControl(const std::string& pipe, Pipe::status_t status, enableControl_t enableStatus) {
+  int linkIndex = _linkIndex[pipe];
+  int enEnableStatus = (enableStatus == enable) ? EN_ENABLE : EN_DISABLE;
+
+  if (_statusControlIndex.count(pipe) == 0) {
+    // if this element doesn't have a control, add one
+    int cindex;
+    EN_API_CHECK(EN_addcontrol(_enModel, EN_TIMER, linkIndex, (EN_API_FLOAT_TYPE)status, 0, (EN_API_FLOAT_TYPE)0.0, &cindex), "EN_addcontrol");
+    _statusControlIndex[pipe] = cindex;
+    EN_API_CHECK(EN_setControlEnabled(_enModel, cindex, enEnableStatus), "EN_setControlEnabled");
+  }
+  else {
+    // set the control
+    int cindex = _statusControlIndex[pipe];
+    EN_API_CHECK(EN_setcontrol(_enModel, cindex, EN_TIMER, linkIndex, (EN_API_FLOAT_TYPE)status, 0, (EN_API_FLOAT_TYPE)0.0), "EN_setcontrol");
+    EN_API_CHECK(EN_setControlEnabled(_enModel, cindex, enEnableStatus), "EN_setControlEnabled");
+  }
+}
+
 void EpanetModel::setPumpStatus(const string& pump, Pipe::status_t status) {
   // call the setPipeStatus method, since they are the same in epanet.
   setPipeStatus(pump, status);
+}
+
+void EpanetModel::setPumpStatusControl(const string& pump, Pipe::status_t status, enableControl_t enableStatus) {
+  // call the setPipeStatusControl method, since they are the same in epanet.
+  setPipeStatusControl(pump, status, enableStatus);
 }
 
 void EpanetModel::setPumpSetting(const string& pump, double setting) {
   setLinkValue(EN_SETTING, pump, setting);
 }
 
+void EpanetModel::setPumpSettingControl(const string& pump, double setting, enableControl_t enableStatus) {
+  int linkIndex = _linkIndex[pump];
+  int enEnableStatus = (enableStatus == enable) ? EN_ENABLE : EN_DISABLE;
+
+  if (_settingControlIndex.count(pump) == 0) {
+    // if this element doesn't have a control, add one
+    int cindex;
+    EN_API_CHECK(EN_addcontrol(_enModel, EN_TIMER, linkIndex, (EN_API_FLOAT_TYPE)setting, 0, (EN_API_FLOAT_TYPE)0.0, &cindex), "EN_addcontrol");
+    _settingControlIndex[pump] = cindex;
+    EN_API_CHECK(EN_setControlEnabled(_enModel, cindex, enEnableStatus), "EN_setControlEnabled");
+  }
+  else {
+    // set the control
+    int cindex = _settingControlIndex[pump];
+    EN_API_CHECK(EN_setcontrol(_enModel, cindex, EN_TIMER, linkIndex, (EN_API_FLOAT_TYPE)setting, 0, (EN_API_FLOAT_TYPE)0.0), "EN_setcontrol");
+    EN_API_CHECK(EN_setControlEnabled(_enModel, cindex, enEnableStatus), "EN_setControlEnabled");
+  }
+}
+
 void EpanetModel::setValveSetting(const string& valve, double setting) {
   setLinkValue(EN_SETTING, valve, setting);
+}
+
+void EpanetModel::setValveSettingControl(const string& valve, double setting, enableControl_t enableStatus) {
+  // call the setPumpSettingControl method, since they are the same in epanet.
+  setPumpSettingControl(valve, setting, enableStatus);
 }
 
 #pragma mark Getters
@@ -677,12 +730,11 @@ double EpanetModel::pumpEnergy(const string &pump) {
 
 #pragma mark - Sim options
 void EpanetModel::enableControls() {
-  int nC;
-  EN_getcount(_enModel, EN_CONTROLCOUNT, &nC);
-  
-  for (int i = 1; i <= nC; ++i) {
+  for (int i = 1; i <= _controlCount; ++i) {
     EN_setControlEnabled(_enModel, i, EN_ENABLE);
   }
+  
+  int nC;
   EN_getcount(_enModel, EN_RULECOUNT, &nC);
   for (int i = 1; i <= nC; ++i) {
     EN_setRuleEnabled(_enModel, i, EN_ENABLE);
@@ -690,13 +742,11 @@ void EpanetModel::enableControls() {
 }
 
 void EpanetModel::disableControls() {
-  int nC;
-  EN_getcount(_enModel, EN_CONTROLCOUNT, &nC);
-  
-  for (int i = 1; i <= nC; ++i) {
+  for (int i = 1; i <= _controlCount; ++i) {
     EN_setControlEnabled(_enModel, i, EN_DISABLE);
   }
   
+  int nC;
   EN_getcount(_enModel, EN_RULECOUNT, &nC);
   for (int i = 1; i <= nC; ++i) {
     EN_setRuleEnabled(_enModel, i, EN_DISABLE);
