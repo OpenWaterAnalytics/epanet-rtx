@@ -78,6 +78,7 @@ namespace RTX {
     
     bool solveInitial(time_t time);
     bool updateSimulationToTime(time_t time);
+    virtual void cleanupModelAfterSimulation() {};
     
     void cancelSimulation();
     

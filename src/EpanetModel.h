@@ -97,6 +97,7 @@ namespace RTX {
     virtual void applyInitialQuality();
     void EN_API_CHECK(int errorCode, std::string externalFunction) throw(std::string);
     void updateEngineWithElementProperties(Element::_sp e);
+    virtual void cleanupModelAfterSimulation();
     
     // protected accessors
     double getNodeValue(int epanetCode, const std::string& node);

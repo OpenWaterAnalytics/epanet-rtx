@@ -793,6 +793,7 @@ void Model::runExtendedPeriod(time_t start, time_t end) {
   
   this->solveInitial(start);
   this->updateSimulationToTime(end);
+  this->cleanupModelAfterSimulation();
   
   _shouldCancelSimulation = false;
 }
@@ -875,6 +876,7 @@ void Model::runForecast(time_t start, time_t end) {
     
   } // simulation loop
   
+  this->cleanupModelAfterSimulation();
   
 }
 

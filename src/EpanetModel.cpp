@@ -1037,6 +1037,25 @@ void EpanetModel::updateEngineWithElementProperties(Element::_sp e) {
   }
 }
 
+/**
+ @brief Revert any simulation modifications made to the current in-memory model data, which should never be saved back to the input file (i.e. by making additional valid changes and then saving them)
+ */
+void EpanetModel::cleanupModelAfterSimulation() {
+  // Remove simple controls added for real time simulation
+  int nC;
+  EN_getcount(_enModel, EN_CONTROLCOUNT, &nC);
+  for (int i = nC; i >= _controlCount + 1; --i) {
+    EN_API_CHECK(EN_deletecontrol(_enModel, i), "EN_deletecontrol");
+  }
+  _settingControlIndex.clear();
+  _statusControlIndex.clear();
+  
+  // TODO - revert base demands (and patterns!) back to their previous values
+  
+  // TODO - other things: initial tank levels? Anything else that creates confusion with diffs?
+  
+}
+
 #pragma mark -
 #pragma mark Internal Private Methods
 
