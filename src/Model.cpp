@@ -1170,17 +1170,18 @@ void Model::setSimulationParameters(time_t time) {
     // status can affect settings and vice-versa; status rules
     Pipe::status_t status = valve->fixedStatus();
     if (valve->statusBoundary()) {
-      Point p = valve->statusBoundary()->pointAtOrBefore(time);
-      if (p.isValid) {
-        status = (p.value > 0 ? Pipe::OPEN : Pipe::CLOSED);
-        setPipeStatusControl( valve->name(), status, enable );
-        DebugLog << "*  Valve " << valve->name() << " status --> " << (p.value > 0 ? "ON" : "OFF") << EOL;
-      }
-      else {
+      // Current Epanet limitations mean that simple controls don't affect valve status
+//      Point p = valve->statusBoundary()->pointAtOrBefore(time);
+//      if (p.isValid) {
+//        status = (p.value > 0 ? Pipe::OPEN : Pipe::CLOSED);
+//        setPipeStatusControl( valve->name(), status, enable );
+//        DebugLog << "*  Valve " << valve->name() << " status --> " << (p.value > 0 ? "ON" : "OFF") << EOL;
+//      }
+//      else {
         stringstream ss;
         ss << "ERROR: Invalid status value for valve: " << valve->name() << " :: " << asctime(timeinfo);
         this->logLine(ss.str());
-      }
+//      }
     }
     if (valve->settingBoundary()) {
       Units settingUnits = valve->settingBoundary()->units();
