@@ -1015,18 +1015,32 @@ void EpanetModel::updateEngineWithElementProperties(Element::_sp e) {
       this->setLinkValue(EN_ROUGHNESS, p->name(), p->roughness());
       this->setLinkValue(EN_LENGTH, p->name(), p->length());
       
-      if (e->type() == Element::VALVE) {
-        // valve/pump setting
-        auto valve = dynamic_pointer_cast<Valve>(e);
-        this->setLinkValue(EN_INITSETTING, valve->name(), valve->fixedSetting);
-        this->setLinkValue(EN_SETTING, valve->name(), valve->fixedSetting);
-      }
+      // if it is a valve/pump:
+      //    if check valve, don't set status or setting
+      //    if fixedStatus is closed, set the setting first
+      //    if fixedStatus is open, set the setting last.
       
-      // is it check valve? can't set status
+      auto setSetting = [this](Valve::_sp v) {
+        this->setLinkValue(EN_INITSETTING, v->name(), v->fixedSetting);
+        this->setLinkValue(EN_SETTING, v->name(), v->fixedSetting);
+      };
+      
+      auto setStatus = [this](Valve::_sp v) {
+        this->setLinkValue(EN_INITSTATUS, v->name(), v->fixedStatus());
+        this->setLinkValue(EN_STATUS, v->name(), v->fixedStatus());
+      };
+      
       Valve::_sp v = std::dynamic_pointer_cast<Valve>(p);
-      if (!(v && v->valveType == EN_CVPIPE)) {
-        this->setLinkValue(EN_INITSTATUS, p->name(), p->fixedStatus());
-        this->setLinkValue(EN_STATUS, p->name(), p->fixedStatus());
+      if (v && v->valveType != EN_CVPIPE) {
+        // it's a valve... don't set anything on a check valve!
+        if (v->fixedStatus() == RTX::Pipe::CLOSED) {
+          //setSetting(v);
+          setStatus(v);
+        }
+        else {
+          setStatus(v);
+          setSetting(v);
+        }
       }
       
       this->setComment(p, p->userDescription());
