@@ -308,7 +308,20 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
   
   
   
-  
+  AggregatorTimeSeries::_sp boundaryDemandSum(new AggregatorTimeSeries());
+  boundaryDemandSum->setUnits(RTX_GALLON_PER_MINUTE);
+  for(auto ts : _boundaryFlowJunctions) {
+    boundaryDemandSum->addSource(ts->boundaryFlow());
+  }
+  if (_boundaryFlowJunctions.size() > 0) {
+    _boundaryDemand = boundaryDemandSum;
+  }
+  else {
+    ConstantTimeSeries::_sp c(new ConstantTimeSeries());
+    c->setValue(0);
+    c->setUnits(RTX_GALLON_PER_MINUTE);
+    _boundaryDemand = c;
+  }
   
   // separate junctions into:
   // -- demand junctions
@@ -385,7 +398,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
   
   
   
-  // hash formulation. entries are ordered using build-in std::set sorting.
+  // hash formulation. entries are ordered using built-in std::set sorting.
   // m:[+/-]<mbpName>,[+/-]<mbpName>,[...],c:<cbpName>,<cbpName>,[...],t:<tankName>,<tankName>,[...],j:<juncName>,<juncName>,[...]
   
   SHA_CTX ctx;
@@ -529,6 +542,10 @@ std::vector<Dma::pipeDirPair_t> Dma::measuredBoundaryPipes() {
   return _measuredBoundaryPipesDirectional;
 }
 
+std::vector<Junction::_sp> Dma::measuredBoundaryJunctions() {
+  return _boundaryFlowJunctions;
+}
+
 std::vector<Dma::pipeDirPair_t> Dma::closedBoundaryPipes() {
   return _closedBoundaryPipesDirectional;
 }
@@ -635,6 +652,10 @@ void Dma::setDemand(TimeSeries::_sp demand) {
 
 TimeSeries::_sp Dma::demand() {
   return _demand;
+}
+
+TimeSeries::_sp Dma::boundaryDemand() {
+  return _boundaryDemand;
 }
 
 int Dma::allocateDemandToJunctions(time_t time) {

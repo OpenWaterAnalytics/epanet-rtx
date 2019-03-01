@@ -86,6 +86,7 @@ namespace RTX {
     std::set<Junction::_sp> junctions();
     std::set<Tank::_sp> tanks();
     std::vector<Dma::pipeDirPair_t> measuredBoundaryPipes();
+    std::vector<Junction::_sp> measuredBoundaryJunctions();
     std::vector<Dma::pipeDirPair_t> closedBoundaryPipes();
     std::vector<Pipe::_sp> closedInteriorPipes();
     std::vector<Pipe::_sp> measuredInteriorPipes();
@@ -99,8 +100,11 @@ namespace RTX {
 
     // time series accessors
     TimeSeries::_sp demand();
+    TimeSeries::_sp boundaryDemand();
     void setDemand(TimeSeries::_sp demand);
     void setJunctionFlowUnits(Units units);
+    
+    
     
     // business logic
     virtual int allocateDemandToJunctions(time_t time);
@@ -122,6 +126,7 @@ namespace RTX {
     std::vector<Pipe::_sp> _measuredInteriorPipes;
 
     TimeSeries::_sp _demand;
+    TimeSeries::_sp _boundaryDemand;
     Units _flowUnits;
   };
 }

@@ -172,7 +172,7 @@ time_t AggregatorTimeSeries::timeAfter(time_t time) {
 std::set<time_t> AggregatorTimeSeries::timeValuesInRange(TimeRange range) {
   set<time_t> timeList;
   TimeRange netRange = range;
-  
+  bool hasLogged = false;
   for(AggregatorSource aggSource: this->sources()) {      
     auto src = aggSource.timeseries;
     auto seekLeft = src->timeBefore(range.start + 1);
@@ -184,6 +184,13 @@ std::set<time_t> AggregatorTimeSeries::timeValuesInRange(TimeRange range) {
       seekRight = src->timeBefore(range.end + 1);
     }
     TimeRange componentRange(seekLeft,seekRight);
+    if (componentRange.duration() == 0) {
+      if (!hasLogged) {
+        hasLogged = true;
+        cerr << "--- errors detected in aggregation ---" << endl;
+      }
+      cerr << "NO VALID RANGE DETECTED FOR SOURCE SERIES: " << src->name() << endl;
+    }
     netRange = TimeRange::intersectionOf(netRange, componentRange);
   }
   
