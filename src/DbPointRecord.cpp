@@ -78,9 +78,15 @@ bool DbPointRecord::isConnected() {
 }
 
 void DbPointRecord::dbConnect() throw(RtxException) {
-  if (_adapter != NULL) {
-    _adapter->doConnect();
+  try {
+    if (_adapter != NULL) {
+      _adapter->doConnect();
+    }
+  } catch (exception &e) {
+    cerr << "could not connect to db: " << _adapter->connectionString() << endl;
+    cerr << e.what() << endl;
   }
+  
 }
 
 bool DbPointRecord::checkConnected() {
@@ -619,20 +625,26 @@ std::set<unsigned int> DbPointRecord::opcFilterList() {
 void DbPointRecord::clearOpcFilterList() {
   _opcFilterCodes.clear();
   BufferPointRecord::reset(); // mem cache
-  this->dbConnect();
+  if (this->isConnected()) {
+    this->dbConnect();
+  }
 }
 
 void DbPointRecord::addOpcFilterCode(unsigned int code) {
   _opcFilterCodes.insert(code);
   BufferPointRecord::reset(); // mem cache
-  this->dbConnect();
+  if (this->isConnected()) {
+    this->dbConnect();
+  }
 }
 
 void DbPointRecord::removeOpcFilterCode(unsigned int code) {
   if (_opcFilterCodes.count(code) > 0) {
     _opcFilterCodes.erase(code);
     BufferPointRecord::reset(); // mem cache
-    this->dbConnect();
+    if (this->isConnected()) {
+      this->dbConnect();
+    }
   }
 }
 

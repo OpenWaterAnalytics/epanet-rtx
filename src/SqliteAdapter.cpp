@@ -84,7 +84,8 @@ void SqliteAdapter::doConnect() {
       }
     }
     else {
-      throw runtime_error("could not open the db file.");
+      string err = "could not open the db file: " + realPath;
+      throw runtime_error(err);
     }
   }
   else if (returnCode == SQLITE_OK) {
