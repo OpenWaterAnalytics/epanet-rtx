@@ -155,6 +155,12 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
     this->setHydraulicTimeStep((int)enTimeStep);
   }
   
+  {
+    long reportStep;
+    EN_API_CHECK(EN_gettimeparam(_enModel, EN_REPORTSTEP, &reportStep), "EN_gettimeparam EN_REPORTSTEP");
+    this->setReportTimeStep((int)reportStep);
+  }
+  
   int nodeCount, tankCount, linkCount;
   char enName[RTX_MAX_CHAR_STRING];
   
