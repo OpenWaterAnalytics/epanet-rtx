@@ -158,7 +158,8 @@ Point TimeSeriesFilter::pointBefore(time_t time) {
       p = c.points().back();
     }
     else {
-      cerr << "pointBefore Iterative search exceeded max strides:" << this->name() << " time=" << time << " (root: " << this->rootTimeSeries()->name() << ")" << endl;
+      struct tm * timeinfo = localtime (&time);
+      cerr << "pointBefore Iterative search exceeded max strides:" << this->name() << " time=" << asctime(timeinfo) << " (root: " << this->rootTimeSeries()->name() << ")" << endl;
     }
   }
   else {
@@ -205,7 +206,8 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
       p = c.points().front();
     }
     else {
-      cerr << "pointAfter Iterative search exceeded max strides:" << this->name() << " time=" << time << " (root: " << this->rootTimeSeries()->name() << ")" << endl;
+      struct tm * timeinfo = localtime (&time);
+      cerr << "pointAfter Iterative search exceeded max strides:" << this->name() << " time=" << asctime(timeinfo) << " (root: " << this->rootTimeSeries()->name() << ")" << endl;
     }
   }
   else {
