@@ -14,12 +14,12 @@ namespace RTX {
     bool hasIdentifierAndUnits(const std::string& identifier, const Units& units);
     std::pair<bool,bool> doesHaveIdUnits(const std::string& identifier, const Units& units);
     void set(const std::string& identifier, const Units& units);
-    std::map< std::string, Units> *get();
+    std::map< std::string, std::pair<Units, std::string> > *get();
     void clear();
     size_t count();
     bool empty();
-  private:
-    std::shared_ptr< std::map< std::string, Units> > _d;
+  private:        // ID => (units, units_str)
+    std::shared_ptr< std::map< std::string, std::pair<Units, std::string> > > _d;
   };
 }
 

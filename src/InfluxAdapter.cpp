@@ -250,8 +250,7 @@ string InfluxAdapter::influxIdForTsId(const string& id) {
     // yet i'm being asked for it??
     return "";
   }
-  Units u = (*_idCache.get())[tsId];
-  m.tags["units"] = u.to_string();
+  m.tags["units"] = (*_idCache.get())[tsId].second
   return m.name();
 }
 
@@ -1033,41 +1032,3 @@ std::string InfluxUdpAdapter::formatTimestamp(time_t t) {
   // which of course we don't have over UDP
   return to_string(t) + "000000000";
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
