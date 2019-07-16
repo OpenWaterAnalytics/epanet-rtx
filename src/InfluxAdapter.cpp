@@ -250,7 +250,7 @@ string InfluxAdapter::influxIdForTsId(const string& id) {
     // yet i'm being asked for it??
     return "";
   }
-  m.tags["units"] = (*_idCache.get())[tsId].second
+  m.tags["units"] = (*_idCache.get())[tsId].second;
   return m.name();
 }
 
@@ -656,7 +656,7 @@ void InfluxTcpAdapter::removeAllRecords() {
   
   this->beginTransaction();
   for (auto ts_units : *ids.get()) {
-    this->insertIdentifierAndUnits(ts_units.first, ts_units.second);
+    this->insertIdentifierAndUnits(ts_units.first, ts_units.second.first);
   }
   this->endTransaction();
   
