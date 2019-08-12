@@ -36,6 +36,7 @@
 #define RTX_CUBIC_FOOT              RTX::Units(.0283168466,  0,3,0)
 //flow
 #define RTX_CUBIC_METER_PER_SECOND  RTX::Units(1,            0,3,-1)
+#define RTX_THOUSAND_CUBIC_METER_PER_DAY RTX::Units(.011574074,0,3,-1)
 #define RTX_CUBIC_FOOT_PER_SECOND   RTX::Units(.0283168466,  0,3,-1)
 #define RTX_GALLON_PER_SECOND       RTX::Units(.00378541178, 0,3,-1)
 #define RTX_GALLON_PER_MINUTE       RTX::Units(.00006309020, 0,3,-1)
@@ -125,6 +126,7 @@ namespace RTX {
   class Units : public RTX_object {
   public:
     RTX_BASE_PROPS(Units);
+    const static std::map<std::string, Units> unitStrings;
     
     Units(double conversion = 1., int kilogram = 0, int meter = 0, int second = 0, int ampere = 0, int kelvin = 0, int mole = 0, int candela = 0, double offset = 0);
     Units(const std::string& type);
@@ -142,7 +144,6 @@ namespace RTX {
     const double offset() const;
     static double convertValue(double value, const Units& fromUnits, const Units& toUnits);
     static Units unitOfType(const std::string& unitString);
-    static std::map<std::string, Units> unitStringMap;
     const std::string to_string() const;
     const std::string rawUnitString(bool ignoreZeroDimensions = true) const;
     

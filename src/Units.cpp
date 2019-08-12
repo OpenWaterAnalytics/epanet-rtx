@@ -22,6 +22,97 @@ using namespace RTX;
 using namespace std;
 
 
+const std::map<std::string, Units> Units::unitStrings = {
+  {"dimensionless", RTX_DIMENSIONLESS},
+  {"Hz", RTX_HERTZ},
+  {"rpm", RTX_RPM},
+  // pressure
+  {"psi", RTX_PSI},
+  {"pa", RTX_PASCAL},
+  {"kpa", RTX_KILOPASCAL},
+  // distance
+  {"ft", RTX_FOOT},
+  {"in", RTX_INCH},
+  {"m", RTX_METER},
+  {"cm", RTX_CENTIMETER},
+  // volume
+  {"m³", RTX_CUBIC_METER},
+  {"gal", RTX_GALLON},
+  {"mgal", RTX_MILLION_GALLON},
+  {"liter", RTX_LITER},
+  {"ft³", RTX_CUBIC_FOOT},
+  // flow
+  {"cms", RTX_CUBIC_METER_PER_SECOND},
+  {"kcdm", RTX_THOUSAND_CUBIC_METER_PER_DAY},
+  {"cfs", RTX_CUBIC_FOOT_PER_SECOND},
+  {"gps", RTX_GALLON_PER_SECOND},
+  {"gpm", RTX_GALLON_PER_MINUTE},
+  {"gpd", RTX_GALLON_PER_DAY},
+  {"mgd", RTX_MILLION_GALLON_PER_DAY},
+  {"lps", RTX_LITER_PER_SECOND},
+  {"lpm", RTX_LITER_PER_MINUTE},
+  {"mld", RTX_MILLION_LITER_PER_DAY},
+  {"m³/hr", RTX_CUBIC_METER_PER_HOUR},
+  {"m³/d", RTX_CUBIC_METER_PER_DAY},
+  {"acre-ft/d", RTX_ACRE_FOOT_PER_DAY},
+  {"imgd", RTX_IMPERIAL_MILLION_GALLON_PER_DAY},
+  // time
+  {"s", RTX_SECOND},
+  {"min", RTX_MINUTE},
+  {"hr", RTX_HOUR},
+  {"d", RTX_DAY},
+  // mass
+  {"mg", RTX_MILLIGRAM},
+  {"g", RTX_GRAM},
+  {"kg", RTX_KILOGRAM},
+  // concentration
+  {"mg/L", RTX_MILLIGRAMS_PER_LITER},
+  // conductance
+  {"us/cm", RTX_MICROSIEMENS_PER_CM},
+  // velocity
+  {"m/s", RTX_METER_PER_SECOND},
+  {"fps", RTX_FOOT_PER_SECOND},
+  {"ft/hr", RTX_FOOT_PER_HOUR},
+  // acceleration
+  {"m/s²", RTX_METER_PER_SECOND_SECOND},
+  {"ft/s²", RTX_FOOT_PER_SECOND_SECOND},
+  {"ft/hr²", RTX_FOOT_PER_HOUR_HOUR},
+  
+  //  {"mgd/s", RTX_MILLION_GALLON_PER_DAY_PER_SECOND},
+  
+  // temperature
+  {"kelvin", RTX_DEGREE_KELVIN},
+  {"rankine", RTX_DEGREE_RANKINE},
+  {"celsius", RTX_DEGREE_CELSIUS},
+  {"farenheit", RTX_DEGREE_FARENHEIT},
+  
+  {"kwh", RTX_KILOWATT_HOUR},
+  {"mj", RTX_MEGAJOULE},
+  {"j", RTX_JOULE},
+  
+  // energy density
+  {"kW-H/m³", RTX_ENERGY_DENSITY},
+  {"kW-H/MG", RTX_ENERGY_DENSITY_MG},
+  
+  {"xx-no-units", RTX_NO_UNITS},
+  {"%", RTX_PERCENT},
+  
+  {"ft-per-psi", RTX_FOOT * 2.30665873688 / RTX_PSI},
+  {"psi-per-ft", RTX_PSI / (RTX_FOOT * 2.30665873688)},
+  {"W", RTX_WATT},
+  {"kW", RTX_KILOWATT},
+  
+  {"V", RTX_VOLT},
+  {"A", RTX_AMP},
+  
+  {"ft²", RTX_SQ_FOOT},
+  {"m²", RTX_SQ_METER},
+  {"cm²", RTX_SQ_CENTIMETER},
+  {"in²", RTX_SQ_INCH},
+};
+
+
+
 Units::Units(double conversion, int mass, int length, int time, int current, int temperature, int amount, int intensity, double offset) {
   _kg         = mass;
   _m          = length;
@@ -186,9 +277,9 @@ ostream& Units::toStream(ostream &stream) const {
 
 
 const string Units::to_string() const {
-  map<string, Units> unitMap = Units::unitStringMap;
+  auto unitMap = Units::unitStrings;
   
-  map<string, Units>::const_iterator it = unitMap.begin();
+  auto it = unitMap.begin();
   
   while (it != unitMap.end()) {
     Units theseUnits = it->second;
@@ -232,99 +323,6 @@ double Units::convertValue(double value, const Units& fromUnits, const Units& to
   }
 }
 
-std::map<std::string, Units> Units::unitStringMap = []()
-{
-  map<string, Units> m;
-  
-  m["dimensionless"]= RTX_DIMENSIONLESS;
-  m["Hz"] = RTX_HERTZ;
-  m["rpm"] = RTX_RPM;
-  // pressure
-  m["psi"] = RTX_PSI;
-  m["pa"]  = RTX_PASCAL;
-  m["kpa"] = RTX_KILOPASCAL;
-  // distance
-  m["ft"]  = RTX_FOOT;
-  m["in"]  = RTX_INCH;
-  m["m"]   = RTX_METER;
-  m["cm"]  = RTX_CENTIMETER;
-  // volume
-  m["m³"]  = RTX_CUBIC_METER;
-  m["gal"] = RTX_GALLON;
-  m["mgal"]= RTX_MILLION_GALLON;
-  m["liter"]=RTX_LITER;
-  m["ft³"] = RTX_CUBIC_FOOT;
-  // flow
-  m["cms"]= RTX_CUBIC_METER_PER_SECOND;
-  m["cfs"] = RTX_CUBIC_FOOT_PER_SECOND;
-  m["gps"] = RTX_GALLON_PER_SECOND;
-  m["gpm"] = RTX_GALLON_PER_MINUTE;
-  m["gpd"] = RTX_GALLON_PER_DAY;
-  m["mgd"] = RTX_MILLION_GALLON_PER_DAY;
-  m["lps"] = RTX_LITER_PER_SECOND;
-  m["lpm"] = RTX_LITER_PER_MINUTE;
-  m["mld"] = RTX_MILLION_LITER_PER_DAY;
-  m["m³/hr"]=RTX_CUBIC_METER_PER_HOUR;
-  m["m³/d"]= RTX_CUBIC_METER_PER_DAY;
-  m["acre-ft/d"]=RTX_ACRE_FOOT_PER_DAY;
-  m["imgd"]= RTX_IMPERIAL_MILLION_GALLON_PER_DAY;
-  // time
-  m["s"]   = RTX_SECOND;
-  m["min"] = RTX_MINUTE;
-  m["hr"]  = RTX_HOUR;
-  m["d"]   = RTX_DAY;
-  // mass
-  m["mg"]  = RTX_MILLIGRAM;
-  m["g"]   = RTX_GRAM;
-  m["kg"]  = RTX_KILOGRAM;
-  // concentration
-  m["mg/L"]= RTX_MILLIGRAMS_PER_LITER;
-  // conductance
-  m["us/cm"]=RTX_MICROSIEMENS_PER_CM;
-  // velocity
-  m["m/s"] = RTX_METER_PER_SECOND;
-  m["fps"] = RTX_FOOT_PER_SECOND;
-  m["ft/hr"] = RTX_FOOT_PER_HOUR;
-  // acceleration
-  m["m/s²"] = RTX_METER_PER_SECOND_SECOND;
-  m["ft/s²"] = RTX_FOOT_PER_SECOND_SECOND;
-  m["ft/hr²"] = RTX_FOOT_PER_HOUR_HOUR;
-
-//  m["mgd/s"] = RTX_MILLION_GALLON_PER_DAY_PER_SECOND;
-  
-  // temperature
-  m["kelvin"] = RTX_DEGREE_KELVIN;
-  m["rankine"] = RTX_DEGREE_RANKINE;
-  m["celsius"] = RTX_DEGREE_CELSIUS;
-  m["farenheit"] = RTX_DEGREE_FARENHEIT;
-  
-  m["kwh"] = RTX_KILOWATT_HOUR;
-  m["mj"] = RTX_MEGAJOULE;
-  m["j"] = RTX_JOULE;
-  
-  // energy density
-  m["kW-H/m³"] = RTX_ENERGY_DENSITY;
-  m["kW-H/MG"] = RTX_ENERGY_DENSITY_MG;
-  
-  m["xx-no-units"] = RTX_NO_UNITS;
-  m["%"] = RTX_PERCENT;
-  
-  m["ft-per-psi"] = RTX_FOOT * 2.30665873688 / RTX_PSI;
-  m["psi-per-ft"] = RTX_PSI / (RTX_FOOT * 2.30665873688);
-  m["W"] = RTX_WATT;
-  m["kW"] = RTX_KILOWATT;
-  
-  m["V"] = RTX_VOLT;
-  m["A"] = RTX_AMP;
-  
-  m["ft²"] = RTX_SQ_FOOT;
-  m["m²"] = RTX_SQ_METER;
-  m["cm²"] = RTX_SQ_CENTIMETER;
-  m["in²"] = RTX_SQ_INCH;
-  
-  return m;
-}();
-
 // factory for string input
 Units Units::unitOfType(const string& unitString) {
   
@@ -336,9 +334,9 @@ Units Units::unitOfType(const string& unitString) {
   int mass=0, length=0, time=0, current=0, temperature=0, amount=0, intensity=0;
   double offset=0;
   
-//  const map<string, Units> unitMap = Units::unitStringMap;
-  map<string, Units>::const_iterator found = Units::unitStringMap.find(unitString);
-  if (found != Units::unitStringMap.end()) {
+//  const map<string, Units> unitMap = Units::unitStrings;
+  auto found = Units::unitStrings.find(unitString);
+  if (found != Units::unitStrings.end()) {
     return found->second;
   }
   
@@ -357,8 +355,8 @@ Units Units::unitOfType(const string& unitString) {
     }
     
     // try again
-    found = Units::unitStringMap.find(uStr);
-    if (found != Units::unitStringMap.end()) {
+    found = Units::unitStrings.find(uStr);
+    if (found != Units::unitStrings.end()) {
       return found->second;
     }
   }
@@ -366,7 +364,7 @@ Units Units::unitOfType(const string& unitString) {
   
   // case insensitive search?
   typedef std::pair<std::string, Units> stringUnitsPair;
-  for(const stringUnitsPair& sup : Units::unitStringMap) {
+  for(const stringUnitsPair& sup : Units::unitStrings) {
     const string u = sup.first;
     if (RTX_STRINGS_ARE_EQUAL(u, unitString)) {
       return sup.second;
