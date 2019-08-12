@@ -44,7 +44,7 @@ const std::map<std::string, Units> Units::unitStrings = {
   {"ft³", RTX_CUBIC_FOOT},
   // flow
   {"cms", RTX_CUBIC_METER_PER_SECOND},
-  {"kcdm", RTX_THOUSAND_CUBIC_METER_PER_DAY},
+  {"kcmd", RTX_THOUSAND_CUBIC_METER_PER_DAY},
   {"cfs", RTX_CUBIC_FOOT_PER_SECOND},
   {"gps", RTX_GALLON_PER_SECOND},
   {"gpm", RTX_GALLON_PER_MINUTE},
