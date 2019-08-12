@@ -30,6 +30,7 @@ const std::map<std::string, Units> Units::unitStrings = {
   {"psi", RTX_PSI},
   {"pa", RTX_PASCAL},
   {"kpa", RTX_KILOPASCAL},
+  {"bar", RTX_BAR},
   // distance
   {"ft", RTX_FOOT},
   {"in", RTX_INCH},

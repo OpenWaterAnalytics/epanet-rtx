@@ -23,6 +23,7 @@
 #define RTX_PSI                     RTX::Units(6894.75728,   1,-1,-2)
 #define RTX_PASCAL                  RTX::Units(1,            1,-1,-2)
 #define RTX_KILOPASCAL              RTX::Units(1000,         1,-1,-2)
+#define RTX_BAR                     RTX::Units(100000,       1,-1,-2)
 // distance
 #define RTX_FOOT                    RTX::Units(.3048,        0,1,0)
 #define RTX_INCH                    RTX::Units(.0254,        0,1,0)
