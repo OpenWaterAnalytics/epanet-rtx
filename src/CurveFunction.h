@@ -37,6 +37,8 @@ namespace RTX {
     // chainable
     CurveFunction::_sp curve(Curve::_sp curve) {this->setCurve(curve); return share_me(this);};
     
+    void setDoesSaturate(bool saturate);
+    
   protected:
     bool canSetSource(TimeSeries::_sp ts);
     void didSetSource(TimeSeries::_sp ts);
@@ -48,6 +50,7 @@ namespace RTX {
   private:
     Point convertWithCurve(Point p, Units sourceU);
     Curve::_sp _curve;
+    bool _doesSaturate;
     
   };
 }

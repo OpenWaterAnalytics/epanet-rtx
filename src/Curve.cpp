@@ -5,7 +5,7 @@ using namespace RTX;
 using namespace std;
 
 
-PointCollection Curve::convert(const PointCollection &pc) {
+PointCollection Curve::convert(const PointCollection &pc, bool saturate) {
   PointCollection out;
   out.units = this->outputUnits;
   vector<Point> outp;
@@ -28,6 +28,13 @@ PointCollection Curve::convert(const PointCollection &pc) {
             y1 = minY,
             x2 = minX,
             y2 = minY;
+    
+    if (saturate) {
+      if (inValue < minX)
+        inValue = minX;
+      else if (inValue > maxX)
+        inValue = maxX;
+    }
     
     if (minX <= inValue && inValue <= maxX) {
       for (auto pp : curveData) {

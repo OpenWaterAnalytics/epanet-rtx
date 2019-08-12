@@ -14,7 +14,7 @@ using namespace RTX;
 using namespace std;
 
 CurveFunction::CurveFunction() {
-  
+  _doesSaturate = false;
 }
 
 
@@ -45,7 +45,7 @@ PointCollection CurveFunction::filterPointsInRange(RTX::TimeRange range) {
   
   // valid curve:
   PointCollection input = this->source()->pointCollection(sourceQuery);
-  PointCollection output = _curve->convert(input);
+  PointCollection output = _curve->convert(input, _doesSaturate);
   if (!output.convertToUnits(this->units())) {
     return PointCollection();
   }
@@ -92,6 +92,9 @@ bool CurveFunction::willResample() {
 }
 
 bool CurveFunction::canDropPoints() {
-  return true;
+  return !_doesSaturate;
 }
 
+void CurveFunction::setDoesSaturate(bool saturate) {
+  _doesSaturate = saturate;
+}

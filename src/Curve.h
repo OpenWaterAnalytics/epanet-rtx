@@ -18,7 +18,7 @@ namespace RTX {
     Units outputUnits;
     std::map<double,double> curveData;
     
-    PointCollection convert(const PointCollection& p);
+    PointCollection convert(const PointCollection& p, bool saturate = false);
     
   };
 }
