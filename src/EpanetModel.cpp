@@ -704,6 +704,10 @@ double EpanetModel::junctionQuality(const string &junction) {
   return getNodeValue(EN_QUALITY, junction);
 }
 
+double EpanetModel::tankInletQuality(const string& tank) {
+  return getNodeValue(EN_INLETQUALITY, tank);
+}
+
 double EpanetModel::reservoirLevel(const string &reservoir) {
   return getNodeValue(EN_TANKLEVEL, reservoir);
 }

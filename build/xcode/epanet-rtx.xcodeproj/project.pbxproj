@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1557A02522B04648001980D9 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1557A02422B04647001980D9 /* libsqlite3.tbd */; };
+		15A70BBD226E6DF4008F2F8C /* libboost_chrono.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2237362620EABE5700CD57F2 /* libboost_chrono.a */; };
+		15A70BBE226E6DF4008F2F8C /* libboost_timer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CA1C1A048300298C0C /* libboost_timer.a */; };
 		2200ED191C7797F3009A6C5F /* libepanet-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 228CD55F1C0F5E4E00C67802 /* libepanet-static.a */; };
 		220F9DD618F9E1BE00BB842C /* readConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220F9DD518F9E1BE00BB842C /* readConfig.cpp */; };
 		221A4B061B8CC00C006967AE /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
@@ -132,7 +135,6 @@
 		226AD16B200E91AF00077CE6 /* libgeohash.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22602B761D5A738000A668ED /* libgeohash.a */; };
 		226AD16C200E91AF00077CE6 /* libiodbc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CB1C1A048300298C0C /* libiodbc.a */; };
 		226AD16D200E91AF00077CE6 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 223372F31CA19DFA00C87ACD /* libssl.a */; };
-		226AD16F200E91B000077CE6 /* libsqlite3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 226AD16E200E91AF00077CE6 /* libsqlite3.a */; };
 		227106511E1EA0FE002A2D30 /* PointCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2271064F1E1EA0FE002A2D30 /* PointCollection.cpp */; };
 		227106521E1EA0FE002A2D30 /* PointCollection.h in Headers */ = {isa = PBXBuildFile; fileRef = 227106501E1EA0FE002A2D30 /* PointCollection.h */; };
 		2288C1241BE3C71900F9B8FB /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
@@ -399,6 +401,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1557A02422B04647001980D9 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		220324C918AC05A800BD7790 /* FailoverTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FailoverTimeSeries.cpp; path = ../../src/FailoverTimeSeries.cpp; sourceTree = "<group>"; };
 		220324CA18AC05A800BD7790 /* FailoverTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FailoverTimeSeries.h; path = ../../src/FailoverTimeSeries.h; sourceTree = "<group>"; };
 		220AE463145AFB3C002F07B4 /* CurveFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CurveFunction.h; path = ../../src/CurveFunction.h; sourceTree = "<group>"; };
@@ -663,13 +666,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1557A02522B04648001980D9 /* libsqlite3.tbd in Frameworks */,
 				224DB210200D44DA0005E9C6 /* libz.tbd in Frameworks */,
 				22E997091CA5937B00D6F34F /* CoreFoundation.framework in Frameworks */,
 				22E997081CA5935F00D6F34F /* Security.framework in Frameworks */,
 				2200ED191C7797F3009A6C5F /* libepanet-static.a in Frameworks */,
 				221BFD7C1A8E8AD000143FCC /* libepanetmsx-static.a in Frameworks */,
 				22D8C2261C1A0DFE00298C0C /* libcurl.4.dylib in Frameworks */,
-				226AD16F200E91B000077CE6 /* libsqlite3.a in Frameworks */,
 				2237362E20EABE5800CD57F2 /* libboost_chrono.a in Frameworks */,
 				226AD162200E91AF00077CE6 /* libboost_iostreams.a in Frameworks */,
 				226AD163200E91AF00077CE6 /* libboost_program_options.a in Frameworks */,
@@ -708,6 +711,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				15A70BBD226E6DF4008F2F8C /* libboost_chrono.a in Frameworks */,
+				15A70BBE226E6DF4008F2F8C /* libboost_timer.a in Frameworks */,
 				2288C1241BE3C71900F9B8FB /* libepanet-rtx.dylib in Frameworks */,
 				2237363420EABF5500CD57F2 /* libboost_system.a in Frameworks */,
 				2237363520EABF5500CD57F2 /* libboost_thread.a in Frameworks */,
@@ -1007,6 +1012,7 @@
 		22BECEFC1DEF305D00E7C4EC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1557A02422B04647001980D9 /* libsqlite3.tbd */,
 				2237363220EABE7200CD57F2 /* libboost_thread.a */,
 				2237362620EABE5700CD57F2 /* libboost_chrono.a */,
 				226AD16E200E91AF00077CE6 /* libsqlite3.a */,
@@ -1616,6 +1622,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 22C62AB51439ED6300841E60;

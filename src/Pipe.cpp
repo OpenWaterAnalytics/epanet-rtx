@@ -29,7 +29,7 @@ Pipe::Pipe(const std::string& name) : Link(name) {
   _status->setName("status,l=" + name);
   
   _qualityState.reset( new TimeSeries() );
-  _qualityState->setUnits(RTX_SECOND);
+  _qualityState->setUnits(RTX_HOUR);
   _qualityState->setName("quality,l=" + name);
   
   _fixedStatus = Pipe::OPEN;

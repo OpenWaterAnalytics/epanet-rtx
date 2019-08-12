@@ -45,6 +45,10 @@ Tank::Tank(const std::string& name) : Junction(name) {
   _flow->setUnits(RTX_LITER_PER_SECOND);
   _flow->setName("flow,n=" + name);
   
+  _inletQualityState.reset( new TimeSeries );
+  _inletQualityState->setUnits(RTX_HOUR);
+  _inletQualityState->setName("inlet_concentration,n=" + name);
+  
 }
 
 Tank::~Tank() {
@@ -177,6 +181,9 @@ TimeSeries::_sp Tank::volume() {
   return _volume;
 }
 
+TimeSeries::_sp Tank::inletQuality() {
+  return _inletQualityState;
+}
 
 
 TimeSeries::_sp Tank::flowCalc() {

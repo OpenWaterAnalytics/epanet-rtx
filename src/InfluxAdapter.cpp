@@ -515,7 +515,7 @@ std::map<std::string, std::vector<Point> > InfluxTcpAdapter::wideQuery(TimeRange
   // aggressive prefetch. query all series for some range, then shortcut subsequent queries if they are in the range cached.
   
   // influx allows regex in queries: 
-  // select "value" from /[.]+/ where time > ... and time < ...
+  // select "value" from /.+/ where time > ... and time < ...
   
   vector<string> fields({"time", "value", "quality", "confidence"});
   vector<string> where({"time >= " + to_string(range.start) + "s", "time <= " + to_string(range.end) + "s"});
@@ -523,7 +523,7 @@ std::map<std::string, std::vector<Point> > InfluxTcpAdapter::wideQuery(TimeRange
   stringstream ss;
   ss << "SELECT ";
   ss << boost::algorithm::join(fields,", ");
-  ss << " FROM /[.]+/";
+  ss << " FROM /.+/";
   ss << " WHERE " << boost::algorithm::join(where," AND ");
   ss << " GROUP BY * ORDER BY ASC";
   auto qstr = ss.str();

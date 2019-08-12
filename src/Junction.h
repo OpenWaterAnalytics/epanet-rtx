@@ -35,7 +35,7 @@ namespace RTX {
     TimeSeries::_sp quality();
     
     // public ivars for temporary (that is, steady-state) solutions
-    double state_head, state_pressure, state_demand, state_quality, state_volume, state_flow;
+    double state_head, state_pressure, state_demand, state_quality, state_inlet_quality, state_volume, state_flow;
     
     
     // parameters

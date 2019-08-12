@@ -22,6 +22,7 @@ using namespace std;
 using boost::signals2::mutex;
 
 #define _DB_MAX_CONNECT_TRY 5
+#define SERIES_LIST_TTL 30
 
 /************ request type *******************/
 
@@ -208,7 +209,7 @@ IdentifierUnitsList DbPointRecord::identifiersAndUnits() {
   time_t now = time(NULL);
   time_t stale = now - _lastIdRequest;
   
-  if ((stale < 5 || _adapter->inTransaction()) && !_identifiersAndUnitsCache.get()->empty()) {
+  if ((stale < SERIES_LIST_TTL || _adapter->inTransaction()) && !_identifiersAndUnitsCache.get()->empty()) {
     return _identifiersAndUnitsCache;
   }
   

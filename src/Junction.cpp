@@ -28,7 +28,7 @@ Junction::Junction(const std::string& name) : Node(name) {
   
   _headState->setUnits(RTX_METER);
   _pressureState->setUnits(RTX_PASCAL);
-  _qualityState->setUnits(RTX_SECOND);
+  _qualityState->setUnits(RTX_HOUR);
   _demandState->setUnits(RTX_LITER_PER_SECOND);
   
   _headState->setName("head,n=" + name);
@@ -43,6 +43,7 @@ Junction::Junction(const std::string& name) : Node(name) {
   state_pressure = 0; 
   state_demand = 0;
   state_quality = 0;
+  state_inlet_quality = 0;
   state_volume = 0;
   state_flow = 0;
 }

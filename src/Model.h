@@ -82,10 +82,11 @@ namespace RTX {
     
     void cancelSimulation();
     
-    std::set<PointRecord::_sp>recordsForModeledStates();
+    void refreshRecordsForModeledStates();
     
-    void setStorage(PointRecord::_sp record);
-    void setParameterSource(PointRecord::_sp record);
+    // these were considered but never used / implemented
+//    void setStorage(PointRecord::_sp record);
+//    void setParameterSource(PointRecord::_sp record);
     
     virtual void disableControls() {};
     virtual void enableControls() {};
@@ -180,15 +181,15 @@ namespace RTX {
       ElementOptionAllQuality         = 1 << 11
     } elementOption_t;
     
-    void setRecordForElementInputs(PointRecord::_sp record);
-    void setRecordForElementOutput(PointRecord::_sp record, elementOption_t options);
+//    void setRecordForElementInputs(PointRecord::_sp record);
+//    void setRecordForElementOutput(PointRecord::_sp record, elementOption_t options);
     
-    vector<TimeSeries::_sp> networkStatesWithOptions(elementOption_t options);
-    vector<TimeSeries::_sp> networkInputSeries(elementOption_t options);
-    set<TimeSeries::_sp> networkInputRootSeries(elementOption_t options);
+//    vector<TimeSeries::_sp> networkStatesWithOptions(elementOption_t options);
+//    vector<TimeSeries::_sp> networkInputSeries(elementOption_t options);
+//    set<TimeSeries::_sp> networkInputRootSeries(elementOption_t options);
 
     // fetch points for a group of series
-    void fetchElementInputs(TimeRange range);
+//    void fetchElementInputs(TimeRange range);
     
     // units
     Units flowUnits();
@@ -229,6 +230,7 @@ namespace RTX {
     virtual double junctionPressure(const string& junction) { return 0; };
     virtual double junctionDemand(const string& junctionName) { return 0; };
     virtual double junctionQuality(const string& junctionName) { return 0; };
+    virtual double tankInletQuality(const string& tankName) { return 0; };
     
     // link elements
     virtual double pipeFlow(const string& pipe) { return 0; };
@@ -278,7 +280,7 @@ namespace RTX {
     // master list access
     void add(Junction::_sp newJunction);
     void add(Pipe::_sp newPipe);
-    
+    std::set<PointRecord::_sp> _recordsForModeledStates;
     
     
     // element lists
@@ -301,10 +303,7 @@ namespace RTX {
     bool _dmaShouldDetectClosedLinks;
     
     Clock::_sp _regularMasterClock, _simReportClock;
-    TimeSeries::_sp _relativeError;
-    TimeSeries::_sp _iterations;
-    TimeSeries::_sp _convergence;
-    TimeSeries::_sp _heartbeat;
+    TimeSeries::_sp _relativeError, _iterations, _convergence, _heartbeat, _simWallTime, _saveWallTime, _filterWallTime;
     Clock::_sp _tankResetClock;
     int _qualityTimeStep;
     bool _doesOverrideDemands;

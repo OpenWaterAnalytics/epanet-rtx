@@ -49,6 +49,7 @@ namespace RTX {
     TimeSeries::_sp level(); // directly related to head
     TimeSeries::_sp volume();
     TimeSeries::_sp flow();
+    TimeSeries::_sp inletQuality();
     
     TimeSeries::_sp volumeCalc(); // based on tank geometry
     TimeSeries::_sp flowCalc();  // calculated flow into the tank
@@ -60,6 +61,7 @@ namespace RTX {
     CurveFunction::_sp _volumeCalc;
     FirstDerivative::_sp _flowCalc;
     TimeSeries::_sp _volume,_flow;
+    TimeSeries::_sp _inletQualityState;
     double _minLevel, _maxLevel;
     Curve::_sp _geometry;
     bool _willResetLevel;
