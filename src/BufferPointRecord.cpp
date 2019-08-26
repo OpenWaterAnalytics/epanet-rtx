@@ -314,8 +314,9 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
       // therefore, there's no guarantee of contiguity. so our only option is to clear out the existing cache
       // and insert the new points all by themselves.
       if (gap) {
-        // clear the buffer first.
+        // clear the buffer and set the capacity to something more conservative.
         buffer.clear();
+        buffer.set_capacity(points.size());
         
         // add new points.
         for(const Point &p : points) {

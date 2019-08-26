@@ -1,6 +1,5 @@
 #include "ValidRangeTimeSeries.h"
 
-#include <boost/foreach.hpp>
 
 using namespace std;
 using namespace RTX;
@@ -46,7 +45,6 @@ PointCollection ValidRangeTimeSeries::filterPointsInRange(TimeRange range) {
   
   // get raw values, exclude outliers, then resample if needed.
   PointCollection raw = this->source()->pointCollection(sourceQuery);
-  
   
   raw.convertToUnits(this->units());
   

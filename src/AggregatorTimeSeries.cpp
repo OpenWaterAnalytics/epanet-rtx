@@ -184,7 +184,7 @@ std::set<time_t> AggregatorTimeSeries::timeValuesInRange(TimeRange range) {
       seekRight = src->timeBefore(range.end + 1);
     }
     TimeRange componentRange(seekLeft,seekRight);
-    if (componentRange.duration() == 0) {
+    if (componentRange.duration() == 0 && range.duration() != 0) {
       if (!hasLogged) {
         hasLogged = true;
         cerr << "--- errors detected in aggregation ---" << endl;

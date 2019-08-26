@@ -60,6 +60,7 @@ namespace RTX {
     RTX_BASE_PROPS(TimeSeries);
     
     TimeSeries();
+    TimeSeries(const std::string& name, const RTX::Units& units);
     ~TimeSeries();
     
     bool valid(time_t t);

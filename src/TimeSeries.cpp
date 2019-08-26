@@ -34,6 +34,14 @@ TimeSeries::TimeSeries() {
   _valid = true;
 }
 
+TimeSeries::TimeSeries(const std::string& name, const RTX::Units& units) {
+  _name = name;
+  _units = units;
+  _points.reset( new PointRecord() );
+  _points->registerAndGetIdentifierForSeriesWithUnits(name, units);
+  _valid = true;
+}
+
 TimeSeries::~TimeSeries() {
   // empty Dtor
 }

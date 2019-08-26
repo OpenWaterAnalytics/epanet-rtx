@@ -228,12 +228,12 @@ const bool Units::isSameDimensionAs(const Units& unit) const {
     return false;
   }
   if (_kg         == unit._kg         &&
-      _m       == unit._m       &&
-      _s         == unit._s         &&
-      _A      == unit._A      &&
-      _K  == unit._K  &&
-      _mol       == unit._mol       &&
-      _cd    == unit._cd ) {
+      _m          == unit._m          &&
+      _s          == unit._s          &&
+      _A          == unit._A          &&
+      _K          == unit._K          &&
+      _mol        == unit._mol        &&
+      _cd         == unit._cd ) {
     return true;
   }
   else {
@@ -278,11 +278,10 @@ ostream& Units::toStream(ostream &stream) const {
 
 
 const string Units::to_string() const {
-  auto unitMap = Units::unitStrings;
   
-  auto it = unitMap.begin();
+  auto it = Units::unitStrings.begin();
   
-  while (it != unitMap.end()) {
+  while (it != Units::unitStrings.end()) {
     Units theseUnits = it->second;
     if (theseUnits == (*this)) {
       return it->first;

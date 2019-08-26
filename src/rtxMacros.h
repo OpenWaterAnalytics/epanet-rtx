@@ -51,9 +51,9 @@ namespace RTX {
 
 #define DEBUG 1
 #ifdef DEBUG
-#define DebugLog cout
+#define DebugLog std::cout
 #else
-#define DebugLog if(false) cout
+#define DebugLog if(false) std::cout
 #endif
 
 #define EOL '\n'

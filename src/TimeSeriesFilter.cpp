@@ -9,7 +9,8 @@
 using namespace RTX;
 using namespace std;
 
-const int _tsfilter_maxStrides = 14; // FIXME 💩
+const int _tsfilter_maxStrides = 3; // FIXME 💩
+const time_t _stride = 60*60*24; // 3-days
 
 TimeSeriesFilter::TimeSeriesFilter() {
   _resampleMode = ResampleModeLinear;
@@ -136,12 +137,12 @@ Point TimeSeriesFilter::pointBefore(time_t time) {
   if (this->canDropPoints()) {
     // search iteratively
     
-    time_t stride = 60*60*24; // 1-day
+    
     PointCollection c;
     
-    TimeRange q(time - stride, time - 1);
+    TimeRange q(time - _stride, time - 1);
     
-    while ( q.start > time - (stride * _tsfilter_maxStrides) ) {
+    while ( q.start > time - (_stride * _tsfilter_maxStrides) ) {
       if (this->source()->timeBefore(q.end + 1) == 0) {
         break; // actually no points. futile to search.
       }
@@ -149,8 +150,8 @@ Point TimeSeriesFilter::pointBefore(time_t time) {
       if (c.count() > 0) {
         break; // found something
       }
-      q.start -= stride;
-      q.end -= stride;
+      q.start -= _stride;
+      q.end -= _stride;
     }
     
     // if we found something:
@@ -184,12 +185,10 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
   if (this->canDropPoints()) {
     // search iteratively - this is basic functionality. Override ::pointAfter for special cases or optimized uses.
     
-    time_t stride = 60*60*24/2; // 1/2-day
-    
     PointCollection c;
-    TimeRange q(time + 1, time + stride);
+    TimeRange q(time + 1, time + _stride);
     
-    while ( q.end < time + (stride * _tsfilter_maxStrides) ) {
+    while ( q.end < time + (_stride * _tsfilter_maxStrides) ) {
       if (this->source()->timeAfter(q.start - 1) == 0) {
         break; // actually no points. futile to search.
       }
@@ -197,8 +196,8 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
       if (c.count() > 0) {
         break; // found something
       }
-      q.start += stride;
-      q.end += stride;
+      q.start += _stride;
+      q.end += _stride;
     }
     
     // if we found something:
