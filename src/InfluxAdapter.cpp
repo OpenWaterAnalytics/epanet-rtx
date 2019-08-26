@@ -881,8 +881,14 @@ map<string, vector<Point> > __pointsFromJson(jsValue& json) {
       jsArray row = rowV.as_array();
       time_t t = row[timeIndex].as_integer();
       double v = row[valueIndex].as_double();
-      Point::PointQuality q = (Point::PointQuality)(row[qualityIndex].as_integer());
-      double c = row[confidenceIndex].as_double();
+      Point::PointQuality q = Point::opc_rtx_override;
+      if (!row[qualityIndex].is_null()) {
+        q = (Point::PointQuality)(row[qualityIndex].as_integer());
+      }
+      double c = 0;
+      if (!row[confidenceIndex].is_null()) {
+        c = row[confidenceIndex].as_double();
+      }
       pointVec->push_back(Point(t,v,q,c));
     }
   }
