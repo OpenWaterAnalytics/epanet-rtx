@@ -31,6 +31,7 @@ Tank::Tank(const std::string& name) : Junction(name) {
   _volumeCalc.reset( new CurveFunction() );
   _volumeCalc->setUnits(RTX_LITER);
   _volumeCalc->setName("calc_volume,n=" + name);
+  _volumeCalc->setDoesSaturate(true);
   
   _flowCalc.reset( new FirstDerivative() );
   _flowCalc->setUnits(RTX_LITER_PER_SECOND);

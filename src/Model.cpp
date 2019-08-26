@@ -90,6 +90,7 @@ void Model::initObj() {
   _tanksNeedReset = false;
   
   _simLogCallback = NULL;
+  _didSimulateCallback = NULL;
   _saveStateFuture = async(launch::async, [&](){return;});
 }
 
@@ -150,6 +151,14 @@ void Model::setSimulationLoggingCallback(Model::RTX_Logging_Callback_Block block
     std::cerr << "callback setting failed" << endl;
   }
   
+}
+
+void Model::setWillSimulateCallback(std::function<void(void)> cb) {
+  _willSimulateCallback = cb;
+}
+
+void Model::setDidSimulateCallback(std::function<void(void)> cb) {
+  _didSimulateCallback = cb;
 }
 
 void Model::logLine(const std::string& line) {
@@ -680,6 +689,10 @@ bool Model::solveInitial(time_t simTime) {
   _regularMasterClock->setStart(simTime);
   this->setCurrentSimulationTime(simTime);
   
+  if (_willSimulateCallback != NULL) {
+    _willSimulateCallback();
+  }
+  
   return ( this->solveAndSaveOutputAtTime(simTime) );
 }
 
@@ -705,6 +718,10 @@ bool Model::solveAndSaveOutputAtTime(time_t simulationTime) {
   
   auto simWallDuration = time(NULL) - t1;
   _simWallTime->insert(Point(simulationTime, (double)simWallDuration));
+  
+  if (_didSimulateCallback != NULL) {
+    _didSimulateCallback();
+  }
   
   // save simulation stats here so we can track convergence issues
   Point error(simulationTime, relativeError(simulationTime));
@@ -1142,7 +1159,7 @@ void Model::setSimulationParameters(time_t time) {
     for(Dma::_sp dma: this->dmas()) {
       if ( dma->allocateDemandToJunctions(time) ) {
         stringstream ss;
-        ss << "ERROR: Invalid demand value for DMA " << dma->name() << " :: " << asctime(timeinfo);
+        ss << "ERROR: Invalid demand value for DMA " << dma->name() << "(" << dma->junctions().size() << "junctions)" << " :: " << asctime(timeinfo);
         this->logLine(ss.str());
       }
       else {
@@ -1419,7 +1436,7 @@ void Model::fetchSimulationStates() {
   for(Pump::_sp pump : pumps()) {
     double energy;
     energy = pumpEnergy(pump->name());
-    pump->energy_state = energy;
+    pump->state_energy = energy;
   }
   
 }
@@ -1463,7 +1480,9 @@ void Model::saveNetworkStates(time_t simtime, std::set<PointRecord::_sp> bulkRec
     tank->flow()->insert(Point(simtime,tank->state_flow));
     if (this->shouldRunWaterQuality()) {
       tank->quality()->insert(Point(simtime, tank->state_quality));
-      tank->inletQuality()->insert(Point(simtime, tank->state_inlet_quality));
+      if (tank->state_flow > 0) {
+        tank->inletQuality()->insert(Point(simtime, tank->state_inlet_quality));
+      }
     }
   }
   
@@ -1497,7 +1516,7 @@ void Model::saveNetworkStates(time_t simtime, std::set<PointRecord::_sp> bulkRec
   // pump energy
   for(Pump::_sp pump : pumps()) {
     pump->flow()->insert(Point(simtime, pump->state_flow));
-    pump->energy()->insert(Point(simtime, pump->energy_state));
+    pump->energy()->insert(Point(simtime, pump->state_energy));
     pump->setting()->insert(Point(simtime, pump->state_setting));
     pump->status()->insert(Point(simtime, pump->state_status));
   }

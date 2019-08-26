@@ -21,20 +21,10 @@ Junction::Junction(const std::string& name) : Node(name) {
   setType(JUNCTION);
   
   // we have nothing yet
-  _headState.reset(new TimeSeries());
-  _pressureState.reset(new TimeSeries());
-  _qualityState.reset(new TimeSeries());
-  _demandState.reset(new TimeSeries());
-  
-  _headState->setUnits(RTX_METER);
-  _pressureState->setUnits(RTX_PASCAL);
-  _qualityState->setUnits(RTX_HOUR);
-  _demandState->setUnits(RTX_LITER_PER_SECOND);
-  
-  _headState->setName("head,n=" + name);
-  _pressureState->setName("pressure,n=" + name);
-  _qualityState->setName("quality,n=" + name);
-  _demandState->setName("demand,n=" + name);
+  _headState.reset(new TimeSeries("head,n=" + name, RTX_METER));
+  _pressureState.reset(new TimeSeries("pressure,n=" + name, RTX_PASCAL));
+  _qualityState.reset(new TimeSeries("quality,n=" + name, RTX_HOUR));
+  _demandState.reset(new TimeSeries("demand,n=" + name, RTX_LITER_PER_SECOND));
   
   _baseDemand = 0;
   

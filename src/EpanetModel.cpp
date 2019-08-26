@@ -993,7 +993,24 @@ void EpanetModel::applyInitialQuality() {
   EN_API_CHECK(EN_initQ(_enModel, EN_NOSAVE), "ENinitQ");
 }
 
-
+void EpanetModel::applyInitialTankLevels() {
+  if (!_enOpened) {
+    DebugLog << "Could not apply initial tank conditions; engine not opened" << EOL;
+    return;
+  }
+  
+  EN_API_CHECK(EN_closeH(_enModel), "EN_closeQ");
+  EN_API_CHECK(EN_openH(_enModel), "EN_openQ");
+  
+  // Tanks
+  for(Tank::_sp tank : this->tanks()) {
+    double level = tank->state_level;
+    int iNode = _nodeIndex[tank->name()];
+    EN_API_CHECK(EN_setnodevalue(_enModel, iNode, EN_TANKLEVEL, level), "EN_setnodevalue - EN_TANKLEVEL");
+  }
+  
+  EN_API_CHECK(EN_initH(_enModel, 10), "ENinitH");
+}
 
 void EpanetModel::updateEngineWithElementProperties(Element::_sp e) {
   
@@ -1042,7 +1059,7 @@ void EpanetModel::updateEngineWithElementProperties(Element::_sp e) {
       
       Valve::_sp v = std::dynamic_pointer_cast<Valve>(p);
       if (v && v->valveType != EN_CVPIPE) {
-        // it's a valve... don't set anything on a check valve!
+        // if it's a valve... don't set anything on a check valve!
         if (v->fixedStatus() == RTX::Pipe::CLOSED) {
           //setSetting(v);
           setStatus(v);

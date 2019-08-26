@@ -16,21 +16,11 @@ using namespace RTX;
 
 Pipe::Pipe(const std::string& name) : Link(name) {
   setType(PIPE);
-  _flowState.reset( new TimeSeries() );
-  _flowState->setUnits(RTX_LITER_PER_SECOND);
-  _flowState->setName("flow,l=" + name);
   
-  _setting.reset( new TimeSeries() );
-  _setting->setUnits(RTX_DIMENSIONLESS);
-  _setting->setName("setting,l=" + name);
-  
-  _status.reset( new TimeSeries() );
-  _status->setUnits(RTX_DIMENSIONLESS);
-  _status->setName("status,l=" + name);
-  
-  _qualityState.reset( new TimeSeries() );
-  _qualityState->setUnits(RTX_HOUR);
-  _qualityState->setName("quality,l=" + name);
+  _flowState.reset( new TimeSeries("flow,l=" + name, RTX_LITER_PER_SECOND) );
+  _setting.reset( new TimeSeries("setting,l=" + name, RTX_DIMENSIONLESS) );
+  _status.reset( new TimeSeries("status,l=" + name, RTX_DIMENSIONLESS) );
+  _qualityState.reset( new TimeSeries("quality,l=" + name, RTX_HOUR) );
   
   _fixedStatus = Pipe::OPEN;
   

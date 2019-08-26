@@ -96,6 +96,7 @@ namespace RTX {
     virtual void setHydraulicTimeStep(int seconds);
     virtual void setQualityTimeStep(int seconds);
     virtual void applyInitialQuality();
+    virtual void applyInitialTankLevels();
     void EN_API_CHECK(int errorCode, std::string externalFunction) throw(std::string);
     void updateEngineWithElementProperties(Element::_sp e);
     virtual void cleanupModelAfterSimulation();

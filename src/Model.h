@@ -145,6 +145,7 @@ namespace RTX {
     double initialUniformQuality();
     void setInitialJunctionQualityFromMeasurements(time_t time);
     virtual void applyInitialQuality() { };
+    virtual void applyInitialTankLevels() { };
     vector<Node::_sp> nearestNodes(Node::_sp junc, double maxDistance);
 
     virtual time_t currentSimulationTime();
@@ -207,6 +208,9 @@ namespace RTX {
     
     void setSimulationLoggingCallback(RTX_Logging_Callback_Block);
     RTX_Logging_Callback_Block simulationLoggingCallback();
+    
+    void setWillSimulateCallback(std::function<void(void)> cb);
+    void setDidSimulateCallback(std::function<void(void)> cb);
     
     std::map<std::string,std::string> dmaNameHashes;
     
@@ -313,6 +317,7 @@ namespace RTX {
     boost::signals2::mutex _simulationInProcessMutex;
     double _initialQuality;
     RTX_Logging_Callback_Block _simLogCallback;
+    std::function<void(void)> _didSimulateCallback, _willSimulateCallback;
     std::future<void> _saveStateFuture;
     
   };
