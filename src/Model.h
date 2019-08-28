@@ -241,6 +241,7 @@ namespace RTX {
     virtual double pipeSetting(const string& pipe) {return 0;};
     virtual double pipeStatus(const string& pipe) {return 0;};
     virtual double pumpEnergy(const string& pump) { return 0; };
+    virtual double pipeEnergy(const string& pipe) { return 0; };
     
     virtual void setReservoirHead(const string& reservoir, double level) { };
     virtual void setReservoirQuality(const string& reservoir, double quality) { };

@@ -63,7 +63,7 @@ namespace RTX {
     double pipeFlow(const std::string& pipe);
     double pipeSetting(const string& pipe);
     double pipeStatus(const string& pipe);
-    double pumpEnergy(const std::string& pump);
+    double pipeEnergy(const std::string& pump);
     
     // hydraulic
     void setReservoirHead(const std::string& reservoir, double level);

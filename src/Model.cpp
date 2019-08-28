@@ -1426,18 +1426,15 @@ void Model::fetchSimulationStates() {
     
     double status = pipeStatus(pipe->name());
     pipe->state_status = status;
+    
+    double energy = pipeEnergy(pipe->name());
+    pipe->state_energy = energy;
   }
   
   for(Valve::_sp valve : valves()) {
     // nothing extra
   }
   
-  // pump energy
-  for(Pump::_sp pump : pumps()) {
-    double energy;
-    energy = pumpEnergy(pump->name());
-    pump->state_energy = energy;
-  }
   
 }
 

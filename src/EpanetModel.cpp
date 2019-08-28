@@ -734,8 +734,8 @@ double EpanetModel::pipeSetting(const string &pipe) {
   return getLinkValue(EN_SETTING, pipe);
 }
 
-double EpanetModel::pumpEnergy(const string &pump) {
-  return getLinkValue(EN_ENERGY, pump);
+double EpanetModel::pipeEnergy(const string &name) {
+  return getLinkValue(EN_ENERGY, name);
 }
 
 #pragma mark - Sim options

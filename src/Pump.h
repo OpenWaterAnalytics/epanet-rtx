@@ -23,7 +23,6 @@ namespace RTX {
     
     // states
     TimeSeries::_sp energy();
-    double state_energy;
     
     // parameters
     TimeSeries::_sp curveParameter();

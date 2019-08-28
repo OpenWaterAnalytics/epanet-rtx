@@ -46,7 +46,7 @@ public:
   TimeSeries::_sp quality();
 
   // public ivars for temporary (that is, steady-state) solutions
-  double state_flow, state_setting, state_status;
+  double state_flow, state_setting, state_status, state_energy;
   double state_quality();
   
   
