@@ -209,15 +209,11 @@ namespace RTX {
     void setSimulationLoggingCallback(RTX_Logging_Callback_Block);
     RTX_Logging_Callback_Block simulationLoggingCallback();
     
-    void setWillSimulateCallback(std::function<void(void)> cb);
-    void setDidSimulateCallback(std::function<void(void)> cb);
+    void setWillSimulateCallback(std::function<void(time_t)> cb);
+    void setDidSimulateCallback(std::function<void(time_t)> cb);
     
     std::map<std::string,std::string> dmaNameHashes;
-    
-    void waitResults();
-    
-  
-    
+        
     void setSimulationParameters(time_t time);
     void fetchSimulationStates();
     void saveNetworkStates(time_t time, std::set<PointRecord::_sp> bulkOperationRecords);
@@ -240,7 +236,6 @@ namespace RTX {
     virtual double pipeFlow(const string& pipe) { return 0; };
     virtual double pipeSetting(const string& pipe) {return 0;};
     virtual double pipeStatus(const string& pipe) {return 0;};
-    virtual double pumpEnergy(const string& pump) { return 0; };
     virtual double pipeEnergy(const string& pipe) { return 0; };
     
     virtual void setReservoirHead(const string& reservoir, double level) { };
@@ -318,8 +313,7 @@ namespace RTX {
     boost::signals2::mutex _simulationInProcessMutex;
     double _initialQuality;
     RTX_Logging_Callback_Block _simLogCallback;
-    std::function<void(void)> _didSimulateCallback, _willSimulateCallback;
-    std::future<void> _saveStateFuture;
+    std::function<void(time_t)> _didSimulateCallback, _willSimulateCallback;
     
   };
   

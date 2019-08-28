@@ -91,7 +91,6 @@ void Model::initObj() {
   
   _simLogCallback = NULL;
   _didSimulateCallback = NULL;
-  _saveStateFuture = async(launch::async, [&](){return;});
 }
 
 
@@ -153,11 +152,11 @@ void Model::setSimulationLoggingCallback(Model::RTX_Logging_Callback_Block block
   
 }
 
-void Model::setWillSimulateCallback(std::function<void(void)> cb) {
+void Model::setWillSimulateCallback(std::function<void(time_t)> cb) {
   _willSimulateCallback = cb;
 }
 
-void Model::setDidSimulateCallback(std::function<void(void)> cb) {
+void Model::setDidSimulateCallback(std::function<void(time_t)> cb) {
   _didSimulateCallback = cb;
 }
 
@@ -690,7 +689,7 @@ bool Model::solveInitial(time_t simTime) {
   this->setCurrentSimulationTime(simTime);
   
   if (_willSimulateCallback != NULL) {
-    _willSimulateCallback();
+    _willSimulateCallback(simTime);
   }
   
   return ( this->solveAndSaveOutputAtTime(simTime) );
@@ -719,9 +718,6 @@ bool Model::solveAndSaveOutputAtTime(time_t simulationTime) {
   auto simWallDuration = time(NULL) - t1;
   _simWallTime->insert(Point(simulationTime, (double)simWallDuration));
   
-  if (_didSimulateCallback != NULL) {
-    _didSimulateCallback();
-  }
   
   // save simulation stats here so we can track convergence issues
   Point error(simulationTime, relativeError(simulationTime));
@@ -737,28 +733,13 @@ bool Model::solveAndSaveOutputAtTime(time_t simulationTime) {
     auto stateRecordsUsed = _recordsForModeledStates;
     // tell each element to update its derived states (simulation-computed values)
     if (!_simReportClock || _simReportClock->isValid(simulationTime)) {
-      // move short-term states into timeseries, and do so concurrently:
-      if (true) {
-        // c++11 futures
-        if (_saveStateFuture.valid()) {
-          _saveStateFuture.wait();
-        }
-        this->fetchSimulationStates();
-        _saveStateFuture = async(launch::async, &Model::saveNetworkStates, this, simulationTime, stateRecordsUsed);
-      }
-      else {
-        this->fetchSimulationStates();
-        saveNetworkStates(simulationTime, stateRecordsUsed);
+      this->fetchSimulationStates();
+      if (_didSimulateCallback != NULL) {
+        this->_didSimulateCallback(simulationTime);
       }
     }
   }
   return success;
-}
-
-void Model::waitResults() {
-  if (_saveStateFuture.valid()) {
-    _saveStateFuture.wait();
-  }
 }
 
 bool Model::updateSimulationToTime(time_t updateToTime) {
