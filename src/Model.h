@@ -314,6 +314,7 @@ namespace RTX {
     double _initialQuality;
     RTX_Logging_Callback_Block _simLogCallback;
     std::function<void(time_t)> _didSimulateCallback, _willSimulateCallback;
+    std::future<void> _saveStateFuture;
     
   };
   

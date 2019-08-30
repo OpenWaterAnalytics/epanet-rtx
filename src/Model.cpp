@@ -91,6 +91,8 @@ void Model::initObj() {
   
   _simLogCallback = NULL;
   _didSimulateCallback = NULL;
+  
+  _saveStateFuture = async(launch::async, [&](){return;});
 }
 
 
@@ -733,10 +735,16 @@ bool Model::solveAndSaveOutputAtTime(time_t simulationTime) {
     auto stateRecordsUsed = _recordsForModeledStates;
     // tell each element to update its derived states (simulation-computed values)
     if (!_simReportClock || _simReportClock->isValid(simulationTime)) {
-      this->fetchSimulationStates();
       if (_didSimulateCallback != NULL) {
         this->_didSimulateCallback(simulationTime);
       }
+      
+      if (_saveStateFuture.valid()) {
+        _saveStateFuture.wait();
+      }
+      this->fetchSimulationStates();
+      _saveStateFuture = async(launch::async, &Model::saveNetworkStates, this, simulationTime, stateRecordsUsed);
+      
     }
   }
   return success;

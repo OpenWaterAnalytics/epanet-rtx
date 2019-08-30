@@ -56,7 +56,7 @@ void AutoRunner::run(time_t since) {
     }
   }
   
-  _task = std::async(launch::async, [&,since]() -> void {
+  _task = std::async(launch::async, [&]() -> void {
     this->_runLoop(_cancellation_token);
   });
   

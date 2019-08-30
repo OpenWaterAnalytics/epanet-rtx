@@ -999,8 +999,8 @@ void EpanetModel::applyInitialTankLevels() {
     return;
   }
   
-  EN_API_CHECK(EN_closeH(_enModel), "EN_closeQ");
-  EN_API_CHECK(EN_openH(_enModel), "EN_openQ");
+  EN_API_CHECK(EN_closeH(_enModel), "EN_closeH");
+  EN_API_CHECK(EN_openH(_enModel), "EN_openH");
   
   // Tanks
   for(Tank::_sp tank : this->tanks()) {
