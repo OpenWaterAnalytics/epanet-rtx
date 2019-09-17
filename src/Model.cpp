@@ -1466,7 +1466,7 @@ void Model::saveNetworkStates(time_t simtime, std::set<PointRecord::_sp> bulkRec
     tank->flow()->insert(Point(simtime,tank->state_flow));
     if (this->shouldRunWaterQuality()) {
       tank->quality()->insert(Point(simtime, tank->state_quality));
-      if (tank->state_flow > 0) {
+      if (!isnan(tank->state_inlet_quality)) {
         tank->inletQuality()->insert(Point(simtime, tank->state_inlet_quality));
       }
     }

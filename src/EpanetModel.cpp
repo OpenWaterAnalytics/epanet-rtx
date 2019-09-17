@@ -58,22 +58,9 @@ EpanetModel::EpanetModel(const std::string& filename) {
 
 #pragma mark - Loading
 
-void EpanetModel::useEpanetFile(const std::string& filename) {
-  
+void EpanetModel::useEpanetModel(EN_Project *model) {
   Units volumeUnits(0);
-  
-  try {
-    // set up temp path for report file so EPANET does not mess with stdout buffer
-    boost::filesystem::path rptPath = boost::filesystem::temp_directory_path();
-    rptPath /= "en_report.txt";
-    
-    EN_API_CHECK( EN_open((char*)filename.c_str(), &_enModel, (char*)rptPath.c_str(), (char*)""), "EN_open" );
-    
-  } catch (const std::string& errStr) {
-    cerr << "model not formatted correctly. " << errStr << endl;
-    throw "model not formatted correctly. " + errStr;
-  }
-  _modelFile = filename;
+  this->_enModel = model;
   
   // get units from epanet
   int flowUnitType = 0;
@@ -217,6 +204,26 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
   for(Link::_sp l : this->links()) {
     this->setComment(l, l->userDescription());
   }
+  
+}
+
+void EpanetModel::useEpanetFile(const std::string& filename) {
+  EN_Project *model;
+  
+  try {
+    // set up temp path for report file so EPANET does not mess with stdout buffer
+    boost::filesystem::path rptPath = boost::filesystem::temp_directory_path();
+    rptPath /= "en_report.txt";
+    
+    EN_API_CHECK( EN_open((char*)filename.c_str(), &model, (char*)rptPath.c_str(), (char*)""), "EN_open" );
+    
+  } catch (const std::string& errStr) {
+    cerr << "model not formatted correctly. " << errStr << endl;
+    throw "model not formatted correctly. " + errStr;
+  }
+  _modelFile = filename;
+  
+  this->useEpanetModel(model);
   
 }
 
@@ -705,7 +712,16 @@ double EpanetModel::junctionQuality(const string &junction) {
 }
 
 double EpanetModel::tankInletQuality(const string& tank) {
-  return getNodeValue(EN_INLETQUALITY, tank);
+  int nodeIndex = _nodeIndex[tank];
+  double value = 0;
+  int ok = EN_getnodevalue(_enModel, nodeIndex, EN_INLETQUALITY, &value);
+  if (ok == EN_ERR_ILLEGAL_NUMERIC_VALUE) {
+    // this is a special edge-edge case: volume into the tank over this step is <= 0
+    return nan("");
+  }
+  else {
+    return value;
+  }
 }
 
 double EpanetModel::reservoirLevel(const string &reservoir) {

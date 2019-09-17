@@ -38,6 +38,7 @@ namespace RTX {
 //    void loadModelFromFile(const std::string& filename) throw(std::exception);
     virtual void initEngine();
     virtual void closeEngine();
+    void useEpanetModel(EN_Project *model);
     void useEpanetFile(const std::string& filename);
     virtual void overrideControls() throw(RtxException);
     virtual std::ostream& toStream(std::ostream &stream);
@@ -46,6 +47,7 @@ namespace RTX {
     int enIndexForJunction(Junction::_sp j);
     int enIndexForPipe(Pipe::_sp p);
     void useModelFromPath(const std::string& path) {this->useEpanetFile(path);};
+    void useModel(EN_Project *model) {this->useEpanetModel(model);};
     
   
     // overridden accessors
