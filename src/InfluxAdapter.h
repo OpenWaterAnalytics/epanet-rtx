@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <future>
 #include <cpprest/uri.h>
+#include <cpprest/json.h>
 
 #include "DbAdapter.h"
 
@@ -107,6 +108,9 @@ namespace RTX {
     std::shared_ptr<ITaskWrapper> _sendTask;
     web::uri uriForQuery(const std::string& query, bool withTimePrecision = true);
     Query queryPartsFromMetricId(const std::string& name);
+    
+    web::json::value jsonFromRequest(web::uri uri, web::http::method withMethod);
+    
   };
   
   
