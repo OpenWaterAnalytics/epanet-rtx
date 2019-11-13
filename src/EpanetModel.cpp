@@ -58,9 +58,10 @@ EpanetModel::EpanetModel(const std::string& filename) {
 
 #pragma mark - Loading
 
-void EpanetModel::useEpanetModel(EN_Project *model) {
+void EpanetModel::useEpanetModel(EN_Project *model, string path) {
   Units volumeUnits(0);
   this->_enModel = model;
+  _modelFile = path;
   
   // get units from epanet
   int flowUnitType = 0;
@@ -221,9 +222,8 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
     cerr << "model not formatted correctly. " << errStr << endl;
     throw "model not formatted correctly. " + errStr;
   }
-  _modelFile = filename;
   
-  this->useEpanetModel(model);
+  this->useEpanetModel(model, filename);
   
 }
 
@@ -293,6 +293,9 @@ void EpanetModel::createRtxWrappers() {
     
     this->addCurve(newCurve);
     namedCurves[iCurve] = newCurve;
+    
+    free(xVals);
+    free(yVals);
   }
   
   
