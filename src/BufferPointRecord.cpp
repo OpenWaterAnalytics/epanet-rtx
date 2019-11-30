@@ -330,7 +330,12 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
 
 
 void BufferPointRecord::reset() {
-  _keyedBuffers.clear();
+  for (auto kb : _keyedBuffers) {
+    auto bufferName = kb.first;
+    auto buff = kb.second;
+    auto cb = kb.second.circularBuffer;
+    cb.clear();
+  }
 }
 
 void BufferPointRecord::reset(const string& identifier) {
