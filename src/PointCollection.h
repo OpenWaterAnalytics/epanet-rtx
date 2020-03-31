@@ -62,7 +62,7 @@ namespace RTX {
     
     
     // non-mutating
-    pvRange subRange(TimeRange r) const;
+    pvRange subRange(TimeRange r, pvRange range_hint = pvRange()) const;
     PointCollection trimmedToRange(TimeRange range) const;
     PointCollection resampledAtTimes(const std::set<time_t>& times, ResampleMode mode = ResampleModeLinear) const;
     PointCollection asDelta() const;

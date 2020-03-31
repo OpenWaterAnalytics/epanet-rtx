@@ -77,13 +77,18 @@ BaseStatsTimeSeries::rangeGroup BaseStatsTimeSeries::subRanges(set<time_t> times
     
   // force a pre-cache on the source time series
   group.retainedCollection = sourceTs->pointCollection(TimeRange(fromTime - t_lag, toTime + t_lead));
-    
+  
+  auto t1 = *(times.begin());
+  // make a fake range to prepopulate the scanning range subgroup thingy
+  PointCollection::pvRange previousRange = group.retainedCollection.subRange(TimeRange(t1,t1));
+  
   for(const time_t& t : times) {
     // get sub-ranges of the larger pre-fetched collection
     TimeRange subrange(t - t_lag, t + t_lead);
-    auto r = group.retainedCollection.subRange(subrange);
+    auto r = group.retainedCollection.subRange(subrange, previousRange);
     if (r.first != r.second) {
       group.ranges[t] = r;
+      previousRange = r;
     }
   }
   

@@ -165,10 +165,18 @@ PointCollection PointCollection::resampledAtTimes(const std::set<time_t>& timeLi
 }
 
 
-PointCollection::pvRange PointCollection::subRange(TimeRange r) const {
+PointCollection::pvRange PointCollection::subRange(TimeRange r, PointCollection::pvRange range_hint) const {
   pvIt it = _points->begin();
   pvIt r1 = it, r2 = it;
   pvIt end = _points->end();
+  
+  // if a range hint is provided, then use it!
+  if (range_hint.first != pvIt() && range_hint.second != pvIt()) {
+    // range hint was given.
+    it = range_hint.first;
+    r2 = range_hint.second;
+  }
+  
   
   while (it != end) {
     time_t t = it->time;
@@ -178,6 +186,8 @@ PointCollection::pvRange PointCollection::subRange(TimeRange r) const {
     }
     ++it;
   }
+  
+  it = r2;
   
   while (it != end) {
     time_t t = it->time;

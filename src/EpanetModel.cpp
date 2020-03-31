@@ -194,7 +194,7 @@ void EpanetModel::useEpanetModel(EN_Project *model, string path) {
     EN_getnodevalue(_enModel, en_idx, EN_ELEVATION, &elev);
     if (elev != n->elevation()) {
       cout << "ERROR: Database elevation inconsistent with model for node " << n->name() << EOL;
-      exit(1);
+      throw(string("Database elevation inconsistent with model for node ") + n->name());
     }
   }
   
@@ -720,7 +720,7 @@ double EpanetModel::tankInletQuality(const string& tank) {
   int ok = EN_getnodevalue(_enModel, nodeIndex, EN_INLETQUALITY, &value);
   if (ok == EN_ERR_ILLEGAL_NUMERIC_VALUE) {
     // this is a special edge-edge case: volume into the tank over this step is <= 0
-    return nan("");
+    return NAN;
   }
   else {
     return value;
