@@ -263,6 +263,8 @@ void Dma::removeJunction(Junction::_sp junction) {
 
 
 void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
+  // set up a fixed 1-m clock for constant series
+  Clock::_sp fixed_minute_clock(new Clock(60));
   
   // we've supplied a list of candidate boundary pipes. prune the list of pipes that don't connect to this dma.
   for(const Pipe::_sp p : boundarySet) {
@@ -375,6 +377,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
     constDma->setName("Zero Demand");
     constDma->setValue(0.);
     constDma->setUnits(RTX_GALLON_PER_MINUTE);
+    constDma->setClock(fixed_minute_clock);
     this->setDemand(constDma);
   }
   
