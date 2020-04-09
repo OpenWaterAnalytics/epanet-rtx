@@ -169,9 +169,10 @@ PointCollection::pvRange PointCollection::subRange(TimeRange r, PointCollection:
   pvIt it = _points->begin();
   pvIt r1 = it, r2 = it;
   pvIt end = _points->end();
+  bool _hint_provided = (range_hint.first != pvIt() && range_hint.second != pvIt());
   
   // if a range hint is provided, then use it!
-  if (range_hint.first != pvIt() && range_hint.second != pvIt()) {
+  if (_hint_provided) {
     // range hint was given.
     it = range_hint.first;
     r2 = range_hint.second;
@@ -187,7 +188,9 @@ PointCollection::pvRange PointCollection::subRange(TimeRange r, PointCollection:
     ++it;
   }
   
-  it = r2;
+  if (_hint_provided) {
+    it = r2;
+  }
   
   while (it != end) {
     time_t t = it->time;
