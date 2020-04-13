@@ -169,8 +169,14 @@ PointCollection::pvRange PointCollection::subRange(TimeRange r, PointCollection:
   pvIt it = _points->begin();
   pvIt r1 = it, r2 = it;
   pvIt end = _points->end();
-  bool _hint_provided = (range_hint.first != pvIt() && range_hint.second != pvIt());
   
+  /*
+   TODO:
+   there is a nice optimization to be done here, but this attempt was half-baked.
+   re-think how to accept range hints to begin the search along the vector.
+   */
+  bool _hint_provided = false;
+  // _hint_provided = (range_hint.first != pvIt() && range_hint.second != pvIt());
   // if a range hint is provided, then use it!
   if (_hint_provided) {
     // range hint was given.
