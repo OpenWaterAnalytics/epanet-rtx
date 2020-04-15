@@ -3,6 +3,10 @@
 #include <set>
 #include <sstream>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string/replace.hpp>
+
+#include "WhereClause.h"
 
 using namespace std;
 using namespace RTX;
@@ -25,7 +29,35 @@ const string _selectFirstStr = "SELECT time,value,quality,confidence FROM points
 const string _selectLastStr = "SELECT time,value,quality,confidence FROM points INNER JOIN meta USING(series_id) WHERE name = ? order by time desc limit 1";
 const string _selectNamesStr = "select series_id,name,units from meta order by name asc";
 
+const string _selectNextWhereValueStr = "SELECT time,value,quality,confidence FROM points INNER JOIN meta USING(series_id) WHERE name = ? AND time > ? [#] order by time asc LIMIT 1";
+const string _selectPreviousWhereValueStr = "SELECT time,value,quality,confidence FROM points INNER JOIN meta USING(series_id) WHERE name = ? AND time < ? [#] order by time desc LIMIT 1";
 
+const string _makeSelectStr(const std::string& tpl, WhereClause q);
+const string _makeSelectStr(const std::string& tpl, WhereClause q) {
+  vector<string> clauses;
+  for (auto const& i : q.clauses) {
+    switch (i.first) {
+      case WhereClause::gte:
+        clauses.push_back(">= " + std::to_string(i.second));
+        break;
+      case WhereClause::gt:
+        clauses.push_back("> " + std::to_string(i.second));
+        break;
+      case WhereClause::lte:
+        clauses.push_back("<= " + std::to_string(i.second));
+        break;
+      case WhereClause::lt:
+        clauses.push_back("< " + std::to_string(i.second));
+        break;
+      default:
+        break;
+    }
+  }
+  string whereClause = "AND value " + boost::algorithm::join(clauses, " AND value ");
+  string stmt = tpl;
+  boost::replace_all(stmt, "[#]", whereClause);
+  return stmt;
+}
 
 SqliteAdapter::SqliteAdapter( errCallback_t cb ) : DbAdapter(cb) {
   _path = "";
@@ -44,7 +76,7 @@ const DbAdapter::adapterOptions SqliteAdapter::options() const {
   
   o.canAssignUnits = true;
   o.supportsUnitsColumn = true;
-  o.searchIteratively = true;
+  o.searchIteratively = false;
   o.supportsSinglyBoundQuery = true;
   o.implementationReadonly = false;
   
@@ -169,11 +201,13 @@ std::vector<Point> SqliteAdapter::selectRange(const std::string& id, TimeRange r
   return points;
 }
 
-Point SqliteAdapter::selectNext(const std::string& id, time_t time) {
+Point SqliteAdapter::selectNext(const std::string& id, time_t time, WhereClause q) {
   vector<Point> points;
   _RTX_DB_SCOPED_LOCK;
   
-  _dbq << _selectNextStr << id << (int)time
+  auto selectStr = (q.clauses.empty()) ? _selectNextStr : _makeSelectStr(_selectNextWhereValueStr, q);
+  
+  _dbq << selectStr << id << (int)time
   >> [&](int t, double v, int q, double c) {
     points.push_back(Point((time_t)t, v, Point::PointQuality( q ), c));
   };
@@ -184,12 +218,14 @@ Point SqliteAdapter::selectNext(const std::string& id, time_t time) {
   return Point();
 }
 
-Point SqliteAdapter::selectPrevious(const std::string& id, time_t time) {
+Point SqliteAdapter::selectPrevious(const std::string& id, time_t time, WhereClause q) {
   
   vector<Point> points;
   _RTX_DB_SCOPED_LOCK;
   
-  _dbq << _selectPreviousStr << id << (int)time
+  auto selectStr = (q.clauses.empty()) ? _selectPreviousStr : _makeSelectStr(_selectPreviousWhereValueStr, q);
+  
+  _dbq << selectStr << id << (int)time
   >> [&](int t, double v, int q, double c) {
     points.push_back(Point((time_t)t, v, Point::PointQuality( q ), c));
   };

@@ -79,8 +79,8 @@ namespace RTX {
     
     // READ
     std::vector<Point> selectRange(const std::string& id, TimeRange range);
-    Point selectNext(const std::string& id, time_t time);
-    Point selectPrevious(const std::string& id, time_t time);    
+    Point selectNext(const std::string& id, time_t time, WhereClause q = WhereClause());
+    Point selectPrevious(const std::string& id, time_t time, WhereClause q = WhereClause());
     std::vector<Point> selectWithQuery(const std::string& query, TimeRange range);
 
     
@@ -126,8 +126,8 @@ namespace RTX {
     
     // READ
     std::vector<Point> selectRange(const std::string& id, TimeRange range);
-    Point selectNext(const std::string& id, time_t time);
-    Point selectPrevious(const std::string& id, time_t time);
+    Point selectNext(const std::string& id, time_t time, WhereClause q = WhereClause());
+    Point selectPrevious(const std::string& id, time_t time, WhereClause q = WhereClause());
     
     // DELETE
     void removeRecord(const std::string& id);

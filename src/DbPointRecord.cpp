@@ -305,10 +305,10 @@ Point DbPointRecord::point(const string& id, time_t time) {
 }
 
 
-Point DbPointRecord::pointBefore(const string& id, time_t time) {
+Point DbPointRecord::pointBefore(const string& id, time_t time, WhereClause q) {
   
   // available in circular buffer?
-  Point p = DB_PR_SUPER::pointBefore(id, time);
+  Point p = DB_PR_SUPER::pointBefore(id, time, q);
   if (p.isValid) {
     return p;
   }
@@ -333,7 +333,7 @@ Point DbPointRecord::pointBefore(const string& id, time_t time) {
   
   // try a singly-bounded query
   if (_adapter->options().supportsSinglyBoundQuery) {
-    p = _adapter->selectPrevious(id, time);
+    p = _adapter->selectPrevious(id, time, q);
   }
   if (p.isValid) {
     return this->pointWithOpcFilter(p);
@@ -344,9 +344,9 @@ Point DbPointRecord::pointBefore(const string& id, time_t time) {
 }
 
 
-Point DbPointRecord::pointAfter(const string& id, time_t time) {
+Point DbPointRecord::pointAfter(const string& id, time_t time, WhereClause q) {
   // buffered?
-  Point p = DB_PR_SUPER::pointAfter(id, time);
+  Point p = DB_PR_SUPER::pointAfter(id, time, q);
   if (p.isValid) {
     return p;
   }
@@ -369,7 +369,7 @@ Point DbPointRecord::pointAfter(const string& id, time_t time) {
   
   // singly bounded?
   if (_adapter->options().supportsSinglyBoundQuery) {
-    p = _adapter->selectNext(id, time);
+    p = _adapter->selectNext(id, time, q);
   }
   if (p.isValid) {
     return this->pointWithOpcFilter(p);

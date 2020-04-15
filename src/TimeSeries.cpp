@@ -157,6 +157,20 @@ Point TimeSeries::pointAfter(time_t time) {
   return this->record()->pointAfter(this->name(), time);
 }
 
+Point TimeSeries::pointBefore(time_t time, WhereClause q) {
+  if (time == 0) {
+    return Point();
+  }
+  return this->record()->pointBefore(this->name(), time, q);
+}
+
+Point TimeSeries::pointAfter(time_t time, WhereClause q) {
+  if (time == 0) {
+    return Point();
+  }
+  return this->record()->pointAfter(this->name(), time, q);
+}
+
 Point TimeSeries::pointAtOrBefore(time_t time) {
   Point p = this->point(time);
   if (!p.isValid) {
@@ -249,6 +263,9 @@ std::set<TimeSeriesFilter::_sp> TimeSeries::sinks() {
   return _sinks;
 }
 
+bool TimeSeries::supportsQualifiedQuery() {
+  return (_points && _points->supportsQualifiedQuery());
+}
 
 
 #pragma mark Protected Methods

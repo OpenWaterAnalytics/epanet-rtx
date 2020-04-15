@@ -10,6 +10,8 @@
 		1557A02522B04648001980D9 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1557A02422B04647001980D9 /* libsqlite3.tbd */; };
 		15A70BBD226E6DF4008F2F8C /* libboost_chrono.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2237362620EABE5700CD57F2 /* libboost_chrono.a */; };
 		15A70BBE226E6DF4008F2F8C /* libboost_timer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CA1C1A048300298C0C /* libboost_timer.a */; };
+		15DFA17D24464B0E0028797E /* WhereClause.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 15DFA17B24464B0E0028797E /* WhereClause.cpp */; };
+		15DFA17E24464B0E0028797E /* WhereClause.h in Headers */ = {isa = PBXBuildFile; fileRef = 15DFA17C24464B0E0028797E /* WhereClause.h */; };
 		2200ED191C7797F3009A6C5F /* libepanet-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 228CD55F1C0F5E4E00C67802 /* libepanet-static.a */; };
 		220F9DD618F9E1BE00BB842C /* readConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220F9DD518F9E1BE00BB842C /* readConfig.cpp */; };
 		221A4B061B8CC00C006967AE /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
@@ -151,7 +153,6 @@
 		229E95C11CB2FAE000216682 /* EpanetModelExporter.h in Headers */ = {isa = PBXBuildFile; fileRef = 229E95BF1CB2FAE000216682 /* EpanetModelExporter.h */; };
 		22B010821E5C8E7D008C44F0 /* OdbcAdapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22B010801E5C8E7D008C44F0 /* OdbcAdapter.cpp */; };
 		22B010831E5C8E7D008C44F0 /* OdbcAdapter.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B010811E5C8E7D008C44F0 /* OdbcAdapter.h */; };
-		22B960691CD7D23700BF2BA5 /* OpcPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 22B960661CD7D23700BF2BA5 /* OpcPointRecord.h */; };
 		22BECEF11DEF276C00E7C4EC /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		22BECEFA1DEF2F8B00E7C4EC /* test_units.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BECED81DEF25FB00E7C4EC /* test_units.cpp */; };
 		22BECEFB1DEF2F8D00E7C4EC /* test_record.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22BECEF21DEF27F100E7C4EC /* test_record.cpp */; };
@@ -402,6 +403,8 @@
 
 /* Begin PBXFileReference section */
 		1557A02422B04647001980D9 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		15DFA17B24464B0E0028797E /* WhereClause.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = WhereClause.cpp; path = ../../src/WhereClause.cpp; sourceTree = "<group>"; };
+		15DFA17C24464B0E0028797E /* WhereClause.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WhereClause.h; path = ../../src/WhereClause.h; sourceTree = "<group>"; };
 		220324C918AC05A800BD7790 /* FailoverTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FailoverTimeSeries.cpp; path = ../../src/FailoverTimeSeries.cpp; sourceTree = "<group>"; };
 		220324CA18AC05A800BD7790 /* FailoverTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FailoverTimeSeries.h; path = ../../src/FailoverTimeSeries.h; sourceTree = "<group>"; };
 		220AE463145AFB3C002F07B4 /* CurveFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CurveFunction.h; path = ../../src/CurveFunction.h; sourceTree = "<group>"; };
@@ -1086,7 +1089,7 @@
 				22B8A7971603CA1300EECAA5 /* demos */,
 				22C62AEF143A0E1600841E60 /* test application */,
 				22C62B05143A196400841E60 /* include */,
-				22DDAD8214436AE200C1F188 /* time classes */,
+				22DDAD8214436AE200C1F188 /* utility classes - time and query */,
 				22DDAD7D1443682300C1F188 /* model */,
 				22C62B02143A107D00841E60 /* exceptions */,
 				2274871E19AE234200A48475 /* Python Interpreter */,
@@ -1267,15 +1270,17 @@
 			name = "physical elements";
 			sourceTree = "<group>";
 		};
-		22DDAD8214436AE200C1F188 /* time classes */ = {
+		22DDAD8214436AE200C1F188 /* utility classes - time and query */ = {
 			isa = PBXGroup;
 			children = (
 				22A4B41814E1B93D006D01C3 /* Clock.h */,
 				22B7154D14DC2C2C00041167 /* Clock.cpp */,
 				228C2D911A9E15BF003C826D /* TimeRange.h */,
 				228C2D901A9E15BF003C826D /* TimeRange.cpp */,
+				15DFA17C24464B0E0028797E /* WhereClause.h */,
+				15DFA17B24464B0E0028797E /* WhereClause.cpp */,
 			);
-			name = "time classes";
+			name = "utility classes - time and query";
 			sourceTree = "<group>";
 		};
 		22E71E191E5B4AAC0044E084 /* adaptors */ = {
@@ -1347,7 +1352,6 @@
 				22E71E311E5B710A0044E084 /* InfluxAdapter.h in Headers */,
 				227106521E1EA0FE002A2D30 /* PointCollection.h in Headers */,
 				229E95C11CB2FAE000216682 /* EpanetModelExporter.h in Headers */,
-				22B960691CD7D23700BF2BA5 /* OpcPointRecord.h in Headers */,
 				221BFD851A8E8AD000143FCC /* MathOpsTimeSeries.h in Headers */,
 				221BFD861A8E8AD000143FCC /* TimeSeriesFilterSinglePoint.h in Headers */,
 				221BFD871A8E8AD000143FCC /* rtxExceptions.h in Headers */,
@@ -1357,6 +1361,7 @@
 				221BFD8B1A8E8AD000143FCC /* PointRecordTime.h in Headers */,
 				228CA8DB1AA0CBFF00D0353E /* InpTextPattern.h in Headers */,
 				221BFD8C1A8E8AD000143FCC /* Model.h in Headers */,
+				15DFA17E24464B0E0028797E /* WhereClause.h in Headers */,
 				221BFD8D1A8E8AD000143FCC /* CurveFunction.h in Headers */,
 				22E71E2D1E5B61110044E084 /* SqliteAdapter.h in Headers */,
 				221BFD8E1A8E8AD000143FCC /* Dma.h in Headers */,
@@ -1756,6 +1761,7 @@
 				221BFD4A1A8E8AD000143FCC /* Units.cpp in Sources */,
 				221BFD4B1A8E8AD000143FCC /* EpanetModel.cpp in Sources */,
 				221BFD4E1A8E8AD000143FCC /* Clock.cpp in Sources */,
+				15DFA17D24464B0E0028797E /* WhereClause.cpp in Sources */,
 				221BFD4F1A8E8AD000143FCC /* PointRecord.cpp in Sources */,
 				221BFD501A8E8AD000143FCC /* EpanetSyntheticModel.cpp in Sources */,
 				221BFD511A8E8AD000143FCC /* EpanetMsxModel.cpp in Sources */,

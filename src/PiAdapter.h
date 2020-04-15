@@ -30,8 +30,8 @@ namespace RTX {
     
     // READ
     std::vector<Point> selectRange(const std::string& id, TimeRange range);
-    Point selectNext(const std::string& id, time_t time);
-    Point selectPrevious(const std::string& id, time_t time);
+    Point selectNext(const std::string& id, time_t time, WhereClause q = WhereClause());
+    Point selectPrevious(const std::string& id, time_t time, WhereClause q = WhereClause());
     
     // CREATE
     bool insertIdentifierAndUnits(const std::string& id, Units units);

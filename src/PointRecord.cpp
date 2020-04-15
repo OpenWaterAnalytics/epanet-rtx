@@ -73,12 +73,12 @@ Point PointRecord::point(const string& identifier, time_t time) {
 }
 
 
-Point PointRecord::pointBefore(const string& identifier, time_t time) {
+Point PointRecord::pointBefore(const string& identifier, time_t time, WhereClause q) {
   return Point();
 }
 
 
-Point PointRecord::pointAfter(const string& identifier, time_t time) {
+Point PointRecord::pointAfter(const string& identifier, time_t time, WhereClause q) {
   return Point();
 }
 

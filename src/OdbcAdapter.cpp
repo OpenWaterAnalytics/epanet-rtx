@@ -325,11 +325,11 @@ std::vector<Point> OdbcAdapter::selectRange(const std::string& id, TimeRange ran
 
 }
 
-Point OdbcAdapter::selectNext(const std::string& id, time_t time) {
+Point OdbcAdapter::selectNext(const std::string& id, time_t time, WhereClause q) {
   return Point(); // unsupported
 }
 
-Point OdbcAdapter::selectPrevious(const std::string& id, time_t time) {
+Point OdbcAdapter::selectPrevious(const std::string& id, time_t time, WhereClause q) {
   return Point(); // unsupported
 }
 

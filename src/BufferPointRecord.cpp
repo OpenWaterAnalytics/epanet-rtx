@@ -11,6 +11,8 @@
 #include <boost/foreach.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
 
+#include "WhereClause.h"
+
 using namespace RTX;
 using namespace std;
 
@@ -115,7 +117,7 @@ Point BufferPointRecord::point(const string& identifier, time_t time) {
 
 
 
-Point BufferPointRecord::pointBefore(const string& identifier, time_t time) {
+Point BufferPointRecord::pointBefore(const string& identifier, time_t time, WhereClause q) {
   
   scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
   
@@ -143,22 +145,36 @@ Point BufferPointRecord::pointBefore(const string& identifier, time_t time) {
         // we want the previous point
         foundPoint = *(--it);
         PointRecord::addPoint(identifier, foundPoint);
-        return foundPoint;
       }
       else if ((--it)->time == time - 1) {
         // edge case where end of buffer is adjacent to requested time
         foundPoint = *it;
         PointRecord::addPoint(identifier, foundPoint);
+      }
+    }
+    
+    if (q.clauses.empty()) {
+      return foundPoint;
+    }
+    else {
+      // there is a clause! use the time-bound point to start looking back...
+      while (it != buffer.begin() && !q.filter(*it)) {
+        --it;
+      }
+      if (it != buffer.begin()) {
+        foundPoint = *it;
+        PointRecord::addPoint(identifier, foundPoint);
         return foundPoint;
       }
     }
+    
   }
   
   return foundPoint;
 }
 
 // pre-supposes that the time supplied is within my buffer.
-Point BufferPointRecord::pointAfter(const string& identifier, time_t time) {
+Point BufferPointRecord::pointAfter(const string& identifier, time_t time, WhereClause q) {
   
   scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
   
@@ -187,9 +203,24 @@ Point BufferPointRecord::pointAfter(const string& identifier, time_t time) {
         // or edge case where beginning of buffer is adjacent to requested time
         foundPoint = *it;
         PointRecord::addPoint(identifier, foundPoint); // single point cache layer
+      }
+    }
+    
+    if (q.clauses.empty()) {
+      return foundPoint;
+    }
+    else {
+      // there is a clause! use the time-bound point to start looking back...
+      while (it != buffer.end() && !q.filter(*it)) {
+        ++it;
+      }
+      if (it != buffer.end()) {
+        foundPoint = *it;
+        PointRecord::addPoint(identifier, foundPoint);
         return foundPoint;
       }
     }
+    
   }
   
   return foundPoint;

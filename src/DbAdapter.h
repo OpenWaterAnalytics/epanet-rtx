@@ -10,6 +10,7 @@
 #include "Units.h"
 #include "TimeRange.h"
 #include "IdentifierUnitsList.h"
+#include "WhereClause.h"
 
 // virtual interface for database adapters. includes configuration object which 
 // declares what the implementation supports.
@@ -54,8 +55,8 @@ namespace RTX {
     
     // READ
     virtual std::vector<Point> selectRange(const std::string& id, TimeRange range) = 0;
-    virtual Point selectNext(const std::string& id, time_t time) = 0;
-    virtual Point selectPrevious(const std::string& id, time_t time) = 0;
+    virtual Point selectNext(const std::string& id, time_t time, WhereClause q = WhereClause()) = 0;
+    virtual Point selectPrevious(const std::string& id, time_t time, WhereClause q = WhereClause()) = 0;
     virtual std::vector<Point> selectWithQuery(const std::string& query, TimeRange range) { return std::vector<Point>(); };
     
     // CREATE

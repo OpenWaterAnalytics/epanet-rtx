@@ -1,5 +1,5 @@
 #include "ValidRangeTimeSeries.h"
-
+#include "WhereClause.h"
 
 using namespace std;
 using namespace RTX;
@@ -32,6 +32,43 @@ bool ValidRangeTimeSeries::willResample() {
 bool ValidRangeTimeSeries::canDropPoints() {
   return this->mode() == ValidRangeTimeSeries::drop;
 }
+
+
+Point ValidRangeTimeSeries::pointBefore(time_t time) {
+  if (!source() || !source()->supportsQualifiedQuery() || !this->canDropPoints()) {
+    // default to the simple iterative search provided by the base class
+    return TimeSeriesFilter::pointBefore(time);
+  }
+  else {
+    // ok, so we might drop points, and we know that our source can support a qualified lookup.
+    // this means that we can delegate the valid-ranging on to the source database.
+    WhereClause q;
+    q.clauses[WhereClause::gte] = _range.first;
+    q.clauses[WhereClause::lte] = _range.second;
+    
+    Point p = source()->pointBefore(time, q);
+    return p.converted(source()->units(), this->units());
+  }
+}
+
+Point ValidRangeTimeSeries::pointAfter(time_t time) {
+  if (!source() || !source()->supportsQualifiedQuery() || !this->canDropPoints()) {
+    // default to the simple iterative search provided by the base class
+    return TimeSeriesFilter::pointAfter(time);
+  }
+  else {
+    // ok, so we might drop points, and we know that our source can support a qualified lookup.
+    // this means that we can delegate the valid-ranging on to the source database.
+    
+    WhereClause q;
+    q.clauses[WhereClause::gte] = _range.first;
+    q.clauses[WhereClause::lte] = _range.second;
+    
+    Point p = source()->pointAfter(time, q);
+    return p.converted(source()->units(), this->units());
+  }
+}
+
 
 PointCollection ValidRangeTimeSeries::filterPointsInRange(TimeRange range) {
   

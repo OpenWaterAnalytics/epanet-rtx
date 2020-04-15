@@ -23,6 +23,7 @@
 #include "Clock.h"
 #include "Units.h"
 #include "TimeRange.h"
+#include "WhereClause.h"
 
 namespace RTX {
   /*!
@@ -75,6 +76,8 @@ namespace RTX {
     virtual Point point(time_t time);
     virtual Point pointBefore(time_t time);
     virtual Point pointAfter(time_t time);
+    virtual Point pointBefore(time_t time, WhereClause q);
+    virtual Point pointAfter(time_t time, WhereClause q);
     virtual Point pointAtOrBefore(time_t time);
     PointCollection pointCollection(TimeRange range);
     virtual std::vector< Point > points(TimeRange range); // points in range
@@ -111,6 +114,8 @@ namespace RTX {
     virtual void filterDidRemoveSource(TimeSeriesFilter_sp filter);
     virtual bool isSink(TimeSeriesFilter_sp filter);
     std::set<TimeSeriesFilter_sp> sinks();
+    
+    virtual bool supportsQualifiedQuery();
     
     // chainable
     TimeSeries::_sp units(Units u) {this->setUnits(u); return this->sp();};

@@ -40,8 +40,8 @@ namespace RTX {
     virtual IdentifierUnitsList identifiersAndUnits();
     
     virtual Point point(const string& identifier, time_t time);
-    virtual Point pointBefore(const string& identifier, time_t time);
-    virtual Point pointAfter(const string& identifier, time_t time);
+    virtual Point pointBefore(const string& identifier, time_t time, WhereClause q = WhereClause());
+    virtual Point pointAfter(const string& identifier, time_t time, WhereClause q = WhereClause());
     virtual std::vector<Point> pointsInRange(const string& identifier, TimeRange range);
     virtual Point firstPoint(const string& id);
     virtual Point lastPoint(const string& id);

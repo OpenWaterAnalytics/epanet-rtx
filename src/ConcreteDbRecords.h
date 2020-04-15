@@ -17,6 +17,8 @@ namespace RTX {
     
     std::string basePath();
     void setBasePath(const std::string& path);
+    
+    bool supportsQualifiedQuery() { return true; };
   };
   
   

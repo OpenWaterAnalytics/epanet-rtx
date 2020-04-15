@@ -25,6 +25,10 @@ namespace RTX {
     filterMode_t mode();
     void setMode(filterMode_t mode);
     
+    // specific overrides for optimization
+    virtual Point pointBefore(time_t time);
+    virtual Point pointAfter(time_t time);
+    
     // chainable
     ValidRangeTimeSeries::_sp range(double min, double max) {this->setRange(min,max); return share_me(this);};
     ValidRangeTimeSeries::_sp mode(filterMode_t m) {this->setMode(m); return share_me(this);};

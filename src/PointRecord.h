@@ -24,6 +24,7 @@
 #include "rtxExceptions.h"
 #include "TimeRange.h"
 #include "IdentifierUnitsList.h"
+#include "WhereClause.h"
 
 
 using std::string;
@@ -74,8 +75,8 @@ namespace RTX {
     
     //virtual bool isPointAvailable(const string& identifier, time_t time);
     virtual Point point(const string& identifier, time_t time);
-    virtual Point pointBefore(const string& identifier, time_t time);
-    virtual Point pointAfter(const string& identifier, time_t time);
+    virtual Point pointBefore(const string& identifier, time_t time, WhereClause q = WhereClause());
+    virtual Point pointAfter(const string& identifier, time_t time, WhereClause q = WhereClause());
     virtual std::vector<Point> pointsInRange(const string& identifier, TimeRange range);
     virtual void addPoint(const string& identifier, Point point);
     virtual void addPoints(const string& identifier, std::vector<Point> points);
@@ -85,6 +86,7 @@ namespace RTX {
     virtual Point firstPoint(const string& id);
     virtual Point lastPoint(const string& id);
     virtual TimeRange range(const string& id);
+    virtual bool supportsQualifiedQuery() { return false; };
     
     virtual std::ostream& toStream(std::ostream &stream);
     

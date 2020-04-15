@@ -549,7 +549,7 @@ std::vector<Point> InfluxTcpAdapter::selectRange(const std::string& id, TimeRang
   return __pointsSingle(jsv);
 }
 
-Point InfluxTcpAdapter::selectNext(const std::string& id, time_t time) {
+Point InfluxTcpAdapter::selectNext(const std::string& id, time_t time, WhereClause whereClause) {
   std::vector<Point> points;
   string dbId = influxIdForTsId(id);
   Query q = this->queryPartsFromMetricId(dbId);
@@ -567,7 +567,7 @@ Point InfluxTcpAdapter::selectNext(const std::string& id, time_t time) {
   return points.front();
 }
 
-Point InfluxTcpAdapter::selectPrevious(const std::string& id, time_t time) {
+Point InfluxTcpAdapter::selectPrevious(const std::string& id, time_t time, WhereClause whereClause) {
   std::vector<Point> points;
   string dbId = influxIdForTsId(id);
   
@@ -988,11 +988,11 @@ std::vector<Point> InfluxUdpAdapter::selectRange(const std::string& id, TimeRang
   return {Point()};
 }
 
-Point InfluxUdpAdapter::selectNext(const std::string& id, time_t time) {
+Point InfluxUdpAdapter::selectNext(const std::string& id, time_t time, WhereClause q) {
   return Point();
 }
 
-Point InfluxUdpAdapter::selectPrevious(const std::string& id, time_t time) {
+Point InfluxUdpAdapter::selectPrevious(const std::string& id, time_t time, WhereClause q) {
   return Point();
 }
 

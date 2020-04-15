@@ -309,11 +309,11 @@ std::vector<Point> PiAdapter::selectRange(const std::string& id, TimeRange range
   
   return points;
 }
-Point PiAdapter::selectNext(const std::string& id, time_t time) {
+Point PiAdapter::selectNext(const std::string& id, time_t time, WhereClause q) {
   return Point();
 }
 
-Point PiAdapter::selectPrevious(const std::string& id, time_t time) {
+Point PiAdapter::selectPrevious(const std::string& id, time_t time, WhereClause q) {
   return Point();
 }
 

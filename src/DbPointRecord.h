@@ -45,8 +45,8 @@ namespace RTX {
 
     //// lookup
     Point point(const string& id, time_t time);
-    Point pointBefore(const string& id, time_t time);
-    Point pointAfter(const string& id, time_t time);
+    Point pointBefore(const string& id, time_t time, WhereClause q = WhereClause());
+    Point pointAfter(const string& id, time_t time, WhereClause q = WhereClause());
     std::vector<Point> pointsInRange(const string& id, TimeRange range);
     //// insert
     void addPoint(const string& id, Point point);
