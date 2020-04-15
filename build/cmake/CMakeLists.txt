@@ -122,6 +122,7 @@ add_library(epanetrtx
 ../../src/Units.cpp
 ../../src/ValidRangeTimeSeries.cpp
 ../../src/Valve.cpp
+../../src/WhereClause.cpp
 )
 
 target_compile_definitions(epanetrtx PRIVATE MAXFLOAT=3.40282347e+38F)
@@ -144,7 +145,7 @@ set(rtx_lib_deps
 	pthread
 	)
 
-	
+
 target_link_libraries(
 	epanetrtx
 	${rtx_lib_deps}
