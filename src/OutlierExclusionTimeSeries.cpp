@@ -10,8 +10,6 @@
 #include <boost/foreach.hpp>
 #include <math.h>
 
-static size_t outlierAccumulatorCacheSize = 10000;
-
 using namespace RTX;
 using namespace std;
 
