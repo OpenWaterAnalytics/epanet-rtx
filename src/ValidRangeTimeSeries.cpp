@@ -43,8 +43,8 @@ Point ValidRangeTimeSeries::pointBefore(time_t time) {
     // ok, so we might drop points, and we know that our source can support a qualified lookup.
     // this means that we can delegate the valid-ranging on to the source database.
     WhereClause q;
-    q.clauses[WhereClause::gte] = _range.first;
-    q.clauses[WhereClause::lte] = _range.second;
+    q.clauses[WhereClause::gte] = Units::convertValue(_range.first, this->units(), this->source()->units());
+    q.clauses[WhereClause::lte] = Units::convertValue(_range.second, this->units(), this->source()->units());
     
     Point p = source()->pointBefore(time, q);
     return p.converted(source()->units(), this->units());
@@ -61,8 +61,8 @@ Point ValidRangeTimeSeries::pointAfter(time_t time) {
     // this means that we can delegate the valid-ranging on to the source database.
     
     WhereClause q;
-    q.clauses[WhereClause::gte] = _range.first;
-    q.clauses[WhereClause::lte] = _range.second;
+    q.clauses[WhereClause::gte] = Units::convertValue(_range.first, this->units(), this->source()->units());
+    q.clauses[WhereClause::lte] = Units::convertValue(_range.second, this->units(), this->source()->units());
     
     Point p = source()->pointAfter(time, q);
     return p.converted(source()->units(), this->units());
