@@ -280,6 +280,10 @@ void EpanetModel::createRtxWrappers() {
     char buf[1024];
     int ok = EN_getcurve (_enModel, iCurve, buf, &nPoints, &xVals, &yVals);
     
+    if (!ok) {
+      throw("could not find curve " + to_string(iCurve));
+    }
+    
     map<double,double> curveData;
     for (int iPoint = 0; iPoint < nPoints; ++iPoint) {
       curveData[xVals[iPoint]] = yVals[iPoint];
