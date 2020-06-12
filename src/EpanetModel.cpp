@@ -278,9 +278,9 @@ void EpanetModel::createRtxWrappers() {
     double *xVals, *yVals;
     int nPoints;
     char buf[1024];
-    int ok = EN_getcurve (_enModel, iCurve, buf, &nPoints, &xVals, &yVals);
+    int err = EN_getcurve (_enModel, iCurve, buf, &nPoints, &xVals, &yVals);
     
-    if (!ok) {
+    if (err) {
       throw("could not find curve " + to_string(iCurve));
     }
     
