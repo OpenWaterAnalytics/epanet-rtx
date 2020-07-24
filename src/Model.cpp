@@ -715,7 +715,13 @@ bool Model::solveAndSaveOutputAtTime(time_t simulationTime) {
   
   t1 = time(NULL);
   // simulate this period, find the next timestep boundary.
-  bool success = solveSimulation(simulationTime);
+  bool success = false;
+  try {
+    success = solveSimulation(simulationTime);
+  } catch (string& exc) {
+    success = false;
+    cerr << "exception in solver: " << exc << endl;
+  }
   
   auto simWallDuration = time(NULL) - t1;
   _simWallTime->insert(Point(simulationTime, (double)simWallDuration));

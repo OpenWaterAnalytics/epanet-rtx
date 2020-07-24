@@ -35,7 +35,7 @@ namespace RTX {
 }
 
 
-#define RTX_MAX_CHAR_STRING 256
+#define RTX_MAX_CHAR_STRING 512
 #define RTX_MAX(x,y) x>y?x:y
 #define RTX_MIN(x,y) x<y?x:y
 

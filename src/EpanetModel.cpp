@@ -68,7 +68,7 @@ void EpanetModel::useEpanetModel(EN_Project *model, string path) {
   bool isSI = false;
   
   int qualCode, traceNode;
-  char chemName[32],chemUnits[32];
+  char chemName[35], chemUnits[35];
   EN_API_CHECK( EN_getqualinfo(_enModel, &qualCode, chemName, chemUnits, &traceNode), "EN_getqualinfo" );
   string chemUnitsStr(chemUnits);
   if (chemUnitsStr == "hrs") {
@@ -76,7 +76,7 @@ void EpanetModel::useEpanetModel(EN_Project *model, string path) {
   }
   Units qualUnits = Units::unitOfType(chemUnitsStr);
   this->setQualityUnits(qualUnits);
-  
+    
   EN_API_CHECK( EN_getflowunits(_enModel, &flowUnitType), "EN_getflowunits");
   switch (flowUnitType)
   {
@@ -135,7 +135,7 @@ void EpanetModel::useEpanetModel(EN_Project *model, string path) {
   // what units are quality in? who knows!
   //this->setQualityUnits(RTX_MICROSIEMENS_PER_CM);
   //EN_API_CHECK(EN_setqualtype(_enModel, CHEM, (char*)"rtxConductivity", (char*)"us/cm", (char*)""), "EN_setqualtype");
-  
+    
   // get simulation parameters
   {
     long enTimeStep;
@@ -151,7 +151,7 @@ void EpanetModel::useEpanetModel(EN_Project *model, string path) {
   
   int nodeCount, tankCount, linkCount;
   char enName[RTX_MAX_CHAR_STRING];
-  
+    
   EN_API_CHECK( EN_getcount(_enModel, EN_NODECOUNT, &nodeCount), "EN_getcount EN_NODECOUNT" );
   EN_API_CHECK( EN_getcount(_enModel, EN_TANKCOUNT, &tankCount), "EN_getcount EN_TANKCOUNT" );
   EN_API_CHECK( EN_getcount(_enModel, EN_LINKCOUNT, &linkCount), "EN_getcount EN_LINKCOUNT" );
@@ -174,7 +174,6 @@ void EpanetModel::useEpanetModel(EN_Project *model, string path) {
     _linkIndex[string(enName)] = iLink;
   }
   
-  
   // get the valve types
   for(Valve::_sp v : this->valves()) {
     int enIdx = _linkIndex[v->name()];
@@ -194,10 +193,12 @@ void EpanetModel::useEpanetModel(EN_Project *model, string path) {
     EN_getnodevalue(_enModel, en_idx, EN_ELEVATION, &elev);
     if (elev != n->elevation()) {
       cout << "ERROR: Database elevation inconsistent with model for node " << n->name() << EOL;
-      throw(string("Database elevation inconsistent with model for node ") + n->name());
+      auto badElevationErr = string("Database elevation inconsistent with model for node ") + n->name();
+      throw(badElevationErr);
     }
   }
   
+  cout << "copying comments" << endl;
   // copy my comments into the model
   for(Node::_sp n : this->nodes()) {
     this->setComment(n, n->userDescription());
@@ -282,7 +283,7 @@ void EpanetModel::createRtxWrappers() {
     
     if (err) {
       throw("could not find curve " + to_string(iCurve));
-    }
+    }  
     
     map<double,double> curveData;
     for (int iPoint = 0; iPoint < nPoints; ++iPoint) {
@@ -432,7 +433,7 @@ void EpanetModel::createRtxWrappers() {
   
   // create links
   for (int iLink = 1; iLink <= linkCount; iLink++) {
-    char enLinkName[RTX_MAX_CHAR_STRING], enFromName[RTX_MAX_CHAR_STRING], enToName[RTX_MAX_CHAR_STRING], enComment[RTX_MAX_CHAR_STRING];
+    char enLinkName[RTX_MAX_CHAR_STRING+1], enFromName[RTX_MAX_CHAR_STRING+1], enToName[RTX_MAX_CHAR_STRING+1], enComment[RTX_MAX_CHAR_STRING+1];
     int enFrom, enTo;
     EN_LinkType linkType;
     double length, diameter, status, rough, mloss, setting, curveIdx;
