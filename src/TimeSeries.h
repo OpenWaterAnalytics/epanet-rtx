@@ -99,7 +99,7 @@ namespace RTX {
     virtual void setUnits(Units newUnits);
     virtual bool canChangeToUnits(Units units) {return true;};
     
-    virtual TimeSeries::_sp rootTimeSeries() { return this->sp(); };
+    virtual std::vector<TimeSeries::_sp> rootTimeSeries() { return std::vector<TimeSeries::_sp> {this->sp()}; };
     virtual void resetCache();
     virtual void invalidate();
     

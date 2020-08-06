@@ -125,6 +125,19 @@ bool AggregatorTimeSeries::hasUpstreamSeries(TimeSeries::_sp other) {
   return false;
 }
 
+std::vector<TimeSeries::_sp> AggregatorTimeSeries::rootTimeSeries() {
+  std::vector<TimeSeries::_sp> roots;
+  
+  for (auto i : _tsList) {
+    auto ts = i.timeseries;
+    auto this_roots = ts->rootTimeSeries();
+    for (auto r : this_roots) {
+      roots.push_back(r);
+    }
+  }
+  return roots;
+}
+
 time_t AggregatorTimeSeries::timeBefore(time_t time) {
   std::set<time_t> timeSet;
   

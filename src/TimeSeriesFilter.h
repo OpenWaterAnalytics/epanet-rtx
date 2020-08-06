@@ -85,7 +85,7 @@ namespace RTX {
     virtual bool canDropPoints() { return false; };
     virtual TimeRange expandedRange(TimeRange r);
     
-    virtual TimeSeries::_sp rootTimeSeries();
+    virtual std::vector<TimeSeries::_sp> rootTimeSeries();
     
     // methods you must override to provide info to the base class
     virtual PointCollection filterPointsInRange(TimeRange range);

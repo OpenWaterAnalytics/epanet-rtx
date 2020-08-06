@@ -160,7 +160,11 @@ Point TimeSeriesFilter::pointBefore(time_t time) {
     }
     else {
       struct tm * timeinfo = localtime (&time);
-      cerr << "pointBefore Iterative search exceeded max strides:" << this->name() << " time=" << asctime(timeinfo) << " (root: " << this->rootTimeSeries()->name() << ")" << endl;
+      cerr << "pointBefore Iterative search exceeded max strides:" << this->name() << " time=" << asctime(timeinfo) << endl;
+      cerr << "Root Series: " << endl;
+      for (auto s : this->rootTimeSeries()) {
+        cerr << " --- " << s->name() << endl;
+      }
     }
   }
   else {
@@ -206,7 +210,11 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
     }
     else {
       struct tm * timeinfo = localtime (&time);
-      cerr << "pointAfter Iterative search exceeded max strides:" << this->name() << " time=" << asctime(timeinfo) << " (root: " << this->rootTimeSeries()->name() << ")" << endl;
+      cerr << "pointAfter Iterative search exceeded max strides:" << this->name() << " time=" << asctime(timeinfo) << endl;
+      cerr << "Root Series: " << endl;
+      for (auto s : this->rootTimeSeries()) {
+        cerr << " --- " << s->name() << endl;
+      }
     }
   }
   else {
@@ -426,12 +434,15 @@ bool TimeSeriesFilter::canChangeToUnits(Units units) {
 }
 
 
-TimeSeries::_sp TimeSeriesFilter::rootTimeSeries() {
+std::vector<TimeSeries::_sp> TimeSeriesFilter::rootTimeSeries() {
+  std::vector<TimeSeries::_sp> roots;
   TimeSeries::_sp source = this->source();
   if (source) {
-    source = source->rootTimeSeries();
+    for (auto r : source->rootTimeSeries()) {
+      roots.push_back(r);
+    }
   }
-  return source;
+  return roots;
 }
 
 

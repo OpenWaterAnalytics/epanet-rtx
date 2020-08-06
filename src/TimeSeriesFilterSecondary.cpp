@@ -33,3 +33,18 @@ void TimeSeriesFilterSecondary::didSetSecondary(TimeSeries::_sp secondary) {
 bool TimeSeriesFilterSecondary::hasUpstreamSeries(TimeSeries::_sp other) {
   return TimeSeriesFilter::hasUpstreamSeries(other) || (this->secondary() && this->secondary()->hasUpstreamSeries(other));
 }
+
+std::vector<TimeSeries::_sp> TimeSeriesFilterSecondary::rootTimeSeries() {
+  std::vector<TimeSeries::_sp> roots;
+  if (this->source()) {
+    for (auto r : this->source()->rootTimeSeries()) {
+      roots.push_back(r);
+    }
+  }
+  if (_secondary) {
+    for (auto r : _secondary->rootTimeSeries()) {
+      roots.push_back(r);
+    }
+  }
+  return roots;
+}

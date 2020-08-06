@@ -67,6 +67,7 @@ namespace RTX {
     bool canChangeToUnits(Units units);
     
     virtual bool hasUpstreamSeries(TimeSeries::_sp other);
+    virtual std::vector<TimeSeries::_sp> rootTimeSeries();
     
     // chainable
     AggregatorTimeSeries::_sp add(TimeSeries::_sp ts, double multiplier) {this->addSource(ts,multiplier); return share_me(this);};
