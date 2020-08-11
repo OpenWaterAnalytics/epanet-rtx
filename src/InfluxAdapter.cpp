@@ -549,12 +549,43 @@ std::vector<Point> InfluxTcpAdapter::selectRange(const std::string& id, TimeRang
   return __pointsSingle(jsv);
 }
 
+vector<string> _makeSelectStrs(WhereClause q);
+vector<string> _makeSelectStrs(WhereClause q) {
+  vector<string> clauses;
+  for (auto const& i : q.clauses) {
+    switch (i.first) {
+      case WhereClause::gte:
+        clauses.push_back("value >= " + std::to_string(i.second));
+        break;
+      case WhereClause::gt:
+        clauses.push_back("value > " + std::to_string(i.second));
+        break;
+      case WhereClause::lte:
+        clauses.push_back("value <= " + std::to_string(i.second));
+        break;
+      case WhereClause::lt:
+        clauses.push_back("value < " + std::to_string(i.second));
+        break;
+      default:
+        break;
+    }
+  }
+  return clauses;
+}
+
 Point InfluxTcpAdapter::selectNext(const std::string& id, time_t time, WhereClause whereClause) {
   std::vector<Point> points;
   string dbId = influxIdForTsId(id);
   Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time > " + to_string(time) + "s");
   q.order = "time asc limit 1";
+  
+  if (!whereClause.clauses.empty()) {
+    auto otherWheres = _makeSelectStrs(whereClause);
+    for (auto w : otherWheres) {
+      q.where.push_back(w);
+    }
+  }
   
   uri uri = uriForQuery(q.selectStr());
   jsValue jsv = jsonFromRequest(uri,methods::GET);
@@ -574,6 +605,13 @@ Point InfluxTcpAdapter::selectPrevious(const std::string& id, time_t time, Where
   Query q = this->queryPartsFromMetricId(dbId);
   q.where.push_back("time < " + to_string(time) + "s");
   q.order = "time desc limit 1";
+  
+  if (!whereClause.clauses.empty()) {
+    auto otherWheres = _makeSelectStrs(whereClause);
+    for (auto w : otherWheres) {
+      q.where.push_back(w);
+    }
+  }
   
   uri uri = uriForQuery(q.selectStr());
   jsValue jsv = jsonFromRequest(uri,methods::GET);

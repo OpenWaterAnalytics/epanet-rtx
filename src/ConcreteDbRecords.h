@@ -39,7 +39,7 @@ namespace RTX {
     RTX_BASE_PROPS(InfluxDbPointRecord);
     InfluxDbPointRecord();
     ~InfluxDbPointRecord();
-    
+    bool supportsQualifiedQuery() { return true; };
     void sendInfluxString(time_t time, const string& seriesId, const string& values);
   };
   
