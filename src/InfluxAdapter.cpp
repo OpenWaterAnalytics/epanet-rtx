@@ -950,7 +950,7 @@ InfluxTcpAdapter::Query InfluxTcpAdapter::queryPartsFromMetricId(const std::stri
   if (m.tags.size() > 0) {
     for( auto p : m.tags) {
       stringstream ss;
-      ss << p.first << "='" << p.second << "'";
+      ss << "\"" << p.first << "\"='" << p.second << "'";
       string s = ss.str();
       q.where.push_back(s);
     }
