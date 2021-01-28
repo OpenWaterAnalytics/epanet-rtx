@@ -107,6 +107,7 @@ add_library(epanetrtx
 ../../src/Pump.cpp
 ../../src/Reservoir.cpp
 ../../src/SineTimeSeries.cpp
+../../src/SquareWaveTimeSeries.cpp
 ../../src/SqliteAdapter.cpp
 ../../src/StatsTimeSeries.cpp
 ../../src/Tank.cpp
