@@ -6,6 +6,7 @@
 
 #include "ConstantTimeSeries.h"
 #include "SineTimeSeries.h"
+#include "SquareWaveTimeSeries.h"
 #include "TimeSeriesFilter.h"
 #include "MovingAverage.h"
 #include "FirstDerivative.h"

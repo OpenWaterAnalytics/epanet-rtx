@@ -72,6 +72,7 @@ add_library(epanet-rtx STATIC
   ../../../../src/PointRecord.cpp
   ../../../../src/PointRecordTime.cpp
   ../../../../src/SineTimeSeries.cpp
+  ../../../../src/SquareWaveTimeSeries.cpp
   ../../../../src/StatsTimeSeries.cpp
   ../../../../src/ThresholdTimeSeries.cpp
   ../../../../src/TimeRange.cpp

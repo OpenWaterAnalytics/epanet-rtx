@@ -12,6 +12,8 @@
 		15A70BBE226E6DF4008F2F8C /* libboost_timer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CA1C1A048300298C0C /* libboost_timer.a */; };
 		15DFA17D24464B0E0028797E /* WhereClause.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 15DFA17B24464B0E0028797E /* WhereClause.cpp */; };
 		15DFA17E24464B0E0028797E /* WhereClause.h in Headers */ = {isa = PBXBuildFile; fileRef = 15DFA17C24464B0E0028797E /* WhereClause.h */; };
+		15FD881325C0934700497BE1 /* SquareWaveTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 15FD880A25C0934700497BE1 /* SquareWaveTimeSeries.h */; };
+		15FD881425C0934700497BE1 /* SquareWaveTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 15FD881225C0934700497BE1 /* SquareWaveTimeSeries.cpp */; };
 		2200ED191C7797F3009A6C5F /* libepanet-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 228CD55F1C0F5E4E00C67802 /* libepanet-static.a */; };
 		220F9DD618F9E1BE00BB842C /* readConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220F9DD518F9E1BE00BB842C /* readConfig.cpp */; };
 		221A4B061B8CC00C006967AE /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
@@ -405,6 +407,8 @@
 		1557A02422B04647001980D9 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		15DFA17B24464B0E0028797E /* WhereClause.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = WhereClause.cpp; path = ../../src/WhereClause.cpp; sourceTree = "<group>"; };
 		15DFA17C24464B0E0028797E /* WhereClause.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WhereClause.h; path = ../../src/WhereClause.h; sourceTree = "<group>"; };
+		15FD880A25C0934700497BE1 /* SquareWaveTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SquareWaveTimeSeries.h; path = ../../src/SquareWaveTimeSeries.h; sourceTree = "<group>"; };
+		15FD881225C0934700497BE1 /* SquareWaveTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SquareWaveTimeSeries.cpp; path = ../../src/SquareWaveTimeSeries.cpp; sourceTree = "<group>"; };
 		220324C918AC05A800BD7790 /* FailoverTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FailoverTimeSeries.cpp; path = ../../src/FailoverTimeSeries.cpp; sourceTree = "<group>"; };
 		220324CA18AC05A800BD7790 /* FailoverTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FailoverTimeSeries.h; path = ../../src/FailoverTimeSeries.h; sourceTree = "<group>"; };
 		220AE463145AFB3C002F07B4 /* CurveFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CurveFunction.h; path = ../../src/CurveFunction.h; sourceTree = "<group>"; };
@@ -871,6 +875,8 @@
 				22E4ED0E1725C1C60076E93D /* ConstantTimeSeries.cpp */,
 				22F63D3616C5735100A15368 /* SineTimeSeries.h */,
 				22F63D3516C5735100A15368 /* SineTimeSeries.cpp */,
+				15FD880A25C0934700497BE1 /* SquareWaveTimeSeries.h */,
+				15FD881225C0934700497BE1 /* SquareWaveTimeSeries.cpp */,
 			);
 			name = Synthetic;
 			sourceTree = "<group>";
@@ -1383,6 +1389,7 @@
 				221BFD9E1A8E8AD000143FCC /* StatsTimeSeries.h in Headers */,
 				221BFD9F1A8E8AD000143FCC /* Pipe.h in Headers */,
 				221BFDA01A8E8AD000143FCC /* Pump.h in Headers */,
+				15FD881325C0934700497BE1 /* SquareWaveTimeSeries.h in Headers */,
 				221BFDA11A8E8AD000143FCC /* Valve.h in Headers */,
 				221BFDA21A8E8AD000143FCC /* Units.h in Headers */,
 				221BFDA31A8E8AD000143FCC /* OffsetTimeSeries.h in Headers */,
@@ -1753,6 +1760,7 @@
 				221BFD431A8E8AD000143FCC /* Element.cpp in Sources */,
 				221BFD441A8E8AD000143FCC /* Node.cpp in Sources */,
 				221BFD451A8E8AD000143FCC /* Link.cpp in Sources */,
+				15FD881425C0934700497BE1 /* SquareWaveTimeSeries.cpp in Sources */,
 				228CFBB11DBFD9A900B59206 /* MetricInfo.cpp in Sources */,
 				22E71E281E5B4EBE0044E084 /* IdentifierUnitsList.cpp in Sources */,
 				221BFD461A8E8AD000143FCC /* Dma.cpp in Sources */,

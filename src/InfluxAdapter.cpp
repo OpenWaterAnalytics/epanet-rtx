@@ -721,7 +721,7 @@ void InfluxTcpAdapter::sendPointsWithString(const std::string& content) {
     std::stringstream compressed;
     std::stringstream origin(bodyContent);
     bio::filtering_streambuf<bio::input> out;
-    out.push(bio::gzip_compressor(bio::gzip_params(bio::gzip::best_compression)));
+    out.push(bio::gzip_compressor(bio::gzip_params(bio::gzip::default_compression)));
     out.push(origin);
     bio::copy(out, compressed);
     const string zippedContent(compressed.str());
@@ -745,6 +745,7 @@ void InfluxTcpAdapter::sendPointsWithString(const std::string& content) {
           break;
         default:
           DebugLog << "send points to influx: POST returned " << r.status_code() << " - " << r.reason_phrase() << EOL;
+          DebugLog << r.extract_json().get().serialize() << EOL;
           break;
       }
     } catch (std::exception &e) {
