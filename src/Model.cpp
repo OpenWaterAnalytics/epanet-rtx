@@ -735,6 +735,12 @@ bool Model::solveAndSaveOutputAtTime(time_t simulationTime) {
   Point convergenceStatus(simulationTime, (double)success);
   _convergence->insert(convergenceStatus);
   
+  {
+    scoped_lock<boost::signals2::mutex> l(_simulationInProcessMutex);
+    if (_shouldCancelSimulation) {
+      return false;
+    }
+  }
   
   if (success) {
     // get the record(s) being used
