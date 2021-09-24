@@ -1151,7 +1151,7 @@ std::ostream& Model::toStream(std::ostream &stream) {
 void Model::setSimulationParameters(time_t time) {
   struct tm * timeinfo = localtime (&time);
   
-  DebugLog << EOL << "*** SETTING MODEL INPUTS ***" << EOL;
+  cout << EOL << "*** SETTING MODEL INPUTS ***" << EOL;
   // set all element parameters
   
   // allocate junction demands based on dmas, and set the junction demand values in the model.
@@ -1197,7 +1197,7 @@ void Model::setSimulationParameters(time_t time) {
   // check for valid time with tank reset clock
   if (_tankResetClock && _tankResetClock->isValid(time)) {
     this->setTanksNeedReset(true);
-    DebugLog << "*  INFO :: TANKS NEED RESET" << EOL;
+    cout << "*  INFO :: TANKS NEED RESET" << EOL;
   }
   
   _checkTanksForReset(time);
@@ -1442,7 +1442,7 @@ void Model::fetchSimulationStates() {
 
 void Model::saveNetworkStates(time_t simtime, std::set<PointRecord::_sp> bulkRecords) {
   
-  DebugLog << "******* saving network states *********" << EOL << flush;
+  cout << "******* saving network states *********" << EOL << flush;
   auto t1 = time(NULL);
 
   for(PointRecord::_sp r: bulkRecords) {
