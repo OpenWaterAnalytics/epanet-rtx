@@ -130,6 +130,20 @@ namespace RTX {
     };
     request_t _last_request;
     
+    class WideQueryInfo {
+    public:
+      const static time_t ttl = 60;
+      WideQueryInfo() {_range=TimeRange(); _queryTime=0;};
+      WideQueryInfo(TimeRange range) {_range = range; _queryTime = time(NULL);};
+      TimeRange range() {return _range;};
+      bool valid() {return (time(NULL) - _queryTime) < ttl; };
+    private:
+      time_t _queryTime;
+      TimeRange _range;
+    };
+    
+    WideQueryInfo _wideQuery;
+    
     
   private:
     bool checkConnected();
@@ -142,6 +156,8 @@ namespace RTX {
     std::mutex _db_pr_mtx;
     
     std::function<Point(Point)> _opcFilter;
+    
+    
     
   };
 

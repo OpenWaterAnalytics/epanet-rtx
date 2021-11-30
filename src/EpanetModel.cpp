@@ -792,12 +792,7 @@ void EpanetModel::disableControls() {
 #pragma mark Simulation Methods
 
 bool EpanetModel::solveSimulation(time_t time) {
-  // TODO -- 
-  /*
-      determine how to perform this function. maybe keep track of relative error for each simulation period
-   so we know what simulation periods have been solved - as in a master simulation clock?
-   
-   */
+
   bool success = true;
   long timestep;
   int errorCode;
@@ -807,7 +802,7 @@ bool EpanetModel::solveSimulation(time_t time) {
   EN_API_CHECK(EN_settimeparam(_enModel, EN_HTIME, 0), "EN_settimeparam(EN_HTIME)");
   EN_API_CHECK(EN_settimeparam(_enModel, EN_QTIME, 0), "EN_settimeparam(EN_QTIME)");
   // solve the hydraulics
-  EN_API_CHECK(errorCode = EN_runH(_enModel, &timestep), "EN_runH");
+  errorCode = EN_runH(_enModel, &timestep);
   // check for success
   success = this->_didConverge(time, errorCode);
   
@@ -819,7 +814,21 @@ bool EpanetModel::solveSimulation(time_t time) {
     ss << std::string(errorMsg) << " :: " << asctime(timeinfo);
     this->logLine(ss.str());
   }
-
+  
+  if (errorCode == 110) {
+    // ill conditioning can be helped by resetting some things
+    this->applyInitialTankLevels();
+    errorCode = EN_runH(_enModel, &timestep);
+    if (errorCode > 0) {
+      char errorMsg[256];
+      EN_geterror(errorCode, errorMsg, 255);
+      struct tm * timeinfo = localtime (&time);
+      stringstream ss;
+      ss << "Re-setting did not help in this case... " << std::string(errorMsg) << " :: " << asctime(timeinfo);
+      this->logLine(ss.str());
+    }
+  }
+  
   // how to deal with lack of hydraulic convergence here - reset boundary/initial conditions?
   if (this->shouldRunWaterQuality()) {
     EN_API_CHECK(EN_runQ(_enModel, &timestep), "EN_runQ");

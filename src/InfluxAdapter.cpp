@@ -62,7 +62,7 @@ InfluxAdapter::~InfluxAdapter() {
 void InfluxAdapter::setConnectionString(const std::string& str) {
   _RTX_DB_SCOPED_LOCK;
   
-  regex kvReg("([^=]+)=([^&]+)&?"); // key - value pair
+  regex kvReg("([^=]+)=([^&\\s]+)&?"); // key - value pair
   // split the tokenized string. we're expecting something like "host=127.0.0.1&port=4242"
   std::map<std::string, std::string> kvPairs;
   {
@@ -532,7 +532,28 @@ std::map<std::string, std::vector<Point> > InfluxTcpAdapter::wideQuery(TimeRange
   
   auto fetch = __pointsFromJson(jsv);
   
-  return fetch;
+  // for many wide query optimization needs, we may also want the last known point prior to the range provided
+  // such as pump status or other report-by-exception values.
+  
+  // so get the previous points (wide)
+  string prevQuery = "SELECT time, value, quality, confidence FROM /.+/ WHERE time < " + to_string(range.start) + "s GROUP BY * order by time desc limit 1";
+  uri pUri = this->uriForQuery(prevQuery);
+  jsValue pjsv = jsonFromRequest(pUri,methods::GET);
+  auto pfetch = __pointsFromJson(pjsv);
+  
+  // and now merge the fetch results.
+  map<string,vector<Point> > merged;
+  for (auto result : fetch) {
+    auto rangeFetch = result.second;
+    auto prevFetch = pfetch[result.first];
+    auto aMergedOne = vector<Point>(rangeFetch.size() + prevFetch.size()); // preallocate
+    aMergedOne.insert(aMergedOne.end(), rangeFetch.begin(), rangeFetch.end());
+    aMergedOne.insert(aMergedOne.end(), prevFetch.begin(), prevFetch.end());
+    merged[result.first] = aMergedOne;
+  }
+  
+  
+  return merged;
 }
 
 // READ

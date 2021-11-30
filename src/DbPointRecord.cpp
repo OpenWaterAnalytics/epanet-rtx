@@ -240,6 +240,9 @@ void DbPointRecord::willQuery(RTX::TimeRange range) {
     for (auto res : fetch) {
       DB_PR_SUPER::addPoints(res.first, res.second);
     }
+    // optimization: if any results were returned, then we can be sure that the adaptor supports wide query.
+    // so cache the range of that query.
+    _wideQuery = WideQueryInfo(range);
   }
 }
 
@@ -266,6 +269,10 @@ Point DbPointRecord::point(const string& id, time_t time) {
     // todo -- check staleness
     
     if (_last_request.contains(id, time)) {
+      return Point();
+    }
+    
+    if (_wideQuery.valid() && _wideQuery.range().contains(time)) {
       return Point();
     }
     
@@ -310,6 +317,12 @@ Point DbPointRecord::pointBefore(const string& id, time_t time, WhereClause q) {
   // available in circular buffer?
   Point p = DB_PR_SUPER::pointBefore(id, time, q);
   if (p.isValid) {
+    return p;
+  }
+  
+  // if there is a valid ("alive") wide query, and if the time requested is in range, then the point should be there.
+  // if it's not there, it doesn't exist (within TTL anyway)
+  if (_wideQuery.valid() && _wideQuery.range().contains(time)) {
     return p;
   }
   
@@ -435,6 +448,11 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, TimeRange qran
   
   // limit double-queries
   if (_last_request.range.containsRange(qrange) && _last_request.id == id) {
+    return DB_PR_SUPER::pointsInRange(id, qrange);
+  }
+  
+  // wide query optimization
+  if (_wideQuery.valid() && _wideQuery.range().intersection(qrange) == TimeRange::intersect_other_internal) {
     return DB_PR_SUPER::pointsInRange(id, qrange);
   }
   
