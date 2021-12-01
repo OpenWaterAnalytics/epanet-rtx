@@ -818,6 +818,7 @@ bool EpanetModel::solveSimulation(time_t time) {
   if (errorCode == 110) {
     // ill conditioning can be helped by resetting some things
     this->applyInitialTankLevels();
+    this->applyInitialQuality();
     errorCode = EN_runH(_enModel, &timestep);
     if (errorCode > 0) {
       char errorMsg[256];
