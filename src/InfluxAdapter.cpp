@@ -541,17 +541,24 @@ std::map<std::string, std::vector<Point> > InfluxTcpAdapter::wideQuery(TimeRange
   jsValue pjsv = jsonFromRequest(pUri,methods::GET);
   auto pfetch = __pointsFromJson(pjsv);
   
+  // and get the next points (wide)
+  string nextQuery = "SELECT time, value, quality, confidence FROM /.+/ WHERE time > " + to_string(range.end) + "s GROUP BY * order by time asc limit 1";
+  uri nUri = this->uriForQuery(nextQuery);
+  jsValue njsv = jsonFromRequest(nUri,methods::GET);
+  auto nfetch = __pointsFromJson(njsv);
+  
   // and now merge the fetch results.
   map<string,vector<Point> > merged;
   for (auto result : fetch) {
     auto rangeFetch = result.second;
     auto prevFetch = pfetch[result.first];
-    auto aMergedOne = vector<Point>(rangeFetch.size() + prevFetch.size()); // preallocate
-    aMergedOne.insert(aMergedOne.end(), rangeFetch.begin(), rangeFetch.end());
+    auto nextFetch = nfetch[result.first];
+    auto aMergedOne = vector<Point>(rangeFetch.size() + prevFetch.size() + nextFetch.size()); // preallocate
     aMergedOne.insert(aMergedOne.end(), prevFetch.begin(), prevFetch.end());
+    aMergedOne.insert(aMergedOne.end(), rangeFetch.begin(), rangeFetch.end());
+    aMergedOne.insert(aMergedOne.end(), nextFetch.begin(), nextFetch.end());
     merged[result.first] = aMergedOne;
   }
-  
   
   return merged;
 }

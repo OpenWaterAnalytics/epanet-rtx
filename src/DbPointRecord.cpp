@@ -262,6 +262,12 @@ Point DbPointRecord::point(const string& id, time_t time) {
     return p;
   }
   
+  // if there is a valid ("alive") wide query, and if the time requested is in range, then the point should be there.
+  // if it's not there, it doesn't exist (within TTL anyway)
+  if (_wideQuery.valid() && _wideQuery.range().contains(time)) {
+    return p;
+  }
+  
   if (!p.isValid) {
     
     // see if we just asked the db for something in this range.
@@ -361,6 +367,12 @@ Point DbPointRecord::pointAfter(const string& id, time_t time, WhereClause q) {
   // buffered?
   Point p = DB_PR_SUPER::pointAfter(id, time, q);
   if (p.isValid) {
+    return p;
+  }
+  
+  // if there is a valid ("alive") wide query, and if the time requested is in range, then the point should be there.
+  // if it's not there, it doesn't exist (within TTL anyway)
+  if (_wideQuery.valid() && _wideQuery.range().contains(time)) {
     return p;
   }
   
