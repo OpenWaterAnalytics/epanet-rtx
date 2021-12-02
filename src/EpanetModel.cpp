@@ -19,6 +19,8 @@
 using namespace RTX;
 using namespace std;
 
+#define SMALL 0.001
+
 EpanetModel::EpanetModel() : Model() {
   // nothing to do, right?
   _enOpened = false;
@@ -191,7 +193,7 @@ void EpanetModel::useEpanetModel(EN_Project *model, string path) {
     double elev;
     auto en_idx = _nodeIndex[n->name()];
     EN_getnodevalue(_enModel, en_idx, EN_ELEVATION, &elev);
-    if (elev != n->elevation()) {
+    if ( fabs(elev - n->elevation()) > SMALL) {
       cout << "ERROR: Database elevation inconsistent with model for node " << n->name() << EOL;
       auto badElevationErr = string("Database elevation inconsistent with model for node ") + n->name();
       throw(badElevationErr);

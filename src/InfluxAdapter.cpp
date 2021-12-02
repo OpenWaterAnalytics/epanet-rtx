@@ -525,42 +525,19 @@ std::map<std::string, std::vector<Point> > InfluxTcpAdapter::wideQuery(TimeRange
   ss << " FROM /.+/";
   ss << " WHERE " << boost::algorithm::join(where," AND ");
   ss << " GROUP BY * ORDER BY ASC";
-  auto qstr = ss.str();
+  
+  // for many wide query optimization needs, we may also want the last known point prior to the range provided
+  // such as pump status or other report-by-exception values.
+  string prevQuery = "SELECT time, value, quality, confidence FROM /.+/ WHERE time < " + to_string(range.start) + "s GROUP BY * order by time desc limit 1";
+  string nextQuery = "SELECT time, value, quality, confidence FROM /.+/ WHERE time > " + to_string(range.end) + "s GROUP BY * order by time asc limit 1";
+  
+  auto qstr = prevQuery + ";" + ss.str() + ";" + nextQuery;
   
   uri qUri = this->uriForQuery(qstr);
   jsValue jsv = jsonFromRequest(qUri,methods::GET);
   
   auto fetch = __pointsFromJson(jsv);
-  
-  // for many wide query optimization needs, we may also want the last known point prior to the range provided
-  // such as pump status or other report-by-exception values.
-  
-  // so get the previous points (wide)
-  string prevQuery = "SELECT time, value, quality, confidence FROM /.+/ WHERE time < " + to_string(range.start) + "s GROUP BY * order by time desc limit 1";
-  uri pUri = this->uriForQuery(prevQuery);
-  jsValue pjsv = jsonFromRequest(pUri,methods::GET);
-  auto pfetch = __pointsFromJson(pjsv);
-  
-  // and get the next points (wide)
-  string nextQuery = "SELECT time, value, quality, confidence FROM /.+/ WHERE time > " + to_string(range.end) + "s GROUP BY * order by time asc limit 1";
-  uri nUri = this->uriForQuery(nextQuery);
-  jsValue njsv = jsonFromRequest(nUri,methods::GET);
-  auto nfetch = __pointsFromJson(njsv);
-  
-  // and now merge the fetch results.
-  map<string,vector<Point> > merged;
-  for (auto result : fetch) {
-    auto rangeFetch = result.second;
-    auto prevFetch = pfetch[result.first];
-    auto nextFetch = nfetch[result.first];
-    auto aMergedOne = vector<Point>(rangeFetch.size() + prevFetch.size() + nextFetch.size()); // preallocate
-    aMergedOne.insert(aMergedOne.end(), prevFetch.begin(), prevFetch.end());
-    aMergedOne.insert(aMergedOne.end(), rangeFetch.begin(), rangeFetch.end());
-    aMergedOne.insert(aMergedOne.end(), nextFetch.begin(), nextFetch.end());
-    merged[result.first] = aMergedOne;
-  }
-  
-  return merged;
+  return fetch;
 }
 
 // READ
@@ -887,81 +864,92 @@ map<string, vector<Point> > __pointsFromJson(jsValue& json) {
     return out;
   }
   
-  jsValue resultsVal = json[kRESULTS];
-  jsValue firstRes = resultsVal[0];
-  if ( !firstRes.is_object() || !firstRes.has_field(kSERIES) ) {
-    return out;
-  }
   
-  auto seriesArray = firstRes[kSERIES].as_array();
-  
-  for (auto &series : seriesArray) {
+  for (auto &statement : json[kRESULTS].as_array()) {
     
-    // assemble the proper identifier for this series
-    MetricInfo metric("");
-    metric.measurement = series["name"].as_string();
-    if (series.has_field("tags")) {
-      auto tagsObj = series["tags"].as_object();
-      auto tagsIter = tagsObj.begin();
-      while (tagsIter != tagsObj.end()) {
-        metric.tags[tagsIter->first] = tagsIter->second.as_string();
-        ++tagsIter;
-      }
-      Units units = Units::unitOfType(metric.tags.at("units"));
-      metric.tags.erase("units"); // get rid of units if they are included.
-    }
-    string properId = metric.name();
-    
-    map<string,int> columnMap;
-    jsArray cols = series["columns"].as_array();
-    for (int i = 0; i < cols.size(); ++i) {
-      string colName = cols[i].as_string();
-      columnMap[colName] = (int)i;
-    }
-    
-    // check columns are all there
-    bool allColumnsPresent = true;
-    for (const string &key : {"time","value","quality","confidence"}) {
-      if (columnMap.count(key) == 0) {
-        cerr << "column map does not contain key: " << key << endl;
-        allColumnsPresent = false;
-      }
-    }
-    if (!allColumnsPresent) {
-      continue; // skip this parsing iteration
-    }
-    
-    const int 
-    timeIndex = columnMap["time"], 
-    valueIndex = columnMap["value"], 
-    qualityIndex = columnMap["quality"], 
-    confidenceIndex = columnMap["confidence"];
-    
-    auto values = series["values"].as_array();
-    if (values.size() == 0) {
+    if ( !statement.is_object() || !statement.has_field(kSERIES) ) {
       continue;
     }
-    
-    out[properId] = vector<Point>();
-    auto pointVec = &(out.at(properId));
-    
-    vector<Point> points;
-    points.reserve(values.size());
-    for (auto &rowV : values) {
-      jsArray row = rowV.as_array();
-      time_t t = row[timeIndex].as_integer();
-      double v = row[valueIndex].as_double();
-      Point::PointQuality q = Point::opc_rtx_override;
-      if (!row[qualityIndex].is_null()) {
-        q = (Point::PointQuality)(row[qualityIndex].as_integer());
+    auto seriesArray = statement[kSERIES].as_array();
+    for (auto &series : seriesArray) {
+      // assemble the proper identifier for this series
+      MetricInfo metric("");
+      metric.measurement = series["name"].as_string();
+      if (series.has_field("tags")) {
+        auto tagsObj = series["tags"].as_object();
+        auto tagsIter = tagsObj.begin();
+        while (tagsIter != tagsObj.end()) {
+          metric.tags[tagsIter->first] = tagsIter->second.as_string();
+          ++tagsIter;
+        }
+        Units units = Units::unitOfType(metric.tags.at("units"));
+        metric.tags.erase("units"); // get rid of units if they are included.
       }
-      double c = 0;
-      if (!row[confidenceIndex].is_null()) {
-        c = row[confidenceIndex].as_double();
+      string properId = metric.name();
+      
+      map<string,int> columnMap;
+      jsArray cols = series["columns"].as_array();
+      for (int i = 0; i < cols.size(); ++i) {
+        string colName = cols[i].as_string();
+        columnMap[colName] = (int)i;
       }
-      pointVec->push_back(Point(t,v,q,c));
+      
+      // check columns are all there
+      bool allColumnsPresent = true;
+      for (const string &key : {"time","value","quality","confidence"}) {
+        if (columnMap.count(key) == 0) {
+          cerr << "column map does not contain key: " << key << endl;
+          allColumnsPresent = false;
+        }
+      }
+      if (!allColumnsPresent) {
+        continue; // skip this parsing iteration
+      }
+      
+      const int
+      timeIndex = columnMap["time"],
+      valueIndex = columnMap["value"],
+      qualityIndex = columnMap["quality"],
+      confidenceIndex = columnMap["confidence"];
+      
+      auto values = series["values"].as_array();
+      
+      auto nValues = values.size();
+      if (nValues == 0) {
+        continue;
+      }
+      
+      if (out.count(properId) == 0) {
+        out[properId] = vector<Point>();
+        if (nValues > 1) {
+          out[properId].reserve(nValues + 2);
+        }
+      }
+      
+      auto pointVec = &(out.at(properId));
+      
+      for (auto &rowV : values) {
+        jsArray row = rowV.as_array();
+        time_t t = row[timeIndex].as_integer();
+        double v = row[valueIndex].as_double();
+        Point::PointQuality q = Point::opc_rtx_override;
+        if (!row[qualityIndex].is_null()) {
+          q = (Point::PointQuality)(row[qualityIndex].as_integer());
+        }
+        double c = 0;
+        if (!row[confidenceIndex].is_null()) {
+          c = row[confidenceIndex].as_double();
+        }
+        pointVec->push_back(Point(t,v,q,c));
+      }
     }
   }
+  
+  // sort these points
+  for (auto &ts : out) {
+    std::sort(ts.second.begin(), ts.second.end(), Point::comparePointTime);
+  }
+  
   
   return out;
 }
