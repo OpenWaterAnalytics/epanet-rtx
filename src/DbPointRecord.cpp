@@ -476,7 +476,7 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, TimeRange qran
   TimeRange::intersect_type intersect = range.intersection(qrange);
 
   // if the requested range is not in memcache, then fetch it.
-  if ( intersect == TimeRange::intersect_other_internal ) {
+  if ( intersect == TimeRange::intersect_other_internal || intersect == TimeRange::intersect_equal ) {
     return DB_PR_SUPER::pointsInRange(id, qrange);
   }
   else {

@@ -799,6 +799,7 @@ jsValue InfluxTcpAdapter::jsonFromRequest(uri uri, method withMethod) {
     config.set_timeout(std::chrono::seconds(RTX_INFLUX_CLIENT_TIMEOUT));
     config.set_credentials(web::http::client::credentials(connection.user, connection.pass));
     config.set_validate_certificates(connection.validate);
+    config.set_request_compressed_response(true);
     try {
       web::http::client::http_client client(uri, config);
       http_response r = client.request(withMethod).get(); // waits for response
