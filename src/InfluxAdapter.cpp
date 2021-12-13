@@ -579,6 +579,8 @@ vector<string> _makeSelectStrs(WhereClause q) {
 }
 
 Point InfluxTcpAdapter::selectNext(const std::string& id, time_t time, WhereClause whereClause) {
+  _RTX_DB_SCOPED_LOCK;
+  
   std::vector<Point> points;
   string dbId = influxIdForTsId(id);
   Query q = this->queryPartsFromMetricId(dbId);
@@ -604,6 +606,8 @@ Point InfluxTcpAdapter::selectNext(const std::string& id, time_t time, WhereClau
 }
 
 Point InfluxTcpAdapter::selectPrevious(const std::string& id, time_t time, WhereClause whereClause) {
+  _RTX_DB_SCOPED_LOCK;
+  
   std::vector<Point> points;
   string dbId = influxIdForTsId(id);
   
@@ -632,7 +636,7 @@ Point InfluxTcpAdapter::selectPrevious(const std::string& id, time_t time, Where
 
 
 vector<Point> InfluxTcpAdapter::selectWithQuery(const std::string& query, TimeRange range) {
-  
+  _RTX_DB_SCOPED_LOCK;
   // expects a "$timeFilter" placeholder, to be replaced with the time range, e.g., "time >= t1 and time <= t2"
   
   //case insensitive find

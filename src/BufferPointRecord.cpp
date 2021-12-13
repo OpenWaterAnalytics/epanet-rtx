@@ -356,9 +356,9 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
       } // gap
     }// scoped
   }
-  else {
-    cerr << "keyed buffer not found for id: " << identifier << EOL;
-  }
+  //else {
+  //  DebugLog << "keyed buffer not found for id: " << identifier << EOL;
+  //}
 }
 
 
