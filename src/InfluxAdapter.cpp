@@ -19,7 +19,7 @@
 
 #include "MetricInfo.h"
 
-#define RTX_INFLUX_CLIENT_TIMEOUT 15
+#define RTX_INFLUX_CLIENT_TIMEOUT 30
 
 using namespace std;
 using namespace RTX;
