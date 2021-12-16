@@ -103,7 +103,7 @@ namespace RTX {
     TimeSeries::_sp boundaryDemand();
     void setDemand(TimeSeries::_sp demand);
     void setJunctionFlowUnits(Units units);
-    
+    bool doesContainReservoir();
     
     
     // business logic

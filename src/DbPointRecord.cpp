@@ -327,10 +327,32 @@ Point DbPointRecord::pointBefore(const string& id, time_t time, WhereClause q) {
   }
   
   // if there is a valid ("alive") wide query, and if the time requested is in range, then the point should be there.
-  // if it's not there, it doesn't exist (within TTL anyway)
-  if (_wideQuery.valid() && _wideQuery.range().contains(time)) {
-    return p;
+  // The Base buffer class might not catch this, since it depends on a time range based on extant data.
+  // so we (partially) reproduce some logic here to get that edge case.
+  if (_wideQuery.valid()) {
+    // the actual effective range is the superset of the buffered range and the wide query range.
+    TimeRange actualRange = TimeRange::unionOf(_wideQuery.range(), DB_PR_SUPER::range(id));
+    
+    if (actualRange.contains(time)) {
+      // last check...
+      
+      auto existing = DB_PR_SUPER::pointsInRange(id, actualRange);
+      // if no existing, definitely no points
+      if (existing.size() == 0) {
+        return p;
+      }
+      // existing points could be before/after the desired timestamp...
+      // so just check if our buffer's last point is before requested.
+      if (existing.back().time < time) {
+        return existing.back();
+      }
+    }
+    else {
+      return p;
+    }
+    
   }
+  
   
   // if it's not buffered, but the last request covered this range, then there is no point here.
 //  if (_last_request.contains(id, time-1)) {
@@ -372,8 +394,27 @@ Point DbPointRecord::pointAfter(const string& id, time_t time, WhereClause q) {
   
   // if there is a valid ("alive") wide query, and if the time requested is in range, then the point should be there.
   // if it's not there, it doesn't exist (within TTL anyway)
-  if (_wideQuery.valid() && _wideQuery.range().contains(time)) {
-    return p;
+  if (_wideQuery.valid()) {
+    // the actual effective range is the superset of the buffered range and the wide query range.
+    TimeRange actualRange = TimeRange::unionOf(_wideQuery.range(), DB_PR_SUPER::range(id));
+    
+    if (actualRange.contains(time)) {
+      // last check...
+      
+      auto existing = DB_PR_SUPER::pointsInRange(id, actualRange);
+      // if no existing, definitely no points
+      if (existing.size() == 0) {
+        return p;
+      }
+      // existing points could be before/after the desired timestamp...
+      // so just check if our buffer's first point is after requested.
+      if (existing.front().time > time) {
+        return existing.front();
+      }
+    }
+    else {
+      return p;
+    }
   }
   
   // last request covered this already?

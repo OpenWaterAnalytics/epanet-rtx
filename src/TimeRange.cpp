@@ -66,6 +66,21 @@ void TimeRange::correctWithRange(const TimeRange& otherRange) {
   }
 }
 
+TimeRange TimeRange::unionOf(TimeRange r1, TimeRange r2) {
+  
+  TimeRange r(r1);
+  
+  if (r.start > r2.start) {
+    r.start = r2.start;
+  }
+  if (r.end < r2.end) {
+    r.end = r2.end;
+  }
+  
+  return r;
+}
+
+
 TimeRange::intersect_type TimeRange::intersection(const TimeRange& otherRange) {
   
   if (!this->touches(otherRange)) {

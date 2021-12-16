@@ -96,6 +96,20 @@ void Dma::removeJunction(Junction::_sp junction) {
 //  }
 }
 
+
+bool Dma::doesContainReservoir() {
+  bool hasReservoir = false;
+  
+  for(Junction::_sp j : _junctions) {
+    // is this a reservoir? if so, that's bad news -- we can't compute a control volume. the volume is infinite.
+    if (j->type() == Element::RESERVOIR) {
+      hasReservoir = true;
+    }
+  }
+  
+  return hasReservoir;
+}
+
 //
 //list<Dma::_sp> Dma::enumerateDmas(std::vector<Node::_sp> nodes) {
 //  
@@ -330,17 +344,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
   // -- boundary flow junctions
   // -- storage tanks
   
-  bool doesContainReservoir = false;
-  
-  for(Junction::_sp j : _junctions) {
-    // is this a reservoir? if so, that's bad news -- we can't compute a control volume. the volume is infinite.
-    if (j->type() == Element::RESERVOIR) {
-      doesContainReservoir = true;
-    }
-  }
-  
-  
-  if (!doesContainReservoir) {
+  if (!this->doesContainReservoir()) {
     // assemble the aggregated demand time series
     
     AggregatorTimeSeries::_sp dmaDemand( new AggregatorTimeSeries() );

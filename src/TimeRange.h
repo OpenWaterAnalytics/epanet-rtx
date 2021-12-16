@@ -34,6 +34,7 @@ namespace RTX {
     bool isValid() const;
     void correctWithRange(const TimeRange& otherRange);
     
+    static TimeRange unionOf(TimeRange r1, TimeRange r2);
     static TimeRange intersectionOf(TimeRange r1, TimeRange r2);
     
     time_t start, end;
