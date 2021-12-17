@@ -875,13 +875,13 @@ map<string, vector<Point> > __pointsFromJson(jsValue& json) {
     if ( !statement.is_object() || !statement.has_field(kSERIES) ) {
       continue;
     }
-    auto seriesArray = statement[kSERIES].as_array();
-    for (auto &series : seriesArray) {
+    const web::json::array &seriesArray = statement[kSERIES].as_array();
+    for (const auto &series : seriesArray) {
       // assemble the proper identifier for this series
       MetricInfo metric("");
-      metric.measurement = series["name"].as_string();
+      metric.measurement = series.at("name").as_string();
       if (series.has_field("tags")) {
-        auto tagsObj = series["tags"].as_object();
+        auto tagsObj = series.at("tags").as_object();
         auto tagsIter = tagsObj.begin();
         while (tagsIter != tagsObj.end()) {
           metric.tags[tagsIter->first] = tagsIter->second.as_string();
@@ -893,7 +893,7 @@ map<string, vector<Point> > __pointsFromJson(jsValue& json) {
       string properId = metric.name();
       
       map<string,int> columnMap;
-      jsArray cols = series["columns"].as_array();
+      jsArray cols = series.at("columns").as_array();
       for (int i = 0; i < cols.size(); ++i) {
         string colName = cols[i].as_string();
         columnMap[colName] = (int)i;
@@ -917,7 +917,7 @@ map<string, vector<Point> > __pointsFromJson(jsValue& json) {
       qualityIndex = columnMap["quality"],
       confidenceIndex = columnMap["confidence"];
       
-      auto values = series["values"].as_array();
+      const web::json::array &values = series.at("values").as_array();
       
       auto nValues = values.size();
       if (nValues == 0) {
@@ -926,24 +926,26 @@ map<string, vector<Point> > __pointsFromJson(jsValue& json) {
       
       if (out.count(properId) == 0) {
         out[properId] = vector<Point>();
-        if (nValues > 1) {
-          out[properId].reserve(nValues + 2);
-        }
       }
       
       auto pointVec = &(out.at(properId));
       
-      for (auto &rowV : values) {
-        jsArray row = rowV.as_array();
-        time_t t = row[timeIndex].as_integer();
-        double v = row[valueIndex].as_double();
+      if (nValues > 1) {
+        pointVec->resize(pointVec->size() + nValues + 2);
+      }
+      
+      
+      for (const auto &rowV : values) {
+        const web::json::array &row = rowV.as_array();
+        time_t t = row.at(timeIndex).as_integer();
+        double v = row.at(valueIndex).as_double();
         Point::PointQuality q = Point::opc_rtx_override;
-        if (!row[qualityIndex].is_null()) {
-          q = (Point::PointQuality)(row[qualityIndex].as_integer());
+        if (!row.at(qualityIndex).is_null()) {
+          q = (Point::PointQuality)(row.at(qualityIndex).as_integer());
         }
         double c = 0;
-        if (!row[confidenceIndex].is_null()) {
-          c = row[confidenceIndex].as_double();
+        if (!row.at(confidenceIndex).is_null()) {
+          c = row.at(confidenceIndex).as_double();
         }
         pointVec->push_back(Point(t,v,q,c));
       }
