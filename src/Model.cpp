@@ -1209,7 +1209,7 @@ void Model::setSimulationParameters(time_t time) {
     if (valve->statusBoundary()) {
       Point p = valve->statusBoundary()->pointAtOrBefore(time);
       if (p.isValid) {
-        status = (p.value > 0 ? Pipe::OPEN : Pipe::CLOSED);
+        status = Pipe::status_t((int)(p.value));
         setPipeStatusControl( valve->name(), status, enable );
         DebugLog << "*  Valve " << valve->name() << " status --> " << (p.value > 0 ? "ON" : "OFF") << EOL;
       }
