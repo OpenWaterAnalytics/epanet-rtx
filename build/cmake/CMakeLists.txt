@@ -23,7 +23,7 @@
 #
 
 
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.1)
 
 project (EPANET-RTX)
 SET (CMAKE_C_FLAGS "-std=c99")
@@ -144,6 +144,8 @@ set(rtx_lib_deps
 	crypto
 	cpprest
 	pthread
+	oatpp
+	oatpp-curl
 	)
 
 
