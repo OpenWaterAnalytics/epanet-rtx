@@ -708,7 +708,19 @@ bool Model::solveAndSaveOutputAtTime(time_t simulationTime) {
   auto t1 = time(NULL);
   
   // get parameters from the RTX elements, and pull them into the simulation
-  setSimulationParameters(simulationTime);
+  
+  try {
+    setSimulationParameters(simulationTime);
+  } catch (const std::string& errorMsg) {
+    stringstream ss;
+    struct tm * timeinfo;
+    timeinfo = localtime(&simulationTime);
+    ss << std::string(errorMsg) << " :: " << asctime(timeinfo);
+    this->logLine(ss.str());
+    return false;
+  }
+  
+  
   auto filterDuration = time(NULL) - t1;
   
   _filterWallTime->insert(Point(simulationTime, (double)filterDuration));
