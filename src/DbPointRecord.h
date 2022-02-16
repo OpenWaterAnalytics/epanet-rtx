@@ -136,7 +136,7 @@ namespace RTX {
       WideQueryInfo() {_range=TimeRange(); _queryTime=0;};
       WideQueryInfo(TimeRange range) {_range = range; _queryTime = time(NULL);};
       TimeRange range() {return _range;};
-      bool valid() {return (time(NULL) - _queryTime) < ttl; };
+      bool valid();
     private:
       time_t _queryTime;
       TimeRange _range;

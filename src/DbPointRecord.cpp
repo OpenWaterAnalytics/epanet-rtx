@@ -42,9 +42,16 @@ void DbPointRecord::request_t::clear() {
   this->id = "";
 }
 
+/************ widequery info *******************/
 
-
-
+bool DbPointRecord::WideQueryInfo::valid() {
+  if ((time(NULL) - _queryTime) < ttl) {
+    return true;
+  }
+  else {
+    return false;
+  }
+};
 
 
 
