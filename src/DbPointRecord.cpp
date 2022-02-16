@@ -249,7 +249,9 @@ void DbPointRecord::willQuery(RTX::TimeRange range) {
     }
     // optimization: if any results were returned, then we can be sure that the adaptor supports wide query.
     // so cache the range of that query.
-    _wideQuery = WideQueryInfo(range);
+    if (fetch.size() > 0) {
+      _wideQuery = WideQueryInfo(range);
+    }
   }
 }
 
