@@ -508,7 +508,7 @@ IdentifierUnitsList InfluxTcpAdapter::idUnitsList() {
 
 
 std::map<std::string, std::vector<Point> > InfluxTcpAdapter::wideQuery(TimeRange range) {
-  _RTX_DB_SCOPED_LOCK;
+  //_RTX_DB_SCOPED_LOCK;
   
   
   // aggressive prefetch. query all series for some range, then shortcut subsequent queries if they are in the range cached.
@@ -542,7 +542,7 @@ std::map<std::string, std::vector<Point> > InfluxTcpAdapter::wideQuery(TimeRange
 
 // READ
 std::vector<Point> InfluxTcpAdapter::selectRange(const std::string& id, TimeRange range) {
-  _RTX_DB_SCOPED_LOCK;
+  //_RTX_DB_SCOPED_LOCK;
   
   string dbId = influxIdForTsId(id);
   InfluxTcpAdapter::Query q = this->queryPartsFromMetricId(dbId);
@@ -579,7 +579,7 @@ vector<string> _makeSelectStrs(WhereClause q) {
 }
 
 Point InfluxTcpAdapter::selectNext(const std::string& id, time_t time, WhereClause whereClause) {
-  _RTX_DB_SCOPED_LOCK;
+  //_RTX_DB_SCOPED_LOCK;
   
   std::vector<Point> points;
   string dbId = influxIdForTsId(id);
@@ -606,7 +606,7 @@ Point InfluxTcpAdapter::selectNext(const std::string& id, time_t time, WhereClau
 }
 
 Point InfluxTcpAdapter::selectPrevious(const std::string& id, time_t time, WhereClause whereClause) {
-  _RTX_DB_SCOPED_LOCK;
+  //_RTX_DB_SCOPED_LOCK;
   
   std::vector<Point> points;
   string dbId = influxIdForTsId(id);
@@ -636,7 +636,7 @@ Point InfluxTcpAdapter::selectPrevious(const std::string& id, time_t time, Where
 
 
 vector<Point> InfluxTcpAdapter::selectWithQuery(const std::string& query, TimeRange range) {
-  _RTX_DB_SCOPED_LOCK;
+  //_RTX_DB_SCOPED_LOCK;
   // expects a "$timeFilter" placeholder, to be replaced with the time range, e.g., "time >= t1 and time <= t2"
   
   //case insensitive find
@@ -803,7 +803,7 @@ jsValue InfluxTcpAdapter::jsonFromRequest(uri uri, method withMethod) {
     config.set_timeout(std::chrono::seconds(RTX_INFLUX_CLIENT_TIMEOUT));
     config.set_credentials(web::http::client::credentials(connection.user, connection.pass));
     config.set_validate_certificates(connection.validate);
-    config.set_request_compressed_response(true);
+    config.set_request_compressed_response(false);
     try {
       web::http::client::http_client client(uri, config);
       http_response r = client.request(withMethod).get(); // waits for response
