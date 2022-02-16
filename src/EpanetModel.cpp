@@ -690,8 +690,15 @@ void EpanetModel::setPumpSettingControl(const string& pump, double setting, enab
   else {
     // set the control
     int cindex = _settingControlIndex[pump];
-    EN_API_CHECK(EN_setcontrol(_enModel, cindex, EN_TIMER, linkIndex, (EN_API_FLOAT_TYPE)setting, 0, (EN_API_FLOAT_TYPE)0.0), "EN_setcontrol");
-    EN_API_CHECK(EN_setControlEnabled(_enModel, cindex, enEnableStatus), "EN_setControlEnabled");
+    try {
+      EN_API_CHECK(EN_setcontrol(_enModel, cindex, EN_TIMER, linkIndex, (EN_API_FLOAT_TYPE)setting, 0, (EN_API_FLOAT_TYPE)0.0), "EN_setcontrol");
+      EN_API_CHECK(EN_setControlEnabled(_enModel, cindex, enEnableStatus), "EN_setControlEnabled");
+    } catch (const std::string& errorMessage) {
+      stringstream ss;
+      ss << std::string(errorMessage) << EOL;
+      this->logLine(ss.str());
+    }
+    
   }
 }
 
