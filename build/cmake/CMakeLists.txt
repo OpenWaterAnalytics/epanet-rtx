@@ -31,6 +31,8 @@ SET (CMAKE_CXX_FLAGS "-Wall -std=c++1y")
 SET (CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_definitions(-DRTX_NO_MYSQL)
 
+find_package(nlohmann_json 3.10.5 REQUIRED)
+
 message("prefix: ${CMAKE_FIND_LIBRARY_PREFIXES}")
 message("suffix: ${CMAKE_FIND_LIBRARY_SUFFIXES}")
 
@@ -52,8 +54,9 @@ include_directories(
 	/usr/local/include/iODBC
 	/usr/include
 	/usr/include/iodbc
-	/usr/include/oatpp-1.3.0/oatpp
 	../../../EPANET/src
+	/usr/local/include/oatpp-1.3.0/oatpp
+	/usr/local/include/oatpp-1.3.0/oatpp-openssl
 	)
 
 link_directories(
