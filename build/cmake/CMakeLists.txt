@@ -52,6 +52,7 @@ include_directories(
 	/usr/local/include/iODBC
 	/usr/include
 	/usr/include/iodbc
+	/usr/include/oatpp-1.3.0/oatpp
 	../../../EPANET/src
 	)
 
@@ -145,7 +146,7 @@ set(rtx_lib_deps
 	cpprest
 	pthread
 	oatpp
-	oatpp-curl
+	oatpp-openssl
 	)
 
 
