@@ -110,6 +110,7 @@ add_library(epanetrtx
 ../../src/PointRecordTime.cpp
 ../../src/Pump.cpp
 ../../src/Reservoir.cpp
+../../src/SendPointsCoroutine.cpp
 ../../src/SineTimeSeries.cpp
 ../../src/SquareWaveTimeSeries.cpp
 ../../src/SqliteAdapter.cpp
