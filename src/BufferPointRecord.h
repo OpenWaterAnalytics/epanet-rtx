@@ -22,7 +22,9 @@
 #include "PointRecord.h"
 
 #include <boost/circular_buffer.hpp>
-#include <boost/signals2/mutex.hpp>
+#include <thread>
+#include <mutex>
+#include <shared_mutex>
 
 using std::string;
 
@@ -67,7 +69,7 @@ namespace RTX {
     };
     std::map<std::string, Buffer> _keyedBuffers;
     size_t _defaultCapacity;
-    boost::signals2::mutex _bigMutex;
+    std::shared_mutex _buffer_readwrite;
   };
   
   std::ostream& operator<< (std::ostream &out, BufferPointRecord &pr);

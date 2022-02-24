@@ -12,14 +12,15 @@
 #include <set>
 #include <vector>
 #include <string>
+#include <thread>
 #include <mutex>
+#include <shared_mutex>
 
 #include "DbPointRecord.h"
 #include "DbAdapter.h"
 
 using namespace RTX;
 using namespace std;
-using boost::signals2::mutex;
 
 #define _DB_MAX_CONNECT_TRY 5
 #define SERIES_LIST_TTL 30
@@ -85,7 +86,7 @@ bool DbPointRecord::isConnected() {
   return _adapter->adapterConnected();
 }
 
-void DbPointRecord::dbConnect() throw(RtxException) {
+void DbPointRecord::dbConnect() {
   try {
     if (_adapter != NULL) {
       _adapter->doConnect();
@@ -140,7 +141,7 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
   bool unitsMatch = false;
   Units existingUnits = RTX_NO_UNITS;
   auto match = this->identifiersAndUnits().doesHaveIdUnits(name,units);
-  std::lock_guard<std::mutex> lock(_db_pr_mtx);
+  std::lock_guard lock(_db_readwrite); // get a write lock
   
   if (!checkConnected()) {
     return DB_PR_SUPER::registerAndGetIdentifierForSeriesWithUnits(name, units);
@@ -212,7 +213,7 @@ bool DbPointRecord::registerAndGetIdentifierForSeriesWithUnits(string name, Unit
 
 
 IdentifierUnitsList DbPointRecord::identifiersAndUnits() {
-  std::lock_guard<std::mutex> lock(_db_pr_mtx);
+  std::shared_lock lock(_db_readwrite); // get a read lock
   time_t now = time(NULL);
   time_t stale = now - _lastIdRequest;
   
@@ -243,6 +244,10 @@ void DbPointRecord::endBulkOperation() {
 
 void DbPointRecord::willQuery(RTX::TimeRange range) {
   if (checkConnected()) {
+    // make sure the id list is current:
+    _lastIdRequest = 0;
+    this->identifiersAndUnits();
+    
     auto fetch = _adapter->wideQuery(range);
     for (auto res : fetch) {
       DB_PR_SUPER::addPoints(res.first, res.second);
@@ -506,7 +511,7 @@ Point DbPointRecord::searchNextIteratively(const string& id, time_t time) {
 
 
 std::vector<Point> DbPointRecord::pointsInRange(const string& id, TimeRange qrange) {
-  std::lock_guard<std::mutex> lock(_db_pr_mtx);
+  std::shared_lock lock(_db_readwrite); // get a read lock
   
   // limit double-queries
   if (_last_request.range.containsRange(qrange) && _last_request.id == id) {
@@ -591,7 +596,7 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, TimeRange qran
 
 
 void DbPointRecord::addPoint(const string& id, Point point) {
-  std::lock_guard<std::mutex> lock(_db_pr_mtx);
+  std::lock_guard lock(_db_readwrite); // get a write lock
   if (!this->readonly() && checkConnected()) {
     DB_PR_SUPER::addPoint(id, point);
     _adapter->insertSingle(id, point);
@@ -600,7 +605,7 @@ void DbPointRecord::addPoint(const string& id, Point point) {
 
 
 void DbPointRecord::addPoints(const string& id, std::vector<Point> points) {
-  std::lock_guard<std::mutex> lock(_db_pr_mtx);
+  std::lock_guard lock(_db_readwrite); // get a write lock
   if (!this->readonly() && checkConnected()) {
     DB_PR_SUPER::addPoints(id, points);
     _adapter->insertRange(id, points);
@@ -609,7 +614,7 @@ void DbPointRecord::addPoints(const string& id, std::vector<Point> points) {
 
 
 void DbPointRecord::truncate() {
-  std::lock_guard<std::mutex> lock(_db_pr_mtx);
+  std::lock_guard lock(_db_readwrite); // get a write lock
   if (!this->readonly() && checkConnected()) {
     DB_PR_SUPER::reset();
     _adapter->removeAllRecords();
@@ -617,7 +622,7 @@ void DbPointRecord::truncate() {
 }
 
 void DbPointRecord::reset() {
-  std::lock_guard<std::mutex> lock(_db_pr_mtx);
+  std::lock_guard lock(_db_readwrite); // get a write lock
   if (!this->readonly() && checkConnected()) {
     DB_PR_SUPER::reset();
     cerr << "deprecated. do not use" << endl;
@@ -627,7 +632,7 @@ void DbPointRecord::reset() {
 
 
 void DbPointRecord::reset(const string& id) {
-  std::lock_guard<std::mutex> lock(_db_pr_mtx);
+  std::lock_guard lock(_db_readwrite); // get a write lock
   if (!this->readonly() && checkConnected()) {
     // deprecate?
     //cout << "Whoops - don't use this" << endl;

@@ -12,7 +12,7 @@
 #define DB_PR_SUPER BufferPointRecord
 
 #include <set>
-#include <mutex>
+#include <shared_mutex>
 
 #include "BufferPointRecord.h"
 #include "rtxExceptions.h"
@@ -60,7 +60,7 @@ namespace RTX {
     std::string connectionString();
     void setConnectionString(const std::string& str);
     void invalidate(const string& identifier);
-    void dbConnect() throw(RtxException);
+    void dbConnect();
     bool isConnected();
     virtual bool readonly();
     virtual void setReadonly(bool readOnly);
@@ -153,7 +153,7 @@ namespace RTX {
     bool _readOnly;
     std::set<unsigned int> _opcFilterCodes;
     OpcFilterType _filterType;
-    std::mutex _db_pr_mtx;
+    std::shared_mutex _db_readwrite;
     
     std::function<Point(Point)> _opcFilter;
     

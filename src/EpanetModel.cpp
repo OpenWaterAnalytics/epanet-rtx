@@ -6,6 +6,9 @@
 //  See README.md and license.txt for more information
 //  
 
+#include <cstdlib>
+#include <cmath>
+#include <sstream>
 #include <iostream>
 #include "EpanetModel.h"
 #include "rtxMacros.h"
@@ -13,7 +16,6 @@
 
 #include <types.h>
 
-#include <boost/range/adaptors.hpp>
 #include <boost/filesystem.hpp>
 
 using namespace RTX;
@@ -193,7 +195,7 @@ void EpanetModel::useEpanetModel(EN_Project *model, string path) {
     double elev;
     auto en_idx = _nodeIndex[n->name()];
     EN_getnodevalue(_enModel, en_idx, EN_ELEVATION, &elev);
-    if ( fabs(elev - n->elevation()) > SMALL) {
+    if ( abs(elev - n->elevation()) > SMALL) {
       cout << "ERROR: Database elevation inconsistent with model for node " << n->name() << EOL;
       auto badElevationErr = string("Database elevation inconsistent with model for node ") + n->name();
       throw(badElevationErr);
@@ -545,7 +547,7 @@ void EpanetModel::createRtxWrappers() {
   
 }
 
-void EpanetModel::overrideControls() throw(RTX::RtxException) {
+void EpanetModel::overrideControls() {
   // set up counting variables for creating model elements.
   int nodeCount, tankCount;
   
@@ -1194,7 +1196,7 @@ void EpanetModel::setComment(Element::_sp element, const std::string& comment)
   
 }
 
-void EpanetModel::EN_API_CHECK(int errorCode, string externalFunction) throw(string) {
+void EpanetModel::EN_API_CHECK(int errorCode, string externalFunction) {
   if (errorCode > 10) {
     char errorMsg[256];
     EN_geterror(errorCode, errorMsg, 255);

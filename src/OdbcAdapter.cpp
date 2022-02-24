@@ -44,8 +44,8 @@ string __extract_error(string function, SQLHANDLE handle, SQLSMALLINT type) {
 }
 
 
-SQLRETURN __SQL_CHECK(SQLRETURN retVal, string function, SQLHANDLE handle, SQLSMALLINT type) throw(string);
-SQLRETURN __SQL_CHECK(SQLRETURN retVal, string function, SQLHANDLE handle, SQLSMALLINT type) throw(string) {
+SQLRETURN __SQL_CHECK(SQLRETURN retVal, string function, SQLHANDLE handle, SQLSMALLINT type);
+SQLRETURN __SQL_CHECK(SQLRETURN retVal, string function, SQLHANDLE handle, SQLSMALLINT type) {
   if(!SQL_SUCCEEDED(retVal)) {
     throw __extract_error(function, handle, type);
   }

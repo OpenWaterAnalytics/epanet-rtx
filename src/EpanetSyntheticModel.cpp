@@ -24,7 +24,7 @@ std::ostream& EpanetSyntheticModel::toStream(std::ostream &stream) {
 }
 
 
-void EpanetSyntheticModel::overrideControls() throw(RtxException) {
+void EpanetSyntheticModel::overrideControls() {
   // make sure we do nothing.
   std::cerr << "ignoring control override" << std::endl;
 }
