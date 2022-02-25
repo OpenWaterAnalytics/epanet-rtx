@@ -1,14 +1,13 @@
 //
-//  TestComponent.hpp
-//  rtx-tests
+//  Components.hpp
+//  epanet-rtx
 //
-//  Created by Devine, Cameron - Xylem on 2/22/22.
+//  Created by Devine, Cameron - Xylem on 2/23/22.
 //
 
+#ifndef Components_h
+#define Components_h
 
-
-#ifndef TestComponent_htpp
-#define TestComponent_htpp
 
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
 
@@ -23,7 +22,7 @@
 /**
  * Test Components config
  */
-class TestComponent {
+class Components {
 public:
 
   /**
@@ -74,4 +73,4 @@ public:
 };
 
 
-#endif // TestComponent_htpp
+#endif /* Components_h */

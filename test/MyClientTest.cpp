@@ -14,7 +14,7 @@
 #include "TestClient.h"
 
 #include "ConcreteDbRecords.h"
-#include "TestComponent.hpp"
+#include "Components.hpp"
 
 #include "oatpp/web/client/HttpRequestExecutor.hpp"
 
@@ -23,7 +23,7 @@
 void MyClientTest::onRun() {
 
   /* Register test components */
-  TestComponent component;
+  Components component;
 
   /* Create client-server test runner */
   oatpp::test::web::ClientServerTestRunner runner;

@@ -11,6 +11,9 @@
 #include "oatpp-openssl/Config.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/core/async/Executor.hpp"
+#include "oatpp/network/virtual_/client/ConnectionProvider.hpp"
+#include "oatpp/network/virtual_/server/ConnectionProvider.hpp"
+#include "oatpp/network/virtual_/Interface.hpp"
 #include "SendPointsCoroutine.hpp"
 
 #include "nlohmann/json.hpp"
@@ -82,8 +85,10 @@ namespace RTX {
   public:
     
     InfluxTcpAdapter( errCallback_t cb );
+    InfluxTcpAdapter(errCallback_t cb, std::shared_ptr<InfluxClient> restClient );
     ~InfluxTcpAdapter();
     
+    void setConnectionString(const std::string& con);
     const adapterOptions options() const;
     std::string connectionString();
     void doConnect();
@@ -127,7 +132,7 @@ namespace RTX {
 
     Query queryPartsFromMetricId(const std::string& name);
     
-    
+    std::string encodeQuery(std::string queryString);
     nlohmann::json jsonFromResponse(const std::shared_ptr<Response> response);
     
   };
