@@ -796,9 +796,6 @@ uri InfluxTcpAdapter::uriForQuery(const std::string& query, bool withTimePrecisi
 jsValue InfluxTcpAdapter::jsonFromRequest(uri uri, method withMethod) {
   jsValue js = jsValue::object();
   
-  std::string humanUri = uri.to_string();
-  cout << humanUri << EOL;
-  
   auto errCallback = _errCallback;
   auto connection = this->conn;
   
