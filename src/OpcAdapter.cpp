@@ -25,6 +25,7 @@ const DbAdapter::adapterOptions OpcAdapter::options() const {
   o.searchIteratively = false;
   o.supportsSinglyBoundQuery = false;
   o.implementationReadonly = true;
+  o.canDoWideQuery = false;
   
   return o;
 }

@@ -358,6 +358,7 @@ const DbAdapter::adapterOptions InfluxTcpAdapter::options() const {
   o.searchIteratively = false;
   o.canAssignUnits = false;
   o.implementationReadonly = false;
+  o.canDoWideQuery = true;
   
   return o;
 }
@@ -795,6 +796,9 @@ uri InfluxTcpAdapter::uriForQuery(const std::string& query, bool withTimePrecisi
 jsValue InfluxTcpAdapter::jsonFromRequest(uri uri, method withMethod) {
   jsValue js = jsValue::object();
   
+  std::string humanUri = uri.to_string();
+  cout << humanUri << EOL;
+  
   auto errCallback = _errCallback;
   auto connection = this->conn;
   
@@ -803,7 +807,7 @@ jsValue InfluxTcpAdapter::jsonFromRequest(uri uri, method withMethod) {
     config.set_timeout(std::chrono::seconds(RTX_INFLUX_CLIENT_TIMEOUT));
     config.set_credentials(web::http::client::credentials(connection.user, connection.pass));
     config.set_validate_certificates(connection.validate);
-    config.set_request_compressed_response(false);
+    config.set_request_compressed_response(true);
     try {
       web::http::client::http_client client(uri, config);
       http_response r = client.request(withMethod).get(); // waits for response
@@ -931,7 +935,7 @@ map<string, vector<Point> > __pointsFromJson(jsValue& json) {
       auto pointVec = &(out.at(properId));
       
       if (nValues > 1) {
-        pointVec->resize(pointVec->size() + nValues + 2);
+        pointVec->reserve(pointVec->size() + nValues + 2);
       }
       
       
@@ -1010,6 +1014,7 @@ const DbAdapter::adapterOptions InfluxUdpAdapter::options() const {
   o.searchIteratively = false;
   o.canAssignUnits = false;
   o.implementationReadonly = false;
+  o.canDoWideQuery = false;
   
   return o;
 }

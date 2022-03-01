@@ -130,6 +130,7 @@ const DbAdapter::adapterOptions OdbcAdapter::options() const {
   o.searchIteratively = true;
   o.supportsSinglyBoundQuery = false;
   o.implementationReadonly = true;
+  o.canDoWideQuery = false;
   
   return o;
 }

@@ -79,6 +79,7 @@ const DbAdapter::adapterOptions SqliteAdapter::options() const {
   o.searchIteratively = false;
   o.supportsSinglyBoundQuery = true;
   o.implementationReadonly = false;
+  o.canDoWideQuery = false;
   
   return o;
 }

@@ -28,6 +28,7 @@ namespace RTX {
       bool searchIteratively;
       bool supportsSinglyBoundQuery;
       bool implementationReadonly;
+      bool canDoWideQuery;
     };
     
     typedef std::function<void(const std::string)> errCallback_t;

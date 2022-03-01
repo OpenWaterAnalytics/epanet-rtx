@@ -296,7 +296,15 @@ PointCollection TimeSeriesFilter::filterPointsInRange(TimeRange range) {
   if (this->willResample()) {
     // expand range
     queryRange.start = this->source()->timeBefore(range.start + 1);
-    queryRange.end = this->source()->timeAfter(range.end - 1);
+    switch (_resampleMode) {
+      case ResampleModeStep:
+        queryRange.end = this->source()->timeBefore(range.end + 1);
+        break;
+      case ResampleModeLinear:
+        queryRange.end = this->source()->timeAfter(range.end - 1);
+      default:
+        break;
+    }
   }
   
   

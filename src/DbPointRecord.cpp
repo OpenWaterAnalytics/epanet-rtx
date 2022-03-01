@@ -252,9 +252,9 @@ void DbPointRecord::willQuery(RTX::TimeRange range) {
     for (auto res : fetch) {
       DB_PR_SUPER::addPoints(res.first, res.second);
     }
-    // optimization: if any results were returned, then we can be sure that the adaptor supports wide query.
+    // optimization: if the adaptor supports wide query then allow queries to bypass db hits
     // so cache the range of that query.
-    if (fetch.size() > 0) {
+    if (_adapter->options().canDoWideQuery) {
       _wideQuery = WideQueryInfo(range);
     }
   }
@@ -588,7 +588,12 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, TimeRange qran
       }
     }
     
-    _last_request = (deDuped.size() > 0) ? request_t(id, qrange) : request_t(id,TimeRange());
+    // mutation requires getting a write lock...
+    lock.unlock();
+    {
+      std::lock_guard lock2(_db_readwrite);
+      _last_request = (deDuped.size() > 0) ? request_t(id, qrange) : request_t(id,TimeRange());
+    }
     DB_PR_SUPER::addPoints(id, deDuped);
     return deDuped;
   }
