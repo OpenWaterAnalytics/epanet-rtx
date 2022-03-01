@@ -23,11 +23,11 @@
 #
 
 
-cmake_minimum_required (VERSION 3.1)
+cmake_minimum_required (VERSION 3.10)
 
 project (EPANET-RTX)
 SET (CMAKE_C_FLAGS "-std=c99")
-SET (CMAKE_CXX_FLAGS "-Wall -std=c++1y")
+SET (CMAKE_CXX_FLAGS "-Wall")
 SET (CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_definitions(-DRTX_NO_MYSQL)
 
@@ -129,6 +129,11 @@ add_library(epanetrtx
 ../../src/ValidRangeTimeSeries.cpp
 ../../src/Valve.cpp
 ../../src/WhereClause.cpp
+)
+
+set_target_properties(
+  epanetrtx PROPERTIES
+  CXX_STANDARD 17
 )
 
 target_compile_definitions(epanetrtx PRIVATE MAXFLOAT=3.40282347e+38F)

@@ -52,7 +52,7 @@ namespace RTX {
     
     // add a time series to this aggregator. optional parameter "multiplier" allows you to scale
     // the aggregated time series (for instance, by -1 if it needs to be subtracted).
-    void addSource(TimeSeries::_sp timeSeries, double multiplier = 1.) throw(RtxException);
+    void addSource(TimeSeries::_sp timeSeries, double multiplier = 1.);
     void removeSource(TimeSeries::_sp timeSeries);
     std::vector< AggregatorSource > sources();
     void setMultiplierForSource(TimeSeries::_sp timeSeries, double multiplier);

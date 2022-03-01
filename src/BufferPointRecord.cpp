@@ -8,16 +8,15 @@
 
 #include "BufferPointRecord.h"
 #include <iostream>
-#include <boost/foreach.hpp>
-#include <boost/interprocess/sync/scoped_lock.hpp>
+#include <thread>
+#include <mutex>
+#include <shared_mutex>
 
 #include "WhereClause.h"
 
 using namespace RTX;
 using namespace std;
 
-using boost::signals2::mutex;
-using boost::interprocess::scoped_lock;
 
 
 BufferPointRecord::BufferPointRecord(int defaultCapacity) {
@@ -38,7 +37,7 @@ std::ostream& BufferPointRecord::toStream(std::ostream &stream) {
 
 bool BufferPointRecord::registerAndGetIdentifierForSeriesWithUnits(std::string recordName, Units units) {
   // register the recordName internally and generate a buffer and mutex
-  scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
+  std::lock_guard lock(_buffer_readwrite); // get a write lock
   if (_keyedBuffers.find(recordName) != _keyedBuffers.end()) {
     // got the name - do the units match?
     Buffer b = _keyedBuffers[recordName];
@@ -78,7 +77,7 @@ Point BufferPointRecord::point(const string& identifier, time_t time) {
     return bp;
   }
   
-  scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
+  std::shared_lock lock(_buffer_readwrite); // get a read lock
   
   auto it = _keyedBuffers.find(identifier);
   if (it == _keyedBuffers.end()) {
@@ -119,7 +118,7 @@ Point BufferPointRecord::point(const string& identifier, time_t time) {
 
 Point BufferPointRecord::pointBefore(const string& identifier, time_t time, WhereClause q) {
   
-  scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
+  std::shared_lock lock(_buffer_readwrite); // get a read lock
   
   Point foundPoint;
   
@@ -176,7 +175,7 @@ Point BufferPointRecord::pointBefore(const string& identifier, time_t time, Wher
 // pre-supposes that the time supplied is within my buffer.
 Point BufferPointRecord::pointAfter(const string& identifier, time_t time, WhereClause q) {
   
-  scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
+  std::shared_lock lock(_buffer_readwrite); // get a read lock
   
   Point foundPoint;
   
@@ -229,7 +228,7 @@ Point BufferPointRecord::pointAfter(const string& identifier, time_t time, Where
 
 std::vector<Point> BufferPointRecord::pointsInRange(const string& identifier, TimeRange range) {
   
-  scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
+  std::shared_lock lock(_buffer_readwrite); // get a read lock
   
   std::vector<Point> pointVector;
   
@@ -269,7 +268,7 @@ void BufferPointRecord::addPoints(const string& identifier, std::vector<Point> p
     return;
   }
   
-  scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
+  std::lock_guard lock(_buffer_readwrite); // get a write lock
   
   // check the cache size, and upgrade if needed.
   auto it = _keyedBuffers.find(identifier);
@@ -373,7 +372,7 @@ void BufferPointRecord::reset() {
 }
 
 void BufferPointRecord::reset(const string& identifier) {
-  scoped_lock<boost::signals2::mutex> bigLock(_bigMutex);
+  std::lock_guard lock(_buffer_readwrite); // get a write lock
   auto it = _keyedBuffers.find(identifier);
   if (it != _keyedBuffers.end()) {
     PointBuffer& buffer = (it->second.circularBuffer);
@@ -400,7 +399,6 @@ Point BufferPointRecord::lastPoint(const string& id) {
   auto it = _keyedBuffers.find(id);
   if (it != _keyedBuffers.end()) {
     // get the constituents
-    //boost::signals2::mutex *mutex = (it->second.second.get());
     PointBuffer& buffer = (it->second.circularBuffer);
     
     if (buffer.empty()) {

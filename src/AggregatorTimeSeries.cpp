@@ -54,7 +54,7 @@ void AggregatorTimeSeries::setSource(TimeSeries::_sp ts) {
   // nope
 }
 
-void AggregatorTimeSeries::addSource(TimeSeries::_sp timeSeries, double multiplier) throw(RtxException) {
+void AggregatorTimeSeries::addSource(TimeSeries::_sp timeSeries, double multiplier) {
   
   // check compatibility
   bool isCompatible = false;

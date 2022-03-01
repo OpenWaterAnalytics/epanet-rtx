@@ -9,7 +9,6 @@
 
 #include <iostream>
 #include <set>
-#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include "Model.h"
 #include "Units.h"
@@ -30,10 +29,10 @@
 
 #include <boost/range/adaptors.hpp>
 #include <future>
-#include <boost/interprocess/sync/scoped_lock.hpp>
 
-using boost::signals2::mutex;
-using boost::interprocess::scoped_lock;
+#include <thread>
+#include <mutex>
+#include <shared_mutex>
 
 using namespace RTX;
 using namespace std;
@@ -462,7 +461,7 @@ vector<Pipe::_sp> Model::dmaPipesToIgnore() {
 
 #pragma mark - Controls
 
-void Model::overrideControls() throw(RtxException) {
+void Model::overrideControls() {
   _doesOverrideDemands = true;
 }
 
@@ -700,7 +699,7 @@ bool Model::solveInitial(time_t simTime) {
 
 bool Model::solveAndSaveOutputAtTime(time_t simulationTime) {
   {
-    scoped_lock<boost::signals2::mutex> l(_simulationInProcessMutex);
+    std::lock_guard l(_simulationInProcessMutex);
     if (_shouldCancelSimulation) {
       return false;
     }
@@ -708,7 +707,19 @@ bool Model::solveAndSaveOutputAtTime(time_t simulationTime) {
   auto t1 = time(NULL);
   
   // get parameters from the RTX elements, and pull them into the simulation
-  setSimulationParameters(simulationTime);
+  
+  try {
+    setSimulationParameters(simulationTime);
+  } catch (const std::string& errorMsg) {
+    stringstream ss;
+    struct tm * timeinfo;
+    timeinfo = localtime(&simulationTime);
+    ss << std::string(errorMsg) << " :: " << asctime(timeinfo);
+    this->logLine(ss.str());
+    return false;
+  }
+  
+  
   auto filterDuration = time(NULL) - t1;
   
   _filterWallTime->insert(Point(simulationTime, (double)filterDuration));
@@ -736,7 +747,7 @@ bool Model::solveAndSaveOutputAtTime(time_t simulationTime) {
   _convergence->insert(convergenceStatus);
   
   {
-    scoped_lock<boost::signals2::mutex> l(_simulationInProcessMutex);
+    lock_guard l(_simulationInProcessMutex);
     if (_shouldCancelSimulation) {
       return false;
     }
@@ -773,7 +784,7 @@ bool Model::updateSimulationToTime(time_t updateToTime) {
   while (this->currentSimulationTime() < updateToTime && !_shouldCancelSimulation) {
     
     {
-      scoped_lock<boost::signals2::mutex> l(_simulationInProcessMutex);
+      lock_guard l(_simulationInProcessMutex);
       if (_shouldCancelSimulation) {
         return false;
       }
@@ -816,7 +827,7 @@ bool Model::updateSimulationToTime(time_t updateToTime) {
   }
   
   {
-    scoped_lock<boost::signals2::mutex> l(_simulationInProcessMutex);
+    lock_guard l(_simulationInProcessMutex);
     _shouldCancelSimulation = false;
   }
   
@@ -919,7 +930,7 @@ void Model::runForecast(time_t start, time_t end) {
 
 
 void Model::cancelSimulation() {
-  scoped_lock<boost::signals2::mutex> l(_simulationInProcessMutex);
+  lock_guard l(_simulationInProcessMutex);
   _shouldCancelSimulation = true;
 }
 
@@ -1534,11 +1545,11 @@ void Model::saveNetworkStates(time_t simtime, std::set<PointRecord::_sp> bulkRec
 }
 
 void Model::setCurrentSimulationTime(time_t time) {
-  scoped_lock<boost::signals2::mutex> bigLock(_simulationInProcessMutex);
+  lock_guard bigLock(_simulationInProcessMutex);
   _currentSimulationTime = time;
 }
 time_t Model::currentSimulationTime() {
-  scoped_lock<boost::signals2::mutex> bigLock(_simulationInProcessMutex);
+  lock_guard bigLock(_simulationInProcessMutex);
   return _currentSimulationTime;
 }
 

@@ -388,6 +388,7 @@ const DbAdapter::adapterOptions InfluxTcpAdapter::options() const {
   o.searchIteratively = false;
   o.canAssignUnits = false;
   o.implementationReadonly = false;
+  o.canDoWideQuery = true;
   
   return o;
 }
@@ -547,7 +548,7 @@ IdentifierUnitsList InfluxTcpAdapter::idUnitsList() {
 
 
 std::map<std::string, std::vector<Point> > InfluxTcpAdapter::wideQuery(TimeRange range) {
-  _RTX_DB_SCOPED_LOCK;
+  //_RTX_DB_SCOPED_LOCK;
   
   
   // aggressive prefetch. query all series for some range, then shortcut subsequent queries if they are in the range cached.
@@ -580,7 +581,7 @@ std::map<std::string, std::vector<Point> > InfluxTcpAdapter::wideQuery(TimeRange
 
 // READ
 std::vector<Point> InfluxTcpAdapter::selectRange(const std::string& id, TimeRange range) {
-  _RTX_DB_SCOPED_LOCK;
+  //_RTX_DB_SCOPED_LOCK;
   
   string dbId = influxIdForTsId(id);
   InfluxTcpAdapter::Query q = this->queryPartsFromMetricId(dbId);
@@ -617,7 +618,7 @@ vector<string> _makeSelectStrs(WhereClause q) {
 }
 
 Point InfluxTcpAdapter::selectNext(const std::string& id, time_t time, WhereClause whereClause) {
-  _RTX_DB_SCOPED_LOCK;
+  //_RTX_DB_SCOPED_LOCK;
   
   std::vector<Point> points;
   string dbId = influxIdForTsId(id);
@@ -644,7 +645,7 @@ Point InfluxTcpAdapter::selectNext(const std::string& id, time_t time, WhereClau
 }
 
 Point InfluxTcpAdapter::selectPrevious(const std::string& id, time_t time, WhereClause whereClause) {
-  _RTX_DB_SCOPED_LOCK;
+  //_RTX_DB_SCOPED_LOCK;
   
   std::vector<Point> points;
   string dbId = influxIdForTsId(id);
@@ -674,7 +675,7 @@ Point InfluxTcpAdapter::selectPrevious(const std::string& id, time_t time, Where
 
 
 vector<Point> InfluxTcpAdapter::selectWithQuery(const std::string& query, TimeRange range) {
-  _RTX_DB_SCOPED_LOCK;
+  //_RTX_DB_SCOPED_LOCK;
   // expects a "$timeFilter" placeholder, to be replaced with the time range, e.g., "time >= t1 and time <= t2"
   
   //case insensitive find
@@ -889,7 +890,7 @@ map<string, vector<Point> > __pointsFromJson(json& json) {
       auto pointVec = &(out.at(properId));
       
       if (nValues > 1) {
-        pointVec->resize(pointVec->size() + nValues + 2);
+        pointVec->reserve(pointVec->size() + nValues + 2);
       }
       
       
@@ -968,6 +969,7 @@ const DbAdapter::adapterOptions InfluxUdpAdapter::options() const {
   o.searchIteratively = false;
   o.canAssignUnits = false;
   o.implementationReadonly = false;
+  o.canDoWideQuery = false;
   
   return o;
 }
