@@ -335,6 +335,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
   else {
     ConstantTimeSeries::_sp c(new ConstantTimeSeries());
     c->setValue(0);
+    c->setClock(fixed_minute_clock);
     c->setUnits(RTX_GALLON_PER_MINUTE);
     _boundaryDemand = c;
   }
@@ -362,6 +363,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
     if (_measuredBoundaryPipesDirectional.size() == 0) {
       ConstantTimeSeries::_sp zero( new ConstantTimeSeries() );
       zero->setUnits(RTX_GALLON_PER_MINUTE);
+      zero->setClock(fixed_minute_clock);
       zero->setValue(0.);
       this->setDemand(zero);
     }

@@ -25,7 +25,7 @@ namespace RTX {
     
   public:
     EpanetSyntheticModel();
-    virtual void overrideControls() throw(RtxException);
+    virtual void overrideControls();
     virtual std::ostream& toStream(std::ostream &stream);
     
   protected:

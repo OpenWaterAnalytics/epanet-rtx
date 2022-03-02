@@ -142,7 +142,6 @@
 		227106511E1EA0FE002A2D30 /* PointCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2271064F1E1EA0FE002A2D30 /* PointCollection.cpp */; };
 		227106521E1EA0FE002A2D30 /* PointCollection.h in Headers */ = {isa = PBXBuildFile; fileRef = 227106501E1EA0FE002A2D30 /* PointCollection.h */; };
 		2288C1241BE3C71900F9B8FB /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
-		2288C1251BE3C74600F9B8FB /* TimeSeriesDuplicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2288C10A1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.cpp */; };
 		228C2D941A9E15BF003C826D /* TimeRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 228C2D901A9E15BF003C826D /* TimeRange.cpp */; };
 		228C2D971A9E15BF003C826D /* TimeRange.h in Headers */ = {isa = PBXBuildFile; fileRef = 228C2D911A9E15BF003C826D /* TimeRange.h */; };
 		228CA8DB1AA0CBFF00D0353E /* InpTextPattern.h in Headers */ = {isa = PBXBuildFile; fileRef = 228CA8D51AA0CBFF00D0353E /* InpTextPattern.h */; };
@@ -525,8 +524,6 @@
 		228137C91CA2F1FE00AD81F3 /* LINK-service */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "LINK-service"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2281A75915A743410018EC0F /* PointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = PointRecord.h; path = ../../src/PointRecord.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2281A75D15A744E60018EC0F /* DbPointRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DbPointRecord.h; path = ../../src/DbPointRecord.h; sourceTree = "<group>"; };
-		2288C10A1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TimeSeriesDuplicator.cpp; path = ../../examples/Duplicator/TimeSeriesDuplicator.cpp; sourceTree = "<group>"; };
-		2288C10B1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TimeSeriesDuplicator.h; path = ../../examples/Duplicator/TimeSeriesDuplicator.h; sourceTree = "<group>"; };
 		2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libTimeSeriesDuplicator.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		228A836E16DBE5E7008E9C35 /* data_access_profiling */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = data_access_profiling; sourceTree = BUILT_PRODUCTS_DIR; };
 		228A837A16DBE644008E9C35 /* data_access.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = data_access.cpp; path = ../../examples/data_access_profiling/data_access.cpp; sourceTree = "<group>"; };
@@ -933,15 +930,6 @@
 			name = "Model Classes";
 			sourceTree = "<group>";
 		};
-		2288C1041BE3C09F00F9B8FB /* TS Duplicator */ = {
-			isa = PBXGroup;
-			children = (
-				2288C10B1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.h */,
-				2288C10A1BE3C0DF00F9B8FB /* TimeSeriesDuplicator.cpp */,
-			);
-			name = "TS Duplicator";
-			sourceTree = "<group>";
-		};
 		228CA8CE1AA0CBC400D0353E /* model exporting extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -1105,7 +1093,6 @@
 				22DD0FBC1CE3878300145959 /* Curve */,
 				22C62AC91439ED9300841E60 /* time series classes */,
 				228CA8CE1AA0CBC400D0353E /* model exporting extensions */,
-				2288C1041BE3C09F00F9B8FB /* TS Duplicator */,
 				22C62AC11439ED6300841E60 /* Products */,
 				220DFA9C15502E4100AF41D0 /* Libraries */,
 				22BECEFC1DEF305D00E7C4EC /* Frameworks */,
@@ -1631,10 +1618,9 @@
 			};
 			buildConfigurationList = 22C62ABA1439ED6300841E60 /* Build configuration list for PBXProject "epanet-rtx" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
 			);
 			mainGroup = 22C62AB51439ED6300841E60;
@@ -1832,7 +1818,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2288C1251BE3C74600F9B8FB /* TimeSeriesDuplicator.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2004,8 +1989,8 @@
 		221BFDB71A8E8AD000143FCC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
-				CLANG_CXX_LIBRARY = "libc++";
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -2044,8 +2029,8 @@
 		221BFDB81A8E8AD000143FCC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
-				CLANG_CXX_LIBRARY = "libc++";
+				ARCHS = x86_64;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				COMBINE_HIDPI_IMAGES = YES;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				EXECUTABLE_PREFIX = lib;

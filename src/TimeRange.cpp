@@ -99,7 +99,7 @@ TimeRange::intersect_type TimeRange::intersection(const TimeRange& otherRange) {
   
   if ( this->end < otherRange.end
       && this->start < otherRange.start
-      && otherRange.start < this->start ) {
+      && otherRange.start < this->end ) {
     return intersect_right;
   }
   

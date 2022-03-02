@@ -13,9 +13,6 @@
 #include <map>
 #include <time.h>
 
-#include <boost/signals2/mutex.hpp>
-#include <boost/foreach.hpp>
-#include <boost/thread.hpp>
 #include <future>
 
 #include "rtxExceptions.h"
@@ -67,7 +64,7 @@ namespace RTX {
 //    virtual void loadModelFromFile(const string& filename) throw(std::exception);
     virtual void useModelFromPath(const std::string& path);
     virtual string modelFile();
-    virtual void overrideControls() throw(RtxException);
+    virtual void overrideControls();
     
     /// simulation methods
     void runSinglePeriod(time_t time);
@@ -310,7 +307,7 @@ namespace RTX {
     bool _shouldCancelSimulation;
     time_t _currentSimulationTime;
     Units _flowUnits, _headUnits, _pressureUnits, _qualityUnits, _volumeUnits;
-    boost::signals2::mutex _simulationInProcessMutex;
+    std::mutex _simulationInProcessMutex;
     double _initialQuality;
     RTX_Logging_Callback_Block _simLogCallback;
     std::function<void(time_t)> _didSimulateCallback, _willSimulateCallback;

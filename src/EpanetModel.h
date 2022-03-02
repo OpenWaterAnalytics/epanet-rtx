@@ -40,7 +40,7 @@ namespace RTX {
     virtual void closeEngine();
     void useEpanetModel(EN_Project *model, string path);
     void useEpanetFile(const std::string& filename);
-    virtual void overrideControls() throw(RtxException);
+    virtual void overrideControls();
     virtual std::ostream& toStream(std::ostream &stream);
     EN_Project *epanetModelPointer();
     
@@ -98,7 +98,7 @@ namespace RTX {
     virtual void setQualityTimeStep(int seconds);
     virtual void applyInitialQuality();
     virtual void applyInitialTankLevels();
-    void EN_API_CHECK(int errorCode, std::string externalFunction) throw(std::string);
+    void EN_API_CHECK(int errorCode, std::string externalFunction);
     void updateEngineWithElementProperties(Element::_sp e);
     virtual void cleanupModelAfterSimulation();
     
