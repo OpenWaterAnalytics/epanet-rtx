@@ -190,3 +190,7 @@ build/cmake/*
 # node deps
 node_modules
 .idea
+
+# conan files
+conan.lock
+conanbuildinfo.*

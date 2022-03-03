@@ -120,25 +120,12 @@
 		222C114E1D956B67007A747B /* TimeSeriesLowess.h in Headers */ = {isa = PBXBuildFile; fileRef = 222C114C1D956B67007A747B /* TimeSeriesLowess.h */; };
 		222C11591D956BEA007A747B /* Lowess.h in Headers */ = {isa = PBXBuildFile; fileRef = 222C11581D956BEA007A747B /* Lowess.h */; };
 		222CC53D1E92EE6800ED8F09 /* InfluxAdapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22E71E2E1E5B710A0044E084 /* InfluxAdapter.cpp */; };
-		2237362E20EABE5800CD57F2 /* libboost_chrono.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2237362620EABE5700CD57F2 /* libboost_chrono.a */; };
-		2237362F20EABE7200CD57F2 /* libboost_date_time.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C11C1A048300298C0C /* libboost_date_time.a */; };
-		2237363020EABE7200CD57F2 /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C31C1A048300298C0C /* libboost_filesystem.a */; };
-		2237363120EABE7200CD57F2 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C81C1A048300298C0C /* libboost_system.a */; };
-		2237363320EABE7200CD57F2 /* libboost_thread.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2237363220EABE7200CD57F2 /* libboost_thread.a */; };
 		2237363420EABF5500CD57F2 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C81C1A048300298C0C /* libboost_system.a */; };
 		2237363520EABF5500CD57F2 /* libboost_thread.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2237363220EABE7200CD57F2 /* libboost_thread.a */; };
 		2239413D1CAA1612008BD7FD /* libTimeSeriesDuplicator.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2288C1101BE3C5DC00F9B8FB /* libTimeSeriesDuplicator.dylib */; };
 		224526711EA54D1400EE81B1 /* libboost_unit_test_framework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 224526701EA54D1400EE81B1 /* libboost_unit_test_framework.a */; };
 		224DB210200D44DA0005E9C6 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 224DB20F200D44DA0005E9C6 /* libz.tbd */; };
-		226AD162200E91AF00077CE6 /* libboost_iostreams.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D570131D6741B000C25997 /* libboost_iostreams.a */; };
-		226AD163200E91AF00077CE6 /* libboost_program_options.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C41C1A048300298C0C /* libboost_program_options.a */; };
-		226AD165200E91AF00077CE6 /* libboost_regex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1C61C1A048300298C0C /* libboost_regex.a */; };
-		226AD168200E91AF00077CE6 /* libboost_timer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CA1C1A048300298C0C /* libboost_timer.a */; };
-		226AD169200E91AF00077CE6 /* libcpprest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22E996FE1CA591CB00D6F34F /* libcpprest.a */; };
-		226AD16A200E91AF00077CE6 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 223372F21CA19DFA00C87ACD /* libcrypto.a */; };
-		226AD16B200E91AF00077CE6 /* libgeohash.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22602B761D5A738000A668ED /* libgeohash.a */; };
 		226AD16C200E91AF00077CE6 /* libiodbc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CB1C1A048300298C0C /* libiodbc.a */; };
-		226AD16D200E91AF00077CE6 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 223372F31CA19DFA00C87ACD /* libssl.a */; };
 		227106511E1EA0FE002A2D30 /* PointCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2271064F1E1EA0FE002A2D30 /* PointCollection.cpp */; };
 		227106521E1EA0FE002A2D30 /* PointCollection.h in Headers */ = {isa = PBXBuildFile; fileRef = 227106501E1EA0FE002A2D30 /* PointCollection.h */; };
 		2288C1241BE3C71900F9B8FB /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
@@ -175,7 +162,6 @@
 		22D8C1DA1C1A048300298C0C /* libiodbc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CB1C1A048300298C0C /* libiodbc.a */; };
 		22D8C1DB1C1A048300298C0C /* libmysqlclient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CC1C1A048300298C0C /* libmysqlclient.a */; };
 		22D8C1DC1C1A048300298C0C /* libmysqlcppconn-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C1CD1C1A048300298C0C /* libmysqlcppconn-static.a */; };
-		22D8C2261C1A0DFE00298C0C /* libcurl.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D8C2251C1A0DFE00298C0C /* libcurl.4.dylib */; };
 		22D9830E17F4AFDE00DD7EB4 /* rt_simulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22D9830D17F4AFDE00DD7EB4 /* rt_simulator.cpp */; };
 		22DC12D81ADD844D0033DD5E /* MetaTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22DC12D41ADD844D0033DD5E /* MetaTimeSeries.cpp */; };
 		22DC12DB1ADD844D0033DD5E /* MetaTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DC12D51ADD844D0033DD5E /* MetaTimeSeries.h */; };
@@ -196,6 +182,11 @@
 		22F175F91C7235BB0042916C /* TimeSeriesFilterSecondary.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F175F51C7235BB0042916C /* TimeSeriesFilterSecondary.h */; };
 		22FA7B7D1EA12A76006637E9 /* TimeSeriesQuery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22FA7B7B1EA12A76006637E9 /* TimeSeriesQuery.cpp */; };
 		22FA7B7E1EA12A76006637E9 /* TimeSeriesQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FA7B7C1EA12A76006637E9 /* TimeSeriesQuery.h */; };
+		63B8F4BE27CFE53C00F3BB8A /* SendPointsCoroutine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 63B8F4BD27CFE53C00F3BB8A /* SendPointsCoroutine.cpp */; };
+		63B8F4C127CFE59C00F3BB8A /* InfluxClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 63B8F4BF27CFE59C00F3BB8A /* InfluxClient.hpp */; };
+		63B8F4C227CFE59C00F3BB8A /* SendPointsCoroutine.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 63B8F4C027CFE59C00F3BB8A /* SendPointsCoroutine.hpp */; };
+		63B8F4C827CFE5C300F3BB8A /* test_influx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 63B8F4C427CFE5C300F3BB8A /* test_influx.cpp */; };
+		63B8F4C927CFE5C300F3BB8A /* MyClientTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 63B8F4C527CFE5C300F3BB8A /* MyClientTest.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -639,6 +630,17 @@
 		43627EC9171F27E3007AE0F5 /* ThresholdTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThresholdTimeSeries.h; path = ../../src/ThresholdTimeSeries.h; sourceTree = "<group>"; };
 		43627ECF171F286C007AE0F5 /* ThresholdTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ThresholdTimeSeries.cpp; path = ../../src/ThresholdTimeSeries.cpp; sourceTree = "<group>"; };
 		43E5BBE51A8AF55A00CC93D6 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = /usr/lib/libsqlite3.dylib; sourceTree = "<absolute>"; };
+		63B8F4B427CFDC7700F3BB8A /* conanfile.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = conanfile.txt; path = ../../conanfile.txt; sourceTree = "<group>"; };
+		63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = conanbuildinfo.xcconfig; path = ../conan/conanbuildinfo.xcconfig; sourceTree = "<group>"; };
+		63B8F4BD27CFE53C00F3BB8A /* SendPointsCoroutine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SendPointsCoroutine.cpp; path = ../../src/SendPointsCoroutine.cpp; sourceTree = "<group>"; };
+		63B8F4BF27CFE59C00F3BB8A /* InfluxClient.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = InfluxClient.hpp; path = ../../src/InfluxClient.hpp; sourceTree = "<group>"; };
+		63B8F4C027CFE59C00F3BB8A /* SendPointsCoroutine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SendPointsCoroutine.hpp; path = ../../src/SendPointsCoroutine.hpp; sourceTree = "<group>"; };
+		63B8F4C327CFE5C300F3BB8A /* TestController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestController.h; path = ../../test/TestController.h; sourceTree = "<group>"; };
+		63B8F4C427CFE5C300F3BB8A /* test_influx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_influx.cpp; path = ../../test/test_influx.cpp; sourceTree = "<group>"; };
+		63B8F4C527CFE5C300F3BB8A /* MyClientTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MyClientTest.cpp; path = ../../test/MyClientTest.cpp; sourceTree = "<group>"; };
+		63B8F4C627CFE5C300F3BB8A /* TestClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestClient.h; path = ../../test/TestClient.h; sourceTree = "<group>"; };
+		63B8F4C727CFE5C300F3BB8A /* MyClientTest.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = MyClientTest.hpp; path = ../../test/MyClientTest.hpp; sourceTree = "<group>"; };
+		63B8F4CA27CFE8BC00F3BB8A /* Components.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Components.hpp; path = ../../src/Components.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -676,21 +678,7 @@
 				22E997081CA5935F00D6F34F /* Security.framework in Frameworks */,
 				2200ED191C7797F3009A6C5F /* libepanet-static.a in Frameworks */,
 				221BFD7C1A8E8AD000143FCC /* libepanetmsx-static.a in Frameworks */,
-				22D8C2261C1A0DFE00298C0C /* libcurl.4.dylib in Frameworks */,
-				2237362E20EABE5800CD57F2 /* libboost_chrono.a in Frameworks */,
-				226AD162200E91AF00077CE6 /* libboost_iostreams.a in Frameworks */,
-				226AD163200E91AF00077CE6 /* libboost_program_options.a in Frameworks */,
-				226AD165200E91AF00077CE6 /* libboost_regex.a in Frameworks */,
-				226AD168200E91AF00077CE6 /* libboost_timer.a in Frameworks */,
-				2237363320EABE7200CD57F2 /* libboost_thread.a in Frameworks */,
-				2237362F20EABE7200CD57F2 /* libboost_date_time.a in Frameworks */,
-				2237363020EABE7200CD57F2 /* libboost_filesystem.a in Frameworks */,
-				2237363120EABE7200CD57F2 /* libboost_system.a in Frameworks */,
-				226AD16A200E91AF00077CE6 /* libcrypto.a in Frameworks */,
-				226AD16B200E91AF00077CE6 /* libgeohash.a in Frameworks */,
 				226AD16C200E91AF00077CE6 /* libiodbc.a in Frameworks */,
-				226AD16D200E91AF00077CE6 /* libssl.a in Frameworks */,
-				226AD169200E91AF00077CE6 /* libcpprest.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -968,6 +956,9 @@
 		2294954E1DB90EFE00B85A1A /* INFLUX */ = {
 			isa = PBXGroup;
 			children = (
+				63B8F4BF27CFE59C00F3BB8A /* InfluxClient.hpp */,
+				63B8F4C027CFE59C00F3BB8A /* SendPointsCoroutine.hpp */,
+				63B8F4BD27CFE53C00F3BB8A /* SendPointsCoroutine.cpp */,
 				228CFBB01DBFD9A900B59206 /* MetricInfo.h */,
 				228CFBAF1DBFD9A900B59206 /* MetricInfo.cpp */,
 				22E71E2F1E5B710A0044E084 /* InfluxAdapter.h */,
@@ -998,6 +989,12 @@
 		22BECED01DEF25F200E7C4EC /* TEST */ = {
 			isa = PBXGroup;
 			children = (
+				63B8F4CA27CFE8BC00F3BB8A /* Components.hpp */,
+				63B8F4C527CFE5C300F3BB8A /* MyClientTest.cpp */,
+				63B8F4C727CFE5C300F3BB8A /* MyClientTest.hpp */,
+				63B8F4C427CFE5C300F3BB8A /* test_influx.cpp */,
+				63B8F4C627CFE5C300F3BB8A /* TestClient.h */,
+				63B8F4C327CFE5C300F3BB8A /* TestController.h */,
 				22BECF011DEF31C500E7C4EC /* test_main.h */,
 				22BECEFF1DEF31A100E7C4EC /* test_main.cpp */,
 				22BECED81DEF25FB00E7C4EC /* test_units.cpp */,
@@ -1074,6 +1071,8 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
+				63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */,
+				63B8F4B427CFDC7700F3BB8A /* conanfile.txt */,
 				221F072C1E36A54300813EA6 /* LINK_SERVICE */,
 				22BECED01DEF25F200E7C4EC /* TEST */,
 				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
@@ -1359,6 +1358,7 @@
 				22E71E2D1E5B61110044E084 /* SqliteAdapter.h in Headers */,
 				221BFD8E1A8E8AD000143FCC /* Dma.h in Headers */,
 				221BFD8F1A8E8AD000143FCC /* EpanetMsxModel.h in Headers */,
+				63B8F4C127CFE59C00F3BB8A /* InfluxClient.hpp in Headers */,
 				221BFD901A8E8AD000143FCC /* rtxMacros.h in Headers */,
 				221BFD911A8E8AD000143FCC /* EpanetModel.h in Headers */,
 				22FA7B7E1EA12A76006637E9 /* TimeSeriesQuery.h in Headers */,
@@ -1369,6 +1369,7 @@
 				221BFD971A8E8AD000143FCC /* Junction.h in Headers */,
 				22DD0FC91CE387A400145959 /* Curve.h in Headers */,
 				221BFD981A8E8AD000143FCC /* Reservoir.h in Headers */,
+				63B8F4C227CFE59C00F3BB8A /* SendPointsCoroutine.hpp in Headers */,
 				222C11591D956BEA007A747B /* Lowess.h in Headers */,
 				221BFD9B1A8E8AD000143FCC /* LagTimeSeries.h in Headers */,
 				221BFD9C1A8E8AD000143FCC /* OutlierExclusionTimeSeries.h in Headers */,
@@ -1730,6 +1731,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				63B8F4BE27CFE53C00F3BB8A /* SendPointsCoroutine.cpp in Sources */,
 				228C2D941A9E15BF003C826D /* TimeRange.cpp in Sources */,
 				221BFD371A8E8AD000143FCC /* TimeSeriesSynthetic.cpp in Sources */,
 				221BFD391A8E8AD000143FCC /* Point.cpp in Sources */,
@@ -1843,7 +1845,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				22BECEFA1DEF2F8B00E7C4EC /* test_units.cpp in Sources */,
+				63B8F4C827CFE5C300F3BB8A /* test_influx.cpp in Sources */,
 				22BECEFB1DEF2F8D00E7C4EC /* test_record.cpp in Sources */,
+				63B8F4C927CFE5C300F3BB8A /* MyClientTest.cpp in Sources */,
 				22BECF001DEF31A100E7C4EC /* test_main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1917,6 +1921,7 @@
 /* Begin XCBuildConfiguration section */
 		220D42E11BEFFF9000C9AB36 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_MODULES = YES;
@@ -1952,6 +1957,7 @@
 		};
 		220D42E21BEFFF9000C9AB36 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_MODULES = YES;
@@ -1988,6 +1994,7 @@
 		};
 		221BFDB71A8E8AD000143FCC /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				ARCHS = x86_64;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
@@ -2014,11 +2021,13 @@
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/lib,
 					/Library/Frameworks,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				OTHER_LDFLAGS = "-liodbc";
+				OTHER_LDFLAGS = (
+					"-liodbc",
+					"${inherited}",
+				);
 				PRODUCT_NAME = "epanet-rtx";
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SKIP_INSTALL = YES;
@@ -2028,6 +2037,7 @@
 		};
 		221BFDB81A8E8AD000143FCC /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				ARCHS = x86_64;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
@@ -2053,11 +2063,13 @@
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/lib,
 					/Library/Frameworks,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				OTHER_LDFLAGS = "-liodbc";
+				OTHER_LDFLAGS = (
+					"-liodbc",
+					"${inherited}",
+				);
 				PRODUCT_NAME = "epanet-rtx";
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SKIP_INSTALL = YES;
@@ -2067,6 +2079,7 @@
 		};
 		223947EB1AF3B27000C8AE4F /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_MODULES = YES;
@@ -2097,6 +2110,7 @@
 		};
 		223947EC1AF3B27000C8AE4F /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_MODULES = YES;
@@ -2125,6 +2139,7 @@
 		};
 		228137CD1CA2F1FE00AD81F3 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -2160,6 +2175,7 @@
 		};
 		228137CE1CA2F1FE00AD81F3 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -2196,6 +2212,7 @@
 		};
 		2288C1191BE3C5DC00F9B8FB /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_ENABLE_MODULES = YES;
@@ -2230,6 +2247,7 @@
 		};
 		2288C11A1BE3C5DC00F9B8FB /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_ENABLE_MODULES = YES;
@@ -2264,6 +2282,7 @@
 		};
 		228A837516DBE5E7008E9C35 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -2293,6 +2312,7 @@
 		};
 		228A837616DBE5E7008E9C35 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -2322,6 +2342,7 @@
 		};
 		22B8A7A41603CA6100EECAA5 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -2347,6 +2368,7 @@
 		};
 		22B8A7A51603CA6100EECAA5 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -2372,9 +2394,10 @@
 		};
 		22BECEEE1DEF266F00E7C4EC /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2407,12 +2430,10 @@
 					/usr/include,
 					"${SRCROOT}/../../../epanet-msx/include",
 					/usr/local/Cellar/libxml2/2.9.3/include/libxml2/,
-				);
-				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/com.citilogics.dev/lib,
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -2420,9 +2441,10 @@
 		};
 		22BECEEF1DEF266F00E7C4EC /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2456,12 +2478,10 @@
 					/usr/include,
 					"${SRCROOT}/../../../epanet-msx/include",
 					/usr/local/Cellar/libxml2/2.9.3/include/libxml2/,
-				);
-				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/com.citilogics.dev/lib,
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -2469,6 +2489,7 @@
 		};
 		22C62AC21439ED6300841E60 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = x86_64;
@@ -2489,13 +2510,55 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					/usr/local/com.citilogics.dev/include,
-					/usr/local/com.citilogics.dev/include/iODBC,
+					"$(inherited)",
+					/usr/local/com.citilogics.dev/include/,
 					/usr/local/include,
 				);
-				LIBRARY_SEARCH_PATHS = /usr/local/com.citilogics.dev/lib;
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-loatpp-openssl",
+					"-lcpprest",
+					"-lcurl",
+					"-lsqlite3",
+					"-lgeohash",
+					"-loatpp-test",
+					"-loatpp",
+					"-lssl",
+					"-lcrypto",
+					"-lboost_contract",
+					"-lboost_coroutine",
+					"-lboost_context",
+					"-lboost_iostreams",
+					"-lboost_program_options",
+					"-lboost_random",
+					"-lboost_regex",
+					"-lboost_timer",
+					"-lboost_type_erasure",
+					"-lboost_thread",
+					"-lboost_chrono",
+					"-lboost_container",
+					"-lboost_date_time",
+					"-lboost_unit_test_framework",
+					"-lboost_prg_exec_monitor",
+					"-lboost_test_exec_monitor",
+					"-lboost_exception",
+					"-lboost_wave",
+					"-lboost_filesystem",
+					"-lboost_atomic",
+					"-lboost_wserialization",
+					"-lboost_serialization",
+					"-lz",
+					"-lbz2",
+					"-framework",
+					SystemConfiguration,
+					"-framework",
+					CoreFoundation,
+					"-framework",
+					Security,
+				);
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = macosx;
 			};
@@ -2503,6 +2566,7 @@
 		};
 		22C62AC31439ED6300841E60 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = x86_64;
@@ -2516,12 +2580,54 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					/usr/local/com.citilogics.dev/include,
-					/usr/local/com.citilogics.dev/include/iODBC,
+					"$(inherited)",
+					/usr/local/com.citilogics.dev/include/,
 					/usr/local/include,
 				);
-				LIBRARY_SEARCH_PATHS = /usr/local/com.citilogics.dev/lib;
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-loatpp-openssl",
+					"-lcpprest",
+					"-lcurl",
+					"-lsqlite3",
+					"-lgeohash",
+					"-loatpp-test",
+					"-loatpp",
+					"-lssl",
+					"-lcrypto",
+					"-lboost_contract",
+					"-lboost_coroutine",
+					"-lboost_context",
+					"-lboost_iostreams",
+					"-lboost_program_options",
+					"-lboost_random",
+					"-lboost_regex",
+					"-lboost_timer",
+					"-lboost_type_erasure",
+					"-lboost_thread",
+					"-lboost_chrono",
+					"-lboost_container",
+					"-lboost_date_time",
+					"-lboost_unit_test_framework",
+					"-lboost_prg_exec_monitor",
+					"-lboost_test_exec_monitor",
+					"-lboost_exception",
+					"-lboost_wave",
+					"-lboost_filesystem",
+					"-lboost_atomic",
+					"-lboost_wserialization",
+					"-lboost_serialization",
+					"-lz",
+					"-lbz2",
+					"-framework",
+					SystemConfiguration,
+					"-framework",
+					CoreFoundation,
+					"-framework",
+					Security,
+				);
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = macosx;
 			};
@@ -2529,6 +2635,7 @@
 		};
 		22D4D32718F8298300DA1648 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -2561,6 +2668,7 @@
 		};
 		22D4D32818F8298300DA1648 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -2590,6 +2698,7 @@
 		};
 		22D982F717F4A3CD00DD7EB4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "compiler-default";
@@ -2618,6 +2727,7 @@
 		};
 		22D982F817F4A3CD00DD7EB4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "compiler-default";

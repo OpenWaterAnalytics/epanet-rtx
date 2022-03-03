@@ -3,10 +3,23 @@
 
 #include <stdio.h>
 #include <future>
-#include <cpprest/uri.h>
-#include <cpprest/json.h>
+
+#include "oatpp/web/client/HttpRequestExecutor.hpp"
+#include "oatpp/network/tcp/client/ConnectionProvider.hpp"
+#include "oatpp/network/ConnectionPool.hpp"
+#include "oatpp-openssl/client/ConnectionProvider.hpp"
+#include "oatpp-openssl/Config.hpp"
+#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/core/async/Executor.hpp"
+#include "oatpp/network/virtual_/client/ConnectionProvider.hpp"
+#include "oatpp/network/virtual_/server/ConnectionProvider.hpp"
+#include "oatpp/network/virtual_/Interface.hpp"
+#include "SendPointsCoroutine.hpp"
+
+#include "nlohmann/json.hpp"
 
 #include "DbAdapter.h"
+#include "InfluxClient.hpp"
 
 namespace RTX {
   class InfluxAdapter : public DbAdapter {
@@ -49,6 +62,7 @@ namespace RTX {
       int port;
       int msec_ratelimit;
       bool validate;
+      std::string getAuthString(){ return user + ":" + pass; }
     };
     connectionInfo conn;
     
@@ -69,9 +83,12 @@ namespace RTX {
   
   class InfluxTcpAdapter : public InfluxAdapter {
   public:
+    
     InfluxTcpAdapter( errCallback_t cb );
+    InfluxTcpAdapter(errCallback_t cb, std::shared_ptr<InfluxClient> restClient );
     ~InfluxTcpAdapter();
     
+    void setConnectionString(const std::string& con);
     const adapterOptions options() const;
     std::string connectionString();
     void doConnect();
@@ -97,6 +114,8 @@ namespace RTX {
     std::string formatTimestamp(time_t t);
     
   private:
+    typedef oatpp::web::protocol::http::incoming::Response Response;
+  private:
     class Query {
     public:
       std::vector<std::string> select,where;
@@ -106,10 +125,15 @@ namespace RTX {
     };
     
     std::shared_ptr<ITaskWrapper> _sendTask;
-    web::uri uriForQuery(const std::string& query, bool withTimePrecision = true);
+    constexpr static const char* TAG = "InfluxTCPAdapter";
+    std::shared_ptr<oatpp::data::mapping::ObjectMapper> objectMapper;
+    std::shared_ptr<InfluxClient> restClient;
+    std::shared_ptr<oatpp::web::client::RequestExecutor> createExecutor();
+
     Query queryPartsFromMetricId(const std::string& name);
     
-    web::json::value jsonFromRequest(web::uri uri, web::http::method withMethod);
+    std::string encodeQuery(std::string queryString);
+    nlohmann::json jsonFromResponse(const std::shared_ptr<Response> response);
     
   };
   
