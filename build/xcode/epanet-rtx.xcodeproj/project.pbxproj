@@ -395,6 +395,8 @@
 
 /* Begin PBXFileReference section */
 		1557A02422B04647001980D9 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		156CB13327D13BB7000218BD /* conanfile.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = conanfile.txt; path = ../../deps/conanfile.txt; sourceTree = "<group>"; };
+		156CB13427D13BC0000218BD /* conanbuildinfo.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = conanbuildinfo.xcconfig; path = ../../deps/conanbuildinfo.xcconfig; sourceTree = "<group>"; };
 		15DFA17B24464B0E0028797E /* WhereClause.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = WhereClause.cpp; path = ../../src/WhereClause.cpp; sourceTree = "<group>"; };
 		15DFA17C24464B0E0028797E /* WhereClause.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WhereClause.h; path = ../../src/WhereClause.h; sourceTree = "<group>"; };
 		15FD880A25C0934700497BE1 /* SquareWaveTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SquareWaveTimeSeries.h; path = ../../src/SquareWaveTimeSeries.h; sourceTree = "<group>"; };
@@ -630,8 +632,6 @@
 		43627EC9171F27E3007AE0F5 /* ThresholdTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThresholdTimeSeries.h; path = ../../src/ThresholdTimeSeries.h; sourceTree = "<group>"; };
 		43627ECF171F286C007AE0F5 /* ThresholdTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ThresholdTimeSeries.cpp; path = ../../src/ThresholdTimeSeries.cpp; sourceTree = "<group>"; };
 		43E5BBE51A8AF55A00CC93D6 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = /usr/lib/libsqlite3.dylib; sourceTree = "<absolute>"; };
-		63B8F4B427CFDC7700F3BB8A /* conanfile.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = conanfile.txt; path = ../../conanfile.txt; sourceTree = "<group>"; };
-		63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = conanbuildinfo.xcconfig; path = ../conan/conanbuildinfo.xcconfig; sourceTree = "<group>"; };
 		63B8F4BD27CFE53C00F3BB8A /* SendPointsCoroutine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SendPointsCoroutine.cpp; path = ../../src/SendPointsCoroutine.cpp; sourceTree = "<group>"; };
 		63B8F4BF27CFE59C00F3BB8A /* InfluxClient.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = InfluxClient.hpp; path = ../../src/InfluxClient.hpp; sourceTree = "<group>"; };
 		63B8F4C027CFE59C00F3BB8A /* SendPointsCoroutine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SendPointsCoroutine.hpp; path = ../../src/SendPointsCoroutine.hpp; sourceTree = "<group>"; };
@@ -1071,8 +1071,8 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
-				63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */,
-				63B8F4B427CFDC7700F3BB8A /* conanfile.txt */,
+				156CB13427D13BC0000218BD /* conanbuildinfo.xcconfig */,
+				156CB13327D13BB7000218BD /* conanfile.txt */,
 				221F072C1E36A54300813EA6 /* LINK_SERVICE */,
 				22BECED01DEF25F200E7C4EC /* TEST */,
 				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
@@ -1921,7 +1921,6 @@
 /* Begin XCBuildConfiguration section */
 		220D42E11BEFFF9000C9AB36 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_MODULES = YES;
@@ -1957,7 +1956,6 @@
 		};
 		220D42E21BEFFF9000C9AB36 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_MODULES = YES;
@@ -1994,7 +1992,6 @@
 		};
 		221BFDB71A8E8AD000143FCC /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				ARCHS = x86_64;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
@@ -2037,7 +2034,6 @@
 		};
 		221BFDB81A8E8AD000143FCC /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				ARCHS = x86_64;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
@@ -2079,7 +2075,6 @@
 		};
 		223947EB1AF3B27000C8AE4F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_MODULES = YES;
@@ -2110,7 +2105,6 @@
 		};
 		223947EC1AF3B27000C8AE4F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_MODULES = YES;
@@ -2139,7 +2133,6 @@
 		};
 		228137CD1CA2F1FE00AD81F3 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -2175,7 +2168,6 @@
 		};
 		228137CE1CA2F1FE00AD81F3 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -2212,7 +2204,6 @@
 		};
 		2288C1191BE3C5DC00F9B8FB /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_ENABLE_MODULES = YES;
@@ -2247,7 +2238,6 @@
 		};
 		2288C11A1BE3C5DC00F9B8FB /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_ENABLE_MODULES = YES;
@@ -2282,7 +2272,6 @@
 		};
 		228A837516DBE5E7008E9C35 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -2312,7 +2301,6 @@
 		};
 		228A837616DBE5E7008E9C35 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -2342,7 +2330,6 @@
 		};
 		22B8A7A41603CA6100EECAA5 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -2368,7 +2355,6 @@
 		};
 		22B8A7A51603CA6100EECAA5 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -2394,7 +2380,6 @@
 		};
 		22BECEEE1DEF266F00E7C4EC /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -2441,7 +2426,6 @@
 		};
 		22BECEEF1DEF266F00E7C4EC /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -2489,7 +2473,7 @@
 		};
 		22C62AC21439ED6300841E60 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
+			baseConfigurationReference = 156CB13427D13BC0000218BD /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = x86_64;
@@ -2566,7 +2550,6 @@
 		};
 		22C62AC31439ED6300841E60 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = x86_64;
@@ -2635,7 +2618,6 @@
 		};
 		22D4D32718F8298300DA1648 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -2668,7 +2650,6 @@
 		};
 		22D4D32818F8298300DA1648 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -2698,7 +2679,6 @@
 		};
 		22D982F717F4A3CD00DD7EB4 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "compiler-default";
@@ -2727,7 +2707,6 @@
 		};
 		22D982F817F4A3CD00DD7EB4 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63B8F4BC27CFE12200F3BB8A /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "compiler-default";

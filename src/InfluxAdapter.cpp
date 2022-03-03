@@ -357,10 +357,13 @@ shared_ptr<oatpp::web::client::RequestExecutor> InfluxTcpAdapter::createExecutor
   }
   shared_ptr<ClientConnectionProvider> connectionProvider;
   /* Create connection provider */
-  if( this->conn.proto.compare("http") == 0 ){
+  if( this->conn.proto.compare("http") == 0 )
+  {
     connectionProvider = oatpp::network::tcp::client::ConnectionProvider::createShared({this->conn.host,
       (v_uint16)this->conn.port});
-  }else if( this->conn.proto.compare("https") == 0){
+  }
+  else if( this->conn.proto.compare("https") == 0)
+  {
     auto config = oatpp::openssl::Config::createShared();
     connectionProvider = oatpp::openssl::client::ConnectionProvider::createShared(config, {this->conn.host, (v_uint16)this->conn.port});
   }
