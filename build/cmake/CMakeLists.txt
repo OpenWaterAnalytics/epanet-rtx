@@ -168,24 +168,3 @@ target_link_libraries(
 
 install(DIRECTORY ../../src/ DESTINATION include/rtx FILES_MATCHING PATTERN "*.h")
 install(TARGETS epanetrtx DESTINATION lib)
-
-add_library(epanetrtx-test
-	../../test/test_main.cpp
-	../../test/test_units.cpp
-	../../test/test_record.cpp
-	../../test/test_influx.cpp
-)
-
-target_link_libraries(epanetrtx-test
-	oatpp
-	oatpp-openssl
-	oatpp-test
-	boost_unit_test_framework
-	epanetrtx
-)
-add_test(epanetrtx-test epanetrtx-test)
-# make "make test" run the test program
-add_custom_target(test_main
-     DEPENDS epanetrtx
-     COMMAND ./epanetrtx-test
-)
