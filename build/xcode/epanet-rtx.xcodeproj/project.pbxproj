@@ -2020,7 +2020,6 @@
 					"$(inherited)",
 					/Library/Frameworks,
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_LDFLAGS = (
 					"-liodbc",
 					"${inherited}",
@@ -2061,7 +2060,6 @@
 					"$(inherited)",
 					/Library/Frameworks,
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				OTHER_LDFLAGS = (
 					"-liodbc",
 					"${inherited}",
@@ -2499,7 +2497,7 @@
 					/usr/local/include,
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -2568,7 +2566,7 @@
 					/usr/local/include,
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-loatpp-openssl",

@@ -15,7 +15,6 @@
 #include <deque>
 #include <fstream>
 #include <map>
-#include <boost/atomic.hpp>
 
 
 #include "Point.h"

@@ -29,12 +29,10 @@ namespace RTX {
         
     void setConnectionString(const std::string& con);
     
-    
     // TRANSACTIONS
     void beginTransaction();
     void endTransaction();
     bool inTransaction() {return _inTransaction;};
-    
     
     // CREATE
     bool insertIdentifierAndUnits(const std::string& id, Units units);
@@ -43,7 +41,6 @@ namespace RTX {
     
     // UPDATE
     bool assignUnitsToRecord(const std::string& name, const Units& units);
-    
     
     // utility only for influx
     void sendInfluxString(time_t time, const std::string& seriesId, const std::string& values);
@@ -88,7 +85,6 @@ namespace RTX {
     InfluxTcpAdapter(errCallback_t cb, std::shared_ptr<InfluxClient> restClient );
     ~InfluxTcpAdapter();
     
-    void setConnectionString(const std::string& con);
     const adapterOptions options() const;
     std::string connectionString();
     void doConnect();
@@ -126,8 +122,8 @@ namespace RTX {
     
     std::shared_ptr<ITaskWrapper> _sendTask;
     constexpr static const char* TAG = "InfluxTCPAdapter";
-    std::shared_ptr<oatpp::data::mapping::ObjectMapper> objectMapper;
-    std::shared_ptr<InfluxClient> restClient;
+    std::shared_ptr<oatpp::data::mapping::ObjectMapper> _objectMapper;
+    std::shared_ptr<InfluxClient> _restClient;
     std::shared_ptr<oatpp::web::client::RequestExecutor> createExecutor();
 
     Query queryPartsFromMetricId(const std::string& name);

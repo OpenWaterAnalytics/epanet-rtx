@@ -11,8 +11,10 @@
 #include "oatpp/web/client/ApiClient.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
-class InfluxClient : public oatpp::web::client::ApiClient {
 #include OATPP_CODEGEN_BEGIN(ApiClient)
+
+class InfluxClient : public oatpp::web::client::ApiClient {
+
   
 private:
   constexpr static const char* HTTP_GET = "GET";

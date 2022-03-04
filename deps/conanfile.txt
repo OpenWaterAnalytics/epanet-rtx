@@ -6,7 +6,7 @@ boost/1.78.0
 cpprestsdk/2.10.18
 nlohmann_json/3.10.5
 libcurl/7.80.0
-sqlite3/3.37.2
+
 geohash/1.0
 sqlite_modern_cpp/3.2
 
