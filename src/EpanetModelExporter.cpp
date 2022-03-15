@@ -42,6 +42,20 @@ const map<string, _epanet_section_t> _epanet_specialSections = {
   {"RULES", rules}
 };
 
+const map<string, string> _replacements({
+  {"Demand_Boundary", "DBdy"},
+  {"Head_Boundary", "HBdy"},
+  {"Quality_Boundary", "QBdy"},
+  {"Head_Measure", "HMeas"},
+  {"Quality_Measure", "QMeas"},
+  {"Pressure_Measure", "PMeas"},
+  {"Level_Measure", "LMeas"},
+  {"Status_Boundary", "StBdy"},
+  {"Setting_Boundary", "SBdy"},
+  {"Flow_Measure", "FMeas"},
+  {"Energy_Measure", "EMeas"}
+});
+
 _epanet_section_t _epanet_sectionFromLine(const string& line);
 _epanet_section_t _epanet_sectionFromLine(const string& line) {
   if (line.find('[') != string::npos) {
@@ -71,8 +85,12 @@ int _epanet_make_pattern(EN_Project *m, TimeSeries::_sp ts, Clock::_sp clock, Ti
   pc.convertToUnits(patternUnits);
   
   string pName(patternName);
-  pName = pName.substr(0,30);
   boost::replace_all(pName, " ", "_");
+  for( auto pair : _replacements){
+    boost::replace_all(pName, pair.first, pair.second);
+  }
+  pName = pName.substr(0,34);
+  
   char *patName = (char*)pName.c_str();
   EN_addpattern(m, patName);
   int patIdx;
