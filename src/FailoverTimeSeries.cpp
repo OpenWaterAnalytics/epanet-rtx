@@ -86,13 +86,13 @@ PointCollection FailoverTimeSeries::filterPointsInRange(TimeRange range) {
   qPrimary.correctWithRange(range);
   qSecondary.correctWithRange(range);
   
-  // this is to make sure we have enough secondary data to fill leading & trailing gaps
-  if (qPrimary.start < qSecondary.start) {
-    qSecondary.start = qPrimary.start;
-  }
-  if (qPrimary.end > qSecondary.end) {
-    qSecondary.end = qPrimary.end;
-  }
+//  // this is to make sure we have enough secondary data to fill leading & trailing gaps
+//  if (qPrimary.start < qSecondary.start) {
+//    qSecondary.start = qPrimary.start;
+//  }
+//  if (qPrimary.end > qSecondary.end) {
+//    qSecondary.end = qPrimary.end;
+//  }
   
   // get source and secondary data
   PointCollection primaryData = this->source()->pointCollection(qPrimary);

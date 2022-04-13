@@ -9,8 +9,8 @@
 using namespace RTX;
 using namespace std;
 
-const int _tsfilter_maxStrides = 3; // FIXME 💩
-const time_t _stride = 60*60*24; // 3-days
+const size_t _tsfilter_max_search = 6; // FIXME 💩
+const time_t _stride_basis = 60*60; // 1 hour, doubled each search iteration
 
 TimeSeriesFilter::TimeSeriesFilter() {
   _resampleMode = ResampleModeLinear;
@@ -140,9 +140,10 @@ Point TimeSeriesFilter::pointBefore(time_t time) {
     
     PointCollection c;
     
-    TimeRange q(time - _stride, time - 1);
+    TimeRange q(time - _stride_basis, time - 1);
+    size_t n_strides = 0;
     
-    while ( q.start > time - (_stride * _tsfilter_maxStrides) ) {
+    while ( ++n_strides <= _tsfilter_max_search ) {
       if (this->source()->timeBefore(q.end + 1) == 0) {
         break; // actually no points. futile to search.
       }
@@ -150,8 +151,7 @@ Point TimeSeriesFilter::pointBefore(time_t time) {
       if (c.count() > 0) {
         break; // found something
       }
-      q.start -= _stride;
-      q.end -= _stride;
+      q.start -= _stride_basis * (int)n_strides;
     }
     
     // if we found something:
@@ -190,9 +190,11 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
     // search iteratively - this is basic functionality. Override ::pointAfter for special cases or optimized uses.
     
     PointCollection c;
-    TimeRange q(time + 1, time + _stride);
     
-    while ( q.end < time + (_stride * _tsfilter_maxStrides) ) {
+    TimeRange q(time + 1, time + _stride_basis);
+    size_t n_strides = 0;
+    
+    while ( ++n_strides <= _tsfilter_max_search ) {
       if (this->source()->timeAfter(q.start - 1) == 0) {
         break; // actually no points. futile to search.
       }
@@ -200,8 +202,7 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
       if (c.count() > 0) {
         break; // found something
       }
-      q.start += _stride;
-      q.end += _stride;
+      q.end += _stride_basis * (int)n_strides;
     }
     
     // if we found something:
