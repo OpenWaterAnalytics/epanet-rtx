@@ -31,8 +31,6 @@ SET (CMAKE_CXX_FLAGS "-Wall")
 SET (CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_definitions(-DRTX_NO_MYSQL)
 
-find_package(nlohmann_json 3.10.5 REQUIRED)
-
 message("prefix: ${CMAKE_FIND_LIBRARY_PREFIXES}")
 message("suffix: ${CMAKE_FIND_LIBRARY_SUFFIXES}")
 
@@ -46,6 +44,9 @@ IF(APPLE)
    FIND_LIBRARY(CORE_FRAMEWORK CoreFoundation)
    SET(EXTRA_LIBS ${SECURITY_FRAMEWORK} ${CORE_FRAMEWORK})
 ENDIF (APPLE)
+
+include(/opt/src/epanet-rtx/deps/conanbuildinfo.cmake)
+conan_basic_setup()
 
 # the rtx library
 include_directories(
@@ -140,28 +141,18 @@ target_compile_definitions(epanetrtx PRIVATE MAXFLOAT=3.40282347e+38F)
 set(rtx_lib_deps
 	epanet
 	curl
-	boost_system
-	boost_chrono
-	boost_filesystem
-	boost_date_time
-	boost_regex
-	boost_iostreams
 	iodbc
 	sqlite3
 	m
 	z
-	ssl
-	crypto
-	cpprest
 	pthread
-	oatpp
-	oatpp-openssl
 	)
 
 
 target_link_libraries(
 	epanetrtx
 	${rtx_lib_deps}
+  ${CONAN_LIBS}
 	)
 
 
