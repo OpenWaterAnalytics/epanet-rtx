@@ -790,7 +790,7 @@ json InfluxTcpAdapter::jsonFromResponse(const std::shared_ptr<Response> response
   
   int code = response->getStatusCode();
   if(code == 200){
-    OATPP_LOGI(TAG, "Connected");
+    // OATPP_LOGI(TAG, "Connected");
     std::string bodyStr = response->readBodyToString().getValue("");
     // OATPP_LOGD(TAG, "%s", bodyStr.c_str());
     js = json::parse(bodyStr);
