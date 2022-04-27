@@ -425,7 +425,7 @@ void Model::initDMAs() {
   }
   
   // finally, let the dma assemble its aggregators
-  for(const Dma::_sp dma : newDmas) {
+  for(const Dma::_sp &dma : newDmas) {
     dma->initDemandTimeseries(boundaryPipes);
     dma->demand()->setUnits(this->flowUnits());
     this->addDma(dma);
@@ -1208,7 +1208,7 @@ void Model::setSimulationParameters(time_t time) {
   // check for valid time with tank reset clock
   if (_tankResetClock && _tankResetClock->isValid(time)) {
     this->setTanksNeedReset(true);
-    cout << "*  INFO :: TANKS NEED RESET" << EOL;
+    cout << "*  INFO :: TANKS WILL BE RESET" << EOL;
   }
   
   _checkTanksForReset(time);

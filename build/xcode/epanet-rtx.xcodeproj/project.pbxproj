@@ -2493,7 +2493,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/com.citilogics.dev/include/,
 					/usr/local/include,
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
@@ -2548,6 +2547,7 @@
 		};
 		22C62AC31439ED6300841E60 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 156CB13427D13BC0000218BD /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = x86_64;
@@ -2562,7 +2562,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/com.citilogics.dev/include/,
 					/usr/local/include,
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
