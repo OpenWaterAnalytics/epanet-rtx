@@ -10,6 +10,8 @@ libcurl/7.80.0
 geohash/1.0
 sqlite_modern_cpp/3.2
 
+epanet/2.2
+
 [options]
 [generators]
 cmake
