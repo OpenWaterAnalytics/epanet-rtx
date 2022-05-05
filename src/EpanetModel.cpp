@@ -72,7 +72,7 @@ void EpanetModel::useEpanetModel(EN_Project *model, string path) {
   bool isSI = false;
   
   int qualCode, traceNode;
-  char chemName[35], chemUnits[35];
+  char chemName[56], chemUnits[56];
   EN_API_CHECK( EN_getqualinfo(_enModel, &qualCode, chemName, chemUnits, &traceNode), "EN_getqualinfo" );
   string chemUnitsStr(chemUnits);
   if (chemUnitsStr == "hrs") {
@@ -606,6 +606,74 @@ std::ostream& EpanetModel::toStream(std::ostream &stream) {
 #pragma mark Setters
 
 /* setting simulation parameters */
+
+
+void EpanetModel::setQualityOptions(QualityType qt, const std::string& traceNode) {
+  
+  int epanet_qualcode = 0;
+  switch (qt) {
+    case None:
+      epanet_qualcode = 0;
+      break;
+    case Age:
+      epanet_qualcode = 2;
+      break;
+    case Trace:
+      epanet_qualcode = 3;
+      break;
+    default:
+      throw logic_error("unknown quality code");
+      break;
+  }
+  char traceNodeId[MAXID+1];
+  strncpy(traceNodeId, traceNode.c_str(), MAXID);
+  char blank[] = "";
+  
+  int err = EN_setqualtype(_enModel, epanet_qualcode, blank, blank, traceNodeId);
+  EN_API_CHECK(err, "setQualityOptions");
+  
+  switch (qt) {
+    case Model::Age:
+      this->setQualityUnits(RTX_HOUR);
+      break;
+    case Model::Trace:
+      this->setQualityUnits(RTX_DIMENSIONLESS);
+      break;
+    default:
+      break;
+  }
+  
+}
+
+Model::QualityType EpanetModel::qualityType() {
+  int code = 0, nodeIndex = 0;
+  int err = EN_getqualtype(_enModel, &code, &nodeIndex);
+  EN_API_CHECK(err, "qualityType");
+  
+  switch (code) {
+    case 0:
+      return Model::None;
+    case 2:
+      return Model::Age;
+    case 3:
+      return Model::Trace;
+    default:
+      throw logic_error("unknown quality code");
+      break;
+  }
+  
+  return Model::UNKNOWN;
+}
+
+std::string EpanetModel::qualityTraceNode() {
+  int code = 0, nodeIndex = 0;
+  int err = EN_getqualtype(_enModel, &code, &nodeIndex);
+  EN_API_CHECK(err, "qualityTraceNode");
+  char id[MAXID+1];
+  EN_API_CHECK( EN_getnodeid(_enModel, nodeIndex, id), "EN_getnodeid()" );
+  string traceNodeId = string(id);
+  return traceNodeId;
+}
 
 void EpanetModel::setReservoirHead(const string& reservoir, double level) {
   setNodeValue(EN_TANKLEVEL, reservoir, level);

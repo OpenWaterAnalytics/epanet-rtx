@@ -91,6 +91,17 @@ namespace RTX {
     bool shouldRunWaterQuality();
     void setShouldRunWaterQuality(bool run);
     
+    enum QualityType {
+      None = 0,
+      Age = 1,
+      Trace = 2,
+      UNKNOWN = 3
+    };
+    
+    virtual void setQualityOptions(QualityType qt, const std::string& traceNode = "") = 0;
+    virtual QualityType qualityType() = 0;
+    virtual std::string qualityTraceNode() = 0;
+    
     // DMAs -- identified by boundary link sets (doesHaveFlowMeasure)
     void initDMAs();
     void setDmaShouldDetectClosedLinks(bool detect);

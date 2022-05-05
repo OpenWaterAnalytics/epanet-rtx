@@ -48,7 +48,7 @@ namespace RTX {
     int enIndexForPipe(Pipe::_sp p);
     void useModelFromPath(const std::string& path) {this->useEpanetFile(path);};
     
-  
+    
     // overridden accessors
     // node elements
     double reservoirLevel(const std::string& reservoir);
@@ -82,6 +82,10 @@ namespace RTX {
 
     // quality
     void setJunctionQuality(const std::string& junction, double quality);
+    
+    void setQualityOptions(QualityType qt, const std::string& traceNode = "");
+    QualityType qualityType();
+    std::string qualityTraceNode();
     
     virtual void disableControls();
     virtual void enableControls();
