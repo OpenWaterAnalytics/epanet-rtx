@@ -273,9 +273,9 @@ TimeRange TimeSeriesFilter::expandedRange(RTX::TimeRange r) {
   Clock::_sp myClock = this->clock();
   // expand range so that we can resample at the start and/or end of the range requested
   // tricky trick here. un-set my clock to find the actual range accounting for dropped points.
-  // then re-set the clock after.
+  // then re-set the clock after. But do this using private ivar so that we don't trigger invalidation.
   if (canDrop) {
-    this->setClock(nullptr);
+    _clock = nullptr;
   }
   q.start = this->timeBefore(r.start);
   q.end = this->timeAfter(r.end);
@@ -285,7 +285,7 @@ TimeRange TimeSeriesFilter::expandedRange(RTX::TimeRange r) {
   q.end = this->source()->timeAfter(r.end);
   q.correctWithRange(r);
   if (canDrop) {
-    this->setClock(myClock);
+    _clock = myClock;
   }
   return q;
 }

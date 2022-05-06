@@ -78,8 +78,8 @@ void EpanetModel::useEpanetModel(EN_Project *model, string path) {
   if (chemUnitsStr == "hrs") {
     chemUnitsStr = "hr";
   }
-  Units qualUnits = Units::unitOfType(chemUnitsStr);
-  this->setQualityUnits(qualUnits);
+  //Units qualUnits = Units::unitOfType(chemUnitsStr);
+  //this->setQualityUnits(qualUnits);
     
   EN_API_CHECK( EN_getflowunits(_enModel, &flowUnitType), "EN_getflowunits");
   switch (flowUnitType)
