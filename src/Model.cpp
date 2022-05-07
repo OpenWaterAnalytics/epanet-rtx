@@ -437,6 +437,7 @@ void Model::initDMAs() {
     if (dmaNameHashes.count(hash) > 0) {
       const string name = dmaNameHashes.at(hash);
       dma->setName(name);
+      dma->demand()->setName("demand,dma=" + hash);
     }
   }
   
@@ -1162,7 +1163,7 @@ std::ostream& Model::toStream(std::ostream &stream) {
 void Model::setSimulationParameters(time_t time) {
   struct tm * timeinfo = localtime (&time);
   
-  cout << EOL << "*** SETTING MODEL INPUTS ***" << EOL;
+  cout << EOL << "*** SETTING MODEL INPUTS *** " << asctime(timeinfo) << " - " << time << EOL;
   // set all element parameters
   
   // allocate junction demands based on dmas, and set the junction demand values in the model.
@@ -1451,8 +1452,8 @@ void Model::fetchSimulationStates() {
 
 
 void Model::saveNetworkStates(time_t simtime, std::set<PointRecord::_sp> bulkRecords) {
-  
-  cout << "******* saving network states *********" << EOL << flush;
+  struct tm * timeinfo = localtime (&simtime);
+  cout << "******* saving network states *******" << asctime(timeinfo) << " - " << simtime << EOL << flush;
   auto t1 = time(NULL);
 
   for(PointRecord::_sp r: bulkRecords) {
