@@ -2379,6 +2379,7 @@
 					"$(inherited)",
 					/usr/local/include,
 				);
+				LD_RUNPATH_SEARCH_PATHS = "$(SRCROOT)/dependencies/conan_build/bin";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2448,6 +2449,7 @@
 					"$(inherited)",
 					/usr/local/include,
 				);
+				LD_RUNPATH_SEARCH_PATHS = "$(SRCROOT)/dependencies/conan_build/bin";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_LDFLAGS = (

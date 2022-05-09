@@ -325,7 +325,7 @@ void EpanetModel::createRtxWrappers() {
     EN_API_CHECK( EN_getnodevalue(_enModel, iNode, EN_ELEVATION, &z), "EN_getnodevalue EN_ELEVATION");
     EN_API_CHECK( EN_getnodetype(_enModel, iNode, (int*)&nodeType), "EN_getnodetype");
     EN_API_CHECK( EN_getcoord(_enModel, iNode, &x, &y), "EN_getcoord");
-    EN_API_CHECK( EN_getnodecomment(_enModel, iNode, enComment), "EN_getnodecomment");
+    EN_API_CHECK( EN_getcomment(_enModel, EN_NODE, iNode, enComment), "EN_getcomment");
 
     nodeName = string(enName);
     comment = string(enComment);
@@ -459,7 +459,7 @@ void EpanetModel::createRtxWrappers() {
     EN_API_CHECK(EN_getlinkvalue(_enModel, iLink, EN_ROUGHNESS, &rough), "EN_getlinkvalue EN_ROUGHNESS");
     EN_API_CHECK(EN_getlinkvalue(_enModel, iLink, EN_MINORLOSS, &mloss), "EN_getlinkvalue EN_MINORLOSS");
     EN_API_CHECK(EN_getlinkvalue(_enModel, iLink, EN_INITSETTING, &setting), "EN_getlinkvalue EN_INITSETTING");
-    EN_API_CHECK(EN_getlinkcomment(_enModel, iLink, enComment), "EN_getlinkcomment");
+    EN_API_CHECK(EN_getcomment(_enModel, EN_LINK, iLink, enComment), "EN_getcomment");
 
     linkName = string(enLinkName);
     comment = string(enComment);
@@ -1179,7 +1179,7 @@ void EpanetModel::setComment(Element::_sp element, const std::string& comment)
     case Element::RESERVOIR:
     {
       int nodeIndex = _nodeIndex[element->name()];
-      EN_API_CHECK(EN_setnodecomment(_enModel, nodeIndex, comment.c_str()), "EN_setnodecomment");
+      EN_API_CHECK(EN_setcomment(_enModel, EN_NODE, nodeIndex, (char *)comment.c_str()), "EN_setcomment");
     }
       break;
     case Element::PIPE:
@@ -1187,7 +1187,7 @@ void EpanetModel::setComment(Element::_sp element, const std::string& comment)
     case Element::VALVE:
     {
       int linkIndex = _linkIndex[element->name()];
-      EN_API_CHECK(EN_setlinkcomment(_enModel, linkIndex, comment.c_str()), "EN_setlinkcomment");
+      EN_API_CHECK(EN_setcomment(_enModel, EN_LINK, linkIndex, (char *)comment.c_str()), "EN_setcomment");
     }
       break;
     default:

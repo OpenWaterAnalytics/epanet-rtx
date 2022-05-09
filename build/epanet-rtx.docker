@@ -1,5 +1,6 @@
-FROM ubuntu:jammy
+FROM ubuntu:20.04
 
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
 	apt-get install -y libsqlite3-dev cmake libiodbc2-dev tdsodbc curl libcurl4-openssl-dev g++ git
 RUN apt-get install -y llvm clang libblocksruntime-dev
@@ -9,15 +10,15 @@ RUN apt-get install -y zlib1g-dev
 RUN apt-get install python3-pip --yes
 RUN pip3 install --upgrade pip && \
   apt-get update && pip3 install conan
-RUN conan profile new default --detect
+
+RUN conan profile new default --detect && \
+  conan profile update settings.compiler=clang default && \
+  conan profile update settings.compiler.version=10 default && \
+  conan profile update settings.compiler.libcxx=libstdc++11 default && \
+  conan profile update env.CC=/usr/bin/clang default && \
+  conan profile update env.CXX=/usr/bin/clang++ default
 
 WORKDIR /opt/src
-
-## install sqlite_modern dep
-RUN git clone https://github.com/aminroosta/sqlite_modern_cpp.git \
-	&& cp -R sqlite_modern_cpp/hdr/* /usr/local/include/ \
-	&& cd /opt/src \
-	&& rm -rf sqlite_modern_cpp
 
 ##########################################################################################
 ####  everything above here should be pretty stable. cache this.
@@ -31,14 +32,15 @@ RUN git clone https://github.com/cameron-devine/EPANET.git \
 
 RUN git clone https://github.com/OpenWaterAnalytics/epanet-rtx.git \
 	&& cd epanet-rtx \
-	&& git checkout dev \
+	&& git checkout epanet-2.2-upgrade \
 	&& cd deps \
 	&& conan create local_export/geohashconan.py  \
 	&& conan create local_export/sqlite_modern_cpp_conan.py \
-	&& conan install . --build=missing \
-	&& cd ../build/cmake \
+	&& conan install . --build=missing
+
+RUN cd epanet-rtx/build/cmake \
 	&& mkdir build && cd build \
 	&& cmake -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ .. \
 	&& make \
-	&& make test ARGS="-V" \
+	#&& make test ARGS="-V" \
 	&& make install
