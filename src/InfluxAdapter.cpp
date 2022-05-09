@@ -419,7 +419,7 @@ void InfluxTcpAdapter::doConnect() {
   // see if the database needs to be created
   bool dbExists = false;
   
-  string q("SHOW MEASUREMENTS LIMIT 1");
+  string q("SHOW SERIES LIMIT 1");
   auto response = _restClient->doQuery(this->conn.getAuthString(), this->conn.db, encodeQuery(q));
   json jsoMeas = jsonFromResponse(response);
   if (!jsoMeas.contains(kRESULTS)) {
