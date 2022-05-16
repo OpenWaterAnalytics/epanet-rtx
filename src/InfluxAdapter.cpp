@@ -842,7 +842,11 @@ map<string, vector<Point> > __pointsFromJson(json& json) {
         auto tagsObj = series.at("tags");
         json::iterator tagsIter = tagsObj.begin();
         while (tagsIter != tagsObj.end()) {
-          metric.tags[tagsIter.key()] = tagsIter.value();
+          auto key = tagsIter.key();
+          auto value = tagsIter.value();
+          if (value != "") {
+            metric.tags[key] = value;
+          }
           ++tagsIter;
         }
         Units units = Units::unitOfType(metric.tags.at("units"));
