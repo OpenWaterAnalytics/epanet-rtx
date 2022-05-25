@@ -447,6 +447,7 @@ void Model::initDMAs() {
   for(const Dma::_sp &dma : newDmas) {
     dma->initDemandTimeseries(boundaryPipes);
     dma->demand()->setUnits(this->flowUnits());
+    dma->demand()->setClock(this->_regularMasterClock);
     this->addDma(dma);
   }
   
