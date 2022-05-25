@@ -652,14 +652,14 @@ void EpanetModel::setPipeStatusControl(const std::string& pipe, Pipe::status_t s
   if (_statusControlIndex.count(pipe) == 0) {
     // if this element doesn't have a control, add one
     int cindex;
-    EN_API_CHECK(EN_addstatuscontrol(_enModel, EN_TIMER, linkIndex, (EN_API_FLOAT_TYPE)status, 0, (EN_API_FLOAT_TYPE)0.0, &cindex), "EN_addcontrol");
+    EN_API_CHECK(EN_addcontrol(_enModel, EN_TIMER, linkIndex, (EN_API_FLOAT_TYPE)status, 0, (EN_API_FLOAT_TYPE)0.0, &cindex), "EN_addcontrol");
     _statusControlIndex[pipe] = cindex;
     EN_API_CHECK(EN_setControlEnabled(_enModel, cindex, enEnableStatus), "EN_setControlEnabled");
   }
   else {
     // set the control
     int cindex = _statusControlIndex[pipe];
-    EN_API_CHECK(EN_setstatuscontrol(_enModel, cindex, EN_TIMER, linkIndex, (EN_API_FLOAT_TYPE)status, 0, (EN_API_FLOAT_TYPE)0.0), "EN_setcontrol");
+    EN_API_CHECK(EN_setcontrol(_enModel, cindex, EN_TIMER, linkIndex, (EN_API_FLOAT_TYPE)status, 0, (EN_API_FLOAT_TYPE)0.0), "EN_setcontrol");
     EN_API_CHECK(EN_setControlEnabled(_enModel, cindex, enEnableStatus), "EN_setControlEnabled");
   }
 }
