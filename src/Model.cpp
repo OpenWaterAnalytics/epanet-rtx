@@ -33,6 +33,7 @@
 #include <thread>
 #include <mutex>
 #include <shared_mutex>
+#include "openssl/sha.h"
 
 using namespace RTX;
 using namespace std;
@@ -123,6 +124,24 @@ void Model::setName(string name) {
 
 std::string Model::modelFile() {
   return _modelFile;
+}
+
+std::string Model::modelHash() {
+  std::ifstream f(_modelFile);
+  std::stringstream buffer;
+  buffer << f.rdbuf();
+  std::string modelString = buffer.str();
+  
+  unsigned char hash[SHA256_DIGEST_LENGTH];
+  SHA256_CTX sha256;
+  SHA256_Init(&sha256);
+  SHA256_Update(&sha256, modelString.c_str(), modelString.length());
+  SHA256_Final(hash, &sha256);
+  
+  std::stringstream ss;
+  for(int i=0; i<SHA256_DIGEST_LENGTH; ++i)
+      ss << std::hex << (int)hash[i];
+  return ss.str();
 }
 
 bool Model::shouldRunWaterQuality() {
