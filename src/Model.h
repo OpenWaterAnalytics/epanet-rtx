@@ -64,6 +64,7 @@ namespace RTX {
 //    virtual void loadModelFromFile(const string& filename) throw(std::exception);
     virtual void useModelFromPath(const std::string& path);
     virtual string modelFile();
+    virtual string modelHash();
     virtual void overrideControls();
     
     /// simulation methods
