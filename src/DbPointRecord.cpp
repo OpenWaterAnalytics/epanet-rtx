@@ -522,6 +522,10 @@ std::vector<Point> DbPointRecord::pointsInRange(const string& id, TimeRange qran
   if (_wideQuery.valid() && _wideQuery.range().intersection(qrange) == TimeRange::intersect_other_internal) {
     return DB_PR_SUPER::pointsInRange(id, qrange);
   }
+  else {
+    _wideQuery = WideQueryInfo(); // the intersection did not align, so invalidate this wide query marker. Beyond here we may mutate the cache.
+  }
+  
   
   if (!checkConnected()) {
     return DB_PR_SUPER::pointsInRange(id, qrange);

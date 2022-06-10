@@ -115,7 +115,7 @@ namespace RTX {
     class Query {
     public:
       std::vector<std::string> select,where;
-      std::string from,order;
+      std::string from,order,groupBy;
       std::string selectStr();
       std::string nameAndWhereClause();
     };
