@@ -66,6 +66,8 @@ namespace RTX {
     virtual string modelFile();
     virtual string modelHash();
     virtual void overrideControls();
+    virtual std::string getProjectionString();
+    virtual void setProjectionString(std::string projectionString);
     
     /// simulation methods
     void runSinglePeriod(time_t time);
@@ -324,6 +326,7 @@ namespace RTX {
     RTX_Logging_Callback_Block _simLogCallback;
     std::function<void(time_t)> _didSimulateCallback, _willSimulateCallback;
     std::future<void> _saveStateFuture;
+    std::string _projectionString;
     
   };
   

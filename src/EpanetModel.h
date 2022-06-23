@@ -127,7 +127,7 @@ namespace RTX {
     bool _didConverge(time_t time, int errorCode);
     bool _enOpened;
     int _controlCount;
-    
+    std::string projectionString;
     
   };
   

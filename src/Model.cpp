@@ -193,6 +193,14 @@ void Model::logLine(const std::string& line) {
   }
 }
 
+std::string Model::getProjectionString(){
+  return _projectionString;
+}
+
+void Model::setProjectionString(std::string projectionString){
+  _projectionString = projectionString;
+}
+
 
 #pragma mark - Units
 Units Model::flowUnits()    {
