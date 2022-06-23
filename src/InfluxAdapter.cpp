@@ -317,6 +317,9 @@ std::string InfluxTcpAdapter::Query::selectStr() {
     ss << boost::algorithm::join(this->select,", ");
   }
   ss << " FROM " << this->nameAndWhereClause();
+  if (this->groupBy.length() > 0) {
+    ss << " GROUP BY " << this->groupBy;
+  }
   if (this->order.length() > 0) {
     ss << " ORDER BY " << this->order;
   }
@@ -574,7 +577,7 @@ std::map<std::string, std::vector<Point> > InfluxTcpAdapter::wideQuery(TimeRange
   auto response = _restClient->doQueryWithTimePrecision(this->conn.getAuthString(), this->conn.db, encodeQuery(qstr), "s");
   json jsv = jsonFromResponse(response);
   
-  auto fetch = __pointsFromJson(jsv);
+  map<string, vector<Point> > fetch = __pointsFromJson(jsv);
   return fetch;
 }
 
@@ -843,7 +846,7 @@ map<string, vector<Point> > __pointsFromJson(json& json) {
         json::iterator tagsIter = tagsObj.begin();
         while (tagsIter != tagsObj.end()) {
           auto key = tagsIter.key();
-          auto value = tagsIter.value();
+          string value = tagsIter.value();
           if (value != "") {
             metric.tags[key] = value;
           }
