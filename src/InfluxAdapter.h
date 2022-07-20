@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <future>
+#include <thread>
 
 #include "oatpp/web/client/HttpRequestExecutor.hpp"
 #include "oatpp/network/tcp/client/ConnectionProvider.hpp"
@@ -14,7 +15,6 @@
 #include "oatpp/network/virtual_/client/ConnectionProvider.hpp"
 #include "oatpp/network/virtual_/server/ConnectionProvider.hpp"
 #include "oatpp/network/virtual_/Interface.hpp"
-#include "SendPointsCoroutine.hpp"
 
 #include "nlohmann/json.hpp"
 
@@ -125,6 +125,7 @@ namespace RTX {
     std::shared_ptr<oatpp::data::mapping::ObjectMapper> _objectMapper;
     std::shared_ptr<InfluxClient> _restClient;
     std::shared_ptr<oatpp::web::client::RequestExecutor> createExecutor();
+    std::future<void> sendPointsFuture;
 
     Query queryPartsFromMetricId(const std::string& name);
     

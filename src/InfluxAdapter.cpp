@@ -15,8 +15,6 @@
 
 #include "InfluxAdapter.h"
 #include "InfluxClient.hpp"
-#include "SendPointsCoroutine.hpp"
-
 
 #include "MetricInfo.h"
 
@@ -759,24 +757,41 @@ size_t InfluxTcpAdapter::maxTransactionLines() {
 void InfluxTcpAdapter::sendPointsWithString(const std::string& content) {
   //INFLUX_ASYNC_SEND.wait(); // wait on previous send if needed.
   
-  const string bodyContent(content);
+  if(sendPointsFuture.valid()){
+    sendPointsFuture.wait();
+    sendPointsFuture.get();
+  }
 
-  namespace bio = boost::iostreams;
-  std::stringstream compressed;
-  std::stringstream origin(bodyContent);
-  bio::filtering_streambuf<bio::input> out;
-  out.push(bio::gzip_compressor(bio::gzip_params(bio::gzip::default_compression)));
-  out.push(origin);
-  bio::copy(out, compressed);
-  const string zippedContent(compressed.str());
+  sendPointsFuture = std::async(std::launch::async, [&]{
+    const string bodyContent(content);
+
+    namespace bio = boost::iostreams;
+    std::stringstream compressed;
+    std::stringstream origin(bodyContent);
+    bio::filtering_streambuf<bio::input> out;
+    out.push(bio::gzip_compressor(bio::gzip_params(bio::gzip::default_compression)));
+    out.push(origin);
+    bio::copy(out, compressed);
+    const string zippedContent(compressed.str());
+    
+    auto response = _restClient->sendPoints(this->conn.getAuthString(), "gzip", this->conn.db, "s", zippedContent);
+    int code = response->getStatusCode();
+    oatpp::String desc = response->getStatusDescription();
+    
+    switch(code) {
+      case 204:
+      case 200:
+        break;
+      default:
+        cout << "INFLUX TCP ADAPTER: Send points to influx: POST returned " << code << " - " << desc->c_str() << EOL << flush;
+    }
+
+  });
   
-  oatpp::async::Executor executor;
-
-  executor.execute<SendPointsCoroutine>(_restClient, this->conn.getAuthString(), "gzip", this->conn.db, "s", zippedContent);
-
-  executor.waitTasksFinished();
-  executor.stop();
-  executor.join();
+  if(!_inTransaction){
+    sendPointsFuture.wait();
+    sendPointsFuture.get();
+  }
 
 }
 

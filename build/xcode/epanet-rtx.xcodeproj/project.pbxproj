@@ -182,9 +182,7 @@
 		22F175F91C7235BB0042916C /* TimeSeriesFilterSecondary.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F175F51C7235BB0042916C /* TimeSeriesFilterSecondary.h */; };
 		22FA7B7D1EA12A76006637E9 /* TimeSeriesQuery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22FA7B7B1EA12A76006637E9 /* TimeSeriesQuery.cpp */; };
 		22FA7B7E1EA12A76006637E9 /* TimeSeriesQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 22FA7B7C1EA12A76006637E9 /* TimeSeriesQuery.h */; };
-		63B8F4BE27CFE53C00F3BB8A /* SendPointsCoroutine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 63B8F4BD27CFE53C00F3BB8A /* SendPointsCoroutine.cpp */; };
 		63B8F4C127CFE59C00F3BB8A /* InfluxClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 63B8F4BF27CFE59C00F3BB8A /* InfluxClient.hpp */; };
-		63B8F4C227CFE59C00F3BB8A /* SendPointsCoroutine.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 63B8F4C027CFE59C00F3BB8A /* SendPointsCoroutine.hpp */; };
 		63B8F4C827CFE5C300F3BB8A /* test_influx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 63B8F4C427CFE5C300F3BB8A /* test_influx.cpp */; };
 		63B8F4C927CFE5C300F3BB8A /* MyClientTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 63B8F4C527CFE5C300F3BB8A /* MyClientTest.cpp */; };
 /* End PBXBuildFile section */
@@ -632,9 +630,7 @@
 		43627EC9171F27E3007AE0F5 /* ThresholdTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThresholdTimeSeries.h; path = ../../src/ThresholdTimeSeries.h; sourceTree = "<group>"; };
 		43627ECF171F286C007AE0F5 /* ThresholdTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ThresholdTimeSeries.cpp; path = ../../src/ThresholdTimeSeries.cpp; sourceTree = "<group>"; };
 		43E5BBE51A8AF55A00CC93D6 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = /usr/lib/libsqlite3.dylib; sourceTree = "<absolute>"; };
-		63B8F4BD27CFE53C00F3BB8A /* SendPointsCoroutine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SendPointsCoroutine.cpp; path = ../../src/SendPointsCoroutine.cpp; sourceTree = "<group>"; };
 		63B8F4BF27CFE59C00F3BB8A /* InfluxClient.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = InfluxClient.hpp; path = ../../src/InfluxClient.hpp; sourceTree = "<group>"; };
-		63B8F4C027CFE59C00F3BB8A /* SendPointsCoroutine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SendPointsCoroutine.hpp; path = ../../src/SendPointsCoroutine.hpp; sourceTree = "<group>"; };
 		63B8F4C327CFE5C300F3BB8A /* TestController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestController.h; path = ../../test/TestController.h; sourceTree = "<group>"; };
 		63B8F4C427CFE5C300F3BB8A /* test_influx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_influx.cpp; path = ../../test/test_influx.cpp; sourceTree = "<group>"; };
 		63B8F4C527CFE5C300F3BB8A /* MyClientTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MyClientTest.cpp; path = ../../test/MyClientTest.cpp; sourceTree = "<group>"; };
@@ -957,8 +953,6 @@
 			isa = PBXGroup;
 			children = (
 				63B8F4BF27CFE59C00F3BB8A /* InfluxClient.hpp */,
-				63B8F4C027CFE59C00F3BB8A /* SendPointsCoroutine.hpp */,
-				63B8F4BD27CFE53C00F3BB8A /* SendPointsCoroutine.cpp */,
 				228CFBB01DBFD9A900B59206 /* MetricInfo.h */,
 				228CFBAF1DBFD9A900B59206 /* MetricInfo.cpp */,
 				22E71E2F1E5B710A0044E084 /* InfluxAdapter.h */,
@@ -1369,7 +1363,6 @@
 				221BFD971A8E8AD000143FCC /* Junction.h in Headers */,
 				22DD0FC91CE387A400145959 /* Curve.h in Headers */,
 				221BFD981A8E8AD000143FCC /* Reservoir.h in Headers */,
-				63B8F4C227CFE59C00F3BB8A /* SendPointsCoroutine.hpp in Headers */,
 				222C11591D956BEA007A747B /* Lowess.h in Headers */,
 				221BFD9B1A8E8AD000143FCC /* LagTimeSeries.h in Headers */,
 				221BFD9C1A8E8AD000143FCC /* OutlierExclusionTimeSeries.h in Headers */,
@@ -1731,7 +1724,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				63B8F4BE27CFE53C00F3BB8A /* SendPointsCoroutine.cpp in Sources */,
 				228C2D941A9E15BF003C826D /* TimeRange.cpp in Sources */,
 				221BFD371A8E8AD000143FCC /* TimeSeriesSynthetic.cpp in Sources */,
 				221BFD391A8E8AD000143FCC /* Point.cpp in Sources */,
@@ -2526,7 +2518,6 @@
 					"-lboost_prg_exec_monitor",
 					"-lboost_test_exec_monitor",
 					"-lboost_exception",
-					"-lboost_wave",
 					"-lboost_filesystem",
 					"-lboost_atomic",
 					"-lboost_wserialization",
@@ -2594,7 +2585,6 @@
 					"-lboost_prg_exec_monitor",
 					"-lboost_test_exec_monitor",
 					"-lboost_exception",
-					"-lboost_wave",
 					"-lboost_filesystem",
 					"-lboost_atomic",
 					"-lboost_wserialization",

@@ -31,10 +31,7 @@ public:
   API_CALL(HTTP_GET, "query", doQuery, AUTHORIZATION_BASIC(String, authString), QUERY(String, db, "db"), QUERY(String, q, "q"))
   API_CALL(HTTP_GET, "query", doQueryWithTimePrecision, AUTHORIZATION_BASIC(String, authString), QUERY(String, db, "db"), QUERY(String, q, "q"), QUERY(String, epoch, "epoch"))
   API_CALL(HTTP_POST, "query", removeRecord, AUTHORIZATION_BASIC(String, authString), QUERY(String, q, "q"))
-
-  //-----------------------------------------------------------------------------------------------
-  // Asynchronous calls
-  API_CALL_ASYNC(HTTP_POST, "write", sendPoints, AUTHORIZATION_BASIC(String, authString), HEADER(String, contentEncoding, "Content-Encoding"), QUERY(String, db, "db"), QUERY(String, precision, "precision"), BODY_STRING(String, data))
+  API_CALL(HTTP_POST, "write", sendPoints, AUTHORIZATION_BASIC(String, authString), HEADER(String, contentEncoding, "Content-Encoding"), QUERY(String, db, "db"), QUERY(String, precision, "precision"), BODY_STRING(String, data))
 
 
   // FOR TESTING
