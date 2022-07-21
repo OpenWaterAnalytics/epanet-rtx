@@ -15,6 +15,10 @@
 #include "oatpp/network/virtual_/client/ConnectionProvider.hpp"
 #include "oatpp/network/virtual_/server/ConnectionProvider.hpp"
 #include "oatpp/network/virtual_/Interface.hpp"
+#include "oatpp/network/monitor/ConnectionMonitor.hpp"
+#include "oatpp/network/monitor/ConnectionInactivityChecker.hpp"
+#include "oatpp/network/monitor/ConnectionMaxAgeChecker.hpp"
+#include "oatpp/network/ConnectionPool.hpp"
 
 #include "nlohmann/json.hpp"
 

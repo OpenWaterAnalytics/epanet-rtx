@@ -368,20 +368,18 @@ shared_ptr<oatpp::web::client::RequestExecutor> InfluxTcpAdapter::createExecutor
     auto config = oatpp::openssl::Config::createShared();
     connectionProvider = oatpp::openssl::client::ConnectionProvider::createShared(config, {this->conn.host, (v_uint16)this->conn.port});
   }
-  
-  /* create connection pool */
-  //auto connectionPool = std::make_shared<ClientConnectionPool>(
-  //       connectionProvider /* connection provider */,
-  //       10 /* max connections */,
-  //       std::chrono::seconds(5) /* max lifetime of idle connection */
-  //);
-
+  auto monitor = std::make_shared<oatpp::network::monitor::ConnectionMonitor>(connectionProvider);
+  monitor->addMetricsChecker(
+      std::make_shared<oatpp::network::monitor::ConnectionInactivityChecker>(
+          std::chrono::seconds(20),
+          std::chrono::seconds(20)
+        )
+    );
   /* create retry policy */
-   //auto retryPolicy = std::make_shared<client::SimpleRetryPolicy>(3 /* max retries */, std::chrono::seconds(1) /* retry interval */);
+   auto retryPolicy = std::make_shared<client::SimpleRetryPolicy>(5 /* max retries */, std::chrono::seconds(5) /* retry interval */);
 
   /* create request executor */
-  return client::HttpRequestExecutor::createShared(connectionProvider);
-  //return client::HttpRequestExecutor::createShared(connectionPool, retryPolicy /* retry policy */);
+  return client::HttpRequestExecutor::createShared(connectionProvider, retryPolicy);
 }
 
 const DbAdapter::adapterOptions InfluxTcpAdapter::options() const {
