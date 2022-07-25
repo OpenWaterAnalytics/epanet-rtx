@@ -333,7 +333,7 @@ std::string InfluxTcpAdapter::Query::nameAndWhereClause() {
 }
 
 
-map<string, vector<Point> > __pointsFromJson(json& json);
+
 vector<Point> __pointsSingle(json& json);
 
 
@@ -368,13 +368,13 @@ shared_ptr<oatpp::web::client::RequestExecutor> InfluxTcpAdapter::createExecutor
     auto config = oatpp::openssl::Config::createShared();
     connectionProvider = oatpp::openssl::client::ConnectionProvider::createShared(config, {this->conn.host, (v_uint16)this->conn.port});
   }
-  auto monitor = std::make_shared<oatpp::network::monitor::ConnectionMonitor>(connectionProvider);
-  monitor->addMetricsChecker(
-      std::make_shared<oatpp::network::monitor::ConnectionInactivityChecker>(
-          std::chrono::seconds(20),
-          std::chrono::seconds(20)
-        )
-    );
+//  auto monitor = std::make_shared<oatpp::network::monitor::ConnectionMonitor>(connectionProvider);
+//  monitor->addMetricsChecker(
+//      std::make_shared<oatpp::network::monitor::ConnectionInactivityChecker>(
+//          std::chrono::seconds(20),
+//          std::chrono::seconds(20)
+//        )
+//    );
   /* create retry policy */
    auto retryPolicy = std::make_shared<client::SimpleRetryPolicy>(5 /* max retries */, std::chrono::seconds(5) /* retry interval */);
 
@@ -804,6 +804,10 @@ json InfluxTcpAdapter::jsonFromResponse(const std::shared_ptr<Response> response
   auto errCallback = _errCallback;
   auto connection = this->conn;
   
+  if (response == nullptr) {
+    return js;
+  }
+  
   int code = response->getStatusCode();
   if(code == 200){
     // OATPP_LOGI(TAG, "Connected");
@@ -818,7 +822,7 @@ json InfluxTcpAdapter::jsonFromResponse(const std::shared_ptr<Response> response
 }
 
 
-vector<Point> __pointsSingle(json& json) {
+vector<Point> InfluxTcpAdapter::__pointsSingle(json& json) {
   auto multi = __pointsFromJson(json);
   if (multi.size() > 0) {
     return multi.begin()->second;
@@ -829,7 +833,7 @@ vector<Point> __pointsSingle(json& json) {
 }
 
 
-map<string, vector<Point> > __pointsFromJson(json& json) {
+map<string, vector<Point> > InfluxTcpAdapter::__pointsFromJson(json& json) {
   
   map<string, vector<Point> > out;
   
@@ -853,6 +857,10 @@ map<string, vector<Point> > __pointsFromJson(json& json) {
     for (const auto &series : seriesArray) {
       // assemble the proper identifier for this series
       MetricInfo metric("");
+      if (series.count("name") == 0) {
+        OATPP_LOGE(InfluxTcpAdapter::TAG, "Influx returned malformed response. No \"name\" property in series.");
+        OATPP_LOGI(InfluxTcpAdapter::TAG, "Series format returned: %s", series.dump().c_str());
+      }
       metric.measurement = series.at("name");
       if (series.contains("tags")) {
         auto tagsObj = series.at("tags");
@@ -865,12 +873,20 @@ map<string, vector<Point> > __pointsFromJson(json& json) {
           }
           ++tagsIter;
         }
+        if (metric.tags.count("units") == 0) {
+          OATPP_LOGE(InfluxTcpAdapter::TAG, "Influx returned malformed response. No \"units\" property in tag list.");
+          OATPP_LOGI(InfluxTcpAdapter::TAG, "Tags object format returned: %s", tagsObj.dump().c_str());
+        }
         Units units = Units::unitOfType(metric.tags.at("units"));
         metric.tags.erase("units"); // get rid of units if they are included.
       }
       string properId = metric.name();
       
       map<string,int> columnMap;
+      if (series.count("columns") == 0) {
+        OATPP_LOGE(InfluxTcpAdapter::TAG, "Influx returned malformed response. No \"columns\" property in series.");
+        OATPP_LOGI(InfluxTcpAdapter::TAG, "Series format returned: %s", series.dump().c_str());
+      }
       auto cols = series.at("columns");
       for (int i = 0; i < cols.size(); ++i) {
         string colName = cols[i];
@@ -895,6 +911,10 @@ map<string, vector<Point> > __pointsFromJson(json& json) {
       qualityIndex = columnMap["quality"],
       confidenceIndex = columnMap["confidence"];
       
+      if (series.count("values") == 0) {
+        OATPP_LOGE(InfluxTcpAdapter::TAG, "Influx returned malformed response. No \"values\" property in series.");
+        OATPP_LOGI(InfluxTcpAdapter::TAG, "Series format returned: %s", series.dump().c_str());
+      }
       const auto &values = series.at("values");
       
       auto nValues = values.size();
