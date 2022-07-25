@@ -136,6 +136,8 @@ namespace RTX {
     std::string encodeQuery(std::string queryString);
     nlohmann::json jsonFromResponse(const std::shared_ptr<Response> response);
     
+    static std::map<std::string, std::vector<Point> > __pointsFromJson(nlohmann::json& json);
+    static std::vector<Point> __pointsSingle(nlohmann::json& json);
   };
   
   

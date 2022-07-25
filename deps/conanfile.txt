@@ -2,10 +2,11 @@
 openssl/1.1.1m
 oatpp/1.3.0
 oatpp-openssl/1.3.0
-boost/1.78.0
+boost/1.79.0
 cpprestsdk/2.10.18
 nlohmann_json/3.10.5
 libcurl/7.80.0
+zlib/1.2.12
 
 geohash/1.0
 sqlite_modern_cpp/3.2
