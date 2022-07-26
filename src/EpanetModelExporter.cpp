@@ -93,7 +93,6 @@ int _epanet_make_pattern(EN_Project *m, TimeSeries::_sp ts, Clock::_sp clock, Ti
   }
   
   if(pName.length() > MAXID){
-    truncatedElementNames.insert(pName);
     pName = pName.substr(0,MAXID-1);
   }
   
