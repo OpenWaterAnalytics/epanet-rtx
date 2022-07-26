@@ -873,11 +873,14 @@ map<string, vector<Point> > InfluxTcpAdapter::__pointsFromJson(json& json) {
           }
           ++tagsIter;
         }
+        Units units = RTX_DIMENSIONLESS;
         if (metric.tags.count("units") == 0) {
           OATPP_LOGE(InfluxTcpAdapter::TAG, "Influx returned malformed response. No \"units\" property in tag list.");
           OATPP_LOGI(InfluxTcpAdapter::TAG, "Tags object format returned: %s", tagsObj.dump().c_str());
         }
-        Units units = Units::unitOfType(metric.tags.at("units"));
+        else {
+          units = Units::unitOfType(metric.tags.at("units"));
+        }
         metric.tags.erase("units"); // get rid of units if they are included.
       }
       string properId = metric.name();
