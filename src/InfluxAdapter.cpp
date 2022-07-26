@@ -873,11 +873,14 @@ map<string, vector<Point> > InfluxTcpAdapter::__pointsFromJson(json& json) {
           }
           ++tagsIter;
         }
+        Units units = RTX_DIMENSIONLESS;
         if (metric.tags.count("units") == 0) {
           OATPP_LOGE(InfluxTcpAdapter::TAG, "Influx returned malformed response. No \"units\" property in tag list.");
           OATPP_LOGI(InfluxTcpAdapter::TAG, "Tags object format returned: %s", tagsObj.dump().c_str());
         }
-        Units units = Units::unitOfType(metric.tags.at("units"));
+        else {
+          units = Units::unitOfType(metric.tags.at("units"));
+        }
         metric.tags.erase("units"); // get rid of units if they are included.
       }
       string properId = metric.name();
@@ -935,6 +938,11 @@ map<string, vector<Point> > InfluxTcpAdapter::__pointsFromJson(json& json) {
       
       for (const auto &rowV : values) {
         const auto &row = rowV;
+        // ensure that these values are non-null and castable
+        if (row.at(timeIndex).is_null() || row.at(valueIndex).is_null() || !row.at(timeIndex).is_number() || !row.at(valueIndex).is_number()) {
+          OATPP_LOGW(InfluxTcpAdapter::TAG, "Influx returned malformed row: %s", row.dump().c_str());
+          continue;
+        }
         time_t t = row.at(timeIndex);
         double v = row.at(valueIndex);
         Point::PointQuality q = Point::opc_rtx_override;
