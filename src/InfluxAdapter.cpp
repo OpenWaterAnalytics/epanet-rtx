@@ -760,7 +760,7 @@ void InfluxTcpAdapter::sendPointsWithString(const std::string& content) {
     sendPointsFuture.get();
   }
 
-  sendPointsFuture = std::async(std::launch::async, [&]{
+  sendPointsFuture = std::async(std::launch::async, [&, content]{
     const string bodyContent(content);
 
     namespace bio = boost::iostreams;
