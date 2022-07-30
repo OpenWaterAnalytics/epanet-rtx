@@ -13,6 +13,7 @@
 #include <LagTimeSeries.h>
 #include "PointRecordTime.h"
 #include "AggregatorTimeSeries.h"
+#include "types.h"
 
 using namespace std;
 using namespace RTX;
@@ -43,17 +44,18 @@ const map<string, _epanet_section_t> _epanet_specialSections = {
 };
 
 const map<string, string> _replacements({
-  {"Demand_Boundary", "DBdy"},
+  {"rtxdemand_Demand_Boundary", "DBdy"},
   {"Head_Boundary", "HBdy"},
   {"Quality_Boundary", "QBdy"},
-  {"Head_Measure", "HMeas"},
+  {"rtxhead_Head_Measure", "HMeas"},
   {"Quality_Measure", "QMeas"},
   {"Pressure_Measure", "PMeas"},
   {"Level_Measure", "LMeas"},
   {"Status_Boundary", "StBdy"},
   {"Setting_Boundary", "SBdy"},
   {"Flow_Measure", "FMeas"},
-  {"Energy_Measure", "EMeas"}
+  {"Energy_Measure", "EMeas"},
+  {"rtxdma", "dma"},
 });
 
 _epanet_section_t _epanet_sectionFromLine(const string& line);
@@ -89,10 +91,27 @@ int _epanet_make_pattern(EN_Project *m, TimeSeries::_sp ts, Clock::_sp clock, Ti
   for( auto pair : _replacements){
     boost::replace_all(pName, pair.first, pair.second);
   }
-  pName = pName.substr(0,34);
+  
+  if(pName.length() > MAXID){
+    pName = pName.substr(0,MAXID-1);
+  }
   
   char *patName = (char*)pName.c_str();
-  EN_addpattern(m, patName);
+  int returnCode = EN_addpattern(m, patName);
+  if(returnCode == 215){
+    cout << "Pattern already exists in model." << EOL << flush;
+    int attempts = 1;
+    while(returnCode == 215){
+      string s = to_string(attempts);
+      pName = pName.replace(pName.length() - s.length(), s.length(), s);
+      patName = (char*)pName.c_str();
+      cout << "Attempting to insert: " << patName << EOL << flush;
+      returnCode = EN_addpattern(m, patName);
+      attempts++;
+    }
+    cout << "Success" << EOL << flush;
+  }
+  
   int patIdx;
   size_t len = pc.count();
   EN_getpatternindex(m, patName, &patIdx);
