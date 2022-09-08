@@ -368,6 +368,15 @@ shared_ptr<oatpp::web::client::RequestExecutor> InfluxTcpAdapter::createExecutor
     auto config = oatpp::openssl::Config::createShared();
     connectionProvider = oatpp::openssl::client::ConnectionProvider::createShared(config, {this->conn.host, (v_uint16)this->conn.port});
   }
+  
+  auto monitor = std::make_shared<oatpp::network::monitor::ConnectionMonitor>(connectionProvider);
+
+  /* close all connections that stay opened for more than 120 seconds */
+  monitor->addMetricsChecker(
+    std::make_shared<oatpp::network::monitor::ConnectionMaxAgeChecker>(
+      std::chrono::seconds(20)
+    )
+  );
 //  auto monitor = std::make_shared<oatpp::network::monitor::ConnectionMonitor>(connectionProvider);
 //  monitor->addMetricsChecker(
 //      std::make_shared<oatpp::network::monitor::ConnectionInactivityChecker>(
@@ -427,7 +436,8 @@ void InfluxTcpAdapter::doConnect() {
       return;
     }
     else {
-      //_errCallback("Connect failed: No Database?");
+      _errCallback("Connect failed: No Database?");
+      throw(std::invalid_argument("Bad database connection."));
       return;
     }
   }

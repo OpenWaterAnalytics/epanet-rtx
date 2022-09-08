@@ -151,6 +151,8 @@ namespace RTX {
     std::vector<Point> pointsWithOpcFilter(std::vector<Point> points);
     
     bool _readOnly;
+    bool _badConnection = false;
+    std::chrono::time_point<std::chrono::system_clock> _lastFailedAttempt;
     std::set<unsigned int> _opcFilterCodes;
     OpcFilterType _filterType;
     std::shared_mutex _db_readwrite;
