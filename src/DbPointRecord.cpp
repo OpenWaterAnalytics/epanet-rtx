@@ -24,6 +24,7 @@ using namespace std;
 
 #define _DB_MAX_CONNECT_TRY 5
 #define SERIES_LIST_TTL 30
+#define FUSE_DURATION 1
 
 /************ request type *******************/
 
@@ -89,9 +90,19 @@ bool DbPointRecord::isConnected() {
 void DbPointRecord::dbConnect() {
   try {
     if (_adapter != NULL) {
+      if(_badConnection == true){
+        auto thisAttempt = std::chrono::system_clock::now();
+        std::chrono::duration<double> elapsed_seconds = thisAttempt-_lastFailedAttempt;
+        if(elapsed_seconds <= std::chrono::minutes(FUSE_DURATION)){
+          return;
+        }
+      }
       _adapter->doConnect();
+      _badConnection = false;
     }
   } catch (exception &e) {
+    _badConnection = true;
+    _lastFailedAttempt = std::chrono::system_clock::now();
     cerr << "could not connect to db: " << _adapter->connectionString() << endl;
     cerr << e.what() << endl;
   }
