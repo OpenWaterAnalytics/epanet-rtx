@@ -11,8 +11,6 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/join.hpp>
 
-#include <curl/curl.h>
-
 #include "InfluxAdapter.h"
 #include "InfluxClient.hpp"
 
@@ -804,7 +802,9 @@ void InfluxTcpAdapter::sendPointsWithString(const std::string& content) {
 }
 
 string InfluxTcpAdapter::encodeQuery(string queryString){
-  string query(curl_escape(queryString.c_str(), 0));
+  std::regex space("[[:space:]]");
+  std::string query = std::regex_replace(queryString, space, "%20");
+
   return query;
 }
 
