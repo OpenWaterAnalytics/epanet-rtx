@@ -26,12 +26,11 @@ using namespace std;
 #pragma mark - Time Series methods
 
 
-TimeSeries::TimeSeries() {
+TimeSeries::TimeSeries() : _valid(true) {
   _name = "";
   _points.reset( new PointRecord() );
   setName("Time Series");
   _units = RTX_NO_UNITS;
-  _valid = true;
 }
 
 TimeSeries::TimeSeries(const std::string& name, const RTX::Units& units) {
@@ -105,15 +104,15 @@ PointCollection TimeSeries::pointCollection(TimeRange range) {
 std::vector< Point > TimeSeries::points(TimeRange range) {
   // container for points in this range
   std::vector< Point > points;
-  
+
   if (!range.isValid()) {
     return points;
   }
-  
+
   if (!this->record()->exists(this->name(), this->units())) {
     this->record()->registerAndGetIdentifierForSeriesWithUnits(this->name(), this->units());
   }
-  
+
   points = this->record()->pointsInRange(this->name(), range);
   return points;
 }
@@ -279,11 +278,3 @@ std::ostream& TimeSeries::toStream(std::ostream &stream) {
 }
 
 // chaning
-
-
-
-
-
-
-
-

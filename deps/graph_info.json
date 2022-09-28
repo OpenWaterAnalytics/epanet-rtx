@@ -309,6 +309,14 @@
    "False"
   ],
   [
+   "libcurl:with_ca_bundle",
+   "None"
+  ],
+  [
+   "libcurl:with_ca_path",
+   "None"
+  ],
+  [
    "libcurl:with_cookies",
    "True"
   ],
@@ -425,11 +433,19 @@
    "True"
   ],
   [
+   "libcurl:with_threaded_resolver",
+   "True"
+  ],
+  [
    "libcurl:with_unix_sockets",
    "True"
   ],
   [
    "libcurl:with_verbose_debug",
+   "True"
+  ],
+  [
+   "libcurl:with_verbose_strings",
    "True"
   ],
   [

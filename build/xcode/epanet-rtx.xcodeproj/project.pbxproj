@@ -2006,6 +2006,7 @@
 					/usr/include,
 					"${SRCROOT}/../../../epanet-msx/include",
 					/usr/local/Cellar/libxml2/2.9.3/include/libxml2/,
+					/usr/local/com.citilogics.dev/include,
 				);
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path";
 				LIBRARY_SEARCH_PATHS = (
@@ -2046,6 +2047,7 @@
 					/usr/include,
 					"${SRCROOT}/../../../epanet-msx/include",
 					/usr/local/Cellar/libxml2/2.9.3/include/libxml2/,
+					/usr/local/com.citilogics.dev/include,
 				);
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path";
 				LIBRARY_SEARCH_PATHS = (
