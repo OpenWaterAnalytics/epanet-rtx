@@ -819,14 +819,15 @@ json InfluxTcpAdapter::jsonFromResponse(const std::shared_ptr<Response> response
   }
   
   int code = response->getStatusCode();
-  if(code == 200){
+  if (code == 200) {
     // OATPP_LOGI(TAG, "Connected");
     std::string bodyStr = response->readBodyToString().getValue("");
     // OATPP_LOGD(TAG, "%s", bodyStr.c_str());
     js = json::parse(bodyStr);
     return js;
-  }else{
-    OATPP_LOGE(TAG, "Connection Error: %s", response->getStatusDescription()->c_str());
+  }
+  else {
+    OATPP_LOGE(TAG, "Connection Error: %s - %s", response->getStatusDescription()->c_str(), response->readBodyToString().getValue("(no body content)").c_str());
     return js;
   }
 }
