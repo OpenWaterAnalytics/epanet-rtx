@@ -474,7 +474,7 @@ void InfluxTcpAdapter::doConnect() {
   
   if (!dbExists) {
     string q("CREATE DATABASE " + this->conn.db);
-    auto response = _restClient->doCreate(encodeQuery(q));
+    auto response = _restClient->doCreate(this->conn.getAuthString(), encodeQuery(q));
     json js = jsonFromResponse(response);
     if (js.size() == 0 || !js.contains(kRESULTS) ) {
       _errCallback("Can't create database");

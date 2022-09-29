@@ -60,6 +60,7 @@ bool DbPointRecord::WideQueryInfo::valid() {
 /************ impl *******************/
 
 DbPointRecord::DbPointRecord() : _last_request("",TimeRange()) {
+  _lastFailedAttempt = std::chrono::time_point<std::chrono::system_clock>();
   _adapter = NULL;
   errorMessage = "Not Connected";
   _readOnly = false;
@@ -77,6 +78,7 @@ DbPointRecord::DbPointRecord() : _last_request("",TimeRange()) {
 
 void DbPointRecord::setConnectionString(const std::string &str) {
   _adapter->setConnectionString(str);
+  _lastFailedAttempt = std::chrono::time_point<std::chrono::system_clock>();
 }
 string DbPointRecord::connectionString() {
   return _adapter->connectionString();

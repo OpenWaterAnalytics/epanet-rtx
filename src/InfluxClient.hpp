@@ -27,7 +27,7 @@ public:
   //-----------------------------------------------------------------------------------------------
   // Synchronous calls
   //
-  API_CALL(HTTP_GET, "query", doCreate, QUERY(String, q, "q"))
+  API_CALL(HTTP_GET, "query", doCreate, AUTHORIZATION_BASIC(String, authString), QUERY(String, q, "q"))
   API_CALL(HTTP_GET, "query", doQuery, AUTHORIZATION_BASIC(String, authString), QUERY(String, db, "db"), QUERY(String, q, "q"))
   API_CALL(HTTP_GET, "query", doQueryWithTimePrecision, AUTHORIZATION_BASIC(String, authString), QUERY(String, db, "db"), QUERY(String, q, "q"), QUERY(String, epoch, "epoch"))
   API_CALL(HTTP_POST, "query", removeRecord, AUTHORIZATION_BASIC(String, authString), QUERY(String, q, "q"))
