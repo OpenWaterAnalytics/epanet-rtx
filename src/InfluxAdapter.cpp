@@ -11,6 +11,8 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/join.hpp>
 
+#include <curl/curl.h>
+
 #include "InfluxAdapter.h"
 #include "InfluxClient.hpp"
 
@@ -25,6 +27,21 @@ using namespace oatpp::web;
 using namespace oatpp::network;
 using namespace nlohmann;
 
+
+std::string __url_encode(const std::string& input);
+std::string __url_encode(const std::string& input) {
+  std::string encoded;
+  CURL *curl = curl_easy_init();
+  if(curl) {
+    char *output = curl_easy_escape(curl, input.c_str(), 0);
+    if(output) {
+      encoded = std::string(output);
+      curl_free(output);
+    }
+    curl_easy_cleanup(curl);
+  }
+  return encoded;
+}
 
 /***************************************************************************************/
 InfluxAdapter::connectionInfo::connectionInfo() {
@@ -802,10 +819,8 @@ void InfluxTcpAdapter::sendPointsWithString(const std::string& content) {
 }
 
 string InfluxTcpAdapter::encodeQuery(string queryString){
-  std::regex space("[[:space:]]");
-  std::string query = std::regex_replace(queryString, space, "%20");
-
-  return query;
+  std::string q = __url_encode(queryString);
+  return q;
 }
 
 json InfluxTcpAdapter::jsonFromResponse(const std::shared_ptr<Response> response) {
