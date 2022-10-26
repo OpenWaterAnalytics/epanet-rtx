@@ -585,14 +585,14 @@ std::map<std::string, std::vector<Point> > InfluxTcpAdapter::wideQuery(TimeRange
   stringstream ss;
   ss << "SELECT ";
   ss << boost::algorithm::join(fields,", ");
-  ss << " FROM /.+/";
+  ss << " FROM /.*/";
   ss << " WHERE " << boost::algorithm::join(where," AND ");
   ss << " GROUP BY * ORDER BY ASC";
   
   // for many wide query optimization needs, we may also want the last known point prior to the range provided
   // such as pump status or other report-by-exception values.
-  string prevQuery = "SELECT time, value, quality, confidence FROM /.+/ WHERE time < " + to_string(range.start) + "s GROUP BY * order by time desc limit 1";
-  string nextQuery = "SELECT time, value, quality, confidence FROM /.+/ WHERE time > " + to_string(range.end) + "s GROUP BY * order by time asc limit 1";
+  string prevQuery = "SELECT time, value, quality, confidence FROM /.*/ WHERE time < " + to_string(range.start) + "s GROUP BY * order by time desc limit 1";
+  string nextQuery = "SELECT time, value, quality, confidence FROM /.*/ WHERE time > " + to_string(range.end) + "s GROUP BY * order by time asc limit 1";
   
   auto qstr = prevQuery + ";" + ss.str() + ";" + nextQuery;
   auto response = _restClient->doQueryWithTimePrecision(this->conn.getAuthString(), this->conn.db, encodeQuery(qstr), "s");
@@ -838,8 +838,13 @@ json InfluxTcpAdapter::jsonFromResponse(const std::shared_ptr<Response> response
     // OATPP_LOGI(TAG, "Connected");
     std::string bodyStr = response->readBodyToString().getValue("");
     // OATPP_LOGD(TAG, "%s", bodyStr.c_str());
-    js = json::parse(bodyStr);
-    return js;
+    if (!json::accept(bodyStr)){
+      OATPP_LOGE(TAG, "JSON Parse Error: %s", bodyStr.c_str());
+      return js;
+    } else {
+      js = json::parse(bodyStr);
+      return js;
+    }
   }
   else {
     OATPP_LOGE(TAG, "Connection Error: %s - %s", response->getStatusDescription()->c_str(), response->readBodyToString().getValue("(no body content)").c_str());
