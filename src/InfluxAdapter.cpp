@@ -27,7 +27,6 @@ using namespace oatpp::web;
 using namespace oatpp::network;
 using namespace nlohmann;
 
-
 std::string __url_encode(const std::string& input);
 std::string __url_encode(const std::string& input) {
   std::string encoded;
@@ -443,8 +442,13 @@ void InfluxTcpAdapter::doConnect() {
   bool dbExists = false;
   
   string q("SHOW SERIES LIMIT 1");
-  auto response = _restClient->doQuery(this->conn.getAuthString(), this->conn.db, encodeQuery(q));
-  json jsoMeas = jsonFromResponse(response);
+  json jsoMeas;
+  try {
+    auto response = _restClient->doQuery(this->conn.getAuthString(), this->conn.db, encodeQuery(q));
+    jsoMeas = jsonFromResponse(response);
+  } catch (const std::exception &err) {
+    cerr << "error executing query: " << err.what() << endl;
+  }
   if (!jsoMeas.contains(kRESULTS)) {
     if (jsoMeas.contains("error")) {
       _errCallback(jsoMeas["error"]);
@@ -525,9 +529,14 @@ IdentifierUnitsList InfluxTcpAdapter::idUnitsList() {
   }
   _RTX_DB_SCOPED_LOCK;
   
+  json jsv;
+  try {
+    auto response = _restClient->doQuery(this->conn.getAuthString(), this->conn.db, encodeQuery(kSHOW_SERIES));
+    jsv = jsonFromResponse(response);
+  } catch (const std::exception &err) {
+    cerr << "error executing query: " << err.what() << endl;
+  }
   
-  auto response = _restClient->doQuery(this->conn.getAuthString(), this->conn.db, encodeQuery(kSHOW_SERIES));
-  json jsv = jsonFromResponse(response);
   
   if (jsv.contains(kRESULTS) &&
       jsv[kRESULTS].is_array() &&
@@ -595,8 +604,14 @@ std::map<std::string, std::vector<Point> > InfluxTcpAdapter::wideQuery(TimeRange
   string nextQuery = "SELECT time, value, quality, confidence FROM /.*/ WHERE time > " + to_string(range.end) + "s GROUP BY * order by time asc limit 1";
   
   auto qstr = prevQuery + ";" + ss.str() + ";" + nextQuery;
-  auto response = _restClient->doQueryWithTimePrecision(this->conn.getAuthString(), this->conn.db, encodeQuery(qstr), "s");
-  json jsv = jsonFromResponse(response);
+  json jsv;
+  try {
+    auto response = _restClient->doQueryWithTimePrecision(this->conn.getAuthString(), this->conn.db, encodeQuery(qstr), "s");
+    jsv = jsonFromResponse(response);
+  } catch (const std::exception &err) {
+    cerr << "error executing query: " << err.what() << endl;
+  }
+  
   
   map<string, vector<Point> > fetch = __pointsFromJson(jsv);
   return fetch;
@@ -611,8 +626,14 @@ std::vector<Point> InfluxTcpAdapter::selectRange(const std::string& id, TimeRang
   q.where.push_back("time >= " + to_string(range.start) + "s");
   q.where.push_back("time <= " + to_string(range.end) + "s");
   
-  auto response = _restClient->doQueryWithTimePrecision(this->conn.getAuthString(), this->conn.db, encodeQuery(q.selectStr()), "s");
-  json jsv = jsonFromResponse(response);
+  json jsv;
+  try {
+    auto response = _restClient->doQueryWithTimePrecision(this->conn.getAuthString(), this->conn.db, encodeQuery(q.selectStr()), "s");
+    jsv = jsonFromResponse(response);
+  } catch (const std::exception &err) {
+    cerr << "error executing query: " << err.what() << endl;
+  }
+  
   return __pointsSingle(jsv);
 }
 
@@ -656,8 +677,14 @@ Point InfluxTcpAdapter::selectNext(const std::string& id, time_t time, WhereClau
     }
   }
   
-  auto response = _restClient->doQueryWithTimePrecision(this->conn.getAuthString(), this->conn.db, encodeQuery(q.selectStr()), "s");
-  json jsv = jsonFromResponse(response);
+  json jsv;
+  try {
+    auto response = _restClient->doQueryWithTimePrecision(this->conn.getAuthString(), this->conn.db, encodeQuery(q.selectStr()), "s");
+    jsv = jsonFromResponse(response);
+  } catch (const std::exception &err) {
+    cerr << "error executing query: " << err.what() << endl;
+  }
+  
   points = __pointsSingle(jsv);
   
   if (points.size() == 0) {
@@ -684,8 +711,14 @@ Point InfluxTcpAdapter::selectPrevious(const std::string& id, time_t time, Where
     }
   }
   
-  auto response = _restClient->doQueryWithTimePrecision(this->conn.getAuthString(), this->conn.db, encodeQuery(q.selectStr()), "s");
-  json jsv = jsonFromResponse(response);
+  json jsv;
+  try {
+    auto response = _restClient->doQueryWithTimePrecision(this->conn.getAuthString(), this->conn.db, encodeQuery(q.selectStr()), "s");
+    jsv = jsonFromResponse(response);
+  } catch (const std::exception &err) {
+    cerr << "error executing query: " << err.what() << endl;
+  }
+  
   points = __pointsSingle(jsv);
   
   if (points.size() == 0) {
@@ -732,9 +765,14 @@ vector<Point> InfluxTcpAdapter::selectWithQuery(const std::string& query, TimeRa
   else {
     qStr += " order by asc";
   }
-
-  auto response = _restClient->doQueryWithTimePrecision(this->conn.getAuthString(), this->conn.db, encodeQuery(qStr), "s");
-  json jsv = jsonFromResponse(response);
+  json jsv;
+  try {
+    auto response = _restClient->doQueryWithTimePrecision(this->conn.getAuthString(), this->conn.db, encodeQuery(qStr), "s");
+    jsv = jsonFromResponse(response);
+  } catch (const std::exception &err) {
+    cerr << "error executing query: " << err.what() << endl;
+  }
+  
   auto points = __pointsSingle(jsv);
   return points;
 }
