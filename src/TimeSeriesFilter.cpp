@@ -213,10 +213,11 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
     else {
       struct tm * timeinfo = localtime (&time);
       cerr << "pointAfter Iterative search exceeded max strides:" << this->name() << " time=" << asctime(timeinfo) << endl;
-      cerr << "Root Series: " << endl;
+      cerr << "Root Series -> ";
       for (auto s : this->rootTimeSeries()) {
-        cerr << " --- " << s->name() << endl;
+        cerr << " :: " << s->name();
       }
+      cerr << EOL << flush;
     }
   }
   else {
