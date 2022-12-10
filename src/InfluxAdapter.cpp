@@ -835,9 +835,15 @@ void InfluxTcpAdapter::sendPointsWithString(const std::string& content) {
     bio::copy(out, compressed);
     const string zippedContent(compressed.str());
     
-    auto response = _restClient->sendPoints(this->conn.getAuthString(), "gzip", this->conn.db, "s", zippedContent);
-    int code = response->getStatusCode();
-    oatpp::String desc = response->getStatusDescription();
+    int code;
+    oatpp::String desc;
+    try {
+      auto response = _restClient->sendPoints(this->conn.getAuthString(), "gzip", this->conn.db, "s", zippedContent);
+      code = response->getStatusCode();
+      desc = response->getStatusDescription();
+    } catch (std::exception& e) {
+      OATPP_LOGE(TAG, "sending points: %s", e.what());
+    }
     
     switch(code) {
       case 204:
