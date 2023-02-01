@@ -63,11 +63,13 @@ const std::map<std::string, Units> Units::unitStrings = {
   {"hr", RTX_HOUR},
   {"d", RTX_DAY},
   // mass
+  {"μg", RTX_MICROGRAM},
   {"mg", RTX_MILLIGRAM},
   {"g", RTX_GRAM},
   {"kg", RTX_KILOGRAM},
   // concentration
   {"mg/L", RTX_MILLIGRAMS_PER_LITER},
+  {"μg/L", RTX_MICROGRAMS_PER_LITER},
   // conductance
   {"us/cm", RTX_MICROSIEMENS_PER_CM},
   // velocity
@@ -340,29 +342,34 @@ Units Units::unitOfType(const string& unitString) {
     return found->second;
   }
   
+  // if units string not found, then look at special characters.
+  string uStr = unitString;
   
+  // micrograms?
+  size_t loc_ug = unitString.find("ug");
+  if (loc_ug != string::npos) {
+    uStr.replace(loc_ug, 2, "μg");
+  }
   
-  // superscript?
-  {
-    string uStr = unitString;
-    size_t loc3 = unitString.find("3");
-    if (loc3 != string::npos) {
-      uStr.replace(loc3,1,"³");
-    }
-    size_t loc2 = unitString.find("2");
-    if (loc2 != string::npos) {
-      uStr.replace(loc2,1,"²");
-    }
-    
-    // try again
-    found = Units::unitStrings.find(uStr);
-    if (found != Units::unitStrings.end()) {
-      return found->second;
-    }
+  // superscript 2 or 3?
+  size_t loc3 = unitString.find("3");
+  if (loc3 != string::npos) {
+    uStr.replace(loc3,1,"³");
+  }
+  size_t loc2 = unitString.find("2");
+  if (loc2 != string::npos) {
+    uStr.replace(loc2,1,"²");
   }
   
   
-  // case insensitive search?
+  // try again
+  found = Units::unitStrings.find(uStr);
+  if (found != Units::unitStrings.end()) {
+    return found->second;
+  }
+  
+  // if units still not recognized, try case insensitive
+  
   typedef std::pair<std::string, Units> stringUnitsPair;
   for(const stringUnitsPair& sup : Units::unitStrings) {
     const string u = sup.first;

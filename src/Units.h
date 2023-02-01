@@ -56,10 +56,12 @@
 #define RTX_HOUR                    RTX::Units(3600,         0,0,1)
 #define RTX_DAY                     RTX::Units(86400,        0,0,1)
 // mass
+#define RTX_MICROGRAM               RTX::Units(.000000001,   1,0,0)
 #define RTX_MILLIGRAM               RTX::Units(.000001,      1,0,0)
 #define RTX_GRAM                    RTX::Units(.001,         1,0,0)
 #define RTX_KILOGRAM                RTX::Units(1,            1,0,0)
 // concentration
+#define RTX_MICROGRAMS_PER_LITER    RTX::Units(.000001,      1,-3,0)
 #define RTX_MILLIGRAMS_PER_LITER    RTX::Units(.001,         1,-3,0)
 // conductance
 #define RTX_MICROSIEMENS_PER_CM     RTX::Units(.0001,        -1,-3,3,2)

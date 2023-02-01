@@ -34,6 +34,7 @@
 #include <mutex>
 #include <shared_mutex>
 #include "openssl/sha.h"
+#include "oatpp/core/base/Environment.hpp"
 
 using namespace RTX;
 using namespace std;
@@ -1190,8 +1191,8 @@ std::ostream& Model::toStream(std::ostream &stream) {
 
 void Model::setSimulationParameters(time_t time) {
   struct tm * timeinfo = localtime (&time);
-  
-  cout << EOL << "*** SETTING MODEL INPUTS *** " << asctime(timeinfo) << " - " << time << EOL;
+  OATPP_LOGD("Model", "Setting model inputs: %s", put_time(timeinfo, "%c"));
+//  cout << EOL << "*** SETTING MODEL INPUTS *** " << asctime(timeinfo) << " - " << time << EOL;
   // set all element parameters
   
   // allocate junction demands based on dmas, and set the junction demand values in the model.
@@ -1237,7 +1238,8 @@ void Model::setSimulationParameters(time_t time) {
   // check for valid time with tank reset clock
   if (_tankResetClock && _tankResetClock->isValid(time)) {
     this->setTanksNeedReset(true);
-    cout << "*  INFO :: TANKS WILL BE RESET" << EOL;
+    OATPP_LOGD("Model", "Tanks will be reset");
+//    cout << "*  INFO :: TANKS WILL BE RESET" << EOL;
   }
   
   _checkTanksForReset(time);
@@ -1481,7 +1483,8 @@ void Model::fetchSimulationStates() {
 
 void Model::saveNetworkStates(time_t simtime, std::set<PointRecord::_sp> bulkRecords) {
   struct tm * timeinfo = localtime (&simtime);
-  cout << "******* saving network states *******" << asctime(timeinfo) << " - " << simtime << EOL << flush;
+  OATPP_LOGD("Model", "saving network states: %s", put_time(timeinfo, "%c"));
+//  cout << "*** saving network states ***" << asctime(timeinfo) << " - " << simtime << EOL << flush;
   auto t1 = time(NULL);
 
   for(PointRecord::_sp r: bulkRecords) {
@@ -1569,8 +1572,8 @@ void Model::saveNetworkStates(time_t simtime, std::set<PointRecord::_sp> bulkRec
   
   // beating heart just after everything else is done.
   _heartbeat->insert(Point(simtime,1.0));
-  
-  DebugLog << "******* finished saving states ********" << EOL << flush;
+  OATPP_LOGD("Model", "finished saving states");
+//  cout << "*** finished saving states ****" << EOL << flush;
 }
 
 void Model::setCurrentSimulationTime(time_t time) {
