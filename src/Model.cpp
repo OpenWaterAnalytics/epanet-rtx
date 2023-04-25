@@ -1310,6 +1310,10 @@ void Model::setSimulationParameters(time_t time) {
     if (pump->settingBoundary()) {
       if (status == Pipe::OPEN) {
         Point p = pump->settingBoundary()->pointAtOrBefore(time);
+        // edge case where series is in % or purely dimensionless
+        if (pump->settingBoundary()->units() == RTX_PERCENT) {
+          p.value /= 100.0;
+        }
         if (p.isValid) {
           setPumpSettingControl( pump->name(), p.value, enable );
           DebugLog << "*  Pump " << pump->name() << " setting --> " << p.value << EOL;

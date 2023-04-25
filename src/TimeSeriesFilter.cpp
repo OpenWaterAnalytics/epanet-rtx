@@ -416,10 +416,10 @@ bool TimeSeriesFilter::canSetSource(TimeSeries::_sp ts) {
 }
 
 void TimeSeriesFilter::didSetSource(TimeSeries::_sp ts) {
-  // expected behavior if this has no dimension, take on the units of the source.
+  // expected behavior if this has no units, take on the units of the source.
   // we are guaranteed that the units are compatible (if canChangeToUnits was properly implmented),
   // so no further checking is required.
-  if (this->units().isDimensionless()) {
+  if (this->units() == RTX_NO_UNITS) {
     this->setUnits(ts->units());
   }
   
