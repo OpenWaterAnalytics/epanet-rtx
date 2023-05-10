@@ -630,7 +630,12 @@ void EpanetModel::setQualityOptions(QualityType qt, const std::string& traceNode
   char blank[] = "";
   
   int err = EN_setqualtype(_enModel, epanet_qualcode, blank, blank, traceNodeId);
-  EN_API_CHECK(err, "setQualityOptions");
+  try {
+    EN_API_CHECK(err, "setQualityOptions");
+  } catch (const std::string& err) {
+    cerr << "Error setting quality options: " << err << endl;
+  }
+  
   
   switch (qt) {
     case Model::Age:
