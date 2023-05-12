@@ -1124,7 +1124,20 @@ void EpanetModel::applyInitialTankLevels() {
   for(Tank::_sp tank : this->tanks()) {
     double level = tank->state_level;
     int iNode = _nodeIndex[tank->name()];
-    EN_API_CHECK(EN_setnodevalue(_enModel, iNode, EN_TANKLEVEL, level), "EN_setnodevalue - EN_TANKLEVEL");
+    try {
+      EN_API_CHECK(EN_setnodevalue(_enModel, iNode, EN_TANKLEVEL, level), "EN_setnodevalue - EN_TANKLEVEL");
+    } catch (const std::string& err) {
+      cerr << "Error setting tank initial level: " << tank->name() << " : " << level << endl;
+      cerr << "--> min/max levels are: " << tank->minLevel() << " - " << tank->maxLevel() << endl;
+      cerr << "--> setting level to closest min/max value for desired..." << endl;
+      if (tank->minLevel() > level) {
+        level = tank->minLevel();
+      }
+      else if (tank->maxLevel() < level) {
+        level = tank->maxLevel();
+      }
+      EN_API_CHECK(EN_setnodevalue(_enModel, iNode, EN_TANKLEVEL, level), "EN_setnodevalue - EN_TANKLEVEL");
+    }
   }
   
   EN_API_CHECK(EN_initH(_enModel, 10), "ENinitH");
