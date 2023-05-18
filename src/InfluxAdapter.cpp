@@ -399,10 +399,12 @@ shared_ptr<oatpp::web::client::RequestExecutor> InfluxTcpAdapter::createExecutor
 //        )
 //    );
   /* create retry policy */
-   auto retryPolicy = std::make_shared<client::SimpleRetryPolicy>(5 /* max retries */, std::chrono::seconds(5) /* retry interval */);
+  auto retryPolicy = std::make_shared<client::SimpleRetryPolicy>(5 /* max retries */, std::chrono::seconds(5) /* retry interval */);
 
+  auto connectionPool = oatpp::network::ClientConnectionPool::createShared(connectionProvider, 10, std::chrono::seconds(20));
   /* create request executor */
-  return client::HttpRequestExecutor::createShared(connectionProvider, retryPolicy);
+  cout << "Creating executor" << endl;
+  return client::HttpRequestExecutor::createShared(connectionPool, retryPolicy);
 }
 
 const DbAdapter::adapterOptions InfluxTcpAdapter::options() const {
@@ -434,9 +436,11 @@ void InfluxTcpAdapter::doConnect() {
   _connected = false;
   _errCallback("Connecting...");
   
-  auto requestExecutor = createExecutor();
-  auto objectMapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
-  _restClient = InfluxClient::createShared(requestExecutor, objectMapper);
+  if(!_restClient){
+    auto requestExecutor = createExecutor();
+    auto objectMapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
+    _restClient = InfluxClient::createShared(requestExecutor, objectMapper);
+  }
   
   // see if the database needs to be created
   bool dbExists = false;
@@ -891,7 +895,7 @@ json InfluxTcpAdapter::jsonFromResponse(const std::shared_ptr<Response> response
     }
   }
   else {
-    OATPP_LOGE(TAG, "Connection Error: %s - %s", response->getStatusDescription()->c_str(), response->readBodyToString().getValue("(no body content)").c_str());
+    cerr << TAG << ": Connection Error: " << response->getStatusDescription()->c_str() << " - " << response->readBodyToString().getValue("(no body content)").c_str() << endl;
     return js;
   }
 }

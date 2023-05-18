@@ -257,7 +257,7 @@ PointCollection AggregatorTimeSeries::filterPointsInRange(TimeRange range) {
   auto mode = this->_mode;
   for(AggregatorSource sd : mySources) {
     
-    auto task = async(launch::async, [=]() -> map< time_t, Point> {
+    auto task = async(launch::deferred, [=]() -> map< time_t, Point> {
       TimeSeries::_sp sourceTs = sd.timeseries;
       double multiplier = sd.multiplier;
       TimeRange componentRange = range;
