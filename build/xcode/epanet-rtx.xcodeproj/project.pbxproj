@@ -394,7 +394,6 @@
 /* Begin PBXFileReference section */
 		1557A02422B04647001980D9 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		156CB13327D13BB7000218BD /* conanfile.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = conanfile.txt; path = ../../deps/conanfile.txt; sourceTree = "<group>"; };
-		156CB13427D13BC0000218BD /* conanbuildinfo.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = conanbuildinfo.xcconfig; path = ../../deps/conanbuildinfo.xcconfig; sourceTree = "<group>"; };
 		15DFA17B24464B0E0028797E /* WhereClause.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = WhereClause.cpp; path = ../../src/WhereClause.cpp; sourceTree = "<group>"; };
 		15DFA17C24464B0E0028797E /* WhereClause.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WhereClause.h; path = ../../src/WhereClause.h; sourceTree = "<group>"; };
 		15FD880A25C0934700497BE1 /* SquareWaveTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SquareWaveTimeSeries.h; path = ../../src/SquareWaveTimeSeries.h; sourceTree = "<group>"; };
@@ -637,6 +636,7 @@
 		63B8F4C627CFE5C300F3BB8A /* TestClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestClient.h; path = ../../test/TestClient.h; sourceTree = "<group>"; };
 		63B8F4C727CFE5C300F3BB8A /* MyClientTest.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = MyClientTest.hpp; path = ../../test/MyClientTest.hpp; sourceTree = "<group>"; };
 		63B8F4CA27CFE8BC00F3BB8A /* Components.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Components.hpp; path = ../../src/Components.hpp; sourceTree = "<group>"; };
+		63CF52AB2A17D419009B7A43 /* conanbuildinfo.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = conanbuildinfo.xcconfig; path = ../../deps/conan_build/conanbuildinfo.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1065,8 +1065,8 @@
 		22C62AB51439ED6300841E60 = {
 			isa = PBXGroup;
 			children = (
-				156CB13427D13BC0000218BD /* conanbuildinfo.xcconfig */,
 				156CB13327D13BB7000218BD /* conanfile.txt */,
+				63CF52AB2A17D419009B7A43 /* conanbuildinfo.xcconfig */,
 				221F072C1E36A54300813EA6 /* LINK_SERVICE */,
 				22BECED01DEF25F200E7C4EC /* TEST */,
 				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
@@ -2467,7 +2467,7 @@
 		};
 		22C62AC21439ED6300841E60 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 156CB13427D13BC0000218BD /* conanbuildinfo.xcconfig */;
+			baseConfigurationReference = 63CF52AB2A17D419009B7A43 /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD)";
@@ -2502,7 +2502,7 @@
 		};
 		22C62AC31439ED6300841E60 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 156CB13427D13BC0000218BD /* conanbuildinfo.xcconfig */;
+			baseConfigurationReference = 63CF52AB2A17D419009B7A43 /* conanbuildinfo.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD)";
