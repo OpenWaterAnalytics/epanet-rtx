@@ -12,6 +12,13 @@ geohash/1.0
 sqlite_modern_cpp/3.2
 
 [options]
+boost:without_math = False
+boost:without_graph = False
+boost:without_locale = True
+boost:without_log = True
+boost:without_stacktrace = True
+boost:without_test = True
+
 [generators]
 cmake
 xcode
