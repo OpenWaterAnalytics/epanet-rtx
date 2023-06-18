@@ -1,22 +1,19 @@
-FROM ubuntu:20.04
+FROM debian:bookworm-slim
 
-ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-	apt-get install -y libsqlite3-dev cmake libiodbc2-dev tdsodbc curl libcurl4-openssl-dev g++ git
-RUN apt-get install -y llvm clang libblocksruntime-dev
-RUN apt-get install -y wget
-RUN apt-get install -y zlib1g-dev
+	apt-get install -y libsqlite3-dev cmake libiodbc2-dev libcpprest-dev libboost-dev g++ git zlib1g-dev && \
+    apt-get install -y openssl curl nlohmann-json3-dev libcurl4-openssl-dev
 
-RUN apt-get install python3-pip --yes
-RUN pip3 install --upgrade pip && \
-  apt-get update && pip3 install conan
+ENV VIRTUAL_ENV=/opt/venv
+RUN apt-get install -y python3-venv \
+    && python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-RUN conan profile new default --detect && \
-  conan profile update settings.compiler=clang default && \
-  conan profile update settings.compiler.version=10 default && \
-  conan profile update settings.compiler.libcxx=libstdc++11 default && \
-  conan profile update env.CC=/usr/bin/clang default && \
-  conan profile update env.CXX=/usr/bin/clang++ default
+# RUN apt-get install -y python3-pip
+
+RUN pip3 install 'conan>=1.60.0,<2.0.0' && \
+    conan profile new default --detect && \
+    conan profile update settings.compiler.libcxx=libstdc++11 default
 
 WORKDIR /opt/src
 
@@ -25,22 +22,24 @@ WORKDIR /opt/src
 ##########################################################################################
 
 ## build/install EPANET
-RUN git clone https://github.com/cameron-devine/EPANET.git \
-	&& cd EPANET \
-	&& git checkout dev \
+RUN git clone --depth=1 https://github.com/cameron-devine/EPANET.git \
+    && cd EPANET \
+    && sed -i '844s/,EN_Project/,void*/g' ./src/epanet.c \
+    && sed -i '520s/EN_Project,/void*,/g' ./include/epanet2_2.h \
+    && sed -i '636s/EN_Project/void*/g' ./src/types.h \
 	&& conan create .
 
-RUN git clone https://github.com/OpenWaterAnalytics/epanet-rtx.git \
-	&& cd epanet-rtx \
-	&& git checkout epanet-2.2-upgrade \
-	&& cd deps \
+RUN apt-get update \
+    && apt-get install -y clang
+
+# RUN git clone --depth=1 https://github.com/OpenWaterAnalytics/epanet-rtx.git \
+RUN git clone --depth=1 https://github.com/0tkl/epanet-rtx.git -b overhaul --single-branch \
+	&& cd epanet-rtx/deps \
 	&& conan create local_export/geohashconan.py  \
 	&& conan create local_export/sqlite_modern_cpp_conan.py \
-	&& conan install . --build=missing
+	&& conan install . --build=missing -of conan_build/
 
 RUN cd epanet-rtx/build/cmake \
-	&& mkdir build && cd build \
-	&& cmake -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ .. \
-	&& make \
-	#&& make test ARGS="-V" \
+    && cmake -B . -DCMAKE_BUILD_TYPE=Release \
+    && cmake --build . --config Release \
 	&& make install
