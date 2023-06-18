@@ -27,12 +27,22 @@ cmake_minimum_required (VERSION 3.10)
 
 project (EPANET-RTX)
 SET (CMAKE_C_FLAGS "-std=c99")
-SET (CMAKE_CXX_FLAGS "-Wall")
+SET (CMAKE_CXX_STANDARD 17)
+SET (CMAKE_CXX_FLAGS "-Wall -Wno-unknown-pragmas")
 SET (CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_definitions(-DRTX_NO_MYSQL)
 
 message("prefix: ${CMAKE_FIND_LIBRARY_PREFIXES}")
 message("suffix: ${CMAKE_FIND_LIBRARY_SUFFIXES}")
+
+find_package(Boost REQUIRED)
+find_package(cpprestsdk REQUIRED)
+find_package(CURL REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(ODBC REQUIRED)
+
+include_directories (${Boost_INCLUDE_DIRS})
+include_directories (${CURL_INCLUDE_DIR})
 
 SET (EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 SET (LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
@@ -45,22 +55,6 @@ ENDIF (APPLE)
 
 include(../../deps/conanbuildinfo.cmake)
 conan_basic_setup()
-
-# the rtx library
-include_directories(
-  ${CONAN_INCLUDE_DIRS}
-	../../src
-	/usr/local/include
-	/usr/local/include/iODBC
-	/usr/include
-	/usr/include/iodbc
-
-	)
-
-link_directories(
-	/usr/lib
-	/usr/local/lib
-	)
 
 add_library(epanetrtx
 ../../src/AggregatorTimeSeries.cpp
@@ -134,18 +128,20 @@ set_target_properties(
 )
 
 target_compile_definitions(epanetrtx PRIVATE MAXFLOAT=3.40282347e+38F)
-set(rtx_lib_deps
-	iodbc
+
+target_include_directories(epanetrtx
+	PRIVATE ../../src
+)
+
+target_link_libraries(epanetrtx
+	sqlite3
+	${Boost_LIBRARIES}
+ 	ODBC::ODBC
+	cpprestsdk::cpprest
+	CURL::libcurl
+	nlohmann_json::nlohmann_json
 	)
-
-
-target_link_libraries(
-	epanetrtx
-	${rtx_lib_deps}
-  ${CONAN_LIBS}
-	)
-
-
+conan_target_link_libraries(epanetrtx)
 
 install(DIRECTORY ../../src/ DESTINATION include/rtx FILES_MATCHING PATTERN "*.h")
 install(TARGETS epanetrtx DESTINATION lib)
