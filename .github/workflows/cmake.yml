@@ -1,0 +1,78 @@
+name: CMake
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install Dependencies
+      run: |
+        sudo apt-get install -y libsqlite3-dev cmake libiodbc2-dev libcpprest-dev libboost-dev g++ git zlib1g-dev
+        sudo apt-get install -y openssl curl nlohmann-json3-dev libcurl4-openssl-dev
+        pip3 install 'conan>=1.60.0,<2.0.0'
+        conan profile new default --detect
+
+    - name: Pull EPANET
+      uses: actions/checkout@v3
+      with:
+        repository: cameron-devine/EPANET
+        # repository: OpenWaterAnalytics/EPANET
+        path: "./EPANET"
+
+    - name: Build EPANET
+      working-directory: ./EPANET/
+      run: |
+        sed -i '844s/,EN_Project/,void*/g' ./src/epanet.c
+        sed -i '520s/EN_Project,/void*,/g' ./include/epanet2_2.h
+        sed -i '636s/EN_Project/void*/g' ./src/types.h
+        conan create .
+
+    - name: Make Conan Dependencies
+      working-directory: ./deps/
+      run: |
+        conan export local_export/geohashconan.py
+        conan export local_export/sqlite_modern_cpp_conan.py
+        conan install . --build=missing -of conan_build/
+    
+    - name: Intermediate State
+      run:
+        cat ./deps/conanbuildinfo.cmake
+
+    - name: Configure CMake
+      working-directory: ./build/cmake/
+      run: |
+        cmake -B ${{github.workspace}}/build/cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      run: |
+        cmake --build ${{github.workspace}}/build/cmake --config ${{env.BUILD_TYPE}}
+    
+    - name: Gather Outputs
+      run: |
+        mkdir release && cd release
+        mkdir -p include/rtx && cp ../src/*.h include/rtx
+        mkdir lib && cp ../build/cmake/lib/* lib
+        
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: epanetrtx
+        path: release/*
+        retention-days: 90
+
+#     - name: Test
+#       working-directory: ${{github.workspace}}/build
+#       # Execute tests defined by the CMake configuration.
+#       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+#       run: ctest -C ${{env.BUILD_TYPE}}
