@@ -77,8 +77,8 @@ _epanet_section_t _epanet_sectionFromLine(const string& line) {
   return none;
 }
 
-int _epanet_make_pattern(EN_Project *m, TimeSeries::_sp ts, Clock::_sp clock, TimeRange range, const string& patternName, Units patternUnits);
-int _epanet_make_pattern(EN_Project *m, TimeSeries::_sp ts, Clock::_sp clock, TimeRange range, const string& patternName, Units patternUnits) {
+int _epanet_make_pattern(EN_Project m, TimeSeries::_sp ts, Clock::_sp clock, TimeRange range, const string& patternName, Units patternUnits);
+int _epanet_make_pattern(EN_Project m, TimeSeries::_sp ts, Clock::_sp clock, TimeRange range, const string& patternName, Units patternUnits) {
   TimeSeriesFilter::_sp rsDemand(new TimeSeriesFilter);
   rsDemand->setClock(clock);
   rsDemand->setResampleMode(ResampleModeStep);
@@ -299,7 +299,7 @@ ostream& EpanetModelExporter::to_stream(ostream &stream) {
   // create a copy of the project, so that we don't alter important properties of this one.
   string fileName = _model->modelFile();
   EpanetModel::_sp modelTemplate( new EpanetModel(fileName) );
-  EN_Project *ow_project = modelTemplate->epanetModelPointer();
+  EN_Project ow_project = modelTemplate->epanetModelPointer();
   
   // the pattern clock matches the hydraulic timestep,
   // and has an offset that makes the first tick occur at

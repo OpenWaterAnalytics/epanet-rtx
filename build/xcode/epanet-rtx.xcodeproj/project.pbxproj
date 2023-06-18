@@ -14,7 +14,6 @@
 		15DFA17E24464B0E0028797E /* WhereClause.h in Headers */ = {isa = PBXBuildFile; fileRef = 15DFA17C24464B0E0028797E /* WhereClause.h */; };
 		15FD881325C0934700497BE1 /* SquareWaveTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 15FD880A25C0934700497BE1 /* SquareWaveTimeSeries.h */; };
 		15FD881425C0934700497BE1 /* SquareWaveTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 15FD881225C0934700497BE1 /* SquareWaveTimeSeries.cpp */; };
-		2200ED191C7797F3009A6C5F /* libepanet-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 228CD55F1C0F5E4E00C67802 /* libepanet-static.a */; };
 		220F9DD618F9E1BE00BB842C /* readConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 220F9DD518F9E1BE00BB842C /* readConfig.cpp */; };
 		221A4B061B8CC00C006967AE /* libepanet-rtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 221BFDB91A8E8AD000143FCC /* libepanet-rtx.dylib */; };
 		221BFD371A8E8AD000143FCC /* TimeSeriesSynthetic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2211D2041A6D69EA00E34B9B /* TimeSeriesSynthetic.cpp */; };
@@ -188,13 +187,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		2200ED101C7797E6009A6C5F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 2255753A17551217009946B1;
-			remoteInfo = "epanet-static";
-		};
 		221A4AFF1B8CBFF5006967AE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 22C62AB71439ED6300841E60 /* Project object */;
@@ -243,48 +235,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 221BFD311A8E8AD000143FCC;
 			remoteInfo = "epanet-rtx static deps";
-		};
-		228CD55A1C0F5E4E00C67802 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC0630554660B00DB518D;
-			remoteInfo = epanet;
-		};
-		228CD55C1C0F5E4E00C67802 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 22322F66106833BB00641384;
-			remoteInfo = runepanet;
-		};
-		228CD55E1C0F5E4E00C67802 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 2255753B17551217009946B1;
-			remoteInfo = "epanet-static";
-		};
-		228CD5601C0F5E4E00C67802 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 222CBF5119F6E46F0049A22D;
-			remoteInfo = wdsInpFile;
-		};
-		228CD5621C0F5E4E00C67802 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 222CBF6019F6FE530049A22D;
-			remoteInfo = buildNetwork;
-		};
-		229E95C71CB2FAE100216682 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 223D15351CAF547D00FB5FD6;
-			remoteInfo = ModelFile;
 		};
 		22BEDCF3187E09A100855B68 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -528,7 +478,6 @@
 		229E95BE1CB2FAE000216682 /* EpanetModelExporter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EpanetModelExporter.cpp; path = ../../src/EpanetModelExporter.cpp; sourceTree = "<group>"; };
 		229E95BF1CB2FAE000216682 /* EpanetModelExporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EpanetModelExporter.h; path = ../../src/EpanetModelExporter.h; sourceTree = "<group>"; };
 		22A4B41814E1B93D006D01C3 /* Clock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Clock.h; path = ../../src/Clock.h; sourceTree = "<group>"; };
-		22A6679C19E4819500CEB0BC /* epanet.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = epanet.xcodeproj; path = ../../../EPANET/build/Xcode/epanet/epanet.xcodeproj; sourceTree = "<group>"; };
 		22A842D3173BF445009CE769 /* GainTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GainTimeSeries.cpp; path = ../../src/GainTimeSeries.cpp; sourceTree = "<group>"; };
 		22A842D4173BF445009CE769 /* GainTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GainTimeSeries.h; path = ../../src/GainTimeSeries.h; sourceTree = "<group>"; };
 		22AB022D187B1BF000706EEA /* PointRecordTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PointRecordTime.cpp; path = ../../src/PointRecordTime.cpp; sourceTree = "<group>"; };
@@ -672,7 +621,6 @@
 				224DB210200D44DA0005E9C6 /* libz.tbd in Frameworks */,
 				22E997091CA5937B00D6F34F /* CoreFoundation.framework in Frameworks */,
 				22E997081CA5935F00D6F34F /* Security.framework in Frameworks */,
-				2200ED191C7797F3009A6C5F /* libepanet-static.a in Frameworks */,
 				221BFD7C1A8E8AD000143FCC /* libepanetmsx-static.a in Frameworks */,
 				226AD16C200E91AF00077CE6 /* libiodbc.a in Frameworks */,
 			);
@@ -925,19 +873,6 @@
 			name = "model exporting extensions";
 			sourceTree = "<group>";
 		};
-		228CD5531C0F5E4E00C67802 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				228CD55B1C0F5E4E00C67802 /* libepanet.dylib */,
-				228CD55D1C0F5E4E00C67802 /* runepanet */,
-				228CD55F1C0F5E4E00C67802 /* libepanet-static.a */,
-				228CD5611C0F5E4E00C67802 /* libwdsInpFile.dylib */,
-				228CD5631C0F5E4E00C67802 /* buildNetwork */,
-				229E95C81CB2FAE100216682 /* libModelFile.dylib */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		228F6B6514857FD6007383D4 /* input files */ = {
 			isa = PBXGroup;
 			children = (
@@ -1069,7 +1004,6 @@
 				63CF52AB2A17D419009B7A43 /* conanbuildinfo.xcconfig */,
 				221F072C1E36A54300813EA6 /* LINK_SERVICE */,
 				22BECED01DEF25F200E7C4EC /* TEST */,
-				22A6679C19E4819500CEB0BC /* epanet.xcodeproj */,
 				22C34357187D9441000100A4 /* epanetmsx.xcodeproj */,
 				22D9830C17F4AF9F00DD7EB4 /* simulator client */,
 				22CF1C3A1A6842DC00161188 /* testTsFilter */,
@@ -1435,7 +1369,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				2200ED111C7797E6009A6C5F /* PBXTargetDependency */,
 				221BFD341A8E8AD000143FCC /* PBXTargetDependency */,
 			);
 			name = "epanet-rtx static deps";
@@ -1622,10 +1555,6 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 228CD5531C0F5E4E00C67802 /* Products */;
-					ProjectRef = 22A6679C19E4819500CEB0BC /* epanet.xcodeproj */;
-				},
-				{
 					ProductGroup = 22C34358187D9441000100A4 /* Products */;
 					ProjectRef = 22C34357187D9441000100A4 /* epanetmsx.xcodeproj */;
 				},
@@ -1647,48 +1576,6 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		228CD55B1C0F5E4E00C67802 /* libepanet.dylib */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.dylib";
-			path = libepanet.dylib;
-			remoteRef = 228CD55A1C0F5E4E00C67802 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		228CD55D1C0F5E4E00C67802 /* runepanet */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.executable";
-			path = runepanet;
-			remoteRef = 228CD55C1C0F5E4E00C67802 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		228CD55F1C0F5E4E00C67802 /* libepanet-static.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libepanet-static.a";
-			remoteRef = 228CD55E1C0F5E4E00C67802 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		228CD5611C0F5E4E00C67802 /* libwdsInpFile.dylib */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.dylib";
-			path = libwdsInpFile.dylib;
-			remoteRef = 228CD5601C0F5E4E00C67802 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		228CD5631C0F5E4E00C67802 /* buildNetwork */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.executable";
-			path = buildNetwork;
-			remoteRef = 228CD5621C0F5E4E00C67802 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		229E95C81CB2FAE100216682 /* libModelFile.dylib */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.dylib";
-			path = libModelFile.dylib;
-			remoteRef = 229E95C71CB2FAE100216682 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		22BEDCF4187E09A100855B68 /* libepanetmsx-static.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1863,11 +1750,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		2200ED111C7797E6009A6C5F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = "epanet-static";
-			targetProxy = 2200ED101C7797E6009A6C5F /* PBXContainerItemProxy */;
-		};
 		221A4B001B8CBFF5006967AE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 221BFD311A8E8AD000143FCC /* epanet-rtx static deps */;
@@ -2491,6 +2373,7 @@
 					"$(inherited)",
 					/usr/local/include,
 				);
+				LD_RUNPATH_SEARCH_PATHS = "$(SRCROOT)/dependencies/conan_build/bin";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2520,6 +2403,7 @@
 					"$(inherited)",
 					/usr/local/include,
 				);
+				LD_RUNPATH_SEARCH_PATHS = "$(SRCROOT)/dependencies/conan_build/bin";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = NO;
