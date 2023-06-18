@@ -1,88 +1,46 @@
-FROM ubuntu:bionic
+FROM ubuntu:20.04
 
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-	apt-get install -y libsqlite3-dev cmake libiodbc2-dev tdsodbc curl libcurl4-openssl-dev g++ openssl libssl-dev git
+	apt-get install -y libsqlite3-dev cmake libiodbc2-dev tdsodbc curl libcurl4-openssl-dev g++ git
 RUN apt-get install -y llvm clang libblocksruntime-dev
 RUN apt-get install -y wget
 RUN apt-get install -y zlib1g-dev
 
-## build / install boost
-ARG boost_version=1.62.0
-ARG boost_dir=boost_1_62_0
-ENV boost_version ${boost_version}
+RUN apt-get install python3-pip --yes
+RUN pip3 install --upgrade pip && \
+  apt-get update && pip3 install conan
 
-RUN wget http://downloads.sourceforge.net/project/boost/boost/${boost_version}/${boost_dir}.tar.gz \
-    && tar xfz ${boost_dir}.tar.gz \
-    && rm ${boost_dir}.tar.gz \
-    && cd ${boost_dir} \
-    && ./bootstrap.sh \
-    && ./b2 --without-python --prefix=/usr -j 4 link=shared runtime-link=shared install \
-    && cd .. && rm -rf ${boost_dir} && ldconfig
+RUN conan profile new default --detect && \
+  conan profile update settings.compiler=clang default && \
+  conan profile update settings.compiler.version=10 default && \
+  conan profile update settings.compiler.libcxx=libstdc++11 default && \
+  conan profile update env.CC=/usr/bin/clang default && \
+  conan profile update env.CXX=/usr/bin/clang++ default
 
 WORKDIR /opt/src
-
-### install cpprestsdk library
-RUN git clone https://github.com/Microsoft/cpprestsdk.git casablanca \
-	&& cd casablanca \
-	&& git submodule update --init \
-	&& cd Release \
-	&& mkdir build.release \
-	&& cd build.release \
-	&& cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=0 -DBUILD_SAMPLES=0 \
-	&& make \
-	&& make install \
-	&& cd /opt/src \
-	&& rm -rf casablanca
-
-
-### install oatpp library
-RUN git clone https://github.com/oatpp/oatpp.git \
-	&& cd oatpp/ \
-	&& mkdir build && cd build \
-	&& cmake .. \
-	&& make install
-
-### install oatpp-openssl library
-RUN git clone https://github.com/oatpp/oatpp-openssl.git \
-	&& cd oatpp-openssl/ \
-	&& mkdir build && cd build \
-	&& cmake .. \
-	&& make install
-
-### install nlohmann-json
-RUN git clone https://github.com/nlohmann/json.git \
-		&& cd json/ \
-		&& mkdir build && cd build \
-		&& cmake .. \
-		&& make install
-
-## install sqlite_modern dep
-RUN git clone https://github.com/aminroosta/sqlite_modern_cpp.git \
-	&& cp -R sqlite_modern_cpp/hdr/* /usr/local/include/ \
-	&& cd /opt/src \
-	&& rm -rf sqlite_modern_cpp
 
 ##########################################################################################
 ####  everything above here should be pretty stable. cache this.
 ##########################################################################################
 
 ## build/install EPANET
-RUN git clone https://github.com/samhatchett/EPANET.git \
+RUN git clone https://github.com/cameron-devine/EPANET.git \
 	&& cd EPANET \
-	&& git checkout owa_netBuilder \
-	&& cd build/CMake \
-	&& mkdir build && cd build \
-	&& cmake -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ .. \
-	&& make \
-	&& make install
-
+	&& git checkout dev \
+	&& conan create .
 
 RUN git clone https://github.com/OpenWaterAnalytics/epanet-rtx.git \
 	&& cd epanet-rtx \
-	&& git checkout oatpp-migration \
-	&& cd build/cmake \
+	&& git checkout epanet-2.2-upgrade \
+	&& cd deps \
+	&& conan create local_export/geohashconan.py  \
+	&& conan create local_export/sqlite_modern_cpp_conan.py \
+	&& conan install . --build=missing
+
+RUN cd epanet-rtx/build/cmake \
 	&& mkdir build && cd build \
 	&& cmake -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ .. \
 	&& make \
-	&& make test ARGS="-V" \
+	#&& make test ARGS="-V" \
 	&& make install

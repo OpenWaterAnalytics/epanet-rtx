@@ -34,8 +34,6 @@ add_definitions(-DRTX_NO_MYSQL)
 message("prefix: ${CMAKE_FIND_LIBRARY_PREFIXES}")
 message("suffix: ${CMAKE_FIND_LIBRARY_SUFFIXES}")
 
-include_directories (${Boost_INCLUDE_DIRS})
-
 SET (EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 SET (LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
@@ -45,19 +43,18 @@ IF(APPLE)
    SET(EXTRA_LIBS ${SECURITY_FRAMEWORK} ${CORE_FRAMEWORK})
 ENDIF (APPLE)
 
-include(/opt/src/epanet-rtx/deps/conanbuildinfo.cmake)
+include(../../deps/conanbuildinfo.cmake)
 conan_basic_setup()
 
 # the rtx library
 include_directories(
+  ${CONAN_INCLUDE_DIRS}
 	../../src
 	/usr/local/include
 	/usr/local/include/iODBC
 	/usr/include
 	/usr/include/iodbc
-	../../../EPANET/src
-	/usr/local/include/oatpp-1.3.0/oatpp
-	/usr/local/include/oatpp-1.3.0/oatpp-openssl
+
 	)
 
 link_directories(
@@ -138,13 +135,7 @@ set_target_properties(
 
 target_compile_definitions(epanetrtx PRIVATE MAXFLOAT=3.40282347e+38F)
 set(rtx_lib_deps
-	epanet
-	curl
 	iodbc
-	sqlite3
-	m
-	z
-	pthread
 	)
 
 
