@@ -20,8 +20,9 @@ jobs:
       run: |
         sudo apt-get install -y libsqlite3-dev cmake libiodbc2-dev libcpprest-dev libboost-dev g++ git zlib1g-dev
         sudo apt-get install -y openssl curl nlohmann-json3-dev libcurl4-openssl-dev
-        pip3 install 'conan>=1.60.0,<2.0.0'
-        conan profile new default --detect
+        pip3 install conan
+        conan profile detect
+        conan profile show -pr default
 
     - name: Pull EPANET
       uses: actions/checkout@v3
@@ -36,7 +37,9 @@ jobs:
         sed -i '844s/,EN_Project/,void*/g' ./src/epanet.c
         sed -i '520s/EN_Project,/void*,/g' ./include/epanet2_2.h
         sed -i '636s/EN_Project/void*/g' ./src/types.h
-        conan create .
+        mkdir build && cd build
+        cmake ..
+        cmake --build . --config Release
 
     - name: Make Conan Dependencies
       working-directory: ./deps/
@@ -45,24 +48,30 @@ jobs:
         conan export local_export/sqlite_modern_cpp_conan.py
         conan install . --build=missing -of conan_build/
     
-    - name: Intermediate State
-      run:
-        cat ./deps/conanbuildinfo.cmake
+    # - name: Intermediate State
+    #   run:
+    #     cat ./deps/conanbuildinfo.cmake
 
     - name: Configure CMake
       working-directory: ./build/cmake/
       run: |
-        cmake -B ${{github.workspace}}/build/cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        cmake -B ${{github.workspace}}/build \
+        -DCMAKE_TOOLCHAIN_FILE=${{github.workspace}}/deps/conan_build/conan_toolchain.cmake \
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
+      working-directory: ./build/
       run: |
-        cmake --build ${{github.workspace}}/build/cmake --config ${{env.BUILD_TYPE}}
+        cmake --build .
     
     - name: Gather Outputs
       run: |
+        ls -al build
+        echo "=================================="
+        ls -al build/cmake
         mkdir release && cd release
-        mkdir -p include/rtx && cp ../src/*.h include/rtx
-        mkdir lib && cp ../build/cmake/lib/* lib
+        # mkdir -p include/rtx && cp ../src/*.h include/rtx
+        # mkdir lib && cp ../build/cmake/lib/* lib
         
     - name: Upload Artifacts
       uses: actions/upload-artifact@v3

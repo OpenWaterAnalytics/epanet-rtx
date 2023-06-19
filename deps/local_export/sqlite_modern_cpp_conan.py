@@ -1,26 +1,37 @@
-from conans import ConanFile
+from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
+from conan.tools.scm import Git
+from conan.tools.files import copy
+from os import path
 
 class SqliteModernCppConan(ConanFile):
     name = "sqlite_modern_cpp"
     version = "3.2"
+    package_type = "header-library"
 
-    # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
-    generators = "compiler_args"
-    # Sources are located in the same place as this recipe, copy them to the recipe
-    #exports_sources = "*.c", "*.h"
+    generators = "CMakeToolchain"
 
     def source(self):
-        self.run("git clone https://github.com/SqliteModernCpp/sqlite_modern_cpp.git")
+        git = Git(self)
+        git.clone(url="https://github.com/SqliteModernCpp/sqlite_modern_cpp.git", target=".")
 
     def package_id(self):
-        self.info.header_only()
+        self.info.clear()
 
     def package(self):
-        self.copy("*", "include", "sqlite_modern_cpp/hdr/")
+        print(path.join(self.source_folder, "hdr"))
+        copy(self, "*", path.join(self.source_folder, "hdr"), path.join(self.package_folder, "include"))
 
     def package_info(self):
-        self.cpp_info.includedirs = ['include']
+        self.cpp_info.set_property("cmake_file_name", "sqlite_modern_cpp")
+        
+        self.cpp_info.names["cmake_find_package"] = self.name
+        self.cpp_info.names["cmake_find_package_multi"] = self.name
+        self.cpp_info.set_property("cmake_target_name", self.name + "::" + self.name)
+        self.cpp_info.bindirs = []
+        self.cpp_info.includedirs = ["include"]
+        self.cpp_info.libdirs = []
+        self.cpp_info.libs = [self.name]

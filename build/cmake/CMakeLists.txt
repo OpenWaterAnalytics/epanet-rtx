@@ -39,7 +39,12 @@ find_package(Boost REQUIRED)
 find_package(cpprestsdk REQUIRED)
 find_package(CURL REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(oatpp REQUIRED)
+find_package(oatpp-openssl REQUIRED)
 find_package(ODBC REQUIRED)
+
+find_package(sqlite_modern_cpp REQUIRED)
+find_package(geohash REQUIRED)
 
 include_directories (${Boost_INCLUDE_DIRS})
 include_directories (${CURL_INCLUDE_DIR})
@@ -52,9 +57,6 @@ IF(APPLE)
    FIND_LIBRARY(CORE_FRAMEWORK CoreFoundation)
    SET(EXTRA_LIBS ${SECURITY_FRAMEWORK} ${CORE_FRAMEWORK})
 ENDIF (APPLE)
-
-include(../../deps/conanbuildinfo.cmake)
-conan_basic_setup()
 
 add_library(epanetrtx
 ../../src/AggregatorTimeSeries.cpp
@@ -130,7 +132,7 @@ set_target_properties(
 target_compile_definitions(epanetrtx PRIVATE MAXFLOAT=3.40282347e+38F)
 
 target_include_directories(epanetrtx
-	PRIVATE ../../src
+	PRIVATE ../../src ../../EPANET/include/
 )
 
 target_link_libraries(epanetrtx
@@ -140,6 +142,10 @@ target_link_libraries(epanetrtx
 	cpprestsdk::cpprest
 	CURL::libcurl
 	nlohmann_json::nlohmann_json
+	sqlite_modern_cpp::sqlite_modern_cpp
+  	geohash::geohash
+	oatpp::oatpp
+ 	oatpp::oatpp-openssl
 	)
 conan_target_link_libraries(epanetrtx)
 

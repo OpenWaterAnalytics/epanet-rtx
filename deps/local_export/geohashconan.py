@@ -1,35 +1,41 @@
-from conans import ConanFile
+from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
+from conan.tools.scm import Git
+from conan.tools.files import copy
+from os import path
 
 class GeoHashConan(ConanFile):
     name = "geohash"
     version = "1.0"
 
-    # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
-    generators = "compiler_args"
-    # Sources are located in the same place as this recipe, copy them to the recipe
-    #exports_sources = "*.c", "*.h"
+    generators = "CMakeToolchain"
 
     def source(self):
-        self.run("git clone https://github.com/simplegeo/libgeohash.git")
+        git = Git(self)
+        git.clone(url = "https://github.com/simplegeo/libgeohash.git", target = ".")
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def build(self):
-         command = 'cd libgeohash && clang -fPIC -c geohash.c -o geohash.o'
-         self.run(command)
-         self.run("cd libgeohash && ar -rcs libgeohash.a geohash.o")
+         self.run("clang -fPIC -c geohash.c -o geohash.o")
+         self.run("ar -rcs libgeohash.a geohash.o")
 
     def package(self):
-        self.copy("*.h", "include", "")
-        self.copy("*.a", "lib", "", keep_path=False)
+        copy(self, "*.h", self.source_folder, path.join(self.package_folder, "include"))
+        copy(self, "*.a", self.build_folder, path.join(self.package_folder, "lib"), keep_path=False)
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", self.name)
+        
+        self.cpp_info.names["cmake_find_package"] = self.name
+        self.cpp_info.names["cmake_find_package_multi"] = self.name
+        self.cpp_info.set_property("cmake_target_name", self.name + "::" + self.name)
+        self.cpp_info.bindirs = []
+        self.cpp_info.includedirs = ["include"]
         self.cpp_info.libdirs = ["lib"]
-        self.cpp_info.libs = ["geohash"]
-        self.cpp_info.includedirs = ['include']
+        self.cpp_info.libs = [self.name]
