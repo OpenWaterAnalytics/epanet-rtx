@@ -1191,7 +1191,9 @@ std::ostream& Model::toStream(std::ostream &stream) {
 
 void Model::setSimulationParameters(time_t time) {
   struct tm * timeinfo = localtime (&time);
-  OATPP_LOGD("Model", "Setting model inputs: %s", put_time(timeinfo, "%c"));
+  std::stringstream time_str;
+  time_str << put_time(timeinfo, "%F");
+  OATPP_LOGD("Model", "Setting model inputs: %s", time_str.str().c_str());
 //  cout << EOL << "*** SETTING MODEL INPUTS *** " << asctime(timeinfo) << " - " << time << EOL;
   // set all element parameters
   
