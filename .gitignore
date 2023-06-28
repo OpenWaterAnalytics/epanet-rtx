@@ -192,5 +192,4 @@ node_modules
 .idea
 
 # conan files
-conan.lock
-conanbuildinfo.*
+deps/conan_build/

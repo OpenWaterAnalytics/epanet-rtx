@@ -102,7 +102,7 @@ PointCollection StatsTimeSeries::filterPointsInRange(TimeRange range) {
     Units u2 = this->units();
     double pct = _percentile;
     
-    auto task = async(launch::async, [=]()->double {
+    auto task = async(launch::deferred, [=]()->double {
       if (!mySource) {
         return 0.0;
       }
