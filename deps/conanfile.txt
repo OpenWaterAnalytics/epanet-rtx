@@ -8,7 +8,6 @@ nlohmann_json/3.10.5
 libcurl/7.80.0
 zlib/1.2.12
 
-geohash/1.0
 sqlite_modern_cpp/3.2
 
 [options]
@@ -20,5 +19,5 @@ boost:without_stacktrace = False
 boost:without_test = False
 
 [generators]
-cmake
-xcode
+CMakeDeps
+CMakeToolchain
