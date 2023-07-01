@@ -11,6 +11,9 @@
 #include "DbAdapter.h"
 #include "PointRecordTime.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
 #include <sql.h>
 #include <sqlext.h>
 
