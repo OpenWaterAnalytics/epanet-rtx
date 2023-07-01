@@ -23,16 +23,19 @@
 #
 
 
-cmake_minimum_required (VERSION 3.10)
+cmake_minimum_required (VERSION 3.16)
 
-project (EPANET-RTX)
-SET (CMAKE_C_FLAGS "-std=c99")
-SET (CMAKE_CXX_FLAGS "-Wall")
+project (EPANET-RTX LANGUAGES CXX)
+SET (CMAKE_CXX_STANDARD 17)
 SET (CMAKE_POSITION_INDEPENDENT_CODE ON)
-add_definitions(-DRTX_NO_MYSQL)
 
-message("prefix: ${CMAKE_FIND_LIBRARY_PREFIXES}")
-message("suffix: ${CMAKE_FIND_LIBRARY_SUFFIXES}")
+add_compile_definitions(RTX_NO_MYSQL)
+IF (MSVC)
+    add_compile_definitions(_WIN32_WINNT=0x0A00)
+    add_compile_options(/W3 /wd4068)
+ELSE()
+    add_compile_options(-Wno-fatal-errors -Wall -Wpedantic -Wno-unknown-pragmas)
+ENDIF()
 
 include_directories (${Boost_INCLUDE_DIRS})
 
