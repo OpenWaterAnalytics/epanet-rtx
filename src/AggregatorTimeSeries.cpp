@@ -76,7 +76,7 @@ void AggregatorTimeSeries::addSource(TimeSeries::_sp timeSeries, double multipli
     this->setUnits(timeSeries->units());
   }
   
-  _tsList.push_back((AggregatorSource){timeSeries,multiplier});
+  _tsList.push_back(AggregatorSource{timeSeries,multiplier});
   this->invalidate();
 }
 

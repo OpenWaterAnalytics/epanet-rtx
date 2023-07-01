@@ -128,7 +128,7 @@ namespace RTX {
       std::shared_ptr<T> sp(newFilter);
       newFilter->setSource(this->sp());
       return sp;
-    };
+    }
 
 
   protected:

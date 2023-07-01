@@ -594,13 +594,13 @@ void EpanetModelExporter::replaceControlsInStream(ifstream &originalFile, ostrea
             if (isOpen) {
               if (control.setting.isValid) {
                 // new setting control
-                stream << "LINK " << name << " " << std::max(0.0, control.setting.value) << " AT TIME " << hrs << BR;// cache the previous setting
+                stream << "LINK " << name << " " << max(0.0, control.setting.value) << " AT TIME " << hrs << BR;// cache the previous setting
                 previousSetting = control.setting;
               }
               else if (control.status.isValid) { // if link is open, and a status is being set...
                 // Newly opened - reestablish previous link setting, if possible
                 if (previousSetting.isValid) {
-                  stream << "LINK " << name << " " << std::max(0.0, previousSetting.value) << " AT TIME " << hrs << BR;
+                  stream << "LINK " << name << " " << max(0.0, previousSetting.value) << " AT TIME " << hrs << BR;
                 }
               }
             } // isOpen

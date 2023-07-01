@@ -12,6 +12,7 @@
 #include "LagTimeSeries.h"
 
 #include <math.h>
+#include <float.h>
 #include <boost/foreach.hpp>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/covariance.hpp>
@@ -121,7 +122,7 @@ PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange range) {
       continue; // next time.
     }
     
-    pair<double, int> maxCorrelationAtLaggedTime(-MAXFLOAT,0);
+    pair<double, int> maxCorrelationAtLaggedTime(-FLT_MAX, 0);
     
     for(time_t lagTime : lagEvaluationTimes) {
       
@@ -176,7 +177,7 @@ PointCollection CorrelatorTimeSeries::filterPointsInRange(TimeRange range) {
     }
     
     
-    if (maxCorrelationAtLaggedTime.first > -MAXFLOAT) {
+    if (maxCorrelationAtLaggedTime.first > -FLT_MAX) {
       thePoints.push_back(Point(t,maxCorrelationAtLaggedTime.first, Point::opc_rtx_override, (double)(maxCorrelationAtLaggedTime.second)));
     }
     
