@@ -184,8 +184,13 @@ Desktop.ini
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
 
+build/.cmake/api/v1/*
 build/cmake/*
 !build/cmake/CMakeLists.txt
+
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
 
 # node deps
 node_modules
@@ -193,3 +198,12 @@ node_modules
 
 # conan files
 deps/conan_build/
+
+# VSCode
+.vscode/*
+
+# Local History for VSCode
+.history/
+
+# Built VSCode Extensions
+*.vsix
