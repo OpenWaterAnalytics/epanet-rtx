@@ -1,88 +1,64 @@
-FROM ubuntu:bionic
+FROM debian:bookworm-slim
 
 RUN apt-get update && \
-	apt-get install -y libsqlite3-dev cmake libiodbc2-dev tdsodbc curl libcurl4-openssl-dev g++ openssl libssl-dev git
-RUN apt-get install -y llvm clang libblocksruntime-dev
-RUN apt-get install -y wget
-RUN apt-get install -y zlib1g-dev
+    apt-get install -y --no-install-recommends \
+    libsqlite3-dev cmake unixodbc-dev libcpprest-dev \
+    libboost-dev libboost-iostreams-dev gcc g++ make git zlib1g-dev \
+    openssl curl nlohmann-json3-dev libcurl4-openssl-dev
 
-## build / install boost
-ARG boost_version=1.62.0
-ARG boost_dir=boost_1_62_0
-ENV boost_version ${boost_version}
+ENV VIRTUAL_ENV=/opt/venv
+RUN apt-get install -y python3-venv \
+    && python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-RUN wget http://downloads.sourceforge.net/project/boost/boost/${boost_version}/${boost_dir}.tar.gz \
-    && tar xfz ${boost_dir}.tar.gz \
-    && rm ${boost_dir}.tar.gz \
-    && cd ${boost_dir} \
-    && ./bootstrap.sh \
-    && ./b2 --without-python --prefix=/usr -j 4 link=shared runtime-link=shared install \
-    && cd .. && rm -rf ${boost_dir} && ldconfig
+RUN pip3 install conan \
+    && conan profile detect \
+    && conan profile show -pr default
 
 WORKDIR /opt/src
 
-### install cpprestsdk library
-RUN git clone https://github.com/Microsoft/cpprestsdk.git casablanca \
-	&& cd casablanca \
-	&& git submodule update --init \
-	&& cd Release \
-	&& mkdir build.release \
-	&& cd build.release \
-	&& cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=0 -DBUILD_SAMPLES=0 \
-	&& make \
-	&& make install \
-	&& cd /opt/src \
-	&& rm -rf casablanca
-
-
-### install oatpp library
-RUN git clone https://github.com/oatpp/oatpp.git \
-	&& cd oatpp/ \
-	&& mkdir build && cd build \
-	&& cmake .. \
-	&& make install
-
-### install oatpp-openssl library
-RUN git clone https://github.com/oatpp/oatpp-openssl.git \
-	&& cd oatpp-openssl/ \
-	&& mkdir build && cd build \
-	&& cmake .. \
-	&& make install
-
-### install nlohmann-json
-RUN git clone https://github.com/nlohmann/json.git \
-		&& cd json/ \
-		&& mkdir build && cd build \
-		&& cmake .. \
-		&& make install
-
-## install sqlite_modern dep
-RUN git clone https://github.com/aminroosta/sqlite_modern_cpp.git \
-	&& cp -R sqlite_modern_cpp/hdr/* /usr/local/include/ \
-	&& cd /opt/src \
-	&& rm -rf sqlite_modern_cpp
-
-##########################################################################################
-####  everything above here should be pretty stable. cache this.
-##########################################################################################
-
 ## build/install EPANET
-RUN git clone https://github.com/samhatchett/EPANET.git \
-	&& cd EPANET \
-	&& git checkout owa_netBuilder \
-	&& cd build/CMake \
-	&& mkdir build && cd build \
-	&& cmake -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ .. \
-	&& make \
-	&& make install
+RUN git clone --depth=1 https://github.com/cameron-devine/EPANET.git \
+    && cd EPANET \
+    && sed -i '844s/,EN_Project/,void*/g' ./src/epanet.c \
+    && sed -i '520s/EN_Project,/void*,/g' ./include/epanet2_2.h \
+    && sed -i '636s/EN_Project/void*/g' ./src/types.h \
+    && mkdir build && cd build \
+    && cmake .. \
+    && cmake --build . --config Release \
+    && cp lib/* /usr/local/lib/ \
+    && cp ../include/*.h /usr/local/include/ \
+    && cp ../src/*.h /usr/local/include/
 
+# RUN git clone --depth=1 https://github.com/OpenWaterAnalytics/epanet-rtx.git \
+RUN git clone --depth=1 https://github.com/0tkl/epanet-rtx.git -b overhaul --single-branch \
+    && cd epanet-rtx/deps \
+    && conan create local_export/sqlite_modern_cpp_conan.py \
+    && conan install . --build=missing -of conan_build/
 
-RUN git clone https://github.com/OpenWaterAnalytics/epanet-rtx.git \
-	&& cd epanet-rtx \
-	&& git checkout oatpp-migration \
-	&& cd build/cmake \
-	&& mkdir build && cd build \
-	&& cmake -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ .. \
-	&& make \
-	&& make test ARGS="-V" \
-	&& make install
+RUN cp -r EPANET epanet-rtx \
+    && cd epanet-rtx/build/cmake \
+    && cmake -B . \
+    -DCMAKE_TOOLCHAIN_FILE=../../deps/conan_build/conan_toolchain.cmake \
+    -DCMAKE_BUILD_TYPE=Release \
+    && cmake --build . --config Release \
+    && make install
+
+RUN git clone https://github.com/srinivasrk/epanet-rtx-link.git rtx_link \
+    && cd rtx_link \
+    && cp ./build/templates/odbcinst.ini.template /etc/odbcinst.ini \
+    && cp -r ./frontend /usr/app \
+    && mkdir -p /usr/app/srv/linux \
+    && cp /usr/local/bin/link-server /usr/app/srv/linux/link-server
+
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs tdsodbc
+
+WORKDIR /usr/app
+
+RUN npm install --no-audit \
+    && NODE_OPTIONS=--openssl-legacy-provider npm run build
+
+EXPOSE 3000
+VOLUME /root/rtx_link
+CMD [ "npm", "start" ]
