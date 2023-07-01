@@ -19,6 +19,9 @@ using web::http::uri;
 
 using jsv = web::json::value;
 
+using utility::string_t;
+using utility::conversions::to_string_t;
+using utility::conversions::to_utf8string;
 
 #ifndef PI_SSL_VALIDATE
   #define PI_SSL_VALIDATE true
@@ -31,27 +34,27 @@ using jsv = web::json::value;
 
 #define PI_TIMEOUT 3
 
-const string kOSI_REST("OSIsoft.REST");
-const string kFULL_VERSION("FullVersion");
-const string kWebId("WebId");
-const string kItems("Items");
-const string kName("Name");
-const string kDescriptor("Descriptor");
-const string kEngUnits("EngineeringUnits");
-const string kTimeStamp("Timestamp");
-const string kValue("Value");
-const string kGood("Good");
-const string kQuest("Questionable");
-const string kSubst("Substituted");
-
+const string_t kOSI_REST(U("OSIsoft.REST"));
+const string_t kFULL_VERSION(U("FullVersion"));
+const string_t kWebId(U("WebId"));
+const string_t kItems(U("Items"));
+const string_t kName(U("Name"));
+const string_t kDescriptor(U("Descriptor"));
+const string_t kEngUnits(U("EngineeringUnits"));
+const string_t kTimeStamp(U("Timestamp"));
+const string_t kValue(U("Value"));
+const string_t kGood(U("Good"));
+const string_t kQuest(U("Questionable"));
+const string_t kSubst(U("Substituted"));
 
 const char* t_fmt = "%Y-%m-%dT%H:%M:%SZ";
 
 
 Point PiAdapter::_pointFromJson(const jsv& j) {
-  for (const string& key : {kTimeStamp,kValue,kGood,kQuest,kSubst}) {
+  for (auto key : {kTimeStamp, kValue, kGood, kQuest, kSubst}) {
     if (!j.has_field(key)) {
-      cerr << "ERR: JSON object does not contain required field " << key << endl;
+      cerr << "ERR: JSON object does not contain required field "
+           << to_utf8string(key) << endl;
       return Point();
     }
   }
@@ -66,12 +69,13 @@ Point PiAdapter::_pointFromJson(const jsv& j) {
     v = ov.as_double();
   }
   else if (ovType == jsv::value_type::String) {
-    string key = ov.as_string();
+    string key = to_utf8string(ov.as_string());
     if (_conversions.count(key) > 0) {
       v = _conversions.at(key);
     }
     else {
-      cerr << "No valid conversion for: " << ov.serialize() << endl;
+      cerr << "No valid conversion for: "
+           << to_utf8string(ov.serialize()) << endl;
       return Point();
     }
   }
@@ -83,7 +87,8 @@ Point PiAdapter::_pointFromJson(const jsv& j) {
       v = nested.as_double();
     }
     else {
-      cerr << "Nested value could not be retrieved: " << ov.serialize() << endl;
+      cerr << "Nested value could not be retrieved: "
+           << to_utf8string(ov.serialize()) << endl;
       return Point();
     }
   }
@@ -92,16 +97,14 @@ Point PiAdapter::_pointFromJson(const jsv& j) {
     return Point();
   }
   
-  const string tstamp(j.at(kTimeStamp).as_string());
-  const bool good(j.at(kGood).as_bool());
-  Point::PointQuality q = (good ? Point::PointQuality::opc_good : Point::PointQuality::opc_bad);
+  const string tstamp = to_utf8string( j.at(kTimeStamp).as_string() );
+  const bool good = j.at(kGood).as_bool();
+  Point::PointQuality q = 
+      good ? Point::PointQuality::opc_good : Point::PointQuality::opc_bad;
   time_t t = PointRecordTime::timeFromIso8601(tstamp);
   
   return Point(t,v,q);
 }
-
-
-
 
 
 PiAdapter::PiAdapter(errCallback_t cb) : DbAdapter(cb) { 
@@ -136,7 +139,13 @@ const DbAdapter::adapterOptions PiAdapter::options() const {
 
 std::string PiAdapter::connectionString() {
   stringstream ss;
-  ss << "proto=" << this->_conn.proto << "&host=" << this->_conn.host << "&port=" << this->_conn.port << "&api=" << this->_conn.apiPath << "&dataserver=" << this->_conn.dataServer << "&u=" << this->_conn.user << "&p=" << this->_conn.pass;
+  ss << "proto="        << this->_conn.proto
+     << "&host="        << this->_conn.host
+     << "&port="        << this->_conn.port
+     << "&api="         << this->_conn.apiPath
+     << "&dataserver="  << this->_conn.dataServer
+     << "&u="           << this->_conn.user
+     << "&p="           << this->_conn.pass;
   return ss.str();
 }
 
@@ -188,16 +197,17 @@ void PiAdapter::doConnect() {
   
   // try the endpoint
   auto uriQ = uriBase()
-  .append_path("system")
-  .append_path("versions")
+  .append_path(U("system"))
+  .append_path(U("versions"))
   .to_uri();
   
   jsv j = jsonFromRequest(uriQ, methods::GET);
   if (j.has_field(kOSI_REST)) {
     auto v = j[kOSI_REST];
     if (v.has_field(kFULL_VERSION)) {
-      string vers = v[kFULL_VERSION].as_string();
-      cout << "PI REST VERSION: " << vers << endl;
+      string_t vers = v[kFULL_VERSION].as_string();
+      cout << "PI REST VERSION: "
+           << to_utf8string(vers) << endl;
     }
   }
   else {
@@ -210,14 +220,14 @@ void PiAdapter::doConnect() {
   
   // ok, now try to get the webId for the data server
   auto uriDS = uriBase()
-  .append_path("dataservers")
-  .append_query("name", _conn.dataServer)
-  .append_query("selectedFields", "WebId;Name;IsConnected;ServerVersion")
+  .append_path(U("dataservers"))
+  .append_query(U("name"), to_string_t(_conn.dataServer))
+  .append_query(U("selectedFields"), U("WebId;Name;IsConnected;ServerVersion"))
   .to_uri();
   
   jsv dj = jsonFromRequest(uriDS, methods::GET);
   if (dj.has_field(kWebId)) {
-    string webId = dj[kWebId].as_string();
+    string webId = to_utf8string( dj[kWebId].as_string() );
     cout << "PI DATA SERVER WEB ID: " << webId << endl;
     _conn.dsWebId = webId;
     _connected = true;
@@ -239,22 +249,22 @@ IdentifierUnitsList PiAdapter::idUnitsList() {
   _webIdLookup.clear();
   
   auto uriPointsB = uriBase()
-  .append_path("dataservers")
-  .append_path(_conn.dsWebId)
-  .append_path("points")
-  .append_query("maxCount",10000)
-  .append_query("selectedFields=Items.WebId;Items.Name;Items.Descriptor;Items.EngineeringUnits");
+  .append_path(U("dataservers"))
+  .append_path(to_string_t(_conn.dsWebId))
+  .append_path(U("points"))
+  .append_query(U("maxCount"), 10000)
+  .append_query(U("selectedFields=Items.WebId;Items.Name;Items.Descriptor;Items.EngineeringUnits"));
   
   if (this->tagSearchPath != "") {
-    uriPointsB.append_query("nameFilter",this->tagSearchPath);
+    uriPointsB.append_query(U("nameFilter"), to_string_t(this->tagSearchPath));
   }
   
   jsv j = jsonFromRequest(uriPointsB.to_uri(), methods::GET);
   if (j.has_field(kItems)) {
     for(auto i : j[kItems].as_array()) {
       if (i.has_field(kName) && i.has_field(kWebId)) {
-        string name = i[kName].as_string();
-        string webId = i[kWebId].as_string();
+        string name  = to_utf8string( i[kName].as_string());
+        string webId = to_utf8string(i[kWebId].as_string());
         _webIdLookup[name] = webId;
         ids.set(name, RTX_DIMENSIONLESS);
       }
@@ -281,23 +291,26 @@ std::vector<Point> PiAdapter::selectRange(const std::string& id, TimeRange range
     return points;
   }
   
-  auto startStr = PointRecordTime::utcDateStringFromUnix(range.start,t_fmt);
-  auto endStr = PointRecordTime::utcDateStringFromUnix(range.end,t_fmt);
-  string webId = _webIdLookup[id];
+  auto startStr = to_string_t(
+      PointRecordTime::utcDateStringFromUnix(range.start, t_fmt));
+  auto endStr   = to_string_t(
+      PointRecordTime::utcDateStringFromUnix(range.end,   t_fmt));
+  string_t webId = to_string_t(_webIdLookup[id]);
   
   auto uriRange = uriBase()
-  .append_path("streams")
-  .append_path(webId)
-  .append_path("recorded")
-  .append_query("startTime",startStr)
-  .append_query("endTime",endStr)
-  .append_query("maxCount",PI_MAX_POINT_COUNT)
+  .append_path (U("streams"))
+  .append_path (webId)
+  .append_path (U("recorded"))
+  .append_query(U("startTime"), startStr)
+  .append_query(U("endTime"),   endStr)
+  .append_query(U("maxCount"),  PI_MAX_POINT_COUNT)
   .to_uri();
   
   jsv j = jsonFromRequest(uriRange, methods::GET);
   
   if (!j.has_field(kItems)) {
-    cerr << "PI RECORD COULD NOT FIND ITEMS in response: " << j.serialize() << endl;
+    cerr << "PI RECORD COULD NOT FIND ITEMS in response: "
+         << to_utf8string(j.serialize()) << endl;
     return points;
   }
   
@@ -351,7 +364,7 @@ web::json::value PiAdapter::jsonFromRequest(web::http::uri uri, web::http::metho
   try {
     string auth = _conn.user + ":" + _conn.pass;
     std::vector<unsigned char> bytes(auth.begin(), auth.end());
-    string userpass = utility::conversions::to_base64(bytes);
+    string_t userpass = utility::conversions::to_base64(bytes);
     
     http_client_config config;
     config.set_validate_certificates(PI_SSL_VALIDATE);
@@ -360,13 +373,14 @@ web::json::value PiAdapter::jsonFromRequest(web::http::uri uri, web::http::metho
     //    config.set_credentials(cred);
     http_client client(uri, config);
     http_request req(methods::GET);
-    req.headers().add("Authorization", "Basic " + userpass);
+    req.headers().add(U("Authorization"), U("Basic ") + userpass);
     http_response r = client.request(req).get(); // waits for response
     if (r.status_code() == status_codes::OK) {
       js = r.extract_json().get();
     }
     else {
-      cerr << "CONNECTION ERROR: " << r.reason_phrase() << EOL;
+      cerr << "CONNECTION ERROR: "
+           << to_utf8string(r.reason_phrase()) << endl;
     }
   }
   catch (std::exception &e) {
@@ -377,8 +391,10 @@ web::json::value PiAdapter::jsonFromRequest(web::http::uri uri, web::http::metho
 
 web::http::uri_builder PiAdapter::uriBase() {
   web::http::uri_builder b;
-  b.set_scheme(_conn.proto).set_host(_conn.host).set_port(_conn.port)
-  .append_path(_conn.apiPath);
+  b.set_scheme (to_string_t(_conn.proto))
+   .set_host   (to_string_t(_conn.host))
+   .set_port   (_conn.port)
+   .append_path(to_string_t(_conn.apiPath));
   return b;
 }
 
@@ -394,8 +410,3 @@ map<string,string> PiAdapter::_kvFromDelimited(const string& str) {
   
   return kvPairs;
 }
-
-
-
-
-
