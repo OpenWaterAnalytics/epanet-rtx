@@ -20,6 +20,7 @@
 #include <boost/graph/adjacency_list.hpp>
 
 #include <openssl/sha.h>
+#include <openssl/evp.h>
 
 using namespace RTX;
 using namespace std;
@@ -410,36 +411,37 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
   // hash formulation. entries are ordered using built-in std::set sorting.
   // m:[+/-]<mbpName>,[+/-]<mbpName>,[...],c:<cbpName>,<cbpName>,[...],t:<tankName>,<tankName>,[...],j:<juncName>,<juncName>,[...]
   
-  SHA_CTX ctx;
-  SHA1_Init(&ctx);
-  
-  auto updateSha = [&](set<string> &strings){
-    bool firstEntry = true;
-    for (auto str : strings) {
-      if (!firstEntry) {
-        SHA1_Update(&ctx, (unsigned char *)(","), 1);
-      }
-      SHA1_Update(&ctx, (unsigned char *)str.c_str(), str.length());
-      firstEntry = false;
+  EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+  const EVP_MD *hashptr = EVP_get_digestbyname("SHA1");
+  EVP_DigestInit(ctx, hashptr);
+  auto updateSHA = [&](set<string> &strings) {
+    auto it = strings.begin(), itEnd = strings.end();
+    if (it != itEnd) {
+      EVP_DigestUpdate(ctx, (unsigned char *)it->c_str(), it->length());
+      ++it;
+    }
+    for(; it != itEnd; ++it) {
+      EVP_DigestUpdate(ctx, (unsigned char *)(","), 1);
+      EVP_DigestUpdate(ctx, (unsigned char *)it->c_str(), it->length());
     }
   };
-  
-  SHA1_Update(&ctx, (unsigned char *)("m:"), 2);
-  updateSha(flowMeasuredPipes);
-  SHA1_Update(&ctx, (unsigned char *)("c:"), 2);
-  updateSha(closedBoundaryPipes);
-  SHA1_Update(&ctx, (unsigned char *)("t:"), 2);
-  updateSha(tanks);
-  SHA1_Update(&ctx, (unsigned char *)("j:"), 2);
-  updateSha(junctions);
-  
+
+  EVP_DigestUpdate(ctx, (unsigned char *)("m:"), 2);
+  updateSHA(flowMeasuredPipes);
+  EVP_DigestUpdate(ctx, (unsigned char *)("c:"), 2);
+  updateSHA(closedBoundaryPipes);
+  EVP_DigestUpdate(ctx, (unsigned char *)("t:"), 2);
+  updateSHA(tanks);
+  EVP_DigestUpdate(ctx, (unsigned char *)("j:"), 2);
+  updateSHA(junctions);
+
   unsigned char digest[SHA_DIGEST_LENGTH]; // len == 20
-  SHA1_Final(digest, &ctx); 
+  EVP_DigestFinal(ctx, digest, NULL);
   
   int len = 0;
   char hashedNameCh[SHA_DIGEST_LENGTH*2+1];
   for (int i = 0; i < SHA_DIGEST_LENGTH; i++) {
-    len += sprintf(hashedNameCh+len, "%02x",digest[i]);
+    len += sprintf(hashedNameCh+len, "%02x", digest[i]);
   }
   this->hashedName = string(hashedNameCh);
 }

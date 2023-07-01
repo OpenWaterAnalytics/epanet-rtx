@@ -33,7 +33,8 @@
 #include <thread>
 #include <mutex>
 #include <shared_mutex>
-#include "openssl/sha.h"
+#include <openssl/sha.h>
+#include <openssl/evp.h>
 #include "oatpp/core/base/Environment.hpp"
 
 using namespace RTX;
@@ -134,10 +135,12 @@ std::string Model::modelHash() {
   std::string modelString = buffer.str();
   
   unsigned char hash[SHA256_DIGEST_LENGTH];
-  SHA256_CTX sha256;
-  SHA256_Init(&sha256);
-  SHA256_Update(&sha256, modelString.c_str(), modelString.length());
-  SHA256_Final(hash, &sha256);
+  EVP_MD_CTX *sha256 = EVP_MD_CTX_new();
+  const EVP_MD *sha256ptr = EVP_get_digestbyname("SHA256");
+  EVP_MD_CTX_init(sha256);
+  EVP_DigestInit(sha256, sha256ptr);
+  EVP_DigestUpdate(sha256, modelString.c_str(), modelString.length());
+  EVP_DigestFinal(sha256, hash, NULL);
   
   std::stringstream ss;
   for(int i=0; i<SHA256_DIGEST_LENGTH; ++i)
