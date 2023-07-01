@@ -42,20 +42,34 @@ option(BUILD_TESTS "Build the tests" OFF)
 option(BUILD_WITH_MSX "Build with EPANET MSX Library" OFF)
 option(BUILD_WITH_OPC "Build with open62541 Library" OFF)
 
+find_package(Boost REQUIRED filesystem iostreams thread)
+find_package(cpprestsdk REQUIRED)
+find_package(CURL REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(oatpp REQUIRED)
+find_package(oatpp-openssl REQUIRED)
+find_package(ODBC REQUIRED)
+find_package(OpenSSL REQUIRED)
+find_package(SQLite3 REQUIRED)
+
+find_path(SQLITE_MODERN_CPP_INCLUDE_DIRS "sqlite_modern_cpp.h")
+
+find_path(EPANET2_INCLUDE_DIR "epanet2_2.h")
+find_library(EPANET2_LIBRARY epanet2)
+
+if (BUILD_WITH_MSX)
+    find_path(EPANET_MSX_INCLUDE_DIR "epanetmsx.h")
+    find_library(EPANET_MSX_LIBRARY epanetmsx)
+endif()
+
 include_directories (${Boost_INCLUDE_DIRS})
+IF (APPLE)
+    include_directories(/usr/local/opt/openssl/include/)
+ENDIF()
 
-SET (EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
-SET (LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
-
-# the rtx library
-include_directories(
-	../../src
-	/usr/local/include/iODBC
-	/usr/include/iodbc
-	../../../EPANET/src
-	/usr/local/include/oatpp-1.3.0/oatpp
-	/usr/local/include/oatpp-1.3.0/oatpp-openssl
-	)
+SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+SET (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+SET (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 SET (RTX_SOURCES
 ../../src/AggregatorTimeSeries.cpp
@@ -131,31 +145,46 @@ endif()
 
 add_library(epanetrtx ${RTX_SOURCES})
 
-set_target_properties(
-  epanetrtx PROPERTIES
-  CXX_STANDARD 17
+target_include_directories(
+    epanetrtx PRIVATE
+    ../../src
+    ${SQLITE_MODERN_CPP_INCLUDE_DIRS}
+    ${EPANET2_INCLUDE_DIR}
 )
 
-target_compile_definitions(epanetrtx PRIVATE MAXFLOAT=3.40282347e+38F)
-set(rtx_lib_deps
-	epanet
-	curl
-	iodbc
-	sqlite3
-	m
-	z
-	pthread
-	)
+IF (BUILD_WITH_MSX)
+    target_include_directories(epanetrtx PRIVATE ${EPANET_MSX_INCLUDE_DIR})
+ENDIF()
 
+IF (MSVC)
+    target_link_libraries(epanetrtx Boost::disable_autolinking)
+ENDIF()
 
 target_link_libraries(
-	epanetrtx
-	${rtx_lib_deps}
-	)
+    epanetrtx
+    ${EPANET2_LIBRARY}
+    Boost::headers
+    Boost::filesystem
+    Boost::iostreams
+    Boost::thread
+    cpprestsdk::cpprest
+    CURL::libcurl
+    nlohmann_json::nlohmann_json
+    oatpp::oatpp
+    oatpp::oatpp-openssl
+    ODBC::ODBC
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    SQLite::SQLite3
+)
 
+IF (BUILD_WITH_MSX)
+    target_link_libraries(epanetrtx ${EPANET_MSX_LIBRARY})
+ENDIF()
 
-
-install(DIRECTORY ../../src/ DESTINATION include/rtx FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY   ../../src/
+        DESTINATION include/rtx
+        FILES_MATCHING PATTERN "*.h")
 install(TARGETS epanetrtx DESTINATION lib)
 
 IF (BUILD_EXAMPLES)

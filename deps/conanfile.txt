@@ -1,22 +1,8 @@
 [requires]
-openssl/1.1.1m
 oatpp/1.3.0
 oatpp-openssl/1.3.0
-boost/1.79.0
-cpprestsdk/2.10.18
-nlohmann_json/3.10.5
-libcurl/7.80.0
-zlib/1.2.12
 
 sqlite_modern_cpp/3.2
-
-[options]
-boost:without_math = False
-boost:without_graph = False
-boost:without_locale = True
-boost:without_log = True
-boost:without_stacktrace = False
-boost:without_test = False
 
 [generators]
 CMakeDeps
