@@ -37,6 +37,11 @@ ELSE()
     add_compile_options(-Wno-fatal-errors -Wall -Wpedantic -Wno-unknown-pragmas)
 ENDIF()
 
+option(BUILD_EXAMPLES "Build the examples" ON)
+option(BUILD_TESTS "Build the tests" OFF)
+option(BUILD_WITH_MSX "Build with EPANET MSX Library" OFF)
+option(BUILD_WITH_OPC "Build with open62541 Library" OFF)
+
 include_directories (${Boost_INCLUDE_DIRS})
 
 SET (EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
@@ -68,7 +73,7 @@ link_directories(
 	/usr/local/lib
 	)
 
-add_library(epanetrtx
+SET (RTX_SOURCES
 ../../src/AggregatorTimeSeries.cpp
 ../../src/BaseStatsTimeSeries.cpp
 ../../src/BufferPointRecord.cpp
@@ -115,8 +120,8 @@ add_library(epanetrtx
 ../../src/Pump.cpp
 ../../src/Reservoir.cpp
 ../../src/SineTimeSeries.cpp
-../../src/SquareWaveTimeSeries.cpp
 ../../src/SqliteAdapter.cpp
+../../src/SquareWaveTimeSeries.cpp
 ../../src/StatsTimeSeries.cpp
 ../../src/Tank.cpp
 ../../src/ThresholdTimeSeries.cpp
@@ -133,6 +138,14 @@ add_library(epanetrtx
 ../../src/Valve.cpp
 ../../src/WhereClause.cpp
 )
+
+if (BUILD_WITH_MSX)
+    list(APPEND RTX_SOURCES ../../src/EpanetMsxModel.cpp)
+elseif (BUILD_WITH_OPC)
+    list(APPEND RTX_SOURCES ../../src/OpcAdapter.cpp ../../src/OpcPointRecord.cpp)
+endif()
+
+add_library(epanetrtx ${RTX_SOURCES})
 
 set_target_properties(
   epanetrtx PROPERTIES
@@ -161,3 +174,15 @@ target_link_libraries(
 
 install(DIRECTORY ../../src/ DESTINATION include/rtx FILES_MATCHING PATTERN "*.h")
 install(TARGETS epanetrtx DESTINATION lib)
+
+IF (BUILD_EXAMPLES)
+    add_subdirectory(../../examples/conceptual ../conceptual)
+    IF (NOT MSVC)
+        add_subdirectory(../../examples/LINK/service ../LINK/service)
+    ENDIF()
+ENDIF()
+
+IF (BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(../../test/ ../test/)
+ENDIF()
