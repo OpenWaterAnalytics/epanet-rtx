@@ -47,30 +47,14 @@ include_directories (${Boost_INCLUDE_DIRS})
 SET (EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 SET (LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
-IF(APPLE)
-   FIND_LIBRARY(SECURITY_FRAMEWORK Security)
-   FIND_LIBRARY(CORE_FRAMEWORK CoreFoundation)
-   SET(EXTRA_LIBS ${SECURITY_FRAMEWORK} ${CORE_FRAMEWORK})
-ENDIF (APPLE)
-
-include(/opt/src/epanet-rtx/deps/conanbuildinfo.cmake)
-conan_basic_setup()
-
 # the rtx library
 include_directories(
 	../../src
-	/usr/local/include
 	/usr/local/include/iODBC
-	/usr/include
 	/usr/include/iodbc
 	../../../EPANET/src
 	/usr/local/include/oatpp-1.3.0/oatpp
 	/usr/local/include/oatpp-1.3.0/oatpp-openssl
-	)
-
-link_directories(
-	/usr/lib
-	/usr/local/lib
 	)
 
 SET (RTX_SOURCES
@@ -167,7 +151,6 @@ set(rtx_lib_deps
 target_link_libraries(
 	epanetrtx
 	${rtx_lib_deps}
-  ${CONAN_LIBS}
 	)
 
 
