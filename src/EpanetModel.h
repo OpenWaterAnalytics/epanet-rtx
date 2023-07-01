@@ -14,7 +14,7 @@
 
 extern "C" {
   #define EN_API_FLOAT_TYPE double
-  #include <epanet2.h>
+  #include <epanet2_2.h>
 }
 
 namespace RTX {
@@ -38,11 +38,11 @@ namespace RTX {
 //    void loadModelFromFile(const std::string& filename) throw(std::exception);
     virtual void initEngine();
     virtual void closeEngine();
-    void useEpanetModel(EN_Project *model, string path);
+    void useEpanetModel(EN_Project model, string path);
     void useEpanetFile(const std::string& filename);
     virtual void overrideControls();
     virtual std::ostream& toStream(std::ostream &stream);
-    EN_Project *epanetModelPointer();
+    EN_Project epanetModelPointer();
     
     int enIndexForJunction(Junction::_sp j);
     int enIndexForPipe(Pipe::_sp p);
@@ -113,7 +113,7 @@ namespace RTX {
     void setLinkValue(int epanetCode, const std::string& link, double value);
     void setComment(Element::_sp element, const std::string& comment);
     
-    EN_Project *_enModel; // protected scope so subclasses can use epanet api
+    EN_Project _enModel; // protected scope so subclasses can use epanet api
     
   private:
     std::map<std::string, int> _nodeIndex;
