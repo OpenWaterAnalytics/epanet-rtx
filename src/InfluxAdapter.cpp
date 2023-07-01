@@ -970,14 +970,14 @@ map<string, vector<Point> > InfluxTcpAdapter::__pointsFromJson(json& json) {
         OATPP_LOGI(InfluxTcpAdapter::TAG, "Series format returned: %s", series.dump().c_str());
       }
       auto cols = series.at("columns");
-      for (int i = 0; i < cols.size(); ++i) {
+      for (size_t i = 0; i < cols.size(); ++i) {
         string colName = cols[i];
         columnMap[colName] = (int)i;
       }
       
       // check columns are all there
       bool allColumnsPresent = true;
-      for (const string &key : {"time","value","quality","confidence"}) {
+      for (const auto& key : {"time","value","quality","confidence"}) {
         if (columnMap.count(key) == 0) {
           cerr << "column map does not contain key: " << key << endl;
           allColumnsPresent = false;

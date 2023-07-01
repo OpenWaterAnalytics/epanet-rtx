@@ -282,7 +282,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
   Clock::_sp fixed_minute_clock(new Clock(60));
   
   // we've supplied a list of candidate boundary pipes. prune the list of pipes that don't connect to this dma.
-  for(const Pipe::_sp p : boundarySet) {
+  for(const Pipe::_sp& p : boundarySet) {
     Junction::_sp j1, j2;
     j1 = std::static_pointer_cast<Junction>(p->from());
     j2 = std::static_pointer_cast<Junction>(p->to());
@@ -582,7 +582,7 @@ bool Dma::isMeasuredBoundaryPipe(Pipe::_sp pipe) {
 
 bool Dma::isMeasuredInteriorPipe(Pipe::_sp pipe) {
   
-  for(const Pipe::_sp p : _measuredInteriorPipes) {
+  for(const Pipe::_sp& p : _measuredInteriorPipes) {
     if (p == pipe) {
       return true;
     }
@@ -617,7 +617,7 @@ bool Dma::isClosedBoundaryPipe(Pipe::_sp pipe) {
 
 bool Dma::isClosedInteriorPipe(Pipe::_sp pipe) {
   
-  for(const Pipe::_sp p : _closedInteriorPipes) {
+  for(const Pipe::_sp& p : _closedInteriorPipes) {
     if (p == pipe) {
       return true;
     }

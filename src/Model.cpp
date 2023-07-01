@@ -449,7 +449,7 @@ void Model::initDMAs() {
     indexedNodes.push_back(nodePair.second);
   }
   
-  for (int nodeIdx = 0; nodeIdx < _nodes.size(); ++nodeIdx) {
+  for (size_t nodeIdx = 0; nodeIdx < _nodes.size(); ++nodeIdx) {
     int dmaIdx = componentMap[nodeIdx];
     Dma::_sp dma = newDmas[dmaIdx];
     dma->addJunction(std::static_pointer_cast<Junction>(indexedNodes[nodeIdx]));
