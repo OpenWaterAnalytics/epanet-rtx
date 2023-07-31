@@ -139,7 +139,8 @@ SET (RTX_SOURCES
 
 if (BUILD_WITH_MSX)
     list(APPEND RTX_SOURCES ../../src/EpanetMsxModel.cpp)
-elseif (BUILD_WITH_OPC)
+endif()
+if (BUILD_WITH_OPC)
     list(APPEND RTX_SOURCES ../../src/OpcAdapter.cpp ../../src/OpcPointRecord.cpp)
 endif()
 
