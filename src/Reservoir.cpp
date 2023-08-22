@@ -38,15 +38,3 @@ void Reservoir::setBoundaryHead(TimeSeries::_sp head) {
 TimeSeries::_sp Reservoir::boundaryHead() {
   return headMeasure();
 }
-
-// for the following methods, default to the qualityMeasure Junction:: methods,
-// since if a reservoir has a source, it simply must be a boundary condition.
-
-void Reservoir::setBoundaryQuality(TimeSeries::_sp quality) {
-  setQualitySource(quality);
-}
-
-
-TimeSeries::_sp Reservoir::boundaryQuality() {
-  return qualitySource();
-}

@@ -41,6 +41,8 @@ namespace RTX {
     // parameters
     TimeSeries::_sp qualitySource();
     void setQualitySource(TimeSeries::_sp quality);
+    TimeSeries::_sp boundaryQuality();
+    void setBoundaryQuality(TimeSeries::_sp quality);
     
     TimeSeries::_sp boundaryFlow(); // metered demand (+) or flow input (-)
     void setBoundaryFlow(TimeSeries::_sp flow);
