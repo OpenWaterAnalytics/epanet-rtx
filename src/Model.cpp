@@ -1386,10 +1386,10 @@ void Model::setSimulationParameters(time_t time) {
       }
     }
     for(Tank::_sp tank: this->tanks()) {
-      if (tank->boundaryQuality()) {
-        Point p = tank->boundaryQuality()->pointAtOrBefore(time);
+      if (tank->qualitySource()) {
+        Point p = tank->qualitySource()->pointAtOrBefore(time);
         if (p.isValid) {
-          double qualityValue = Units::convertValue(p.value, tank->boundaryQuality()->units(), qualityUnits());
+          double qualityValue = Units::convertValue(p.value, tank->qualitySource()->units(), qualityUnits());
           setJunctionQuality( tank->name(), qualityValue );
           DebugLog << "*  Tank " << tank->name() << " quality --> " << p.value << EOL;
         }

@@ -191,10 +191,3 @@ void Junction::setQualitySource(TimeSeries::_sp quality) {
 TimeSeries::_sp Junction::qualitySource() {
   return _qualityBoundary;
 }
-
-void Junction::setBoundaryQuality(TimeSeries::_sp quality) {
-  setQualitySource(quality);
-}
-TimeSeries::_sp Junction::boundaryQuality() {
-  return qualitySource();
-}
