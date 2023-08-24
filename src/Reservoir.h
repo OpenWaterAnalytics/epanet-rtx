@@ -27,6 +27,7 @@ namespace RTX {
     void setBoundaryHead(TimeSeries::_sp head);
     TimeSeries::_sp boundaryQuality();
     void setBoundaryQuality(TimeSeries::_sp quality);
+
     
   private:
     double _fixedLevel;

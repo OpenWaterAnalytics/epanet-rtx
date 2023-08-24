@@ -1387,6 +1387,21 @@ void Model::setSimulationParameters(time_t time) {
         }
       }
     }
+    for(Tank::_sp tank: this->tanks()) {
+      if (tank->qualitySource()) {
+        Point p = tank->qualitySource()->pointAtOrBefore(time);
+        if (p.isValid) {
+          double qualityValue = Units::convertValue(p.value, tank->qualitySource()->units(), qualityUnits());
+          setJunctionQuality( tank->name(), qualityValue );
+          DebugLog << "*  Tank " << tank->name() << " quality --> " << p.value << EOL;
+        }
+        else {
+          stringstream ss;
+          ss << "ERROR: Invalid quality value for tank: " << tank->name() << " :: " << asctime(timeinfo);
+          this->logLine(ss.str());
+        }
+      }
+    }
   }
   DebugLog << "****************************" << EOL << flush;
 }
