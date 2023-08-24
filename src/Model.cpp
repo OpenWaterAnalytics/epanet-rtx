@@ -1392,7 +1392,7 @@ void Model::setSimulationParameters(time_t time) {
         Point p = tank->qualitySource()->pointAtOrBefore(time);
         if (p.isValid) {
           double qualityValue = Units::convertValue(p.value, tank->qualitySource()->units(), qualityUnits());
-          setJunctionQuality( tank->name(), qualityValue );
+          setReservoirQuality( tank->name(), qualityValue ); // using setReservoirQuality to set concentration rather than mass addition
           DebugLog << "*  Tank " << tank->name() << " quality --> " << p.value << EOL;
         }
         else {
