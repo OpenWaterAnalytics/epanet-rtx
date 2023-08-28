@@ -87,7 +87,7 @@ namespace RTX {
       bool smart;
     } _options;
     
-    boost::signals2::mutex _dupeMutex;
+    //boost::signals2::mutex _dupeMutex;
     std::vector<TimeSeries::_sp> _analytics;
     
     void setDuplicatorSeries();

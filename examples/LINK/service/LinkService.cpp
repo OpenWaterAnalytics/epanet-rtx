@@ -247,7 +247,7 @@ http_response LinkService::_get_source(http_request message) {
         auto ids = _sourceRecord->identifiersAndUnits();
         for (auto id : *ids.get()) {
           string name = id.first;
-          Units units = id.second;
+          Units units = id.second.first;
           TimeSeries::_sp ts(new TimeSeries);
           ts->setName(name);
           ts->setUnits(units);
@@ -297,7 +297,7 @@ http_response LinkService::_get_odbc_drivers(http_request message) {
 
 http_response LinkService::_get_units(http_request message) {
   http_response response = _link_empty_response();
-  auto unitsMap = Units::unitStringMap;
+  auto unitsMap = Units::unitStrings;
   vector<RTX_object::_sp> units;
   for (auto unitTypes : unitsMap) {
     Units::_sp usp = make_shared<Units>(unitTypes.second);

@@ -1,0 +1,5 @@
+cmake_minimum_required (VERSION 3.16)
+project(timeseries_demo) 
+add_executable(timeseries_demo timeseries_demo.cpp)
+target_include_directories(timeseries_demo PRIVATE ../../src)
+target_link_libraries(timeseries_demo PRIVATE epanetrtx Boost::headers)

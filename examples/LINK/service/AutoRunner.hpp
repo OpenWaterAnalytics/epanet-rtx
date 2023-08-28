@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <atomic>
 #include <future>
+#include <thread>
 
 #include "TimeSeries.h"
 

@@ -101,7 +101,7 @@ void SqliteAdapter::doConnect() {
   
   boost::filesystem::path dbPath(this->basePath);
   dbPath /= _path;
-  auto realPath = dbPath.native();
+  auto realPath = dbPath.make_preferred().string();
   
   sqlite3* _rawDb;
   int returnCode;

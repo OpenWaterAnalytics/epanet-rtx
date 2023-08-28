@@ -370,8 +370,7 @@ Units Units::unitOfType(const string& unitString) {
   
   // if units still not recognized, try case insensitive
   
-  typedef std::pair<std::string, Units> stringUnitsPair;
-  for(const stringUnitsPair& sup : Units::unitStrings) {
+  for(const auto& sup : Units::unitStrings) {
     const string u = sup.first;
     if (RTX_STRINGS_ARE_EQUAL(u, unitString)) {
       return sup.second;

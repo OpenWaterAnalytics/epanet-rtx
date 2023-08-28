@@ -77,7 +77,7 @@ double TimeSeriesLowess::valueFromSampleAtTime(PointCollection::pvRange r, time_
   lowess.lowess(x, y, this->fraction(), 2, 0.0, out, tmp1, tmp2);
   
   vector<Point> outPoints;
-  for (int i=0; i < x.size(); ++i) {
+  for (size_t i=0; i < x.size(); ++i) {
     outPoints.push_back(Point(static_cast<time_t>(x.at(i)),out.at(i)));
   }
   

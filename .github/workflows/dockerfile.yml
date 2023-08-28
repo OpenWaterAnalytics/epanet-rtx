@@ -1,0 +1,54 @@
+name: Dockerfile
+
+on:
+  schedule:
+    - cron:  '12 3 4,14,24 * *'
+  push:
+    branches: [ dev, overhaul ]
+    paths-ignore: 
+      - "doc"
+      - ".github/workflows/cmake.yml"
+      - ".gitignore"
+      - "README.md"
+      - "docs.html"
+      - "license.txt"
+  pull_request:
+    paths-ignore: 
+      - "doc"
+      - ".github/workflows/cmake.yml"
+      - ".gitignore"
+      - "README.md"
+      - "docs.html"
+      - "license.txt"
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+        - uses: actions/checkout@v3
+        
+        - name: Docker login
+          uses: docker/login-action@v2
+          with:
+            username: ${{ secrets.DOCKERHUB_USERNAME }}
+            password: ${{ secrets.DOCKERHUB_TOKEN }}
+        
+        - name: Extract metadata for Docker
+          id: meta
+          uses: docker/metadata-action@v4
+          with:
+            images: ${{ secrets.DOCKERHUB_USERNAME }}/epanet-rtx
+        
+        - name: Build and push Docker image
+          uses: docker/build-push-action@v4
+          with:
+            context: build
+            file: ./build/epanet-rtx.docker
+            push: true
+            tags: ${{ steps.meta.outputs.tags }}
+            labels: ${{ steps.meta.outputs.labels }}

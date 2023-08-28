@@ -1,0 +1,202 @@
+name: CMake
+
+on:
+  schedule:
+    - cron:  '12 3 4,14,24 * *'
+  push:
+    branches: [ dev, overhaul ]
+    paths-ignore: 
+      - "doc"
+      - ".github/workflows/dockerfile.yml"
+      - ".gitignore"
+      - "README.md"
+      - "docs.html"
+      - "license.txt"
+  pull_request:
+    paths-ignore: 
+      - "doc"
+      - ".github/workflows/dockerfile.yml"
+      - ".gitignore"
+      - "README.md"
+      - "docs.html"
+      - "license.txt"
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-13, ubuntu-latest]
+        build-type: [Debug, Release]
+        include:
+          - os: windows-latest
+            gen: "'Visual Studio 17 2022'"
+            arch: "-A x64"
+            prefix: "-DCMAKE_PREFIX_PATH=C:\\local\\EPANET\\"
+          - os: macos-13
+            gen: Xcode
+          - os: ubuntu-latest
+            gen: "'Ninja Multi-Config'"
+
+    env:
+      SCCACHE_GHA_ENABLED: "true"
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Restore cached dependencies (Windows)
+      id: win-cache
+      uses: actions/cache/restore@v3
+      if: matrix.os == 'windows-latest'
+      with:
+        path: |
+          C:\local\boost_1_82_0\
+          C:\Users\runneradmin\AppData\Local\vcpkg\archives\
+        key: ${{ matrix.os }}-dependencies
+
+    - name: Install Boost (Windows)
+      if: matrix.os == 'windows-latest' && steps.win-cache.outputs.cache-hit != 'true'
+      run: |
+        Invoke-WebRequest 'https://boostorg.jfrog.io/artifactory/main/release/1.82.0/binaries/boost_1_82_0-msvc-14.3-64.exe' -OutFile C:\boost.exe
+        Start-Process -Wait -FilePath C:\boost.exe -Argument "/silent" -PassThru
+
+    - name: Install dependencies (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        vcpkg install sqlite3 cpprestsdk zlib nlohmann-json curl openssl `
+        oatpp oatpp-openssl sqlite-modern-cpp --triplet x64-windows
+        "BOOST_ROOT=C:\local\boost_1_82_0\" >> $env:GITHUB_ENV
+        "TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake" >> $env:GITHUB_ENV
+
+    - name: Save dependencies (Windows)
+      uses: actions/cache/save@v3
+      if: matrix.os == 'windows-latest' && steps.win-cache.outputs.cache-hit != 'true'
+      with:
+        path: |
+          C:\local\boost_1_82_0\
+          C:\Users\runneradmin\AppData\Local\vcpkg\archives\
+        key: ${{ matrix.os }}-dependencies
+
+    - name: Install dependencies (macOS)
+      if: matrix.os == 'macos-13'
+      run: |
+        brew install boost sqlite cpprestsdk nlohmann-json
+        pip install conan
+
+    - name: Install dependencies (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get install -y --no-install-recommends \
+        cmake ninja-build libsqlite3-dev libcpprest-dev \
+        libboost-dev libboost-iostreams-dev libboost-test-dev \
+        zlib1g-dev nlohmann-json3-dev libcurl4-openssl-dev
+        pip3 install conan
+
+    - name: Set up Conan profile
+      if: matrix.os == 'macos-13' || matrix.os == 'ubuntu-latest'
+      run: |
+        conan profile detect
+        conan profile show -pr default
+        echo "TOOLCHAIN_FILE=${{github.workspace}}/deps/conan_toolchain.cmake" >> $GITHUB_ENV
+    
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.3
+
+    - name: Pull EPANET
+      uses: actions/checkout@v3
+      with:
+        repository: cameron-devine/EPANET
+        # repository: OpenWaterAnalytics/EPANET
+        path: "./EPANET"
+
+    - name: Patch EPANET
+      working-directory: ./EPANET/
+      run: |
+        perl -pi -e 's/,EN_Project/,void*/ if $. == 844' ./src/epanet.c
+        perl -pi -e 's/EN_Project,/void*,/ if $. == 520' ./include/epanet2_2.h
+        perl -pi -e 's/EN_Project/void*/ if $. == 636' ./src/types.h
+    
+    - name: Build EPANET
+      working-directory: ./EPANET/
+      run: |
+        mkdir build
+        cd build
+        cmake -G ${{matrix.gen}} ${{matrix.arch}} .. -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+        cmake --build . --config Release
+
+    - name: Install EPANET (Windows)
+      if: matrix.os == 'windows-latest'
+      working-directory: ./EPANET/build/
+      run: |
+        md -p C:\local\EPANET\bin
+        Copy-Item -Path bin\Release\* -Include *.dll `
+                  -Destination C:\local\EPANET\bin
+        md C:\local\EPANET\lib
+        Copy-Item -Path lib\Release\* `
+                  -Destination C:\local\EPANET\lib
+        md C:\local\EPANET\include
+        Copy-Item -Path ..\include\* -Include *.h `
+                  -Destination C:\local\EPANET\include
+        Copy-Item -Path ..\src\* -Include *.h `
+                  -Destination C:\local\EPANET\include
+        Get-ChildItem -Path C:\local\EPANET -Recurse
+
+    - name: Install EPANET
+      if: matrix.os == 'macos-13' || matrix.os == 'ubuntu-latest'
+      working-directory: ./EPANET/build/
+      run: |
+        sudo cp lib/Release/* /usr/local/lib/
+        sudo cp ../include/*.h /usr/local/include/
+        sudo cp ../src/*.h /usr/local/include/
+
+    - name: Restore cached dependencies
+      id: unix-cache
+      uses: actions/cache/restore@v3
+      if: matrix.os == 'macos-13' || matrix.os == 'ubuntu-latest'
+      with:
+        path: ~/.conan2/p/
+        key: ${{ matrix.os }}-${{matrix.build-type}}-dependencies
+
+    - name: Make Conan dependencies
+      if: matrix.os == 'macos-13' || matrix.os == 'ubuntu-latest'
+      working-directory: ./deps/
+      run: |
+        conan export local_export/sqlite_modern_cpp_conan.py
+        conan install . --build=missing -s build_type=${{matrix.build-type}}
+    
+    - name: Save dependencies
+      uses: actions/cache/save@v3
+      if: (matrix.os == 'macos-13' || matrix.os == 'ubuntu-latest') && steps.unix-cache.outputs.cache-hit != 'true'
+      with:
+        path: ~/.conan2/p/
+        key: ${{ matrix.os }}-${{matrix.build-type}}-dependencies
+    
+    - name: Configure CMake
+      working-directory: ./build/
+      run: cmake -G ${{matrix.gen}} ${{matrix.arch}} -S cmake -B bd --toolchain ${{env.TOOLCHAIN_FILE}} ${{matrix.prefix}} -DCMAKE_BUILD_TYPE=${{matrix.build-type}} -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+    
+    - name: Build
+      run: cmake --build build/bd --config ${{matrix.build-type}}
+    
+    - name: Gather artifacts
+      shell: bash
+      run: |
+        mkdir artifacts
+        cd artifacts
+        mkdir -p include/rtx
+        mkdir bin
+        mkdir lib
+        cp ../src/*.h include/rtx
+        cp ../build/bd/bin/${{matrix.build-type}}/* bin
+        cp ../build/bd/lib/${{matrix.build-type}}/* lib
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      if: matrix.build-type == 'Release'
+      with:
+        name: epanetrtx-${{matrix.os}}
+        path: artifacts/*
+        retention-days: 90

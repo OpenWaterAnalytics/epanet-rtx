@@ -31,8 +31,8 @@ std::string InpTextPattern::textPatternWithTimeSeries(TimeSeries::_sp ts, const 
   PointCollection patternData = filter->pointCollection(TimeRange(from,to));
   patStream << "; RTX-generated demand pattern: " << patternName << endl;
   
-  uint i = 0;
-  uint lineLength = 12;
+  unsigned i = 0;
+  unsigned lineLength = 12;
   
   patternData.apply([&](Point& p){
     // start of line?
