@@ -46,7 +46,7 @@ void Element::setRecord(PointRecord::_sp record) {
 }
 
 template <typename T>
-void Element::addMetadata(const std::string& name, const T& value) {
+void Element::setMetadata(const std::string& name, const T& value) {
     metadata[name] = value;
 }
 
@@ -58,10 +58,6 @@ const RTX::Element::MetadataValueType& Element::getMetadata(const std::string& n
   return metadata.at(name);
 }
 
-RTX::Element::MetadataValueType& Element::getMetadata(const std::string& name) {
-  return metadata[name];
-}
-
 std::ostream& RTX::operator<< (std::ostream &out, Element &e) {
   return e.toStream(out);
 }
@@ -71,6 +67,6 @@ std::ostream& Element::toStream(std::ostream &stream) {
   return stream;
 }
 
-template void Element::addMetadata(const std::string& name, const double&);
-template void Element::addMetadata(const std::string& name, const std::string&);
-template void Element::addMetadata(const std::string& name, const std::shared_ptr<TimeSeries>&);
+template void Element::setMetadata(const std::string& name, const double&);
+template void Element::setMetadata(const std::string& name, const std::string&);
+template void Element::setMetadata(const std::string& name, const std::shared_ptr<TimeSeries>&);

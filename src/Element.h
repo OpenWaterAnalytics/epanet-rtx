@@ -50,10 +50,10 @@ namespace RTX {
     virtual void setRecord(PointRecord::_sp record);
     
     template <typename T>
-    void addMetadata(const std::string& name, const T& value);
+    void setMetadata(const std::string& name, const T& value);
+    
     void removeMetadata(const std::string& name);
     const MetadataValueType& getMetadata(const std::string& name) const;
-    MetadataValueType& getMetadata(const std::string& name);
       
     std::string userDescription();
     void setUserDescription(const std::string& description);
