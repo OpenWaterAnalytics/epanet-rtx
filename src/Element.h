@@ -10,7 +10,7 @@
 #define epanet_rtx_element_h
 
 #include <string.h>
-#include <unordered_map>
+#include <map>
 #include <time.h>
 #include "rtxMacros.h"
 #include "TimeSeries.h"
@@ -51,7 +51,7 @@ namespace RTX {
     
     template <typename T>
     void setMetadata(const std::string& name, const T& value);
-    
+
     void removeMetadata(const std::string& name);
     const MetadataValueType& getMetadata(const std::string& name) const;
       
@@ -68,7 +68,7 @@ namespace RTX {
     element_t _type;
     std::string _userDescription;
     
-    std::unordered_map<std::string, MetadataValueType> metadata;
+    std::map<std::string, MetadataValueType> metadata;
   };
   
   std::ostream& operator<< (std::ostream &out, Element &e);
