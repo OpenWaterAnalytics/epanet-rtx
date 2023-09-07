@@ -45,6 +45,23 @@ void Element::setRecord(PointRecord::_sp record) {
   std::cerr << "base class called! error!" << std::endl;
 }
 
+template <typename T>
+void Element::addMetadata(const std::string& name, const T& value) {
+    metadata[name] = value;
+}
+
+void Element::removeMetadata(const std::string& name) {
+  metadata.erase(name);
+}
+
+const RTX::Element::MetadataValueType& Element::getMetadata(const std::string& name) const {
+  return metadata.at(name);
+}
+
+RTX::Element::MetadataValueType& Element::getMetadata(const std::string& name) {
+  return metadata[name];
+}
+
 std::ostream& RTX::operator<< (std::ostream &out, Element &e) {
   return e.toStream(out);
 }
@@ -53,3 +70,7 @@ std::ostream& Element::toStream(std::ostream &stream) {
   stream << "Element: \"" << this->name() << "\"\n";
   return stream;
 }
+
+template void Element::addMetadata(const std::string& name, const double&);
+template void Element::addMetadata(const std::string& name, const std::string&);
+template void Element::addMetadata(const std::string& name, const std::shared_ptr<TimeSeries>&);
