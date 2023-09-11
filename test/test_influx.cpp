@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(influx_client_test){
     
     //Check that the auth part works
     string q("SHOW%20MEASUREMENTS%20LIMIT%201");
-    response = client->doCreate(q);
+    response = client->doCreate("", q);
     BOOST_CHECK_EQUAL(response->getStatusCode(), 200);
     
     auto _errCB = [&](const std::string& msg)->void {

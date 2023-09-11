@@ -27,7 +27,7 @@ namespace RTX {
   class Element : public RTX_object {
   public:
     
-    using MetadataValueType = std::variant<double, std::string, std::shared_ptr<TimeSeries>>;
+    using MetadataValueType = std::variant<double, std::string, TimeSeries::_sp>;
     
     enum element_t : int {
       JUNCTION  = 0,
