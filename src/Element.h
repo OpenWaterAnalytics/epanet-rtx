@@ -10,6 +10,7 @@
 #define epanet_rtx_element_h
 
 #include <string.h>
+#include <map>
 #include <time.h>
 #include "rtxMacros.h"
 #include "TimeSeries.h"
@@ -25,6 +26,8 @@ namespace RTX {
   */
   class Element : public RTX_object {
   public:
+    
+    using MetadataValueType = std::variant<double, std::string, std::shared_ptr<TimeSeries>>;
     
     enum element_t : int {
       JUNCTION  = 0,
@@ -46,6 +49,12 @@ namespace RTX {
     std::string name();
     virtual void setRecord(PointRecord::_sp record);
     
+    template <typename T>
+    void setMetadata(const std::string& name, const T& value);
+
+    void removeMetadata(const std::string& name);
+    const MetadataValueType& getMetadata(const std::string& name) const;
+      
     std::string userDescription();
     void setUserDescription(const std::string& description);
     
@@ -58,6 +67,8 @@ namespace RTX {
     std::string _name;
     element_t _type;
     std::string _userDescription;
+    
+    std::map<std::string, MetadataValueType> metadata;
   };
   
   std::ostream& operator<< (std::ostream &out, Element &e);
