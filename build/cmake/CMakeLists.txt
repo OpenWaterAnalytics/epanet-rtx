@@ -45,7 +45,7 @@ IF(APPLE)
    SET(EXTRA_LIBS ${SECURITY_FRAMEWORK} ${CORE_FRAMEWORK})
 ENDIF (APPLE)
 
-include(/opt/src/epanet-rtx/deps/conanbuildinfo.cmake)
+include(/opt/src/epanet-rtx/deps/conan_build/conanbuildinfo.cmake)
 conan_basic_setup()
 
 # the rtx library

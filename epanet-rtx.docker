@@ -1,0 +1,48 @@
+FROM ubuntu:20.04
+
+RUN apt-get update
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get install -yq llvm clang libsqlite3-dev cmake libiodbc2-dev tdsodbc curl libcurl4-openssl-dev openssl libssl-dev git zlib1g-dev python3-pip
+
+### setup conan dependency management
+RUN pip3 install --upgrade pip && \
+  apt-get update && pip3 install conan==1.57.0
+
+RUN conan profile new default --detect && \
+  conan profile update settings.compiler=clang default && \
+  conan profile update settings.compiler.version=10 default && \
+  conan profile update settings.compiler.libcxx=libstdc++11 default && \
+  conan profile update settings.compiler.cppstd=gnu17 default && \
+  conan profile update env.CC=/usr/bin/clang default && \
+  conan profile update env.CXX=/usr/bin/clang++ default
+
+WORKDIR /opt/src
+
+##########################################################################################
+####  everything above here should be pretty stable. cache this.
+##########################################################################################
+
+## build/install EPANET
+RUN git clone https://github.com/samhatchett/EPANET.git \
+	&& cd EPANET \
+	&& git checkout owa_netBuilder \
+	&& cd build/CMake \
+	&& mkdir build && cd build \
+	&& cmake -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ .. \
+	&& make \
+	&& make install
+
+COPY . ./epanet-rtx/
+
+RUN cd epanet-rtx/deps \
+  && conan create local_export/geohashconan.py \
+  && conan create local_export/sqlite_modern_cpp_conan.py \
+  && conan install . --build=missing -if conan_build/ \
+  && cd ..
+
+RUN cd epanet-rtx/build/cmake \
+	&& mkdir build && cd build \
+	&& cmake -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ .. \
+	&& make \
+	&& make test ARGS="-V" \
+	&& make install
