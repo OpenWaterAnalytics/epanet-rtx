@@ -12,6 +12,7 @@
 #include <string.h>
 #include <map>
 #include <time.h>
+#include <variant>
 #include "rtxMacros.h"
 #include "TimeSeries.h"
 #include "PointRecord.h"

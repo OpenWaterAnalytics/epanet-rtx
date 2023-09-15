@@ -27,7 +27,7 @@ cmake_minimum_required (VERSION 3.10)
 
 project (EPANET-RTX)
 SET (CMAKE_C_FLAGS "-std=c99")
-SET (CMAKE_CXX_FLAGS "-Wall")
+SET (CMAKE_CXX_FLAGS "-Wall -std=c++17")
 SET (CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_definitions(-DRTX_NO_MYSQL)
 
@@ -48,6 +48,9 @@ ENDIF (APPLE)
 include(/opt/src/epanet-rtx/deps/conan_build/conanbuildinfo.cmake)
 conan_basic_setup()
 
+Set(Boost_INSTALL_DIR ${CONAN_BOOST_ROOT})
+find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+
 # the rtx library
 include_directories(
 	../../src
@@ -56,13 +59,13 @@ include_directories(
 	/usr/include
 	/usr/include/iodbc
 	../../../EPANET/src
-	/usr/local/include/oatpp-1.3.0/oatpp
-	/usr/local/include/oatpp-1.3.0/oatpp-openssl
+	${CONAN_INCLUDE_DIRS}
 	)
 
 link_directories(
 	/usr/lib
 	/usr/local/lib
+	${CONAN_LIB_DIRS}
 	)
 
 add_library(epanetrtx
@@ -152,9 +155,9 @@ target_link_libraries(
 	epanetrtx
 	${rtx_lib_deps}
   ${CONAN_LIBS}
-	)
+)
 
-
+#add_subdirectory(../../test ./build/epanetrtx-test)
 
 install(DIRECTORY ../../src/ DESTINATION include/rtx FILES_MATCHING PATTERN "*.h")
 install(TARGETS epanetrtx DESTINATION lib)

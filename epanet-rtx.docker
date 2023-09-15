@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:jammy
 
 RUN apt-get update
 ARG DEBIAN_FRONTEND=noninteractive
@@ -10,13 +10,21 @@ RUN pip3 install --upgrade pip && \
 
 RUN conan profile new default --detect && \
   conan profile update settings.compiler=clang default && \
-  conan profile update settings.compiler.version=10 default && \
-  conan profile update settings.compiler.libcxx=libstdc++11 default && \
+  conan profile update settings.compiler.version=14 default && \
+  conan profile update settings.compiler.libcxx=libstdc++ default && \
   conan profile update settings.compiler.cppstd=gnu17 default && \
   conan profile update env.CC=/usr/bin/clang default && \
   conan profile update env.CXX=/usr/bin/clang++ default
 
 WORKDIR /opt/src
+
+COPY ./deps/ ./epanet-rtx/deps
+
+RUN cd epanet-rtx/deps \
+  && conan create local_export/geohashconan.py \
+  && conan create local_export/sqlite_modern_cpp_conan.py \
+  && conan install . --build=missing -if conan_build/ \
+  && cd ..
 
 ##########################################################################################
 ####  everything above here should be pretty stable. cache this.
@@ -34,15 +42,9 @@ RUN git clone https://github.com/samhatchett/EPANET.git \
 
 COPY . ./epanet-rtx/
 
-RUN cd epanet-rtx/deps \
-  && conan create local_export/geohashconan.py \
-  && conan create local_export/sqlite_modern_cpp_conan.py \
-  && conan install . --build=missing -if conan_build/ \
-  && cd ..
-
 RUN cd epanet-rtx/build/cmake \
 	&& mkdir build && cd build \
 	&& cmake -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ .. \
 	&& make \
-	&& make test ARGS="-V" \
-	&& make install
+	&& make install \
+	&& ./bin/epanetrtx-test
