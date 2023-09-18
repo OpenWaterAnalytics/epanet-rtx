@@ -45,7 +45,7 @@ IF(APPLE)
    SET(EXTRA_LIBS ${SECURITY_FRAMEWORK} ${CORE_FRAMEWORK})
 ENDIF (APPLE)
 
-include(/opt/src/epanet-rtx/deps/conan_build/conanbuildinfo.cmake)
+include(../../deps/conan_build/conanbuildinfo.cmake)
 conan_basic_setup()
 
 Set(Boost_INSTALL_DIR ${CONAN_BOOST_ROOT})
@@ -59,6 +59,8 @@ include_directories(
 	/usr/include
 	/usr/include/iodbc
 	../../../EPANET/src
+	../../../EPANET/include
+	/opt/homebrew/include
 	${CONAN_INCLUDE_DIRS}
 	)
 
@@ -66,6 +68,7 @@ link_directories(
 	/usr/lib
 	/usr/local/lib
 	${CONAN_LIB_DIRS}
+	../../../EPANET/build/CMake/build/bin
 	)
 
 add_library(epanetrtx
@@ -106,7 +109,6 @@ add_library(epanetrtx
 ../../src/OdbcAdapter.cpp
 ../../src/OffsetTimeSeries.cpp
 ../../src/OutlierExclusionTimeSeries.cpp
-../../src/PiAdapter.cpp
 ../../src/Pipe.cpp
 ../../src/Point.cpp
 ../../src/PointCollection.cpp
@@ -157,7 +159,26 @@ target_link_libraries(
   ${CONAN_LIBS}
 )
 
-#add_subdirectory(../../test ./build/epanetrtx-test)
+
+
+add_executable(rtx_test 
+  ../../test/test_main.cpp
+	../../test/test_units.cpp
+	../../test/test_record.cpp
+	../../test/test_influx.cpp
+	../../test/test_element.cpp
+)
+
+target_link_libraries(rtx_test
+	epanetrtx
+	${rtx_lib_deps}
+  ${CONAN_LIBS}
+)
+
+
+add_test(rtx_test rtx_test)
+
+
 
 install(DIRECTORY ../../src/ DESTINATION include/rtx FILES_MATCHING PATTERN "*.h")
 install(TARGETS epanetrtx DESTINATION lib)

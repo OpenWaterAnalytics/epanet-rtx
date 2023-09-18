@@ -11,7 +11,7 @@ BOOST_AUTO_TEST_CASE(ElementMetadataTest)
   double value = std::get<double>(e->getMetadata("a_key_for_double"));
   BOOST_CHECK_CLOSE(value, 5.0, 0.0001);
 
-  e->setMetadata(string("a_key_for_string"), "A string");
+  e->setMetadata(string("a_key_for_string"), string("A string"));
   BOOST_CHECK_EQUAL(std::get<std::string>(e->getMetadata("a_key_for_string")), "A string");
   
   RTX::TimeSeries::_sp ts(new RTX::TimeSeries());
@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(ElementRemoveMetadataTest)
 
   e->setMetadata(string("a_key_for_double"), 5.0);
   BOOST_CHECK_NO_THROW(e->removeMetadata("a_key_for_double"));
-  BOOST_CHECK_THROW(e->getMetadata("a_key_for_double"), std::runtime_error);
+  BOOST_CHECK_THROW(e->getMetadata("a_key_for_double"), std::out_of_range);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
