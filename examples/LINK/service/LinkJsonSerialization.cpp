@@ -148,12 +148,6 @@ void SerializerJson::visit(OdbcPointRecord &pr) {
     }
   }
 }
-void SerializerJson::visit(PiPointRecord &pr) {
-  this->visit((DbPointRecord&)pr);
-  _v[_c] = JSV("pi");
-  _v["tagSearchPath"] = JSV(pr.tagSearchPath());
-  _v["conversions"] = JSV(pr.conversions());
-}
 
 
 JSV SerializerJson::json() {
@@ -181,7 +175,6 @@ RTX_object::_sp DeserializerJson::from_json(JSV json) {
       { "influx",     &_newRtxObj<InfluxDbPointRecord>},
       { "influx_udp", &_newRtxObj<InfluxUdpPointRecord>},
       { "odbc",       &_newRtxObj<OdbcPointRecord>},
-      { "pi",         &_newRtxObj<PiPointRecord>},
       { "timeseries", &_newRtxObj<TimeSeries>},
       { "filter",     &_newRtxObj<TimeSeriesFilter>},
       { "units",      &_newRtxObj<Units>},
@@ -287,15 +280,6 @@ void DeserializerJson::visit(OdbcPointRecord &pr) {
     pr.setTimeFormat(tf[thisTF]);
   }
 };
-void DeserializerJson::visit(PiPointRecord &pr) {
-  this->visit((DbPointRecord&)pr);
-  if (_v.has_field("tagSearchPath")) {
-    pr.setTagSearchPath(_v["tagSearchPath"].as_string());
-  }
-  if (_v.has_field("conversions")) {
-    pr.setConversions(_v["conversions"].as_string());
-  }
-}
 
 
 TimeSeries::_sp DeserializerJson::analyticWithJson(web::json::value jsonValue, vector<TimeSeries::_sp> candidateSeries) {

@@ -2,7 +2,7 @@
 
 // adaptors
 #include "SqliteAdapter.h"
-#include "PiAdapter.h"
+//#include "PiAdapter.h"
 #include "InfluxAdapter.h"
 #include "OdbcAdapter.h"
 
@@ -23,27 +23,6 @@ std::string SqlitePointRecord::basePath() {
 }
 void SqlitePointRecord::setBasePath(const std::string& path) {
   ((SqliteAdapter*)_adapter)->basePath = path;
-}
-
-/***************************************************************************************/
-
-PiPointRecord::PiPointRecord() {
-  _adapter = new PiAdapter(_errCB);
-}
-PiPointRecord::~PiPointRecord() {
-  delete _adapter;
-}
-void PiPointRecord::setTagSearchPath(const std::string& path) {
-  ((PiAdapter*)_adapter)->tagSearchPath = path;
-}
-std::string PiPointRecord::tagSearchPath() {
-  return ((PiAdapter*)_adapter)->tagSearchPath;
-}
-void PiPointRecord::setConversions(const std::string& conversions) {
-  ((PiAdapter*)_adapter)->valueConversions = conversions;
-}
-std::string PiPointRecord::conversions() {
-  return ((PiAdapter*)_adapter)->valueConversions;
 }
 
 

@@ -22,17 +22,6 @@ namespace RTX {
   };
   
   
-  class PiPointRecord : public DbPointRecord {
-  public:
-    RTX_BASE_PROPS(PiPointRecord);
-    PiPointRecord();
-    ~PiPointRecord();
-    void setTagSearchPath(const std::string& path);
-    std::string tagSearchPath();
-    void setConversions(const std::string& conversions);
-    std::string conversions();
-  };
-  
   
   class InfluxDbPointRecord : public DbPointRecord {
   public:

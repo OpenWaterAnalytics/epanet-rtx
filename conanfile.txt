@@ -1,0 +1,23 @@
+[requires]
+openssl/3.1.2
+oatpp/1.3.0
+oatpp-openssl/1.3.0
+boost/1.83.0
+nlohmann_json/3.10.5
+libcurl/7.80.0
+zlib/1.2.13
+
+sqlite_modern_cpp/3.2
+epanet/2.3
+
+[options]
+boost*:without_math = False
+boost*:without_graph = False
+boost*:without_locale = True
+boost*:without_log = True
+boost*:without_stacktrace = False
+boost*:without_test = False
+
+[generators]
+CMakeDeps
+CMakeToolchain
