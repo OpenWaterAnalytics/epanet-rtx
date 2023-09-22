@@ -41,11 +41,16 @@ Building
 
 conan export deps/local_export/sqlite_modern_cpp
 conan export deps/local_export/epanet
-conan install . --output-folder=build --build=missing --profile=x86 -s build_type=Release
-cd build/
-cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
-cmake --build .
+conan install . --profile=x86 --build=missing -s build_type=Release
+conan build . --profile=x86 --build=missing -s build_type=Release
+conan export-pkg . --profile=x86 -s build_type=Release
 
+```
+
+if you are developing locally:
+
+```
+conan editable add .
 
 ```
 
