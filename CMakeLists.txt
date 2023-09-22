@@ -55,6 +55,8 @@ find_package(nlohmann_json REQUIRED)
 # the rtx library
 include_directories(
 	./src
+	/usr/local/com.citilogics.dev/include
+	/usr/local/com.citilogics.dev/include/iODBC
 	/usr/local/include
 	/usr/local/include/iODBC
 	/usr/include
@@ -63,6 +65,7 @@ include_directories(
 	)
 
 link_directories(
+	/usr/local/com.citilogics.dev/lib
 	/usr/lib
 	/usr/local/lib
 	)
@@ -145,13 +148,13 @@ set(rtx_lib_deps
 	m
 	z
 	pthread
-	${epanet_LIBRARIES}
-	${Boost_LIBRARIES}
-	${SQLite3_LIBRARIES}
-	${sqlite_modern_cpp_LIBRARIES}
-	${oatpp_LIBRARIES}
-	${oatpp-openssl_LIBRARIES}
-	${nlohmann_json_LIBRARIES}
+	epanet::epanet
+	boost::boost
+	SQLite::SQLite3
+	sqlite_modern_cpp::sqlite_modern_cpp
+	oatpp::oatpp
+	oatpp::oatpp-openssl
+	nlohmann_json::nlohmann_json
 	)
 
 

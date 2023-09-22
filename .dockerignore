@@ -1,2 +1,3 @@
 build/cmake/build/
 deps/conan_build/
+CMakeUserPresets.json
