@@ -1,3 +1,4 @@
+import os
 from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 
@@ -9,6 +10,17 @@ class EpanetRtx(ConanFile):
     default_options = {"shared": False, "fPIC": True}
     generators = "CMakeToolchain", "CMakeDeps"
 
+    default_options = {
+ 		"boost*:without_math" : False,
+		"boost*:without_graph" : False,
+		"boost*:without_locale" : True,
+		"boost*:without_log" : True,
+		"boost*:without_stacktrace" : False,
+		"boost*:without_test" : False,
+		"shared": False,
+		"fPIC": True
+    }
+
     def requirements(self):
         self.requires("zlib/1.2.13")
         self.requires("openssl/3.1.2")
@@ -17,6 +29,7 @@ class EpanetRtx(ConanFile):
         self.requires("boost/1.83.0")
         self.requires("nlohmann_json/3.10.5")
         self.requires("libcurl/7.80.0")
+        self.requires("sqlite3/3.43.1")
         self.requires("sqlite_modern_cpp/3.2")
         self.requires("epanet/2.3")
 
@@ -42,17 +55,6 @@ class EpanetRtx(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["epanetrtx"]
-
-
-
-
-
-# boost*:without_math = False
-# boost*:without_graph = False
-# boost*:without_locale = True
-# boost*:without_log = True
-# boost*:without_stacktrace = False
-# boost*:without_test = False
 
 
 

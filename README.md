@@ -47,7 +47,7 @@ conan export-pkg . --profile=x86 -s build_type=Release
 
 ```
 
-if you are developing locally:
+if you are developing RTX as a dependent package locally, do this first:
 
 ```
 conan editable add .

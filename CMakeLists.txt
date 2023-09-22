@@ -44,11 +44,9 @@ IF(APPLE)
 ENDIF (APPLE)
 
 
-# Set(Boost_INSTALL_DIR ${CONAN_BOOST_ROOT})
-# find_package(Boost COMPONENTS unit_test_framework REQUIRED)
-
 find_package(epanet REQUIRED)
 find_package(Boost REQUIRED)
+find_package(SQLite3 REQUIRED)
 find_package(sqlite_modern_cpp REQUIRED)
 find_package(oatpp REQUIRED)
 find_package(oatpp-openssl REQUIRED)
@@ -62,23 +60,11 @@ include_directories(
 	/usr/include
 	/usr/include/iodbc
 	/opt/homebrew/include
-	${epanet_INCLUDE_DIRS}
-	${Boost_INCLUDE_DIRS}
-	${sqlite_modern_cpp_INCLUDE_DIRS}
-	${oatpp_INCLUDE_DIRS}
-	${oatpp-openssl_INCLUDE_DIRS}
-	${nlohmann_json_INCLUDE_DIRS}
 	)
 
 link_directories(
 	/usr/lib
 	/usr/local/lib
-	${epanet_LIBRARIES}
-	${Boost_LIBRARIES}
-	${sqlite_modern_cpp_LIBRARIES}
-	${oatpp_LIBRARIES}
-	${oatpp-openssl_LIBRARIES}
-	${nlohmann_json_LIBRARIES}
 	)
 
 add_library(epanetrtx
@@ -156,12 +142,12 @@ set(rtx_lib_deps
 	epanet
 	curl
 	iodbc
-	sqlite3
 	m
 	z
 	pthread
 	${epanet_LIBRARIES}
 	${Boost_LIBRARIES}
+	${SQLite3_LIBRARIES}
 	${sqlite_modern_cpp_LIBRARIES}
 	${oatpp_LIBRARIES}
 	${oatpp-openssl_LIBRARIES}
@@ -192,5 +178,5 @@ target_link_libraries(rtx_test
 add_test(rtx_test rtx_test)
 
 
-install(DIRECTORY ./src/ DESTINATION include/rtx FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY ./src/ DESTINATION include FILES_MATCHING PATTERN "*.h")
 install(TARGETS epanetrtx DESTINATION lib)
