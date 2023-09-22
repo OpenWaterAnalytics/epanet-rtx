@@ -54,3 +54,8 @@ conan editable add .
 
 ```
 
+### Docker Build
+
+```
+docker buildx build -t epanetrtx-test -f epanet-rtx.docker --platform linux/amd64 .
+```

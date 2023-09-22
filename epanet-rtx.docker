@@ -1,8 +1,7 @@
 FROM ubuntu:22.04
 
-RUN apt-get update
-RUN apt-get update
 ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update
 RUN apt-get install -yq llvm clang cmake libiodbc2-dev tdsodbc curl libcurl4-openssl-dev git zlib1g-dev python3-pip
 
 ### setup conan dependency management
