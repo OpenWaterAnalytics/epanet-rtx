@@ -11,12 +11,6 @@ class EpanetRtx(ConanFile):
     generators = "CMakeToolchain", "CMakeDeps"
 
     default_options = {
- 		"boost*:without_math" : False,
-		"boost*:without_graph" : False,
-		"boost*:without_locale" : True,
-		"boost*:without_log" : True,
-		"boost*:without_stacktrace" : False,
-		"boost*:without_test" : False,
 		"shared": False,
 		"fPIC": True
     }
