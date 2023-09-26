@@ -1,5 +1,6 @@
 #include "test_main.h"
 #include "ConcreteDbRecords.h"
+#include "Units.h"
 
 using namespace RTX;
 using namespace std;
@@ -17,7 +18,12 @@ BOOST_AUTO_TEST_CASE(record_basic) {
   DbPointRecord::_sp record(new SqlitePointRecord);
   record->setName(recordName);
   record->setConnectionString(connection);
-  
+
+  record->registerAndGetIdentifierForSeriesWithUnits("test", Units::unitOfType("ft"));
+  auto ids = record->identifiersAndUnits();
+  BOOST_TEST(ids.hasIdentifierAndUnits("test", Units::unitOfType("ft")));
+  BOOST_TEST(!ids.hasIdentifierAndUnits("test2", Units::unitOfType("gpm")));
+
   BOOST_CHECK_EQUAL(record->name(), recordName);
   BOOST_CHECK_EQUAL(record->connectionString(), connection);
 }

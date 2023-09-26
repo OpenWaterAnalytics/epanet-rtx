@@ -71,6 +71,7 @@ link_directories(
 	)
 
 add_library(epanetrtx
+./src/AutoRunner.cpp
 ./src/AggregatorTimeSeries.cpp
 ./src/BaseStatsTimeSeries.cpp
 ./src/BufferPointRecord.cpp
