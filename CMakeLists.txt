@@ -43,7 +43,7 @@ IF(APPLE)
    SET(EXTRA_LIBS ${SECURITY_FRAMEWORK} ${CORE_FRAMEWORK})
 ENDIF (APPLE)
 
-find_package(curl REQUIRED)
+find_package(CURL REQUIRED)
 find_package(epanet REQUIRED)
 find_package(Boost REQUIRED)
 find_package(SQLite3 REQUIRED)
