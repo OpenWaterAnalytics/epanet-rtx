@@ -2,11 +2,11 @@ FROM ubuntu:22.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
-RUN apt-get install -yq llvm clang cmake libiodbc2-dev tdsodbc curl libcurl4-openssl-dev git zlib1g-dev python3-pip
+RUN apt-get install -yq llvm clang cmake curl libcurl4-openssl-dev git python3-pip
 
 ### setup conan dependency management
 RUN pip3 install --upgrade pip && \
-  apt-get update && pip3 install conan
+    pip3 install conan
 
 RUN conan profile detect --force
 
@@ -29,3 +29,4 @@ WORKDIR /opt/src/epanet-rtx
 RUN conan install . --build=missing -s build_type=Release
 RUN conan build . --build=missing -s build_type=Release
 RUN conan export-pkg . -s build_type=Release
+RUN ./build/Release/bin/rtx_test

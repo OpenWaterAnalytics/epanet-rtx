@@ -56,18 +56,16 @@ find_package(nlohmann_json REQUIRED)
 include_directories(
 	./src
 	/usr/local/com.citilogics.dev/include
-	/usr/local/com.citilogics.dev/include/iODBC
 	/usr/local/include
-	/usr/local/include/iODBC
 	/usr/include
-	/usr/include/iodbc
 	/opt/homebrew/include
 	)
 
 link_directories(
-	/usr/local/com.citilogics.dev/lib
 	/usr/lib
 	/usr/local/lib
+	/usr/lib/x86_64-linux-gnu
+	/usr/local/com.citilogics.dev/lib
 	)
 
 add_library(epanetrtx
@@ -106,7 +104,6 @@ add_library(epanetrtx
 ./src/MovingAverage.cpp
 ./src/MultiplierTimeSeries.cpp
 ./src/Node.cpp
-./src/OdbcAdapter.cpp
 ./src/OffsetTimeSeries.cpp
 ./src/OutlierExclusionTimeSeries.cpp
 ./src/Pipe.cpp
@@ -145,7 +142,6 @@ target_compile_definitions(epanetrtx PRIVATE MAXFLOAT=3.40282347e+38F)
 set(rtx_lib_deps
 	epanet
 	curl
-	iodbc
 	m
 	z
 	pthread

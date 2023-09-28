@@ -11,8 +11,35 @@ class EpanetRtx(ConanFile):
     generators = "CMakeToolchain", "CMakeDeps"
 
     default_options = {
-		"shared": False,
-		"fPIC": True
+        "shared": False,
+        "fPIC": True,
+        "boost*:without_container": True,
+        "boost*:without_context": True,
+        "boost*:without_contract": True,
+        "boost*:without_coroutine": True,
+        "boost*:without_date_time": True,
+        "boost*:without_exception": False,
+        "boost*:without_fiber": True,
+        "boost*:without_filesystem": False,
+        "boost*:without_graph": False,
+        "boost*:without_json": True,
+        "boost*:without_locale": True,
+        "boost*:without_log": True,
+        "boost*:without_math": False,
+        "boost*:without_nowide": True,
+        "boost*:without_program_options": False,
+        "boost*:without_python": True,
+        "boost*:without_random": False,
+        "boost*:without_regex": False,
+        "boost*:without_serialization": False,
+        "boost*:without_stacktrace": True,
+        "boost*:without_system": False,
+        "boost*:without_test": False,
+        "boost*:without_thread": True,
+        "boost*:without_timer": False,
+        "boost*:without_type_erasure": True,
+        "boost*:without_url": True,
+        "boost*:without_wave": True
     }
 
     def requirements(self):

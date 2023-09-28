@@ -1,2 +1,2 @@
-build
+build/*
 CMakeUserPresets.json

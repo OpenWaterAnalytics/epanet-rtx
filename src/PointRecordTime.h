@@ -11,7 +11,6 @@
 
 #include <iostream>
 #include <time.h>
-#include <sqltypes.h>
 
 #ifdef check
 #undef check
@@ -23,10 +22,6 @@ namespace RTX {
     
   public:
     typedef enum { UTC = 0, LOCAL = 1 } time_format_t;
-    static tm tmFromSql(SQL_TIMESTAMP_STRUCT sqlTime);
-    static time_t time(SQL_TIMESTAMP_STRUCT sqlTime);
-    static time_t timeFromZone(SQL_TIMESTAMP_STRUCT sqlTime, const boost::local_time::time_zone_ptr& localtz);
-    static SQL_TIMESTAMP_STRUCT sqlTime(time_t uTime, time_format_t format = UTC);
     static std::string localDateStringFromUnix(time_t unixTime, const boost::local_time::time_zone_ptr& localtz);
     static std::string utcDateStringFromUnix(time_t unixTime, const char *format = "%Y-%m-%d %H:%M:%S");
     

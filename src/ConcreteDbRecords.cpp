@@ -4,7 +4,6 @@
 #include "SqliteAdapter.h"
 //#include "PiAdapter.h"
 #include "InfluxAdapter.h"
-#include "OdbcAdapter.h"
 
 using namespace RTX;
 using namespace std;
@@ -53,52 +52,3 @@ void InfluxUdpPointRecord::sendInfluxString(time_t time, const string& seriesId,
 }
 
 /***************************************************************************************/
-
-
-OdbcPointRecord::OdbcPointRecord() {
-  _adapter = new OdbcAdapter(_errCB);
-}
-OdbcPointRecord::~OdbcPointRecord() {
-  delete _adapter;
-}
-
-std::list<std::string> OdbcPointRecord::driverList() {
-  return OdbcAdapter::listDrivers();
-}
-
-void OdbcPointRecord::setTimeFormat(PointRecordTime::time_format_t timeFormat) {
-  ((OdbcAdapter*)_adapter)->setTimeFormat(timeFormat);
-}
-PointRecordTime::time_format_t OdbcPointRecord::timeFormat() {
-  return ((OdbcAdapter*)_adapter)->timeFormat();
-}
-
-std::string OdbcPointRecord::timeZoneString() {
-  return ((OdbcAdapter*)_adapter)->timeZoneString();
-}
-void OdbcPointRecord::setTimeZoneString(const std::string& tzStr) {
-  ((OdbcAdapter*)_adapter)->setTimeZoneString(tzStr);
-}
-
-std::string OdbcPointRecord::driver() {
-  return ((OdbcAdapter*)_adapter)->driver();
-}
-void OdbcPointRecord::setDriver(const std::string& driver) {
-  ((OdbcAdapter*)_adapter)->setDriver(driver);
-}
-
-std::string OdbcPointRecord::metaQuery() {
-  return ((OdbcAdapter*)_adapter)->metaQuery();
-}
-void OdbcPointRecord::setMetaQuery(const std::string& meta) {
-  ((OdbcAdapter*)_adapter)->setMetaQuery(meta);
-}
-
-std::string OdbcPointRecord::rangeQuery() {
-  return ((OdbcAdapter*)_adapter)->rangeQuery();
-}
-void OdbcPointRecord::setRangeQuery(const std::string& range) {
-  ((OdbcAdapter*)_adapter)->setRangeQuery(range);
-}
-
-
