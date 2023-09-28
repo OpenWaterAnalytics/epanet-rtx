@@ -43,7 +43,7 @@ IF(APPLE)
    SET(EXTRA_LIBS ${SECURITY_FRAMEWORK} ${CORE_FRAMEWORK})
 ENDIF (APPLE)
 
-
+find_package(curl REQUIRED)
 find_package(epanet REQUIRED)
 find_package(Boost REQUIRED)
 find_package(SQLite3 REQUIRED)
@@ -55,17 +55,6 @@ find_package(nlohmann_json REQUIRED)
 # the rtx library
 include_directories(
 	./src
-	/usr/local/com.citilogics.dev/include
-	/usr/local/include
-	/usr/include
-	/opt/homebrew/include
-	)
-
-link_directories(
-	/usr/lib
-	/usr/local/lib
-	/usr/lib/x86_64-linux-gnu
-	/usr/local/com.citilogics.dev/lib
 	)
 
 add_library(epanetrtx
@@ -140,11 +129,7 @@ set_target_properties(
 
 target_compile_definitions(epanetrtx PRIVATE MAXFLOAT=3.40282347e+38F)
 set(rtx_lib_deps
-	epanet
-	curl
-	m
-	z
-	pthread
+	CURL::libcurl
 	epanet::epanet
 	boost::boost
 	SQLite::SQLite3

@@ -45,6 +45,8 @@ conan install . --profile=x86 --build=missing -s build_type=Release
 conan build . --profile=x86 --build=missing -s build_type=Release
 conan export-pkg . --profile=x86 -s build_type=Release
 
+# run tests
+./build/Release/bin/rtx_test
 ```
 
 if you are developing RTX as a dependent package locally, do this first:
