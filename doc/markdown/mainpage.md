@@ -58,9 +58,6 @@ Prerequisites for EPANET-RTX:
  - LibConfig - http://www.hyperrealm.com/libconfig/
  - GNU Scientific Library (GSL) - http://www.gnu.org/software/gsl/
  - Boost C++ Library - http://www.boost.org/
- - MySQL Connector/C++ - http://www.mysql.com/downloads/connector/cpp/
- - iODBC - http://www.iodbc.org/
- - ODBC Driver for your SCADA system, such as FreeTDS for MS-SQL providers - http://freetds.schemamania.org
  
 ## Concept Demonstration ##					{#sec_conceptual}
 Take a look at the [demo timeseries application](demo_ts.html) - you will find a brief demonstration of some of the important time series related classes of RTX, and this could act as a testing environment to make sure your database is set up correctly.

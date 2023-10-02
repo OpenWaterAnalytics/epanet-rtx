@@ -5,8 +5,9 @@
 //  Created by sam hatchett on 2/12/18.
 //
 
-#include "AutoRunner.hpp"
+#include "AutoRunner.h"
 #include <sstream>
+#include <thread>
 
 using namespace RTX;
 using namespace std;

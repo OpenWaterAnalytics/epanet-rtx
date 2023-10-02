@@ -32,3 +32,32 @@ Active Development
 We are actively developing features in the following areas:
 - Time Series Forecasting
 - Water Age / Water Quality
+
+
+Building
+--------
+
+```
+
+conan export deps/local_export/sqlite_modern_cpp
+conan export deps/local_export/epanet
+conan install . --profile=x86 --build=missing -s build_type=Release
+conan build . --profile=x86 --build=missing -s build_type=Release
+conan export-pkg . --profile=x86 -s build_type=Release
+
+# run tests
+./build/Release/bin/rtx_test
+```
+
+if you are developing RTX as a dependent package locally, do this first:
+
+```
+conan editable add .
+
+```
+
+### Docker Build
+
+```
+docker buildx build -t epanetrtx-test -f epanet-rtx.docker --platform linux/amd64 .
+```

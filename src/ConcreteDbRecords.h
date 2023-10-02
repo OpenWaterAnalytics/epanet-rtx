@@ -22,17 +22,6 @@ namespace RTX {
   };
   
   
-  class PiPointRecord : public DbPointRecord {
-  public:
-    RTX_BASE_PROPS(PiPointRecord);
-    PiPointRecord();
-    ~PiPointRecord();
-    void setTagSearchPath(const std::string& path);
-    std::string tagSearchPath();
-    void setConversions(const std::string& conversions);
-    std::string conversions();
-  };
-  
   
   class InfluxDbPointRecord : public DbPointRecord {
   public:
@@ -51,32 +40,6 @@ namespace RTX {
     ~InfluxUdpPointRecord();
     
     void sendInfluxString(time_t time, const string& seriesId, const string& values);
-  };
-  
-  
-  class OdbcPointRecord : public DbPointRecord {
-  public:
-    RTX_BASE_PROPS(OdbcPointRecord);
-    OdbcPointRecord();
-    ~OdbcPointRecord();
-    
-    static std::list<std::string> driverList();
-    
-    void setTimeFormat(PointRecordTime::time_format_t timeFormat);
-    PointRecordTime::time_format_t timeFormat();
-    
-    std::string timeZoneString();
-    void setTimeZoneString(const std::string& tzStr);
-    
-    std::string driver();
-    void setDriver(const std::string& driver);
-    
-    std::string metaQuery();
-    void setMetaQuery(const std::string& meta);
-    
-    std::string rangeQuery();
-    void setRangeQuery(const std::string& range);
-    
   };
   
 }
