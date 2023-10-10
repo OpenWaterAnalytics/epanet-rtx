@@ -11,8 +11,8 @@ using namespace std;
 
 // the search stride follows a geometric expansion formula.
 // start small, then expand wider until something is found.
-// the following parameters will search up to
-const size_t _tsfilter_max_search = 8; // FIXME 💩
+// the following parameters will search up to about 60 days
+const size_t _tsfilter_max_search = 10; // FIXME 💩
 const size_t _stride_multiplier = 25;
 const time_t _stride_basis = 60*60; // 1 hour
 
