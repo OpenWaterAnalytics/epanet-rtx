@@ -6,7 +6,6 @@
 //  See README.md and license.txt for more information
 //
 
-#include <boost/foreach.hpp>
 
 #include "Node.h"
 #include "Link.h"

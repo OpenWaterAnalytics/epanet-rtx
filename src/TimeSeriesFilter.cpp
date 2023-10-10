@@ -9,8 +9,12 @@
 using namespace RTX;
 using namespace std;
 
-const size_t _tsfilter_max_search = 6; // FIXME 💩
-const time_t _stride_basis = 60*60; // 1 hour, doubled each search iteration
+// the search stride follows a geometric expansion formula.
+// start small, then expand wider until something is found.
+// the following parameters will search up to about 60 days
+const size_t _tsfilter_max_search = 10; // FIXME 💩
+const size_t _stride_multiplier = 25;
+const time_t _stride_basis = 60*60; // 1 hour
 
 TimeSeriesFilter::TimeSeriesFilter() {
   _resampleMode = ResampleModeLinear;
@@ -151,7 +155,7 @@ Point TimeSeriesFilter::pointBefore(time_t time) {
       if (c.count() > 0) {
         break; // found something
       }
-      q.start -= _stride_basis * (int)n_strides;
+      q.start -= _stride_basis * (int)n_strides * _stride_multiplier;
     }
     
     // if we found something:
@@ -203,7 +207,7 @@ Point TimeSeriesFilter::pointAfter(time_t time) {
       if (c.count() > 0) {
         break; // found something
       }
-      q.end += _stride_basis * (int)n_strides;
+      q.end += _stride_basis * (int)n_strides * _stride_multiplier;
     }
     
     // if we found something:

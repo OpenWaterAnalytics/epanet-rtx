@@ -210,10 +210,12 @@ time_t FailoverTimeSeries::timeAfter(time_t time) {
   
   time_t aft = this->source()->timeAfter(time);
   
-  if (aft > 0 && aft <= maxTime) {
+  if (aft > 0 && (aft <= maxTime || maxTime == 0)) {
     return aft;
   } else if (this->secondary()) {
     return this->secondary()->timeAfter(maxTime - 1);
+  } else if (!this->secondary()) {
+    return aft;
   }
   return 0;
 }
