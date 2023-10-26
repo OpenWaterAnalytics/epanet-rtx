@@ -1,5 +1,6 @@
 #include "test_main.h"
 #include "Junction.h"
+#include <iostream>
 
 BOOST_AUTO_TEST_SUITE(Element)
 
@@ -17,6 +18,9 @@ BOOST_AUTO_TEST_CASE(ElementMetadataTest)
   RTX::TimeSeries::_sp ts(new RTX::TimeSeries());
   e->setMetadata(string("timeseries_key"), ts);
   BOOST_CHECK_EQUAL(std::get<RTX::TimeSeries::_sp>(e->getMetadata("timeseries_key")), ts);
+
+  std::vector<std::string> keys = e->getMetadataKeys();
+  BOOST_CHECK_EQUAL(keys.size(), 3);
 }
 
 BOOST_AUTO_TEST_CASE(ElementRemoveMetadataTest)

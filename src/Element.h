@@ -13,6 +13,7 @@
 #include <map>
 #include <time.h>
 #include <variant>
+#include <vector>
 #include "rtxMacros.h"
 #include "TimeSeries.h"
 #include "PointRecord.h"
@@ -55,6 +56,7 @@ namespace RTX {
     
     void removeMetadata(const std::string& name);
     const MetadataValueType& getMetadata(const std::string& name) const;
+    std::vector<std::string> getMetadataKeys();
       
     std::string userDescription();
     void setUserDescription(const std::string& description);

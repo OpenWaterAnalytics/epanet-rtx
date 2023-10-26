@@ -58,6 +58,15 @@ const RTX::Element::MetadataValueType& Element::getMetadata(const std::string& n
   return metadata.at(name);
 }
 
+std::vector<std::string> Element::getMetadataKeys() {
+  std::vector<std::string> keys;
+  for(auto pair : metadata){
+    keys.push_back(pair.first);
+  }
+
+  return keys;
+}
+
 std::ostream& RTX::operator<< (std::ostream &out, Element &e) {
   return e.toStream(out);
 }
