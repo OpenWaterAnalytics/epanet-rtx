@@ -51,11 +51,12 @@ namespace RTX {
     virtual void setRecord(PointRecord::_sp record);
     
     template <typename T>
-    void setMetadata(const std::string& name, const T& value);    
+    void setMetadataValue(const std::string& name, const T& value);
     
-    void removeMetadata(const std::string& name);
-    const MetadataValueType& getMetadata(const std::string& name) const;
-      
+    void removeMetadataValue(const std::string& name);
+    const MetadataValueType& getMetadataValue(const std::string& name) const;
+    std::vector<std::string> getMetadataKeys();
+    
     std::string userDescription();
     void setUserDescription(const std::string& description);
     
@@ -69,7 +70,7 @@ namespace RTX {
     element_t _type;
     std::string _userDescription;
     
-    std::map<std::string, MetadataValueType> metadata;
+    std::map<std::string, MetadataValueType> _metadata;
   };
   
   std::ostream& operator<< (std::ostream &out, Element &e);

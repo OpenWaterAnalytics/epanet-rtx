@@ -221,6 +221,8 @@ void EpanetModel::useEpanetFile(const std::string& filename) {
     boost::filesystem::path rptPath = boost::filesystem::temp_directory_path();
     rptPath /= "en_report.txt";
     
+    cout << rptPath << endl;
+    
     EN_API_CHECK( EN_open((char*)filename.c_str(), &model, (char*)rptPath.c_str(), (char*)""), "EN_open" );
     
   } catch (const std::string& errStr) {

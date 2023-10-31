@@ -174,7 +174,6 @@
 		543F44612AD5999A002B432A /* test_record.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_record.cpp; sourceTree = "<group>"; };
 		543F44682AD59B79002B432A /* test_filters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_filters.cpp; sourceTree = "<group>"; };
 		54B41A012AD591200031520C /* libepanetrtx.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libepanetrtx.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		54B41A0F2AD591A50031520C /* conandeps.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = conandeps.xcconfig; path = build/Debug/generators/conandeps.xcconfig; sourceTree = "<group>"; };
 		54B41A152AD592DB0031520C /* Units.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Units.cpp; sourceTree = "<group>"; };
 		54B41A162AD592DB0031520C /* SineTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SineTimeSeries.cpp; sourceTree = "<group>"; };
 		54B41A172AD592DB0031520C /* EpanetModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EpanetModel.cpp; sourceTree = "<group>"; };
@@ -315,6 +314,7 @@
 		54B41AA02AD592DB0031520C /* TimeSeriesFilterSecondary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeSeriesFilterSecondary.h; sourceTree = "<group>"; };
 		54B41AA12AD592DB0031520C /* TimeSeriesFilterSinglePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeSeriesFilterSinglePoint.h; sourceTree = "<group>"; };
 		54B41B332AD596FE0031520C /* RTX-TESTS */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "RTX-TESTS"; sourceTree = BUILT_PRODUCTS_DIR; };
+		54D5BE1A2AE6B4DB006F6880 /* conan_config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = conan_config.xcconfig; path = build/Debug/generators/conan_config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -365,7 +365,7 @@
 		54B419F82AD591200031520C = {
 			isa = PBXGroup;
 			children = (
-				54B41A0F2AD591A50031520C /* conandeps.xcconfig */,
+				54D5BE1A2AE6B4DB006F6880 /* conan_config.xcconfig */,
 				543F44562AD5999A002B432A /* test */,
 				54B41A142AD592DB0031520C /* src */,
 				54B41A022AD591200031520C /* Products */,
@@ -769,7 +769,7 @@
 /* Begin XCBuildConfiguration section */
 		54B41A0A2AD591200031520C /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 54B41A0F2AD591A50031520C /* conandeps.xcconfig */;
+			baseConfigurationReference = 54D5BE1A2AE6B4DB006F6880 /* conan_config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = x86_64;
@@ -822,14 +822,13 @@
 				MACOSX_DEPLOYMENT_TARGET = 12.6;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
 		54B41A0B2AD591200031520C /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 54B41A0F2AD591A50031520C /* conandeps.xcconfig */;
+			baseConfigurationReference = 54D5BE1A2AE6B4DB006F6880 /* conan_config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = x86_64;
