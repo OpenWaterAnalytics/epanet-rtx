@@ -57,10 +57,6 @@ namespace RTX {
     void removeMetadataValue(const std::string& name);
     const MetadataValueType& getMetadataValue(const std::string& name) const;
     std::vector<std::string> getMetadataKeys();
-
-    void removeMetadata(const std::string& name);
-    const MetadataValueType& getMetadata(const std::string& name) const;
-    std::vector<std::string> getMetadataKeys();
       
     std::string userDescription();
     void setUserDescription(const std::string& description);
