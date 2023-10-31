@@ -66,6 +66,15 @@ std::vector<std::string> Element::getMetadataKeys() {
   return keys;
 }
 
+std::vector<std::string> Element::getMetadataKeys() {
+  std::vector<std::string> keys;
+  for(auto pair : metadata){
+    keys.push_back(pair.first);
+  }
+
+  return keys;
+}
+
 std::ostream& RTX::operator<< (std::ostream &out, Element &e) {
   return e.toStream(out);
 }

@@ -10,6 +10,8 @@ class EpanetRtx(ConanFile):
     default_options = {"shared": False, "fPIC": True}
     generators = "CMakeToolchain", "CMakeDeps", "XcodeDeps", "XcodeToolchain"
 
+    exports_sources = "CMakeLists.txt", "src/*", "test/*"
+
     default_options = {
         "shared": False,
         "fPIC": True,

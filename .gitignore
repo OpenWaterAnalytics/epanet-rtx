@@ -194,3 +194,4 @@ node_modules
 # conan files
 deps/conan_build/
 CMakeUserPresets.json
+build/*
