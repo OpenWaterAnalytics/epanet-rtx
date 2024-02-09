@@ -27,6 +27,10 @@ namespace RTX {
     void setMinMaxLevel(double minLevel, double maxLevel);
     double minLevel();
     double maxLevel();
+
+    void setEnProperties(double initLevel, double diameter);
+    double initLevel();
+    double diameter();
     
     // public ivars for temporary (that is, steady-state) solutions
     double state_level;
@@ -62,7 +66,7 @@ namespace RTX {
     FirstDerivative::_sp _flowCalc;
     TimeSeries::_sp _volume,_flow;
     TimeSeries::_sp _inletQualityState;
-    double _minLevel, _maxLevel;
+    double _minLevel, _maxLevel, _initLevel, _diameter;
     Curve::_sp _geometry;
     bool _willResetLevel;
     

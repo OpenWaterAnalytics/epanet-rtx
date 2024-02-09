@@ -331,7 +331,7 @@ void EpanetModel::createRtxWrappers() {
     
     nodeName = string(enName);
     comment = string(enComment);
-    double minLevel = 0, maxLevel = 0;
+    double minLevel = 0, maxLevel = 0, tankDiam = 0;
     
     switch (nodeType) {
       case EN_TANK:
@@ -345,7 +345,10 @@ void EpanetModel::createRtxWrappers() {
         EN_API_CHECK(EN_getnodevalue(_enModel, iNode, EN_MAXLEVEL, &maxLevel), "EN_getnodevalue(EN_MAXLEVEL)");
         EN_API_CHECK(EN_getnodevalue(_enModel, iNode, EN_MINLEVEL, &minLevel), "EN_getnodevalue(EN_MINLEVEL)");
         newTank->setMinMaxLevel(minLevel, maxLevel);
-        
+
+        EN_API_CHECK(EN_getnodevalue(_enModel, iNode, EN_TANKDIAM, &tankDiam), "EN_getnodevalue(EN_TANKDIAM)");
+        newTank->setEnProperties(0.0, tankDiam);
+
         newTank->level()->setUnits(headUnits());
         newTank->flowCalc()->setUnits(flowUnits());
         newTank->volumeCalc()->setUnits(volumeUnits());

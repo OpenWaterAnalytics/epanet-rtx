@@ -28,7 +28,7 @@ namespace RTX {
     std::shared_ptr<T> share_me(T* thisPtr) {
       return std::static_pointer_cast<T>(shared_from_this());
     }
-    
+
   };
   
   typedef RTX_object::_sp RTX_ptr;
