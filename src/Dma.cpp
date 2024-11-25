@@ -669,6 +669,20 @@ TimeSeries::_sp Dma::boundaryDemand() {
 }
 
 int Dma::allocateDemandToJunctions(time_t time) {
+  if (demandAllocationDelegate) {
+    auto response = demandAllocationDelegate->allocateDemands(time, *this);
+    switch (response) {
+      // success
+      case 0:
+      // error occurred
+      case 1:
+        return response;
+      // continue to standard demand allocation
+      case 2:
+        break;
+    }
+  }
+
   // get each node's base demand for the current time
   // add the base demands together. this is the total base demand.
   // get the input demand value for the current time - from the demand() method

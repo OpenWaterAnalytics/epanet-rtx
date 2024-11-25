@@ -61,6 +61,12 @@ namespace RTX {
   
   class Dma : public Element {
   public:
+    // Delegate class that can be subclassed to implement a different allocation demand function
+    class DemandAllocationDelegate {
+    public:
+      virtual int allocateDemands(time_t time, Dma &dma) = 0;
+    };
+
     TSF_BASE_PROPS(Dma);
     typedef std::pair<Pipe::_sp, Pipe::direction_t> pipeDirPair_t;
     
@@ -107,9 +113,11 @@ namespace RTX {
     
     // business logic
     virtual int allocateDemandToJunctions(time_t time);
+    DemandAllocationDelegate *demandAllocationDelegate;
     
     std::string hashedName;
     
+
   private:
     // void followJunction(Junction::_sp junction);
     bool isBoundaryFlowJunction(Junction::_sp junction);
