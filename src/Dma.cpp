@@ -668,19 +668,17 @@ TimeSeries::_sp Dma::boundaryDemand() {
   return _boundaryDemand;
 }
 
+std::shared_ptr<Dma::DemandAllocationDelegate> Dma::getAllocationDelegate() {
+  return _allocationDelegate;
+}
+
+void Dma::setAllocationDelegate(std::shared_ptr<Dma::DemandAllocationDelegate> delegate) {
+  _allocationDelegate = delegate;
+}
+
 int Dma::allocateDemandToJunctions(time_t time) {
-  if (demandAllocationDelegate) {
-    auto response = demandAllocationDelegate->allocateDemands(time, *this);
-    switch (response) {
-      // success
-      case 0:
-      // error occurred
-      case 1:
-        return response;
-      // continue to standard demand allocation
-      case 2:
-        break;
-    }
+  if (_allocationDelegate && _allocationDelegate->allocateDemands(time, *this)) {
+      return 0;  // delegate succeeded. no error and early out.
   }
 
   // get each node's base demand for the current time
