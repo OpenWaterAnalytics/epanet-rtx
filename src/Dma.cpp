@@ -668,7 +668,19 @@ TimeSeries::_sp Dma::boundaryDemand() {
   return _boundaryDemand;
 }
 
+std::shared_ptr<Dma::DemandAllocationDelegate> Dma::allocationDelegate() {
+  return _allocationDelegate;
+}
+
+void Dma::setAllocationDelegate(std::shared_ptr<Dma::DemandAllocationDelegate> delegate) {
+  _allocationDelegate = delegate;
+}
+
 int Dma::allocateDemandToJunctions(time_t time) {
+  if (_allocationDelegate && _allocationDelegate->allocateDemands(share_me(this), time)) {
+      return 0;  // delegate succeeded. no error and early out.
+  }
+
   // get each node's base demand for the current time
   // add the base demands together. this is the total base demand.
   // get the input demand value for the current time - from the demand() method
