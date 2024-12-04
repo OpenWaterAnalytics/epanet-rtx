@@ -64,7 +64,7 @@ namespace RTX {
     // Delegate class that can be subclassed to implement a different allocation demand function
     class DemandAllocationDelegate {
     public:
-      virtual bool allocateDemands(time_t time, Dma &dma) = 0;
+      virtual bool allocateDemands(std::shared_ptr<Dma> dma, time_t time) = 0;
     };
 
     TSF_BASE_PROPS(Dma);
@@ -113,7 +113,7 @@ namespace RTX {
     
     // business logic
     virtual int allocateDemandToJunctions(time_t time);
-    std::shared_ptr<DemandAllocationDelegate> getAllocationDelegate();
+    std::shared_ptr<DemandAllocationDelegate> allocationDelegate();
     void setAllocationDelegate(std::shared_ptr<Dma::DemandAllocationDelegate> delegate);
     
     std::string hashedName;

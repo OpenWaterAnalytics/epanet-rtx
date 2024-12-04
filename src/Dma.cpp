@@ -668,7 +668,7 @@ TimeSeries::_sp Dma::boundaryDemand() {
   return _boundaryDemand;
 }
 
-std::shared_ptr<Dma::DemandAllocationDelegate> Dma::getAllocationDelegate() {
+std::shared_ptr<Dma::DemandAllocationDelegate> Dma::allocationDelegate() {
   return _allocationDelegate;
 }
 
@@ -677,7 +677,7 @@ void Dma::setAllocationDelegate(std::shared_ptr<Dma::DemandAllocationDelegate> d
 }
 
 int Dma::allocateDemandToJunctions(time_t time) {
-  if (_allocationDelegate && _allocationDelegate->allocateDemands(time, *this)) {
+  if (_allocationDelegate && _allocationDelegate->allocateDemands(share_me(this), time)) {
       return 0;  // delegate succeeded. no error and early out.
   }
 
