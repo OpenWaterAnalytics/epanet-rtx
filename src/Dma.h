@@ -64,7 +64,7 @@ namespace RTX {
     // Delegate class that can be subclassed to implement a different allocation demand function
     class DemandAllocationDelegate {
     public:
-      virtual bool allocateDemands(std::shared_ptr<Dma> dma, time_t time) = 0;
+      virtual bool allocateDemands(std::shared_ptr<Dma> dma, const time_t& time) = 0;
     };
 
     TSF_BASE_PROPS(Dma);
