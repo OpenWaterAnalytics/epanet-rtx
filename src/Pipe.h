@@ -11,6 +11,8 @@
 
 #include "Link.h"
 
+using TSF::TimeSeries;
+
 namespace RTX {
 //!   Pipe Class
 /*!
@@ -19,7 +21,7 @@ namespace RTX {
 class Pipe : public Link {
 public:
   typedef enum { OPEN = true, CLOSED = false } status_t;
-  RTX_BASE_PROPS(Pipe);
+  TSF_BASE_PROPS(Pipe);
   Pipe();
   Pipe(const std::string &name);
   virtual ~Pipe();

@@ -14,16 +14,16 @@ namespace RTX {
       Forecast
     };
     
-    EpanetModelExporter(EpanetModel::_sp model, TimeRange range, ExportType exportType);
+    EpanetModelExporter(EpanetModel::_sp model, TSF::TimeRange range, ExportType exportType);
     std::ostream& to_stream(std::ostream &stream);
     
     // calibration files
-    static void exportModel(EpanetModel::_sp model, TimeRange range, const std::string& dir, bool exportCalibration, ExportType exportType);
+    static void exportModel(EpanetModel::_sp model, TSF::TimeRange range, const std::string& dir, bool exportCalibration, ExportType exportType);
     
   private:
     void replaceControlsInStream(std::ifstream &original, std::ostream &stream);
 
-    TimeRange _range;
+    TSF::TimeRange _range;
     EpanetModel::_sp _model;
     ExportType _exportType;
   };

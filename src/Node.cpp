@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace RTX;
+using namespace TSF;
 
 Node::Node(const std::string& name) : Element(name), _lonLat(0,0) {
   _z = 0;

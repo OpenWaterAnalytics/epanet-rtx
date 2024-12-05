@@ -9,6 +9,7 @@
 #include "Link.h"
 
 using namespace RTX;
+using namespace TSF;
 using namespace std;
 
 Link::Link(const std::string& name) : Element(name) {

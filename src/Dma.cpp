@@ -10,8 +10,8 @@
 #include <boost/range/adaptors.hpp>
 
 #include "Dma.h"
-#include "ConstantTimeSeries.h"
-#include "AggregatorTimeSeries.h"
+#include <ConstantTimeSeries.h>
+#include <AggregatorTimeSeries.h>
 
 #include <boost/config.hpp>
 #include <boost/algorithm/string/join.hpp>
@@ -22,17 +22,18 @@
 #include <openssl/sha.h>
 
 using namespace RTX;
+using namespace TSF;
 using namespace std;
 using std::cout;
 
 Dma::Dma(const std::string& name) : Element(name), _flowUnits(1) {
   this->setType(DMA);
-  _flowUnits = RTX_LITER_PER_SECOND;
+  _flowUnits = TSF_LITER_PER_SECOND;
   // set to aggregator type because that's the most likely scenario.
   // presumably, we will use Dma::enumerateJunctionsWithRootNode to populate the aggregation.
   _demand.reset(new AggregatorTimeSeries() );
   _demand->setName("DMA " + name + " demand");
-  _demand->setUnits(RTX_LITER_PER_SECOND);
+  _demand->setUnits(TSF_LITER_PER_SECOND);
 }
 Dma::~Dma() {
   
@@ -66,7 +67,7 @@ void Dma::setRecord(PointRecord::_sp record) {
   }
 }
 
-void Dma::setJunctionFlowUnits(RTX::Units units) {
+void Dma::setJunctionFlowUnits(TSF::Units units) {
   _flowUnits = units;
 }
 
@@ -240,7 +241,7 @@ bool Dma::doesContainReservoir() {
 //    // assemble the aggregated demand time series
 //    
 //    AggregatorTimeSeries::_sp dmaDemand( new AggregatorTimeSeries() );
-//    dmaDemand->setUnits(RTX_GALLON_PER_MINUTE);
+//    dmaDemand->setUnits(TSF_GALLON_PER_MINUTE);
 //    dmaDemand->setName("DMA " + this->name() + " demand");
 //    for(Tank::_sp t : _tanks) {
 //      dmaDemand->addSource(t->flowMeasure(), -1.);
@@ -264,7 +265,7 @@ bool Dma::doesContainReservoir() {
 //    ConstantTimeSeries::_sp constDma(new ConstantTimeSeries());
 //    constDma->setName("Zero Demand");
 //    constDma->setValue(0.);
-//    constDma->setUnits(RTX_GALLON_PER_MINUTE);
+//    constDma->setUnits(TSF_GALLON_PER_MINUTE);
 //    this->setDemand(constDma);
 //  }
 //  
@@ -325,7 +326,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
   
   
   AggregatorTimeSeries::_sp boundaryDemandSum(new AggregatorTimeSeries());
-  boundaryDemandSum->setUnits(RTX_GALLON_PER_MINUTE);
+  boundaryDemandSum->setUnits(TSF_GALLON_PER_MINUTE);
   for(auto ts : _boundaryFlowJunctions) {
     boundaryDemandSum->addSource(ts->boundaryFlow());
   }
@@ -336,7 +337,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
     ConstantTimeSeries::_sp c(new ConstantTimeSeries());
     c->setValue(0);
     c->setClock(fixed_minute_clock);
-    c->setUnits(RTX_GALLON_PER_MINUTE);
+    c->setUnits(TSF_GALLON_PER_MINUTE);
     _boundaryDemand = c;
   }
   
@@ -349,7 +350,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
     // assemble the aggregated demand time series
     
     AggregatorTimeSeries::_sp dmaDemand( new AggregatorTimeSeries() );
-    dmaDemand->setUnits(RTX_GALLON_PER_MINUTE);
+    dmaDemand->setUnits(TSF_GALLON_PER_MINUTE);
     dmaDemand->setName("DMA " + this->name() + " demand");
     for(Tank::_sp t : _tanks) {
       dmaDemand->addSource(t->flowCalc(), -1.);
@@ -362,7 +363,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
     
     if (_measuredBoundaryPipesDirectional.size() == 0) {
       ConstantTimeSeries::_sp zero( new ConstantTimeSeries() );
-      zero->setUnits(RTX_GALLON_PER_MINUTE);
+      zero->setUnits(TSF_GALLON_PER_MINUTE);
       zero->setClock(fixed_minute_clock);
       zero->setValue(0.);
       this->setDemand(zero);
@@ -382,7 +383,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
     ConstantTimeSeries::_sp constDma(new ConstantTimeSeries());
     constDma->setName("Zero Demand");
     constDma->setValue(0.);
-    constDma->setUnits(RTX_GALLON_PER_MINUTE);
+    constDma->setUnits(TSF_GALLON_PER_MINUTE);
     constDma->setClock(fixed_minute_clock);
     this->setDemand(constDma);
   }
@@ -651,7 +652,7 @@ bool Dma::isBoundaryPipe(Pipe::_sp pipe) {
 }
 
 void Dma::setDemand(TimeSeries::_sp demand) {
-  if (demand->units().isSameDimensionAs(RTX_CUBIC_METER_PER_SECOND)) {
+  if (demand->units().isSameDimensionAs(TSF_CUBIC_METER_PER_SECOND)) {
     _demand = demand;
   }
   else {
@@ -667,7 +668,19 @@ TimeSeries::_sp Dma::boundaryDemand() {
   return _boundaryDemand;
 }
 
+std::shared_ptr<Dma::DemandAllocationDelegate> Dma::allocationDelegate() {
+  return _allocationDelegate;
+}
+
+void Dma::setAllocationDelegate(std::shared_ptr<Dma::DemandAllocationDelegate> delegate) {
+  _allocationDelegate = delegate;
+}
+
 int Dma::allocateDemandToJunctions(time_t time) {
+  if (_allocationDelegate && _allocationDelegate->allocateDemands(share_me(this), time)) {
+      return 0;  // delegate succeeded. no error and early out.
+  }
+
   // get each node's base demand for the current time
   // add the base demands together. this is the total base demand.
   // get the input demand value for the current time - from the demand() method

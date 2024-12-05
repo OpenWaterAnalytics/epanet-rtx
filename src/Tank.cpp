@@ -10,11 +10,12 @@
 
 #include "Tank.h"
 
-#include "OffsetTimeSeries.h"
-#include "CurveFunction.h"
-#include "FirstDerivative.h"
+#include <OffsetTimeSeries.h>
+#include <CurveFunction.h>
+#include <FirstDerivative.h>
 
 using namespace RTX;
+using namespace TSF;
 using namespace std;
 
 Tank::Tank(const std::string& name) : Junction(name) {
@@ -31,25 +32,25 @@ Tank::Tank(const std::string& name) : Junction(name) {
   
   
   _volumeCalc.reset( new CurveFunction() );
-  _volumeCalc->setUnits(RTX_LITER);
+  _volumeCalc->setUnits(TSF_LITER);
   _volumeCalc->setName("calc_volume,n=" + name);
   _volumeCalc->setDoesSaturate(true);
   
   _flowCalc.reset( new FirstDerivative() );
-  _flowCalc->setUnits(RTX_LITER_PER_SECOND);
+  _flowCalc->setUnits(TSF_LITER_PER_SECOND);
   _flowCalc->setSource(_volumeCalc);
   _flowCalc->setName("calc_flow,n=" + name);
   
   _volume.reset( new TimeSeries );
-  _volume->setUnits(RTX_LITER);
+  _volume->setUnits(TSF_LITER);
   _volume->setName("volume,n=" + name);
   
   _flow.reset( new TimeSeries );
-  _flow->setUnits(RTX_LITER_PER_SECOND);
+  _flow->setUnits(TSF_LITER_PER_SECOND);
   _flow->setName("flow,n=" + name);
   
   _inletQualityState.reset( new TimeSeries );
-  _inletQualityState->setUnits(RTX_HOUR);
+  _inletQualityState->setUnits(TSF_HOUR);
   _inletQualityState->setName("inlet_concentration,n=" + name);
   
 }

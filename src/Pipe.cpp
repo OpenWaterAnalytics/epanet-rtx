@@ -12,15 +12,16 @@
 #include "Junction.h"
 
 using namespace RTX;
+using namespace TSF;
 
 
 Pipe::Pipe(const std::string& name) : Link(name) {
   setType(PIPE);
   
-  _flowState.reset( new TimeSeries("flow,l=" + name, RTX_LITER_PER_SECOND) );
-  _setting.reset( new TimeSeries("setting,l=" + name, RTX_DIMENSIONLESS) );
-  _status.reset( new TimeSeries("status,l=" + name, RTX_DIMENSIONLESS) );
-  _qualityState.reset( new TimeSeries("quality,l=" + name, RTX_HOUR) );
+  _flowState.reset( new TimeSeries("flow,l=" + name, TSF_LITER_PER_SECOND) );
+  _setting.reset( new TimeSeries("setting,l=" + name, TSF_DIMENSIONLESS) );
+  _status.reset( new TimeSeries("status,l=" + name, TSF_DIMENSIONLESS) );
+  _qualityState.reset( new TimeSeries("quality,l=" + name, TSF_HOUR) );
   
   _fixedStatus = Pipe::OPEN;
   
@@ -134,7 +135,7 @@ void Pipe::setFlowMeasure(TimeSeries::_sp flow) {
   if (flow == NULL || !flow) {
     _flowMeasure = TimeSeries::_sp();
   }
-  else if ( !(flow->units().isSameDimensionAs(RTX_GALLON_PER_MINUTE)) ) {
+  else if ( !(flow->units().isSameDimensionAs(TSF_GALLON_PER_MINUTE)) ) {
     return;
   }
   _flowMeasure = flow;

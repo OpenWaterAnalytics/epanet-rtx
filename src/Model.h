@@ -25,11 +25,15 @@
 #include "Pump.h"
 #include "Valve.h"
 #include "Dma.h"
-#include "PointRecord.h"
-#include "Units.h"
-#include "Curve.h"
+#include <PointRecord.h>
+#include <Units.h>
+#include <Curve.h>
 #include "rtxMacros.h"
 
+using TSF::TimeSeries;
+using TSF::Units;
+using TSF::Clock;
+using TSF::PointRecord;
 
 namespace RTX {
   
@@ -49,7 +53,7 @@ namespace RTX {
   
   class Model : public RTX_object {
   public:
-    RTX_BASE_PROPS(Model);
+    TSF_BASE_PROPS(Model);
     typedef std::function<void(const std::string&)> RTX_Logging_Callback_Block;
     
     Model();
@@ -151,7 +155,6 @@ namespace RTX {
     virtual void setQualityTimeStep(int seconds);
     int qualityTimeStep();
     
-    void setInitialQualityConditionsFromHotStart(time_t time);
     void setInitialJunctionUniformQuality(double qual);
     double initialUniformQuality();
     void setInitialJunctionQualityFromMeasurements(time_t time);

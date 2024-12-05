@@ -12,15 +12,13 @@
 #include <vector>
 #include <set>
 #include "rtxMacros.h"
-#include "TimeSeries.h"
+#include <TimeSeries.h>
 #include "Element.h"
 #include "Junction.h"
 #include "Tank.h"
 #include "Link.h"
 #include "Pipe.h"
-#include "Units.h"
-
-//#include "networkGraph.h"
+#include <Units.h>
 
 namespace RTX {
 
@@ -63,7 +61,13 @@ namespace RTX {
   
   class Dma : public Element {
   public:
-    RTX_BASE_PROPS(Dma);
+    // Delegate class that can be subclassed to implement a different allocation demand function
+    class DemandAllocationDelegate {
+    public:
+      virtual bool allocateDemands(std::shared_ptr<Dma> dma, const time_t& time) = 0;
+    };
+
+    TSF_BASE_PROPS(Dma);
     typedef std::pair<Pipe::_sp, Pipe::direction_t> pipeDirPair_t;
     
     virtual std::ostream& toStream(std::ostream &stream);
@@ -109,6 +113,8 @@ namespace RTX {
     
     // business logic
     virtual int allocateDemandToJunctions(time_t time);
+    std::shared_ptr<DemandAllocationDelegate> allocationDelegate();
+    void setAllocationDelegate(std::shared_ptr<Dma::DemandAllocationDelegate> delegate);
     
     std::string hashedName;
     
@@ -129,6 +135,8 @@ namespace RTX {
     TimeSeries::_sp _demand;
     TimeSeries::_sp _boundaryDemand;
     Units _flowUnits;
+
+    std::shared_ptr<DemandAllocationDelegate> _allocationDelegate;
   };
 }
 

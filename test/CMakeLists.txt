@@ -1,7 +1,6 @@
 add_executable( epanetrtx-test 
 	test_main.cpp
-	test_units.cpp
-	test_record.cpp )
+)
 
 set_target_properties(epanetrtx-test PROPERTIES CXX_STANDARD 17)
 

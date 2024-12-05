@@ -12,9 +12,10 @@
 #include <boost/foreach.hpp>
 #include "InpTextPattern.h"
 
-#include "TimeSeriesFilter.h"
+#include <TimeSeriesFilter.h>
 
 using namespace RTX;
+using namespace TSF;
 using namespace std;
 
 std::string InpTextPattern::textPatternWithTimeSeries(TimeSeries::_sp ts, const std::string& patternName, time_t from, time_t to, int step, ResampleMode interp) {

@@ -10,12 +10,13 @@
 #define epanet_rtx_reservoir_h
 
 #include "Junction.h"
+using TSF::TimeSeries;
 
 namespace RTX {
   
   class Reservoir : public Junction {
   public:
-    RTX_BASE_PROPS(Reservoir);
+    TSF_BASE_PROPS(Reservoir);
     Reservoir(const std::string& name);
     virtual ~Reservoir();
     

@@ -14,9 +14,15 @@
 #include <time.h>
 #include <variant>
 #include <vector>
-#include "rtxMacros.h"
-#include "TimeSeries.h"
-#include "PointRecord.h"
+#include <TimeSeries.h>
+#include <PointRecord.h>
+
+#include "RtxObject.h"
+
+using TSF::TimeSeries;
+using TSF::Units;
+using TSF::Clock;
+using TSF::PointRecord;
 
 namespace RTX {
 
@@ -43,7 +49,7 @@ namespace RTX {
     
     // please don't misuse this type enumeration!!!
     
-    RTX_BASE_PROPS(Element);
+    TSF_BASE_PROPS(Element);
 
     virtual std::ostream& toStream(std::ostream &stream);
     element_t type();

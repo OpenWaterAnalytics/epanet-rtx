@@ -8,144 +8,41 @@
 
 /* Begin PBXBuildFile section */
 		543F44532AD598EE002B432A /* libepanetrtx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 54B41A012AD591200031520C /* libepanetrtx.dylib */; };
-		543F44622AD5999A002B432A /* MyClientTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543F44572AD5999A002B432A /* MyClientTest.cpp */; };
-		543F44632AD5999A002B432A /* test_influx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543F445A2AD5999A002B432A /* test_influx.cpp */; };
 		543F44642AD5999A002B432A /* test_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543F445B2AD5999A002B432A /* test_main.cpp */; };
 		543F44652AD5999A002B432A /* test_element.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543F445C2AD5999A002B432A /* test_element.cpp */; };
-		543F44662AD5999A002B432A /* test_units.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543F445D2AD5999A002B432A /* test_units.cpp */; };
-		543F44672AD5999A002B432A /* test_record.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543F44612AD5999A002B432A /* test_record.cpp */; };
-		543F44692AD59B79002B432A /* test_filters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543F44682AD59B79002B432A /* test_filters.cpp */; };
-		54B41AA22AD592DB0031520C /* Units.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A152AD592DB0031520C /* Units.cpp */; };
-		54B41AA32AD592DB0031520C /* SineTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A162AD592DB0031520C /* SineTimeSeries.cpp */; };
 		54B41AA42AD592DB0031520C /* EpanetModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A172AD592DB0031520C /* EpanetModel.cpp */; };
-		54B41AA52AD592DB0031520C /* MultiplierTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A182AD592DB0031520C /* MultiplierTimeSeries.cpp */; };
-		54B41AA62AD592DB0031520C /* CorrelatorTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A192AD592DB0031520C /* CorrelatorTimeSeries.h */; };
 		54B41AA72AD592DB0031520C /* Dma.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A1A2AD592DB0031520C /* Dma.h */; };
-		54B41AA82AD592DB0031520C /* MetaTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A1B2AD592DB0031520C /* MetaTimeSeries.h */; };
 		54B41AA92AD592DB0031520C /* Pipe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A1C2AD592DB0031520C /* Pipe.cpp */; };
-		54B41AAA2AD592DB0031520C /* TimeSeriesSynthetic.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A1D2AD592DB0031520C /* TimeSeriesSynthetic.h */; };
-		54B41AAB2AD592DB0031520C /* SqliteAdapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A1E2AD592DB0031520C /* SqliteAdapter.cpp */; };
-		54B41AAC2AD592DB0031520C /* DbPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A1F2AD592DB0031520C /* DbPointRecord.cpp */; };
-		54B41AAD2AD592DB0031520C /* SquareWaveTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A202AD592DB0031520C /* SquareWaveTimeSeries.cpp */; };
-		54B41AAE2AD592DB0031520C /* StatsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A212AD592DB0031520C /* StatsTimeSeries.h */; };
-		54B41AAF2AD592DB0031520C /* ValidRangeTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A222AD592DB0031520C /* ValidRangeTimeSeries.cpp */; };
 		54B41AB02AD592DB0031520C /* Tank.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A232AD592DB0031520C /* Tank.cpp */; };
 		54B41AB12AD592DB0031520C /* EpanetModelExporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A242AD592DB0031520C /* EpanetModelExporter.cpp */; };
 		54B41AB32AD592DB0031520C /* Reservoir.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A262AD592DB0031520C /* Reservoir.h */; };
 		54B41AB42AD592DB0031520C /* Dma.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A272AD592DB0031520C /* Dma.cpp */; };
-		54B41AB52AD592DB0031520C /* MetaTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A282AD592DB0031520C /* MetaTimeSeries.cpp */; };
-		54B41AB62AD592DB0031520C /* Curve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A292AD592DB0031520C /* Curve.cpp */; };
 		54B41AB72AD592DB0031520C /* Junction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A2A2AD592DB0031520C /* Junction.cpp */; };
-		54B41AB82AD592DB0031520C /* StatsTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A2B2AD592DB0031520C /* StatsTimeSeries.cpp */; };
-		54B41AB92AD592DB0031520C /* Point.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A2C2AD592DB0031520C /* Point.h */; };
 		54B41ABB2AD592DB0031520C /* RTX_Visitable.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A2E2AD592DB0031520C /* RTX_Visitable.h */; };
-		54B41ABC2AD592DB0031520C /* LagTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A2F2AD592DB0031520C /* LagTimeSeries.cpp */; };
 		54B41ABD2AD592DB0031520C /* Tank.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A302AD592DB0031520C /* Tank.h */; };
-		54B41ABE2AD592DB0031520C /* TimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A312AD592DB0031520C /* TimeSeries.cpp */; };
 		54B41ABF2AD592DB0031520C /* Pump.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A322AD592DB0031520C /* Pump.h */; };
-		54B41AC02AD592DB0031520C /* BaseStatsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A332AD592DB0031520C /* BaseStatsTimeSeries.h */; };
-		54B41AC12AD592DB0031520C /* FirstDerivative.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A342AD592DB0031520C /* FirstDerivative.cpp */; };
-		54B41AC22AD592DB0031520C /* CurveFunction.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A352AD592DB0031520C /* CurveFunction.h */; };
 		54B41AC32AD592DB0031520C /* EpanetSyntheticModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A362AD592DB0031520C /* EpanetSyntheticModel.cpp */; };
-		54B41AC42AD592DB0031520C /* OffsetTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A372AD592DB0031520C /* OffsetTimeSeries.h */; };
-		54B41AC52AD592DB0031520C /* SqliteAdapter.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A382AD592DB0031520C /* SqliteAdapter.h */; };
-		54B41AC62AD592DB0031520C /* IntegratorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A392AD592DB0031520C /* IntegratorTimeSeries.cpp */; };
-		54B41AC72AD592DB0031520C /* InfluxAdapter.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A3A2AD592DB0031520C /* InfluxAdapter.h */; };
-		54B41AC82AD592DB0031520C /* LagTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A3B2AD592DB0031520C /* LagTimeSeries.h */; };
-		54B41AC92AD592DB0031520C /* SineTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A3C2AD592DB0031520C /* SineTimeSeries.h */; };
 		54B41ACA2AD592DB0031520C /* Valve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A3D2AD592DB0031520C /* Valve.cpp */; };
-		54B41ACB2AD592DB0031520C /* OutlierExclusionTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A3E2AD592DB0031520C /* OutlierExclusionTimeSeries.h */; };
-		54B41ACC2AD592DB0031520C /* LogicTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A3F2AD592DB0031520C /* LogicTimeSeries.cpp */; };
 		54B41ACD2AD592DB0031520C /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A402AD592DB0031520C /* Node.cpp */; };
-		54B41ACE2AD592DB0031520C /* LogicTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A412AD592DB0031520C /* LogicTimeSeries.h */; };
-		54B41ACF2AD592DB0031520C /* BaseStatsTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A422AD592DB0031520C /* BaseStatsTimeSeries.cpp */; };
-		54B41AD02AD592DB0031520C /* ConstantTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A432AD592DB0031520C /* ConstantTimeSeries.h */; };
-		54B41AD12AD592DB0031520C /* AggregatorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A442AD592DB0031520C /* AggregatorTimeSeries.cpp */; };
 		54B41AD22AD592DB0031520C /* EpanetSyntheticModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A452AD592DB0031520C /* EpanetSyntheticModel.h */; };
-		54B41AD32AD592DB0031520C /* Clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A462AD592DB0031520C /* Clock.cpp */; };
-		54B41AD42AD592DB0031520C /* TimeSeriesLowess.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A472AD592DB0031520C /* TimeSeriesLowess.h */; };
-		54B41AD52AD592DB0031520C /* MetricInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A482AD592DB0031520C /* MetricInfo.cpp */; };
 		54B41AD62AD592DB0031520C /* InpTextPattern.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A492AD592DB0031520C /* InpTextPattern.h */; };
-		54B41AD72AD592DB0031520C /* TimeSeriesQuery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A4A2AD592DB0031520C /* TimeSeriesQuery.cpp */; };
 		54B41AD82AD592DB0031520C /* Node.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A4B2AD592DB0031520C /* Node.h */; };
-		54B41AD92AD592DB0031520C /* TimeRange.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A4C2AD592DB0031520C /* TimeRange.h */; };
-		54B41ADA2AD592DB0031520C /* DbAdapter.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A4D2AD592DB0031520C /* DbAdapter.h */; };
 		54B41ADB2AD592DB0031520C /* rtxExceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A4E2AD592DB0031520C /* rtxExceptions.h */; };
-		54B41ADC2AD592DB0031520C /* ConstantTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A4F2AD592DB0031520C /* ConstantTimeSeries.cpp */; };
 		54B41ADD2AD592DB0031520C /* Reservoir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A502AD592DB0031520C /* Reservoir.cpp */; };
-		54B41ADE2AD592DB0031520C /* MathOpsTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A512AD592DB0031520C /* MathOpsTimeSeries.cpp */; };
-		54B41ADF2AD592DB0031520C /* FirstDerivative.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A522AD592DB0031520C /* FirstDerivative.h */; };
-		54B41AE02AD592DB0031520C /* TimeSeriesFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A532AD592DB0031520C /* TimeSeriesFilter.h */; };
-		54B41AE12AD592DB0031520C /* InversionTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A542AD592DB0031520C /* InversionTimeSeries.cpp */; };
-		54B41AE22AD592DB0031520C /* DbPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A552AD592DB0031520C /* DbPointRecord.h */; };
-		54B41AE32AD592DB0031520C /* BufferPointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A562AD592DB0031520C /* BufferPointRecord.h */; };
-		54B41AE42AD592DB0031520C /* MovingAverage.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A572AD592DB0031520C /* MovingAverage.h */; };
-		54B41AE52AD592DB0031520C /* MovingAverage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A582AD592DB0031520C /* MovingAverage.cpp */; };
-		54B41AE62AD592DB0031520C /* InfluxAdapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A592AD592DB0031520C /* InfluxAdapter.cpp */; };
-		54B41AE72AD592DB0031520C /* InversionTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A5A2AD592DB0031520C /* InversionTimeSeries.h */; };
-		54B41AE82AD592DB0031520C /* Curve.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A5B2AD592DB0031520C /* Curve.h */; };
 		54B41AE92AD592DB0031520C /* EpanetModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A5C2AD592DB0031520C /* EpanetModel.h */; };
-		54B41AEA2AD592DB0031520C /* IntegratorTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A5D2AD592DB0031520C /* IntegratorTimeSeries.h */; };
-		54B41AEB2AD592DB0031520C /* ThresholdTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A5E2AD592DB0031520C /* ThresholdTimeSeries.cpp */; };
-		54B41AEC2AD592DB0031520C /* Components.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A5F2AD592DB0031520C /* Components.hpp */; };
-		54B41AEE2AD592DB0031520C /* PointCollection.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A612AD592DB0031520C /* PointCollection.h */; };
-		54B41AEF2AD592DB0031520C /* FailoverTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A622AD592DB0031520C /* FailoverTimeSeries.h */; };
-		54B41AF02AD592DB0031520C /* TimeRange.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A632AD592DB0031520C /* TimeRange.cpp */; };
-		54B41AF12AD592DB0031520C /* WhereClause.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A642AD592DB0031520C /* WhereClause.cpp */; };
 		54B41AF22AD592DB0031520C /* Valve.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A652AD592DB0031520C /* Valve.h */; };
 		54B41AF32AD592DB0031520C /* Element.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A662AD592DB0031520C /* Element.h */; };
-		54B41AF42AD592DB0031520C /* PointCollection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A672AD592DB0031520C /* PointCollection.cpp */; };
-		54B41AF52AD592DB0031520C /* TimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A682AD592DB0031520C /* TimeSeries.h */; };
 		54B41AF62AD592DB0031520C /* Junction.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A692AD592DB0031520C /* Junction.h */; };
-		54B41AF82AD592DB0031520C /* BufferPointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A6B2AD592DB0031520C /* BufferPointRecord.cpp */; };
-		54B41AF92AD592DB0031520C /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A6C2AD592DB0031520C /* Point.cpp */; };
-		54B41AFA2AD592DB0031520C /* AggregatorTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A6D2AD592DB0031520C /* AggregatorTimeSeries.h */; };
-		54B41AFB2AD592DB0031520C /* GainTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A6E2AD592DB0031520C /* GainTimeSeries.cpp */; };
 		54B41AFC2AD592DB0031520C /* EpanetModelExporter.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A6F2AD592DB0031520C /* EpanetModelExporter.h */; };
-		54B41AFE2AD592DB0031520C /* TimeSeriesFilterSinglePoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A712AD592DB0031520C /* TimeSeriesFilterSinglePoint.cpp */; };
 		54B41AFF2AD592DB0031520C /* Pipe.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A722AD592DB0031520C /* Pipe.h */; };
 		54B41B012AD592DB0031520C /* Model.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A742AD592DB0031520C /* Model.h */; };
 		54B41B022AD592DB0031520C /* Model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A752AD592DB0031520C /* Model.cpp */; };
-		54B41B032AD592DB0031520C /* MetricInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A762AD592DB0031520C /* MetricInfo.h */; };
-		54B41B042AD592DB0031520C /* AutoRunner.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A772AD592DB0031520C /* AutoRunner.h */; };
-		54B41B062AD592DB0031520C /* ThresholdTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A792AD592DB0031520C /* ThresholdTimeSeries.h */; };
 		54B41B072AD592DB0031520C /* InpTextPattern.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A7A2AD592DB0031520C /* InpTextPattern.cpp */; };
-		54B41B082AD592DB0031520C /* TimeSeriesFilterSecondary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A7B2AD592DB0031520C /* TimeSeriesFilterSecondary.cpp */; };
-		54B41B092AD592DB0031520C /* AutoRunner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A7C2AD592DB0031520C /* AutoRunner.cpp */; };
-		54B41B0A2AD592DB0031520C /* PointRecord.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A7D2AD592DB0031520C /* PointRecord.cpp */; };
-		54B41B0B2AD592DB0031520C /* PointRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A7E2AD592DB0031520C /* PointRecord.h */; };
-		54B41B0C2AD592DB0031520C /* MultiplierTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A7F2AD592DB0031520C /* MultiplierTimeSeries.h */; };
-		54B41B0D2AD592DB0031520C /* TimeSeriesQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A802AD592DB0031520C /* TimeSeriesQuery.h */; };
 		54B41B0E2AD592DB0031520C /* Element.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A812AD592DB0031520C /* Element.cpp */; };
-		54B41B0F2AD592DB0031520C /* CurveFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A822AD592DB0031520C /* CurveFunction.cpp */; };
-		54B41B102AD592DB0031520C /* TimeSeriesSynthetic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A832AD592DB0031520C /* TimeSeriesSynthetic.cpp */; };
-		54B41B112AD592DB0031520C /* CorrelatorTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A842AD592DB0031520C /* CorrelatorTimeSeries.cpp */; };
-		54B41B132AD592DB0031520C /* GainTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A862AD592DB0031520C /* GainTimeSeries.h */; };
-		54B41B142AD592DB0031520C /* FailoverTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A872AD592DB0031520C /* FailoverTimeSeries.cpp */; };
 		54B41B152AD592DB0031520C /* rtxMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A882AD592DB0031520C /* rtxMacros.h */; };
-		54B41B162AD592DB0031520C /* ConcreteDbRecords.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A892AD592DB0031520C /* ConcreteDbRecords.cpp */; };
-		54B41B172AD592DB0031520C /* PointRecordTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A8A2AD592DB0031520C /* PointRecordTime.cpp */; };
 		54B41B182AD592DB0031520C /* Link.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A8B2AD592DB0031520C /* Link.h */; };
-		54B41B192AD592DB0031520C /* SquareWaveTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A8C2AD592DB0031520C /* SquareWaveTimeSeries.h */; };
-		54B41B1A2AD592DB0031520C /* ValidRangeTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A8D2AD592DB0031520C /* ValidRangeTimeSeries.h */; };
-		54B41B1B2AD592DB0031520C /* TimeSeriesFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A8E2AD592DB0031520C /* TimeSeriesFilter.cpp */; };
-		54B41B1C2AD592DB0031520C /* OutlierExclusionTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A8F2AD592DB0031520C /* OutlierExclusionTimeSeries.cpp */; };
-		54B41B1D2AD592DB0031520C /* OffsetTimeSeries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A902AD592DB0031520C /* OffsetTimeSeries.cpp */; };
 		54B41B1F2AD592DB0031520C /* Link.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A922AD592DB0031520C /* Link.cpp */; };
-		54B41B202AD592DB0031520C /* TimeSeriesLowess.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A932AD592DB0031520C /* TimeSeriesLowess.cpp */; };
-		54B41B222AD592DB0031520C /* Clock.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A952AD592DB0031520C /* Clock.h */; };
-		54B41B232AD592DB0031520C /* IdentifierUnitsList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A962AD592DB0031520C /* IdentifierUnitsList.cpp */; };
-		54B41B242AD592DB0031520C /* Units.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A972AD592DB0031520C /* Units.h */; };
-		54B41B252AD592DB0031520C /* WhereClause.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A982AD592DB0031520C /* WhereClause.h */; };
-		54B41B262AD592DB0031520C /* PointRecordTime.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A992AD592DB0031520C /* PointRecordTime.h */; };
-		54B41B272AD592DB0031520C /* MathOpsTimeSeries.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A9A2AD592DB0031520C /* MathOpsTimeSeries.h */; };
-		54B41B282AD592DB0031520C /* InfluxClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A9B2AD592DB0031520C /* InfluxClient.hpp */; };
-		54B41B292AD592DB0031520C /* Lowess.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A9C2AD592DB0031520C /* Lowess.h */; };
-		54B41B2A2AD592DB0031520C /* IdentifierUnitsList.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A9D2AD592DB0031520C /* IdentifierUnitsList.h */; };
-		54B41B2B2AD592DB0031520C /* ConcreteDbRecords.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41A9E2AD592DB0031520C /* ConcreteDbRecords.h */; };
 		54B41B2C2AD592DB0031520C /* Pump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B41A9F2AD592DB0031520C /* Pump.cpp */; };
-		54B41B2D2AD592DB0031520C /* TimeSeriesFilterSecondary.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41AA02AD592DB0031520C /* TimeSeriesFilterSecondary.h */; };
-		54B41B2E2AD592DB0031520C /* TimeSeriesFilterSinglePoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 54B41AA12AD592DB0031520C /* TimeSeriesFilterSinglePoint.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -161,158 +58,48 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		543F44572AD5999A002B432A /* MyClientTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MyClientTest.cpp; sourceTree = "<group>"; };
+		5411B9842B7A92D900448D51 /* conan_config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = conan_config.xcconfig; path = build/Release/generators/conan_config.xcconfig; sourceTree = "<group>"; };
+		5411B9852B7A937400448D51 /* conanfile.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = conanfile.py; sourceTree = "<group>"; };
 		543F44582AD5999A002B432A /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		543F44592AD5999A002B432A /* test_main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_main.h; sourceTree = "<group>"; };
-		543F445A2AD5999A002B432A /* test_influx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_influx.cpp; sourceTree = "<group>"; };
 		543F445B2AD5999A002B432A /* test_main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_main.cpp; sourceTree = "<group>"; };
 		543F445C2AD5999A002B432A /* test_element.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_element.cpp; sourceTree = "<group>"; };
-		543F445D2AD5999A002B432A /* test_units.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_units.cpp; sourceTree = "<group>"; };
-		543F445E2AD5999A002B432A /* TestClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestClient.h; sourceTree = "<group>"; };
-		543F445F2AD5999A002B432A /* MyClientTest.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MyClientTest.hpp; sourceTree = "<group>"; };
-		543F44602AD5999A002B432A /* TestController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestController.h; sourceTree = "<group>"; };
-		543F44612AD5999A002B432A /* test_record.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_record.cpp; sourceTree = "<group>"; };
-		543F44682AD59B79002B432A /* test_filters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_filters.cpp; sourceTree = "<group>"; };
 		54B41A012AD591200031520C /* libepanetrtx.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libepanetrtx.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		54B41A152AD592DB0031520C /* Units.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Units.cpp; sourceTree = "<group>"; };
-		54B41A162AD592DB0031520C /* SineTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SineTimeSeries.cpp; sourceTree = "<group>"; };
 		54B41A172AD592DB0031520C /* EpanetModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EpanetModel.cpp; sourceTree = "<group>"; };
-		54B41A182AD592DB0031520C /* MultiplierTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MultiplierTimeSeries.cpp; sourceTree = "<group>"; };
-		54B41A192AD592DB0031520C /* CorrelatorTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CorrelatorTimeSeries.h; sourceTree = "<group>"; };
 		54B41A1A2AD592DB0031520C /* Dma.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dma.h; sourceTree = "<group>"; };
-		54B41A1B2AD592DB0031520C /* MetaTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MetaTimeSeries.h; sourceTree = "<group>"; };
 		54B41A1C2AD592DB0031520C /* Pipe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Pipe.cpp; sourceTree = "<group>"; };
-		54B41A1D2AD592DB0031520C /* TimeSeriesSynthetic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeSeriesSynthetic.h; sourceTree = "<group>"; };
-		54B41A1E2AD592DB0031520C /* SqliteAdapter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SqliteAdapter.cpp; sourceTree = "<group>"; };
-		54B41A1F2AD592DB0031520C /* DbPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DbPointRecord.cpp; sourceTree = "<group>"; };
-		54B41A202AD592DB0031520C /* SquareWaveTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SquareWaveTimeSeries.cpp; sourceTree = "<group>"; };
-		54B41A212AD592DB0031520C /* StatsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StatsTimeSeries.h; sourceTree = "<group>"; };
-		54B41A222AD592DB0031520C /* ValidRangeTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ValidRangeTimeSeries.cpp; sourceTree = "<group>"; };
 		54B41A232AD592DB0031520C /* Tank.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tank.cpp; sourceTree = "<group>"; };
 		54B41A242AD592DB0031520C /* EpanetModelExporter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EpanetModelExporter.cpp; sourceTree = "<group>"; };
 		54B41A262AD592DB0031520C /* Reservoir.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reservoir.h; sourceTree = "<group>"; };
 		54B41A272AD592DB0031520C /* Dma.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Dma.cpp; sourceTree = "<group>"; };
-		54B41A282AD592DB0031520C /* MetaTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MetaTimeSeries.cpp; sourceTree = "<group>"; };
-		54B41A292AD592DB0031520C /* Curve.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Curve.cpp; sourceTree = "<group>"; };
 		54B41A2A2AD592DB0031520C /* Junction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Junction.cpp; sourceTree = "<group>"; };
-		54B41A2B2AD592DB0031520C /* StatsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StatsTimeSeries.cpp; sourceTree = "<group>"; };
-		54B41A2C2AD592DB0031520C /* Point.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Point.h; sourceTree = "<group>"; };
-		54B41A2D2AD592DB0031520C /* PiAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PiAdapter.h; sourceTree = "<group>"; };
 		54B41A2E2AD592DB0031520C /* RTX_Visitable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTX_Visitable.h; sourceTree = "<group>"; };
-		54B41A2F2AD592DB0031520C /* LagTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LagTimeSeries.cpp; sourceTree = "<group>"; };
 		54B41A302AD592DB0031520C /* Tank.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tank.h; sourceTree = "<group>"; };
-		54B41A312AD592DB0031520C /* TimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TimeSeries.cpp; sourceTree = "<group>"; };
 		54B41A322AD592DB0031520C /* Pump.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pump.h; sourceTree = "<group>"; };
-		54B41A332AD592DB0031520C /* BaseStatsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseStatsTimeSeries.h; sourceTree = "<group>"; };
-		54B41A342AD592DB0031520C /* FirstDerivative.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FirstDerivative.cpp; sourceTree = "<group>"; };
-		54B41A352AD592DB0031520C /* CurveFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CurveFunction.h; sourceTree = "<group>"; };
 		54B41A362AD592DB0031520C /* EpanetSyntheticModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EpanetSyntheticModel.cpp; sourceTree = "<group>"; };
-		54B41A372AD592DB0031520C /* OffsetTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OffsetTimeSeries.h; sourceTree = "<group>"; };
-		54B41A382AD592DB0031520C /* SqliteAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SqliteAdapter.h; sourceTree = "<group>"; };
-		54B41A392AD592DB0031520C /* IntegratorTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntegratorTimeSeries.cpp; sourceTree = "<group>"; };
-		54B41A3A2AD592DB0031520C /* InfluxAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InfluxAdapter.h; sourceTree = "<group>"; };
-		54B41A3B2AD592DB0031520C /* LagTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LagTimeSeries.h; sourceTree = "<group>"; };
-		54B41A3C2AD592DB0031520C /* SineTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SineTimeSeries.h; sourceTree = "<group>"; };
 		54B41A3D2AD592DB0031520C /* Valve.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Valve.cpp; sourceTree = "<group>"; };
-		54B41A3E2AD592DB0031520C /* OutlierExclusionTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OutlierExclusionTimeSeries.h; sourceTree = "<group>"; };
-		54B41A3F2AD592DB0031520C /* LogicTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LogicTimeSeries.cpp; sourceTree = "<group>"; };
 		54B41A402AD592DB0031520C /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Node.cpp; sourceTree = "<group>"; };
-		54B41A412AD592DB0031520C /* LogicTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogicTimeSeries.h; sourceTree = "<group>"; };
-		54B41A422AD592DB0031520C /* BaseStatsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BaseStatsTimeSeries.cpp; sourceTree = "<group>"; };
-		54B41A432AD592DB0031520C /* ConstantTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConstantTimeSeries.h; sourceTree = "<group>"; };
-		54B41A442AD592DB0031520C /* AggregatorTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AggregatorTimeSeries.cpp; sourceTree = "<group>"; };
 		54B41A452AD592DB0031520C /* EpanetSyntheticModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EpanetSyntheticModel.h; sourceTree = "<group>"; };
-		54B41A462AD592DB0031520C /* Clock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Clock.cpp; sourceTree = "<group>"; };
-		54B41A472AD592DB0031520C /* TimeSeriesLowess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeSeriesLowess.h; sourceTree = "<group>"; };
-		54B41A482AD592DB0031520C /* MetricInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MetricInfo.cpp; sourceTree = "<group>"; };
 		54B41A492AD592DB0031520C /* InpTextPattern.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InpTextPattern.h; sourceTree = "<group>"; };
-		54B41A4A2AD592DB0031520C /* TimeSeriesQuery.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TimeSeriesQuery.cpp; sourceTree = "<group>"; };
 		54B41A4B2AD592DB0031520C /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Node.h; sourceTree = "<group>"; };
-		54B41A4C2AD592DB0031520C /* TimeRange.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeRange.h; sourceTree = "<group>"; };
-		54B41A4D2AD592DB0031520C /* DbAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DbAdapter.h; sourceTree = "<group>"; };
 		54B41A4E2AD592DB0031520C /* rtxExceptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rtxExceptions.h; sourceTree = "<group>"; };
-		54B41A4F2AD592DB0031520C /* ConstantTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConstantTimeSeries.cpp; sourceTree = "<group>"; };
 		54B41A502AD592DB0031520C /* Reservoir.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Reservoir.cpp; sourceTree = "<group>"; };
-		54B41A512AD592DB0031520C /* MathOpsTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MathOpsTimeSeries.cpp; sourceTree = "<group>"; };
-		54B41A522AD592DB0031520C /* FirstDerivative.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FirstDerivative.h; sourceTree = "<group>"; };
-		54B41A532AD592DB0031520C /* TimeSeriesFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeSeriesFilter.h; sourceTree = "<group>"; };
-		54B41A542AD592DB0031520C /* InversionTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InversionTimeSeries.cpp; sourceTree = "<group>"; };
-		54B41A552AD592DB0031520C /* DbPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DbPointRecord.h; sourceTree = "<group>"; };
-		54B41A562AD592DB0031520C /* BufferPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BufferPointRecord.h; sourceTree = "<group>"; };
-		54B41A572AD592DB0031520C /* MovingAverage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MovingAverage.h; sourceTree = "<group>"; };
-		54B41A582AD592DB0031520C /* MovingAverage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MovingAverage.cpp; sourceTree = "<group>"; };
-		54B41A592AD592DB0031520C /* InfluxAdapter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InfluxAdapter.cpp; sourceTree = "<group>"; };
-		54B41A5A2AD592DB0031520C /* InversionTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InversionTimeSeries.h; sourceTree = "<group>"; };
-		54B41A5B2AD592DB0031520C /* Curve.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Curve.h; sourceTree = "<group>"; };
 		54B41A5C2AD592DB0031520C /* EpanetModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EpanetModel.h; sourceTree = "<group>"; };
-		54B41A5D2AD592DB0031520C /* IntegratorTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegratorTimeSeries.h; sourceTree = "<group>"; };
-		54B41A5E2AD592DB0031520C /* ThresholdTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThresholdTimeSeries.cpp; sourceTree = "<group>"; };
-		54B41A5F2AD592DB0031520C /* Components.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Components.hpp; sourceTree = "<group>"; };
-		54B41A602AD592DB0031520C /* OpcPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpcPointRecord.cpp; sourceTree = "<group>"; };
-		54B41A612AD592DB0031520C /* PointCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointCollection.h; sourceTree = "<group>"; };
-		54B41A622AD592DB0031520C /* FailoverTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FailoverTimeSeries.h; sourceTree = "<group>"; };
-		54B41A632AD592DB0031520C /* TimeRange.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TimeRange.cpp; sourceTree = "<group>"; };
-		54B41A642AD592DB0031520C /* WhereClause.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WhereClause.cpp; sourceTree = "<group>"; };
 		54B41A652AD592DB0031520C /* Valve.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Valve.h; sourceTree = "<group>"; };
 		54B41A662AD592DB0031520C /* Element.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Element.h; sourceTree = "<group>"; };
-		54B41A672AD592DB0031520C /* PointCollection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointCollection.cpp; sourceTree = "<group>"; };
-		54B41A682AD592DB0031520C /* TimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeSeries.h; sourceTree = "<group>"; };
 		54B41A692AD592DB0031520C /* Junction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Junction.h; sourceTree = "<group>"; };
-		54B41A6A2AD592DB0031520C /* PiAdapter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PiAdapter.cpp; sourceTree = "<group>"; };
-		54B41A6B2AD592DB0031520C /* BufferPointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BufferPointRecord.cpp; sourceTree = "<group>"; };
-		54B41A6C2AD592DB0031520C /* Point.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Point.cpp; sourceTree = "<group>"; };
-		54B41A6D2AD592DB0031520C /* AggregatorTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AggregatorTimeSeries.h; sourceTree = "<group>"; };
-		54B41A6E2AD592DB0031520C /* GainTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GainTimeSeries.cpp; sourceTree = "<group>"; };
 		54B41A6F2AD592DB0031520C /* EpanetModelExporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EpanetModelExporter.h; sourceTree = "<group>"; };
 		54B41A702AD592DB0031520C /* EpanetMsxModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EpanetMsxModel.cpp; sourceTree = "<group>"; };
-		54B41A712AD592DB0031520C /* TimeSeriesFilterSinglePoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TimeSeriesFilterSinglePoint.cpp; sourceTree = "<group>"; };
 		54B41A722AD592DB0031520C /* Pipe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pipe.h; sourceTree = "<group>"; };
-		54B41A732AD592DB0031520C /* OpcAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpcAdapter.h; sourceTree = "<group>"; };
 		54B41A742AD592DB0031520C /* Model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Model.h; sourceTree = "<group>"; };
 		54B41A752AD592DB0031520C /* Model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Model.cpp; sourceTree = "<group>"; };
-		54B41A762AD592DB0031520C /* MetricInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MetricInfo.h; sourceTree = "<group>"; };
-		54B41A772AD592DB0031520C /* AutoRunner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoRunner.h; sourceTree = "<group>"; };
-		54B41A782AD592DB0031520C /* OpcAdapter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpcAdapter.cpp; sourceTree = "<group>"; };
-		54B41A792AD592DB0031520C /* ThresholdTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThresholdTimeSeries.h; sourceTree = "<group>"; };
 		54B41A7A2AD592DB0031520C /* InpTextPattern.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InpTextPattern.cpp; sourceTree = "<group>"; };
-		54B41A7B2AD592DB0031520C /* TimeSeriesFilterSecondary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TimeSeriesFilterSecondary.cpp; sourceTree = "<group>"; };
-		54B41A7C2AD592DB0031520C /* AutoRunner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoRunner.cpp; sourceTree = "<group>"; };
-		54B41A7D2AD592DB0031520C /* PointRecord.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointRecord.cpp; sourceTree = "<group>"; };
-		54B41A7E2AD592DB0031520C /* PointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointRecord.h; sourceTree = "<group>"; };
-		54B41A7F2AD592DB0031520C /* MultiplierTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MultiplierTimeSeries.h; sourceTree = "<group>"; };
-		54B41A802AD592DB0031520C /* TimeSeriesQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeSeriesQuery.h; sourceTree = "<group>"; };
 		54B41A812AD592DB0031520C /* Element.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Element.cpp; sourceTree = "<group>"; };
-		54B41A822AD592DB0031520C /* CurveFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CurveFunction.cpp; sourceTree = "<group>"; };
-		54B41A832AD592DB0031520C /* TimeSeriesSynthetic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TimeSeriesSynthetic.cpp; sourceTree = "<group>"; };
-		54B41A842AD592DB0031520C /* CorrelatorTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CorrelatorTimeSeries.cpp; sourceTree = "<group>"; };
 		54B41A852AD592DB0031520C /* EpanetMsxModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EpanetMsxModel.h; sourceTree = "<group>"; };
-		54B41A862AD592DB0031520C /* GainTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GainTimeSeries.h; sourceTree = "<group>"; };
-		54B41A872AD592DB0031520C /* FailoverTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FailoverTimeSeries.cpp; sourceTree = "<group>"; };
 		54B41A882AD592DB0031520C /* rtxMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rtxMacros.h; sourceTree = "<group>"; };
-		54B41A892AD592DB0031520C /* ConcreteDbRecords.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConcreteDbRecords.cpp; sourceTree = "<group>"; };
-		54B41A8A2AD592DB0031520C /* PointRecordTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointRecordTime.cpp; sourceTree = "<group>"; };
 		54B41A8B2AD592DB0031520C /* Link.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Link.h; sourceTree = "<group>"; };
-		54B41A8C2AD592DB0031520C /* SquareWaveTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SquareWaveTimeSeries.h; sourceTree = "<group>"; };
-		54B41A8D2AD592DB0031520C /* ValidRangeTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ValidRangeTimeSeries.h; sourceTree = "<group>"; };
-		54B41A8E2AD592DB0031520C /* TimeSeriesFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TimeSeriesFilter.cpp; sourceTree = "<group>"; };
-		54B41A8F2AD592DB0031520C /* OutlierExclusionTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OutlierExclusionTimeSeries.cpp; sourceTree = "<group>"; };
-		54B41A902AD592DB0031520C /* OffsetTimeSeries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OffsetTimeSeries.cpp; sourceTree = "<group>"; };
 		54B41A922AD592DB0031520C /* Link.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Link.cpp; sourceTree = "<group>"; };
-		54B41A932AD592DB0031520C /* TimeSeriesLowess.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TimeSeriesLowess.cpp; sourceTree = "<group>"; };
-		54B41A942AD592DB0031520C /* OpcPointRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpcPointRecord.h; sourceTree = "<group>"; };
-		54B41A952AD592DB0031520C /* Clock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Clock.h; sourceTree = "<group>"; };
-		54B41A962AD592DB0031520C /* IdentifierUnitsList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IdentifierUnitsList.cpp; sourceTree = "<group>"; };
-		54B41A972AD592DB0031520C /* Units.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Units.h; sourceTree = "<group>"; };
-		54B41A982AD592DB0031520C /* WhereClause.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhereClause.h; sourceTree = "<group>"; };
-		54B41A992AD592DB0031520C /* PointRecordTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointRecordTime.h; sourceTree = "<group>"; };
-		54B41A9A2AD592DB0031520C /* MathOpsTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MathOpsTimeSeries.h; sourceTree = "<group>"; };
-		54B41A9B2AD592DB0031520C /* InfluxClient.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = InfluxClient.hpp; sourceTree = "<group>"; };
-		54B41A9C2AD592DB0031520C /* Lowess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lowess.h; sourceTree = "<group>"; };
-		54B41A9D2AD592DB0031520C /* IdentifierUnitsList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IdentifierUnitsList.h; sourceTree = "<group>"; };
-		54B41A9E2AD592DB0031520C /* ConcreteDbRecords.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConcreteDbRecords.h; sourceTree = "<group>"; };
 		54B41A9F2AD592DB0031520C /* Pump.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Pump.cpp; sourceTree = "<group>"; };
-		54B41AA02AD592DB0031520C /* TimeSeriesFilterSecondary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeSeriesFilterSecondary.h; sourceTree = "<group>"; };
-		54B41AA12AD592DB0031520C /* TimeSeriesFilterSinglePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeSeriesFilterSinglePoint.h; sourceTree = "<group>"; };
 		54B41B332AD596FE0031520C /* RTX-TESTS */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "RTX-TESTS"; sourceTree = BUILT_PRODUCTS_DIR; };
 		54D5BE1A2AE6B4DB006F6880 /* conan_config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = conan_config.xcconfig; path = build/Debug/generators/conan_config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -336,6 +123,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5411B9822B7A929E00448D51 /* Debug config */ = {
+			isa = PBXGroup;
+			children = (
+				54D5BE1A2AE6B4DB006F6880 /* conan_config.xcconfig */,
+			);
+			name = "Debug config";
+			sourceTree = "<group>";
+		};
+		5411B9832B7A92AA00448D51 /* Release config */ = {
+			isa = PBXGroup;
+			children = (
+				5411B9842B7A92D900448D51 /* conan_config.xcconfig */,
+			);
+			name = "Release config";
+			sourceTree = "<group>";
+		};
 		543F44522AD598EE002B432A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -346,18 +149,10 @@
 		543F44562AD5999A002B432A /* test */ = {
 			isa = PBXGroup;
 			children = (
-				543F44572AD5999A002B432A /* MyClientTest.cpp */,
 				543F44582AD5999A002B432A /* CMakeLists.txt */,
 				543F44592AD5999A002B432A /* test_main.h */,
-				543F445A2AD5999A002B432A /* test_influx.cpp */,
 				543F445B2AD5999A002B432A /* test_main.cpp */,
 				543F445C2AD5999A002B432A /* test_element.cpp */,
-				543F44682AD59B79002B432A /* test_filters.cpp */,
-				543F445D2AD5999A002B432A /* test_units.cpp */,
-				543F445E2AD5999A002B432A /* TestClient.h */,
-				543F445F2AD5999A002B432A /* MyClientTest.hpp */,
-				543F44602AD5999A002B432A /* TestController.h */,
-				543F44612AD5999A002B432A /* test_record.cpp */,
 			);
 			path = test;
 			sourceTree = "<group>";
@@ -365,7 +160,9 @@
 		54B419F82AD591200031520C = {
 			isa = PBXGroup;
 			children = (
-				54D5BE1A2AE6B4DB006F6880 /* conan_config.xcconfig */,
+				5411B9852B7A937400448D51 /* conanfile.py */,
+				5411B9832B7A92AA00448D51 /* Release config */,
+				5411B9822B7A929E00448D51 /* Debug config */,
 				543F44562AD5999A002B432A /* test */,
 				54B41A142AD592DB0031520C /* src */,
 				54B41A022AD591200031520C /* Products */,
@@ -385,30 +182,6 @@
 		54B41A142AD592DB0031520C /* src */ = {
 			isa = PBXGroup;
 			children = (
-				54B41A442AD592DB0031520C /* AggregatorTimeSeries.cpp */,
-				54B41A6D2AD592DB0031520C /* AggregatorTimeSeries.h */,
-				54B41A7C2AD592DB0031520C /* AutoRunner.cpp */,
-				54B41A772AD592DB0031520C /* AutoRunner.h */,
-				54B41A422AD592DB0031520C /* BaseStatsTimeSeries.cpp */,
-				54B41A332AD592DB0031520C /* BaseStatsTimeSeries.h */,
-				54B41A6B2AD592DB0031520C /* BufferPointRecord.cpp */,
-				54B41A562AD592DB0031520C /* BufferPointRecord.h */,
-				54B41A462AD592DB0031520C /* Clock.cpp */,
-				54B41A952AD592DB0031520C /* Clock.h */,
-				54B41A5F2AD592DB0031520C /* Components.hpp */,
-				54B41A892AD592DB0031520C /* ConcreteDbRecords.cpp */,
-				54B41A9E2AD592DB0031520C /* ConcreteDbRecords.h */,
-				54B41A4F2AD592DB0031520C /* ConstantTimeSeries.cpp */,
-				54B41A432AD592DB0031520C /* ConstantTimeSeries.h */,
-				54B41A842AD592DB0031520C /* CorrelatorTimeSeries.cpp */,
-				54B41A192AD592DB0031520C /* CorrelatorTimeSeries.h */,
-				54B41A292AD592DB0031520C /* Curve.cpp */,
-				54B41A5B2AD592DB0031520C /* Curve.h */,
-				54B41A822AD592DB0031520C /* CurveFunction.cpp */,
-				54B41A352AD592DB0031520C /* CurveFunction.h */,
-				54B41A4D2AD592DB0031520C /* DbAdapter.h */,
-				54B41A1F2AD592DB0031520C /* DbPointRecord.cpp */,
-				54B41A552AD592DB0031520C /* DbPointRecord.h */,
 				54B41A272AD592DB0031520C /* Dma.cpp */,
 				54B41A1A2AD592DB0031520C /* Dma.h */,
 				54B41A812AD592DB0031520C /* Element.cpp */,
@@ -421,66 +194,18 @@
 				54B41A852AD592DB0031520C /* EpanetMsxModel.h */,
 				54B41A362AD592DB0031520C /* EpanetSyntheticModel.cpp */,
 				54B41A452AD592DB0031520C /* EpanetSyntheticModel.h */,
-				54B41A872AD592DB0031520C /* FailoverTimeSeries.cpp */,
-				54B41A622AD592DB0031520C /* FailoverTimeSeries.h */,
-				54B41A342AD592DB0031520C /* FirstDerivative.cpp */,
-				54B41A522AD592DB0031520C /* FirstDerivative.h */,
-				54B41A6E2AD592DB0031520C /* GainTimeSeries.cpp */,
-				54B41A862AD592DB0031520C /* GainTimeSeries.h */,
-				54B41A962AD592DB0031520C /* IdentifierUnitsList.cpp */,
-				54B41A9D2AD592DB0031520C /* IdentifierUnitsList.h */,
-				54B41A592AD592DB0031520C /* InfluxAdapter.cpp */,
-				54B41A3A2AD592DB0031520C /* InfluxAdapter.h */,
-				54B41A9B2AD592DB0031520C /* InfluxClient.hpp */,
 				54B41A7A2AD592DB0031520C /* InpTextPattern.cpp */,
 				54B41A492AD592DB0031520C /* InpTextPattern.h */,
-				54B41A392AD592DB0031520C /* IntegratorTimeSeries.cpp */,
-				54B41A5D2AD592DB0031520C /* IntegratorTimeSeries.h */,
-				54B41A542AD592DB0031520C /* InversionTimeSeries.cpp */,
-				54B41A5A2AD592DB0031520C /* InversionTimeSeries.h */,
 				54B41A2A2AD592DB0031520C /* Junction.cpp */,
 				54B41A692AD592DB0031520C /* Junction.h */,
-				54B41A2F2AD592DB0031520C /* LagTimeSeries.cpp */,
-				54B41A3B2AD592DB0031520C /* LagTimeSeries.h */,
 				54B41A922AD592DB0031520C /* Link.cpp */,
 				54B41A8B2AD592DB0031520C /* Link.h */,
-				54B41A3F2AD592DB0031520C /* LogicTimeSeries.cpp */,
-				54B41A412AD592DB0031520C /* LogicTimeSeries.h */,
-				54B41A9C2AD592DB0031520C /* Lowess.h */,
-				54B41A512AD592DB0031520C /* MathOpsTimeSeries.cpp */,
-				54B41A9A2AD592DB0031520C /* MathOpsTimeSeries.h */,
-				54B41A282AD592DB0031520C /* MetaTimeSeries.cpp */,
-				54B41A1B2AD592DB0031520C /* MetaTimeSeries.h */,
-				54B41A482AD592DB0031520C /* MetricInfo.cpp */,
-				54B41A762AD592DB0031520C /* MetricInfo.h */,
 				54B41A752AD592DB0031520C /* Model.cpp */,
 				54B41A742AD592DB0031520C /* Model.h */,
-				54B41A582AD592DB0031520C /* MovingAverage.cpp */,
-				54B41A572AD592DB0031520C /* MovingAverage.h */,
-				54B41A182AD592DB0031520C /* MultiplierTimeSeries.cpp */,
-				54B41A7F2AD592DB0031520C /* MultiplierTimeSeries.h */,
 				54B41A402AD592DB0031520C /* Node.cpp */,
 				54B41A4B2AD592DB0031520C /* Node.h */,
-				54B41A902AD592DB0031520C /* OffsetTimeSeries.cpp */,
-				54B41A372AD592DB0031520C /* OffsetTimeSeries.h */,
-				54B41A782AD592DB0031520C /* OpcAdapter.cpp */,
-				54B41A732AD592DB0031520C /* OpcAdapter.h */,
-				54B41A602AD592DB0031520C /* OpcPointRecord.cpp */,
-				54B41A942AD592DB0031520C /* OpcPointRecord.h */,
-				54B41A8F2AD592DB0031520C /* OutlierExclusionTimeSeries.cpp */,
-				54B41A3E2AD592DB0031520C /* OutlierExclusionTimeSeries.h */,
-				54B41A6A2AD592DB0031520C /* PiAdapter.cpp */,
-				54B41A2D2AD592DB0031520C /* PiAdapter.h */,
 				54B41A1C2AD592DB0031520C /* Pipe.cpp */,
 				54B41A722AD592DB0031520C /* Pipe.h */,
-				54B41A6C2AD592DB0031520C /* Point.cpp */,
-				54B41A2C2AD592DB0031520C /* Point.h */,
-				54B41A672AD592DB0031520C /* PointCollection.cpp */,
-				54B41A612AD592DB0031520C /* PointCollection.h */,
-				54B41A7D2AD592DB0031520C /* PointRecord.cpp */,
-				54B41A7E2AD592DB0031520C /* PointRecord.h */,
-				54B41A8A2AD592DB0031520C /* PointRecordTime.cpp */,
-				54B41A992AD592DB0031520C /* PointRecordTime.h */,
 				54B41A9F2AD592DB0031520C /* Pump.cpp */,
 				54B41A322AD592DB0031520C /* Pump.h */,
 				54B41A502AD592DB0031520C /* Reservoir.cpp */,
@@ -488,42 +213,10 @@
 				54B41A2E2AD592DB0031520C /* RTX_Visitable.h */,
 				54B41A4E2AD592DB0031520C /* rtxExceptions.h */,
 				54B41A882AD592DB0031520C /* rtxMacros.h */,
-				54B41A162AD592DB0031520C /* SineTimeSeries.cpp */,
-				54B41A3C2AD592DB0031520C /* SineTimeSeries.h */,
-				54B41A1E2AD592DB0031520C /* SqliteAdapter.cpp */,
-				54B41A382AD592DB0031520C /* SqliteAdapter.h */,
-				54B41A202AD592DB0031520C /* SquareWaveTimeSeries.cpp */,
-				54B41A8C2AD592DB0031520C /* SquareWaveTimeSeries.h */,
-				54B41A2B2AD592DB0031520C /* StatsTimeSeries.cpp */,
-				54B41A212AD592DB0031520C /* StatsTimeSeries.h */,
 				54B41A232AD592DB0031520C /* Tank.cpp */,
 				54B41A302AD592DB0031520C /* Tank.h */,
-				54B41A5E2AD592DB0031520C /* ThresholdTimeSeries.cpp */,
-				54B41A792AD592DB0031520C /* ThresholdTimeSeries.h */,
-				54B41A632AD592DB0031520C /* TimeRange.cpp */,
-				54B41A4C2AD592DB0031520C /* TimeRange.h */,
-				54B41A312AD592DB0031520C /* TimeSeries.cpp */,
-				54B41A682AD592DB0031520C /* TimeSeries.h */,
-				54B41A8E2AD592DB0031520C /* TimeSeriesFilter.cpp */,
-				54B41A532AD592DB0031520C /* TimeSeriesFilter.h */,
-				54B41A7B2AD592DB0031520C /* TimeSeriesFilterSecondary.cpp */,
-				54B41AA02AD592DB0031520C /* TimeSeriesFilterSecondary.h */,
-				54B41A712AD592DB0031520C /* TimeSeriesFilterSinglePoint.cpp */,
-				54B41AA12AD592DB0031520C /* TimeSeriesFilterSinglePoint.h */,
-				54B41A932AD592DB0031520C /* TimeSeriesLowess.cpp */,
-				54B41A472AD592DB0031520C /* TimeSeriesLowess.h */,
-				54B41A4A2AD592DB0031520C /* TimeSeriesQuery.cpp */,
-				54B41A802AD592DB0031520C /* TimeSeriesQuery.h */,
-				54B41A832AD592DB0031520C /* TimeSeriesSynthetic.cpp */,
-				54B41A1D2AD592DB0031520C /* TimeSeriesSynthetic.h */,
-				54B41A152AD592DB0031520C /* Units.cpp */,
-				54B41A972AD592DB0031520C /* Units.h */,
-				54B41A222AD592DB0031520C /* ValidRangeTimeSeries.cpp */,
-				54B41A8D2AD592DB0031520C /* ValidRangeTimeSeries.h */,
 				54B41A3D2AD592DB0031520C /* Valve.cpp */,
 				54B41A652AD592DB0031520C /* Valve.h */,
-				54B41A642AD592DB0031520C /* WhereClause.cpp */,
-				54B41A982AD592DB0031520C /* WhereClause.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -536,74 +229,23 @@
 			buildActionMask = 2147483647;
 			files = (
 				54B41ABD2AD592DB0031520C /* Tank.h in Headers */,
-				54B41B242AD592DB0031520C /* Units.h in Headers */,
-				54B41ACB2AD592DB0031520C /* OutlierExclusionTimeSeries.h in Headers */,
-				54B41AAA2AD592DB0031520C /* TimeSeriesSynthetic.h in Headers */,
 				54B41AD22AD592DB0031520C /* EpanetSyntheticModel.h in Headers */,
-				54B41AE72AD592DB0031520C /* InversionTimeSeries.h in Headers */,
-				54B41B1A2AD592DB0031520C /* ValidRangeTimeSeries.h in Headers */,
-				54B41B132AD592DB0031520C /* GainTimeSeries.h in Headers */,
-				54B41AA62AD592DB0031520C /* CorrelatorTimeSeries.h in Headers */,
-				54B41B222AD592DB0031520C /* Clock.h in Headers */,
-				54B41B292AD592DB0031520C /* Lowess.h in Headers */,
 				54B41AD82AD592DB0031520C /* Node.h in Headers */,
-				54B41AC02AD592DB0031520C /* BaseStatsTimeSeries.h in Headers */,
-				54B41AFA2AD592DB0031520C /* AggregatorTimeSeries.h in Headers */,
-				54B41AEA2AD592DB0031520C /* IntegratorTimeSeries.h in Headers */,
 				54B41AF32AD592DB0031520C /* Element.h in Headers */,
-				54B41B2E2AD592DB0031520C /* TimeSeriesFilterSinglePoint.h in Headers */,
 				54B41AF62AD592DB0031520C /* Junction.h in Headers */,
-				54B41B192AD592DB0031520C /* SquareWaveTimeSeries.h in Headers */,
 				54B41ABF2AD592DB0031520C /* Pump.h in Headers */,
-				54B41AE22AD592DB0031520C /* DbPointRecord.h in Headers */,
 				54B41AB32AD592DB0031520C /* Reservoir.h in Headers */,
 				54B41AD62AD592DB0031520C /* InpTextPattern.h in Headers */,
 				54B41ABB2AD592DB0031520C /* RTX_Visitable.h in Headers */,
-				54B41B2D2AD592DB0031520C /* TimeSeriesFilterSecondary.h in Headers */,
-				54B41B062AD592DB0031520C /* ThresholdTimeSeries.h in Headers */,
 				54B41AE92AD592DB0031520C /* EpanetModel.h in Headers */,
-				54B41AE32AD592DB0031520C /* BufferPointRecord.h in Headers */,
-				54B41AEE2AD592DB0031520C /* PointCollection.h in Headers */,
 				54B41AFF2AD592DB0031520C /* Pipe.h in Headers */,
 				54B41B152AD592DB0031520C /* rtxMacros.h in Headers */,
-				54B41AD92AD592DB0031520C /* TimeRange.h in Headers */,
-				54B41ADF2AD592DB0031520C /* FirstDerivative.h in Headers */,
-				54B41AAE2AD592DB0031520C /* StatsTimeSeries.h in Headers */,
-				54B41AC22AD592DB0031520C /* CurveFunction.h in Headers */,
-				54B41AA82AD592DB0031520C /* MetaTimeSeries.h in Headers */,
 				54B41AA72AD592DB0031520C /* Dma.h in Headers */,
-				54B41AC72AD592DB0031520C /* InfluxAdapter.h in Headers */,
-				54B41AB92AD592DB0031520C /* Point.h in Headers */,
-				54B41B252AD592DB0031520C /* WhereClause.h in Headers */,
 				54B41AF22AD592DB0031520C /* Valve.h in Headers */,
-				54B41B0C2AD592DB0031520C /* MultiplierTimeSeries.h in Headers */,
-				54B41AC82AD592DB0031520C /* LagTimeSeries.h in Headers */,
-				54B41AD02AD592DB0031520C /* ConstantTimeSeries.h in Headers */,
-				54B41B042AD592DB0031520C /* AutoRunner.h in Headers */,
-				54B41AEF2AD592DB0031520C /* FailoverTimeSeries.h in Headers */,
-				54B41AF52AD592DB0031520C /* TimeSeries.h in Headers */,
-				54B41B282AD592DB0031520C /* InfluxClient.hpp in Headers */,
-				54B41AE82AD592DB0031520C /* Curve.h in Headers */,
-				54B41AE02AD592DB0031520C /* TimeSeriesFilter.h in Headers */,
-				54B41B0B2AD592DB0031520C /* PointRecord.h in Headers */,
-				54B41B0D2AD592DB0031520C /* TimeSeriesQuery.h in Headers */,
-				54B41AC92AD592DB0031520C /* SineTimeSeries.h in Headers */,
-				54B41AD42AD592DB0031520C /* TimeSeriesLowess.h in Headers */,
-				54B41B2A2AD592DB0031520C /* IdentifierUnitsList.h in Headers */,
-				54B41B032AD592DB0031520C /* MetricInfo.h in Headers */,
-				54B41B272AD592DB0031520C /* MathOpsTimeSeries.h in Headers */,
 				54B41AFC2AD592DB0031520C /* EpanetModelExporter.h in Headers */,
-				54B41B2B2AD592DB0031520C /* ConcreteDbRecords.h in Headers */,
-				54B41AC52AD592DB0031520C /* SqliteAdapter.h in Headers */,
-				54B41AE42AD592DB0031520C /* MovingAverage.h in Headers */,
-				54B41AC42AD592DB0031520C /* OffsetTimeSeries.h in Headers */,
 				54B41ADB2AD592DB0031520C /* rtxExceptions.h in Headers */,
 				54B41B012AD592DB0031520C /* Model.h in Headers */,
-				54B41ADA2AD592DB0031520C /* DbAdapter.h in Headers */,
 				54B41B182AD592DB0031520C /* Link.h in Headers */,
-				54B41AEC2AD592DB0031520C /* Components.hpp in Headers */,
-				54B41ACE2AD592DB0031520C /* LogicTimeSeries.h in Headers */,
-				54B41B262AD592DB0031520C /* PointRecordTime.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -651,7 +293,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1420;
+				LastUpgradeCheck = 1520;
 				TargetAttributes = {
 					54B41A002AD591200031520C = {
 						CreatedOnToolsVersion = 14.2;
@@ -685,68 +327,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				54B41AF12AD592DB0031520C /* WhereClause.cpp in Sources */,
 				54B41AA42AD592DB0031520C /* EpanetModel.cpp in Sources */,
 				54B41ACA2AD592DB0031520C /* Valve.cpp in Sources */,
-				54B41AD72AD592DB0031520C /* TimeSeriesQuery.cpp in Sources */,
-				54B41AFB2AD592DB0031520C /* GainTimeSeries.cpp in Sources */,
-				54B41AF92AD592DB0031520C /* Point.cpp in Sources */,
-				54B41B092AD592DB0031520C /* AutoRunner.cpp in Sources */,
 				54B41B1F2AD592DB0031520C /* Link.cpp in Sources */,
-				54B41B1B2AD592DB0031520C /* TimeSeriesFilter.cpp in Sources */,
-				54B41AAB2AD592DB0031520C /* SqliteAdapter.cpp in Sources */,
-				54B41B0F2AD592DB0031520C /* CurveFunction.cpp in Sources */,
-				54B41AF02AD592DB0031520C /* TimeRange.cpp in Sources */,
 				54B41AC32AD592DB0031520C /* EpanetSyntheticModel.cpp in Sources */,
 				54B41AB12AD592DB0031520C /* EpanetModelExporter.cpp in Sources */,
-				54B41B232AD592DB0031520C /* IdentifierUnitsList.cpp in Sources */,
-				54B41AA32AD592DB0031520C /* SineTimeSeries.cpp in Sources */,
-				54B41AA52AD592DB0031520C /* MultiplierTimeSeries.cpp in Sources */,
-				54B41AE52AD592DB0031520C /* MovingAverage.cpp in Sources */,
-				54B41B082AD592DB0031520C /* TimeSeriesFilterSecondary.cpp in Sources */,
-				54B41AA22AD592DB0031520C /* Units.cpp in Sources */,
-				54B41ABC2AD592DB0031520C /* LagTimeSeries.cpp in Sources */,
-				54B41AB52AD592DB0031520C /* MetaTimeSeries.cpp in Sources */,
-				54B41ABE2AD592DB0031520C /* TimeSeries.cpp in Sources */,
-				54B41AE62AD592DB0031520C /* InfluxAdapter.cpp in Sources */,
 				54B41AB72AD592DB0031520C /* Junction.cpp in Sources */,
-				54B41ACC2AD592DB0031520C /* LogicTimeSeries.cpp in Sources */,
 				54B41AA92AD592DB0031520C /* Pipe.cpp in Sources */,
-				54B41AC62AD592DB0031520C /* IntegratorTimeSeries.cpp in Sources */,
-				54B41AAF2AD592DB0031520C /* ValidRangeTimeSeries.cpp in Sources */,
-				54B41B0A2AD592DB0031520C /* PointRecord.cpp in Sources */,
-				54B41AD52AD592DB0031520C /* MetricInfo.cpp in Sources */,
-				54B41AAC2AD592DB0031520C /* DbPointRecord.cpp in Sources */,
-				54B41AEB2AD592DB0031520C /* ThresholdTimeSeries.cpp in Sources */,
 				54B41B022AD592DB0031520C /* Model.cpp in Sources */,
-				54B41AF42AD592DB0031520C /* PointCollection.cpp in Sources */,
-				54B41AB82AD592DB0031520C /* StatsTimeSeries.cpp in Sources */,
-				54B41AD12AD592DB0031520C /* AggregatorTimeSeries.cpp in Sources */,
-				54B41B1D2AD592DB0031520C /* OffsetTimeSeries.cpp in Sources */,
-				54B41B142AD592DB0031520C /* FailoverTimeSeries.cpp in Sources */,
-				54B41ACF2AD592DB0031520C /* BaseStatsTimeSeries.cpp in Sources */,
 				54B41B2C2AD592DB0031520C /* Pump.cpp in Sources */,
-				54B41AAD2AD592DB0031520C /* SquareWaveTimeSeries.cpp in Sources */,
-				54B41ADE2AD592DB0031520C /* MathOpsTimeSeries.cpp in Sources */,
-				54B41AC12AD592DB0031520C /* FirstDerivative.cpp in Sources */,
 				54B41AB42AD592DB0031520C /* Dma.cpp in Sources */,
-				54B41B172AD592DB0031520C /* PointRecordTime.cpp in Sources */,
-				54B41B202AD592DB0031520C /* TimeSeriesLowess.cpp in Sources */,
 				54B41B072AD592DB0031520C /* InpTextPattern.cpp in Sources */,
-				54B41AFE2AD592DB0031520C /* TimeSeriesFilterSinglePoint.cpp in Sources */,
-				54B41ADC2AD592DB0031520C /* ConstantTimeSeries.cpp in Sources */,
-				54B41B1C2AD592DB0031520C /* OutlierExclusionTimeSeries.cpp in Sources */,
-				54B41AF82AD592DB0031520C /* BufferPointRecord.cpp in Sources */,
-				54B41AB62AD592DB0031520C /* Curve.cpp in Sources */,
 				54B41B0E2AD592DB0031520C /* Element.cpp in Sources */,
 				54B41AB02AD592DB0031520C /* Tank.cpp in Sources */,
-				54B41AD32AD592DB0031520C /* Clock.cpp in Sources */,
-				54B41B112AD592DB0031520C /* CorrelatorTimeSeries.cpp in Sources */,
-				54B41B162AD592DB0031520C /* ConcreteDbRecords.cpp in Sources */,
 				54B41ACD2AD592DB0031520C /* Node.cpp in Sources */,
-				54B41B102AD592DB0031520C /* TimeSeriesSynthetic.cpp in Sources */,
 				54B41ADD2AD592DB0031520C /* Reservoir.cpp in Sources */,
-				54B41AE12AD592DB0031520C /* InversionTimeSeries.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -754,13 +349,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				543F44672AD5999A002B432A /* test_record.cpp in Sources */,
-				543F44622AD5999A002B432A /* MyClientTest.cpp in Sources */,
-				543F44632AD5999A002B432A /* test_influx.cpp in Sources */,
 				543F44652AD5999A002B432A /* test_element.cpp in Sources */,
 				543F44642AD5999A002B432A /* test_main.cpp in Sources */,
-				543F44662AD5999A002B432A /* test_units.cpp in Sources */,
-				543F44692AD59B79002B432A /* test_filters.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -802,9 +392,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -828,7 +420,7 @@
 		};
 		54B41A0B2AD591200031520C /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 54D5BE1A2AE6B4DB006F6880 /* conan_config.xcconfig */;
+			baseConfigurationReference = 5411B9842B7A92D900448D51 /* conan_config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = x86_64;
@@ -861,9 +453,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -883,6 +477,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = WRM3XW2XMR;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -899,6 +494,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = WRM3XW2XMR;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -915,6 +511,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = WRM3XW2XMR;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -925,6 +522,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = WRM3XW2XMR;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

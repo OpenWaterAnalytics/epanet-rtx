@@ -14,7 +14,7 @@
 namespace RTX {
   class Valve : public Pipe {
   public:
-    RTX_BASE_PROPS(Valve);
+    TSF_BASE_PROPS(Valve);
     Valve(const std::string& name);
     virtual ~Valve();
     int valveType; // for epanet2, this is EN_LinkType

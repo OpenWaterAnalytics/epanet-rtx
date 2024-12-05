@@ -9,11 +9,12 @@
 #include <iostream>
 
 #include "Junction.h"
-#include "OffsetTimeSeries.h"
-#include "GainTimeSeries.h"
+#include <OffsetTimeSeries.h>
+#include <GainTimeSeries.h>
 
 using namespace std;
 using namespace RTX;
+using namespace TSF;
 
 Junction::Junction(const std::string& name) : Node(name) {
   //_demand = 0;
@@ -21,10 +22,10 @@ Junction::Junction(const std::string& name) : Node(name) {
   setType(JUNCTION);
   
   // we have nothing yet
-  _headState.reset(new TimeSeries("head,n=" + name, RTX_METER));
-  _pressureState.reset(new TimeSeries("pressure,n=" + name, RTX_PASCAL));
-  _qualityState.reset(new TimeSeries("quality,n=" + name, RTX_HOUR));
-  _demandState.reset(new TimeSeries("demand,n=" + name, RTX_LITER_PER_SECOND));
+  _headState.reset(new TimeSeries("head,n=" + name, TSF_METER));
+  _pressureState.reset(new TimeSeries("pressure,n=" + name, TSF_PASCAL));
+  _qualityState.reset(new TimeSeries("quality,n=" + name, TSF_HOUR));
+  _demandState.reset(new TimeSeries("demand,n=" + name, TSF_LITER_PER_SECOND));
   
   _baseDemand = 0;
   
@@ -76,7 +77,7 @@ void Junction::setBoundaryFlow(TimeSeries::_sp flow) {
   if (flow == NULL || !flow) {
     _boundaryFlow = TimeSeries::_sp();
   }
-  else if ( !(flow->units().isSameDimensionAs(RTX_GALLON_PER_MINUTE)) ) {
+  else if ( !(flow->units().isSameDimensionAs(TSF_GALLON_PER_MINUTE)) ) {
     return;
   }
   _boundaryFlow = flow;
@@ -93,7 +94,7 @@ void Junction::setHeadMeasure(TimeSeries::_sp headMeas) {
     DebugLog << "removing head measure: " << this->name() << EOL;
     return;
   }
-  else if ( !(headMeas->units().isSameDimensionAs(RTX_METER)) ) {
+  else if ( !(headMeas->units().isSameDimensionAs(TSF_METER)) ) {
     DebugLog << "removing head measure: " << this->name() << EOL;
     return;
   }
@@ -105,7 +106,7 @@ void Junction::setHeadMeasure(TimeSeries::_sp headMeas) {
   relativeHead->setOffset(this->elevation() * -1.);
   relativeHead->setSource(headMeas);
   
-  auto pUnits = (this->head()->units() == RTX_METER) ? RTX_KILOPASCAL : RTX_PSI;
+  auto pUnits = (this->head()->units() == TSF_METER) ? TSF_KILOPASCAL : TSF_PSI;
   
   // pressure depends on elevation --> head = mx(pressure) + elev
   GainTimeSeries::_sp gainTs( new GainTimeSeries() );
@@ -122,22 +123,6 @@ void Junction::setHeadMeasure(TimeSeries::_sp headMeas) {
     " -> Elev: " << this->elevation() << EOL;
   DebugLog << "Head series: " << headMeas->name() << " -> Units: " << headMeas->units().to_string() <<  EOL;
   DebugLog << "Pres series: " << gainTs->name() << " -> Units: " << gainTs->units().to_string() <<  EOL;
-
-  // deprecated because we don't trust hard-coded units conversions
-  // outside of the Units class!
-//  if ( this->head()->units() == RTX_METER || this->head()->units() == RTX_CENTIMETER ) {
-//    gainTs->setUnits(RTX_KILOPASCAL);
-//    gainTs->setGainUnits( RTX_KILOPASCAL / RTX_METER);
-//    gainTs->setGain(9.80413943198467193);
-//  }
-//  else {
-//    gainTs->setUnits(RTX_PSI);
-//    gainTs->setGainUnits( RTX_PSI / RTX_FOOT);
-//    gainTs->setGain(1.0/2.30665873688);
-//  }
-
-
-  
 }
 TimeSeries::_sp Junction::headMeasure() {
   return _headMeasure;
@@ -149,7 +134,7 @@ void Junction::setPressureMeasure(TimeSeries::_sp pressure) {
     _headMeasure = TimeSeries::_sp();
     return;
   }
-  else if ( !(pressure->units().isSameDimensionAs(RTX_PASCAL)) ) {
+  else if ( !(pressure->units().isSameDimensionAs(TSF_PASCAL)) ) {
     return;
   }
   

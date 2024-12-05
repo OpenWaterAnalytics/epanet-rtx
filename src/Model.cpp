@@ -11,9 +11,9 @@
 #include <set>
 #include <boost/lexical_cast.hpp>
 #include "Model.h"
-#include "Units.h"
+#include <Units.h>
 
-#include "DbPointRecord.h"
+#include <DbPointRecord.h>
 
 
 #include <boost/config.hpp>
@@ -37,6 +37,7 @@
 #include "oatpp/core/base/Environment.hpp"
 
 using namespace RTX;
+using namespace TSF;
 using namespace std;
 
 bool _rtxmodel_isDbRecord(PointRecord::_sp record);
@@ -61,20 +62,20 @@ void Model::initObj() {
   _heartbeat.reset( new TimeSeries() );
   
   _relativeError->setName("rel_err,generator=simulation");
-  _relativeError->setUnits(RTX_DIMENSIONLESS);
+  _relativeError->setUnits(TSF_DIMENSIONLESS);
   _iterations->setName("iterations,generator=simulation");
-  _iterations->setUnits(RTX_DIMENSIONLESS);
+  _iterations->setUnits(TSF_DIMENSIONLESS);
   _convergence->setName("convergence,generator=simulation");
-  _convergence->setUnits(RTX_DIMENSIONLESS);
-  _heartbeat->name("heartbeat,generator=simulation")->units(RTX_DIMENSIONLESS);
+  _convergence->setUnits(TSF_DIMENSIONLESS);
+  _heartbeat->name("heartbeat,generator=simulation")->units(TSF_DIMENSIONLESS);
   
   _simWallTime.reset(new TimeSeries);
-  _simWallTime->name("duration,component=simulate,generator=simulation")->units(RTX_SECOND);
+  _simWallTime->name("duration,component=simulate,generator=simulation")->units(TSF_SECOND);
   _saveWallTime.reset(new TimeSeries);
-  _saveWallTime->name("duration,component=save,generator=simulation")->units(RTX_SECOND);
+  _saveWallTime->name("duration,component=save,generator=simulation")->units(TSF_SECOND);
   
   _filterWallTime.reset(new TimeSeries);
-  _filterWallTime->name("duration,component=filter,generator=simulation")->units(RTX_SECOND);
+  _filterWallTime->name("duration,component=filter,generator=simulation")->units(TSF_SECOND);
   
   _doesOverrideDemands = false;
   _shouldRunWaterQuality = false;
@@ -83,9 +84,9 @@ void Model::initObj() {
   _dmaPipesToIgnore = vector<Pipe::_sp>();
   
   // defaults
-  setFlowUnits(RTX_LITER_PER_SECOND);
-  setPressureUnits(RTX_PASCAL);
-  setHeadUnits(RTX_METER);
+  setFlowUnits(TSF_LITER_PER_SECOND);
+  setPressureUnits(TSF_PASCAL);
+  setHeadUnits(TSF_METER);
   _name = "Model";
   _shouldCancelSimulation = false;
   _tanksNeedReset = false;
@@ -221,7 +222,7 @@ Units Model::volumeUnits() {
 }
 
 void Model::setFlowUnits(Units units)    {
-  if (!units.isSameDimensionAs(RTX_LITER_PER_SECOND)) {
+  if (!units.isSameDimensionAs(TSF_LITER_PER_SECOND)) {
     cerr << "units not dimensionally consistent with flow" << endl;
     return;
   }
@@ -267,7 +268,7 @@ void Model::setQualityUnits(Units units) {
   }
 }
 
-void Model::setVolumeUnits(RTX::Units units) {
+void Model::setVolumeUnits(TSF::Units units) {
   _volumeUnits = units;
   for(Tank::_sp t : this->tanks()) {
     t->volume()->setUnits(units);
@@ -752,7 +753,7 @@ bool Model::solveAndSaveOutputAtTime(time_t simulationTime) {
   
   auto filterDuration = time(NULL) - t1;
   
-  _filterWallTime->insert(Point(simulationTime, (double)filterDuration));
+  // _filterWallTime->insert(Point(simulationTime, (double)filterDuration));
   
   t1 = time(NULL);
   // simulate this period, find the next timestep boundary.
@@ -991,34 +992,6 @@ int Model::qualityTimeStep() {
 
 double Model::initialUniformQuality() {
   return _initialQuality;
-}
-
-void Model::setInitialQualityConditionsFromHotStart(time_t time) {
-  // assumes that any junction worth considering has a record with simulated results.
-  
-  auto r = this->junctions().front()->quality()->record();
-  auto dbRec = dynamic_pointer_cast<DbPointRecord>(r);
-  if (dbRec) {
-    dbRec->willQuery(TimeRange(time - 1, time + 1));
-  }
-  
-  for (auto &j : this->junctions()) {
-    Point p = j->quality()->pointAtOrBefore(time);
-    if (p.isValid) {
-      j->state_quality = p.value;
-    }
-    else {
-      cerr << "invalid point for junction: " << j->name() << endl;
-    }
-  }
-  for(auto t : this->tanks()) {
-    t->state_quality = t->quality()->pointAtOrBefore(time).value;
-  }
-  for(auto r : this->reservoirs()) {
-    r->state_quality = r->quality()->pointAtOrBefore(time).value;
-  }
-  
-  this->applyInitialQuality();
 }
 
 void Model::setInitialJunctionUniformQuality(double qual) {
@@ -1268,10 +1241,10 @@ void Model::setSimulationParameters(time_t time) {
       if (status) {
         Point p = valve->settingBoundary()->pointAtOrBefore(time);
         if (p.isValid) {
-          if (settingUnits.isSameDimensionAs(RTX_PSI)) {
+          if (settingUnits.isSameDimensionAs(TSF_PSI)) {
             p = Point::convertPoint(p, settingUnits, this->pressureUnits());
           }
-          else if (settingUnits.isSameDimensionAs(RTX_GALLON_PER_MINUTE)) {
+          else if (settingUnits.isSameDimensionAs(TSF_GALLON_PER_MINUTE)) {
             p = Point::convertPoint(p, settingUnits, this->flowUnits());
           }
           setValveSettingControl( valve->name(), p.value, enable );
@@ -1313,7 +1286,7 @@ void Model::setSimulationParameters(time_t time) {
       if (status == Pipe::OPEN) {
         Point p = pump->settingBoundary()->pointAtOrBefore(time);
         // edge case where series is in % or purely dimensionless
-        if (pump->settingBoundary()->units() == RTX_PERCENT) {
+        if (pump->settingBoundary()->units() == TSF_PERCENT) {
           p.value /= 100.0;
         }
         if (p.isValid) {
@@ -1589,10 +1562,10 @@ void Model::saveNetworkStates(time_t simtime, std::set<PointRecord::_sp> bulkRec
   
   
   auto saveWallDuration = time(NULL) - t1;
-  _saveWallTime->insert(Point(simtime, (double)saveWallDuration));
+  // _saveWallTime->insert(Point(simtime, (double)saveWallDuration));
   
   // beating heart just after everything else is done.
-  _heartbeat->insert(Point(simtime,1.0));
+  // _heartbeat->insert(Point(simtime,1.0));
   OATPP_LOGD("Model", "finished saving states");
 //  cout << "*** finished saving states ****" << EOL << flush;
 }

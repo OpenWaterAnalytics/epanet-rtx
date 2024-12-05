@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "TimeSeries.h"
+#include <TimeSeries.h>
 
 namespace RTX {
   class InpTextPattern {
@@ -22,8 +22,8 @@ namespace RTX {
       InpControlTypeStatus   // OPEN / CLOSED
     } controlType;
     
-    static std::string textPatternWithTimeSeries(TimeSeries::_sp ts, const std::string& patternName, time_t from, time_t to, int step, ResampleMode interp);
-    static std::string textControlWithTimeSeries(TimeSeries::_sp ts, const std::string& linkName, time_t from, time_t to, controlType type);
+    static std::string textPatternWithTimeSeries(TSF::TimeSeries::_sp ts, const std::string& patternName, time_t from, time_t to, int step, TSF::ResampleMode interp);
+    static std::string textControlWithTimeSeries(TSF::TimeSeries::_sp ts, const std::string& linkName, time_t from, time_t to, controlType type);
   };
 }
 

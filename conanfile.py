@@ -4,7 +4,7 @@ from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 
 class EpanetRtx(ConanFile):
     name = "epanetrtx"
-    version = "1.1"
+    version = "2.0.2"
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
@@ -52,9 +52,10 @@ class EpanetRtx(ConanFile):
         self.requires("boost/1.83.0")
         self.requires("nlohmann_json/3.10.5")
         self.requires("libcurl/7.80.0")
-        self.requires("sqlite3/3.43.2")
+        # self.requires("sqlite3/3.45.3")
         self.requires("sqlite_modern_cpp/3.2")
-        self.requires("epanet/2.3")
+        self.requires("tsflib/1.0")
+        self.requires("epanet/2.2")
 
 
     def build_requirements(self):

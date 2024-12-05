@@ -9,6 +9,7 @@
 #include "Element.h"
 
 using namespace RTX;
+using namespace TSF;
 
 Element::Element(const std::string& name) {
   setName(name);

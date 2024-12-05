@@ -11,12 +11,13 @@
 #include "Pump.h"
 
 using namespace RTX;
+using namespace TSF;
 
 Pump::Pump(const std::string& name) : Pipe(name) {
   setType(PUMP);
   _energyState.reset( new TimeSeries() );
   _energyState->setName("energy,l=" + name);
-  _energyState->setUnits(RTX_KILOWATT);
+  _energyState->setUnits(TSF_KILOWATT);
 }
 Pump::~Pump() {
   
@@ -38,7 +39,7 @@ TimeSeries::_sp Pump::energyMeasure() {
 }
 
 void Pump::setEnergyMeasure(TimeSeries::_sp energy) {
-  if (!energy || energy->units().isSameDimensionAs(RTX_KILOWATT) ) {
+  if (!energy || energy->units().isSameDimensionAs(TSF_KILOWATT) ) {
     _energyMeasure = energy;
   }
 }

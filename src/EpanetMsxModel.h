@@ -25,7 +25,7 @@ namespace RTX {
   class EpanetMsxModel : public EpanetModel {
     
   public:
-    RTX_BASE_PROPS(EpanetMsxModel);
+    TSF_BASE_PROPS(EpanetMsxModel);
     EpanetMsxModel();
     virtual ~EpanetMsxModel();
     

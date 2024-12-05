@@ -22,7 +22,7 @@ namespace RTX {
    */
   class Link : public Element {
   public:
-    RTX_BASE_PROPS(Link);
+    TSF_BASE_PROPS(Link);
     typedef enum {outDirection, inDirection} direction_t;
     std::pair<Node::_sp, Node::_sp> nodes();
     Node::_sp from();
