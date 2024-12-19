@@ -209,6 +209,13 @@ void EpanetModel::useEpanetModel(EN_Project model, string path) {
     }
   }
   
+  for (Pipe::_sp p : this->pipes()) {
+    auto en_idx = _linkIndex[p->name()];
+    double mloss;
+    EN_getlinkvalue(_enModel, en_idx, EN_MINORLOSS, &mloss);
+    p->setMinorLoss(mloss);
+  }
+  
   cout << "copying comments" << endl;
   // copy my comments into the model
   for(Node::_sp n : this->nodes()) {
@@ -1260,6 +1267,7 @@ void EpanetModel::updateEngineWithElementProperties(Element::_sp e) {
       this->setLinkValue(EN_DIAMETER, p->name(), p->diameter());
       this->setLinkValue(EN_ROUGHNESS, p->name(), p->roughness());
       this->setLinkValue(EN_LENGTH, p->name(), p->length());
+      this->setLinkValue(EN_MINORLOSS, p->name(), p->minorLoss());
       
       // if it is a valve/pump:
       //    if check valve, don't set status or setting
