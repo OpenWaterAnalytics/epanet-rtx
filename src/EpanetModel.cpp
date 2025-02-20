@@ -371,7 +371,9 @@ void EpanetModel::createRtxWrappers() {
 
         newTank->level()->setUnits(headUnits());
         newTank->flowCalc()->setUnits(flowUnits());
+        newTank->dmaFlowCalc()->setUnits(flowUnits());
         newTank->volumeCalc()->setUnits(volumeUnits());
+        newTank->dmaVolumeCalc()->setUnits(volumeUnits());
         newTank->flow()->setUnits(flowUnits());
         newTank->volume()->setUnits(volumeUnits());
         

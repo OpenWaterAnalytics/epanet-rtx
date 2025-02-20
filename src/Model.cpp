@@ -390,8 +390,9 @@ void Model::initDMAs() {
     bNetwork::vertex_descriptor v = add_vertex(G);
     nodeIndexMap[node] = v;
     Junction::_sp j = dynamic_pointer_cast<Junction>(node);
+    Tank::_sp t = dynamic_pointer_cast<Tank>(node);
     G[v].name = j->name();
-    G[v].isMeasured = (j->headMeasure() ? true : false);
+    G[v].isMeasured = (t && t->dmaHeadMeasure());
   }
   
   vector<Pipe::_sp> ignorePipes = this->dmaPipesToIgnore();
@@ -405,7 +406,7 @@ void Model::initDMAs() {
     bNetwork::vertex_descriptor to = nodeIndexMap[pipe->to()];
     
     // selectively ignore pipes
-    if (pipe->flowMeasure()) {
+    if (pipe->dmaFlowMeasure()) {
       boundaryPipes.insert(pipe);
       continue;
     }
@@ -421,7 +422,7 @@ void Model::initDMAs() {
     pair<bNetwork::edge_descriptor,bool> edgePair = add_edge(from, to, G); // BGL add edge to graph
     auto e = edgePair.first;
     G[e].name = pipe->name();
-    G[e].isMeasured = (pipe->flowMeasure() ? true : false);
+    G[e].isMeasured = (pipe->dmaFlowMeasure() ? true : false);
     
   } // done building edges
   
@@ -1601,193 +1602,6 @@ double Model::nodeDirectDistance(Node::_sp n1, Node::_sp n2) {
   double meterConversion = 1609.00;
   return dist * meterConversion;
 }
-//
-//// get output states
-//vector<TimeSeries::_sp> Model::networkStatesWithOptions(elementOption_t options) {
-//  vector<TimeSeries::_sp> states;
-//  vector<Element::_sp> modelElements;
-//  modelElements = this->elements();
-//
-//  if (options & ElementOptionMeasuredAll) {
-//    options = (elementOption_t)(options | ElementOptionMeasuredFlows | ElementOptionMeasuredPressures | ElementOptionMeasuredQuality | ElementOptionMeasuredTanks);
-//  }
-//
-//  for(Element::_sp element : modelElements) {
-//    switch (element->type()) {
-//      case Element::JUNCTION:
-//      case Element::TANK:
-//      {
-//        Tank::_sp t = std::dynamic_pointer_cast<Tank>(element);
-//        if (t) {
-//          if ((t->levelMeasure() && (options & ElementOptionMeasuredTanks)) || (options & ElementOptionAllTanks) ) {
-//            states.push_back(t->level()); // with level we get volume and flow
-//            states.push_back(t->volume());
-//            states.push_back(t->flow());
-//          }
-//        }
-//      }
-//      case Element::RESERVOIR:
-//      {
-//        Junction::_sp junc;
-//        junc = std::dynamic_pointer_cast<Junction>(element);
-//        if ((junc->headMeasure() && (options & ElementOptionMeasuredTanks))  ||  (options & ElementOptionAllTanks) ) {
-//          states.push_back(junc->head());
-//        }
-//        if ((junc->qualityMeasure() && (options & ElementOptionMeasuredQuality))  ||  (options & ElementOptionAllQuality) ) {
-//          states.push_back(junc->quality());
-//        }
-//        if ((junc->qualitySource() && (options & ElementOptionMeasuredQuality))  ||  (options & ElementOptionAllQuality) ) {
-//          states.push_back(junc->quality());
-//        }
-//        if ((junc->pressureMeasure() && (options & ElementOptionMeasuredPressures))  ||  (options & ElementOptionAllPressures) ) {
-//          states.push_back(junc->pressure());
-//        }
-//        break;
-//      }
-//      case Element::PIPE:
-//      case Element::VALVE:
-//      case Element::PUMP: {
-//        Pipe::_sp pipe;
-//        pipe = std::static_pointer_cast<Pipe>(element);
-//        if ((pipe->flowMeasure() && (options & ElementOptionMeasuredFlows)) || (options & ElementOptionAllFlows) ) {
-//          states.push_back(pipe->flow());
-//        }
-//        break;
-//      }
-//      default:
-//        break;
-//    }
-//  }
-//  return states;
-//}
-//
-//vector<TimeSeries::_sp> Model::networkInputSeries(elementOption_t options) {
-//  vector<TimeSeries::_sp> measures;
-//  vector<Element::_sp> modelElements;
-//  modelElements = this->elements();
-//
-//  if (options & ElementOptionMeasuredAll) {
-//    options = (elementOption_t)(options | ElementOptionMeasuredFlows | ElementOptionMeasuredPressures | ElementOptionMeasuredQuality | ElementOptionMeasuredTanks | ElementOptionMeasuredSettings | ElementOptionMeasuredStatuses);
-//  }
-//
-//  for(Element::_sp element : modelElements) {
-//    switch (element->type()) {
-//      case Element::TANK:
-//      {
-//        Tank::_sp t = std::dynamic_pointer_cast<Tank>(element);
-//        if (t->levelMeasure() && (options & ElementOptionMeasuredTanks)) {
-//          measures.push_back(t->levelMeasure());
-//        }
-//        if (t->headMeasure() && (options & ElementOptionMeasuredTanks)) {
-//          measures.push_back(t->headMeasure());
-//        }
-//        if (t->qualityMeasure() && (options & ElementOptionMeasuredQuality)) {
-//          measures.push_back(t->qualityMeasure());
-//        }
-//        if (t->qualitySource() && (options & ElementOptionMeasuredQuality)) {
-//          measures.push_back(t->qualitySource());
-//        }
-//        break;
-//      }
-//      case Element::RESERVOIR:
-//      {
-//        Reservoir::_sp r = std::dynamic_pointer_cast<Reservoir>(element);
-//        if (r->headMeasure() && (options & ElementOptionMeasuredTanks)) {
-//          measures.push_back(r->headMeasure());
-//        }
-//        if (r->qualityMeasure() && (options & ElementOptionMeasuredQuality)) {
-//          measures.push_back(r->qualityMeasure());
-//        }
-//        if (r->qualitySource() && (options & ElementOptionMeasuredQuality)) {
-//          measures.push_back(r->qualitySource());
-//        }
-//        break;
-//      }
-//      case Element::JUNCTION:
-//      {
-//        Junction::_sp junc;
-//        junc = std::static_pointer_cast<Junction>(element);
-//        if (junc->qualityMeasure() && (options & ElementOptionMeasuredQuality)) {
-//          measures.push_back(junc->qualityMeasure());
-//        }
-//        if (junc->qualitySource() && (options & ElementOptionMeasuredQuality)) {
-//          measures.push_back(junc->qualitySource());
-//        }
-//        if (junc->boundaryFlow() && (options & ElementOptionMeasuredFlows)) {
-//          measures.push_back(junc->boundaryFlow());
-//        }
-//        if (junc->pressureMeasure() && (options & ElementOptionMeasuredPressures)) {
-//          measures.push_back(junc->pressureMeasure());
-//        }
-//        if (junc->headMeasure() && (options & ElementOptionMeasuredPressures)) {
-//          measures.push_back(junc->headMeasure());
-//        }
-//        break;
-//      }
-//      case Element::PIPE:
-//      case Element::VALVE:
-//      case Element::PUMP: {
-//        Pipe::_sp pipe;
-//        pipe = std::static_pointer_cast<Pipe>(element);
-//        if (pipe->flowMeasure() && (options & ElementOptionMeasuredFlows)) {
-//          measures.push_back(pipe->flowMeasure());
-//        }
-//        if (pipe->settingBoundary() && (options & ElementOptionMeasuredSettings)) {
-//          measures.push_back(pipe->settingBoundary());
-//        }
-//        if (pipe->statusBoundary() && (options & ElementOptionMeasuredStatuses)) {
-//          measures.push_back(pipe->statusBoundary());
-//        }
-//        break;
-//      }
-//      default:
-//        break;
-//    }
-//  }
-//  return measures;
-//}
-//
-//set<TimeSeries::_sp> Model::networkInputRootSeries(elementOption_t options) {
-//  vector<TimeSeries::_sp> inputs = this->networkInputSeries(options);
-//  set<TimeSeries::_sp> rootTs;
-//  for(TimeSeries::_sp ts : inputs) {
-//    TimeSeries::_sp rTs = ts->rootTimeSeries();
-//    rootTs.insert(rTs);
-//  }
-//  return rootTs;
-//}
-
-
-// useful for pre-fetching simulation inputs
-//void Model::setRecordForElementInputs(PointRecord::_sp pr) {
-//  vector<TimeSeries::_sp> inputs = this->networkInputSeries(ElementOptionMeasuredAll);
-//  for(TimeSeries::_sp ts : inputs) {
-//    ts->setRecord(pr);
-//  }
-//}
-//
-//void Model::setRecordForElementOutput(PointRecord::_sp record, elementOption_t options) {
-//  vector<TimeSeries::_sp> outputs = this->networkStatesWithOptions(options);
-//  for(TimeSeries::_sp ts : outputs) {
-//    ts->setRecord(record);
-//  }
-//}
-//
-//void Model::fetchElementInputs(TimeRange range) {
-//  time_t chunkSize = 60*60*24*7;
-//  vector<TimeSeries::_sp> inputs = this->networkInputSeries(ElementOptionMeasuredAll);
-//  time_t t1 = range.start;
-//  time_t t2 = range.start + chunkSize;
-//  while (t1 < range.end) {
-//    TimeRange tr(t1,t2);
-//    for(TimeSeries::_sp ts : inputs) {
-//      cout << "Pre-fetching " << ts->name()  << " :: Times " << t1 << "-" << t2 << endl << flush;
-//      ts->points(tr);
-//    }
-//    t1 += chunkSize;
-//    t2 = min(t1 + chunkSize, range.end);
-//  }
-//}
 
 bool _rtxmodel_isDbRecord(PointRecord::_sp record) {
   return (std::dynamic_pointer_cast<DbPointRecord>(record)) ? true : false;
