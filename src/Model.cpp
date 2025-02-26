@@ -1566,7 +1566,8 @@ void Model::saveNetworkStates(time_t simtime, std::set<PointRecord::_sp> bulkRec
   // _saveWallTime->insert(Point(simtime, (double)saveWallDuration));
   
   // beating heart just after everything else is done.
-  // _heartbeat->insert(Point(simtime,1.0));
+  _heartbeat->insert(Point(simtime,1.0));
+  
   OATPP_LOGD("Model", "finished saving states");
 //  cout << "*** finished saving states ****" << EOL << flush;
 }
