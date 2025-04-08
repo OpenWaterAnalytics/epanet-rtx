@@ -14,6 +14,7 @@
 #include <Units.h>
 
 #include <DbPointRecord.h>
+#include <AggregatorTimeSeries.h>
 
 
 #include <boost/config.hpp>
@@ -458,7 +459,26 @@ void Model::initDMAs() {
   for(const Dma::_sp &dma : newDmas) {
     dma->initDemandTimeseries(boundaryPipes);
     dma->demand()->setUnits(this->flowUnits());
+    
+    // default clock for dma is the regular "master clock"
     dma->demand()->setClock(this->_regularMasterClock);
+    
+    // however, if the sources to the aggregator have clocks, use the finest available clock.
+    auto maybeAggregator = dynamic_pointer_cast<TSF::AggregatorTimeSeries>(dma->demand());
+    if (maybeAggregator) {
+      // get the finest clock and set it as the aggregator's clock
+      Clock::_sp dma_clock(new Clock(86400)); // no less than one day
+      for (auto src : maybeAggregator->sources()) {
+        if (src.timeseries->clock()) {
+          auto myPeriod = src.timeseries->clock()->period();
+          if (myPeriod < dma_clock->period()) {
+            dma_clock->setPeriod(myPeriod);
+          }
+        }
+      }
+      maybeAggregator->setClock(dma_clock);
+    }
+    
     this->addDma(dma);
   }
   
