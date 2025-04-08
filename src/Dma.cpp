@@ -111,171 +111,6 @@ bool Dma::doesContainReservoir() {
   return hasReservoir;
 }
 
-//
-//list<Dma::_sp> Dma::enumerateDmas(std::vector<Node::_sp> nodes) {
-//  
-//  list<Dma::_sp> dmas;
-//  
-//  bool stopForClosedPipes = true;
-//  bool stopForMeasuredPipes = true;
-//  bool stopForPumps = false;
-//  
-//  
-//  // construct a boost::graph representation of the network graph
-//  typedef boost::adjacency_list <boost::vecS, boost::vecS, boost::undirectedS> NetworkGraph;
-//  NetworkGraph netGraph;
-//  add_edge(0, 1, netGraph);
-//  add_edge(1, 4, netGraph);
-//  add_edge(4, 0, netGraph);
-//  add_edge(2, 5, netGraph);
-//  
-//  
-//  
-//  return dmas;
-//}
-//
-
-
-//void Dma::enumerateJunctionsWithRootNode(Junction::_sp junction, bool stopAtClosedLinks, vector<Pipe::_sp> ignorePipes) {
-//  
-//  bool doesContainReservoir = false;
-//  
-//  //cout << "Starting At Root Junction: " << junction->name() << endl;
-//  
-//  // breadth-first search.
-//  deque<Junction::_sp> candidateJunctions;
-//  candidateJunctions.push_back(junction);
-//  
-//  while (!candidateJunctions.empty()) {
-//    Junction::_sp thisJ = candidateJunctions.front();
-//    //cout << " - adding: " << thisJ->name() << endl;
-//    this->addJunction(thisJ);
-//    vector<Link::_sp> connectedLinks = thisJ->links();
-//    for(Link::_sp l : connectedLinks) {
-//      // follow this link?
-//      Pipe::_sp p = std::static_pointer_cast<Pipe>(l);
-//      if (p->doesHaveFlowMeasure()) {
-//        // look here - it's a potential dma perimeter pipe.
-//        
-//        // capture the pipe and direction - this list will be pruned later
-//        Link::direction_t dir = p->directionRelativeToNode(thisJ);
-//        _measuredBoundaryPipesDirectional.insert(make_pair(p, dir));
-//        // should we ignore it?
-//        if (std::find(ignorePipes.begin(), ignorePipes.end(), p) == ignorePipes.end()) { // not ignored
-//          // not on the ignore list - so we assume that the pipe could actually be a boundary pipe. do not go through the pipe.
-//          // if the pipe IS on the ignore list, then follow it with the BFS.
-//          continue;
-//        }
-//        
-//      }
-//      else if ( stopAtClosedLinks && isAlwaysClosed(p) ) {
-//        // stop here as well - a potential closed perimeter pipe
-//        Pipe::direction_t dir = p->directionRelativeToNode(thisJ);
-//        _closedBoundaryPipesDirectional.insert(make_pair(p, dir));
-//        if (std::find(ignorePipes.begin(), ignorePipes.end(), p) == ignorePipes.end()) { // not ignored
-//          continue;
-//        }
-//      }
-//      
-//      pair<Node::_sp, Node::_sp> nodes = l->nodes();
-//      vector<Junction::_sp> juncs;
-//      juncs.push_back(std::static_pointer_cast<Junction>(nodes.first));
-//      juncs.push_back(std::static_pointer_cast<Junction>(nodes.second));
-//      for(Junction::_sp candidateJ : juncs) {
-//        if (candidateJ != thisJ && !this->doesHaveJunction(candidateJ)) {
-//          // add to follow list
-//          candidateJunctions.push_back(candidateJ);
-//        }
-//      }
-//    } // foreach connected link
-//    candidateJunctions.pop_front();
-//  }
-//  
-//  // cleanup orphaned pipes (pipes which have been identified as perimeters, but have both start/end nodes listed inside the dma)
-//  // this set may include "ignored" pipes.
-//  
-//  map<Pipe::_sp, Pipe::direction_t> measuredBoundaryPipesDirectional = measuredBoundaryPipes();
-//  for(Pipe::_sp p : measuredBoundaryPipesDirectional | boost::adaptors::map_keys) {
-//    if (this->doesHaveJunction(std::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(std::static_pointer_cast<Junction>(p->to()))) {
-//      //cout << "removing orphaned pipe: " << p->name() << endl;
-//      _measuredBoundaryPipesDirectional.erase(p);
-//      _measuredInteriorPipes.push_back(p);
-//    }
-//  }
-//  map<Pipe::_sp, Pipe::direction_t> closedBoundaryPipesDirectional = closedBoundaryPipes();
-//  for(Pipe::_sp p : closedBoundaryPipesDirectional | boost::adaptors::map_keys) {
-//    if (this->doesHaveJunction(std::static_pointer_cast<Junction>(p->from())) && this->doesHaveJunction(std::static_pointer_cast<Junction>(p->to()))) {
-//      //cout << "removing orphaned pipe: " << p->name() << endl;
-//      _closedBoundaryPipesDirectional.erase(p);
-//      _closedInteriorPipes.push_back(p);
-//    }
-//  }
-//
-//  // separate junctions into:
-//  // -- demand junctions
-//  // -- boundary flow junctions
-//  // -- storage tanks
-//  
-//  
-//  for(Junction::_sp j : _junctions) {
-//    // is this a reservoir? if so, that's bad news -- we can't compute a control volume. the volume is infinite.
-//    if (j->type() == Element::RESERVOIR) {
-//      doesContainReservoir = true;
-//    }
-//    // check if it's a tank or metered junction
-//    if (isTank(j)) {
-//      //this->removeJunction(j);
-//      _tanks.push_back(std::static_pointer_cast<Tank>(j));
-//      //cout << "found tank: " << j->name() << endl;
-//    }
-//    else if (isBoundaryFlowJunction(j)) {
-//      //this->removeJunction(j);
-//      _boundaryFlowJunctions.push_back(j);
-//      //cout << "found boundary flow: " << j->name() << endl;
-//    }
-//    
-//  }
-//  
-//  
-//  if (!doesContainReservoir) {
-//    // assemble the aggregated demand time series
-//    
-//    AggregatorTimeSeries::_sp dmaDemand( new AggregatorTimeSeries() );
-//    dmaDemand->setUnits(TSF_GALLON_PER_MINUTE);
-//    dmaDemand->setName("DMA " + this->name() + " demand");
-//    for(Tank::_sp t : _tanks) {
-//      dmaDemand->addSource(t->flowMeasure(), -1.);
-//    }
-//    /* boundary flows are accounted for in the allocation method
-//     for(Junction::_sp j : _boundaryFlowJunctions) {
-//     dmaDemand->addSource(j->boundaryFlow(), -1.);
-//     }
-//     */
-//    
-//    for(pipeDirPair_t pd : _measuredBoundaryPipesDirectional) {
-//      Pipe::_sp p = pd.first;
-//      Pipe::direction_t dir = pd.second;
-//      double dirMult = ( dir == Pipe::inDirection ? 1. : -1. );
-//      dmaDemand->addSource(p->flowMeasure(), dirMult);
-//    }
-//    
-//    this->setDemand(dmaDemand);
-//  }
-//  else {
-//    ConstantTimeSeries::_sp constDma(new ConstantTimeSeries());
-//    constDma->setName("Zero Demand");
-//    constDma->setValue(0.);
-//    constDma->setUnits(TSF_GALLON_PER_MINUTE);
-//    this->setDemand(constDma);
-//  }
-//  
-//  
-//  
-//  //cout << this->name() << " dma Description:" << endl;
-//  //cout << *this->demand() << endl;
-//  
-//}
-
 
 void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
   // set up a fixed 1-m clock for constant series
@@ -297,7 +132,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
         Pipe::direction_t jDir = p->directionRelativeToNode(myJ);
         
         // figure out why this pipe is included here. is it flow measured? is it closed?
-        if (p->flowMeasure()) {
+        if (p->dmaFlowMeasure()) {
           _measuredBoundaryPipesDirectional.push_back(make_pair(p, jDir));
         }
         else if (p->fixedStatus() == Pipe::CLOSED) {
@@ -309,7 +144,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
         
       }
       else {  // completely internal
-        if (p->flowMeasure()) {
+        if (p->dmaFlowMeasure()) {
           _measuredInteriorPipes.push_back(p);
         }
         else if (p->fixedStatus() == Pipe::CLOSED) {
@@ -327,8 +162,8 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
   
   AggregatorTimeSeries::_sp boundaryDemandSum(new AggregatorTimeSeries());
   boundaryDemandSum->setUnits(TSF_GALLON_PER_MINUTE);
-  for(auto ts : _boundaryFlowJunctions) {
-    boundaryDemandSum->addSource(ts->boundaryFlow());
+  for(auto j : _boundaryFlowJunctions) {
+    boundaryDemandSum->addSource(j->boundaryFlow());
   }
   if (_boundaryFlowJunctions.size() > 0) {
     _boundaryDemand = boundaryDemandSum;
@@ -353,7 +188,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
     dmaDemand->setUnits(TSF_GALLON_PER_MINUTE);
     dmaDemand->setName("DMA " + this->name() + " demand");
     for(Tank::_sp t : _tanks) {
-      dmaDemand->addSource(t->flowCalc(), -1.);
+      dmaDemand->addSource(t->dmaFlowCalc(), -1.);
     }
     /* boundary flows are accounted for in the allocation method
      for(Junction::_sp j : _boundaryFlowJunctions) {
@@ -373,7 +208,7 @@ void Dma::initDemandTimeseries(const set<Pipe::_sp> &boundarySet) {
         Pipe::_sp p = pd.first;
         Pipe::direction_t dir = pd.second;
         double dirMult = ( dir == Pipe::inDirection ? 1. : -1. );
-        dmaDemand->addSource(p->flowMeasure(), dirMult);
+        dmaDemand->addSource(p->dmaFlowMeasure(), dirMult);
       }
       this->setDemand(dmaDemand);
     }
@@ -457,71 +292,6 @@ bool Dma::isTank(Junction::_sp junction) {
 bool Dma::isBoundaryFlowJunction(Junction::_sp junction) {
   return (junction->boundaryFlow() ? true : false);
 }
-
-/* deprecated
-void Dma::followJunction(Junction::_sp junction) {
-  // don't let us add the same junction twice.
-  if (!junction || findJunction(junction->name())) {
-    return;
-  }
-  
-  cout << "adding junction " << junction->name() << std::endl;
-  // perform dfs
-  // add the junction to my list
-  addJunction(junction);
-  
-  // see if the junction is a tank -- if so, add in the tank's flowrate.
-  if (junction->type() == Element::TANK) {
-    Tank::_sp thisTank = std::static_pointer_cast<Tank>(junction);
-    TimeSeries::_sp flow = thisTank->flowMeasure();
-    
-    // flow is positive into the tank (out of the dma), so its sign for demand aggregation purposes should be negative.
-    AggregatorTimeSeries::_sp dmaDemand = std::static_pointer_cast<AggregatorTimeSeries>(this->demand());
-    cout << "dma " << this->name() << " : adding tank source : " << flow->name() << endl;
-    dmaDemand->addSource(flow, -1.);
-  }
-  
-  
-  // for each link connected to the junction, follow it and add its junctions
-  for(Link::_sp link : junction->links()) {
-    cout << "... examining pipe " << link->name() << endl;
-    Pipe::_sp pipe = std::static_pointer_cast<Pipe>(link);
-    
-    // get the link direction. into the dma is positive.
-    bool directionIsOut = (junction == pipe->from());
-    
-    // sanity
-    if (!directionIsOut && junction != pipe->to()) {
-      cerr << "Could not resolve start/end node(s) for pipe: " << pipe->name() << endl;
-      continue;
-    }
-    
-    // make sure we can follow this link,
-    // then get this link's nodes
-    if ( !(pipe->doesHaveFlowMeasure()) ) {
-      // follow each of the link's nodes.
-      if (directionIsOut) {
-        followJunction(std::static_pointer_cast<Junction>( pipe->to() ) );
-      }
-      else {
-        followJunction(std::static_pointer_cast<Junction>( pipe->from() ) );
-      }
-    }
-    else {
-      // we have found a measurement.
-      // add it to the control volume calculation.
-      double direction = (directionIsOut? -1. : 1.);
-      AggregatorTimeSeries::_sp dmaDemand = std::static_pointer_cast<AggregatorTimeSeries>(this->demand());
-      if (!dmaDemand) {
-        cerr << "dma time series wrong type: " << *(this->demand()) << endl;
-      }
-      cout << "dma " << this->name() << " : adding source " << pipe->flowMeasure()->name() << endl;
-      dmaDemand->addSource(pipe->flowMeasure(), direction);
-    }
-  }
-  
-}
-*/
 
 Junction::_sp Dma::findJunction(std::string name) {
   for(Junction::_sp j : _junctions) {

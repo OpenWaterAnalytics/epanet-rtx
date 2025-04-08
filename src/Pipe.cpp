@@ -141,3 +141,16 @@ void Pipe::setFlowMeasure(TimeSeries::_sp flow) {
   _flowMeasure = flow;
 }
 
+
+TimeSeries::_sp Pipe::dmaFlowMeasure() {
+  return _dmaFlowMeasure;
+}
+void Pipe::setDmaFlowMeasure(TimeSeries::_sp flow) {
+  if (flow == NULL || !flow) {
+    _dmaFlowMeasure = TimeSeries::_sp();
+  }
+  else if ( !(flow->units().isSameDimensionAs(TSF_GALLON_PER_MINUTE)) ) {
+    return;
+  }
+  _dmaFlowMeasure = flow;
+}

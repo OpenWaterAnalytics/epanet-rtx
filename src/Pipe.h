@@ -64,6 +64,9 @@ public:
   // measurements
   TimeSeries::_sp flowMeasure();
   void setFlowMeasure(TimeSeries::_sp flow);
+  
+  TimeSeries::_sp dmaFlowMeasure();
+  void setDmaFlowMeasure(TimeSeries::_sp flow);
 
 private:
   status_t _fixedStatus;
@@ -72,7 +75,7 @@ private:
   double _roughness;
   double _minorLoss;
   TimeSeries::_sp _flowState, _qualityState;
-  TimeSeries::_sp _flowMeasure;
+  TimeSeries::_sp _flowMeasure, _dmaFlowMeasure;
   TimeSeries::_sp _statusBoundary;
   TimeSeries::_sp _settingBoundary;
   TimeSeries::_sp _status, _setting;

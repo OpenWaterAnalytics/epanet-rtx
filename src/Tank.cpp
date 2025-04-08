@@ -41,6 +41,17 @@ Tank::Tank(const std::string& name) : Junction(name) {
   _flowCalc->setSource(_volumeCalc);
   _flowCalc->setName("calc_flow,n=" + name);
   
+  
+  _dmaVolumeCalc.reset( new CurveFunction() );
+  _dmaVolumeCalc->setUnits(TSF_LITER);
+  _dmaVolumeCalc->setName("calc_dma_volume,n=" + name);
+  _dmaVolumeCalc->setDoesSaturate(true);
+  
+  _dmaFlowCalc.reset( new FirstDerivative() );
+  _dmaFlowCalc->setUnits(TSF_LITER_PER_SECOND);
+  _dmaFlowCalc->setSource(_dmaVolumeCalc);
+  _dmaFlowCalc->setName("calc_dma_flow,n=" + name);
+  
   _volume.reset( new TimeSeries );
   _volume->setUnits(TSF_LITER);
   _volume->setName("volume,n=" + name);
@@ -90,10 +101,13 @@ double Tank::diameter() {
 void Tank::setGeometry(Curve::_sp curve) {
   _geometry = curve;
   _volumeCalc->setCurve(_geometry);
+  _dmaVolumeCalc->setCurve(_geometry);
   if (!curve) {
     return;
   }
   _volumeCalc->setUnits(_geometry->outputUnits);
+  _dmaVolumeCalc->setUnits(_geometry->outputUnits);
+  
 }
 
 Curve::_sp Tank::geometry() {
@@ -188,6 +202,71 @@ void Tank::setHeadMeasure(TimeSeries::_sp head) {
 }
 
 
+
+void Tank::setDmaLevelMeasure(TimeSeries::_sp levelMeasure) {
+  if (!levelMeasure) {
+    Junction::setHeadMeasure(TimeSeries::_sp());
+    _dmaLevelMeasure = TimeSeries::_sp();
+    TimeSeries::_sp blank;
+    _dmaVolumeCalc->setSource(blank);
+  }
+  else {
+    _dmaVolumeCalc->resetCache();
+    _dmaFlowCalc->resetCache();
+    
+    OffsetTimeSeries::_sp offsetHeadMeasure( new OffsetTimeSeries() );
+    offsetHeadMeasure->setName(this->name() + ".measure.dmahead");
+    offsetHeadMeasure->setSource(levelMeasure);
+    offsetHeadMeasure->setOffset( (this->elevation()) );
+    
+    _dmaHeadMeasure = offsetHeadMeasure;
+    _dmaLevelMeasure = levelMeasure;
+    _dmaVolumeCalc->setSource(levelMeasure);
+    
+  }
+}
+
+TimeSeries::_sp Tank::dmaLevelMeasure() {
+  return _dmaLevelMeasure;
+}
+
+void Tank::setDmaHeadMeasure(TimeSeries::_sp head) {
+  
+  _dmaVolumeCalc->resetCache();
+  _dmaFlowCalc->resetCache();
+  
+  
+  // now hook it up to the "measured" level->volume->flow chain.
+  // assumption about elevation units is made here.
+  // todo -- revise elevation units handling
+  if (head) {
+    
+    OffsetTimeSeries::_sp offsetHeadMeasure( new OffsetTimeSeries() );
+    offsetHeadMeasure->setName(this->name() + ".measure.dmalevel");
+    offsetHeadMeasure->setSource(head);
+    offsetHeadMeasure->setOffset( -(this->elevation()) );
+    offsetHeadMeasure->setClock(head->clock());
+    offsetHeadMeasure->setUnits(head->units());
+    _dmaLevelMeasure = offsetHeadMeasure;
+    
+    _dmaVolumeCalc->setClock(head->clock());
+    _dmaVolumeCalc->setSource(_dmaLevelMeasure);
+    _dmaFlowCalc->setClock(head->clock());
+    _dmaHeadMeasure = head;
+  }
+  else {
+    // invalidate tank flow timeseries.
+    _dmaLevelMeasure.reset();
+  }
+  
+}
+
+TimeSeries::_sp Tank::dmaHeadMeasure() {
+  return _dmaHeadMeasure;
+}
+
+
+
 TimeSeries::_sp Tank::level() {
   return _level;
 }
@@ -208,6 +287,14 @@ TimeSeries::_sp Tank::flowCalc() {
 }
 TimeSeries::_sp Tank::volumeCalc() {
   return _volumeCalc;
+}
+
+
+TimeSeries::_sp Tank::dmaFlowCalc() {
+  return _dmaFlowCalc;
+}
+TimeSeries::_sp Tank::dmaVolumeCalc() {
+  return _dmaVolumeCalc;
 }
 
 

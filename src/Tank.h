@@ -50,6 +50,13 @@ namespace RTX {
     // parameters
     void setLevelMeasure(TimeSeries::_sp level);
     TimeSeries::_sp levelMeasure();
+    
+    void setDmaLevelMeasure(TimeSeries::_sp level);
+    TimeSeries::_sp dmaLevelMeasure();
+    
+    void setDmaHeadMeasure(TimeSeries::_sp level);
+    TimeSeries::_sp dmaHeadMeasure();
+    
     // override parameters
     virtual void setHeadMeasure(TimeSeries::_sp head);
     
@@ -62,12 +69,15 @@ namespace RTX {
     TimeSeries::_sp volumeCalc(); // based on tank geometry
     TimeSeries::_sp flowCalc();  // calculated flow into the tank
     
+    TimeSeries::_sp dmaVolumeCalc(); // based on tank geometry
+    TimeSeries::_sp dmaFlowCalc();  // calculated flow into the tank
+    
     
   private:
     TimeSeries::_sp _level;
-    TimeSeries::_sp _levelMeasure;
-    CurveFunction::_sp _volumeCalc;
-    FirstDerivative::_sp _flowCalc;
+    TimeSeries::_sp _levelMeasure, _dmaLevelMeasure, _dmaHeadMeasure;
+    CurveFunction::_sp _volumeCalc, _dmaVolumeCalc;
+    FirstDerivative::_sp _flowCalc, _dmaFlowCalc;
     TimeSeries::_sp _volume,_flow;
     TimeSeries::_sp _inletQualityState;
     double _minLevel, _maxLevel, _initLevel, _diameter;
