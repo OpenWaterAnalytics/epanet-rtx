@@ -467,7 +467,7 @@ void Model::initDMAs() {
     auto maybeAggregator = dynamic_pointer_cast<TSF::AggregatorTimeSeries>(dma->demand());
     if (maybeAggregator) {
       // get the finest clock and set it as the aggregator's clock
-      Clock::_sp dma_clock(new Clock(86400)); // no less than one day
+      Clock::_sp dma_clock(new Clock(this->_regularMasterClock->period())); // no less than master clock
       for (auto src : maybeAggregator->sources()) {
         if (src.timeseries->clock()) {
           auto myPeriod = src.timeseries->clock()->period();
