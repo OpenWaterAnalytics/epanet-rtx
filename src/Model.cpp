@@ -21,6 +21,7 @@
 #include <vector>
 #include <algorithm>
 #include <utility>
+#include <limits>
 
 #include <boost/variant/get.hpp>
 
@@ -1102,7 +1103,7 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
   // Nearest neighbor interpolation by enumeration
   // junctions
   for(Junction::_sp junc : this->junctions()) {
-    double minDistance = DBL_MAX;
+    double minDistance = std::numeric_limits<double>::max();
     double initQuality = 0;
     for(auto mjunc : measuredJunctions) {
       double d = nodeDirectDistance(junc, mjunc.first);
@@ -1117,7 +1118,7 @@ void Model::setInitialJunctionQualityFromMeasurements(time_t time) {
   }
   // tanks
   for(Tank::_sp tank : this->tanks()) {
-    double minDistance = DBL_MAX;
+    double minDistance = std::numeric_limits<double>::max();
     double initQuality = 0;
     for(auto mjunc : measuredJunctions) {
       double d = nodeDirectDistance(tank, mjunc.first);
