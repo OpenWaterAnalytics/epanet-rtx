@@ -636,12 +636,15 @@ std::ostream& EpanetModel::toStream(std::ostream &stream) {
 /* setting simulation parameters */
 
 
-void EpanetModel::setQualityOptions(QualityType qt, const std::string& traceNode) {
+void EpanetModel::setQualityOptions(QualityType qt, const std::string& traceNode, const std::string& chemicalName, const std::string& units) {
   
   int epanet_qualcode = 0;
   switch (qt) {
     case None:
       epanet_qualcode = 0;
+      break;
+    case Chemical:
+      epanet_qualcode = 1;
       break;
     case Age:
       epanet_qualcode = 2;
@@ -686,6 +689,8 @@ Model::QualityType EpanetModel::qualityType() {
   switch (code) {
     case 0:
       return Model::None;
+    case 1:
+      return Model::Chemical;
     case 2:
       return Model::Age;
     case 3:
@@ -707,6 +712,33 @@ std::string EpanetModel::qualityTraceNode() {
   string traceNodeId = string(id);
   return traceNodeId;
 }
+
+std::string EpanetModel::qualityChemicalName() {
+  int qualCode, traceNode;
+  char chemName[56], chemUnits[56];
+  EN_API_CHECK( EN_getqualinfo(_enModel, &qualCode, chemName, chemUnits, &traceNode), "EN_getqualinfo" );
+  string chemUnitsStr(chemUnits);
+  if (chemUnitsStr == "hrs") {
+    chemUnitsStr = "hr";
+  }
+  
+  string name = string(chemName);
+  return name;
+}
+
+std::string EpanetModel::qualityChemicalUnits() {
+  int qualCode, traceNode;
+  char chemName[56], chemUnits[56];
+  EN_API_CHECK( EN_getqualinfo(_enModel, &qualCode, chemName, chemUnits, &traceNode), "EN_getqualinfo" );
+  string chemUnitsStr(chemUnits);
+  if (chemUnitsStr == "hrs") {
+    chemUnitsStr = "hr";
+  }
+  
+  string units = string(chemUnits);
+  return units;
+}
+
 
 void EpanetModel::setReservoirHead(const string& reservoir, double level) {
   setNodeValue(EN_TANKLEVEL, reservoir, level);

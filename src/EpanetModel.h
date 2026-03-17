@@ -83,9 +83,11 @@ namespace RTX {
     // quality
     void setJunctionQuality(const std::string& junction, double quality);
     
-    void setQualityOptions(QualityType qt, const std::string& traceNode = "");
+    void setQualityOptions(QualityType qt, const std::string& traceNode = "", const std::string& chemicalName = "", const std::string& units = "");
     QualityType qualityType();
     std::string qualityTraceNode();
+    std::string qualityChemicalName();
+    std::string qualityChemicalUnits();
     
     virtual void disableControls();
     virtual void enableControls();

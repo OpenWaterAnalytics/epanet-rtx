@@ -98,16 +98,31 @@ namespace RTX {
     bool shouldRunWaterQuality();
     void setShouldRunWaterQuality(bool run);
     
+    /*
+     
+     epanet's version:
+     typedef enum {
+     EN_NONE        = 0,   //!< No quality analysis
+     EN_CHEM        = 1,   //!< Chemical fate and transport
+     EN_AGE         = 2,   //!< Water age analysis
+     EN_TRACE       = 3    //!< Source tracing analysis
+     } EN_QualityType;
+     
+     */
+    
     enum QualityType {
       None = 0,
       Age = 1,
       Trace = 2,
-      UNKNOWN = 3
+      Chemical = 3,
+      UNKNOWN = 4
     };
     
-    virtual void setQualityOptions(QualityType qt, const std::string& traceNode = "") = 0;
+    virtual void setQualityOptions(QualityType qt, const std::string& traceNode = "", const std::string& chemicalName = "", const std::string& units = "") = 0;
     virtual QualityType qualityType() = 0;
     virtual std::string qualityTraceNode() = 0;
+    virtual std::string qualityChemicalName() = 0;
+    virtual std::string qualityChemicalUnits() = 0;
     
     // DMAs -- identified by boundary link sets (doesHaveFlowMeasure)
     void initDMAs();
