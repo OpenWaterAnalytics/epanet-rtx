@@ -658,9 +658,12 @@ void EpanetModel::setQualityOptions(QualityType qt, const std::string& traceNode
   }
   char traceNodeId[MAXID+1];
   strncpy(traceNodeId, traceNode.c_str(), MAXID);
-  char blank[] = "";
+  char ch_chemicalName[MAXID+1];
+  strncpy(ch_chemicalName, chemicalName.c_str(), MAXID);
+  char ch_chemicalUnits[MAXID+1];
+  strncpy(ch_chemicalUnits, units.c_str(), MAXID);
   
-  int err = EN_setqualtype(_enModel, epanet_qualcode, blank, blank, traceNodeId);
+  int err = EN_setqualtype(_enModel, epanet_qualcode, ch_chemicalName, ch_chemicalUnits, traceNodeId);
   try {
     EN_API_CHECK(err, "setQualityOptions");
   } catch (const std::string& err) {

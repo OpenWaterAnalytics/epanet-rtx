@@ -55,7 +55,7 @@ class EpanetRtx(ConanFile):
         # self.requires("sqlite3/3.45.3")
         self.requires("sqlite_modern_cpp/3.2")
         self.requires("tsflib/1.0")
-        self.requires("epanet/2.2")
+        self.requires("epanet/2.3.5")
 
 
     def build_requirements(self):
